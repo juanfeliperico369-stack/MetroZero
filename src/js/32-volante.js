@@ -209,16 +209,16 @@ const Volante = EM.modes.volante = {
     const W = vp.w, H = vp.h, line = NET.byId[st.line], B = BUSES[st.kind];
     if (this.gl(st)) { G3.show(true); this.draw3D(g, st, W, H, line, B); }
     else { if (G3.cv) G3.show(false); this.drawTop(g, st, W, H, line, B, st.view === 'pan'); }
-    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view === 'pan', noRain: gl }); if (!gl && st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view === 'pan', noRain: gl, noGrain: gl }); if (!gl && st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
     this.overlay(g, st, W, H, line, B);
   },
   draw3D(g, st, W, H, line, B) {
     const c = Math.cos(st.h), s = Math.sin(st.h), z = this.elev(st.x, st.y), sh = st.shake > 0 ? (Math.random() - .5) * st.shake * 2 : 0; let cam;
     if (st.view === 'cine') { if (!st._cine || st._cine.s - st.sR < -25) { const sa = Math.min(line.P.len, st.sR + 110 + h2(st.t | 0, 1, 2) * 60), sd = h2(st.t | 0, 2, 2) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * 13); st._cine = { s: sa, x: q.x, y: q.y, z: this.elev(q.x, q.y) + 1.6 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x + c * 6, z + 2, st.y + s * 6], fov: .95 }; }
     else if (st.view === 'cab') cam = { eye: [st.x + c * (B.wb + 1.6), z + 2.9 + sh, st.y + s * (B.wb + 1.6)], at: [st.x + c * 60, z + 1.5 + (this.elev(st.x + c * 60, st.y + s * 60) - z) * .6, st.y + s * 60], fov: 1.15 };
-    else { const bk = B.len2 ? 24 : 19, ex = st.x - c * bk, ey = st.y - s * bk; cam = { eye: [ex, Math.max(z, this.elev(ex, ey)) + 8 + sh, ey], at: [st.x + c * 16, z + 2, st.y + s * 16], fov: 1.05 }; }
+    else { const bk = B.len2 ? 30 : 25, ex = st.x - c * bk, ey = st.y - s * bk, ez = Math.max(z, this.elev(ex, ey)) + 12; if (!st._cam) st._cam = { x: ex, y: ey, z: ez }; st._cam.x += (ex - st._cam.x) * .18; st._cam.y += (ey - st._cam.y) * .18; st._cam.z += (ez - st._cam.z) * .18; cam = { eye: [st._cam.x, st._cam.z + sh, st._cam.y], at: [st.x + c * 14, z + 2.5, st.y + s * 14], fov: .95 }; }
     G3.draw(cam, { hour: st.hourNow, rain: st.rain, dyn: G => {
-      G3.traffic(cam, st.t + 3000, line);
+      G3.traffic(cam, st.t + 3000, line); G3.people(cam, st.t);
       // bus del jugador
       const col = rgb(line.color), zf = this.elev(st.x + c * B.wb * .5, st.y + s * B.wb * .5);
       const fcx = st.x + c * (B.wb + 2.2 - B.len1 / 2), fcy = st.y + s * (B.wb + 2.2 - B.len1 / 2), pitch = Math.atan2(this.elev(st.x + c * 6, st.y + s * 6) - this.elev(st.x - c * 6, st.y - s * 6), 12);

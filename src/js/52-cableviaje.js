@@ -80,7 +80,7 @@ const CableViaje = EM.modes.cableviaje = {
       G3.show(true); const c = this.cabin(st), ca = Math.cos(c.a), sa = Math.sin(c.a), sx = -sa, sy = ca;
       if (st.view === 'cine' && (!st._cine || st._cine.s - st.s < -30)) { const sa = Math.min(C.P.len, st.s + 90 + h2(st.t | 0, 1, 3) * 60), q = NET.at(C.P, sa, (h2(st.t | 0, 2, 3) < .5 ? -1 : 1) * 24); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 2 }; }
       const cam = st.view === 'cine' ? { eye: [st._cine.x, st._cine.z, st._cine.y], at: [c.x, c.z - 4, c.y], fov: .95 } : st.view === 'cab' ? { eye: [c.x + ca * 1, c.z - 3.4, c.y + sa * 1], at: [c.x + ca * 60, c.z - 18, c.y + sa * 60], fov: 1.2 } : { eye: [c.x - ca * 24 + sx * 14, c.z + 7, c.y - sa * 24 + sy * 14], at: [c.x + ca * 6, c.z - 6, c.y + sa * 6], fov: 1.05 };
-      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
+      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
       if (st.storm && (st.t % 7) < .15) { g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(0, 0, W, H); }
       if (st.view === 'cab') { g.strokeStyle = '#141414'; g.lineWidth = Math.min(W, H) * .05; g.strokeRect(0, 0, W, H); g.fillStyle = 'rgba(20,20,20,.9)'; g.fillRect(0, H * .82, W, H * .18); }
     } else if (st.view === 'top') {
@@ -106,7 +106,7 @@ const CableViaje = EM.modes.cableviaje = {
       } });
       if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
     }
-    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view !== 'top', noRain: true }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view !== 'top', noRain: true, noGrain: gl }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
     this.gauges(g, st, W, H);
   },
   drawCab(g, x, y, s, col, th, sky, me) {

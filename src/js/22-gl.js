@@ -115,16 +115,20 @@ const G3 = EM.g3 = {
   },
   /* ventana cercana (4,8 km) con textura de 4 px por casilla y edificios en 3D */
   buildNear(cx, cz) {
-    const gl = this.gl, half = 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 4;
-    const cv = mkCanvas(nt * P, nt * P), g = cv.getContext('2d'), img = g.createImageData(nt * P, nt * P), d = img.data;
+    const gl = this.gl, half = 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
+    const cv = mkCanvas(nt * P, nt * P), g = cv.getContext('2d'), img = g.createImageData(nt * P, nt * P), d = img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
     for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
-      const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y), base = TRGB[v] || TRGB[0];
+      const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y); let base = TRGB[v] || TRGB[0]; const ht = h2(X, Y, v), nN = road(MAP.tile(X, Y - 1)), nS = road(MAP.tile(X, Y + 1)), nW = road(MAP.tile(X - 1, Y)), nE = road(MAP.tile(X + 1, Y)), vert = nN || nS, horz = nW || nE;
+      if (v === TT.BRICK || v === TT.BLDG) base = [92, 104, 72];
       for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
-        const ht = h2(X, Y, v); let m = .94 + ht * .1;
-        if ((v === TT.AVE || v === TT.AUTO) && (px === 1 || px === 2) && py === 1 && (X + Y) % 2 === 0) m = 1.6;
-        else if ((v === TT.MOUNT && ht < .6 || v === TT.GRASS && ht < .3) && px > 0 && py > 0 && px < 3 && py < 3) m = .74;
-        else if ((v === TT.BRICK || v === TT.BLDG) && (px === 0 || py === 0)) m = .8;
-        const o = ((ty * P + py) * nt * P + tx * P + px) * 4; d[o] = clamp(base[0] * m, 0, 255); d[o + 1] = clamp(base[1] * m, 0, 255); d[o + 2] = clamp(base[2] * m, 0, 255); d[o + 3] = 255;
+        let m = .96 + ht * .06, col = base;
+        if (road(v)) { const edge = (py === 0 && !nN) || (py === P - 1 && !nS) || (px === 0 && !nW) || (px === P - 1 && !nE); if (edge && v !== TT.BRIDGE) { col = [200, 194, 178]; m = 1; } else if (v !== TT.ROAD && ((vert && !horz && (px === 3 || px === 4) && py < 4 && (Y & 1)) || (horz && !vert && (py === 3 || py === 4) && px < 4 && (X & 1)))) { col = [244, 236, 208]; m = 1; } else m *= ((px + py) & 1) ? .985 : 1.01; }
+        else if (v === TT.WALK || v === TT.PLAZA) { m *= (px % 4 === 0 || py % 4 === 0) ? .92 : 1; if ((py === P - 1 && nS) || (py === 0 && nN) || (px === 0 && nW) || (px === P - 1 && nE)) m = 1.12; }
+        else if (v === TT.GRASS) { m *= ((px * 3 + py * 5 + (X ^ Y)) % 11 === 0) ? .84 : 1; }
+        else if (v === TT.MOUNT) { m *= ((px * 7 + py * 3 + X * 5 + Y) % 9 === 0) ? .78 : .95; }
+        else if (v === TT.WATER || v === TT.CANAL) { m *= ((py + (X * 3)) % 6 === 0 && px > 1 && px < 6) ? 1.15 : 1; }
+        else if (v === TT.CICLO) { if (px === 3 || px === 4) { col = [250, 250, 245]; m = py % 4 < 2 ? 1 : .8; } }
+        const o = ((ty * P + py) * nt * P + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
       }
     }
     g.putImageData(img, 0, 0);
@@ -141,8 +145,14 @@ const G3 = EM.g3 = {
       const r = h2(X, Z, 5), brick = v === TT.BRICK, hgt = brick ? 4 + r * 6 : MAP.bHeight(X + 10, Z + 10, X ^ Z), w = 11 + r * 4, l = 12 + h2(X, Z, 6) * 5, y = MAP.elevM(X + 10, Z + 10) - 2, a = h2(X, Z, 9) < .5 ? 0 : Math.PI / 2;
       // casas: ladrillo a la vista o pintadas en tonos pastel (como las laderas de Medellín); edificios: concreto y vidrio
       const wall = brick ? (r < .55 ? (r < .3 ? [.71, .35, .23] : [.62, .3, .2]) : HOUSE_COL[(r * 97 | 0) % HOUSE_COL.length]) : [[.55, .59, .64], [.64, .66, .69], [.72, .69, .63], [.85, .8, .68], [.62, .72, .8]][(r * 5) | 0];
-      if (brick) { bm.box(X + 10, y, Z + 10, a, l, w, hgt + 2, wall, wall, 1, 0); bm.roof(X + 10, y + hgt + 2, Z + 10, a, l, w, w * .32, ROOF_COL[(r * 31 | 0) % ROOF_COL.length]); }
-      else { bm.box(X + 10, y, Z + 10, 0, l + 3, w + 3, hgt + 2, wall, [.5, .53, .57], 1, 0); if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); }
+      if (brick) { bm.box(X + 10, y, Z + 10, a, l, w, hgt + 2, wall, wall, 1, 0); bm.roof(X + 10, y + hgt + 2, Z + 10, a, l, w, w * .32, ROOF_COL[(r * 31 | 0) % ROOF_COL.length]); if (r < .3) bm.box(X + 10 + l * .3, y + hgt + 2 + w * .1, Z + 10, 0, 1.2, 1.2, 2.2, [.5, .3, .22], [.3, .2, .15]); }
+      else {
+        const com = MAP.comunaAt(X, Z), glass = (/Candelaria|Poblado|Laureles/.test(com) && hgt > 22 && r > .35), wc = glass ? [[.55, .68, .8], [.62, .74, .78], [.5, .6, .72]][(r * 3) | 0] : wall;
+        bm.box(X + 10, y, Z + 10, 0, l + 4, w + 4, 3.6, [.36, .33, .3], [.42, .4, .38], 0, 0);   // zócalo comercial
+        bm.box(X + 10, y + 3.6, Z + 10, 0, l + 3, w + 3, hgt - 1.6, wc, [.5, .53, .57], 1, 0);
+        bm.box(X + 10, y + hgt + 2, Z + 10, 0, l + 3.6, w + 3.6, .6, [.42, .44, .48], [.42, .44, .48]);   // remate
+        if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
+      }
     }
     // árboles en parques y montes cercanos
     const RT = Save.d.settings.q === 'low' ? 350 : 750;
@@ -261,6 +271,13 @@ const G3 = EM.g3 = {
         for (let k = 0; k < cars; k++) { const q = NET.at(l.P, s - dir * k * (len + 1), dir * 1.7), zq = l.kind === 'metro' || l.kind === 'tram' ? this.zOn(l, s - dir * k * (len + 1)) : MAP.elevM(q.x, q.y); this.vehicle(q.x, zq, q.y, q.a + (dir < 0 ? Math.PI : 0), len, l.kind, c); }
       }
     }
+  },
+  /* gente esperando en los andenes y paradas cercanas */
+  people(cam, t) {
+    const n = Save.d.settings.q === 'low' ? 3 : 6;
+    for (const l of NET.lines) { if (l.kind === 'future') continue; for (const s of l.st) { if (Math.abs(s.x - cam.eye[0]) > 900 || Math.abs(s.y - cam.eye[2]) > 900) continue; const p = NET.at(l.P, s.s), z = l.kind === 'metro' || l.kind === 'tram' ? this.zOn(l, s.s) : MAP.elevM(s.x, s.y), K = KIND[l.kind], sx = -Math.sin(p.a), sy = Math.cos(p.a);
+      for (let i = 0; i < n; i++) { const r = h2(s.i, i, hashStr(l.id)), r2 = h2(i, s.i, 5), u = (r - .5) * K.plat * .8, sd = r2 < .5 ? -1 : 1, o = sd * (l.kind === 'metro' ? 8.4 : l.kind === 'tram' ? 6.4 : 3) + Math.sin(t * .4 + i) * .4, px = p.x + Math.cos(p.a) * u + sx * o, py = p.y + Math.sin(p.a) * u + sy * o, zz = z + (l.kind === 'metro' ? 1 : l.kind === 'tram' ? .9 : 0);
+        const col = PED_COL[(r * 97 | 0) % PED_COL.length]; this.box(px, zz, py, p.a, .55, .5, 1.1, rgb(col)); this.box(px, zz + 1.1, py, p.a, .4, .4, .4, rgb(SKIN[(r2 * 5) | 0])); } } }
   },
   vehicle(x, z, y, a, len, kind, c) {
     const body = kind === 'metro' || kind === 'tram' ? [.86, .88, .9] : c, H = kind === 'metro' ? 3.7 : 3.2, W = kind === 'metro' ? 2.9 : 2.55;

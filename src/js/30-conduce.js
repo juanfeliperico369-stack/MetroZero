@@ -217,17 +217,17 @@ const Conduce = EM.modes.conduce = {
     else if (st.view === 'lado') this.drawLado(g, st, W, H);
     else if (this.gl(st)) this.drawGL(g, st, W, H, st.view === 'tps');
     else this.draw3D(g, st, W, H, st.view !== 'cab');
-    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noNight: st.view !== 'top', noRain: true }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noNight: st.view !== 'top', noRain: true, noGrain: this.gl(st) }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
   },
   hourOf(st) { return st.fixH != null ? st.fixH + st.t / 3600 : Mundo.hour(); },
   zLine(line, s) { return line.kind === 'metro' || line.kind === 'tram' || line.kind === 'future' ? G3.zOn(line, s) : MAP.elevM(NET.at(line.P, s).x, NET.at(line.P, s).y) + .3; },
   drawGL(g, st, W, H, tps) {
     G3.show(true); const line = NET.byId[st.line], K = KIND[st.kind], dir = st.dir, p = NET.at(line.P, st.s), a = p.a + (dir < 0 ? Math.PI : 0), z = this.zLine(line, st.s), col = rgb(line.color);
     let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 1.7 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
-    else if (tps) { const sb = st.s - dir * (K.len + 24), q = NET.at(line.P, sb); cam = { eye: [q.x, this.zLine(line, sb) + 9, q.y], at: [p.x + Math.cos(a) * 20, z + 2, p.y + Math.sin(a) * 20], fov: 1.05 }; }
+    else if (tps) { const sb = st.s - dir * (K.len + 30), q = NET.at(line.P, sb, dir * 6); cam = { eye: [q.x, this.zLine(line, sb) + 12, q.y], at: [p.x + Math.cos(a) * 16, z + 2.5, p.y + Math.sin(a) * 16], fov: .95 }; }
     else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
     G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
-      G3.traffic(cam, st.t + 1000, line);
+      G3.traffic(cam, st.t + 1000, line); G3.people(cam, st.t);
       const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
       if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s); G3.vehicle(q.x, this.zLine(line, s), q.y, q.a + (dir < 0 ? Math.PI : 0), carL, st.kind, col); }
       for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const q = NET.at(line.P, sg.s, dir * 3.6), zq = this.zLine(line, sg.s); G.box(q.x, zq, q.y, 0, .35, .35, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .8, .8, 1.6, sg.on ? [1, .23, .18] : [.22, .9, .48]); }
