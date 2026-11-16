@@ -4,6 +4,7 @@
 const MODECARDS = [
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'La historia de Rosalba y su nieta. Cada capítulo, un oficio de la red.', n: 'Historia' },
   { id: 'conduce', cls: 'c-conduce', t: 'Conduce', d: 'Metro, tranvía y Metroplús por la vía real. Frena en la marca.', n: 'Cabina · 1ª y 3ª persona' },
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el valle a tu aire: a pie, en taxi, bici, moto o bus, o de pasajero en el metro y los cables. Oficios por la radio.', n: 'Mundo abierto · GTA' },
   { id: 'volante', cls: 'c-volante', t: 'Al volante', d: 'Maneja el articulado de Metroplús o el alimentador por las calles reales, con tráfico y semáforos.', n: 'Buses · 3D' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Viaje · vista lateral' },
   { id: 'despacho', cls: 'c-despacho', t: 'Despacho', d: 'Puesto de Control: mueve las agujas y que ningún tren se cruce.', n: 'Agujas' },
@@ -38,6 +39,7 @@ const Menu = EM.menu = {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
     if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
     else if (id === 'volante') { Art.vehicleBack(g, 35, 52, 36, '#0E6F76', 'brt', true); }
+    else if (id === 'libre') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 16); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 29, 5, 1.5); Art.topVehicle(g, 24, 30, 0, 14, 7, '#f2c400', 'car'); Art.topVehicle(g, 52, 30, Math.PI, 12, 6, '#1C5C9C', 'car'); Art.person(g, 12, 50, 2, 3, true); Art.person(g, 60, 12, 2, 5, true); }
     else if (id === 'cableviaje') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 10); g.lineTo(70, 30); g.stroke(); Art.cabin(g, 38, 21, 3, '#B8CF40'); }
     else if (id === 'despacho') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = '#f08a1c'; g.fillRect(31, 4, 8, 14); }
     else if (id === 'metroplus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 20); g.fillStyle = '#7ab648'; g.fillRect(6, 24, 28, 12); g.fillRect(36, 24, 28, 12); g.fillStyle = '#f4f1ea'; g.fillRect(9, 27, 22, 5); g.fillRect(39, 27, 22, 5); }
@@ -71,9 +73,11 @@ const Menu = EM.menu = {
     const s = Save.d.settings, tg = (k, a, b) => `<div class="tg" data-k="${k}"><button data-v="1" class="${s[k] ? 'on' : ''}">${a}</button><button data-v="0" class="${s[k] ? '' : 'on'}">${b}</button></div>`;
     UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" maxlength="16" value="${esc(Save.d.name)}" style="border:3px solid var(--negro);padding:8px;font-size:16px">
       <div class="pag">Sonido</div>${tg('snd', 'Sí', 'No')}<div class="pag">Música</div>${tg('mus', 'Sí', 'No')}<div class="pag">Vibración</div>${tg('vib', 'Sí', 'No')}<div class="pag">Voz de anuncios (“Próxima estación…”)</div>${tg('voz', 'Sí', 'No')}
+      <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
       <div class="row" style="margin-top:8px"><button class="btn pri" id="sOk">Listo</button><button class="btn sm gh" id="sReset">Borrar progreso</button></div></div>`);
     $$('#mBody .tg[data-k] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.k; s[k] = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Snd.apply(); if (k === 'mus') { if (s.mus) Music.play('menu'); } Save.write(); });
+    $$('#mBody .tg[data-c] button').forEach(b => b.onclick = () => { s.ciclo = b.dataset.v; Mundo.h0 = null; Mundo.t0 = now(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-q] button').forEach(b => b.onclick = () => { s.q = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $('#sOk').onclick = () => { Save.d.name = ($('#sName').value || 'Aprendiz').trim().slice(0, 16); Save.write(); UI.close(); UI.refresh(); };
     $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };

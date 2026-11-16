@@ -20,13 +20,13 @@ const t1 = Date.now(); const mk = await page.evaluate(n => EM.test.monkey(n, 123
 console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victorias, ${mk.errors.length} errores (${Date.now() - t1} ms)`, mk.errors.slice(0, 15));
 // recorrido de interfaz
 if (shots) fs.mkdirSync(shots, { recursive: true });
-const shot = async n => { if (shots) await page.screenshot({ path: path.join(shots, n + '.png') }); };
+const shot = async n => { if (!shots) return; await page.evaluate(() => EM.game.freeze(true)); await page.waitForTimeout(150); try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 20000 }); } catch (e) { console.log('captura falló:', n); } await page.evaluate(() => EM.game.freeze(false)); };
 await shot('01-portada');
 await page.click('#bPlay'); await page.waitForTimeout(300); await shot('02-modos');
-for (const [m, lv, extra] of [['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
-  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje'].includes(m) }); }, [m, lv, extra]);
-  await page.waitForTimeout(['conduce', 'volante', 'cableviaje'].includes(m) ? 3500 : 4000);
-  if (!['conduce', 'volante', 'cableviaje'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
+for (const [m, lv, extra] of [['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
+  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre'].includes(m) }); }, [m, lv, extra]);
+  await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre'].includes(m) ? 3500 : 4000);
+  if (!['conduce', 'volante', 'cableviaje', 'libre'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
   await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
   await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
 }

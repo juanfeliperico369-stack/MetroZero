@@ -11,7 +11,7 @@ const geoM = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx * TM, y: (VM.latN - lat
 const mGeo = (x, y) => ({ lat: VM.latN - y / TM / VM.ky, lon: VM.lon0 + x / TM / VM.kx });
 
 const MAP = EM.map = {
-  t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 10,
+  t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 16,
   async load() {
     const bin = atob(VALLE_BIN), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     const nT = MW * MH, nE = VM.eW * VM.eH, nM = VM.mW * VM.mH, size = nT + nE * 2 + nM * 2;
@@ -77,23 +77,28 @@ const MAP = EM.map = {
       const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), ox = tx * P, oy = ty * P, r = h2(X, Y, 11);
       if (v === TT.GRASS && r < .28 || v === TT.MOUNT) {
         const nt = v === TT.MOUNT ? 2 + (r * 2 | 0) : 1;
-        for (let k = 0; k < nt; k++) { const rr = 2.5 + h2(X, Y, 20 + k) * 2.5, x = ox + 2 + h2(X, Y, 30 + k) * (P - 4), y = oy + 2 + h2(X, Y, 40 + k) * (P - 4), dk = v === TT.MOUNT ? .85 : 1;
-          g.fillStyle = 'rgba(18,38,22,.45)'; g.beginPath(); g.ellipse(x + 1.6, y + 2, rr, rr * .7, 0, 0, TAU); g.fill();
+        for (let k = 0; k < nt; k++) { const rr = 3.5 + h2(X, Y, 20 + k) * 3.5, x = ox + 3 + h2(X, Y, 30 + k) * (P - 6), y = oy + 3 + h2(X, Y, 40 + k) * (P - 6), dk = v === TT.MOUNT ? .85 : 1;
+          g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(x + rr * .7, y + rr * .8, rr, rr * .7, 0, 0, TAU); g.fill();
           g.fillStyle = Art.shade('#2c5a2c', dk); g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = Art.shade(['#3f7a3a', '#4b8640', '#3a7246'][(r * 3) | 0], dk); g.beginPath(); g.arc(x - .5, y - .6, rr * .78, 0, TAU); g.fill();
-          g.fillStyle = Art.shade('#79ac56', dk); g.fillRect(x - rr * .5, y - rr * .6, 1.5, 1.5); g.fillRect(x - rr * .1, y - rr * .75, 1, 1); }
+          g.fillStyle = Art.shade('#79ac56', dk); g.fillRect(x - rr * .5, y - rr * .6, 2, 2); g.fillRect(x - rr * .1, y - rr * .75, 1.5, 1.5); g.fillRect(x + rr * .2, y - rr * .3, 1.5, 1.5); }
       } else if (v === TT.BRICK) {
-        const wall = r < .55 ? (r < .3 ? '#b85c3e' : '#a9533a') : WALLS[(r * 97 | 0) % WALLS.length], roof = ROOFS[(r * 31 | 0) % ROOFS.length], fh = 4;
-        R(ox + 1, oy + 1, P - 2, P - 3, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 1, oy + 2 + ((P - 4) >> 1), P - 2, 1, Art.shade(roof, 1.25));
+        const wall = r < .55 ? (r < .3 ? '#b85c3e' : '#a9533a') : WALLS[(r * 97 | 0) % WALLS.length], roof = ROOFS[(r * 31 | 0) % ROOFS.length], fh = 5, two = r > .8;
+        R(ox + 3, oy + 4, P - 2, P - 2, 'rgba(0,0,0,.28)');   // sombra proyectada
+        R(ox + 1, oy + 1, P - 2, P - 3, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 1, oy + 2 + ((P - 4) >> 1), P - 2, 1, Art.shade(roof, 1.25)); for (let yy = oy + 3; yy < oy + P - 4; yy += 3) R(ox + 2, yy, P - 4, 1, Art.shade(roof, .9));
+        if (two) R(ox + P - 6, oy + 3, 3, 3, Art.shade(roof, .7));
         R(ox + 1, oy + P - 3, P - 2, fh, wall); R(ox + 1, oy + P - 3 + fh, P - 2, 1, 'rgba(0,0,0,.35)');
-        R(ox + 2 + (r * 4 | 0), oy + P - 2, 1, 3, '#3a2a20'); const wx = ox + P - 4, wy = oy + P - 2; R(wx, wy, 2, 1, '#28435a'); lights.push([wx, wy, 2]);
+        R(ox + 2 + (r * 5 | 0), oy + P - 2, 2, 4, '#3a2a20'); const wx = ox + P - 5, wy = oy + P - 2; R(wx, wy, 2, 2, '#28435a'); lights.push([wx, wy, 2]); if (r < .5) { R(ox + 3, oy + P - 1, 2, 2, '#28435a'); lights.push([ox + 3, oy + P - 1, 2]); }
       } else if (v === TT.BLDG) {
-        const hgt = 3 + (r * 5 | 0), roof = r < .5 ? '#9aa0a6' : '#b9b5ad', wall = ['#d8d2c4', '#c9ced4', '#e6dcc8', '#b8c4cc'][(r * 4) | 0];
-        R(ox, oy, P, P - 2, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 2, oy + 2, 3, 2, Art.shade(roof, .85));
-        R(ox + 1, oy + P - 3, P - 2, hgt, wall); for (let wy = oy + P - 2; wy < oy + P - 3 + hgt - 1; wy += 2) for (let wx = ox + 2; wx < ox + P - 2; wx += 2) { R(wx, wy, 1, 1, '#2a4560'); lights.push([wx, wy, 1]); }
+        const hgt = 4 + (r * 7 | 0), roof = r < .5 ? '#9aa0a6' : '#b9b5ad', wall = ['#d8d2c4', '#c9ced4', '#e6dcc8', '#b8c4cc', '#cfd9df'][(r * 5) | 0];
+        R(ox + 4, oy + 5, P, P, 'rgba(0,0,0,.3)');   // sombra proyectada
+        R(ox, oy, P, P - 2, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 2, oy + 2, 4, 3, Art.shade(roof, .85)); if (r < .4) { R(ox + P - 6, oy + 3, 3, 3, '#7d8792'); R(ox + P - 5, oy + 4, 1, 1, '#d9d9d9'); } if (r > .7) R(ox + 2, oy + P - 8, 5, 2, Art.shade(roof, .75));
+        R(ox + 1, oy + P - 3, P - 2, hgt, wall); for (let wy = oy + P - 2; wy < oy + P - 3 + hgt - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, '#2a4560'); lights.push([wx, wy, 2]); }
         R(ox + 1, oy + P - 3 + hgt, P - 2, 1, 'rgba(0,0,0,.35)');
       }
     }
-    c.lights = lights; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
+    // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
+    const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
+    c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
     return c;
   },
   /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
@@ -109,7 +114,9 @@ const MAP = EM.map = {
   },
   /* luces de ventanas (después del tinte de la noche) */
   lightsTop(g, night, t) {
-    if (night < .25 || !this._vis) return; for (const [c, sx, sy, s] of this._vis) for (const [x, y, w] of c.lights) { const h = h2(x, y, 3); if (h > .62) continue; g.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (night * (.7 + .3 * Math.sin(t * 1.3 + h * 30))) + ')'; g.fillRect(sx + x * s, sy + y * s, Math.max(1, w * s), Math.max(1, s)); }
+    if (night < .25 || !this._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1); g.imageSmoothingEnabled = false;
+    for (const [c, sx, sy, s] of this._vis) g.drawImage(c.lightCv, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
+    g.restore();
   },
   /* ---------- panorámica: mapa entero con sombreado del relieve (1 px = 2 casillas) ---------- */
   mini() {

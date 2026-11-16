@@ -16,12 +16,14 @@ const Game = EM.game = {
     const L = (M.levels().find(l => l.id === lv) || {}); $('#gTitle').textContent = M.name + (L.name ? ' · ' + L.name : ''); $('#gSub').textContent = this.duel ? 'Duelo de mesa · 2 jugadores' : (L.sub || M.sub || '');
     if (M.mount && !this.duel) M.mount(this.st, $('#gctl'));
     Music.play(M.music || 'puzzle');
-    this.last = now(); const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); }; this.raf = requestAnimationFrame(loop);
+    this.last = now(); const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); }; this._loop = loop; this.raf = requestAnimationFrame(loop);
   },
-  stop() { cancelAnimationFrame(this.raf); this.raf = 0; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
+  /* congela el bucle (capturas y pruebas) */
+  freeze(on) { if (on) { cancelAnimationFrame(this.raf); this.raf = 0; } else if (!this.raf && this._loop && this.mode) { this.last = now(); this.raf = requestAnimationFrame(this._loop); } },
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; this._loop = null; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
   frame() {
     const t = now(); let dt = Math.min(.05, t - this.last); this.last = t; if (this.paused) dt = 0;
-    const cv = $('#gcv'), q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
+    const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
     try {
@@ -32,7 +34,7 @@ const Game = EM.game = {
     } catch (e) { EM.errors.push('frame ' + this.mode.id + ': ' + e.message); console.error(e); }
     if ((this.hudT -= dt) <= 0) { this.hudT = .2; this.hud(); }
     if (this.net && this.net.tick) this.net.tick(dt);
-    if (!this.ended && !(this.net && this.net.guest)) { const r1 = this.mode.result(this.st), r2 = this.st2 ? this.mode.result(this.st2) : null; if (r1.done || (r2 && r2.done)) this.end(r1, r2); }
+    if (!this.ended && !(this.net && this.net.guest) && !this.mode.endless) { const r1 = this.mode.result(this.st), r2 = this.st2 ? this.mode.result(this.st2) : null; if (r1.done || (r2 && r2.done)) this.end(r1, r2); }
   },
   hud() {
     const M = this.mode, ch = $('#gChips'); if (!ch) return;

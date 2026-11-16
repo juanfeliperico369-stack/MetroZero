@@ -21,6 +21,8 @@ const BotT = EM.test = {
     let nC = 0; for (const lv of Conduce.levels()) { try { const st = Conduce.create(lv.id, { seed: 1, auto: true }); nC++; if (!st.sched.every(fin)) E('horario inválido ' + lv.id); if (st.ideal.some(t => t >= 1999)) E('el piloto no llega en ' + lv.id); } catch (e) { E('conduce ' + lv.id + ': ' + e.message); } }
     // agujas: toda aparición llega a alguna salida y toda salida es alcanzable
     let nR = 0; for (const id of ['despacho', 'alim']) { const M = EM.modes[id]; for (const lv of M.levels()) { try { const st = M.create(lv.id, { seed: 1 }); nR++; const reach = new Set(); for (const sp of st.sp) { const r = M.reachEx(st, sp.i); if (!r.size) E(lv.id + ': entrada sin salida'); r.forEach(x => reach.add(x)); } for (const ex of st.ex) if (!reach.has(ex.i)) E(lv.id + ': salida inalcanzable'); if (!st.swl.length) Wn(lv.id + ': sin agujas'); if (st.ex.length < 2) Wn(lv.id + ': una sola salida'); } catch (e) { E(id + ' ' + lv.id + ': ' + e.message); } } }
+    // ciudad libre: aparece, hay vehículos parqueados y se generan oficios
+    try { const st = Libre.create('lb:San Antonio', { seed: 1 }); if (!st.parked.length) E('libre: sin vehículos'); if (!isFinite(st.x)) E('libre: posición'); for (let i = 0; i < 40; i++) Libre.offer(st); if (!st.job) Wn('libre: no se generó ningún oficio'); if (!Ciudad.transit.length) E('libre: sin transporte en movimiento'); } catch (e) { E('libre: ' + e.message); }
     // al volante y viaje en cable
     let nV = 0; for (const lv of Volante.levels()) { try { const st = Volante.create(lv.id, { seed: 1, auto: true }); nV++; if (!st.sched.every(fin) || !isFinite(st.x)) E('volante horario/posición inválida ' + lv.id); const R = Volante.route(NET.byId[st.line]); if (!R.lim.every(fin)) E('volante límites ' + lv.id); } catch (e) { E('volante ' + lv.id + ': ' + e.message); } }
     for (const lv of CableViaje.levels()) { try { const st = CableViaje.create(lv.id, { seed: 1 }); if (st.stS.length < 2 || !st.stS.every(fin)) E('cable viaje sin estaciones ' + lv.id); } catch (e) { E('cableviaje ' + lv.id + ': ' + e.message); } }
@@ -34,19 +36,20 @@ const BotT = EM.test = {
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
-    const rng = new RNG(seed), errors = [], modes = ['conduce', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'cableviaje'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'cableviaje', 'libre'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
-      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'cableviaje' ? 6000 : 4800;
+      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : 4800;
       try {
         for (let i = 0; i < max; i++) {
           M.step(st, dt); steps++;
-          if (id === 'volante' || id === 'cableviaje') { if (id === 'cableviaje' && i % 200 === 0) M.photo(st); if (id === 'volante' && (!isFinite(st.x) || !isFinite(st.v))) throw new Error('bus inválido'); }
+          if (id === 'libre') { if (i % 25 === 0) st.joy = { x: rng.f() * 2 - 1, y: rng.f() * 2 - 1, m: rng.f() }; if (i % 90 === 0) { st.keys.up = rng.f() < .7; st.hb = rng.f() < .2; M.action(st); } if (i % 300 === 0) { M.offer(st); M.photo(st); } if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('jugador inválido'); }
+          else if (id === 'volante' || id === 'cableviaje') { if (id === 'cableviaje' && i % 200 === 0) M.photo(st); if (id === 'volante' && (!isFinite(st.x) || !isFinite(st.v))) throw new Error('bus inválido'); }
           else if (id !== 'conduce') { if (i % 5 === 0) { const a = M.ai(st); if (a) M.act(st, a); } if (rng.f() < .01) { const a = this.randomAct(id, st, rng); if (a) M.act(st, a); } }
           else if (st.ph === 'dwell' && st.trivia) M.answer(st, 0);
-          if (i % 400 === 0 && g) { g.setTransform(1, 0, 0, 1, 0, 0); if (id === 'conduce') st.view = ['cab', 'tps', 'lado', 'top', 'pan'][(i / 400) % 5 | 0]; if (id === 'volante') st.view = ['top', 'pan'][(i / 400) % 2 | 0]; if (id === 'cableviaje') st.view = ['lado', 'top'][(i / 400) % 2 | 0]; M.draw(g, st, { x: 0, y: 0, w: 360, h: 640 }); }
+          if (i % 400 === 0 && g) { g.setTransform(1, 0, 0, 1, 0, 0); if (id === 'conduce') st.view = ['cab', 'tps', 'lado', 'top', 'pan'][(i / 400) % 5 | 0]; if (id === 'volante') st.view = ['top', 'pan'][(i / 400) % 2 | 0]; if (id === 'cableviaje') st.view = ['lado', 'top'][(i / 400) % 2 | 0]; if (id === 'libre') st.far = (i / 400) % 2 === 1; M.draw(g, st, { x: 0, y: 0, w: 360, h: 640 }); }
           const r = M.result(st); if (!isFinite(r.score)) throw new Error('puntaje no numérico');
           if (id === 'conduce' && (!isFinite(st.v) || !isFinite(st.s) || st.v < 0)) throw new Error('física inválida v=' + st.v + ' s=' + st.s);
           if (st.ents && st.ents.length > 300) throw new Error('demasiados vehículos');
