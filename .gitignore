@@ -1,0 +1,14 @@
+node_modules/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.log
+# Android (tools/apk.sh)
+android/**/build/
+android/.kotlin/
+android/.idea/
+android/captures/
+android/app/src/main/assets/www/
+*.iml
+dist/
