@@ -18,18 +18,27 @@ const CAPS = [
   { t: 'Santo Domingo mira al cielo', scene: 'cable', lines: [
     ['Rosalba', 'En 2004 subió el primer metrocable del mundo hecho para transporte público de verdad, aquí, a Santo Domingo.'],
     ['Doña Marleny', 'Antes yo bajaba hora y media a pie con el mercado. Ahora en minutos estoy arriba viendo toda la ciudad.'],
-    ['Rosalba', 'Ayúdele al técnico a dejar la línea armada: cable, poleas, torres y estaciones, todo conectado.']
-  ], go: ['cable', 'cb:K:0'], fin: 'Desde la cabina, el valle se ve como un pesebre encendido.' },
+    ['Rosalba', 'Hoy usted opera la línea. Si el viento sopla duro, baje la velocidad; si truena, se detiene todo. Y no se olvide de las fotos desde los miradores.']
+  ], go: ['cableviaje', 'cv:K'], fin: 'Desde la cabina, el valle se ve como un pesebre encendido.' },
   { t: 'Los que alimentan la red', scene: 'barrio', lines: [
     ['Rosalba', 'El metro no llega a cada esquina. Por eso existen los alimentadores: buses que bajan de los barrios hasta las estaciones.'],
     ['Wílmar (conductor)', 'Yo me sé las lomas de memoria. Usted dígame pa’ dónde va cada bus y yo lo llevo.'],
     ['Rosalba', 'Cada estación pide su color. Cuando se llena, sale el tren. ¡Pilas!']
   ], go: ['alim', 'alim0'], fin: 'Wílmar pitó dos veces al despedirse, como se saludan los conductores.' },
+  { t: 'Wílmar presta el timón', scene: 'barrio', lines: [
+    ['Wílmar (conductor)', 'Venga, súbase. Hoy maneja usted el alimentador: de Santa Rita a la estación Acevedo.'],
+    ['Wílmar (conductor)', 'En las lomas de Medellín el bus pesa: en subida, palanca a fondo; en bajada, freno suave. Y pare donde está la gente, no diez metros después.'],
+    ['Rosalba', 'Si quiere, deje el asistente de carril. Cuando se sienta segura, apáguelo y maneje con el timón.']
+  ], go: ['volante', 'vo:AL-C6-001:0-3'], fin: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' },
   { t: 'Belén – Aranjuez', scene: 'metroplus', lines: [
     ['Rosalba', 'El Metroplús tiene su propio carril, pero tiene que cruzar las calles como todo el mundo.'],
     ['Agente de tránsito', 'Usted maneja los semáforos. Los buses grandes valen oro, pero no deje a nadie esperando para siempre.'],
     ['Rosalba', 'Y ojo con las motos, mija. Esas se cuelan hasta por el ojo de una aguja.']
   ], go: ['metroplus', 'mp0'], fin: 'La avenida respiró. Hasta las motos hicieron fila… un ratico.' },
+  { t: 'El articulado', scene: 'metroplus', lines: [
+    ['Rosalba', 'Ahora súbase al articulado. Dieciocho metros de bus con una bisagra en la mitad: en las curvas, la cola va por dentro.'],
+    ['Agente de tránsito', 'El carril es exclusivo, pero los semáforos son para todos. Rojo es rojo.']
+  ], go: ['volante', 'vo:MP1:0-4'], fin: 'Al llegar a la estación, el bus quedó justo frente a la puerta del andén. Perfecto.' },
   { t: 'Ayacucho sobre llantas', scene: 'tranvia', lines: [
     ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
     ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']

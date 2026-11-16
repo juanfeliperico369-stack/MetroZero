@@ -9,7 +9,7 @@ const N = +process.argv[2] || 100, shots = process.argv.includes('--shots') ? pr
 const ext = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : null;
 let srv = null, url = ext;
 if (!url) { srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), '8765'], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600)); url = 'http://localhost:8765/'; }
-const browser = await chromium.launch(), ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true });
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] }), ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true });
 const page = await ctx.newPage(), cons = [];
 page.on('console', m => { if (m.type() === 'error') cons.push(m.text()); }); page.on('pageerror', e => cons.push('pageerror: ' + e.message));
 const t0 = Date.now(); await page.goto(url); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 30000 });
@@ -23,11 +23,11 @@ if (shots) fs.mkdirSync(shots, { recursive: true });
 const shot = async n => { if (shots) await page.screenshot({ path: path.join(shots, n + '.png') }); };
 await shot('01-portada');
 await page.click('#bPlay'); await page.waitForTimeout(300); await shot('02-modos');
-for (const [m, lv, extra] of [['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'T:0-2', 'top'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
-  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: m === 'conduce' }); }, [m, lv, extra]);
-  await page.waitForTimeout(m === 'conduce' ? 2500 : 4000);
-  if (m !== 'conduce') for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
-  await shot('03-' + m + (extra || ''));
+for (const [m, lv, extra] of [['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
+  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje'].includes(m) }); }, [m, lv, extra]);
+  await page.waitForTimeout(['conduce', 'volante', 'cableviaje'].includes(m) ? 3500 : 4000);
+  if (!['conduce', 'volante', 'cableviaje'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
+  await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
   await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
 }
 await page.evaluate(() => EM.game.start('despacho', 'despacho2', { seed: 3, duel: true })); await page.waitForTimeout(1500); await shot('04-duelo'); await page.evaluate(() => EM.game.stop());

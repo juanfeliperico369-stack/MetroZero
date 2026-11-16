@@ -1,7 +1,7 @@
 /* =====================================================================
    ARTE: pixel art procedural con contornos definidos (sin imágenes externas)
    ===================================================================== */
-const PAL = { papel: '#efe7cf', crema: '#f8f1dc', mante: '#f9e4a4', tinta: '#12446c', petro: '#0e5a6b', teal: '#1b8088', rojo: '#c8201f', mostaza: '#c3952f', gris: '#959ba1', noche: '#0c2533', noche2: '#123447', naranja: '#ff6a3d', negro: '#141414', blanco: '#fbf8ee', verde: '#2f9b57', ladrillo: '#b4583a', ladrillo2: '#9a4630', plata: '#c9ced4', vidrio: '#9fd3e6' };
+const PAL = { papel: '#f1ece0', crema: '#faf6ec', mante: '#fbe7b0', tinta: '#154a80', petro: '#1C5C9C', teal: '#0E6F76', rojo: '#EC343A', mostaza: '#F6C538', gris: '#9aa1a8', noche: '#0f2a45', noche2: '#163a5c', naranja: '#E38835', negro: '#141414', blanco: '#fdfbf5', verde: '#59AB42', ladrillo: '#b4583a', ladrillo2: '#9a4630', plata: '#c9ced4', vidrio: '#9fd3e6' };
 const SKIN = ['#f1c9a5', '#d9a77f', '#b07a52', '#8a5a3b', '#5e3b26'], ROPA = ['#c8201f', '#12446c', '#2f9b57', '#c3952f', '#ff6a3d', '#7a5cc4', '#f9e4a4', '#141414', '#1b8088'];
 const Art = EM.art = {
   px(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); },

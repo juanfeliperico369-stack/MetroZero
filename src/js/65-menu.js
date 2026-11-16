@@ -4,10 +4,12 @@
 const MODECARDS = [
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'La historia de Rosalba y su nieta. Cada capítulo, un oficio de la red.', n: 'Historia' },
   { id: 'conduce', cls: 'c-conduce', t: 'Conduce', d: 'Metro, tranvía y Metroplús por la vía real. Frena en la marca.', n: 'Cabina · 1ª y 3ª persona' },
+  { id: 'volante', cls: 'c-volante', t: 'Al volante', d: 'Maneja el articulado de Metroplús o el alimentador por las calles reales, con tráfico y semáforos.', n: 'Buses · 3D' },
+  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Viaje · vista lateral' },
   { id: 'despacho', cls: 'c-despacho', t: 'Despacho', d: 'Puesto de Control: mueve las agujas y que ningún tren se cruce.', n: 'Agujas' },
   { id: 'metroplus', cls: 'c-metroplus', t: 'Metroplús', d: 'Semáforos y carril exclusivo. Cuidado con las motos.', n: 'Cruces' },
   { id: 'alim', cls: 'c-alim', t: 'Alimentadores', d: 'De los barrios a las estaciones: cada una pide su color.', n: 'Reparto' },
-  { id: 'cable', cls: 'c-cable', t: 'Metrocable', d: 'Gira las piezas y arma la línea sobre la loma.', n: 'Puzle' },
+  { id: 'cable', cls: 'c-cable', t: 'Arma el cable', d: 'Gira las piezas y deja la línea conectada sobre la loma.', n: 'Puzle' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
   { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' }
 ];
@@ -34,7 +36,9 @@ const Menu = EM.menu = {
   },
   miniArt(g, id) {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
-    if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1f63ad', 'metro', true); }
+    if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
+    else if (id === 'volante') { Art.vehicleBack(g, 35, 52, 36, '#0E6F76', 'brt', true); }
+    else if (id === 'cableviaje') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 10); g.lineTo(70, 30); g.stroke(); Art.cabin(g, 38, 21, 3, '#B8CF40'); }
     else if (id === 'despacho') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = '#f08a1c'; g.fillRect(31, 4, 8, 14); }
     else if (id === 'metroplus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 20); g.fillStyle = '#7ab648'; g.fillRect(6, 24, 28, 12); g.fillRect(36, 24, 28, 12); g.fillStyle = '#f4f1ea'; g.fillRect(9, 27, 22, 5); g.fillRect(39, 27, 22, 5); }
     else if (id === 'alim') { for (let i = 0; i < 4; i++) Art.building(g, 4 + i * 16, 8 + (i % 2) * 6, 13, 18, i, false, true); g.fillStyle = '#f4f1ea'; g.fillRect(14, 38, 30, 12); g.fillStyle = PAL.naranja; g.fillRect(14, 42, 30, 3); }
@@ -53,7 +57,7 @@ const Menu = EM.menu = {
     this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
     const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id);
     let h = `<div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px"><div><div class="pag">${esc(M.sub || '')}</div><div class="mega" style="font-size:54px">${esc(M.name)}</div></div>${duel ? '<label class="tg"><button id="lDuel">👥 Duelo de mesa</button></label>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
-    if (id === 'conduce') {
+    if (id === 'conduce' || id === 'volante') {
       const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
       for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid)}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
     } else {

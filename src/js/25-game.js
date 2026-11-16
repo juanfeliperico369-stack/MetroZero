@@ -18,7 +18,7 @@ const Game = EM.game = {
     Music.play(M.music || 'puzzle');
     this.last = now(); const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); }; this.raf = requestAnimationFrame(loop);
   },
-  stop() { cancelAnimationFrame(this.raf); this.raf = 0; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); },
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
   frame() {
     const t = now(); let dt = Math.min(.05, t - this.last); this.last = t; if (this.paused) dt = 0;
     const cv = $('#gcv'), q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
@@ -26,7 +26,7 @@ const Game = EM.game = {
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
     try {
       if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
-      g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h);
+      g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
       for (const vp of this.vps) { g.save(); g.translate(vp.x, vp.y); if (vp.flip) { g.translate(vp.w, vp.h); g.rotate(Math.PI); } g.beginPath(); g.rect(0, 0, vp.w, vp.h); g.clip(); this.mode.draw(g, vp.st, vp); g.restore(); }
       if (this.duel) { g.fillStyle = PAL.negro; g.fillRect(0, this.vps[0].y - 3, w, 6); }
     } catch (e) { EM.errors.push('frame ' + this.mode.id + ': ' + e.message); console.error(e); }
@@ -36,7 +36,7 @@ const Game = EM.game = {
   },
   hud() {
     const M = this.mode, ch = $('#gChips'); if (!ch) return;
-    const items = this.duel ? [['J1', M.result(this.st).score | 0], ['J2', M.result(this.st2).score | 0]] : (M.hud ? M.hud(this.st) : []); if (this.net && this.net.chips) items.push(...this.net.chips());
+    const items = this.duel ? [['J1', M.result(this.st).score | 0], ['J2', M.result(this.st2).score | 0]] : (M.hud ? M.hud(this.st) : []); if (this.net && this.net.chips) items.push(...this.net.chips()); if (!this.duel && EM.mundo) items.push(['', EM.mundo.chip()]);
     ch.innerHTML = items.map(([k, v]) => `<span class="chip">${esc(k)} <b>${esc(v)}</b></span>`).join('');
   },
   toLocal(vp, x, y) { let lx = x - vp.x, ly = y - vp.y; if (vp.flip) { lx = vp.w - lx; ly = vp.h - ly; } return { x: lx, y: ly }; },

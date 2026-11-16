@@ -50,8 +50,8 @@ const Cable = EM.modes.cable = {
   draw(g, st, vp) {
     const G = this.geo(st, vp), cs = G.cs, line = NET.byId[st.line], col = line ? line.color : '#f2a900';
     // ladera: fondo mostaza, montaña, casas de ladrillo
-    g.fillStyle = PAL.mostaza; g.fillRect(0, 0, vp.w, vp.h);
-    g.fillStyle = '#b0852a'; g.beginPath(); g.moveTo(0, vp.h); for (let x = 0; x <= vp.w; x += 8) g.lineTo(x, vp.h * .25 + Math.sin(x * .01 + st.k) * vp.h * .06 + Math.sin(x * .031) * vp.h * .02); g.lineTo(vp.w, vp.h); g.fill();
+    g.fillStyle = '#F6C538'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#d9a52a'; g.beginPath(); g.moveTo(0, vp.h); for (let x = 0; x <= vp.w; x += 8) g.lineTo(x, vp.h * .25 + Math.sin(x * .01 + st.k) * vp.h * .06 + Math.sin(x * .031) * vp.h * .02); g.lineTo(vp.w, vp.h); g.fill();
     for (let y = 0; y < st.H; y++) for (let x = 0; x < st.W; x++) { const i = y * st.W + x, X0 = G.ox + x * cs, Y0 = G.oy + y * cs; if (!st.m[i]) { for (let k = 0; k < 4; k++) { const hh = h2(x * 4 + k, y, st.k); Art.building(g, X0 + cs * (.05 + (k % 2) * .48), Y0 + cs * (k < 2 ? .1 : .55), cs * .42, cs * (.25 + hh * .15), i * 4 + k, false, hh < .75); } } else { g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(X0 + 1, Y0 + 1, cs - 2, cs - 2); } }
     const conn = this.solved(st) || st.win;
     for (let i = 0; i < st.m.length; i++) {
@@ -71,6 +71,7 @@ const Cable = EM.modes.cable = {
     }
     // cabinas rodando cuando la línea está completa
     if (st.win) for (let i = 0; i < st.m.length; i++) { const v = st.m[i]; if (!(v & DE) && !(v & DS)) continue; for (const d of [DE, DS]) { if (!(v & d)) continue; const x = i % st.W, y = i / st.W | 0, [dx, dy] = DXY[d], f = (st.t * .8 + h2(i, d, 1)) % 1; Art.cabin(g, G.ox + (x + .5 + dx * f) * cs, G.oy + (y + .5 + dy * f) * cs + cs * .1, Math.max(1, cs / 26), col); } }
+    if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
     for (const f of st.fx) { g.fillStyle = f.c; g.fillRect(G.ox + (f.x + f.vx * (2 - f.t)) * cs, G.oy + (f.y + f.vy * (2 - f.t) * 2) * cs, cs * .12, cs * .2); }
     g.fillStyle = PAL.blanco; g.font = '700 ' + Math.max(18, vp.h * .05) + 'px Titulos, sans-serif'; g.fillText((line ? line.name : 'Metrocable').toUpperCase(), 12, Math.max(24, vp.h * .06));
     if (st.win) { g.fillStyle = PAL.negro; g.font = '700 ' + Math.max(26, vp.h * .08) + 'px Titulos, sans-serif'; g.textAlign = 'center'; g.fillText('¡LÍNEA EN SERVICIO!', vp.w / 2 + 2, vp.h * .5 + 2); g.fillStyle = PAL.blanco; g.fillText('¡LÍNEA EN SERVICIO!', vp.w / 2, vp.h * .5); g.textAlign = 'left'; }

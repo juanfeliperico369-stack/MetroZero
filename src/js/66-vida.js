@@ -24,6 +24,9 @@ const Vida = EM.vida = {
   today() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); },
   /* fiestas y fechas del Metro según el calendario real */
   fiestas(d = new Date()) {
+    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
+  },
+  fiestasViejas(d = new Date()) {
     const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), out = [], doy = x => Math.floor((x - new Date(x.getFullYear(), 0, 0)) / 864e5), dd = doy(d);
     const aniv = new Date(y, 10, 30), faltan = Math.ceil((aniv - new Date(y, m - 1, day)) / 864e5), años = y - 1995;
     if (faltan === 0) out.push({ k: 'aniv', t: '¡Hoy el Metro cumple ' + años + ' años! Abrió el 30 de noviembre de 1995 · pasajes ×2' });

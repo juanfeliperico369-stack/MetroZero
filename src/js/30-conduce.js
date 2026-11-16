@@ -48,9 +48,9 @@ const Conduce = EM.modes.conduce = {
     const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], kd = line.kind === 'future' ? 'tram' : line.kind, K = KIND[kd], T = trackOf(line), rng = new RNG(opts.seed | 0);
     const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
     const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
-    const hr = new Date().getHours(), tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
+    const hr = opts.hour != null ? opts.hour : new Date().getHours() + new Date().getMinutes() / 60, tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
     const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || 'cab',
-      rain: rng.f() < .25, tod, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
+      rain: opts.hour != null ? rng.f() < .25 : Mundo.weather().rain, tod, hour: hr, fixH: opts.hour, paseo: !!opts.paseo, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
     st.tgt = stops.map(tgt);
     // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
     for (let k = 1; k < stops.length; k++) { if (rng.f() < .35) { const a = st.tgt[k - 1], b = st.tgt[k]; st.sig.push({ s: lerp(a, b, rng.range(.35, .65)), k, on: false, t: rng.range(6, 12), seen: false, done: false }); } }
@@ -110,7 +110,7 @@ const Conduce = EM.modes.conduce = {
     st.cam += (st.v - st.cam) * Math.min(1, dt * 3);
   },
   tick(st, dt, K, line) {
-    st.t += dt;
+    st.t += dt; if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; const h = Mundo.hour(), w = Mundo.weather(h); st.rain = w.rain; st.tod = h >= 6 && h < 17 ? 'dia' : h >= 17 && h < 19 ? 'tarde' : 'noche'; }
     if (st.auto) { if (st.ph === 'run' || st.ph === 'ready') st.lev = this.pilot(st); }
     else if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.2, -1, 1);
     if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; st.ni = 1; this.say(st, 'Próxima estación: ' + line.st[st.stops[1]].name); } else return; }
@@ -184,13 +184,13 @@ const Conduce = EM.modes.conduce = {
   mount(st, el) {
     el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
       <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
-      <div class="vsel" id="cView"><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="top">▦</button><button data-v="pan">◎</button></div><div id="cTriv"></div>`;
+      <div class="vsel" id="cView"><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="lado">↔</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
     const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
     lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
     $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
     $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
-    $$('#cView button').forEach(b => b.onclick = () => { st.view = b.dataset.v; this.updCtl(st); });
+    $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
     this.updCtl(st); this._kn = kn;
   },
   updCtl(st) {
@@ -198,7 +198,8 @@ const Conduce = EM.modes.conduce = {
     const f = st.lev > 0 ? .42 * (1 - st.lev) : st.lev < 0 ? .5 + .5 * -st.lev : .46; kn.style.top = 'calc(' + (f * 100) + '% - 15px)'; kn.textContent = st.eb ? 'EMG' : st.lev > 0 ? 'T' + Math.round(st.lev * 10) : st.lev < 0 ? 'F' + Math.round(-st.lev * 10) : 'N';
     const d = $('#cDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
     const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 500; if (near && st.ff) st.ff = false; ff.disabled = near || st.ph !== 'run'; ff.style.background = st.ff ? 'var(--mante)' : '';
-    $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view));
+    $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
+    if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'cab' })) ? ['cine', 'tps', 'cab', 'lado', 'cine', 'pan'] : ['lado', 'cab', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
     if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
     if (st.trivia && !$('#cTriv').innerHTML) this.renderTrivia(st);
   },
@@ -207,12 +208,57 @@ const Conduce = EM.modes.conduce = {
     el.innerHTML = q ? `<div class="card" style="top:auto;bottom:calc(120px + var(--sab));left:50%;transform:translateX(-50%);width:min(92%,420px)"><div class="pag">Pregunta de la estación · +100</div><p style="font-weight:700;margin:6px 0 10px">${esc(q.q)}</p><div class="col">${q.o.map((o, i) => `<button class="btn sm" data-i="${i}">${esc(o.t)}</button>`).join('')}</div></div>` : '';
     $$('#cTriv button').forEach(b => b.onclick = () => this.answer(st, +b.dataset.i));
   },
-  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
+  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
   /* ======================= DIBUJO ======================= */
+  gl(st) { return (st.view === 'cab' || st.view === 'tps' || st.view === 'cine') && Save.d.settings.q !== 'low' && G3.init(); },
   draw(g, st, vp) {
     const W = vp.w, H = vp.h;
     if (st.view === 'top' || st.view === 'pan') this.drawTop(g, st, W, H, st.view === 'pan');
-    else this.draw3D(g, st, W, H, st.view === 'tps');
+    else if (st.view === 'lado') this.drawLado(g, st, W, H);
+    else if (this.gl(st)) this.drawGL(g, st, W, H, st.view === 'tps');
+    else this.draw3D(g, st, W, H, st.view !== 'cab');
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noNight: st.view !== 'top', noRain: true }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+  },
+  hourOf(st) { return st.fixH != null ? st.fixH + st.t / 3600 : Mundo.hour(); },
+  zLine(line, s) { return line.kind === 'metro' || line.kind === 'tram' || line.kind === 'future' ? G3.zOn(line, s) : MAP.elevM(NET.at(line.P, s).x, NET.at(line.P, s).y) + .3; },
+  drawGL(g, st, W, H, tps) {
+    G3.show(true); const line = NET.byId[st.line], K = KIND[st.kind], dir = st.dir, p = NET.at(line.P, st.s), a = p.a + (dir < 0 ? Math.PI : 0), z = this.zLine(line, st.s), col = rgb(line.color);
+    let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 1.7 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
+    else if (tps) { const sb = st.s - dir * (K.len + 24), q = NET.at(line.P, sb); cam = { eye: [q.x, this.zLine(line, sb) + 9, q.y], at: [p.x + Math.cos(a) * 20, z + 2, p.y + Math.sin(a) * 20], fov: 1.05 }; }
+    else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
+    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
+      G3.traffic(cam, st.t + 1000, line);
+      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
+      if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s); G3.vehicle(q.x, this.zLine(line, s), q.y, q.a + (dir < 0 ? Math.PI : 0), carL, st.kind, col); }
+      for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const q = NET.at(line.P, sg.s, dir * 3.6), zq = this.zLine(line, sg.s); G.box(q.x, zq, q.y, 0, .35, .35, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .8, .8, 1.6, sg.on ? [1, .23, .18] : [.22, .9, .48]); }
+      for (const L of st.lights) { const q = NET.at(line.P, L.s, dir * 6), zq = this.zLine(line, L.s), ls = this.lightState(L, st.t); G.box(q.x, zq, q.y, 0, .3, .3, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .7, .7, 1.4, ls === 'g' ? [.22, .9, .48] : ls === 'y' ? [1, .76, .23] : [1, .23, .18]); }
+      const m = NET.at(line.P, st.tgt[st.ni], dir * 3); if (st.ph !== 'dwell') G.box(m.x, this.zLine(line, st.tgt[st.ni]), m.y, 0, .4, .4, 2.6 + .3 * Math.sin(st.t * 6), [.98, .88, .4]);
+    } });
+    g.textAlign = 'center'; for (const sI of line.st) { if (Math.abs(sI.s - st.s) > 900) continue; const q0 = NET.at(line.P, sI.s), q = G3.toScreen(q0.x, this.zLine(line, sI.s) + 8, q0.y, W, H); if (!q) continue; const fs = clamp(2400 / q.d, 10, 22) * (W / ($('#gcv').clientWidth || W)); g.font = '700 ' + fs + 'px Titulos, sans-serif'; const tw = g.measureText(sI.name).width; g.fillStyle = 'rgba(20,20,20,.85)'; g.fillRect(q.x - tw / 2 - 6, q.y - fs, tw + 12, fs * 1.3); g.fillStyle = line.color; g.fillRect(q.x - tw / 2 - 6, q.y - fs, 4, fs * 1.3); g.fillStyle = '#fff'; g.fillText(sI.name, q.x, q.y); }
+    g.textAlign = 'left';
+    if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.4)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 80; i++) { const x = (h2(i, 3, 3) * W + st.t * 90) % W, y = (h2(i, 4, 3) * H + st.t * 800 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
+    if (st.view === 'cab') this.drawCab(g, st, W, H, K, line, st.tod === 'noche'); else this.drawMiniHud(g, st, W, H, K);
+  },
+  /* vista lateral en capas: el tren de perfil sobre el viaducto real */
+  drawLado(g, st, W, H) {
+    if (G3.cv) G3.show(false); const line = NET.byId[st.line], K = KIND[st.kind], R = Lado.prof('line:' + line.id, line.P), dir = st.dir, k = Math.max(W, H * .7) / 230, col = line.color;
+    const zc = this.zLine(line, st.s); st._lz = st._lz == null ? zc : st._lz + (zc - st._lz) * .06; const near = st.stops.map(i => line.st[i]).find(sI => Math.abs(sI.s - st.s) < 160);
+    Lado.draw(g, W, H, { R, s: st.s - dir * K.len / 2, z: st._lz - 4, k, dir, hour: this.hourOf(st), t: st.t, rain: st.rain, fog: false, title: near ? { t: near.name, sub: line.name.toUpperCase(), a: clamp(1 - Math.abs(near.s - st.s) / 160, 0, 1) } : null, fg: (g, X, Y, cN, sky) => {
+      const sA = st.s - W / k * 1.2, sB = st.s + W / k * 1.2, deck = st.kind === 'metro';
+      // viaducto / vía
+      g.fillStyle = Lado.css(Lado.mix(cN, [.82, .78, .7], .5 * sky.day + .15)); g.beginPath(); let f = true; for (let s = Math.max(0, sA); s <= Math.min(line.P.len, sB); s += 8) { const x = X(s), y = Y(this.zLine(line, s)); if (f) { g.moveTo(x, y); f = false; } else g.lineTo(x, y); } for (let s = Math.min(line.P.len, sB); s >= Math.max(0, sA); s -= 8) g.lineTo(X(s), Y(this.zLine(line, s)) + (deck ? 1.6 : .6) * k); g.closePath(); g.fill();
+      for (let s = Math.ceil(Math.max(0, sA) / 36) * 36; deck && s <= Math.min(line.P.len, sB); s += 36) { const x = X(s), y = Y(this.zLine(line, s)) + 1.6 * k, yg = Y(Lado.sample(R.near, R, s)); g.fillRect(x - .9 * k, y, 1.8 * k, Math.max(0, yg - y)); }
+      for (let s = Math.ceil(Math.max(0, sA) / 48) * 48; (st.kind === 'metro' || st.kind === 'tram') && s <= Math.min(line.P.len, sB); s += 48) { const x = X(s), y = Y(this.zLine(line, s)); g.fillStyle = Lado.css(Lado.mix(cN, [0, 0, 0], .3)); g.fillRect(x - .2 * k, y - 6.4 * k, .4 * k, 6.4 * k); }
+      // estaciones
+      for (const sI of line.st) { if (sI.s < sA - 100 || sI.s > sB + 100) continue; const x0 = X(sI.s - K.plat / 2), x1 = X(sI.s + K.plat / 2), y = Y(this.zLine(line, sI.s)); g.fillStyle = Lado.css(Lado.mix(cN, [.9, .86, .78], .6)); g.fillRect(Math.min(x0, x1), y - 1 * k, Math.abs(x1 - x0), 1.2 * k); g.fillStyle = col; g.fillRect(Math.min(x0, x1), y - 5.6 * k, Math.abs(x1 - x0), .8 * k); g.fillStyle = Lado.css(Lado.mix(cN, [0, 0, 0], .2)); for (let q = 0; q < 6; q++) g.fillRect(Math.min(x0, x1) + Math.abs(x1 - x0) * (q + .5) / 6, y - 5 * k, .3 * k, 4 * k); for (let q = 0; q < 7; q++) if (h2(q, sI.i, 3) < .6) Art.person(g, Math.min(x0, x1) + Math.abs(x1 - x0) * (q + .3) / 7, y - 1 * k, Math.max(1, k * .3), q + sI.i * 9, false); }
+      // el tren (carros sobre la pendiente real)
+      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
+      for (let i = 0; i < n; i++) { const s1 = st.s - dir * i * (carL + 1), s2 = s1 - dir * carL, xa = X(s1), xb = X(s2), ya = Y(this.zLine(line, s1)), yb = Y(this.zLine(line, s2)), L = Math.hypot(xa - xb, ya - yb), an = Math.atan2(ya - yb, xa - xb), hh = (st.kind === 'metro' ? 3.6 : 3.2) * k;
+        g.save(); g.translate(xb, yb); g.rotate(an); g.fillStyle = '#141414'; g.fillRect(-1, -hh - 1, L + 2, hh + 2); g.fillStyle = st.kind === 'brt' || st.kind === 'feeder' ? col : '#dfe3e6'; g.fillRect(0, -hh, L, hh); g.fillStyle = sky.night > .5 ? '#ffe7a0' : '#9fd3e6'; for (let w = 0; w < 5; w++) g.fillRect(L * (.08 + w * .18), -hh * .78, L * .12, hh * .34); g.fillStyle = st.kind === 'brt' || st.kind === 'feeder' ? '#f4f1ea' : col; g.fillRect(0, -hh * .3, L, hh * .12);
+        if (i === 0) { g.fillStyle = '#fff6c0'; g.fillRect(L - 2, -hh * .3, 2, 2); if (st.kind === 'metro' || st.kind === 'tram') { g.fillStyle = '#141414'; g.fillRect(L * .45, -hh - 2.6 * k, .3 * k, 2.6 * k); g.fillRect(L * .32, -hh - 2.6 * k, L * .28, .25 * k); if (st.v > 3 && h2(st.t * 30 | 0, i, 1) < .15) { g.fillStyle = '#bfefff'; g.fillRect(L * .45 - 2, -hh - 3 * k, 4, 3); } } }
+        g.restore(); }
+    } });
+    this.drawMiniHud(g, st, W, H, K);
   },
   sky(st) { return st.tod === 'noche' ? ['#0b1e2b', '#12344a', '#1d4a5e'] : st.tod === 'tarde' ? ['#12446c', '#c8664a', '#f3c27a'] : ['#2f7fb0', '#7fbcd6', '#d7ecf0']; },
   /* silueta de montañas real (relieve del valle) por rayos desde la cámara */
@@ -356,7 +402,7 @@ const Conduce = EM.modes.conduce = {
     g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(Math.round(st.comfort) + '%', tx, ty + 27 * dpr); g.textAlign = 'left';
     if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.25 + .2 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
   },
-  drawMiniHud(g, st, W, H, K) { const u = Math.max(1, Math.min(W, H) / 220); g.fillStyle = 'rgba(12,37,51,.8)'; g.fillRect(8 * u, H - 40 * u, 120 * u, 30 * u); g.fillStyle = '#fff'; g.font = '700 ' + (16 * u) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6) + ' km/h', 14 * u, H - 20 * u); },
+  drawMiniHud(g, st, W, H, K) { const u = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W); g.fillStyle = 'rgba(16,46,80,.85)'; g.fillRect(8 * u, 58 * u, 104 * u, 30 * u); g.fillStyle = '#fff'; g.font = '700 ' + (17 * u) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6) + ' km/h', 16 * u, 80 * u); },
   /* vista cenital (mapa pixelado) y panorámica (toda la línea) */
   drawTop(g, st, W, H, pan) {
     const T = TRACKS.get(st.line), line = NET.byId[st.line], K = KIND[st.kind], p = NET.at(line.P, st.s);

@@ -214,6 +214,7 @@ function railMode(cfg) {
       // efectos
       for (const f of st.fx) { const a = clamp(f.t, 0, 1); if (f.k === 'boom') { g.fillStyle = 'rgba(255,106,61,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (1.2 - a * .6), 0, TAU); g.fill(); g.fillStyle = 'rgba(255,230,120,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (.7 - a * .4), 0, TAU); g.fill(); } else { g.fillStyle = f.k === 'bad' ? PAL.rojo : T.txt; g.font = '700 ' + (cs * .32) + 'px Titulos, sans-serif'; g.fillText(f.s, X(f.x), Y(f.y - (1 - a) * .8)); } }
       g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+      if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
       g.fillStyle = T.txt; g.font = '700 ' + Math.max(11, vp.h * .022) + 'px Cuerpo, sans-serif'; g.fillText(this.LV[st.idx].n.toUpperCase() + ' · ' + st.delivered + '/' + st.goal + '  ' + '♥'.repeat(Math.max(0, st.lives)), 10, Math.max(16, vp.h * .035));
     },
     /* bot: orienta cada aguja hacia el color del vehículo que se acerca */
@@ -233,7 +234,7 @@ function railMode(cfg) {
 EM.modes.despacho = railMode({
   id: 'despacho', name: 'Despacho', sub: 'Puesto de Control · agujas', music: 'tension', icon: '🚆', unit: 'Trenes',
   tip: 'Toca las agujas (círculos) para mandar cada tren al andén de su color y letra. Ojo con los cruces: dos trenes juntos chocan.',
-  theme: { bg: '#f9e4a4', grid: 'rgba(20,20,20,.08)', rail: '#141414', rail2: '#f9e4a4', off: 'rgba(20,20,20,.25)', sw: '#fbf8ee', hot: '#ff6a3d', portal: '#12446c', txt: '#141414' },
+  theme: { bg: '#fbe2c2', grid: 'rgba(20,20,20,.08)', rail: '#141414', rail2: '#fbe2c2', off: 'rgba(20,20,20,.25)', sw: '#fdfbf5', hot: '#E38835', portal: '#1C5C9C', txt: '#141414' },
   LV: [
     { n: 'Patio Bello', s: 'Taller de trenes', W: 5, H: 6, sp: 1, br: 1, ex: 2, goal: 6, v: 1.1, r: 3.4, f: 'Los trenes duermen en los talleres de Bello: allá los lavan, revisan y alistan antes de las 4:30 a. m.' },
     { n: 'Niquía', s: 'Cabecera norte', W: 6, H: 7, sp: 1, br: 2, ex: 3, goal: 8, v: 1.15, r: 3.1 },
@@ -252,7 +253,7 @@ EM.modes.despacho = railMode({
 EM.modes.alim = railMode({
   id: 'alim', name: 'Alimentadores', sub: 'Barrios → Metro', music: 'puzzle', icon: '🚐', unit: 'Buses', alim: true,
   tip: 'Cada estación pide un color. Desvía los buses de los barrios para llenarla: al completar 3, sale el tren y pide otro color.',
-  theme: { bg: '#1c4459', grid: 'rgba(255,255,255,.05)', rail: '#0c2533', rail2: '#ff6a3d', off: 'rgba(255,106,61,.25)', sw: '#f9e4a4', hot: '#ff6a3d', portal: '#b4583a', txt: '#f9e4a4' },
+  theme: { bg: '#0d4f55', grid: 'rgba(255,255,255,.05)', rail: '#082f33', rail2: '#65A9AC', off: 'rgba(101,169,172,.25)', sw: '#fbe7b0', hot: '#E38835', portal: '#b4583a', txt: '#fbe7b0' },
   LV: [
     { n: 'Santo Domingo', s: 'De la loma al cable', W: 5, H: 7, sp: 1, br: 1, ex: 2, goal: 8, v: .9, r: 2.2, cap: 3, cols: 2, lives: 4 },
     { n: 'Manrique', W: 6, H: 7, sp: 1, br: 2, ex: 3, goal: 12, v: .9, r: 2, cap: 3, cols: 3, lives: 4 },

@@ -11,7 +11,7 @@ const geoM = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx * TM, y: (VM.latN - lat
 const mGeo = (x, y) => ({ lat: VM.latN - y / TM / VM.ky, lon: VM.lon0 + x / TM / VM.kx });
 
 const MAP = EM.map = {
-  t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 8,
+  t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 10,
   async load() {
     const bin = atob(VALLE_BIN), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     const nT = MW * MH, nE = VM.eW * VM.eH, nM = VM.mW * VM.mH, size = nT + nE * 2 + nM * 2;
@@ -39,47 +39,77 @@ const MAP = EM.map = {
     if (/Candelaria/.test(c)) return 18 + r * 60; if (/Poblado/.test(c)) return 20 + r * 70; if (/Laureles|América|Belén/.test(c)) return 9 + r * 22;
     return 6 + r * 10;
   },
-  /* ---------- vista cenital: trozos de 32×32 casillas pintados en pixel art ---------- */
+  /* ---------- vista cenital estilo pincel de pueblo: trozos de 32×32 casillas a 10 px por casilla ----------
+     Suelo con tramado, árboles frondosos con sombra, casas en 3/4 (tejado + fachada de colores), andenes y bordillos,
+     río con ondas. Las ventanas se guardan para encenderlas de noche. */
   chunk(cx, cy) {
-    const k = cx + ',' + cy; let c = this.chunks.get(k); if (c) { this.chunks.delete(k); this.chunks.set(k, c); return c; }
-    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data;
+    const key = cx + ',' + cy; let c = this.chunks.get(key); if (c) { this.chunks.delete(key); this.chunks.set(key, c); return c; }
+    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data, T = (x, y) => this.tile(cx * CH + x, cy * CH + y);
+    const road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
-      const X = cx * CH + tx, Y = cy * CH + ty, v = this.tile(X, Y), base = TRGB[v] || TRGB[0];
-      const e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .012, .72, 1.25);
+      const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty);
       for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
-        let m = sh; const hh = h2(X * P + px, Y * P + py, v);
+        let m = sh, col = base; const hh = h2(X * P + px, Y * P + py, v), chk = (px + py) % 2;
         switch (v) {
-          case TT.GRASS: m *= .92 + hh * .14; break;
-          case TT.MOUNT: m *= ((px + py * 3 + (X * 7 + Y * 3)) % 7 === 0 ? .78 : .95 + hh * .08); break;
-          case TT.BRICK: m *= (py === 0 || px === 0) ? .7 : (py % 3 === 0 ? .9 : 1.04); break;           // tejados de ladrillo
-          case TT.BLDG: m *= (px === 0 || py === 0) ? .66 : (px === P - 1 || py === P - 1) ? 1.18 : ((px % 3 === 1 && py % 3 === 1) ? 1.25 : 1); break;
-          case TT.ROAD: case TT.AVE: case TT.AUTO: m *= .97 + hh * .05; if (v !== TT.ROAD && (px === 3 || px === 4) && py % 4 < 2 && (this.tile(X, Y - 1) === v || this.tile(X, Y + 1) === v)) m *= 1.9; break;
-          case TT.WATER: m *= (py + (now() | 0)) % 5 === 0 ? 1.12 : .98; break;
-          case TT.CICLO: m *= (px === 0 || px === P - 1) ? .8 : 1; break;
+          case TT.GRASS: m *= chk ? .95 : 1.02; if (hh < .02) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 150) | 0]; break;
+          case TT.MOUNT: m *= .9 + (chk ? 0 : .05); break;
+          case TT.BRICK: case TT.BLDG: col = [96, 112, 74]; m *= chk ? .95 : 1; break;   // patio (la casa se pinta encima)
+          case TT.ROAD: case TT.AVE: case TT.AUTO: case TT.BRIDGE: {
+            m *= .97 + hh * .05; const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
+            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; }
+            else if (v !== TT.ROAD && ((road(nN) || road(nS)) && px === (P >> 1) && py % 4 < 2 || (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && px % 4 < 2)) { col = [244, 236, 208]; m = sh; }
+            break; }
+          case TT.WALK: case TT.PLAZA: m *= (px % 3 === 0 || py % 3 === 0) ? .9 : 1.02; break;
+          case TT.CICLO: if (px === P >> 1 && py % 4 < 2) { col = [250, 250, 245]; m = sh; } break;
+          case TT.WATER: case TT.CANAL: { const nb = !(nN === v) || !(nS === v); m *= (py + Math.floor(X * 1.7)) % 5 === 0 && hh < .6 ? 1.18 : nb && (py < 2 || py > P - 3) ? .82 : 1; break; }
+          case TT.STEPS: m *= py % 2 ? .85 : 1.05; break;
           default: m *= .95 + hh * .08;
         }
-        const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(base[0] * m, 0, 255); d[o + 1] = clamp(base[1] * m, 0, 255); d[o + 2] = clamp(base[2] * m, 0, 255); d[o + 3] = 255;
+        const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
       }
     }
     g.putImageData(img, 0, 0);
-    // árboles en laderas y parques (círculos pixelados)
+    // segunda pasada (de norte a sur): árboles y casas en 3/4 que se montan sobre la fila de abajo
+    const lights = [], R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], ROOFS = ['#b4583a', '#a24b30', '#c4683f', '#8e4128'];
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
-      const X = cx * CH + tx, Y = cy * CH + ty, v = this.tile(X, Y);
-      if ((v === TT.GRASS && h2(X, Y, 3) < .22) || (v === TT.MOUNT && h2(X, Y, 4) < .55)) { g.fillStyle = h2(X, Y, 5) < .5 ? '#2c5a2c' : '#3b7334'; const r = 2 + (h2(X, Y, 6) * 3 | 0); g.fillRect(tx * P + 4 - r, ty * P + 4 - r, r * 2, r * 2); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(tx * P + 4 - r, ty * P + 4 - r, r, 2); }
+      const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), ox = tx * P, oy = ty * P, r = h2(X, Y, 11);
+      if (v === TT.GRASS && r < .28 || v === TT.MOUNT) {
+        const nt = v === TT.MOUNT ? 2 + (r * 2 | 0) : 1;
+        for (let k = 0; k < nt; k++) { const rr = 2.5 + h2(X, Y, 20 + k) * 2.5, x = ox + 2 + h2(X, Y, 30 + k) * (P - 4), y = oy + 2 + h2(X, Y, 40 + k) * (P - 4), dk = v === TT.MOUNT ? .85 : 1;
+          g.fillStyle = 'rgba(18,38,22,.45)'; g.beginPath(); g.ellipse(x + 1.6, y + 2, rr, rr * .7, 0, 0, TAU); g.fill();
+          g.fillStyle = Art.shade('#2c5a2c', dk); g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = Art.shade(['#3f7a3a', '#4b8640', '#3a7246'][(r * 3) | 0], dk); g.beginPath(); g.arc(x - .5, y - .6, rr * .78, 0, TAU); g.fill();
+          g.fillStyle = Art.shade('#79ac56', dk); g.fillRect(x - rr * .5, y - rr * .6, 1.5, 1.5); g.fillRect(x - rr * .1, y - rr * .75, 1, 1); }
+      } else if (v === TT.BRICK) {
+        const wall = r < .55 ? (r < .3 ? '#b85c3e' : '#a9533a') : WALLS[(r * 97 | 0) % WALLS.length], roof = ROOFS[(r * 31 | 0) % ROOFS.length], fh = 4;
+        R(ox + 1, oy + 1, P - 2, P - 3, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 1, oy + 2 + ((P - 4) >> 1), P - 2, 1, Art.shade(roof, 1.25));
+        R(ox + 1, oy + P - 3, P - 2, fh, wall); R(ox + 1, oy + P - 3 + fh, P - 2, 1, 'rgba(0,0,0,.35)');
+        R(ox + 2 + (r * 4 | 0), oy + P - 2, 1, 3, '#3a2a20'); const wx = ox + P - 4, wy = oy + P - 2; R(wx, wy, 2, 1, '#28435a'); lights.push([wx, wy, 2]);
+      } else if (v === TT.BLDG) {
+        const hgt = 3 + (r * 5 | 0), roof = r < .5 ? '#9aa0a6' : '#b9b5ad', wall = ['#d8d2c4', '#c9ced4', '#e6dcc8', '#b8c4cc'][(r * 4) | 0];
+        R(ox, oy, P, P - 2, '#141414'); R(ox + 1, oy + 1, P - 2, P - 4, roof); R(ox + 2, oy + 2, 3, 2, Art.shade(roof, .85));
+        R(ox + 1, oy + P - 3, P - 2, hgt, wall); for (let wy = oy + P - 2; wy < oy + P - 3 + hgt - 1; wy += 2) for (let wx = ox + 2; wx < ox + P - 2; wx += 2) { R(wx, wy, 1, 1, '#2a4560'); lights.push([wx, wy, 1]); }
+        R(ox + 1, oy + P - 3 + hgt, P - 2, 1, 'rgba(0,0,0,.35)');
+      }
     }
-    this.chunks.set(k, c); while (this.chunks.size > 48) this.chunks.delete(this.chunks.keys().next().value);
+    c.lights = lights; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
     return c;
   },
-  /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m */
-  drawTop(g, W, H, mx, my, k) {
-    const CHm = this.CH * TM, s = k * TM * this.CH / (this.CH * this.PX);
+  /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
+  drawTop(g, W, H, mx, my, k, night = 0) {
+    const CHm = this.CH * TM, s = k * TM / this.PX;
     const x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
-    g.imageSmoothingEnabled = false;
+    g.imageSmoothingEnabled = false; this._vis = [];
     for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
       if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
-      const c = this.chunk(cx, cy), sx = (cx * CHm - x0) * k, sy = (cy * CHm - y0) * k;
-      g.drawImage(c, Math.floor(sx), Math.floor(sy), Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
+      const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
+      g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
     }
+  },
+  /* luces de ventanas (después del tinte de la noche) */
+  lightsTop(g, night, t) {
+    if (night < .25 || !this._vis) return; for (const [c, sx, sy, s] of this._vis) for (const [x, y, w] of c.lights) { const h = h2(x, y, 3); if (h > .62) continue; g.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (night * (.7 + .3 * Math.sin(t * 1.3 + h * 30))) + ')'; g.fillRect(sx + x * s, sy + y * s, Math.max(1, w * s), Math.max(1, s)); }
   },
   /* ---------- panorámica: mapa entero con sombreado del relieve (1 px = 2 casillas) ---------- */
   mini() {

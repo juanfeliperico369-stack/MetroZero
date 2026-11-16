@@ -108,7 +108,7 @@ const MPlus = EM.modes.metroplus = {
   pointer(st, type, x, y, vp) { if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs; let best = -1, bd = 4; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } }); return best < 0 ? null : { k: 'x', i: best }; },
   draw(g, st, vp) {
     const G = this.geo(st, vp), cs = G.cs, X = x => G.ox + x * cs, Y = y => G.oy + y * cs, mpc = (NET.byId.MP1 || NET.byId.MP2 || {}).color || '#7ab648';
-    g.fillStyle = '#c8201f'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#EB318E'; g.fillRect(0, 0, vp.w, vp.h);
     g.fillStyle = '#d9cdae'; g.fillRect(X(0), Y(0), cs * st.W, cs * st.H);
     // manzanas con techos
     for (let by = 0; by < st.H; by += 1) for (let bx = 0; bx < st.W; bx += 1) { const onRoad = st.roads.some(r => r.ax === 'h' ? Math.abs(by + .5 - r.c) < r.hw + .6 : Math.abs(bx + .5 - r.c) < r.hw + .6); if (onRoad) continue; const h = h2(bx, by, st.idx); if (h < .7) { g.fillStyle = PAL.negro; g.fillRect(X(bx) + 1, Y(by) + 1, cs - 2, cs - 2); g.fillStyle = h < .4 ? PAL.ladrillo : h < .55 ? '#8d97a4' : '#b8b0a0'; g.fillRect(X(bx) + 2, Y(by) + 2, cs - 4, cs - 4); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(X(bx) + 2, Y(by) + cs * .55, cs - 4, cs * .45 - 2); } else { Art.tree(g, X(bx + .5), Y(by + .9), cs * .8, false); } }
@@ -143,6 +143,7 @@ const MPlus = EM.modes.metroplus = {
       g.fillStyle = '#fff6c0'; g.fillRect(L / 2 - 2, -Wd / 2 + 1, 2, 2); g.fillRect(L / 2 - 2, Wd / 2 - 3, 2, 2);
       g.restore();
     }
+    if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
     // efectos
     g.textAlign = 'center';
     for (const f of st.fx) { const a = clamp(f.t, 0, 1); if (f.k === 'boom') { g.fillStyle = 'rgba(255,106,61,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (1.6 - a * .8), 0, TAU); g.fill(); } else { g.font = '700 ' + (cs * .7) + 'px Titulos, sans-serif'; g.fillStyle = PAL.negro; g.fillText(f.s, X(f.x) + 1, Y(f.y - (1.2 - a) * 1.5) + 1); g.fillStyle = f.k === 'bad' ? PAL.rojo : f.k === 'honk' ? PAL.mante : '#fff'; g.fillText(f.s, X(f.x), Y(f.y - (1.2 - a) * 1.5)); } }
