@@ -1,0 +1,377 @@
+/* =====================================================================
+   MODO CONDUCE: maneja el tren, el tranvía o el bus por la vía real.
+   Vistas: cabina (1a persona), persecución (3a persona), cenital y panorámica.
+   Física: a = palanca·a_max − pendiente·g − resistencia. ATP: curvas y frenado a la estación.
+   Puntaje por parada: precisión (m) + puntualidad (s); al final: confort y energía.
+   ===================================================================== */
+const SEG = 8, DRAW_D = 900;
+const TRACKS = new Map();
+function trackOf(line) {
+  if (TRACKS.has(line.id)) return TRACKS.get(line.id);
+  const P = line.P, K = line.K, n = Math.max(2, Math.ceil(P.len / SEG) + 1), x = new Float32Array(n), y = new Float32Array(n), an = new Float32Array(n), zt = new Float32Array(n), z = new Float32Array(n), lim = new Float32Array(n), gb = new Uint8Array(n * 6);
+  for (let i = 0; i < n; i++) { const p = NET.at(P, i * SEG); x[i] = p.x; y[i] = p.y; an[i] = p.a; zt[i] = MAP.ready ? MAP.elevM(p.x, p.y) : 1480; }
+  const W = K.deck ? 25 : 3;   // viaducto: perfil suave; calle: sigue el terreno
+  for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - W); j <= Math.min(n - 1, i + W); j++) { s += zt[j]; c++; } z[i] = s / c + K.deck; }
+  for (let i = 0; i < n; i++) {
+    let da = 0; const j0 = Math.max(0, i - 5), j1 = Math.min(n - 1, i + 5); for (let j = j0; j < j1; j++) { let d = an[j + 1] - an[j]; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; da += Math.abs(d); }
+    const R = da > 1e-4 ? ((j1 - j0) * SEG) / da : 1e5; lim[i] = Math.min(K.vmax, Math.floor(Math.sqrt(1.1 * R) * 3.6 / 5) * 5 / 3.6);
+    if (lim[i] < 15 / 3.6) lim[i] = 15 / 3.6;
+    const OFF = [-46, -26, -12, 12, 26, 46]; for (let k = 0; k < 6; k++) { const o = OFF[k], sx = x[i] - Math.sin(an[i]) * o, sy = y[i] + Math.cos(an[i]) * o; gb[i * 6 + k] = MAP.ready ? MAP.tileM(sx, sy) : 0; }
+  }
+  // paisaje: edificios y árboles reales a los lados (según el mapa)
+  const sc = [];
+  for (let s = 0; s < P.len; s += 16) {
+    const i = Math.min(n - 1, Math.round(s / SEG));
+    for (const side of [-1, 1]) for (const o0 of [16, 30, 46, 64]) {
+      const o = side * (o0 + h2(s | 0, o0, 3) * 6), px = x[i] - Math.sin(an[i]) * o, py = y[i] + Math.cos(an[i]) * o, v = MAP.ready ? MAP.tileM(px, py) : TT.BRICK, r = h2(s | 0, o | 0, 11);
+      if ((v === TT.BLDG || v === TT.BRICK) && r < .6) sc.push({ s, o, w: 9 + r * 10, h: MAP.ready ? MAP.bHeight(px, py, s | 0) : 10, b: v === TT.BRICK, seed: (s * 7 + o) | 0, k: 0, zg: zt[i] });
+      else if ((v === TT.GRASS || v === TT.MOUNT) && r < .35) sc.push({ s, o, w: 5, h: 7 + r * 8, k: 1, zg: zt[i] });
+    }
+  }
+  const T = { n, x, y, an, zt, z, lim, gb, sc, len: P.len };
+  TRACKS.set(line.id, T); return T;
+}
+const Conduce = EM.modes.conduce = {
+  id: 'conduce', name: 'Conduce', sub: 'Metro · Tranvía · Metroplús', music: 'conduce', fullCanvas: true, tip: 'Sube la palanca para acelerar, bájala para frenar. Detén el frente del tren en la marca del andén y abre las puertas.',
+  _lv: null,
+  levels() {
+    if (this._lv) return this._lv; const L = [];
+    for (const line of NET.lines.filter(l => ['metro', 'tram', 'brt', 'feeder'].includes(l.kind) || (l.kind === 'future' && !/cable/i.test(l.name + ' ' + (l.tech || ''))))) {
+      const n = line.st.length; let k = 0;
+      for (let a = 0; a < n - 1; a += 2) { const b = Math.min(n - 1, a + 2); L.push({ id: line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name + (line.kind === 'future' ? ' · vista al futuro (' + line.status + ')' : ''), k: k++ }); }
+      if (n > 3) L.push({ id: line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Recorrido completo', sub: line.name + ' · ' + line.st[0].name + ' → ' + line.st[n - 1].name, k: k++, full: true });
+      const r = line.st; if (n > 2) L.push({ id: line.id + ':r' + (n - 1) + '-' + Math.max(0, n - 3), line: line.id, a: n - 1, b: Math.max(0, n - 3), name: r[n - 1].name + ' → ' + r[Math.max(0, n - 3)].name, sub: line.name + ' · sentido contrario', k: k++ });
+    }
+    return (this._lv = L);
+  },
+  create(lv, opts) {
+    const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], kd = line.kind === 'future' ? 'tram' : line.kind, K = KIND[kd], T = trackOf(line), rng = new RNG(opts.seed | 0);
+    const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
+    const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
+    const hr = new Date().getHours(), tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
+    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || 'cab',
+      rain: rng.f() < .25, tod, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
+    st.tgt = stops.map(tgt);
+    // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
+    for (let k = 1; k < stops.length; k++) { if (rng.f() < .35) { const a = st.tgt[k - 1], b = st.tgt[k]; st.sig.push({ s: lerp(a, b, rng.range(.35, .65)), k, on: false, t: rng.range(6, 12), seen: false, done: false }); } }
+    if (stops.length > 2 && rng.f() < .5) st.holdDoor = rng.i(1, stops.length - 2);
+    st.trivK = rng.i(1, Math.max(1, stops.length - 1));
+    if (K.deck === 0 && line.kind !== 'cable') { // semáforos en la calle (tranvía y buses)
+      const a = Math.min(st.tgt[0], st.tgt[stops.length - 1]), b = Math.max(st.tgt[0], st.tgt[stops.length - 1]);
+      for (let s = a + 160; s < b - 60; s += rng.range(260, 480)) { if (st.tgt.some(t => Math.abs(t - s) < 90)) continue; st.lights.push({ s, off: rng.range(0, 30), per: 30, g: 15 }); }
+    }
+    // horario ideal (simulado con el piloto automático) + 8 % de margen
+    const sim = this.simulate(line, st); let acc = 0; st.sched = [0]; for (let k = 1; k < stops.length; k++) { acc += sim[k - 1] * 1.08 + (k > 1 ? K.dwell : 0); st.sched.push(acc); }
+    st.ideal = sim;
+    return st;
+  },
+  /* tiempo ideal de cada tramo con el piloto (sin eventos) */
+  simulate(line, st0) {
+    const res = []; for (let k = 1; k < st0.stops.length; k++) {
+      const st = { kind: st0.kind, line: st0.line, dir: st0.dir, s: st0.tgt[k - 1], v: 0, a: 0, lev: 0, eb: 0, tgt: st0.tgt, ni: k, sig: [], lights: [], rain: false, t: 0 };
+      let t = 0; for (let i = 0; i < 20000; i++) { const a = this.pilot(st); st.lev = a; this.physics(st, .1); t += .1; if ((st.tgt[k] - st.s) * st.dir < .5 && st.v < .05) break; }
+      res.push(t);
+    }
+    return res;
+  },
+  /* límite de velocidad en s (curvas) */
+  limAt(st, s) { const T = TRACKS.get(st.line); return T.lim[clamp(Math.round(s / SEG), 0, T.n - 1)]; },
+  zAt(st, s) { const T = TRACKS.get(st.line), f = clamp(s / SEG, 0, T.n - 1.001), i = f | 0, k = f - i; return T.z[i] * (1 - k) + T.z[i + 1] * k; },
+  lightState(L, t) { const p = ((t + L.off) % L.per + L.per) % L.per; return p < L.g ? 'g' : p < L.g + 3 ? 'y' : 'r'; },
+  /* distancia (sentido de marcha) al próximo punto de detención obligatorio */
+  nextStop(st) {
+    let d = (st.tgt[st.ni] - st.s) * st.dir, why = 'est';
+    for (const g of st.sig) if (g.on && !g.done) { const dd = (g.s - st.s) * st.dir - 6; if (dd > -2 && dd < d) { d = dd; why = 'sig'; } }
+    for (const L of st.lights) { const dd = (L.s - st.s) * st.dir - 4; if (dd > -1 && dd < d && this.lightState(L, st.t) !== 'g' && dd > st.v * st.v / (2 * 1.2) * .5) { d = dd; why = 'luz'; } }
+    return { d, why };
+  },
+  pilot(st) {
+    const K = KIND[st.kind], ns = this.nextStop(st), brk = K.brk * (st.rain ? .82 : 1) * .82;
+    let target = Math.min(this.limAt(st, st.s), this.limAt(st, st.s + st.dir * 60), Math.sqrt(2 * brk * Math.max(0, ns.d)));
+    if (ns.d < 30) { if (ns.d <= .15) return -1; const bm = K.brk * (st.rain ? .82 : 1), need = st.v * st.v / (2 * ns.d); if (need > bm * .45) return -clamp(need / bm, 0, 1); if (st.v < Math.min(3, Math.sqrt(ns.d) * 1.1)) return .3; return 0; }
+    const e = target - st.v; return e > .8 ? clamp(e / 2, .3, 1) : e < -.3 ? clamp(e / 2, -1, -.15) : 0;
+  },
+  physics(st, dt) {
+    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .8 : .35);
+    let a;
+    if (st.eb > 0) { a = -K.emg; st.eb = st.v > .05 ? st.eb : 0; }
+    else if (st.lev > 0) a = st.lev * K.acc * (1 - .35 * st.v / K.vmax);
+    else a = st.lev * K.brk * (st.rain ? .82 : 1);
+    if (st.v > .01 || a > 0) a += -9.81 * gr - .015 - .0003 * st.v * st.v;
+    if (st.v <= .01 && a < 0) a = 0;
+    st.v = Math.max(0, st.v + a * dt); st.s += st.dir * st.v * dt; st.s = clamp(st.s, 0, T.len); st.a = a;
+    if (st.lev > 0) st.energy += st.lev * K.acc * st.v * dt / 3600 * 120;      // kWh aproximados
+    else if (st.lev < 0) st.energy -= -st.lev * K.brk * st.v * dt / 3600 * 120 * .3;  // freno regenerativo
+  },
+  step(st, dt) {
+    if (st.done) return;
+    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 3 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
+    for (let k = 0; k < sub; k++) this.tick(st, dt, K, line);
+    st.cam += (st.v - st.cam) * Math.min(1, dt * 3);
+  },
+  tick(st, dt, K, line) {
+    st.t += dt;
+    if (st.auto) { if (st.ph === 'run' || st.ph === 'ready') st.lev = this.pilot(st); }
+    else if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.2, -1, 1);
+    if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; st.ni = 1; this.say(st, 'Próxima estación: ' + line.st[st.stops[1]].name); } else return; }
+    if (st.ph === 'dwell') {
+      st.v = 0; st.dwell += dt;
+      if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bellDone) { st.bellDone = true; Snd.play('bell'); this.msg(st, 'Abordaje completo · cierra puertas', 'y'); } }
+      if (st.auto) { if (st.doors === 0 && st.dwell > .5 && !st.opened) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2 && st.dwell > .3) { st.lev = .6; } if (st.trivia) this.answer(st, 0); }
+      if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
+      return;
+    }
+    // señales en rojo: aparecen al acercarse y se despejan con el tiempo
+    for (const g of st.sig) if (!g.done && g.k === st.ni) { const dd = (g.s - st.s) * st.dir; if (!g.seen && dd < 700) { g.seen = true; g.on = true; this.msg(st, 'Señal en rojo adelante: tren en la vía', 'r'); Snd.play('warn'); } if (g.on) { if (st.v < .3 || dd > 0) g.t -= dt; if (g.t <= 0) { g.on = false; g.done = true; this.msg(st, 'Vía libre: señal en verde', 'g'); } if (dd < -1 && g.on) { g.on = false; g.done = true; st.eb = 1; st.score -= 300; this.msg(st, '¡Pasaste una señal en rojo! Freno de emergencia', 'r'); Snd.play('crash'); vib(200); } } }
+    for (const L of st.lights) { const prev = (L.s - (st.s - st.dir * st.v * dt)) * st.dir, dd = (L.s - st.s) * st.dir; if (prev > 0 && dd <= 0 && this.lightState(L, st.t) === 'r') { st.score -= 150; this.msg(st, '¡Semáforo en rojo! −150', 'r'); Snd.play('bad'); } }
+    const lim = this.limAt(st, st.s), ns = this.nextStop(st), atp = Math.sqrt(2 * K.brk * .95 * Math.max(0, (st.tgt[st.ni] - st.s) * st.dir + 3));
+    const vmaxNow = Math.min(lim, atp + 1.2);
+    if (st.v > vmaxNow + 2 / 3.6) { st.over += dt; if (!st._warn) { st._warn = 1; Snd.play('warn'); this.msg(st, 'ATP: exceso de velocidad', 'y'); } st.score -= 12 * dt; if (st.v > vmaxNow + 9 / 3.6 && !st.eb) { st.eb = 1; st.score -= 200; this.msg(st, 'ATP: freno de emergencia −200', 'r'); Snd.play('crash'); vib(160); } } else st._warn = 0;
+    this.physics(st, dt);
+    const j = Math.abs(st.a - st.lastA) / dt; st.lastA = st.a; if (j > 3.2 && st.v > 1) { st.jerkT += dt; st.comfort = Math.max(0, st.comfort - dt * 18); }
+    // llegada a la estación
+    const d = (st.tgt[st.ni] - st.s) * st.dir;
+    if (st.v < .05 && st.eb === 0 && Math.abs(d) <= 12 && st.lev <= 0) {
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d);
+      const late = st.t - st.sched[st.ni], pP = d === 0 ? 300 : st.err < .5 ? 300 : st.err < 1 ? 250 : st.err < 2 ? 200 : st.err < 4 ? 120 : st.err < 7 ? 60 : 20, pT = Math.abs(late) <= 6 ? 200 : Math.abs(late) <= 15 ? 120 : Math.abs(late) <= 30 ? 60 : 0;
+      st.score += pP + pT; st.arr.push({ err: st.err, late, pP, pT }); Snd.play(pP >= 250 ? 'star' : 'ok');
+      this.msg(st, (st.err < .5 ? '¡Perfecto! ' : st.err < 2 ? '¡Muy bien! ' : '') + st.err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 200 ? 'g' : 'y');
+      if (st.ni === st.trivK && !st.auto) { const q = NET.trivia(new RNG(st.seed + st.ni)); if (q) { const o = q.a.map((t, i) => ({ t, ok: i === 0 })); new RNG(st.seed * 3 + st.ni).shuffle(o); st.trivia = { q: q.q, o, x: q.x }; } }
+      return;
+    }
+    if (d < -12 && st.v < .3) { // se pasó: la parada se pierde
+      st.skipped++; st.score -= 200; this.msg(st, 'Te pasaste de la estación −200', 'r'); Snd.play('bad'); st.arr.push({ err: 99, late: 0, pP: 0, pT: 0 });
+      if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st);
+    }
+    if (st.s <= 0 || st.s >= TRACKS.get(st.line).len) this.finish(st);
+  },
+  doors(st) {
+    if (st.ph !== 'dwell') return;
+    if (st.doors === 0) {
+      st.doors = 1; st.opened = true; Snd.play('door'); vib(20); const line = NET.byId[st.line], name = line.st[st.stops[st.ni]].name;
+      const alight = Math.round(st.pax * (st.ni === st.stops.length - 1 ? 1 : .3)), board = st.ni === st.stops.length - 1 ? 0 : 15 + (hashStr(name) % 40);
+      st.pax = st.pax - alight + board; st.bTime = 5 + (alight + board) / 10; st.board = 0; EM.save.d.stats.pax += board;
+      if (st.ni === st.stops.length - 1) { st.bTime = 3; }
+      const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); EM.save.d.facts[name] = 1; }
+    } else if (st.doors === 1) {
+      if (st.ni === st.holdDoor && !st.held) { st.held = true; Snd.play('warn'); this.msg(st, '“Por favor, libere las puertas” · inténtalo de nuevo', 'y'); st.board = Math.max(0, st.board - .3); st.bellDone = false; return; }
+      if (st.board < 1) { st.score -= 50; this.msg(st, 'Cerraste antes de tiempo −50', 'r'); }
+      st.doors = 2; Snd.play('door');
+      if (st.ni === st.stops.length - 1) { this.finish(st); return; }
+      st.ni++;
+    }
+  },
+  answer(st, i) { const q = st.trivia; if (!q) return; st.trivia = null; const ok = q.o[i] && q.o[i].ok; if (ok) { st.score += 100; Snd.play('coin'); this.msg(st, '¡Correcto! +100 · ' + (q.x || ''), 'g'); } else { Snd.play('bad'); this.msg(st, 'Era: ' + q.o.find(o => o.ok).t, 'y'); } if (!EM.headless) this.renderTrivia(st); },
+  finish(st) {
+    if (st.done) return; st.done = true; st.ph = 'end';
+    st.score += Math.round(st.comfort * 2); const kwh = Math.max(0, st.energy), eff = clamp(1 - kwh / (st.stops.length * 8), 0, 1); st.score += Math.round(eff * 100);
+    st.score = Math.max(0, Math.round(st.score)); EM.save.d.stats.km += Math.abs(st.s - st.s0) / 1000;
+  },
+  result(st) {
+    const n = st.stops.length - 1, max = n * 500 + 300, frac = st.score / max, line = NET.byId[st.line];
+    const errs = st.arr.filter(a => a.err < 99), avg = errs.length ? errs.reduce((a, b) => a + b.err, 0) / errs.length : 0;
+    return { done: st.done, win: st.done && st.skipped === 0, score: st.score, stars: st.done && st.skipped === 0 ? starsOf(frac) : 0, fact: line && (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)],
+      lines: [['Paradas', (n - st.skipped) + ' / ' + n], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort (tinto)', Math.round(st.comfort) + ' %'], ['Energía', Math.max(0, st.energy).toFixed(1) + ' kWh']] };
+  },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
+  hud(st) {
+    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    this.updCtl(st);
+    return [['', Math.round(st.v * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'dwell' ? 'Andén' : Math.max(0, d) < 1000 ? Math.round(Math.max(0, d)) + ' m' : (d / 1000).toFixed(1) + ' km'], ['★', fmt(st.score)]];
+  },
+  /* ---------- controles (palanca, puertas, vistas) ---------- */
+  mount(st, el) {
+    el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
+      <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
+      <div class="vsel" id="cView"><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="top">▦</button><button data-v="pan">◎</button></div><div id="cTriv"></div>`;
+    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
+    lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
+    lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
+    $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
+    $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
+    $$('#cView button').forEach(b => b.onclick = () => { st.view = b.dataset.v; this.updCtl(st); });
+    this.updCtl(st); this._kn = kn;
+  },
+  updCtl(st) {
+    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'), lev = $('#cLev'); if (!kn) return;
+    const f = st.lev > 0 ? .42 * (1 - st.lev) : st.lev < 0 ? .5 + .5 * -st.lev : .46; kn.style.top = 'calc(' + (f * 100) + '% - 15px)'; kn.textContent = st.eb ? 'EMG' : st.lev > 0 ? 'T' + Math.round(st.lev * 10) : st.lev < 0 ? 'F' + Math.round(-st.lev * 10) : 'N';
+    const d = $('#cDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
+    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 500; if (near && st.ff) st.ff = false; ff.disabled = near || st.ph !== 'run'; ff.style.background = st.ff ? 'var(--mante)' : '';
+    $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view));
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+    if (st.trivia && !$('#cTriv').innerHTML) this.renderTrivia(st);
+  },
+  renderTrivia(st) {
+    const el = $('#cTriv'); if (!el) return; const q = st.trivia;
+    el.innerHTML = q ? `<div class="card" style="top:auto;bottom:calc(120px + var(--sab));left:50%;transform:translateX(-50%);width:min(92%,420px)"><div class="pag">Pregunta de la estación · +100</div><p style="font-weight:700;margin:6px 0 10px">${esc(q.q)}</p><div class="col">${q.o.map((o, i) => `<button class="btn sm" data-i="${i}">${esc(o.t)}</button>`).join('')}</div></div>` : '';
+    $$('#cTriv button').forEach(b => b.onclick = () => this.answer(st, +b.dataset.i));
+  },
+  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
+  /* ======================= DIBUJO ======================= */
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h;
+    if (st.view === 'top' || st.view === 'pan') this.drawTop(g, st, W, H, st.view === 'pan');
+    else this.draw3D(g, st, W, H, st.view === 'tps');
+  },
+  sky(st) { return st.tod === 'noche' ? ['#0b1e2b', '#12344a', '#1d4a5e'] : st.tod === 'tarde' ? ['#12446c', '#c8664a', '#f3c27a'] : ['#2f7fb0', '#7fbcd6', '#d7ecf0']; },
+  /* silueta de montañas real (relieve del valle) por rayos desde la cámara */
+  ridge(cx, cy, cz, th, W, focal, hor) {
+    const key = (cx / 30 | 0) + ',' + (cy / 30 | 0) + ',' + (th * 40 | 0) + ',' + W; if (this._rk === key) return this._rd;
+    const N = 72, near = new Float32Array(N + 1), far = new Float32Array(N + 1);
+    for (let c = 0; c <= N; c++) {
+      const sx = (c / N) * W - W / 2, ang = th + Math.atan2(sx, focal), dx = Math.cos(ang), dy = Math.sin(ang), cosf = Math.cos(ang - th); let mn = 1e9, mf = 1e9;
+      for (let d = 120; d < 22000; d *= 1.09) { const e = MAP.elevM(cx + dx * d, cy + dy * d), y = hor - (e - cz) / (d * cosf) * focal; if (d < 2500) { if (y < mn) mn = y; } else if (y < mf) mf = y; }
+      near[c] = mn; far[c] = Math.min(mf, mn);
+    }
+    this._rk = key; this._rd = { near, far, N }; return this._rd;
+  },
+  draw3D(g, st, W, H, tps) {
+    const T = TRACKS.get(st.line), line = NET.byId[st.line], K = KIND[st.kind], night = st.tod === 'noche', dir = st.dir;
+    const back = tps ? K.len + 16 : -1.5, sc = clamp(st.s - dir * back, 0, T.len), ci = clamp(sc / SEG, 0, T.n - 1.001), i0 = ci | 0, fk = ci - i0;
+    const cx = lerp(T.x[i0], T.x[i0 + 1], fk), cy = lerp(T.y[i0], T.y[i0 + 1], fk);
+    let th = Math.atan2(T.y[Math.min(T.n - 1, i0 + 3 * (dir > 0 ? 1 : 0))] - T.y[Math.max(0, i0 - 3 * (dir < 0 ? 1 : 0))], T.x[Math.min(T.n - 1, i0 + 3 * (dir > 0 ? 1 : 0))] - T.x[Math.max(0, i0 - 3 * (dir < 0 ? 1 : 0))]); if (dir < 0) th += Math.PI;
+    const cz = this.zAt(st, sc) + (tps ? 6 : 2.6), hor = Math.round(H * (tps ? .42 : .44)), focal = W * .85 / Math.max(1, W / H * .62), cos = Math.cos(th), sin = Math.sin(th);
+    const P = (x, y, z) => { const dx = x - cx, dy = y - cy, r = -dx * sin + dy * cos; let f = dx * cos + dy * sin; if (f < -20) return null; if (f < .8) f = .8; return { x: W / 2 + r / f * focal, y: hor - (z - cz) / f * focal, f, k: focal / f }; };
+    // cielo
+    const sk = this.sky(st), gr = g.createLinearGradient(0, 0, 0, hor); gr.addColorStop(0, sk[0]); gr.addColorStop(.7, sk[1]); gr.addColorStop(1, sk[2]); g.fillStyle = gr; g.fillRect(0, 0, W, hor + 2);
+    if (night) for (let i = 0; i < 50; i++) { g.fillStyle = 'rgba(249,228,164,' + (.4 + .4 * Math.sin(st.t + i)) + ')'; g.fillRect(h2(i, 1, 2) * W, h2(i, 2, 2) * hor * .7, 2, 2); }
+    // montañas: dos capas + luces de los barrios en la noche
+    const R = MAP.ready ? this.ridge(cx, cy, cz, th, W, focal, hor) : null;
+    if (R) {
+      const lay = (arr, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, hor + 1); for (let c = 0; c <= R.N; c++) g.lineTo(c / R.N * W, Math.min(hor + 1, arr[c])); g.lineTo(W, hor + 1); g.closePath(); g.fill(); };
+      lay(R.far, night ? '#173a4c' : st.tod === 'tarde' ? '#7b6a7a' : '#7da3ad'); lay(R.near, night ? '#10303f' : st.tod === 'tarde' ? '#4f5a5e' : '#4f7f6a');
+      const step = Math.max(3, W / 160);
+      for (let x = 0; x < W; x += step) { const c = Math.round(x / W * R.N), top = R.near[c]; if (top >= hor) continue; for (let y = top + 3; y < hor; y += step) { const h = h2(x | 0, y | 0, 77); if (h < (night ? .32 : .16)) { g.fillStyle = night ? ((st.t * 2 + h * 50) % 6 > .5 ? '#ffd27a' : '#c98a3a') : (h < .08 ? PAL.ladrillo : '#d9cdae'); g.fillRect(x, y, night ? 2 : 3, night ? 2 : 2); } } }
+    }
+    g.fillStyle = night ? '#16232a' : '#6f8a5a'; g.fillRect(0, hor, W, H - hor);
+    // muestras de vía delante (lejos → cerca)
+    const nS = Math.round(DRAW_D / SEG), pts = [];
+    for (let k = nS; k >= 0; k--) { const i = Math.round(ci) + dir * k; if (i < 0 || i >= T.n) continue; pts.push(i); }
+    const proj = new Map(); const pr = (i, o, dz) => { const key = i + '|' + o + '|' + dz; let p = proj.get(key); if (p !== undefined) return p; const a = T.an[i], x = T.x[i] - Math.sin(a) * o, y = T.y[i] + Math.cos(a) * o; p = P(x, y, (dz === 'g' ? T.zt[i] : T.z[i]) + (typeof dz === 'number' ? dz : 0)); proj.set(key, p); return p; };
+    const quad = (a, b, c, d, col) => { if (!a || !b || !c || !d) return; g.fillStyle = col; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(c.x, c.y); g.lineTo(d.x, d.y); g.closePath(); g.fill(); };
+    const GOFF = [-70, -46, -26, -12, 12, 26, 46, 70], dim = night ? .42 : st.tod === 'tarde' ? .8 : 1;
+    // suelo por bandas laterales (tipo de casilla real a cada lado)
+    for (let q = 0; q < pts.length - 1; q++) {
+      const i = pts[q], j = pts[q + 1];
+      for (let b = 0; b < 7; b++) { const t = b < 3 ? T.gb[i * 6 + b] : b > 3 ? T.gb[i * 6 + b - 1] : (K.deck ? T.gb[i * 6 + 2] : TT.ROAD); const o1 = GOFF[b], o2 = GOFF[b + 1]; let col = TRGB[t] || TRGB[0]; const sh = dim * ((i >> 1) % 2 ? 1 : .94); quad(pr(i, o1, 'g'), pr(i, o2, 'g'), pr(j, o2, 'g'), pr(j, o1, 'g'), 'rgb(' + (col[0] * sh | 0) + ',' + (col[1] * sh | 0) + ',' + (col[2] * sh | 0) + ')'); }
+    }
+    // objetos ordenados por profundidad
+    const items = [];
+    const sMin = Math.min(sc, sc + dir * DRAW_D), sMax = Math.max(sc, sc + dir * DRAW_D), scn = T.sc;
+    let lo = 0, hi = scn.length; while (lo < hi) { const m = (lo + hi) >> 1; if (scn[m].s < sMin) lo = m + 1; else hi = m; }
+    for (let k = lo; k < scn.length && scn[k].s <= sMax; k++) { const o = scn[k], i = clamp(Math.round(o.s / SEG), 0, T.n - 1), a = T.an[i], p = P(T.x[i] - Math.sin(a) * o.o, T.y[i] + Math.cos(a) * o.o, o.zg); if (p) items.push({ f: p.f, d: 0, o, p }); }
+    for (const sI of line.st) { if (sI.s < sMin - 80 || sI.s > sMax + 80) continue; const i = clamp(Math.round(sI.s / SEG), 0, T.n - 1), p = P(T.x[i], T.y[i], T.z[i]); if (p) items.push({ f: p.f, d: 1, st: sI, i }); }
+    for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const i = clamp(Math.round(sg.s / SEG), 0, T.n - 1), a = T.an[i], o = 3.6 * dir, p = P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, T.z[i]); if (p) items.push({ f: p.f, d: 2, p, red: sg.on }); }
+    for (const L of st.lights) { const i = clamp(Math.round(L.s / SEG), 0, T.n - 1), a = T.an[i], o = 6 * dir, p = P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, T.z[i]); if (p) items.push({ f: p.f, d: 2, p, red: this.lightState(L, st.t) !== 'g', yel: this.lightState(L, st.t) === 'y' }); }
+    // vía / viaducto / carril (lejos → cerca)
+    const deckCol = night ? '#4a4c52' : '#bdb4a0', bal = night ? '#2b2b2e' : '#6c6a66', rail = night ? '#9aa0a6' : '#e8e8e8';
+    for (let q = 0; q < pts.length - 1; q++) {
+      const i = pts[q], j = pts[q + 1], hw = K.deck ? 3.4 : (st.kind === 'tram' ? 3 : 3.6);
+      if (K.deck && i % 4 === 0) { const a = pr(i, 0), b = pr(i, 0, 'g'); if (a && b) { g.fillStyle = night ? '#3a3c40' : '#a99f8a'; const w = Math.max(1, 1.6 * a.k); g.fillRect(a.x - w / 2, a.y, w, b.y - a.y); } }
+      if (K.deck) quad(pr(i, -hw * dir, -1.2), pr(i, hw * dir, -1.2), pr(j, hw * dir, -1.2), pr(j, -hw * dir, -1.2), night ? '#2e3034' : '#8f8676');
+      quad(pr(i, -hw * dir), pr(i, hw * dir), pr(j, hw * dir), pr(j, -hw * dir), K.deck ? deckCol : (st.kind === 'tram' ? '#59606a' : '#3f444d'));
+      if (st.kind === 'metro' || st.kind === 'tram') {
+        quad(pr(i, -1.5), pr(i, 1.5), pr(j, 1.5), pr(j, -1.5), bal);
+        if (i % 2 === 0) quad(pr(i, -1.3, .05), pr(i, 1.3, .05), pr(j, 1.3, .05), pr(j, -1.3, .05), night ? '#3b2f25' : '#5a4636');
+        for (const o of [-.75, .75]) quad(pr(i, o - .06, .15), pr(i, o + .06, .15), pr(j, o + .06, .15), pr(j, o - .06, .15), rail);
+        if (st.kind === 'tram') quad(pr(i, -.05, .12), pr(i, .05, .12), pr(j, .05, .12), pr(j, -.05, .12), rail);
+      } else if (i % 6 < 3) quad(pr(i, -.12, .02), pr(i, .12, .02), pr(j, .12, .02), pr(j, -.12, .02), st.kind === 'brt' ? '#f2f2f2' : PAL.mante);
+      // catenaria: postes cada 48 m
+      if ((st.kind === 'metro' || st.kind === 'tram') && i % 6 === 0) { const a = pr(i, hw * dir), b = pr(i, hw * dir, 6.2); if (a && b) { g.fillStyle = night ? '#55595e' : '#5b6168'; const w = Math.max(1, .25 * a.k); g.fillRect(a.x - w / 2, b.y, w, a.y - b.y); const c = pr(i, 0, 5.6); if (c) g.fillRect(Math.min(b.x, c.x), b.y, Math.abs(c.x - b.x), Math.max(1, .1 * a.k)); if (night && st.fest === 'alumbrados') for (let q = 0; q < 5; q++) { g.fillStyle = ROPA[(i + q + (st.t * 3 | 0)) % ROPA.length]; const r = Math.max(1.5, .35 * a.k); g.fillRect(b.x + (a.x - b.x) * 0 - r / 2, b.y + (a.y - b.y) * q / 5, r, r); } } }
+      // marca de parada (tablero) en el andén siguiente
+    }
+    // cable de contacto
+    if (st.kind === 'metro' || st.kind === 'tram') { g.strokeStyle = night ? '#6d6f73' : '#333'; g.lineWidth = 1; g.beginPath(); let f = true; for (const i of pts) { const p = pr(i, 0, 5.6); if (!p) continue; if (f) { g.moveTo(p.x, p.y); f = false; } else g.lineTo(p.x, p.y); } g.stroke(); }
+    items.sort((a, b) => b.f - a.f);
+    for (const it of items) {
+      if (it.d === 0) { const o = it.o, p = it.p, w = o.w * p.k, h = o.h * p.k; if (w < .6) continue; if (o.k === 0) Art.building(g, p.x - w / 2, p.y - h, w, h, o.seed, night, o.b); else Art.tree(g, p.x, p.y, h * .9, night); }
+      else if (it.d === 1) this.drawStation(g, st, T, it.st, P, night, line, K);
+      else if (it.d === 2) { const p = it.p, h = 5 * p.k, w = Math.max(2, .5 * p.k); g.fillStyle = PAL.negro; g.fillRect(p.x - w / 2, p.y - h, w, h); g.fillRect(p.x - w * 1.4, p.y - h - w * 3.4, w * 2.8, w * 3.6); g.fillStyle = it.yel ? '#ffc23a' : it.red ? '#ff3b2f' : '#38e07b'; g.beginPath(); g.arc(p.x, p.y - h - w * (it.red && !it.yel ? 2.6 : .8), w * .9, 0, TAU); g.fill(); }
+    }
+    // tren propio en 3a persona
+    if (tps) this.drawVehicle3D(g, st, T, P, line, K, night);
+    if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.45)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 90; i++) { const x = (h2(i, 3, 3) * W + st.t * 140) % W, y = (h2(i, 4, 3) * H + st.t * 900 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
+    if (!tps) this.drawCab(g, st, W, H, K, line, night);
+    else this.drawMiniHud(g, st, W, H, K);
+  },
+  drawStation(g, st, T, sI, P, night, line, K) {
+    const half = K.plat / 2, dir = st.dir, pw = K.deck ? 4 : 3, side = [1, -1];
+    for (const sd of side) {
+      const o1 = sd * (K.deck ? 3.6 : 4), o2 = sd * (K.deck ? 3.6 + pw : 4 + pw);
+      let prev = null;
+      for (let s = sI.s - half; s <= sI.s + half + .1; s += 8) {
+        const i = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[i], z = T.z[i] + .9, mk = o => P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, z), cur = [mk(o1), mk(o2), P(T.x[i] - Math.sin(a) * o2, T.y[i] + Math.cos(a) * o2, z + 3.6)];
+        if (prev && cur[0] && cur[1] && prev[0] && prev[1]) { g.fillStyle = night ? '#6b6457' : '#d9cdae'; g.beginPath(); g.moveTo(prev[0].x, prev[0].y); g.lineTo(cur[0].x, cur[0].y); g.lineTo(cur[1].x, cur[1].y); g.lineTo(prev[1].x, prev[1].y); g.fill(); g.fillStyle = PAL.mante; g.fillRect(Math.min(prev[0].x, cur[0].x), Math.min(prev[0].y, cur[0].y), Math.abs(cur[0].x - prev[0].x) + 1, Math.max(1, cur[0].k * .15)); }
+        if (cur[2] && cur[1] && (Math.round(s) % 16 === 0)) { g.fillStyle = night ? '#2c3a44' : line.color; const w = Math.max(1, .3 * cur[1].k); g.fillRect(cur[1].x - w / 2, cur[2].y, w, cur[1].y - cur[2].y); }
+        if (st.fest === 'feria' && cur[0] && h2(s | 0, sd, 9) < .5) { const p = cur[0], r = Math.max(1.5, p.k * .35); g.fillStyle = ROPA[(s | 0) % 5]; g.fillRect(p.x - r, p.y - r * 2, r * 2, r * 2); g.fillStyle = '#2f9b57'; g.fillRect(p.x - r / 3, p.y - r, r / 1.5, r); }
+        if (cur[1] && h2(s | 0, sd, sI.i) < .55) { const p = cur[1], sz = Math.max(1, p.k * .3); for (let q = 0; q < 2; q++) Art.person(g, p.x + (q - .5) * sz * 4 * -sd, p.y, sz, (s | 0) + q + sI.i * 31, false); }
+        prev = cur;
+      }
+      // techo
+      const ra = P(...this.off(T, sI.s - half, o2 * .9), T.z[clamp(Math.round(sI.s / SEG), 0, T.n - 1)] + 5), rb = P(...this.off(T, sI.s + half, o2 * .9), T.z[clamp(Math.round(sI.s / SEG), 0, T.n - 1)] + 5);
+      if (ra && rb) { g.fillStyle = night ? '#1f2e38' : '#e9e2cf'; g.fillRect(Math.min(ra.x, rb.x), Math.min(ra.y, rb.y) - Math.max(2, ra.k * .6), Math.abs(rb.x - ra.x) + 1, Math.max(2, Math.min(ra.k, rb.k) * .6)); }
+    }
+    // letrero con el nombre
+    const i = clamp(Math.round(sI.s / SEG), 0, T.n - 1), p = P(T.x[i] - Math.sin(T.an[i]) * 5 * dir, T.y[i] + Math.cos(T.an[i]) * 5 * dir, T.z[i] + 4.2);
+    if (p && p.k > 1.2) { const fs = clamp(p.k * 1.1, 6, 40); g.font = '700 ' + fs + 'px ' + 'Titulos, Arial Narrow, sans-serif'; const tw = g.measureText(sI.name).width; g.fillStyle = PAL.negro; g.fillRect(p.x - tw / 2 - fs * .4, p.y - fs, tw + fs * .8, fs * 1.25); g.fillStyle = line.color; g.fillRect(p.x - tw / 2 - fs * .4, p.y - fs, fs * .25, fs * 1.25); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(sI.name, p.x, p.y); g.textAlign = 'left'; }
+    // marca de parada (para el frente del tren)
+    if (sI.i === st.stops[Math.min(st.ni, st.stops.length - 1)] && st.ph !== 'dwell') { const s = st.tgt[st.ni], j = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[j], m = P(T.x[j] - Math.sin(a) * 2.6 * dir, T.y[j] + Math.cos(a) * 2.6 * dir, T.z[j] + 1.8); if (m) { const w = Math.max(3, m.k * .9); g.fillStyle = PAL.negro; g.fillRect(m.x - w / 2 - 1, m.y - w - 1, w + 2, w * 1.6 + 2); g.fillStyle = PAL.mante; g.fillRect(m.x - w / 2, m.y - w, w, w * 1.6); g.fillStyle = PAL.rojo; g.fillRect(m.x - w / 2, m.y - w * .3, w, w * .3); } }
+  },
+  off(T, s, o) { const i = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[i]; return [T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o]; },
+  drawVehicle3D(g, st, T, P, line, K, night) {
+    const dir = st.dir, len = K.len, w = st.kind === 'metro' ? 1.5 : 1.3, hgt = st.kind === 'metro' ? 3.8 : 3.4, segs = [];
+    for (let d = 0; d <= len; d += 4) { const s = st.s - dir * d, i = clamp(s / SEG, 0, T.n - 1.001), i0 = i | 0, f = i - i0, x = lerp(T.x[i0], T.x[i0 + 1], f), y = lerp(T.y[i0], T.y[i0 + 1], f), a = T.an[i0], z = lerp(T.z[i0], T.z[i0 + 1], f) + .4, sx = -Math.sin(a), sy = Math.cos(a);
+      segs.push([P(x + sx * w, y + sy * w, z), P(x - sx * w, y - sy * w, z), P(x + sx * w, y + sy * w, z + hgt), P(x - sx * w, y - sy * w, z + hgt)]); }
+    const body = st.kind === 'brt' || st.kind === 'feeder' ? line.color : PAL.plata;
+    for (let k = 0; k < segs.length - 1; k++) {
+      const a = segs[k], b = segs[k + 1]; if (a.some(p => !p) || b.some(p => !p)) continue;
+      const q = (p1, p2, p3, p4, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(p1.x, p1.y); g.lineTo(p2.x, p2.y); g.lineTo(p3.x, p3.y); g.lineTo(p4.x, p4.y); g.fill(); };
+      q(a[2], a[3], b[3], b[2], night ? '#7d8288' : '#dfe3e6');
+      q(a[0], a[2], b[2], b[0], night ? '#5d6166' : Art.shade(body, .85)); q(a[1], a[3], b[3], b[1], night ? '#5d6166' : Art.shade(body, .78));
+    }
+    const r = segs[segs.length - 1]; if (r.every(p => p)) { const wpx = Math.abs(r[0].x - r[1].x), by = (r[0].y + r[1].y) / 2; Art.vehicleBack(g, (r[0].x + r[1].x) / 2, by, wpx, line.color, st.kind, st.lev < 0 || st.v < .1); }
+  },
+  /* cabina (1a persona): marco, tablero, velocímetro y el tinto que no debe regarse */
+  drawCab(g, st, W, H, K, line, night) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), u = Math.max(1, Math.min(W, H) / 220), db = H - Math.min(H * .2, 118 * dpr);
+    g.fillStyle = '#141414'; g.fillRect(0, 0, W, 6 * u); g.fillRect(0, 0, 7 * u, H); g.fillRect(W - 7 * u, 0, 7 * u, H);
+    g.fillStyle = '#1e2a33'; g.beginPath(); g.moveTo(0, db + 12 * u); g.lineTo(W * .2, db); g.lineTo(W * .8, db); g.lineTo(W, db + 12 * u); g.lineTo(W, H); g.lineTo(0, H); g.fill();
+    g.fillStyle = line.color; g.fillRect(W * .2, db, W * .6, 3 * u);
+    // velocímetro (centro, entre los botones y la palanca)
+    const cx = W * .5, R = Math.min(W * .15, (H - db) * .62), cy = H - 6 * dpr, vmax = K.vmax * 3.6;
+    g.fillStyle = '#0d1418'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * u; g.beginPath(); g.arc(cx, cy, R - 2 * u, Math.PI, TAU); g.stroke();
+    const lim = this.limAt(st, st.s) * 3.6, al = Math.PI + Math.PI * clamp(lim / vmax, 0, 1); g.strokeStyle = PAL.rojo; g.lineWidth = 4 * u; g.beginPath(); g.arc(cx, cy, R - 6 * u, al, al + .06); g.stroke();
+    const an = Math.PI + Math.PI * clamp(st.v * 3.6 / vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2 * u; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * (R - 8 * u), cy + Math.sin(an) * (R - 8 * u)); g.stroke();
+    g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .32) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6), cx, cy - R * .18); g.font = '600 ' + (R * .14) + 'px Cuerpo, sans-serif'; g.fillStyle = PAL.mante; g.fillText('KM/H · LÍM ' + Math.round(lim), cx, cy - R * .02);
+    // a la marca (encima del velocímetro)
+    const d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    g.fillStyle = 'rgba(13,20,24,.82)'; const bw = Math.min(W * .5, 190 * dpr), by = db - 44 * dpr; g.fillRect(cx - bw / 2, by, bw, 38 * dpr); g.fillStyle = line.color; g.fillRect(cx - bw / 2, by, 4 * dpr, 38 * dpr);
+    g.fillStyle = Math.abs(d) < 2 && st.ph !== 'dwell' ? '#38e07b' : '#fff'; g.font = '700 ' + (20 * dpr) + 'px Titulos, sans-serif';
+    g.fillText(st.ph === 'dwell' ? (st.doors === 1 ? 'ABORDANDO ' + Math.round(st.board * 100) + '%' : 'EN EL ANDÉN') : (Math.abs(d) < 100 ? d.toFixed(1) : Math.round(d)) + ' m a la marca', cx, by + 20 * dpr);
+    g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillStyle = late > 15 ? '#ff6a3d' : PAL.mante; g.fillText('HORARIO ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s' + (st.rain ? ' · LLUVIA' : ''), cx, by + 33 * dpr);
+    // tinto (confort) arriba a la izquierda
+    const tx = 26 * dpr, ty = 62 * dpr, sl = clamp(st.a * 4, -6, 6) * dpr; g.fillStyle = 'rgba(13,20,24,.7)'; g.fillRect(tx - 18 * dpr, ty - 6 * dpr, 36 * dpr, 40 * dpr);
+    g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 14 * dpr); g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 4 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 4 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 13 * dpr); g.lineTo(tx - 6 * dpr, ty + 13 * dpr); g.fill();
+    g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(Math.round(st.comfort) + '%', tx, ty + 27 * dpr); g.textAlign = 'left';
+    if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.25 + .2 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
+  },
+  drawMiniHud(g, st, W, H, K) { const u = Math.max(1, Math.min(W, H) / 220); g.fillStyle = 'rgba(12,37,51,.8)'; g.fillRect(8 * u, H - 40 * u, 120 * u, 30 * u); g.fillStyle = '#fff'; g.font = '700 ' + (16 * u) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6) + ' km/h', 14 * u, H - 20 * u); },
+  /* vista cenital (mapa pixelado) y panorámica (toda la línea) */
+  drawTop(g, st, W, H, pan) {
+    const T = TRACKS.get(st.line), line = NET.byId[st.line], K = KIND[st.kind], p = NET.at(line.P, st.s);
+    let k = pan ? Math.min(W, H) / (Math.max(2000, Math.abs(st.tgt[st.tgt.length - 1] - st.tgt[0]) * 1.3)) : Math.min(W, H) / 420;
+    let mx = p.x, my = p.y;
+    if (pan) { const a = NET.at(line.P, st.tgt[0]), b = NET.at(line.P, st.tgt[st.tgt.length - 1]); mx = (a.x + b.x) / 2; my = (a.y + b.y) / 2; k = Math.min(W / (Math.abs(b.x - a.x) + 1500), H / (Math.abs(b.y - a.y) + 1500)); }
+    if (MAP.ready) { if (pan) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    const S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H / 2 + (y - my) * k });
+    for (const l of NET.lines) { if (!pan && l !== line) continue; g.strokeStyle = PAL.negro; g.lineWidth = Math.max(3, (pan ? 5 : 7) * Math.min(1, k * 2)); g.beginPath(); l.P.pts.forEach((q, i) => { const s = S(q.x, q.y); i ? g.lineTo(s.x, s.y) : g.moveTo(s.x, s.y); }); g.stroke(); g.strokeStyle = l.color; g.lineWidth = Math.max(2, (pan ? 3 : 4.5) * Math.min(1, k * 2)); g.stroke(); }
+    for (const s of line.st) { const q = S(s.x, s.y); g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, pan ? 4 : 7, 0, TAU); g.fill(); g.stroke(); if (pan || k > .4) { g.fillStyle = PAL.negro; g.font = '700 ' + (pan ? 11 : 13) + 'px Cuerpo, sans-serif'; g.fillText(s.name, q.x + 9, q.y - 6); } }
+    for (const L of st.lights) { const q = NET.at(line.P, L.s), s = S(q.x, q.y); g.fillStyle = this.lightState(L, st.t) === 'g' ? '#38e07b' : '#ff3b2f'; g.fillRect(s.x - 3, s.y - 3, 6, 6); }
+    const len = Math.max(pan ? 10 : 8, K.len * k), c = NET.at(line.P, st.s - st.dir * K.len / 2), sp = S(c.x, c.y);
+    Art.topVehicle(g, sp.x, sp.y, c.a + (st.dir < 0 ? Math.PI : 0), len, Math.max(5, 3.2 * k), line.color, st.kind);
+    if (pan) { g.strokeStyle = PAL.rojo; g.lineWidth = 2; g.beginPath(); g.arc(sp.x, sp.y, 12 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); }
+    this.drawMiniHud(g, st, W, H, K);
+  },
+  ai(st) { return null; }
+};

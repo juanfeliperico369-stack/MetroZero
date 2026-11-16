@@ -1,0 +1,63 @@
+<body>
+<div id="app">
+ <section class="scr" id="cover">
+  <div class="band"><div class="bt">Metro de Medellín · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="cvClock">Servicio 4:30 – 23:00</div></div>
+  <div class="cbody">
+   <div class="srf">Trenes, tranvía, Metroplús, alimentadores y metrocables · un juego para todo público</div>
+   <h1 class="mega">El Metro</h1>
+   <canvas class="cart" id="cvArt" width="320" height="200"></canvas>
+   <div class="kick">¿Sabés a dónde vas, mijo?</div>
+   <h2 class="mega b2">La última vuelta</h2>
+   <div class="ctag">Rosalba maneja su último tren. Tú heredas la ciudad.</div>
+   <div class="cbtns">
+    <button class="btn pri" id="bPlay">▶ Jugar</button>
+    <button class="btn tin" id="bStory">Historia · La última vuelta</button>
+    <div class="row"><button class="btn sm grow" id="bMulti">Jugar juntos</button><button class="btn sm grow" id="bCfg">Ajustes</button></div>
+   </div>
+  </div>
+  <div class="cfoot"><span>La revista que se mueve</span><span class="adv">Cultura Metro<b>Todo público</b>sin internet</span></div>
+ </section>
+
+ <section class="scr" id="menu">
+  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro · Modos</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
+  <div class="scroll"><div class="wrap">
+   <div class="row" style="justify-content:space-between;align-items:flex-end;margin:4px 0 12px"><div><div class="pag">Est. 01 · Elige tu oficio</div><div class="mega" style="font-size:64px">Modos</div></div><div class="kick" id="mGreet">Buenos días</div></div>
+   <div id="mVida"></div>
+   <div class="modes" id="mList"></div>
+   <div class="wave" style="margin:22px 0 10px"></div>
+   <div class="row"><button class="btn sm" id="mBot">🤖 Bot de pruebas</button><button class="btn sm" id="mExport">⤓ Exportar partidas</button><button class="btn sm" id="mImport">⤒ Importar</button><button class="btn sm" id="mCred">Créditos</button></div>
+  </div></div>
+ </section>
+
+ <section class="scr" id="levels">
+  <div class="band"><button class="ib" id="lBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt" id="lTitle">Niveles</div><div class="sp"></div><div class="tag" id="lStars">★ 0</div></div>
+  <div class="scroll"><div class="wrap" id="lBody"></div></div>
+ </section>
+
+ <section class="scr" id="game">
+  <canvas id="gcv"></canvas>
+  <div id="ghud"><div class="gt"><b id="gTitle">—</b><small id="gSub">—</small></div><div class="chips" id="gChips"></div><button class="ib" id="gPause" aria-label="Pausa">❚❚</button></div>
+  <div id="gmsg"></div>
+  <div id="gctl"></div>
+ </section>
+
+ <section class="scr" id="story">
+  <canvas id="stCv" width="320" height="180"></canvas>
+  <div class="sbox"><div class="film" id="stText"></div><div class="sbt"><button class="btn sm gh" id="stSkip" style="color:#fff;border-color:#fff">Saltar</button><button class="btn sm pri" id="stNext">Siguiente ▶</button></div></div>
+ </section>
+
+ <section class="scr" id="red">
+  <canvas id="rcv"></canvas>
+  <div class="band" style="position:absolute;left:0;right:0;top:0;z-index:5"><button class="ib" id="rBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">La Red · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="rInfo">—</div></div>
+  <div class="card hide" id="rCard"></div>
+  <div class="lchips" id="rChips"></div>
+ </section>
+
+ <section class="scr" id="multi">
+  <div class="band"><button class="ib" id="nBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">Jugar juntos</div><div class="sp"></div><div class="tag" id="nStat">Sin conexión</div></div>
+  <div class="scroll"><div class="wrap" id="nBody"></div></div>
+ </section>
+</div>
+<div id="modal" hidden><div class="mbox" id="mBody"></div></div>
+<div id="toast"></div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>

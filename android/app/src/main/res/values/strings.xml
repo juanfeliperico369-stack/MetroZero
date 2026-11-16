@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">El Metro</string>
+    <!-- Textos del lector QR (ZXing) en español -->
+    <string name="zxing_app_name">El Metro</string>
+    <string name="zxing_button_ok">Aceptar</string>
+    <string name="zxing_msg_camera_framework_bug">No se pudo abrir la cámara. Cierra otras apps que la usen o reinicia el teléfono.</string>
+    <string name="zxing_msg_default_status">Apunta la cámara al código QR</string>
+</resources>
