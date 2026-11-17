@@ -70,7 +70,7 @@ const Vida = EM.vida = {
     if (Game.duel) get('duelo'); if (Game.net) get('red'); if ((d.streak || 0) >= 3) get('racha3'); if (d.wallet >= 1000) get('mil');
     if (Object.keys(d.facts).length >= 25) get('datos25'); if (d.story.ch >= CAPS.length - 1) get('historia');
     if (Object.values(d.red.lines).some(x => x.f >= 5)) get('flota');
-    if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
+    Album.fechas(); if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
     Save.write();
   },
   /* noticias para la cinta del menú */
@@ -85,12 +85,13 @@ const Vida = EM.vida = {
   /* panel de misiones + logros en el menú */
   panel() {
     const D = this.daily(), d = Save.d, nl = Object.keys(d.logros || {}).length;
-    return `<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
+    const F = this.fiestas().map(f => f.k), ART = { alumbrados: 'esc_alumbrados', feria: 'esc_silleteros', silleteros: 'esc_silleteros', velitas: 'esc_velitas' }, fk = F.find(k => ART[k] && Atlas.has(ART[k])), ft = fk ? this.fiestas().find(f => f.k === fk).t : '';
+    return `${fk ? `<div class="fiesta-ban">${Atlas.tag(ART[fk], '', ft)}<span>${esc(ft)}</span></div>` : ''}<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
       <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Misiones de hoy</h3><span class="pag">🔥 ${d.streak || 0} ${d.streak === 1 ? 'día' : 'días'} seguidos · 🏅 ${nl} de ${LOGROS.length}</span></div>
       ${D.list.map(m => { const M = MISIONES.find(x => x.k === m.k); return `<div class="row" style="margin-top:8px;gap:8px"><span style="flex:1;min-width:0;font-size:14px;${m.done ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(M.t(m.n))}</span><span class="bar" style="width:90px"><i style="width:${Math.round(m.p / m.n * 100)}%"></i></span><b style="font-size:12px;width:44px;text-align:right">${m.p}/${m.n}</b></div>`; }).join('')}
-      <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
+      <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vAlb">📷 Álbum ${Album.n()}/${Album.lista().length}</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
   },
-  bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
+  bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const al = $('#vAlb'); if (al) al.onclick = () => Album.open(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
   logros() {
     const L = Save.d.logros || {};
     UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);

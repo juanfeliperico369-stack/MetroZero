@@ -296,3 +296,18 @@ html.t-contraste .news{background:#ffe600;color:#000}
 @media (orientation:landscape) and (max-height:520px){#cover .hero{height:62vh}.lever{height:min(60vh,240px)}}
 @media (prefers-reduced-motion:reduce){.scr.on,.gm,.mbox,.trtalk,.trcard{animation:none}.news .tick{animation:none;padding-left:0}.fdeco img{animation:none}.tren{transition:none}}
 .campo{border:1px solid var(--linea);border-radius:12px;padding:9px 12px;font-size:16px;background:var(--anden);color:var(--tinta);max-width:100%}
+/* ---------- álbum de postales ---------- */
+.album{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:6px}
+.postal{display:flex;flex-direction:column;text-align:left;background:var(--anden);border-radius:12px;box-shadow:0 1px 0 var(--linea),0 0 0 1px var(--linea);padding:6px 6px 8px;transform:rotate(-.6deg)}
+.postal:nth-child(2n){transform:rotate(.7deg)}
+.postal .foto{display:block;aspect-ratio:8/5;border-radius:8px;overflow:hidden;background:var(--concreto)}
+.postal .foto img{display:block;width:100%;height:100%;object-fit:cover}
+.postal .foto i{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-style:normal;font-family:var(--fd);font-size:34px;color:var(--suave)}
+.postal b{display:block;margin-top:6px;font-size:13.5px;line-height:1.2}
+.postal small{display:block;font-size:11.5px;color:var(--suave)}
+.postal.falta{opacity:.62}
+.postal-grande{border-radius:14px;overflow:hidden;margin:-4px 0 12px}
+.postal-grande img{display:block;width:100%;max-height:46vh;object-fit:cover}
+.fiesta-ban{position:relative;border-radius:var(--r);overflow:hidden;margin:0 0 12px;height:150px;background:var(--noche)}
+.fiesta-ban img{display:block;width:100%;height:100%;object-fit:cover}
+.fiesta-ban span{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 10px;background:linear-gradient(transparent,rgba(15,34,56,.92));color:#fff;font-weight:800;font-size:14px;line-height:1.3}
