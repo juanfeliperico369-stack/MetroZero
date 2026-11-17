@@ -26,6 +26,15 @@
 
 **Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; v0.5.0 verificada el 2026-11-17: carga, service worker con caché `el-metro-v0.5.0-63270c88`, sin conexión, instalable sin errores) · APK v0.5.0 (versionCode 5) en `/el-metro.apk`.
 
+## Carpeta de arte (`arte/`, 2026-11-17)
+Investigación visual y guía de producción para el arte definitivo:
+- biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
+- **guía de prompts en dos partes**: Gemini Nano Banana (`06`) y ChatGPT + Midjourney (`07`), y especificación de entregas e integración (`08`);
+- 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
+- `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.
+
+**Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
+
 ## Historial
 ### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
 1. Nuevo `37-trama.js`: motor de pasos (hablar, ir, abordar, bajar, foto, orientar, módulo) con datos validados por el autotest (`Trama.check`): estaciones, líneas, niveles y postales deben existir.
