@@ -3,6 +3,9 @@
 ## Visión (del autor)
 Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el sistema Metro completo. No minijuegos: **módulos de simulación** (bus cenital de estación a estación, metro en panorámica 2D + cabina, metrocable, ciudad libre), arte con identidad (colores oficiales del Metro, revista EMSAY, pixel art tipo Town Brush/Townscaper, referencias arcade: GTA 1/2, PAKO, Getaway, #DRIVE), mundo vivo (día/noche, clima, fechas de Medellín, NPC), para todo público, offline, celulares modestos.
 
+## Avance
+- **v0.4.0:** Fase 1 en curso con arte procedural mejorado (ciudad por lotes y manzanas, laderas con barrios en la panorámica, viaducto 3D realista); Fase 2: cabina con procedimiento real + Escuela de conducción, Cívica al subir al bus; Fase 3: perros (callejeros y con correa) en la ciudad. Pendiente el atlas pintado (encargos 1–3 de `PROMPTS-IA.md`).
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).

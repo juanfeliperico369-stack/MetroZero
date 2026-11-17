@@ -10,6 +10,7 @@
    ===================================================================== */
 const WALK_OK = new Set([TT.WALK, TT.PLAZA, TT.GRASS, TT.CICLO, TT.STATION, TT.BRIDGE, TT.DEPOT, TT.STEPS, TT.ROAD]);
 const PED_FRASES = ['¡Qué pena!', '¿Pa’ dónde va el alimentador?', 'Vea pues…', 'Hágale, mijo', '¿Ya pasó el tren?', '¡Buenas!', 'Con permiso', 'Qué calor, ¿no?', '¿Esta es la estación?', 'Voy tarde pa’l trabajo', '¡Uy, cuidado!', 'Gracias, muy amable', '¿Me regala la hora?', 'Hoy no hay pico y placa', 'Está lloviendo, vea'];
+const DOG_COL = ['#8a5a32', '#2a2420', '#d8c8a8', '#b07a3a', '#efe8d8', '#5a4636', '#c9a46a'];
 const PED_COL = ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835', '#743D90', '#fbe7b0', '#141414', '#0E6F76', '#EB318E', '#ffffff', '#8a5a3b'];
 const Ciudad = EM.ciudad = {
   transit: [], peds: [], cars: [], bubbles: [], marks: [], parts: [], vendors: [], t: 0, spawnT: 0, carT: 0, focus: { x: 0, y: 0 }, ready: false, lm: null,
@@ -46,13 +47,15 @@ const Ciudad = EM.ciudad = {
     this.spawnT -= dt;
     if (this.spawnT <= 0 && this.peds.length < want) {
       this.spawnT = .12; const rng = this.rng;
-      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200, x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r, v = MAP.tileM(x, y); if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; this.peds.push({ x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }); break; }
+      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200, x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r, v = MAP.tileM(x, y); if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
+        if (rng.f() < .08) { o.dog = 1; o.umb = false; o.v = 1.4 + rng.f(); o.col = rng.pick(DOG_COL); } else if (rng.f() < .1) this.peds.push({ x: x - 1.2, y, a: o.a, v: o.v, seed: rng.i(1, 1e6), tgt: null, wait: 0, col: rng.pick(DOG_COL), stun: 0, ph: 0, scared: 0, dog: 1, owner: o }); break; }
     }
     for (const p of this.peds) {
       p.ph += dt * p.v * 2.4; if (p.stun > 0) { p.stun -= dt; continue; }
+      if (p.owner) { const o = p.owner; if (o.gone || o.board || o.waitStop != null || dist(p.x, p.y, o.x, o.y) > 25) p.owner = null; else { const tx = o.x - Math.cos(o.a) * 1.7 + Math.sin(this.t * .8 + p.seed) * .5, ty = o.y - Math.sin(o.a) * 1.7 + Math.cos(this.t * .7 + p.seed) * .5, d = dist(p.x, p.y, tx, ty); if (d > .25) { p.a = Math.atan2(ty - p.y, tx - p.x); const st = Math.min(d, (o.v + 1.4) * dt); p.x += Math.cos(p.a) * st; p.y += Math.sin(p.a) * st; p.ph += dt * 5; } if (p.scared > 0) p.scared -= dt; continue; } }
       if (p.board) { const d = dist(p.x, p.y, p.board.x, p.board.y); if (d < 1.2) { p.gone = true; continue; } p.a = Math.atan2(p.board.y - p.y, p.board.x - p.x); p.x += Math.cos(p.a) * 1.7 * dt; p.y += Math.sin(p.a) * 1.7 * dt; continue; }
       if (p.waitStop != null) { p.ph = Math.sin(this.t * .6 + p.seed) * .3; continue; }
-      if (p.scared > 0) { p.scared -= dt; const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
+      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
       if (p.wait > 0) { p.wait -= dt; continue; }
       if (!p.tgt || dist(p.x, p.y, p.tgt.x, p.tgt.y) < 4) { if (p.tgt) p.wait = .5 + this.rng.f() * 3; p.tgt = this.pedTarget(p); continue; }
       const ta = Math.atan2(p.tgt.y - p.y, p.tgt.x - p.x); let moved = false;
@@ -122,6 +125,8 @@ const Ciudad = EM.ciudad = {
   /* peatón visto desde arriba: sombra, cuerpo, cabeza, brazos al caminar, paraguas */
   ped(g, p, S, k, sh) {
     const q = S(p.x, p.y), s = Math.max(2, k * 1.6), sw = Math.sin(p.ph) * s * .8;
+    if (p.dog) { const ds = s * .62; if (p.owner) { const o = S(p.owner.x, p.owner.y); g.strokeStyle = 'rgba(30,30,30,.75)'; g.lineWidth = Math.max(1, k * .12); g.beginPath(); g.moveTo(q.x, q.y); g.quadraticCurveTo((q.x + o.x) / 2, (q.y + o.y) / 2 + s * .4, o.x, o.y); g.stroke(); }
+      g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.beginPath(); g.ellipse(q.x + sh.dx * ds, q.y + sh.dy * ds, ds * .9, ds * .5, p.a, 0, TAU); g.fill(); g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.dog(g, ds, p); g.restore(); return; }
     g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.beginPath(); g.ellipse(q.x + sh.dx * s, q.y + sh.dy * s, s * 1.1, s * .7, 0, 0, TAU); g.fill();
     g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.ped(g, s * .8, p); g.restore();
   },

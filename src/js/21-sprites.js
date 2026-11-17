@@ -64,6 +64,18 @@ const Spr = EM.spr = {
     }
   },
   /* peatón visto desde arriba: hombros, cabeza con pelo y cara, brazos al caminar; umb paraguas; stun tirado */
+  /* perro cenital mirando a +x: cuerpo, cabeza con orejas, patas al trote y cola que se mueve */
+  dog(g, s, p) {
+    const c = p.col || '#8a5a32', dk = Art.shade(c, .7), ph = p.ph || 0, tr = Math.sin(ph * 2) * s * .18;
+    g.fillStyle = dk; for (const [lx, ly, f] of [[.38, -.24, 1], [.38, .24, -1], [-.36, -.24, -1], [-.36, .24, 1]]) g.fillRect((lx + f * tr / s * .6) * s - s * .07, ly * s - s * .07, s * .14, s * .14);
+    g.strokeStyle = dk; g.lineWidth = Math.max(1, s * .1); g.beginPath(); g.moveTo(-s * .55, 0); g.lineTo(-s * .85, Math.sin(ph * 3) * s * .22); g.stroke();
+    g.fillStyle = '#141414'; g.beginPath(); g.ellipse(0, 0, s * .62, s * .3, 0, 0, TAU); g.fill();
+    g.fillStyle = c; g.beginPath(); g.ellipse(0, 0, s * .56, s * .25, 0, 0, TAU); g.fill();
+    if (p.seed % 3 === 0) { g.fillStyle = dk; g.beginPath(); g.ellipse(-s * .12, -s * .04, s * .18, s * .13, 0, 0, TAU); g.fill(); }
+    g.fillStyle = '#141414'; g.beginPath(); g.arc(s * .62, 0, s * .27, 0, TAU); g.fill(); g.fillStyle = c; g.beginPath(); g.arc(s * .62, 0, s * .22, 0, TAU); g.fill();
+    g.fillStyle = dk; g.fillRect(s * .5, -s * .3, s * .14, s * .12); g.fillRect(s * .5, s * .18, s * .14, s * .12); g.fillStyle = '#141414'; g.fillRect(s * .8, -s * .05, s * .08, s * .1);
+    if (p.owner) { g.fillStyle = '#EC343A'; g.fillRect(s * .4, -s * .2, s * .06, s * .4); }
+  },
   ped(g, s, p, o = {}) {
     const skin = p.skin || '#f1c9a5', col = p.col || '#1C5C9C', hair = p.hair || (h2(p.seed || 1, 2, 2) < .5 ? '#2a1a12' : '#5a3a22'), sw = Math.sin(p.ph || 0) * s * .55;
     if (p.stun > 0) { g.fillStyle = col; g.fillRect(-s * 1.4, -s * .7, s * 2.8, s * 1.4); g.fillStyle = skin; g.beginPath(); g.arc(s * 1.5, 0, s * .6, 0, TAU); g.fill(); return; }

@@ -47,6 +47,8 @@ const Bus = EM.modes.bus = {
     else if (st.ph !== 'ready') {
       // asistente de carril: convierte el rumbo deseado en entrada de joystick
       if (st.assist) st.joy = { x: st.steerWant, y: st.joy.y, m: 1 };
+      // el corredor de la ruta es transitable aunque la casilla de 20 m marque esquina de manzana (los buses largos no se traban al girar)
+      if (!st.lane) st.lane = (x, y) => Volante.projLocal(line.P, x, y, st.sR).d < 7;
       const kd = st.keys.down; Libre.drive(st, dt); st.keys.down = kd;
       const pr = Volante.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
       if (st.off > 25 && !st._lost) { st._lost = 1; this.msg(st, 'Te saliste de la ruta: sigue la línea ' + (st.kind === 'metroplus' ? 'del carril exclusivo' : 'de la ruta'), 'y'); } else if (st.off < 12) st._lost = 0;
@@ -71,12 +73,13 @@ const Bus = EM.modes.bus = {
     if (st.doors === 1) {
       st.doorT += dt; const d = this.doorPos(st);
       if (st.alight > 0 && st.doorT > .6) { st.alight--; st.doorT = .15; st.pax--; const p = Ciudad.spawnWaiting(null, d.x, d.y, 1)[0]; p.waitStop = null; p.x = d.x; p.y = d.y; p.wait = 0; p.tgt = null; }
-      else if (st.alight <= 0) { for (const p of W) if (!p.board && !p.gone) { if (st.doorT > .5) { p.board = { x: d.x, y: d.y }; st.doorT = 0; } break; } }
+      else if (st.alight <= 0) { for (const p of W) if (!p.board && !p.gone) { if (st.doorT > .5) { if (!p.recarga && h2(st.ni, W.indexOf(p), st.seed + 7) < .07) { p.recarga = 1; st.doorT = -1.4; this.msg(st, 'Cívica sin saldo: el pasajero recarga…', 'y'); Ciudad.say(p, '¡Ay, sin saldo!'); this.sfx(st, 'bad'); } else { p.board = { x: d.x, y: d.y }; st.doorT = 0; } } break; } }
       const left = W.filter(p => !p.gone).length; st.pax = Math.min(st.cap, st.pax0 + (W.length - left));
+      const nb = W.length - left; if (nb > (st.nb || 0)) { st.fares = (st.fares || 0) + nb - (st.nb || 0); st.nb = nb; this.sfx(st, 'beep'); }
       if (!left && st.alight <= 0 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra las puertas', 'y'); }
       if (st.auto && !left && st.alight <= 0) this.doors(st);
     } else if (st.doors === 0 && st.auto && st.dwell > .5) this.doors(st);
-    if (st.doors === 2 && (st.keys.up || st.joy.y < -.3 || st.auto)) { st.ph = 'run'; st.doors = 0; st.bell = 0; if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); } }
+    if (st.doors === 2 && (st.keys.up || st.joy.y < -.3 || st.auto)) { st.ph = 'run'; st.doors = 0; st.bell = 0; st.nb = 0; if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); } }
   },
   doors(st) {
     if (st.ph !== 'stop') { this.msg(st, 'Las puertas solo abren en la parada', 'y'); return; } const line = NET.byId[st.line], last = st.ni === st.stops.length - 1;
@@ -84,11 +87,11 @@ const Bus = EM.modes.bus = {
     else if (st.doors === 1) { const W = (st.waiting[st.ni] || []).filter(p => !p.gone && !p.board); if (W.length || st.alight > 0) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); for (const p of W) { p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Espere!'); } } st.doors = 2; this.sfx(st, 'door'); if (last) this.finish(st); }
   },
   finish(st) { if (st.done) return; st.done = true; st.win = st.arr.filter(a => a.err >= 99).length === 0; st.score += Math.round(st.comfort * 2); st.score = Math.max(0, Math.round(st.score)); Save.d.stats.km += st.sR / 1000; const B = Save.d.bus || (Save.d.bus = { done: {} }); if (st.win) B.done[st.line] = (B.done[st.line] || 0) + 1; },
-  result(st) { const n = st.stops.length - 1, miss = st.arr.filter(a => a.err >= 99).length, ok = st.arr.filter(a => a.err < 99), avg = ok.length ? ok.reduce((a, b) => a + b.err, 0) / ok.length : 0, max = n * 500 + 200, line = NET.byId[st.line]; return { done: st.done, win: st.win, score: st.score, stars: st.done && st.win ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '', lines: [['Paradas', (n - miss) + ' / ' + n], ['Pasajeros', st.pax + ' a bordo al final'], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort', Math.round(st.comfort) + ' %'], ['Choques / rojos', st.crashes + ' / ' + st.reds], ['Asistente', st.assist ? 'encendido' : 'apagado (×1,25)']] }; },
+  result(st) { const n = st.stops.length - 1, miss = st.arr.filter(a => a.err >= 99).length, ok = st.arr.filter(a => a.err < 99), avg = ok.length ? ok.reduce((a, b) => a + b.err, 0) / ok.length : 0, max = n * 500 + 200, line = NET.byId[st.line]; return { done: st.done, win: st.win, score: st.score, stars: st.done && st.win ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '', lines: [['Paradas', (n - miss) + ' / ' + n], ['Pasajeros', st.pax + ' a bordo al final'], ['Pasajes Cívica', (st.fares || 0) + ' validados'], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort', Math.round(st.comfort) + ' %'], ['Choques / rojos', st.crashes + ' / ' + st.reds], ['Asistente', st.assist ? 'encendido' : 'apagado (×1,25)']] }; },
   msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
   say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
-  hud(st) { this.updCtl(st); const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.stopS[st.ni] - st.sR) * st.dir; return [['', Math.round(Math.abs(st.vf) * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'stop' ? 'En la parada' : Math.round(Math.max(0, d)) + ' m'], ['👥', st.pax], ['★', fmt(Math.max(0, st.score))]]; },
+  hud(st) { this.updCtl(st); const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.stopS[st.ni] - st.sR) * st.dir; return [['', Math.round(Math.abs(st.vf) * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'stop' ? 'En la parada' : Math.round(Math.max(0, d)) + ' m'], ['👥', st.pax + (st.fares ? ' · 💳' + st.fares : '')], ['★', fmt(Math.max(0, st.score))]]; },
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="bsJz"><div class="joy" id="bsJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="bsDoor">⇆<small>puertas</small></button><button class="abtn acc" id="bsUp">▲</button><button class="abtn brk" id="bsDown">▼</button><button class="abtn hb" id="bsHorn">📯</button></div>

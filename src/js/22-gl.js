@@ -106,6 +106,8 @@ const G3 = EM.g3 = {
   buf(arr) { const gl = this.gl, b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW); b.n = arr.length / 10; return b; },
   tex(cv) { const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv); for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; },
   urban(x, y, r) { let n = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = MAP.tileM(x + i * r, y + j * r); c++; if (v === TT.BRICK || v === TT.BLDG) n++; } return n / c; },
+  /* casillas del corredor de metro y tranvía (sin edificios encima de la vía) */
+  railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
   /* malla lejana: todo el valle cada 320 m */
   buildFar() {
     const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => [i * S, MAP.elevM(i * S, j * S), j * S];
@@ -141,7 +143,7 @@ const G3 = EM.g3 = {
     const R = Save.d.settings.q === 'low' ? 600 : 1100, bm = new MB();
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R) continue;
-      const v = MAP.tileM(X + 10, Z + 10); if (v !== TT.BLDG && v !== TT.BRICK) continue;
+      const v = MAP.tileM(X + 10, Z + 10); if (v !== TT.BLDG && v !== TT.BRICK) continue; if (this.railMask().has((Z / TM | 0) * MW + (X / TM | 0))) continue;
       const r = h2(X, Z, 5), brick = v === TT.BRICK, hgt = brick ? 4 + r * 6 : MAP.bHeight(X + 10, Z + 10, X ^ Z), w = 11 + r * 4, l = 12 + h2(X, Z, 6) * 5, y = MAP.elevM(X + 10, Z + 10) - 2, a = h2(X, Z, 9) < .5 ? 0 : Math.PI / 2;
       // casas: ladrillo a la vista o pintadas en tonos pastel (como las laderas de Medellín); edificios: concreto y vidrio
       const wall = brick ? (r < .55 ? (r < .3 ? [.71, .35, .23] : [.62, .3, .2]) : HOUSE_COL[(r * 97 | 0) % HOUSE_COL.length]) : [[.55, .59, .64], [.64, .66, .69], [.72, .69, .63], [.85, .8, .68], [.62, .72, .8]][(r * 5) | 0];
@@ -193,9 +195,13 @@ const G3 = EM.g3 = {
         for (let i = 0; i < T.n - 1; i++) {
           const a = NET.at(l.P, i * 12), b = NET.at(l.P, (i + 1) * 12), za = T.z[i], zb = T.z[i + 1], sa = [-Math.sin(a.a), Math.cos(a.a)], sb = [-Math.sin(b.a), Math.cos(b.a)], hw = dk ? 4.6 : 3.2;
           const E = (p, s, o, z) => [p.x + s[0] * o, z, p.y + s[1] * o];
-          mb.quad(E(a, sa, -hw, za), E(a, sa, hw, za), E(b, sb, hw, zb), E(b, sb, -hw, zb), dk ? [.74, .71, .64] : [.42, .44, .47]);
-          if (dk) { mb.quad(E(a, sa, hw, za), E(a, sa, hw, za - 1.4), E(b, sb, hw, zb - 1.4), E(b, sb, hw, zb), [.6, .57, .52]); mb.quad(E(a, sa, -hw, za - 1.4), E(a, sa, -hw, za), E(b, sb, -hw, zb), E(b, sb, -hw, zb - 1.4), [.6, .57, .52]); }
-          for (const o of [-2.3, -1.1, 1.1, 2.3]) mb.quad(E(a, sa, o - .12, za + .12), E(a, sa, o + .12, za + .12), E(b, sb, o + .12, zb + .12), E(b, sb, o - .12, zb + .12), [.25, .24, .23]);
+          mb.quad(E(a, sa, -hw, za), E(a, sa, hw, za), E(b, sb, hw, zb), E(b, sb, -hw, zb), dk ? [.58, .57, .55] : [.42, .44, .47]);
+          if (dk) { mb.quad(E(a, sa, hw, za), E(a, sa, hw, za - 1.4), E(b, sb, hw, zb - 1.4), E(b, sb, hw, zb), [.52, .51, .49]); mb.quad(E(a, sa, -hw, za - 1.4), E(a, sa, -hw, za), E(b, sb, -hw, zb), E(b, sb, -hw, zb - 1.4), [.52, .51, .49]);
+            // pretiles a lado y lado del tablero
+            mb.quad(E(a, sa, hw - .25, za + .95), E(a, sa, hw - .25, za), E(b, sb, hw - .25, zb), E(b, sb, hw - .25, zb + .95), [.66, .65, .62]); mb.quad(E(a, sa, -hw + .25, za), E(a, sa, -hw + .25, za + .95), E(b, sb, -hw + .25, zb + .95), E(b, sb, -hw + .25, zb), [.66, .65, .62]); }
+          // balasto bajo cada vía y rieles de acero claros
+          for (const c of [-1.7, 1.7]) mb.quad(E(a, sa, c - 1.25, za + .05), E(a, sa, c + 1.25, za + .05), E(b, sb, c + 1.25, zb + .05), E(b, sb, c - 1.25, zb + .05), dk ? [.4, .37, .34] : [.33, .32, .31]);
+          for (const o of [-2.3, -1.1, 1.1, 2.3]) mb.quad(E(a, sa, o - .09, za + .16), E(a, sa, o + .09, za + .16), E(b, sb, o + .09, zb + .16), E(b, sb, o - .09, zb + .16), [.66, .67, .7]);
           if (dk && i % 3 === 0) mb.box(a.x, T.g[i] - 2, a.y, a.a, 1.8, 2.2, za - T.g[i] + .6, [.68, .65, .58], [.68, .65, .58]);
           if (i % 4 === 0) { const q = E(a, sa, hw - .4, za); mb.box(q[0], za, q[2], a.a, .35, .35, 6.5, [.35, .37, .4], [.35, .37, .4]); const q2 = E(a, sa, 0, za); mb.box((q[0] + q2[0]) / 2, za + 6, (q[2] + q2[2]) / 2, a.a + Math.PI / 2, hw, .2, .25, [.35, .37, .4], [.35, .37, .4]); }
         }

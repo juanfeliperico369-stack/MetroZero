@@ -232,3 +232,16 @@ html.t-contraste .news{background:#ffe600;color:#000}
 #game .gbtns .btn{background:#243039;color:#ffd27a;border-color:#0b1115;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-stretch:100%;font-size:13px;letter-spacing:.06em}
 #game .gbtns .btn.mos{background:#F6C538;color:#141414}
 #game .gbtns .btn[disabled]{opacity:.45}
+/* ---------- cabina del metro: botonera iluminada ---------- */
+.cabgrid{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:repeat(4,48px);grid-auto-rows:46px;gap:6px;pointer-events:auto}
+.cb{border:3px solid #0b1115;background:#243039;color:#9fb0bb;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-size:7.5px;font-weight:800;letter-spacing:.03em;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;padding:0 1px;-webkit-user-select:none;user-select:none}
+.cb b{font-size:15px;color:#ffd27a;line-height:1.1;font-family:var(--fm)}
+.cb:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b1115}
+.cb.on{background:#1f3a2a;color:#7fe0a0;box-shadow:3px 3px 0 #0b1115,inset 0 0 12px rgba(127,224,160,.55)}
+.cb.on b{color:#bfffd3}
+.cb.hot{background:#F6C538;color:#141414;animation:pulse .7s infinite alternate}
+.cb.hot b{color:#141414}
+.cb.warn{background:#7a1414;color:#fff;animation:blink .35s steps(2) infinite}
+.cb.warn b{color:#fff}
+.cb[disabled]{opacity:.45}
+.jobbar.tut{top:calc(190px + var(--sat));right:84px;border-left-color:var(--lT);background:rgba(16,46,80,.95)}
