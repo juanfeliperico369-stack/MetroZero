@@ -53,7 +53,7 @@ const codeFiles = [
   'src/head.html', 'src/body.html', 'src/style.css',
   ...fs.readdirSync(path.join(root, 'src/js')).filter(f => f.endsWith('.js')).sort().map(f => 'src/js/' + f),
   'src/data/red.js', 'src/data/lugares.js', 'src/data/rutas.js',
-  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html)$/.test(f)).sort().map(f => 'tools/' + f),
+  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html|py)$/.test(f)).sort().map(f => 'tools/' + f),
   ...(fs.existsSync(path.join(root, 'android')) ? walk('android').filter(f => /\.(kt|kts|java|xml|md|properties)$/.test(f) && !/local\.properties$|gradle-wrapper/.test(f)).sort() : [])
 ];
 let code = '', codeBytes = 0;
@@ -80,6 +80,7 @@ Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos 
 
 ## Datos que no van como texto
 - **\`src/data/valle.js\`** (${valleKB} KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con \`MAP.tile\`, \`MAP.tileM\` y \`MAP.elevM\` (ver \`src/js/10-map.js\`).
+- **\`src/data/arte.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/arte.js')).size / 1024)} KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera \`python3 tools/arte_juego.py\` desde \`arte/entregas/\`; la lista con su uso está en \`arte/entregas/USO-EN-EL-JUEGO.md\`. Se usa con \`Atlas.img(id)\`, \`Atlas.url(id)\` y \`Atlas.tag(id)\` (\`src/js/19-atlas.js\`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
 ## Código fuente (${codeFiles.length} archivos, ${Math.round(codeBytes / 1024)} KB)

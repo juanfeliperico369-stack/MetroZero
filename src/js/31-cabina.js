@@ -65,8 +65,8 @@
   C.mount = function (st, el) {
     base.mount.call(this, st, el);
     const gb = el.querySelector('.gbtns'); gb.className = 'cabgrid';
-    gb.innerHTML = `<button class="cb" id="cbKey"><b>🔑</b>LLAVE</button><button class="cb" id="cbSel"><b>N</b>SENTIDO</button><button class="cb" id="cbVig"><b>◉</b>VIGILANTE</button><button class="cb" id="cbAnn"><b>🎙</b>ANUNCIO</button>
-      <button class="cb" id="cbDL"><b>◧</b>PUERTAS IZQ</button><button class="cb" id="cbDR"><b>◨</b>PUERTAS DER</button><button class="cb" id="cFF"><b>⏩</b>CRUCERO</button><button class="cb" id="cHorn"><b>📯</b>PITO</button><button id="cDoor" hidden></button>`;
+    gb.innerHTML = `<button class="cb" id="cbKey"><b>${Atlas.ico('ico_llave', '🔑')}</b>LLAVE</button><button class="cb" id="cbSel"><b>N</b>SENTIDO</button><button class="cb" id="cbVig"><b>${Atlas.ico('ico_vigilante', '◉')}</b>VIGILANTE</button><button class="cb" id="cbAnn"><b>${Atlas.ico('ico_megafono', '🎙')}</b>ANUNCIO</button>
+      <button class="cb" id="cbDL"><b>${Atlas.ico('ico_puerta_izquierda', '◧')}</b>PUERTAS IZQ</button><button class="cb" id="cbDR"><b>${Atlas.ico('ico_puerta_derecha', '◨')}</b>PUERTAS DER</button><button class="cb" id="cFF"><b>${Atlas.ico('ico_adelantar', '⏩')}</b>CRUCERO</button><button class="cb" id="cHorn"><b>${Atlas.ico('ico_pito', '📯')}</b>PITO</button><button id="cDoor" hidden></button>`;
     const tut = document.createElement('div'); tut.id = 'cTut'; tut.className = 'jobbar tut hide'; el.appendChild(tut);
     $('#cbKey').onclick = () => { if (st.v > .1) { this.msg(st, 'Detén el tren para mover la llave', 'y'); return; } st.key = !st.key; if (!st.key) st.sel = 0; this.sfx2(st, 'switch'); vib(15); };
     $('#cbSel').onclick = () => { if (!st.key) { this.msg(st, 'Primero gira la llave', 'y'); return; } if (st.v > .1) { this.msg(st, 'El sentido solo cambia detenido', 'y'); return; } st.sel = st.sel === 0 ? 1 : st.sel === 1 ? -1 : 0; this.sfx2(st, 'switch'); if (st.sel === -1) this.msg(st, 'ATRÁS: solo para maniobras (el juego no permite retroceder en servicio)', 'y'); };

@@ -1,0 +1,412 @@
+[
+  {
+    "encargo": "C-10",
+    "nombre": "Ciudad Libre",
+    "archivo": "iconos/c10_modos/01_ciudad_libre.png",
+    "svg": "iconos/c10_modos/01_ciudad_libre.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Bus",
+    "archivo": "iconos/c10_modos/02_bus.png",
+    "svg": "iconos/c10_modos/02_bus.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Metro",
+    "archivo": "iconos/c10_modos/03_metro.png",
+    "svg": "iconos/c10_modos/03_metro.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Metrocable",
+    "archivo": "iconos/c10_modos/04_metrocable.png",
+    "svg": "iconos/c10_modos/04_metrocable.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Historia",
+    "archivo": "iconos/c10_modos/05_historia.png",
+    "svg": "iconos/c10_modos/05_historia.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Guía",
+    "archivo": "iconos/c10_modos/06_guia.png",
+    "svg": "iconos/c10_modos/06_guia.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "La Red",
+    "archivo": "iconos/c10_modos/07_red.png",
+    "svg": "iconos/c10_modos/07_red.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Juntos",
+    "archivo": "iconos/c10_modos/08_juntos.png",
+    "svg": "iconos/c10_modos/08_juntos.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-10",
+    "nombre": "Arcade",
+    "archivo": "iconos/c10_modos/09_arcade.png",
+    "svg": "iconos/c10_modos/09_arcade.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#F6C538",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Llave",
+    "archivo": "iconos/c11_acciones/01_llave.png",
+    "svg": "iconos/c11_acciones/01_llave.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Selector de sentido",
+    "archivo": "iconos/c11_acciones/02_sentido.png",
+    "svg": "iconos/c11_acciones/02_sentido.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Control de vigilancia",
+    "archivo": "iconos/c11_acciones/03_vigilante.png",
+    "svg": "iconos/c11_acciones/03_vigilante.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Megáfono",
+    "archivo": "iconos/c11_acciones/04_megafono.png",
+    "svg": "iconos/c11_acciones/04_megafono.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Puertas izquierda",
+    "archivo": "iconos/c11_acciones/05_puerta_izquierda.png",
+    "svg": "iconos/c11_acciones/05_puerta_izquierda.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Puertas derecha",
+    "archivo": "iconos/c11_acciones/06_puerta_derecha.png",
+    "svg": "iconos/c11_acciones/06_puerta_derecha.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Pito",
+    "archivo": "iconos/c11_acciones/07_pito.png",
+    "svg": "iconos/c11_acciones/07_pito.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Fotografía",
+    "archivo": "iconos/c11_acciones/08_foto.png",
+    "svg": "iconos/c11_acciones/08_foto.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Buscar",
+    "archivo": "iconos/c11_acciones/09_lupa.png",
+    "svg": "iconos/c11_acciones/09_lupa.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Correr",
+    "archivo": "iconos/c11_acciones/10_correr.png",
+    "svg": "iconos/c11_acciones/10_correr.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Adelantar",
+    "archivo": "iconos/c11_acciones/11_adelantar.png",
+    "svg": "iconos/c11_acciones/11_adelantar.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-11",
+    "nombre": "Tarjeta",
+    "archivo": "iconos/c11_acciones/12_tarjeta.png",
+    "svg": "iconos/c11_acciones/12_tarjeta.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Primer viaje",
+    "archivo": "iconos/c12_logros/01_primer_viaje.png",
+    "svg": "iconos/c12_logros/01_primer_viaje.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Frenada al centímetro",
+    "archivo": "iconos/c12_logros/02_frenada_precisa.png",
+    "svg": "iconos/c12_logros/02_frenada_precisa.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Mano firme",
+    "archivo": "iconos/c12_logros/03_mano_firme.png",
+    "svg": "iconos/c12_logros/03_mano_firme.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Punta a punta",
+    "archivo": "iconos/c12_logros/04_punta_a_punta.png",
+    "svg": "iconos/c12_logros/04_punta_a_punta.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Puesto de control",
+    "archivo": "iconos/c12_logros/05_control.png",
+    "svg": "iconos/c12_logros/05_control.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Carril exclusivo",
+    "archivo": "iconos/c12_logros/06_carril.png",
+    "svg": "iconos/c12_logros/06_carril.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Ciudad colgante",
+    "archivo": "iconos/c12_logros/07_ciudad_colgante.png",
+    "svg": "iconos/c12_logros/07_ciudad_colgante.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Diez de diez",
+    "archivo": "iconos/c12_logros/08_diez_de_diez.png",
+    "svg": "iconos/c12_logros/08_diez_de_diez.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#F6C538",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Gerente",
+    "archivo": "iconos/c12_logros/09_gerente.png",
+    "svg": "iconos/c12_logros/09_gerente.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "La última vuelta",
+    "archivo": "iconos/c12_logros/10_ultima_vuelta.png",
+    "svg": "iconos/c12_logros/10_ultima_vuelta.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#B4583A",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Enciclopedia",
+    "archivo": "iconos/c12_logros/11_enciclopedia.png",
+    "svg": "iconos/c12_logros/11_enciclopedia.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Turno de noche",
+    "archivo": "iconos/c12_logros/12_turno_noche.png",
+    "svg": "iconos/c12_logros/12_turno_noche.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Antes del primer tren",
+    "archivo": "iconos/c12_logros/13_madrugada.png",
+    "svg": "iconos/c12_logros/13_madrugada.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#F6C538",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Duelo",
+    "archivo": "iconos/c12_logros/14_duelo.png",
+    "svg": "iconos/c12_logros/14_duelo.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "En red",
+    "archivo": "iconos/c12_logros/15_en_red.png",
+    "svg": "iconos/c12_logros/15_en_red.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#1C5C9C",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Costumbre",
+    "archivo": "iconos/c12_logros/16_costumbre.png",
+    "svg": "iconos/c12_logros/16_costumbre.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#0E6F76",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Bolsillo lleno",
+    "archivo": "iconos/c12_logros/17_bolsillo_lleno.png",
+    "svg": "iconos/c12_logros/17_bolsillo_lleno.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#F6C538",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Ni una gota",
+    "archivo": "iconos/c12_logros/18_ni_una_gota.png",
+    "svg": "iconos/c12_logros/18_ni_una_gota.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#B4583A",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Feria de las Flores",
+    "archivo": "iconos/c12_logros/19_feria_flores.png",
+    "svg": "iconos/c12_logros/19_feria_flores.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#59AB42",
+    "estado": "candidato para aprobacion"
+  },
+  {
+    "encargo": "C-12",
+    "nombre": "Alumbrados",
+    "archivo": "iconos/c12_logros/20_alumbrados.png",
+    "svg": "iconos/c12_logros/20_alumbrados.svg",
+    "tamano": "128x128",
+    "fondo": "RGBA transparente",
+    "color_acento": "#F6C538",
+    "estado": "candidato para aprobacion"
+  }
+]

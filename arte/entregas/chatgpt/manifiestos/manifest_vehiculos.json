@@ -1,0 +1,371 @@
+[
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metro_coche_cabina_delantera.png",
+    "nombre": "metro_coche_cabina_delantera.png",
+    "tamano": [
+      176,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 22
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metro_coche_intermedio.png",
+    "nombre": "metro_coche_intermedio.png",
+    "tamano": [
+      176,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 22
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metro_coche_cabina_trasera.png",
+    "nombre": "metro_coche_cabina_trasera.png",
+    "tamano": [
+      176,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 22
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/tranvia_3_modulos.png",
+    "nombre": "tranvia_3_modulos.png",
+    "tamano": [
+      160,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 20
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metroplus_articulado.png",
+    "nombre": "metroplus_articulado.png",
+    "tamano": [
+      144,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 18
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/alimentador.png",
+    "nombre": "alimentador.png",
+    "tamano": [
+      96,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 12
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/buseta.png",
+    "nombre": "buseta.png",
+    "tamano": [
+      64,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 8
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/chiva.png",
+    "nombre": "chiva.png",
+    "tamano": [
+      64,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 8
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_k.png",
+    "nombre": "metrocable_cabina_k.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_j.png",
+    "nombre": "metrocable_cabina_j.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_l.png",
+    "nombre": "metrocable_cabina_l.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_h.png",
+    "nombre": "metrocable_cabina_h.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_m.png",
+    "nombre": "metrocable_cabina_m.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-01",
+    "archivo": "vehiculos/metrocable_cabina_p.png",
+    "nombre": "metrocable_cabina_p.png",
+    "tamano": [
+      24,
+      24
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 3
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/taxi.png",
+    "nombre": "taxi.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_rojo.png",
+    "nombre": "carro_rojo.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_azul.png",
+    "nombre": "carro_azul.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_blanco.png",
+    "nombre": "carro_blanco.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_gris.png",
+    "nombre": "carro_gris.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_negro.png",
+    "nombre": "carro_negro.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carro_verde.png",
+    "nombre": "carro_verde.png",
+    "tamano": [
+      36,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": 4.5
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/camioneta.png",
+    "nombre": "camioneta.png",
+    "tamano": [
+      42,
+      18
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/moto.png",
+    "nombre": "moto.png",
+    "tamano": [
+      16,
+      8
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/bici.png",
+    "nombre": "bici.png",
+    "tamano": [
+      14,
+      6
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/carrito.png",
+    "nombre": "carrito.png",
+    "tamano": [
+      24,
+      16
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/ambulancia.png",
+    "nombre": "ambulancia.png",
+    "tamano": [
+      48,
+      18
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-02",
+    "archivo": "vehiculos/camion.png",
+    "nombre": "camion.png",
+    "tamano": [
+      52,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "escala_px_por_m": 8,
+    "metros_representados": null
+  },
+  {
+    "encargo": "C-03",
+    "archivo": "vehiculos/bus_puertas_izquierda_cerradas.png",
+    "nombre": "bus_puertas_izquierda_cerradas.png",
+    "tamano": [
+      144,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "frame": 0
+  },
+  {
+    "encargo": "C-03",
+    "archivo": "vehiculos/bus_puertas_izquierda_entreabiertas.png",
+    "nombre": "bus_puertas_izquierda_entreabiertas.png",
+    "tamano": [
+      144,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "frame": 1
+  },
+  {
+    "encargo": "C-03",
+    "archivo": "vehiculos/bus_puertas_izquierda_abiertas.png",
+    "nombre": "bus_puertas_izquierda_abiertas.png",
+    "tamano": [
+      144,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "frame": 2
+  },
+  {
+    "encargo": "C-03",
+    "archivo": "vehiculos/spr_puertas_bus.png",
+    "nombre": "spr_puertas_bus.png",
+    "tamano": [
+      432,
+      20
+    ],
+    "estado": "sprite_prototipo_tecnico",
+    "frames": 3,
+    "frame_width": 144
+  }
+]

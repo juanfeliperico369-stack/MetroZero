@@ -1,0 +1,149 @@
+[
+  {
+    "nombre": "petalo_01",
+    "png": "fiestas/petalo_01.png",
+    "svg": "fiestas/petalo_01.svg",
+    "color": "#59AB42",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_02",
+    "png": "fiestas/petalo_02.png",
+    "svg": "fiestas/petalo_02.svg",
+    "color": "#9B3FAF",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_03",
+    "png": "fiestas/petalo_03.png",
+    "svg": "fiestas/petalo_03.svg",
+    "color": "#F7C325",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_04",
+    "png": "fiestas/petalo_04.png",
+    "svg": "fiestas/petalo_04.svg",
+    "color": "#D7263D",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_05",
+    "png": "fiestas/petalo_05.png",
+    "svg": "fiestas/petalo_05.svg",
+    "color": "#F28C28",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_06",
+    "png": "fiestas/petalo_06.png",
+    "svg": "fiestas/petalo_06.svg",
+    "color": "#3A7D44",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_07",
+    "png": "fiestas/petalo_07.png",
+    "svg": "fiestas/petalo_07.svg",
+    "color": "#E83E8C",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "petalo_08",
+    "png": "fiestas/petalo_08.png",
+    "svg": "fiestas/petalo_08.svg",
+    "color": "#2EC4F1",
+    "nota": "Pétalo cenital, variedad cromática"
+  },
+  {
+    "nombre": "silleta_cenital",
+    "png": "fiestas/silleta_cenital.png",
+    "svg": "fiestas/silleta_cenital.svg",
+    "color": "#9B3FAF",
+    "nota": "Flores y aro de madera; no confundir con símbolo corporativo"
+  },
+  {
+    "nombre": "farol_rojo",
+    "png": "fiestas/farol_rojo.png",
+    "svg": "fiestas/farol_rojo.svg",
+    "color": "#D62828",
+    "nota": "Farol de papel visto de arriba"
+  },
+  {
+    "nombre": "farol_verde",
+    "png": "fiestas/farol_verde.png",
+    "svg": "fiestas/farol_verde.svg",
+    "color": "#2A9D8F",
+    "nota": "Farol de papel visto de arriba"
+  },
+  {
+    "nombre": "farol_amarillo",
+    "png": "fiestas/farol_amarillo.png",
+    "svg": "fiestas/farol_amarillo.svg",
+    "color": "#F4D35E",
+    "nota": "Farol de papel visto de arriba"
+  },
+  {
+    "nombre": "velita",
+    "png": "fiestas/velita.png",
+    "svg": "fiestas/velita.svg",
+    "color": "#FFB347",
+    "nota": "Vela top-down; llama estilizada"
+  },
+  {
+    "nombre": "guirnalda_recta",
+    "png": "fiestas/guirnalda_recta.png",
+    "svg": "fiestas/guirnalda_recta.svg",
+    "color": "#2EC4F1",
+    "nota": "Guirnalda para componer en el mapa"
+  },
+  {
+    "nombre": "guirnalda_curva",
+    "png": "fiestas/guirnalda_curva.png",
+    "svg": "fiestas/guirnalda_curva.svg",
+    "color": "#2EC4F1",
+    "nota": "Guirnalda para componer en el mapa"
+  },
+  {
+    "nombre": "luz_estrella",
+    "png": "fiestas/luz_estrella.png",
+    "svg": "fiestas/luz_estrella.svg",
+    "color": "#FFC23D",
+    "nota": "Figura de luz sin texto"
+  },
+  {
+    "nombre": "luz_flor",
+    "png": "fiestas/luz_flor.png",
+    "svg": "fiestas/luz_flor.svg",
+    "color": "#E83E8C",
+    "nota": "Flor luminosa"
+  },
+  {
+    "nombre": "luz_pesebre_sencillo",
+    "png": "fiestas/luz_pesebre_sencillo.png",
+    "svg": "fiestas/luz_pesebre_sencillo.svg",
+    "color": "#FFF1C1",
+    "nota": "Ilustración abstracta de portal; sin figuras humanas"
+  },
+  {
+    "nombre": "banderines_feria",
+    "png": "fiestas/banderines_feria.png",
+    "svg": "fiestas/banderines_feria.svg",
+    "color": "#9B3FAF",
+    "nota": "Banderines top-down"
+  },
+  {
+    "nombre": "ramillete_flores",
+    "png": "fiestas/ramillete_flores.png",
+    "svg": "fiestas/ramillete_flores.svg",
+    "color": "#F7C325",
+    "nota": "Ramillete para escenas de Feria"
+  },
+  {
+    "nombre": "figura_luz_guirnalda",
+    "png": "fiestas/figura_luz_guirnalda.png",
+    "svg": "fiestas/figura_luz_guirnalda.svg",
+    "color": "#FFF1C1",
+    "nota": "Módulo de alumbrado"
+  }
+]

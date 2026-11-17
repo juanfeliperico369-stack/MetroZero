@@ -1,0 +1,55 @@
+{
+  "version": "A2-1.0",
+  "total_checks_passed": 473,
+  "errors": [],
+  "groups": {
+    "C-01": 14,
+    "C-02": 13,
+    "C-03": 3,
+    "C-10": 9,
+    "C-11": 12,
+    "C-12": 20,
+    "C-20": 2,
+    "C-21": 1,
+    "C-30": 16,
+    "C-40": 2,
+    "C-41": 1,
+    "C-50": 21,
+    "C-60": 10
+  },
+  "source_original_lines": 9914,
+  "notes": [
+    "Pruebas de sintaxis no equivalen a jugabilidad.",
+    "No se ha integrado el arte en la PWA o APK.",
+    "Estilo final pendiente de aprobación G-00."
+  ],
+  "browser_qa": {
+    "screens": {
+      "1366": {
+        "sw": 1366,
+        "cw": 1366,
+        "imgs": 126,
+        "broken": [],
+        "title": "EL METRO · Documento maestro único · Arte Artista 2 A2-1.0"
+      },
+      "390": {
+        "sw": 390,
+        "cw": 390,
+        "imgs": 126,
+        "broken": [],
+        "title": "EL METRO · Documento maestro único · Arte Artista 2 A2-1.0"
+      },
+      "360": {
+        "sw": 360,
+        "cw": 360,
+        "imgs": 126,
+        "broken": [],
+        "title": "EL METRO · Documento maestro único · Arte Artista 2 A2-1.0"
+      }
+    },
+    "errors": [],
+    "source_all_lines": true,
+    "external_dependencies": false,
+    "images_present_in_html": 126
+  }
+}

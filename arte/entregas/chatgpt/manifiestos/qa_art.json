@@ -1,0 +1,23 @@
+{
+  "pngs_checked": 81,
+  "bad": [],
+  "sheets": {
+    "ico_modos.png": [
+      384,
+      384
+    ],
+    "ico_acciones.png": [
+      512,
+      384
+    ],
+    "ico_logros.png": [
+      640,
+      512
+    ],
+    "ui_letreros.png": [
+      512,
+      512
+    ]
+  },
+  "svg_checked": 66
+}

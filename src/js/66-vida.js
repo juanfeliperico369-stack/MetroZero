@@ -16,7 +16,8 @@ const LOGROS = [
   ['cables6', 'Ciudad colgante', 'Arma un metrocable de cada línea'], ['tres10', 'Diez de diez', 'Consigue 3 ★ en 10 niveles'], ['flota', 'Gerente', 'Lleva una flota al máximo'],
   ['historia', 'La última vuelta', 'Termina la historia de Rosalba'], ['datos25', 'Enciclopedia paisa', 'Descubre 25 datos de estaciones'], ['noche', 'Turno de la noche', 'Juega después de las 7 p. m.'],
   ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
-  ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %']
+  ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %'],
+  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados']
 ];
 /* Domingo de Pascua (algoritmo anónimo gregoriano) */
 function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
@@ -69,6 +70,7 @@ const Vida = EM.vida = {
     if (Game.duel) get('duelo'); if (Game.net) get('red'); if ((d.streak || 0) >= 3) get('racha3'); if (d.wallet >= 1000) get('mil');
     if (Object.keys(d.facts).length >= 25) get('datos25'); if (d.story.ch >= CAPS.length - 1) get('historia');
     if (Object.values(d.red.lines).some(x => x.f >= 5)) get('flota');
+    if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
     Save.write();
   },
   /* noticias para la cinta del menú */
@@ -91,7 +93,7 @@ const Vida = EM.vida = {
   bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
   logros() {
     const L = Save.d.logros || {};
-    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}"><span style="font-size:22px">${L[k] ? '🏅' : '○'}</span><span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
+    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
     $('#lgOk').onclick = () => UI.close();
   },
   temas() {

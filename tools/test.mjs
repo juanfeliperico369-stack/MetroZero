@@ -4,9 +4,12 @@
    Uso: node tools/test.mjs [partidas=100] [--shots carpeta] [--url http://...] */
 import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
 import { spawn } from 'node:child_process'; import path from 'node:path'; import fs from 'node:fs';
+import { probarServidor } from './test-servidor.mjs';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const N = +process.argv[2] || 100, shots = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 const ext = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : null;
+const srvT = ext ? { pruebas: 0, fallos: [] } : await probarServidor();
+if (!ext) console.log(srvT.fallos.length ? 'servidor local: ' + srvT.fallos.length + ' fallos ' + JSON.stringify(srvT.fallos) : 'servidor local: OK, ' + srvT.pruebas + ' comprobaciones');
 let srv = null, url = ext;
 if (!url) { srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), '8765'], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600)); url = 'http://localhost:8765/'; }
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] }), ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true });
@@ -38,5 +41,5 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length;
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);

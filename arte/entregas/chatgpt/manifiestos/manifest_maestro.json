@@ -1,0 +1,1628 @@
+{
+  "metadatos": {
+    "nombre": "El Metro · Artista 2, compilación completa",
+    "fecha": "2026-11-17",
+    "version_arte": "A2-1.0",
+    "version_juego_base": "0.5.0",
+    "total_recursos": 124,
+    "fuente_original": "EL-METRO-TODO.md",
+    "total_files_in_bundle": 314,
+    "qa_report": "documentacion/qa_final.json",
+    "pdf": "EL_METRO_GUIA_VISUAL_COMPLETA.pdf",
+    "master_html": "EL_METRO_DOCUMENTO_MAESTRO_COMPLETO.html"
+  },
+  "recursos": [
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/alimentador.png",
+      "dimensiones": [
+        96,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "776d9275474a71e8d0f10d9998591455b9c6ad159c889264db994eeea21dcf2f",
+      "tamano_bytes": 335,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/buseta.png",
+      "dimensiones": [
+        64,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "33449493465632dd5d2cec9c963a5c6b05baeeb0937cb9232cb824004519275a",
+      "tamano_bytes": 346,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/chiva.png",
+      "dimensiones": [
+        64,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "c2501d28673c77ae360153001d4495693a3f528fc8ff029bb2774f40ed2d503c",
+      "tamano_bytes": 475,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metro_coche_cabina_delantera.png",
+      "dimensiones": [
+        176,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "ea65180cf44fc76fc15db7eab01000e37cb7afc7f284c405db67036fafa24c25",
+      "tamano_bytes": 595,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metro_coche_cabina_trasera.png",
+      "dimensiones": [
+        176,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "5dc7a92592ccb73b50cb72f0513ea9bcbce3afd7095aa036a812099572b8c5e9",
+      "tamano_bytes": 579,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metro_coche_intermedio.png",
+      "dimensiones": [
+        176,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "9f0824268a40368855ae5fe5ec9bba2bd1f7c92669612e129906b5546d1870f9",
+      "tamano_bytes": 543,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_h.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "92665faf265706d8db03680c99f9298383c80054be212a5940cde945f52b5991",
+      "tamano_bytes": 251,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_j.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "9ae34b9c9f9681187f1254a9135a4af75a470365d1ddd8cbf56363a693af46b3",
+      "tamano_bytes": 250,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_k.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "b3eeb67a4746bed1ff1b7af89abbc30ff2511a7aa0770fb71bff7665383da277",
+      "tamano_bytes": 252,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_l.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "abc47050fead90a5df61394d5c8efd25477f06ca09d5b058d149e9ca0a0b5457",
+      "tamano_bytes": 246,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_m.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "77effba86c0efeff2d16eff74d799c55e821cb78525c241957c6e5999fb63b13",
+      "tamano_bytes": 249,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metrocable_cabina_p.png",
+      "dimensiones": [
+        24,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "59b9a76b8b0281d9c2abbdfd8db19c2c7b3e6ae0b96f262744acc1bef9e09843",
+      "tamano_bytes": 251,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/metroplus_articulado.png",
+      "dimensiones": [
+        144,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "7814e995f2f77c510b8f86f3a30e3af27e4ba597e7f92b7be5846f092e62bb84",
+      "tamano_bytes": 495,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-01",
+      "nombre": "Vehículos del sistema",
+      "archivo": "vehiculos/tranvia_3_modulos.png",
+      "dimensiones": [
+        160,
+        24
+      ],
+      "modo": "RGBA",
+      "sha256": "bc648cf14e32f93673d79d0fc628c7cc87e62d0659102664bc4173de4ac3671c",
+      "tamano_bytes": 435,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/ambulancia.png",
+      "dimensiones": [
+        48,
+        18
+      ],
+      "modo": "RGBA",
+      "sha256": "db433e56a718915707d5a14b98156c83c584694cb5145f89f092fbb22937d36f",
+      "tamano_bytes": 274,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/bici.png",
+      "dimensiones": [
+        14,
+        6
+      ],
+      "modo": "RGBA",
+      "sha256": "0252a1c18757e6ddc3f480920cae7ec8ea23a69a323f75853ca50d52252d1e48",
+      "tamano_bytes": 170,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/camion.png",
+      "dimensiones": [
+        52,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "08de46c73296b4b03512a7bdd6e502eefd8d43f409f32f02585f444d5c079182",
+      "tamano_bytes": 206,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/camioneta.png",
+      "dimensiones": [
+        42,
+        18
+      ],
+      "modo": "RGBA",
+      "sha256": "b19ca6879182aea6052c4744f6a351603534fbd990582dcb8292cede34ec77b5",
+      "tamano_bytes": 207,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carrito.png",
+      "dimensiones": [
+        24,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "ba75b8c8899ef7b42a4d4537c2fd17c552ffb3984a198061d3de951bfc2a811a",
+      "tamano_bytes": 193,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_azul.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "2ac841b913f5bf02f03a64886daa8274ef67ce23d9fd96a0994c1127ff2c439b",
+      "tamano_bytes": 231,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_blanco.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "fd6aa1a9f8dc7095c79f6b5af0112f8410580879ccc5847afce2cc35d52ea266",
+      "tamano_bytes": 232,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_gris.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "609db609c546998d621e0fda27fb8dce98a45d3e0a6563caa5d1df96e1d044f2",
+      "tamano_bytes": 235,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_negro.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "3410c6b37f14f3af5a9c8712c3f7c5f3a15f921ad6447656fc03237b7629fa03",
+      "tamano_bytes": 224,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_rojo.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "32836423c0dffa17bbd4b9a599c613eba0f86f9f9700cecb119c3dd3e1a75c1f",
+      "tamano_bytes": 235,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/carro_verde.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "e8235d8bf4f065bd184fa57230685a7dbe9b52170b72434021cddeeda5882776",
+      "tamano_bytes": 235,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/moto.png",
+      "dimensiones": [
+        16,
+        8
+      ],
+      "modo": "RGBA",
+      "sha256": "907a5d25f7e18759de5ad34bbe2441a51e601afc138877004b2a41120fee9db3",
+      "tamano_bytes": 144,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-02",
+      "nombre": "Vehículos de la calle",
+      "archivo": "vehiculos/taxi.png",
+      "dimensiones": [
+        36,
+        16
+      ],
+      "modo": "RGBA",
+      "sha256": "6aea111f738fa490ca973b3d347d9ef3aed9af7ed586194bf7e63ac8fe110d94",
+      "tamano_bytes": 231,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-03",
+      "nombre": "Puertas de autobús",
+      "archivo": "vehiculos/bus_puertas_izquierda_abiertas.png",
+      "dimensiones": [
+        144,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "54aee89ad6768da66c210321d505d029cad4e04dc0edf819fc46a5c1ddd7da48",
+      "tamano_bytes": 610,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-03",
+      "nombre": "Puertas de autobús",
+      "archivo": "vehiculos/bus_puertas_izquierda_cerradas.png",
+      "dimensiones": [
+        144,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "51791e459d16ab78d68cffffe506cd504c08070799a37c01e09bc2f79e6ba9d2",
+      "tamano_bytes": 589,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-03",
+      "nombre": "Puertas de autobús",
+      "archivo": "vehiculos/bus_puertas_izquierda_entreabiertas.png",
+      "dimensiones": [
+        144,
+        20
+      ],
+      "modo": "RGBA",
+      "sha256": "0658ebb88cb78604c7d5ffc0348541af93a9224798c749cab0bd38eb8e794517",
+      "tamano_bytes": 674,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/01_ciudad_libre.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "f6045ff474fc0a3a20bb640407dbc99281993a878bd23ec852fcc4ec9e184541",
+      "tamano_bytes": 2764,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/02_bus.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "2fc526a58c3227574d117eb84d387274f43d97614ec5273ad58eec3033985eb0",
+      "tamano_bytes": 2759,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/03_metro.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "9b472f4adace7ab894874a6731f33ab9bed046d654e05dfdf2bbf207d1a4bb49",
+      "tamano_bytes": 3193,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/04_metrocable.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "34df58e88530569faa959cc2dd313a57598c9d9f25dd3b02148926c8d1b979b2",
+      "tamano_bytes": 2943,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/05_historia.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "28a36bcca6505458103d72707a3d2428a7be6be94e12960e0d1d14ead165cc73",
+      "tamano_bytes": 3243,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/06_guia.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "daae8f5f3e45644f21b806cfbb80f88ffed89a29524d6de502536025c3bc75d4",
+      "tamano_bytes": 4281,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/07_red.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "9c047b41e4c5316479fc4f5a8c290cd290e189e40c989380c0b8afc0719e6642",
+      "tamano_bytes": 2860,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/08_juntos.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "e28295e4bb2bc3584cd2dcbe7a9a54e27f5747b00bab616a8119d8012859dfa9",
+      "tamano_bytes": 2060,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-10",
+      "nombre": "Iconos de modos",
+      "archivo": "iconos/c10_modos/09_arcade.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "9c8fba03c30acf8f72e34ff6b06a524b479768873e2521b47e2528bcc1acd091",
+      "tamano_bytes": 3758,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/01_llave.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "4cdb8289f68f289463b5bbaae2ac04715de9afb1e1efc58d10798401035a7895",
+      "tamano_bytes": 4052,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/02_sentido.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "3f7a418bd23f7155384e46ae4e6b5eef073f52a6fd5d15f0e0fac98d6104b3cd",
+      "tamano_bytes": 1460,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/03_vigilante.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "bc668d6a25cb265ed52c93a0676731bfd1fc19909ce15abc45261b1fce38b06c",
+      "tamano_bytes": 2860,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/04_megafono.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "fcfacf6f3ed59dde93a1c14e2d33fd69df00ae674a7c2595b3c3306a9fb283b7",
+      "tamano_bytes": 3190,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/05_puerta_izquierda.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "c901aa34f67c5b7edb42bafbac8fbce98e511f9c4b85d7785701dd327496fd16",
+      "tamano_bytes": 2428,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/06_puerta_derecha.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "5568dc4f3981c1b05cb4dedbc22aaaa3037facde0e4939e45226e2b115d5fcaf",
+      "tamano_bytes": 2350,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/07_pito.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "42e46b37e635fa5b18d2b46cc009c6f9851629e939d99cc80d09f2488904b3c6",
+      "tamano_bytes": 2914,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/08_foto.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "eeeb2d7371a52a9266983fdb4b302ea52b3f42d11b55a7f4f1627158137e3aa9",
+      "tamano_bytes": 4127,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/09_lupa.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "a1bf68ed7e6dbe30d8b170a5a64da2e4acfc41cf2ea2f4b63237b1df703bc853",
+      "tamano_bytes": 4747,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/10_correr.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "f9caa44abb21b28a610fd9b0039ad4190252e24fd1d467450bb8bb4dac2b2959",
+      "tamano_bytes": 3569,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/11_adelantar.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "310eb98ef2d6a6331ae68e5b86e22b4a5b054f8b37016d32e478852a9f3e6a9e",
+      "tamano_bytes": 3194,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-11",
+      "nombre": "Iconos de acciones",
+      "archivo": "iconos/c11_acciones/12_tarjeta.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "2d6033d3303c1a9d9146f1f0c3fc17ab0d959714581cabd29b24f6b24974af05",
+      "tamano_bytes": 1884,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/01_primer_viaje.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "e6833310c782f6e4cd4bef66da4fa87219ce30f14a761e08e4b3a40b13baa31a",
+      "tamano_bytes": 9046,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/02_frenada_precisa.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "900f7f464705646c29fed02c87abe104346d59f1310797ae0c79a6868cee650d",
+      "tamano_bytes": 10186,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/03_mano_firme.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "18e8b7f9ea44f2bc9dce1e8c671bbbfb6dead2337a767440d9f11eeff2350bc5",
+      "tamano_bytes": 9126,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/04_punta_a_punta.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "3273a7609a8a9baeebcf13533e44c88a7427a5e115d36d9acc963bc259b7849a",
+      "tamano_bytes": 8603,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/05_control.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "7d158f984761a73c6ca3a913b53b8cd47550f605f635b33f2fccee3984d57c28",
+      "tamano_bytes": 8488,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/06_carril.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "b5d64233956fb6781594f2a6adf45718e06e8bef42d5ff2f8f5ec75297e14dcc",
+      "tamano_bytes": 9289,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/07_ciudad_colgante.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "d29a9fc8446691636e7dc49e06c445f28fba336dabb50e3bb4c63394e8997069",
+      "tamano_bytes": 8738,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/08_diez_de_diez.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "5c887955c07fc4e79134ca967f0960fbc7fec32633364fdf2d504e4a2045b476",
+      "tamano_bytes": 9529,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/09_gerente.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "5b07c0bba782b0b3a37d1525053755ae8b2f0196de450740b859d9d53db82a58",
+      "tamano_bytes": 7610,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/10_ultima_vuelta.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "1a491b6eccb8fef15fa11bb9683e05d5ea5cb4b5d2f194beb7bcd852815c3090",
+      "tamano_bytes": 9634,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/11_enciclopedia.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "c7662cb61132e2209a4a16452669cbbf139b4600518bd43de889eb549aad9c3c",
+      "tamano_bytes": 9122,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/12_turno_noche.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "dee2b874224972873dd8cf4e082143593d1179264dbebf001ac6c029f2f66cb2",
+      "tamano_bytes": 10078,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/13_madrugada.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "b69d88227247be25351e916ffa7e46f8ed52c7b867264271a76d978463cb4b04",
+      "tamano_bytes": 9128,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/14_duelo.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "ea716631e994432700d43277260b2fde513039e91e8e424c4a0780c3366321e6",
+      "tamano_bytes": 9613,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/15_en_red.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "41e2a0ee9eeb771ba9898f98ab604df2ef5878d4a9f825f317e33961c9e87ae9",
+      "tamano_bytes": 10501,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/16_costumbre.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "1ef8f174381733effb6ff53fcc8eb94102f41dde3fea3e1997ae687377cfde8d",
+      "tamano_bytes": 8478,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/17_bolsillo_lleno.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "2646e2d886d1476d8771e457693fbd784d1ea59d03e9264b1e80abe67a6a9c1e",
+      "tamano_bytes": 8891,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/18_ni_una_gota.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "3b6759084a944936b1f0a3cc2f4fa5d34be817a5b659b0f97ef378580c35f83b",
+      "tamano_bytes": 9081,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/19_feria_flores.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "523ea7df2da4edfa8b166230dcafa9442596b522c48f23f77ebc93004ee2701c",
+      "tamano_bytes": 9797,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-12",
+      "nombre": "Insignias de logros",
+      "archivo": "iconos/c12_logros/20_alumbrados.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "73df8e2cd60f8e15029d14b786a6db55c70be3ea9105c38f0ebf4561c93a919f",
+      "tamano_bytes": 10091,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-20",
+      "nombre": "Consola del Metro",
+      "archivo": "cabinas/cab_consola_horizontal.png",
+      "dimensiones": [
+        1536,
+        1024
+      ],
+      "modo": "RGB",
+      "sha256": "873d5cf11be00ff17d210215860f98e01f57a304f8194eb7936047c97804ac9a",
+      "tamano_bytes": 29172,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-20",
+      "nombre": "Consola del Metro",
+      "archivo": "cabinas/cab_consola_vertical.png",
+      "dimensiones": [
+        1024,
+        1536
+      ],
+      "modo": "RGB",
+      "sha256": "98610516d8997b8352fce8c1990f7eabd0fb2ac99b480f30e40a089ca302d3e9",
+      "tamano_bytes": 25525,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-21",
+      "nombre": "Tablero de autobús",
+      "archivo": "cabinas/cab_bus.png",
+      "dimensiones": [
+        1536,
+        1024
+      ],
+      "modo": "RGB",
+      "sha256": "cb12091e9d291d7c85ed3c5429c309add37f119cb0432fb0f8ab608f0f0f998c",
+      "tamano_bytes": 31149,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/flecha_derecha.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "2f14bde538083acd1c904ec50750f74c95462e7a39810630ae0b15147625a9b4",
+      "tamano_bytes": 1113,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/flecha_izquierda.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "a5f607219e734c4260d76930053e794c5902e8d3034f5e643d9c7212b6789988",
+      "tamano_bytes": 1074,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/linea_amarilla.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "f9cbbcc44a4eefa14c3ba847da82b28753c520d7d1c3cb6d4612bdff545fc656",
+      "tamano_bytes": 416,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/panel_led.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "39d6c643df9fae7b9a201e5e45c311325413c972aee3e6b3a265bd660c41e3ed",
+      "tamano_bytes": 959,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_a.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "65009fa91102e4c066bfe1b37934f037fd98cb424b481caed4138d494625277e",
+      "tamano_bytes": 1716,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_b.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "79d8db6e2f11891a33cdeed3e842349a8e83c215d4dd612ea6e6eb207a6b6ae1",
+      "tamano_bytes": 1692,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_h.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "d5de0ab3b4771cbdb621cdc07134a47546e422b5200ca0be00a5609b99486d66",
+      "tamano_bytes": 1669,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_j.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "678237e645a2e1f210873dcacceeff4d92f607ff8d014edb58c1da85c332232e",
+      "tamano_bytes": 1648,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_k.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "90a934f23f0c3b0a738fb37738cf8031e4e5ebd8399856c1ffa345f60c191cd6",
+      "tamano_bytes": 1687,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_l.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "62bb7770ffd68a554a0bd3dbe22a31b20b7cbf4c3f63aa65bb0535204d727423",
+      "tamano_bytes": 1724,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_m.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "f66222d0a95b72b95be39892874a648aa21bb299c09c839013d867f36665eef6",
+      "tamano_bytes": 1716,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_metroplus1.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "95e5d18dcae1563867ca6df82d80be392453d29a5fcf208a8c18ff9a7ca3e828",
+      "tamano_bytes": 1727,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_metroplus2.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "ad6629d78ddf103d5ba0cfe27e704ffdbbcbfa5a436b018988566dc9da451e5d",
+      "tamano_bytes": 1694,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_p.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "e5ab01a97562672c2d9fc680d3abbef3cdfd8484021116ac08051950e610b6dc",
+      "tamano_bytes": 1678,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/placa_t.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "ced64fe30dc819575af089bc4bc6ba7515e141edee45bc13f6f29e47ea1c0880",
+      "tamano_bytes": 1723,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-30",
+      "nombre": "Señalética",
+      "archivo": "senalizacion/torniquete.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "63832c20728f433a519d9af2b9b8b56d6d59980024664eb05fd8d329061a22b7",
+      "tamano_bytes": 2027,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-40",
+      "nombre": "Portada y compartir",
+      "archivo": "portadas/clave_compartir.png",
+      "dimensiones": [
+        1536,
+        1024
+      ],
+      "modo": "RGB",
+      "sha256": "0a117b3093900f7d8166b9faa56384748908639ce043b33684b89969792a93aa",
+      "tamano_bytes": 57341,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-40",
+      "nombre": "Portada y compartir",
+      "archivo": "portadas/clave_portada.png",
+      "dimensiones": [
+        1536,
+        1024
+      ],
+      "modo": "RGB",
+      "sha256": "a4b01287bff55969f0cd7fd7f46dfe12cca8e18e80ad24c2817dd29430e4d9e1",
+      "tamano_bytes": 50755,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-41",
+      "nombre": "Pantalla de carga",
+      "archivo": "portadas/clave_carga.png",
+      "dimensiones": [
+        1024,
+        1536
+      ],
+      "modo": "RGB",
+      "sha256": "0445c32df9f3c3c9a19ca4b518040ef1c3c303e88d983c93d8f7a494883d91ac",
+      "tamano_bytes": 39309,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/banderines_feria.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "2c4748008a1981598471fd8e4ccb9fdd6a8123c3dc180268b9fbd96e33f5adca",
+      "tamano_bytes": 2415,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/farol_amarillo.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "76ddee18ef3fa2c9307445056748867ad44b4568e14b229b2be6ad2f9092eb6f",
+      "tamano_bytes": 2534,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/farol_rojo.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "c4edc33c676822ac1abbbe7c38f1f5a71d6889f64a308f790e2390566f556c0b",
+      "tamano_bytes": 2366,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/farol_verde.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "90e04550ad19600294d9a9c90fc4698015dd2aa6e019d88bf0b17333ae98f6c7",
+      "tamano_bytes": 2515,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/figura_luz_guirnalda.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "8d88d1f5a619517e42636eee68d657e5d89fdc8ed2b577773f67adb2c822df41",
+      "tamano_bytes": 2077,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/guirnalda_curva.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "33158c6b2b06a261046c6b0a658f0e11e5cdbf76a87ada4fb0cb659275c77420",
+      "tamano_bytes": 3227,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/guirnalda_recta.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "eac7c73ffebd33e162db2c131f1f59545d39b537484636669b51bf10135ca1ee",
+      "tamano_bytes": 1322,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/luz_estrella.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "23b56112ac2e88df22692b987aab03c0f72e7fda01322e66b8329b963cb3b9fc",
+      "tamano_bytes": 3357,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/luz_flor.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "d798e374cef525f381015e7d529da19b666f42b5eaedb5cbebd894c75815efc5",
+      "tamano_bytes": 7203,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/luz_pesebre_sencillo.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "4b6ac0970afe6742f4e18bb7941f1a9adf4a1c971d8c3dbe56e1fd79a23b1a44",
+      "tamano_bytes": 2953,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_01.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "67f35607f2d84a1d240c0051a07f0649241f2589731b6ca25e94310182c2a402",
+      "tamano_bytes": 2427,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_02.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "8bb6dddb72a01d2ca773723297592fb0de073b916b9958118cc822d4f2bc0006",
+      "tamano_bytes": 2450,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_03.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "1da87350e094b1e49cda434ae31faa3476da9d4783542989ca208cdac1e2fac6",
+      "tamano_bytes": 2448,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_04.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "44618c66a5b020bf1c99b82fe3373693246d93fd6d2f8e8406f5e2911f22c12b",
+      "tamano_bytes": 2383,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_05.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "91f346e94827a52856c18276e775c3931fab8ecd9b23bdc68181d7d4257517e2",
+      "tamano_bytes": 2447,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_06.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "ac2c3c71e8c2e37c706e3275329feec5be2a150d5de449cccf3da22f2594779b",
+      "tamano_bytes": 2393,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_07.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "266cb7676b5d532ca763c471c74001d25f526ba65912d6dc42490f37a5f0c7f5",
+      "tamano_bytes": 2457,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/petalo_08.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "5d9c0c25e0d12c2015b1c026bee5271196dd2c1d541e35f9f518a3b46d92dfd5",
+      "tamano_bytes": 2460,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/ramillete_flores.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "54f688f064fd43b13bcd32eb27c658852cbacda24044b099113c56df3bcc62c1",
+      "tamano_bytes": 3362,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/silleta_cenital.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "5fee6cb85a346d8c63003764aa537ca4f9cc0a1015167b3ecf533aa89119bab5",
+      "tamano_bytes": 11106,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-50",
+      "nombre": "Decoraciones festivas",
+      "archivo": "fiestas/velita.png",
+      "dimensiones": [
+        128,
+        128
+      ],
+      "modo": "RGBA",
+      "sha256": "c651e6d20b9988e71f7239a0ebdf7c436894047a00e6443e40370e030beb4804",
+      "tamano_bytes": 2913,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_adoquin.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "d7d85c336a23427f8e5b974848cb498c07c4e13effa68a7315a388c23793e800",
+      "tamano_bytes": 7666,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_anden.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "35ab1d26c068299d20b0f4824b9f22483e3a7d7d941725c5e63e7a263fdb2c99",
+      "tamano_bytes": 6024,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_asfalto.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "61194941bdc18ab75fd9a239ead5e6a1e42a702e472e2e0bcb2987609d36e4b0",
+      "tamano_bytes": 12910,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_balasto.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "dc9116ea58344064d8e14983c93f89b44e71a9501fb790df94b9110388489d9a",
+      "tamano_bytes": 16145,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_concreto.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "1ecf19b498d2cfa3a03df075fcb208be965e78f61781e188cdb94cfa2f6434f7",
+      "tamano_bytes": 13215,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_eternit.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "60a0b166d53c2a07e074f741da28ecfe7655ee463c9c9719f5dfb048e8ace97b",
+      "tamano_bytes": 5740,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_ladrillo.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "646ef0b66f6368fa6e5087c0d9b8564af6d2787ef255cceadff5b5ad02f316ec",
+      "tamano_bytes": 6663,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_pasto.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "a83a58b1b0ff18dfa3ceb63e9204a88b60f4d599b68f308ef7e9592fbd576063",
+      "tamano_bytes": 23742,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_rio.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "9ab36853bb02d1b334c3c230356ac0fc137ea890163f83dd4fd0101535b59be6",
+      "tamano_bytes": 9539,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    },
+    {
+      "codigo": "C-60",
+      "nombre": "Texturas repetibles",
+      "archivo": "texturas/tex_teja.png",
+      "dimensiones": [
+        1024,
+        1024
+      ],
+      "modo": "RGBA",
+      "sha256": "8f87eee20a8315b9677e67161212b07f010580bce02ea030f3ca75e6a248c52f",
+      "tamano_bytes": 8838,
+      "estado": "entregado_qa_tecnico_pendiente_G00"
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "C-01": [
+    {
+      "sprite": "metro_coche_cabina_delantera.png",
+      "x": 115,
+      "y": 110,
+      "w": 352,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metro_coche_intermedio.png",
+      "x": 515,
+      "y": 110,
+      "w": 352,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metro_coche_cabina_trasera.png",
+      "x": 915,
+      "y": 110,
+      "w": 352,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "tranvia_3_modulos.png",
+      "x": 115,
+      "y": 320,
+      "w": 320,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metroplus_articulado.png",
+      "x": 483,
+      "y": 320,
+      "w": 288,
+      "h": 40,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "alimentador.png",
+      "x": 115,
+      "y": 525,
+      "w": 192,
+      "h": 40,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "buseta.png",
+      "x": 355,
+      "y": 525,
+      "w": 128,
+      "h": 40,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "chiva.png",
+      "x": 531,
+      "y": 525,
+      "w": 128,
+      "h": 40,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_k.png",
+      "x": 115,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_j.png",
+      "x": 211,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_l.png",
+      "x": 307,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_h.png",
+      "x": 403,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_m.png",
+      "x": 499,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    },
+    {
+      "sprite": "metrocable_cabina_p.png",
+      "x": 595,
+      "y": 735,
+      "w": 48,
+      "h": 48,
+      "previsualizacion": 2
+    }
+  ],
+  "C-02": [
+    {
+      "sprite": "taxi.png",
+      "x": 120,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_rojo.png",
+      "x": 309,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_azul.png",
+      "x": 498,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_blanco.png",
+      "x": 687,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_gris.png",
+      "x": 876,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_negro.png",
+      "x": 1065,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carro_verde.png",
+      "x": 1254,
+      "y": 130,
+      "w": 144,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "camioneta.png",
+      "x": 120,
+      "y": 305,
+      "w": 168,
+      "h": 72,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "moto.png",
+      "x": 333,
+      "y": 305,
+      "w": 64,
+      "h": 32,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "bici.png",
+      "x": 442,
+      "y": 305,
+      "w": 56,
+      "h": 24,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "carrito.png",
+      "x": 543,
+      "y": 305,
+      "w": 96,
+      "h": 64,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "ambulancia.png",
+      "x": 684,
+      "y": 305,
+      "w": 192,
+      "h": 72,
+      "previsualizacion": 4
+    },
+    {
+      "sprite": "camion.png",
+      "x": 921,
+      "y": 305,
+      "w": 208,
+      "h": 80,
+      "previsualizacion": 4
+    }
+  ],
+  "nota": "Hojas son presentaciones a 2x/4x. Sprites individuales mantienen escala 8px/metro. Usa archivos individuales para fisica."
+}

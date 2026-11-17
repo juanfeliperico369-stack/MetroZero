@@ -1,0 +1,110 @@
+[
+  {
+    "index": 1,
+    "mode": "ciudad_libre",
+    "file": "01_ciudad_libre.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 2,
+    "mode": "bus",
+    "file": "02_bus.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#0E6F76",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 3,
+    "mode": "metro",
+    "file": "03_metro.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 4,
+    "mode": "metrocable",
+    "file": "04_metrocable.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 5,
+    "mode": "historia",
+    "file": "05_historia.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 6,
+    "mode": "guia",
+    "file": "06_guia.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 7,
+    "mode": "red",
+    "file": "07_red.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#59AB42"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 8,
+    "mode": "juntos",
+    "file": "08_juntos.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  },
+  {
+    "index": 9,
+    "mode": "arcade",
+    "file": "09_arcade.png",
+    "resolution": "128x128",
+    "colors": [
+      "#141414",
+      "#1C5C9C",
+      "#F1ECE0"
+    ],
+    "alpha": true
+  }
+]

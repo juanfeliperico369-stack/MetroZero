@@ -107,6 +107,10 @@ const TRAMA = [
   ] }
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
+/* arte de cada capítulo (Gemini G- y ChatGPT C-, en src/data/arte.js) y el cielo que va detrás de las que lo traen transparente */
+const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
+TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
+const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
 const TRAMA_PREG = [
   ['¿Cómo llego a Santo Domingo Savio?', ['Línea A al norte hasta Acevedo y ahí el Metrocable K', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'Santo Domingo Savio'],
   ['Voy para La Aurora, arriba de San Javier.', ['Línea B hasta San Javier y el Metrocable J', 'Línea A hasta Acevedo y el cable P', 'Tranvía hasta Miraflores y el cable M'], 'La Aurora'],
@@ -146,9 +150,16 @@ const Trama = EM.trama = {
     if (T.s === 0) { Libre.msg(st, '📖 Capítulo ' + (T.c + 1) + ' · ' + C.t, 'b'); this.card(st, T.c, C.t); }
     Libre.msg(st, '📖 ' + S.txt, 'y');
   },
-  card(st, c, t) {
-    if (EM.headless || Game.st !== st) return; const host = $('#gctl'); if (!host) return; const el = document.createElement('div'); el.className = 'trcap';
-    el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
+  card(st, c, t, tries = 0) {
+    if (EM.headless || st.auto) return;
+    // al empezar, la partida aún no está montada: se reintenta un momento después
+    if (Game.st !== st) { if (tries < 8) setTimeout(() => this.card(st, c, t, tries + 1), 250); return; }
+    const host = $('#gctl'); if (!host) return; const el = document.createElement('div'), art = TRAMA[c] && TRAMA[c].art;
+    if (art && Atlas.has(art)) {   // tarjeta ilustrada del capítulo: se cierra sola o al tocarla
+      el.className = 'trcard'; el.innerHTML = `<div class="in"><div class="pic" style="background:${TRAMA_SKY[art] || 'var(--noche)'}">${Atlas.tag(art, '', t)}</div><small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b><i>Toca para seguir</i></div>`;
+      const bye = () => { if (el.isConnected) { el.classList.add('out'); setTimeout(() => el.remove(), 300); } }; el.onclick = bye; host.appendChild(el); setTimeout(bye, 5200); return;
+    }
+    el.className = 'trcap'; el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
   },
   advance() { const T = this.save(); T.s++; let newCap = false; if (T.s >= TRAMA[T.c].steps.length) { T.c++; T.s = 0; newCap = true; Save.d.wallet += 30; if (T.c >= TRAMA.length) { T.fin = 1; const L = Save.d.logros || (Save.d.logros = {}); if (!L.historia) { L.historia = Date.now(); if (!EM.headless) UI.toast('🏅 Logro: La última vuelta'); } } } Save.write(); return newCap; },
   next(st) {
@@ -189,12 +200,13 @@ const Trama = EM.trama = {
     const el = $('#trTalk'), tr = st.trama, T = tr.talk; if (!el) return; if (!T) { el.className = 'trtalk hide'; el.innerHTML = ''; return; }
     const S = this.step(), n = T.n; el.className = 'trtalk';
     if (n.q) {
-      const [q, opts] = n.q; el.innerHTML = `<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
-      el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
+      const [q, opts] = n.q; el.innerHTML = `${Atlas.tag(Atlas.retrato('Pasajero'), 'face', 'Pasajero')}<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
+      el.classList.toggle('conface', !!el.querySelector('.face')); el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
     }
     const L = T.lines[T.i] || ['', '']; const last = T.i >= T.lines.length - 1;
     if (T.said !== T.i) { T.said = T.i; if (L[1]) Snd.say(L[1]); }
-    el.innerHTML = `${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
+    const face = L[0] ? Atlas.retrato(L[0], L[1]) : ''; el.classList.toggle('conface', !!face);
+    el.innerHTML = `${face ? Atlas.tag(face, 'face', L[0]) : ''}${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
     const nb = el.querySelector('[data-n]'); if (nb) nb.onclick = () => { Snd.play('tap'); if (T.i < T.lines.length - 1) { T.i++; this.render(st); } else { tr.talk = null; this.render(st); this.next(st); } };
     const go = el.querySelector('[data-go]'); if (go) go.onclick = () => { tr.talk = null; this.render(st); this.launch(st, S); };
     const lt = el.querySelector('[data-later]'); if (lt) lt.onclick = () => this.close(st);
