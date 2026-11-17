@@ -121,6 +121,7 @@ bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
 node tools/verify-pages.mjs          # verifica la web publicada: carga, service worker, sin conexión, instalable
 node tools/arte.mjs                  # regenera arte/index.html y arte/CONTEXTO-IA.md (bitácora sincronizada)
 node tools/skills.mjs                # copia .agents/skills → .claude/skills y arma arte/SKILLS-IA.md
+node tools/todo.mjs                  # dist/El-Metro-TODO.html: UN archivo con el juego jugable + guía, skills, plan, bitácora y arte
 ```
 **Chromium y Playwright** ya vienen instalados (`require('playwright')`). En la nube, el 3D usa SwiftShader: lanza Chromium con `--enable-unsafe-swiftshader --use-angle=swiftshader --ignore-gpu-blocklist`.
 
