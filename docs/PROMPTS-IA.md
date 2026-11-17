@@ -1,0 +1,35 @@
+# Encargos para otras IA (Gemini Antigravity · Codex)
+
+Cada prompt es autocontenido: copia y pega. Entregan archivos que se integran en este repo (`juanfeliperico369-stack/MetroZero`, rama `ccr-2a67f935-oat714`). Reglas comunes: español, sin librerías externas, sin internet en tiempo de juego, todo embebible en un solo HTML (PNG en base64 o canvas), licencias libres, nada ofensivo, todo público.
+
+---
+## 1 · Gemini Antigravity — Atlas de tiles cenitales (arte principal)
+> Eres el artista de un videojuego 2D cenital (vista desde arriba, estilo GTA 1/2 y pixel art moderno tipo Town Brush/Townscaper) sobre Medellín. Necesito un **atlas de tiles de 16×16 px**, PNG con transparencia, paleta de ≤ 48 colores, contornos definidos, sin anti‑aliasing (pixel art limpio). Cada tile debe ser **teselable** (bordes continuos). Lista de tiles (nombre → descripción):
+> - `grass`, `grass_flowers`, `park_path`, `court` (cancha de microfútbol), `tree_small`, `tree_big` (copa redonda con sombra abajo‑derecha, sobre transparente).
+> - `mountain` (ladera verde oscura con rocas), `water` (río Medellín, 3 frames de animación), `canal` (quebrada).
+> - `road`, `road_marking_h`, `road_marking_v` (línea amarilla discontinua), `road_edge_n/s/e/w` (bordillo), `zebra_h`, `zebra_v`, `avenue` (2 carriles por sentido), `bridge`.
+> - `sidewalk`, `plaza` (baldosa), `steps` (escaleras de la Comuna 13).
+> - `house_brick_a/b/c` (casas de ladrillo visto de los barrios, vistas en 3/4: tejado + fachada abajo con ventana y puerta), `house_pastel_a/b` (fachadas crema/verde/rosa), `building_a/b/c` (azoteas de edificios con tanque de agua, aire acondicionado), `tower_glass` (azotea de torre de vidrio), `church` (iglesia con torre, 2×2 tiles), `station_platform` (andén con línea amarilla), `viaduct` (tablero de concreto con 2 pares de rieles, en tramos recto, curva y cruce).
+> Entrega: `tiles.png` (grilla 16 px, sin separación) y `tiles.json` con `{nombre:[x,y,w,h]}`. Paleta de referencia (colores oficiales de las líneas del Metro): A #1C5C9C, B #E38835, T #59AB42, K #B8CF40, J #F6C538, H #EB318E, M #743D90, P #EC343A, Metroplús #0E6F76; papel #f1ece0, tinta #154a80, negro #141414.
+
+## 2 · Gemini Antigravity — Sprites de vehículos y peatones
+> Mismo estilo que el atlas anterior (pixel art cenital, contorno negro de 1 px, sombra NO incluida). Sprites **mirando a la derecha (+x)**, PNG transparente, escala **4 px = 1 m**:
+> - Metro de Medellín: carro con cabina (frente), carro intermedio, carro con cabina (cola) — 22 m × 3 m (88×12 px). Techo plata con equipos, franja azul (#1C5C9C) a los lados, ventanas oscuras, puertas marcadas.
+> - Tranvía de Ayacucho (verde, 2 módulos, 39 m), cabina de metrocable (3 m, en los 6 colores de línea), bus articulado Metroplús (18 m, verde #0E6F76 con techo blanco, fuelle oscuro, puertas a la izquierda), bus alimentador (12 m, blanco con franja naranja/verde), taxi amarillo con aviso en el techo, 6 carros de colores, moto con casco, bici EnCicla, camioneta del Metro (azul con platón).
+> - Peatones (4 px/m → 6×6 px aprox., exagerados ×1.5): 8 variantes de ropa/piel/pelo × 4 frames de caminar; variante con paraguas; vendedor con carrito.
+> Entrega: `sprites.png` + `sprites.json` `{nombre:[x,y,w,h], frames}`.
+
+## 3 · Gemini Antigravity — Fondos pintados para la vista panorámica
+> Ilustraciones horizontales **teselables en X**, 1024×512 px, estilo ilustración plana con grano suave (tipo Alto's Odyssey / Grand Mountain), 3 capas separadas con transparencia: (1) cerros lejanos (Cerro Quitasol, Pan de Azúcar, Las Tres Cruces, El Volador), (2) laderas con barrios de ladrillo y casas de colores, (3) ciudad cercana (edificios del centro, El Poblado). Cinco ambientes: Norte (Bello‑Niquía), Centro, Sur (Poblado‑La Estrella), Occidente (San Javier), Ayacucho (tranvía). Cada uno en 3 variantes: día, atardecer, noche (ventanas encendidas; versión Alumbrados navideños con luces de colores). Entrega: `fondo_<zona>_<hora>_<capa>.png`. Paleta: cielo azul #4f93cf, atardecer #f08a5d, noche #0b1530.
+
+## 4 · Codex (Astra) — Rendimiento: trozos del mapa en Web Worker
+> Repo `MetroZero`, archivo `src/js/10-map.js`. Hoy `MAP.chunk(cx,cy)` dibuja en el hilo principal trozos de 32×32 casillas a 16 px (512×512) con ImageData + canvas. Mueve la generación de píxeles (bucle `for ty/tx`) a un **Web Worker inline** (Blob URL, sin archivos externos; el juego es un solo HTML) usando `OffscreenCanvas` cuando exista y `postMessage` con transferencia del `ImageData`. Mantén exactamente el mismo resultado visual (misma función de hash `h2`, mismos colores TRGB), con fallback síncrono si no hay Worker. Añade una cola de prioridad por distancia a la cámara y un límite de 2 trozos en vuelo. Verifica con `node tools/build.mjs && node tools/test.mjs 50` (debe seguir en 0 errores) y mide el tiempo del primer `drawTop` antes/después con `tools/test.mjs`.
+
+## 5 · Codex (Astra) — Android: modo "Cerca" (Bluetooth / Wi‑Fi Direct)
+> Repo `MetroZero/android` (WebView + `AndroidBridge`). Implementa un transporte nativo para el multijugador local sin internet: Google Nearby Connections **no** (requiere Play Services); usa **Wi‑Fi Direct + socket TCP** y, como alternativa, **Bluetooth RFCOMM**. Expón en el bridge: `nearStart(host:boolean, name)`, `nearSend(json)`, `nearStop()`, y eventos hacia JS `window.EMnear({t:'peer'|'msg'|'bye', ...})`. En `src/js/06-net.js` agrega `kind:'near'` reutilizando el formato de mensajes existente (`Net.send/onmsg`) y en `src/js/80-multi.js` una tarjeta "Cerca (app)" visible solo cuando `AndroidBridge.nearStart` exista. Permisos en tiempo de ejecución (Android 12+: `NEARBY_WIFI_DEVICES`, `BLUETOOTH_CONNECT/SCAN`). Prueba con dos dispositivos o emuladores y documenta en `android/README.md`.
+
+## 6 · Codex (Astra) — Lector QR en JavaScript (iPhone/Firefox)
+> En `src/js/05-qr.js` el escaneo usa `BarcodeDetector` (solo Chrome/Android). Implementa un decodificador QR puro en JS (≤ 25 KB minificado, sin dependencias; puede derivarse de jsQR con licencia Apache 2.0 citada) que procese `ImageData` de un `<video>` con `getUserMedia`, y úsalo como fallback en `QR.startScan` cuando `BarcodeDetector` no exista. Mantén la interfaz actual (`onText`, `onError`, overlay en español). Prueba en Safari iOS y Firefox Android.
+
+## 7 · Gemini Antigravity — Música y sonido
+> Compón 5 piezas instrumentales cortas en bucle (90 s) para un juego sobre el Metro de Medellín, libres de derechos, en WAV/OGG: `menu` (tango‑pop suave, guiño a Gardel), `ciudad` (cumbia/electro paisa ligera, 100 bpm), `metro` (ambiente de viaje, sintetizador cálido, 112 bpm), `cable` (atmosférica con viento), `historia` (piano y cuerdas, emotiva). Y efectos: timbre de puertas del metro, "próxima estación" (voz femenina neutra colombiana, 30 anuncios con los nombres de las estaciones de las líneas A, B y T), pito de bus, lluvia, trueno, multitud en andén. Entrega en una carpeta `audio/` con lista de créditos. (Se convertirán a base64 de baja tasa solo si el peso lo permite; por defecto el juego usa música generativa propia.)

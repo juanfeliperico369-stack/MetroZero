@@ -1,6 +1,6 @@
 # El Metro · La última vuelta
 
-Videojuego **offline** (un solo HTML) sobre el Metro de Medellín y el Valle de Aburrá. **Ciudad Libre**: recorre el valle real a pie, en taxi, bici, moto o bus, o de pasajero en el metro, el tranvía y los cables (estilo GTA 1/2), con peatones, tráfico, día y noche, clima y fechas de la ciudad. Además: conduce trenes, tranvía, Metroplús y alimentadores en 3D; despacha agujas; controla semáforos; opera y arma metrocables; gestiona la red. Historia: Rosalba, conductora del primer tren (1995), en su última semana.
+Videojuego **offline** (un solo HTML) sobre el Metro de Medellín, construido sobre el **mapa real** del Valle de Aburrá. Un solo mundo con módulos de simulación: **Ciudad Libre** (mundo abierto cenital estilo GTA 1/2: a pie, taxi, bici, moto, o de pasajero en metro, tranvía, cables y buses), **Bus** (simulador cenital de Metroplús y alimentadores de estación a estación, con pasajeros, semáforos y tráfico), **Metro** (vista panorámica 2D del valle y cabina en primera persona), **Metrocable**, guía para aprender a usar el Metro, historia de Rosalba, multijugador local y extras arcade. Día y noche, clima y fechas reales de Medellín.
 
 - **Jugar en la web:** https://juanfeliperico369-stack.github.io/MetroZero/
 - **Android:** https://juanfeliperico369-stack.github.io/MetroZero/el-metro.apk
@@ -15,4 +15,4 @@ bash tools/apk.sh        # dist/el-metro.apk (ver android/README.md)
 node dist/server.mjs     # servidor local para jugar en red sin internet
 ```
 Código en `src/js/*.js` (se concatenan en orden). Datos: `src/data/valle.js` (mapa OSM/SRTM de Juega EnCicla), `src/data/red.js` (líneas, estaciones, datos y trivia; fuentes en `docs/FUENTES.md`).
-Bitácora para retomar el trabajo: `docs/BITACORA.md`.
+Bitácora para retomar el trabajo: `docs/BITACORA.md` · plan: `docs/PLAN.md` · encargos para otras IA: `docs/PROMPTS-IA.md`.
