@@ -8,6 +8,11 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 - **Carpeta de arte (nov 2026):** investigación visual completa y **guía única para IA** (Gemini Nano Banana y ChatGPT; Midjourney salió del plan) en `arte/`. Nueva **Fase 1b**: Medellín fiel e isométrica.
 - **v0.5.0:** Fase 3 iniciada: la historia se juega dentro de Ciudad Libre (`37-trama.js`), con módulos encadenados y regreso a la ciudad; panorámica con paleta de ilustración y capa intermedia.
 
+- **v0.6.0:** Fase 1 (arte real) **iniciada con las entregas de Gemini y ChatGPT**:
+  - retratos, tarjetas de capítulo, portada, íconos, medallas y adornos de fiestas, con `Atlas` y respaldo procedural;
+  - **mapa cenital rediseñado** (vías por tipo y ancho, separadores, cebras en cruces, río con muros);
+  - **Fase 1b medida:** el trazado de calles coincide con OpenStreetMap en un 98–100 % a 20 m. Falta la capa vectorial (anchos, glorietas, nombres) y los edificios reales.
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).
@@ -47,6 +52,17 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 3. **Vista isométrica 2:1 procedural** (como tinyworlds) dentro del juego: nueva vista de Ciudad Libre y “maqueta” en La Red, generada en el celular desde los datos, con el mismo pixel art del juego.
 4. **Repintado con IA donde más luce:** genero **mosaicos base 2:1** con la geometría real y Gemini los repinta (encargo **G‑100** de la guía única) sin mover nada. Va solo para zonas héroe: centro, estaciones, lugares icónicos y portada. El resto queda procedural para mantener el peso bajo.
 5. **Corregir las otras vistas con la misma escena:** cenital (alturas y sombras reales), panorámica (perfiles de las laderas con relieve de 30 m), 3D (viaducto y estaciones medidos).
+**Estado en v0.6.0:**
+- **Medido:** fidelidad de calles contra OSM (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`, con `tools/osm-ventanas.mjs` y `tools/osm_comparar.py`).
+- **Diseñada (sin publicar) la Maqueta 2:1:** render “voxel” por columnas de adelante hacia atrás con búfer de altura, sobre el relieve real (bilineal de 80 m) y los edificios con su altura.
+  - Pantalla: x = (u − v)·a; y = (u + v)·a/2 − z·a·kz, con kz ≈ 1,4. Giro de 90°.
+  - Rendimiento: se dibuja a resolución CSS en caché y se mueve con transformaciones mientras se arrastra; se vuelve a dibujar al soltar.
+  - Muestras por cuadro ≈ ancho × alto de pantalla.
+- **Siguiente:**
+  1. Capa vectorial de OSM con nombres de calles, procesada fuera del juego (Geofabrik está bloqueado desde la nube).
+  2. La Maqueta en La Red.
+  3. Casillas G‑60 a G‑63 en un acercamiento.
+
 6. **Verificación:** comparar capturas del juego con fotos de la galería (`arte/galeria.md`) y con el mapa; lista de “detalles mal diseñados” marcada uno por uno. El autor puede señalar los que vea con capturas.
 
 ### Fase 2 · Bus y Metro a fondo

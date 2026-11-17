@@ -40,6 +40,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
+| `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
 | `22-gl.js` | Motor 3D WebGL1 propio `G3` |
 | `23-lado.js` | Panorámica lateral por capas |
@@ -57,7 +58,8 @@ Datos en `src/data/`:
 - `valle.js`: mapa y relieve de EnCicla;
 - `red.js`: líneas y estaciones;
 - `rutas.js`: recorridos de buses por calles reales;
-- `lugares.js`: lugares con postal.
+- `lugares.js`: lugares con postal;
+- `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 
 **Convenciones:**
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
@@ -67,7 +69,10 @@ Datos en `src/data/`:
 ## Comandos
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
-node tools/test.mjs 100              # selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
+python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
+node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -98,4 +103,6 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 ## Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
-- El tamaño del HTML importa: hoy pesa unos 1,8 MB. El arte nuevo va en atlas comprimidos.
+- El tamaño del HTML importa: hoy pesa unos 2,4 MB (533 KB son arte). El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`.
+- Lo que el bot no ve (tarjetas, diálogos, portada) se revisa con capturas: en v0.6.0 un comentario anuló una línea y solo se notó en la captura.
+- El mapa cenital: mide las vías **con las de su mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados) y revisa el banco de sitios reales (Niquía, Acevedo, San Antonio, Parque Berrío, Santo Domingo, Poblado, Industriales, Floresta) a k = 2,1, 1 y 0,42.

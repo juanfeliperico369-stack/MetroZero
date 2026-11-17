@@ -44,31 +44,78 @@ const MAP = EM.map = {
      río con ondas. Las ventanas se guardan para encenderlas de noche. */
   chunk(cx, cy) {
     const key = cx + ',' + cy; let c = this.chunks.get(key); if (c) { this.chunks.delete(key); this.chunks.set(key, c); return c; }
-    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data, T = (x, y) => this.tile(cx * CH + x, cy * CH + y);
-    const road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data;
+    // ventana de casillas con margen: anchos de vía y orillas sin salirse del trozo ni llamar this.tile a cada píxel
+    const M = 10, SW = CH + 2 * M, tw = new Uint8Array(SW * SW);
+    for (let j = 0; j < SW; j++) for (let i = 0; i < SW; i++) tw[j * SW + i] = this.tile(cx * CH + i - M, cy * CH + j - M);
+    const T = (x, y) => tw[(y + M) * SW + x + M], road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE, wet = v => v === TT.WATER || v === TT.CANAL;
+    // cada casilla de vía es tramo vertical (1), tramo horizontal (2) o cruce/plazoleta (3), con su ancho en casillas y su posición
+    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), ri = (x, y) => (y + 1) * RS + x + 1;
+    // se mide con las vías del MISMO tipo (autopista, avenida y calle vienen pegadas en los datos); un cruce es donde llega una vía transversal
+    const runV = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x, y - k)); k++) n++; for (let k = 1; k < 5 && road(T(x, y + k)); k++) n++; return n; };
+    const runH = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x - k, y)); k++) n++; for (let k = 1; k < 5 && road(T(x + k, y)); k++) n++; return n; };
+    for (let y = -1; y <= CH; y++) for (let x = -1; x <= CH; x++) {
+      const v = T(x, y); if (!road(v) || v === TT.BRIDGE) continue; let l = 0, r = 0, u = 0, w = 0;
+      while (l < 9 && T(x - l - 1, y) === v) l++; while (r < 9 && T(x + r + 1, y) === v) r++; while (u < 9 && T(x, y - u - 1) === v) u++; while (w < 9 && T(x, y + w + 1) === v) w++;
+      const h = l + r + 1, vv = u + w + 1, k = ri(x, y);
+      if (vv >= h + 3 && h <= 9) {
+        const xa = x - l - 1, xb = x + r + 1, cruce = (road(T(xa, y)) && T(xa, y) !== TT.BRIDGE && runV(xa, y) <= 3) || (road(T(xb, y)) && T(xb, y) !== TT.BRIDGE && runV(xb, y) <= 3);
+        if (cruce) RK[k] = 3; else { RK[k] = 1; RW[k] = h; RP[k] = l; }
+      } else if (h >= vv + 3 && vv <= 9) {
+        const ya = y - u - 1, yb = y + w + 1, cruce = (road(T(x, ya)) && T(x, ya) !== TT.BRIDGE && runH(x, ya) <= 3) || (road(T(x, yb)) && T(x, yb) !== TT.BRIDGE && runH(x, yb) <= 3);
+        if (cruce) RK[k] = 3; else { RK[k] = 2; RW[k] = vv; RP[k] = u; }
+      } else RK[k] = 3;
+    }
+    const RKa = (x, y) => RK[ri(x, y)];
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
       const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
-      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty);
-      // vías anchas (manchas de asfalto): sentido dominante y carriles de ~5 m
-      let wide = 0, vert = false; if ((v === TT.AVE || v === TT.AUTO) && road(nN) && road(nS) && road(nW) && road(nE)) { let rv = 0, rh = 0; for (let k = 1; k <= 4; k++) { if (road(T(tx, ty - k))) rv++; if (road(T(tx, ty + k))) rv++; if (road(T(tx - k, ty))) rh++; if (road(T(tx + k, ty))) rh++; } wide = 1; vert = rv >= rh; }
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = ri(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
+      // tramo de vía: cebras solo a la entrada de un cruce (siempre en avenidas; en calles, algunas)
+      let zA = 0, zB = 0, stx = 0, sty = 0;
+      if (rk === 1 || rk === 2) {
+        const X0 = rk === 1 ? X - rp : X, Y0 = rk === 2 ? Y - rp : Y, ok = (jx, jy) => v === TT.AVE || v === TT.ROAD && h2(jx, jy, 97) < .45;
+        if (rk === 1) { zA = RKa(tx, ty - 1) === 3 && ok(X0, Y - 1); zB = RKa(tx, ty + 1) === 3 && ok(X0, Y + 1); }
+        else { zA = RKa(tx - 1, ty) === 3 && ok(X - 1, Y0); zB = RKa(tx + 1, ty) === 3 && ok(X + 1, Y0); }
+      } else if (v === TT.STEPS) { stx = Math.abs(this.elevM(X * TM + 18, Y * TM + 10) - this.elevM(X * TM + 2, Y * TM + 10)); sty = Math.abs(this.elevM(X * TM + 10, Y * TM + 18) - this.elevM(X * TM + 10, Y * TM + 2)); }
+      const cvert = v === TT.CICLO ? (nN === TT.CICLO) + (nS === TT.CICLO) >= (nW === TT.CICLO) + (nE === TT.CICLO) : 0;
       for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
         let m = sh, col = base; const hh = h2(X * P + px, Y * P + py, v), chk = (px + py) % 2;
         switch (v) {
-          case TT.GRASS: m *= chk ? .95 : 1.02; if (hh < .02) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 150) | 0]; break;
+          case TT.GRASS: m *= chk ? .96 : 1.02; if (hh < .015) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 200) | 0]; else if (hh > .93) m *= .9; break;
           case TT.MOUNT: m *= .9 + (chk ? 0 : .05); break;
           case TT.BRICK: case TT.BLDG: col = [96, 112, 74]; m *= chk ? .95 : 1; break;   // patio (la casa se pinta encima)
           case TT.ROAD: case TT.AVE: case TT.AUTO: case TT.BRIDGE: {
-            m *= .97 + hh * .05; const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
-            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; }
-            else if (wide) { const a = vert ? px : py, b2 = vert ? Y * P + py : X * P + px; if (a % 4 === 0 && b2 % 8 < 4) { col = [236, 232, 214]; m = sh * .95; } else if (h2(X, Y, 90) < .08 && hh < .05) m *= .8; }
-            else if (v !== TT.ROAD && ((road(nN) || road(nS)) && px === (P >> 1) && py % 4 < 2 || (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && px % 4 < 2)) { col = [244, 236, 208]; m = sh; }
-            else if (v === TT.ROAD && (road(nN) || road(nS)) && !(road(nW) || road(nE)) && px === (P >> 1) && (Y * P + py) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
-            else if (v === TT.ROAD && (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && (X * P + px) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
+            m *= .97 + hh * .05; if (hh > .985) m *= .86;   // parches del asfalto
+            const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
+            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; break; }
+            if (v === TT.BRIDGE) { col = [150, 150, 154]; m = sh * ((((X * P + px) + (Y * P + py)) % 9 === 0) ? .82 : .97 + hh * .05); break; }   // puente o viaducto: losa de concreto con juntas
+            if (rk !== 1 && rk !== 2) break;   // cruce: asfalto limpio
+            { const vt = rk === 1, a0 = vt ? px : py, nA = vt ? nW : nN, nB = vt ? nE : nS, sw = v === TT.AVE ? 2 : 1;   // frontera con otra vía paralela: separador
+              if ((road(nA) && nA !== v && a0 < sw) || (road(nB) && nB !== v && a0 >= P - sw)) { col = v === TT.AUTO ? [212, 208, 198] : v === TT.AVE ? [88, 128, 70] : [201, 194, 178]; m = sh; break; } }
+            const vert = rk === 1, a = (vert ? px : py) + rp * P, al = vert ? Y * P + py : X * P + px, ln = vert ? py : px, Wd = rw * P, mid = Wd / 2, dm = Math.abs(a + .5 - mid);
+            const med = rw >= 2 && v !== TT.ROAD && v !== TT.BRIDGE, sep = rw >= 4 ? Math.abs(((a + P) % (2 * P)) - P + .5) : 99;   // vías muy anchas: calzadas de dos casillas
+            if (med && Math.min(dm, sep) <= (v === TT.AUTO ? 1 : 2.5)) { const dd = Math.min(dm, sep);   // separador: verde con bordillo (avenida) o barrera de concreto (autopista)
+              if (v === TT.AUTO) { col = dd <= .5 ? [176, 172, 164] : [214, 210, 200]; } else { col = dd > 1.5 ? [204, 198, 184] : (hh < .5 ? [92, 132, 72] : [84, 122, 66]); }
+              m = sh; break;
+            }
+            if ((zA && ln >= 1 && ln <= 4) || (zB && ln >= P - 5 && ln <= P - 2)) { if (a % 4 < 2) { col = [238, 236, 228]; m = sh; } break; }   // cebra
+            if (rw === 1) {
+              if (v === TT.AVE || v === TT.AUTO) { if (a === 6 || a === 9) { col = [244, 196, 52]; m = sh * .95; } }   // doble línea amarilla
+              else if ((a === 7 || a === 8) && al % 10 < 5 && (a === 8 || v === TT.BRIDGE)) { col = [244, 196, 52]; m = sh * .92; }   // línea central discontinua
+            } else if (!med && (a === Math.floor(mid) - 1 || a === Math.floor(mid))) { col = [244, 196, 52]; m = sh * .92; }   // calle ancha sin separador
+            else if (a % 8 === 0 && a > 3 && a < Wd - 4 && dm > 4 && sep > 4 && al % 12 < 5) { col = [232, 230, 220]; m = sh * .95; }   // carriles
             break; }
-          case TT.WALK: case TT.PLAZA: m *= (px % 3 === 0 || py % 3 === 0) ? .9 : 1.02; break;
-          case TT.CICLO: if (px === P >> 1 && py % 4 < 2) { col = [250, 250, 245]; m = sh; } break;
-          case TT.WATER: case TT.CANAL: { const nb = !(nN === v) || !(nS === v); m *= (py + Math.floor(X * 1.7)) % 5 === 0 && hh < .6 ? 1.18 : nb && (py < 2 || py > P - 3) ? .82 : 1; break; }
-          case TT.STEPS: m *= py % 2 ? .85 : 1.05; break;
+          case TT.WALK: m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.015 + (h2((X * P + px) >> 2, (Y * P + py) >> 2, 5) - .5) * .05; break;
+          case TT.PLAZA: m *= (((px >> 1) + (py >> 1)) % 2 ? .965 : 1.02) * ((px % 8 === 0 || py % 8 === 0) ? .93 : 1); break;
+          case TT.CICLO: { const a = cvert ? px : py, al = cvert ? Y * P + py : X * P + px; col = [189, 182, 165]; m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.01;
+            if (a >= 5 && a <= 10) { col = a === 5 || a === 10 ? [236, 234, 226] : [64, 138, 96]; m = sh * (a === 7 || a === 8 ? (al % 8 < 4 ? 1.02 : .97) : 1); } break; }
+          case TT.WATER: case TT.CANAL: {
+            const db = Math.min(wet(nN) ? 99 : py, wet(nS) ? 99 : P - 1 - py, wet(nW) ? 99 : px, wet(nE) ? 99 : P - 1 - px);
+            if (v === TT.CANAL) { if (db === 0) { col = [206, 202, 192]; m = sh; break; } if (db === 1) { col = [126, 124, 118]; m = sh; break; } col = [72, 120, 120]; }
+            else { if (db === 0) { col = [92, 120, 70]; m = sh * (hh < .5 ? 1 : .9); break; } col = [58, 118, 138]; }
+            m *= db === 2 ? .86 : db === 3 ? .94 : 1; const rp2 = ((X * P + px) * 3 + (Y * P + py) * 7 + ((X * P + px) >> 3)) % 29; if (rp2 === 0 && hh < .7) m *= 1.16; else if (hh < .012) m *= 1.3;   // brillos sueltos, sin rayas
+            break; }
+          case TT.STEPS: { const up = stx > sty, a = up ? px : py, s2 = up ? py : px; col = [198, 192, 180]; if (s2 === 0 || s2 === P - 1) { col = [120, 116, 108]; m = sh; } else m *= a % 3 === 0 ? .8 : a % 3 === 1 ? 1.06 : 1; break; }
           default: m *= .95 + hh * .08;
         }
         const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
@@ -78,7 +125,7 @@ const MAP = EM.map = {
     // segunda pasada: sombras, edificios por manzana (techos y fachadas), casas por lote, árboles, carros parqueados
     const lights = [], R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
     const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICKS = ['#b85c3e', '#a9533a', '#c0654a', '#9c4a33'];
-    const AP_WALL = ['#e6dcc8', '#d8d2c4', '#c9ced4', '#efe8d8', '#b05a3c', '#a9533a', '#cfd9df', '#d9c7a6'], AP_ROOF = ['#9aa0a6', '#b9b5ad', '#a7aaa8', '#8e9499', '#c4bfb4', '#9c8f80'];
+    const AP_WALL = ['#e6dcc8', '#d8d2c4', '#c9ced4', '#efe8d8', '#b05a3c', '#a9533a', '#cfd9df', '#d9c7a6'], AP_ROOF = ['#9aa0a6', '#b9b5ad', '#a7aaa8', '#8e9499', '#c4bfb4', '#9c8f80', '#b9a48c', '#a8877a', '#cfc8bb'];
     // manzanas de edificios: lotes de 1–3 casillas por supermanzana de 8×8
     const lot = (X, Y) => { const sx = X >> 3, sy = Y >> 3, lw = 1 + (h2(sx, sy, 31) * 3 | 0), lh = 1 + (h2(sx, sy, 32) * 2.4 | 0), ox = h2(sx, sy, 33) * lw | 0, oy = h2(sx, sy, 34) * lh | 0; return sx * 997 + sy * 7919 + Math.floor((X + ox) / lw) * 31 + Math.floor((Y + oy) / lh) * 131071; };
     const TW = (x, y) => this.tile(cx * CH + x, cy * CH + y), same = (x1, y1, x2, y2) => TW(x1, y1) === TT.BLDG && TW(x2, y2) === TT.BLDG && lot(cx * CH + x1, cy * CH + y1) === lot(cx * CH + x2, cy * CH + y2);
@@ -117,16 +164,23 @@ const MAP = EM.map = {
         if (!sN) R(ox, oy, P, 1, '#141414'); if (!sW) R(ox, oy, 1, P, '#141414'); if (!sE) R(ox + P - 1, oy, 1, P, '#141414');
         if (!sN) R(ox + (sW ? 0 : 1), oy + 1, P - (sW ? 0 : 1) - (sE ? 0 : 1), 1, Art.shade(roof, 1.15)); if (!sW) R(ox + 1, oy + 1, 1, P - 1, Art.shade(roof, 1.1)); if (!sE) R(ox + P - 2, oy + 1, 1, P - 1, Art.shade(roof, .85));
         const ri = h2(X, Y, 62);
-        if (ri < .32) { const tx2 = ox + 3 + (h2(X, Y, 63) * (P - 9) | 0), ty2 = oy + 3 + (h2(X, Y, 64) * (P - 9) | 0); g.fillStyle = '#141414'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 3, 0, TAU); g.fill(); g.fillStyle = ri < .16 ? '#2f5f9c' : '#2a2a2a'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 2.2, 0, TAU); g.fill(); R(tx2 + 1, ty2 + 1, 1, 1, '#9cc0e6'); }
-        else if (ri < .5) { R(ox + 4, oy + 4, 4, 3, '#7d8792'); R(ox + 5, oy + 5, 2, 1, '#cfd5da'); R(ox + 9, oy + 9, 3, 3, '#7d8792'); }
-        else if (ri < .58 && hm > 30) { R(ox + 3, oy + 3, P - 6, P - 6, Art.shade(roof, .82)); R(ox + 5, oy + 5, P - 10, P - 10, '#4a5560'); }   // cuarto de máquinas
-        else if (ri < .63) { for (let q = 0; q < 3; q++) R(ox + 3 + q * 4, oy + 5, 3, 6, '#2e4a66'); }   // calentadores solares
-        else if (ri < .67) { R(ox + 3, oy + 3, P - 6, P - 6, '#4f7a3a'); for (let q = 0; q < 5; q++) R(ox + 4 + h2(X, q, 65) * (P - 9), oy + 4 + h2(Y, q, 66) * (P - 9), 2, 2, '#79ac56'); }   // azotea verde
+        if (ri < .13) { const tx2 = ox + 3 + (h2(X, Y, 63) * (P - 9) | 0), ty2 = oy + 3 + (h2(X, Y, 64) * (P - 9) | 0); g.fillStyle = '#141414'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 3, 0, TAU); g.fill(); g.fillStyle = ri < .16 ? '#2f5f9c' : '#2a2a2a'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 2.2, 0, TAU); g.fill(); R(tx2 + 1, ty2 + 1, 1, 1, '#9cc0e6'); }
+        else if (ri < .27) { R(ox + 4, oy + 4, 4, 3, '#7d8792'); R(ox + 5, oy + 5, 2, 1, '#cfd5da'); R(ox + 9, oy + 9, 3, 3, '#7d8792'); }
+        else if (ri < .35 && hm > 30) { R(ox + 3, oy + 3, P - 6, P - 6, Art.shade(roof, .82)); R(ox + 5, oy + 5, P - 10, P - 10, '#4a5560'); }   // cuarto de máquinas
+        else if (ri < .41) { for (let q = 0; q < 3; q++) R(ox + 3 + q * 4, oy + 5, 3, 6, '#2e4a66'); }   // calentadores solares
+        else if (ri < .47) { R(ox + 3, oy + 3, P - 6, P - 6, '#4f7a3a'); for (let q = 0; q < 5; q++) R(ox + 4 + h2(X, q, 65) * (P - 9), oy + 4 + h2(Y, q, 66) * (P - 9), 2, 2, '#79ac56'); }   // azotea verde
         if (hm > 45 && ri > .9) { R(ox + (P >> 1), oy + 2, 1, 4, '#141414'); R(ox + (P >> 1) - 1, oy + 1, 3, 1, '#EC343A'); lights.push([ox + (P >> 1) - 1, oy + 1, 3]); }
         if (!sS) { const y0 = oy + P; R(ox + (sW ? 0 : 0), y0, P, fh, wall); R(ox, y0, P, 1, Art.shade(wall, .78)); if (!sW) R(ox, y0, 1, fh, '#141414'); if (!sE) R(ox + P - 1, y0, 1, fh, '#141414'); R(ox, y0 + fh, P, 1, 'rgba(0,0,0,.4)');
           const glass = hm > 40 && lr > .6; for (let wy = y0 + 2; wy < y0 + fh - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, glass ? '#3d6a8a' : '#2a4560'); lights.push([wx, wy, 2]); }
           if (fh >= 6 && ri > .5) R(ox + 2, y0 + fh - 3, P - 4, 2, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835'][(lr * 5) | 0]); }   // toldo / local comercial
-      } else if ((v === TT.ROAD) && r < .3) {
+      } else if (v === TT.AVE && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2) && RW[ri(tx, ty)] >= 2) {
+        // árboles del separador, uno cada dos casillas a lo largo
+        const vert = RK[ri(tx, ty)] === 1, rp = RP[ri(tx, ty)], mid = RW[ri(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
+        if (rp === t0 && ((vert ? Y : X) & 1) === 0 && h2(vert ? X - rp : X, vert ? Y : Y - rp, 99) < .8) {
+          const loc = mid - t0 * P, x = vert ? ox + loc : ox + (P >> 1), y = vert ? oy + (P >> 1) : oy + loc, rr = 3.2 + h2(X, Y, 72) * 1.6;
+          g.fillStyle = 'rgba(18,38,22,.35)'; g.beginPath(); g.ellipse(x + 1.5, y + 1.5, rr, rr * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = h2(X, Y, 73) < .15 ? '#e0b830' : h2(X, Y, 74) < .15 ? '#c96bb0' : '#4b8640'; g.beginPath(); g.arc(x - .4, y - .5, rr * .72, 0, TAU); g.fill();
+        }
+      } else if ((v === TT.ROAD) && r < .3 && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2)) {
         // carro parqueado junto al andén
         const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
         if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }
@@ -138,8 +192,6 @@ const MAP = EM.map = {
         else if (h2(X, Y, 74) < .25) { R(ox + 6, oy + 6, 4, 2, '#5a3a22'); R(ox + 6, oy + 5, 4, 1, '#7a5a3a'); }   // banca
       }
     }
-    // cebras en los cruces de vías principales
-    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) { const v = T(tx, ty); if (!road(v) || v === TT.BRIDGE) continue; const nN = road(T(tx, ty - 1)), nS = road(T(tx, ty + 1)), nW = road(T(tx - 1, ty)), nE = road(T(tx + 1, ty)); if (!((nN || nS) && (nW || nE))) continue; if (road(T(tx - 1, ty - 1)) || road(T(tx + 1, ty - 1)) || road(T(tx - 1, ty + 1)) || road(T(tx + 1, ty + 1))) continue; if (v === TT.AUTO) continue; const ox = tx * P, oy = ty * P; g.fillStyle = 'rgba(250,250,245,.85)'; if (nN) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy, 2, 3); if (nS) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy + P - 3, 2, 3); if (nW) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox, oy + i, 3, 2); if (nE) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + P - 3, oy + i, 3, 2); }
     // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
     const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
     c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
@@ -149,7 +201,7 @@ const MAP = EM.map = {
   drawTop(g, W, H, mx, my, k, night = 0) {
     const CHm = this.CH * TM, s = k * TM / this.PX;
     const x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
-    g.imageSmoothingEnabled = false; this._vis = [];
+    g.imageSmoothingEnabled = s < .95; this._vis = [];   // al alejar, suavizado: sin titileo de rayas y bordes
     for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
       if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
       const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);

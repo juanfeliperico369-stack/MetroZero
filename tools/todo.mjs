@@ -135,6 +135,8 @@ ${demote(PROTO, 1)}
 | \`docs/PLAN.md\` | Fases, incluida la 1b: Medellín fiel e isométrica |
 | \`arte/06-guia-unica-ia.md\` | Contexto, roles, encargos y skills |
 | \`arte/README.md\` | Índice de la carpeta de arte |
+| \`arte/entregas/INVENTARIO.md\` | Lo que entregaron Gemini y ChatGPT, verificado, y qué está en el juego |
+| \`docs/auditorias/\` | Auditorías: servidor local y fidelidad del mapa contra OpenStreetMap |
 | \`.agents/skills/\` y \`.claude/skills/\` | Skills \`el-metro-desarrollo\`, \`el-metro-arte\`, \`medellin-fiel\`, \`frontend-design\`, \`webapp-testing\`, \`skill-creator\` |
 
 **Todo junto, con el código:** \`node tools/todo.mjs\` genera:

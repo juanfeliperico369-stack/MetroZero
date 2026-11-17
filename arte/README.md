@@ -13,6 +13,7 @@ Investigación visual y guía de producción para llevar *El Metro* a un **mundo
 | [`06-guia-unica-ia.md`](06-guia-unica-ia.md) | **GUÍA ÚNICA DE PROMPTS para Gemini Nano Banana y ChatGPT**: misión, visión, estado y contexto completo para las dos IA; el rol de cada una (solo hace su parte); encargos G‑ y C‑; correcciones; entrega; y la **bitácora del juego como anexo** |
 | [`SKILLS-IA.md`](SKILLS-IA.md) | **Skills del proyecto** (formato SKILL.md): índice y skills propias (`el-metro-arte`, `medellin-fiel`, `el-metro-desarrollo`), para subir a un Gem o a un Proyecto. Los agentes de código las leen en `.agents/skills/` y `.claude/skills/`. Las genera `node tools/skills.mjs` |
 | [`CONTEXTO-IA.md`](CONTEXTO-IA.md) | Contexto completo más la bitácora en **un solo archivo**, para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT. Lo genera `node tools/arte.mjs` |
+| [`entregas/`](entregas/) · [`INVENTARIO.md`](entregas/INVENTARIO.md) | **Lo que ya entregaron Gemini (20 láminas G‑) y ChatGPT (92 SVG, vehículos, scripts y manifiestos)**: verificado, con el nombre de su encargo, y la lista de lo que ya está en el juego ([`USO-EN-EL-JUEGO.md`](entregas/USO-EN-EL-JUEGO.md)) |
 | [`08-entregas-e-integracion.md`](08-entregas-e-integracion.md) | Orden de producción, carpetas, nombres, cómo entregar y cómo se integra |
 | [`index.html`](index.html) (Galería) · [`galeria.md`](galeria.md) · `galeria.json` | **71 fotos de referencia con licencia libre** (metro, cables, tranvía, buses, ciudad, fiestas y cultura), con autor y licencia. Se enlazan, no se copiaron |
 
@@ -34,4 +35,4 @@ Investigación visual y guía de producción para llevar *El Metro* a un **mundo
 2. Hacer el ancla de estilo en Gemini.
 3. Producir con la guía única (06): cada IA (Gemini y ChatGPT) recibe el contexto completo y su rol.
 4. Entregar según la guía 08.
-5. Yo lo integro, lo pruebo y lo publico.
+5. Yo lo integro, lo pruebo y lo publico: `python3 tools/arte_juego.py` lo prepara y `Atlas` lo usa con respaldo procedural (desde v0.6.0).

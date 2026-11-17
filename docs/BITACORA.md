@@ -1,8 +1,17 @@
 # Bitácora · El Metro
 
-> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `docs/PROMPTS-IA.md`, y actualizar esta bitácora al cerrar cada sesión.
+> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-## Estado al 2026-11-17 · v0.5.0 "La historia en la ciudad"
+## Estado al 2026-11-17 · v0.6.0 "El arte llega a la ciudad"
+**Novedad de v0.6.0:**
+- el arte de **Gemini (G‑)** y **ChatGPT (C‑)** entra al juego, siempre con respaldo procedural (`src/js/19-atlas.js` + `src/data/arte.js`, 78 piezas, 533 KB);
+- el **mapa cenital rediseñado**: vías por tipo y ancho, separadores, cebras solo en cruces, río con muros, escaleras y ciclorrutas legibles;
+- **verificado contra OpenStreetMap:** 98–100 % de las calles reales dentro de 20 m (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`);
+- el **servidor local ya no se cae** con rutas mal escritas.
+
+El resto del estado (abajo) sigue vigente. El HTML pesa ~2,4 MB.
+
+### Estado anterior · v0.5.0 "La historia en la ciudad"
 **Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
 
 | Módulo | Archivo | Qué hace |
@@ -57,6 +66,48 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ## Historial
+### v0.6.0 (2026-11-17) — el arte llega a la ciudad
+1. **Entregas verificadas y ordenadas** en `arte/entregas/` (ver `INVENTARIO.md`):
+   - 20 láminas de Gemini con el nombre de su encargo;
+   - 92 SVG de ChatGPT recuperados de su documento maestro;
+   - sus 8 scripts regeneran los vehículos **idénticos byte a byte** (31 de 33);
+   - miniaturas de las texturas.
+   - Se corrigieron afirmaciones: no existió una v0.5.1; la **Línea O es de buses eléctricos** por la 80 (el Metro de la 80 será la **Línea E, rosada**); el código propuesto por Gemini en `src/data/` se habría borrado al cargar.
+2. **`tools/arte_juego.py` → `src/data/arte.js`:**
+   - recorta las láminas por segmentación del fondo magenta, quita el fondo sin tocar los rosados interiores y reduce a WebP;
+   - minifica los SVG.
+   - La lista con su uso queda en `arte/entregas/USO-EN-EL-JUEGO.md`.
+3. **`Atlas` (`19-atlas.js`):** `has`, `url`, `img`, `tag`, `ico`, `retrato` (gesto alegre, triste o neutro según la frase), `fiesta` (adornos según el calendario) y `check` (autotest).
+4. **En el juego:**
+   - portada C‑40; íconos C‑10 en las tarjetas de modos; íconos C‑11 en la cabina y en Ciudad Libre;
+   - medallas C‑12 y **2 logros nuevos** (Feria de las Flores y Alumbrados);
+   - adornos C‑50 en la portada durante las fiestas;
+   - pantalla C‑41 en el menú de historia;
+   - **retratos** de Rosalba, la nieta, Don Efraín, Doña Marleny, Wílmar, la agente y el pasajero en los diálogos;
+   - **tarjeta ilustrada por capítulo**: panorama nocturno, ladera al atardecer, aguacero, tango y Gardel, centro isométrico, panorama de día, Rosalba en el andén y la portada.
+5. **Mapa cenital (`10-map.js`) rediseñado** tras la queja del autor (“parecía un parqueadero”):
+   - cada casilla de vía se clasifica como tramo vertical, tramo horizontal o cruce, midiendo solo con vías **del mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados);
+   - un cruce solo se marca si llega una vía transversal;
+   - calles con una línea amarilla; avenidas con **separador verde y árboles** (algunos guayacanes); autopista con **barrera de concreto**; calzadas cada dos casillas en franjas muy anchas;
+   - **cebras solo a la entrada de los cruces**;
+   - puentes y viaducto como losa de concreto; río con **muros de canal** y brillos sueltos (sin rayas); quebradas con orilla verde;
+   - **escaleras** orientadas por la pendiente real, con baranda; **ciclorrutas** como carril verde sobre andén;
+   - andenes y plazas más sutiles; techos más variados (menos tanques);
+   - suavizado al alejar (sin titileo).
+   - Mismo rendimiento: ~15 ms por trozo.
+6. **Fidelidad medida contra OpenStreetMap** (`tools/osm-ventanas.mjs` + `tools/osm_comparar.py`) en centro, Niquía y Santo Domingo:
+   - 98–100 % de las calles reales a ≤ 20 m de una vía del juego; 99,5–99,9 % de las vías del juego existen; 457 de 457 tramos con nombre.
+   - **No es exacto:** anchos (todo mide 20 m), curvas en escalera, glorietas, edificios (procedurales) y alturas (por comuna).
+7. **Servidor local (`tools/server.mjs`):**
+   - se confirmó la caída de la auditoría de ChatGPT (`GET /%E0%A4%A` tumbaba el proceso) y se corrigió;
+   - además: rutas resueltas dentro de la carpeta, salas de 4, tramas enmascaradas y acotadas.
+   - `tools/test-servidor.mjs` hace 16 comprobaciones (con el servidor viejo fallan 11) y corre dentro de `test.mjs`.
+8. **Pruebas:**
+   - autotest con 78 piezas de arte verificadas; 100 partidas, 0 errores, 0 de consola;
+   - capturas de portada, modos, logros, historia, tarjetas y diálogo;
+   - banco del mapa en 8 sitios reales a 3 escalas.
+   - Un error que el bot no veía (un comentario que anulaba la tarjeta del capítulo) salió en las capturas y se corrigió.
+
 ### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
 1. Nuevo `37-trama.js`: motor de pasos (hablar, ir, abordar, bajar, foto, orientar, módulo) con datos validados por el autotest (`Trama.check`): estaciones, líneas, niveles y postales deben existir.
 2. Personajes en el mapa (Rosalba, Don Efraín, Doña Marleny, Wílmar, agente de tránsito, pasajeros con ❓) con nombre y marcador; conversación en caja inferior con voz opcional; preguntas de orientación de rutas reales (A→K, B→J, T→H, T→M, A→P, A→K→L…).
@@ -88,8 +139,20 @@ Ciudad Libre, Al volante 3D, Metrocable viaje, 3D WebGL, vista lateral, mundo (r
 Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Metroplús, Cable), La Red, historia, misiones/logros, multijugador local, APK, PWA, bot.
 
 ## Qué falta (prioridad)
-0. **Medellín fiel (Fase 1b):** corregir topografía, relieve y estructuras (viaducto, estaciones, cables, alturas, lugares icónicos) y crear la vista isométrica 2:1.
-1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `docs/PROMPTS-IA.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
+0. **Medellín fiel (Fase 1b):**
+   - **capa vectorial de OpenStreetMap**: ejes de vía con su ancho, glorietas, curvas y **nombres de calles**;
+   - **huellas reales de edificios** y usos del suelo;
+   - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
+   - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
+   - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
+0b. **Arte, fase 2:**
+   - estaciones y vehículos de perfil de Gemini (G‑20 a G‑37) en la panorámica;
+   - consolas C‑20/C‑21 en la cabina; señalética C‑30;
+   - casillas G‑60 a G‑63 en un acercamiento de Ciudad Libre;
+   - variantes de ladera G‑50 a G‑55 en el Metrocable.
+   - Pedir a ChatGPT el ZIP con las texturas de 1024 px y a Gemini la ladera de día (G‑40).
+0c. **Firma de la APK:** hoy se firma con la clave de desarrollo del repositorio (lo señaló la auditoría). Cambiarla impide actualizar las APK instaladas: lo decide el autor.
+1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `arte/06-guia-unica-ia.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
 2. **Bus:** interiores en parada (cámara que se acerca), pasajeros con destinos, cobro con Cívica, paradas intermedias reales de Metroplús (en la mediana), pico y placa/hora pico, 3D opcional dentro del simulador.
 3. **Metro:** señales en la vía (ATP real), anuncios de voz grabados, interior del tren (pasajeros), tramos nocturnos con Alumbrados, cables desde el metro, escuela también para tranvía (pantógrafo, señales de tranvía).
 4. **Ciudad Libre / historia:** sesión 2 de la historia (Alumbrados, cable Arví, línea J y Comuna 13, Metro de la 80), escenas de corte con los personajes, más NPC (policía de tránsito, ciclistas EnCicla), interiores de estación, retos de tiempo, cooperativo.

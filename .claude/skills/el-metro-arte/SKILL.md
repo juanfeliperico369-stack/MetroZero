@@ -83,12 +83,20 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 5. ¿Se lee bien en pequeño?
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
-## Integración al juego
-1. Lo entregado va en `arte/entregas/<carpeta>/` (estructura en la guía única, Bloque 5).
-2. Se quita el magenta (transparencia) y se recorta a la cuadrícula.
-3. Se reduce con **vecino más cercano** a la escala del juego y se **cuantiza a la paleta**.
-4. Se arman **atlas** en `src/art/` (PNG o WebP más un JSON de coordenadas), embebidos en el HTML. La meta es menos de 4 MB de arte.
-5. Se conecta el arte, siempre con respaldo al dibujo procedural:
+## Integración al juego (así se hizo en v0.6.0)
+1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
+   - `retrato`: dentro del marco, sin fondo;
+   - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;
+   - `escena`: recorte y WebP;
+   - los SVG de ChatGPT se minifican tal cual.
+3. `python3 tools/arte_juego.py` genera `src/data/arte.js` y `arte/entregas/USO-EN-EL-JUEGO.md`. Las cajas de recorte salen de una segmentación del fondo magenta.
+4. En el código se usa `Atlas` (`src/js/19-atlas.js`), siempre con respaldo procedural:
+   - `Atlas.tag(id)` para la interfaz;
+   - `Atlas.img(id)` para el lienzo;
+   - `Atlas.retrato(quien, frase)` para los diálogos;
+   - `Atlas.fiesta()` para los adornos.
+   - El autotest (`Atlas.check`) exige que existan las piezas que el juego nombra.
 
    | Arte | Archivo |
    |---|---|
@@ -97,7 +105,21 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
    | Capas | `23-lado.js` |
    | Vehículos de perfil | `30-conduce.js`, `52-cableviaje.js` |
    | Consola | `31-cabina.js` |
-   | Retratos | `37-trama.js` |
+   | Retratos y tarjetas de capítulo | `37-trama.js` |
+   | Portada, íconos de modos e historia | `65-menu.js` |
+   | Medallas | `66-vida.js` |
+
+## Reglas aprendidas en la entrega 1 (nov‑2026)
+Las propusieron Gemini y ChatGPT y se comprobaron al integrar:
+1. **Retratos en la misma posición** en cada gesto (mismo encuadre y altura de ojos): así se cambian sin saltos.
+2. **Fondo magenta plano** incluso dentro de los marcos: el recorte lo quita solo.
+3. **No escribas códigos HEX en el texto de un prompt de imagen:** el modelo puede dibujarlos como letras. Nombra el color (“azul metro”) y adjunta la paleta como imagen.
+4. **Grilla de píxel entera**, sin mezclar tamaños de píxel (nada de *mixels*); máximo 2 tonos por superficie más el contorno.
+5. **No mezcles vistas:** cenital 3/4 (casillas) e isométrica 2:1 (maqueta) van en láminas separadas.
+6. **Cero sombras proyectadas:** las pone el juego.
+7. **Entrega también la fuente** (SVG o el script que la genera): con eso se recuperó todo lo de ChatGPT aunque faltó el ZIP.
+8. **Distingue las evidencias:** “sintaxis válida”, “prueba ejecutada” y “partida real jugada” son cosas distintas. No digas “probado” si solo validaste archivos.
+9. **Lo que dices del mundo real, verifícalo:** la “Línea O” es de buses por la 80, no del Metro de la 80 (será la Línea E, rosada).
    | Íconos | menús |
    | Isométrico | vista nueva (ver skill `medellin-fiel`) |
 6. Se prueba con `node tools/test.mjs 100` y capturas, y se publica (skill `el-metro-desarrollo`).
