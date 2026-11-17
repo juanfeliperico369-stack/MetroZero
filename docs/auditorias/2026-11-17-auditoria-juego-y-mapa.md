@@ -219,6 +219,35 @@ Cada paso se comprueba volviendo a correr `node tools/auditoria-mapa.mjs` y comp
 13. **Trozos en un Web Worker** con `OffscreenCanvas`: elimina los tirones de raíz.
 14. **“Salida de patio” al amanecer:** nivel especial que empieza en el patio‑taller de Bello. Necesita M5.
 
+## Actualización v0.10.0: lo que ya se hizo
+Medido con `node tools/auditoria-mapa.mjs`. Con `--sin-ajustes` se reproduce el antes. Los ajustes viven en `src/data/ajustes.js` (`tools/mapa_ajustes.mjs`).
+
+| Paso | Antes (v0.9.0) | Después (v0.10.0) |
+|---|---:|---:|
+| M1 · Estaciones con huella | 0 de 49 · 2 sobre edificios | **49 con techo** (48 con casillas de estación) · 0 sobre edificios |
+| M2 · Cortes del río (Caldas–Barbosa) | 69 | **0** (88 puentes) |
+| M3 · Tramos del río que suben más de 3 m | 37 (máx. 27 m) | **0** (1.339 esquinas del relieve quemadas) |
+| M4 · Trazo del tranvía sobre casas | 24 % | **0 %** |
+| M5 · Patio‑taller del Metro | 0 casillas | **463** (con balasto y vías) y los talleres del Ferrocarril de Antioquia |
+| M6 · Escaleras que no conectan con nada | 32 | **1** |
+| M8 · Vías con nombre | Medellín 63 %, Itagüí 18 %, Bello 11 %, Girardota 4 % | Medellín **80 %**, Itagüí **78 %**, Bello **45 %**, Girardota **23 %** |
+| M9 · Casas dentro de un barrio | Bello 1 %, Caldas 0 %, Girardota 0 %, Barbosa 0 % | Bello **59 %**, Caldas **83 %**, Girardota **99 %**, Barbosa **98 %** (aproximados) |
+| M7 · Manchones de agua | 2.266 | 2.266 (sigue pendiente) |
+
+![Después: cobertura de nombres y barrios](img/2026-11-17-v010-cobertura.png)
+![Después: estaciones con su techo](img/2026-11-17-v010-estaciones.webp)
+![Después: el río siempre baja](img/2026-11-17-v010-rio.png)
+
+- **De dónde salen los nombres y barrios nuevos:** del mapa de Juega EnCicla v1.2, que usa la misma cuadrícula (OpenStreetMap vía Overture).
+  - La capa oficial de Medellín sigue mandando; lo nuevo solo llena casillas que no tenían nada.
+  - Ver `docs/auditorias/2026-11-17-auditoria-encicla-v1.2.md`.
+- **Arreglos rápidos (sección 7) hechos:**
+  - memoria del mapa;
+  - arranque sin tirón;
+  - “Llegaste, sin estrellas”;
+  - accesibilidad en Ciudad Libre;
+  - tope a las invitaciones.
+
 ## Cómo repetir esta auditoría
 ```bash
 node tools/build.mjs

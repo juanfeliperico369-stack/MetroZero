@@ -78,7 +78,9 @@ python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ ar
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
 python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
-node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas
+node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas; --sin-ajustes para el antes
+node tools/mapa_ajustes.mjs RUTA_ENCICLA   # src/data/ajustes.js: nombres y barrios fuera de Medellín, puentes y relieve del río, escaleras, calle del tranvía, patio-taller
+node tools/encicla_datos.mjs RUTA_ENCICLA  # src/data/encicla.js: las 133 estaciones de EnCicla para Ciudad Libre
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK

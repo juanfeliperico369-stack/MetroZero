@@ -43,6 +43,22 @@ const BotT = EM.test = {
       for (let r = 0; r < 4; r++) { Iso.rot = r; const p = Iso.P(s.x + 50, s.y - 30, Iso.Z0, c, 200, 160), w = Iso.Pi(p.x, p.y, c, 200, 160); if (Math.hypot(w.x - s.x - 50, w.y - s.y + 30) > .5) E('maqueta: la proyección no vuelve con giro ' + r); }
       Iso.rot = r0; if (!EM.headless) { Iso.render(c, 96, 72); const d = Iso.d; let tierra = 0; for (let i = 0; i < d.length; i++) if (((d[i] >> 16) & 255) - (d[i] & 255) < 20) tierra++; /* el cielo es azulado: azul mucho mayor que rojo */ if (tierra < d.length * .3) E('maqueta: el dibujo salió casi vacío'); }
     } catch (e) { E('maqueta: ' + e.message); }
+    // calendario: festivos de Colombia y horarios del Metro (lunes a sábado 4:30–23; domingos y festivos 5–22) y de EnCicla
+    try {
+      const F = (y, m, d, h = 12, mi = 0) => new Date(y, m - 1, d, h, mi);
+      if (festivo(F(2026, 1, 12)) !== 'Reyes Magos' || festivo(F(2026, 4, 3)) !== 'Viernes Santo' || festivo(F(2026, 5, 18)) !== 'Ascensión del Señor' || festivo(F(2026, 11, 18))) E('calendario: festivos de 2026 mal calculados');
+      if (serviceOpen(F(2026, 11, 22, 4, 45)) || !serviceOpen(F(2026, 11, 23, 4, 45)) || serviceOpen(F(2026, 11, 22, 22, 30)) || !serviceOpen(F(2026, 11, 21, 22, 30)) || serviceOpen(F(2026, 1, 12, 4, 45))) E('calendario: horario del Metro equivocado');
+      if (!enciclaHorario(F(2026, 11, 22, 9)).abierto || enciclaHorario(F(2026, 11, 22, 16)).abierto || !enciclaHorario(F(2026, 11, 23, 6)).abierto) E('calendario: horario de EnCicla equivocado');
+    } catch (e) { E('calendario: ' + e.message); }
+    // mapa ajustado (src/data/ajustes.js): nombres y barrios fuera de Medellín, huellas de estación; estaciones de EnCicla en Ciudad Libre
+    try {
+      if (typeof AJUSTES !== 'undefined' && !window.__sinAjustes) {
+        if (!MAP.ajustado) E('ajustes: no se aplicaron'); if (!MAP.techos || MAP.techos.length < 49) E('ajustes: faltan huellas de estación (' + (MAP.techos || []).length + ')');
+        const bl = NET.stations.find(q => q.name === 'Bello'); if (!MAP.barrioAt(bl.x, bl.y)) E('ajustes: Bello sin barrio');
+        let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')');
+      }
+      if (typeof ENCICLA !== 'undefined') { if (ENCICLA.estaciones.length < 100) E('encicla: faltan estaciones'); const L = EM.modes.libre.create('lb:San Antonio', { seed: 3 }); if (L.docks.length !== ENCICLA.estaciones.length || !L.parked.some(p => p.dock != null)) E('encicla: anclajes sin bicis'); }
+    } catch (e) { E('ajustes: ' + e.message); }
     // seguridad: una partida importada no cambia prototipos y los mensajes de otro celular no rompen el juego
     try {
       const d = Save.sanitize(JSON.parse('{"v":1,"__proto__":{"contaminado":1},"settings":{"__proto__":{"x":1}},"wallet":-5}'));

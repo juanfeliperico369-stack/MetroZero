@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.9.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.10.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -26,7 +26,25 @@ class RNG {
 const deep = o => JSON.parse(JSON.stringify(o));
 const now = () => performance.now() / 1000;
 function clockStr(d = new Date()) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
-function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), dow = d.getDay(); const a = dow === 0 ? 7 * 60 : dow === 6 ? 4 * 60 + 30 : 4 * 60 + 30; return m >= a && m < 23 * 60; }
+/* festivos de Colombia: los fijos, los de la Ley Emiliani (se corren al lunes) y los de Semana Santa según la Pascua (de Juega EnCicla) */
+const FESTIVOS = {};
+function festivo(d = new Date()) {
+  const y = d.getFullYear();
+  if (!FESTIVOS[y]) {
+    const F = FESTIVOS[y] = {}, D = (m, n) => new Date(y, m - 1, n), mas = (q, n) => new Date(q.getFullYear(), q.getMonth(), q.getDate() + n), lun = q => mas(q, (8 - q.getDay()) % 7), add = (q, n) => { F[q.getMonth() * 100 + q.getDate()] = n; };
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, h = (19 * a + b - Math.floor(b / 4) - Math.floor((b - Math.floor((b + 8) / 25) + 1) / 3) + 15) % 30, l = (32 + 2 * (b % 4) + 2 * Math.floor(c / 4) - h - c % 4) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), P = D(Math.floor((h + l - 7 * m + 114) / 31), (h + l - 7 * m + 114) % 31 + 1);
+    add(D(1, 1), 'Año Nuevo'); add(D(5, 1), 'Día del Trabajo'); add(D(7, 20), 'Día de la Independencia'); add(D(8, 7), 'Batalla de Boyacá'); add(D(12, 8), 'Inmaculada Concepción'); add(D(12, 25), 'Navidad');
+    add(lun(D(1, 6)), 'Reyes Magos'); add(lun(D(3, 19)), 'San José'); add(lun(D(6, 29)), 'San Pedro y San Pablo'); add(lun(D(8, 15)), 'La Asunción'); add(lun(D(10, 12)), 'Día de la Raza'); add(lun(D(11, 1)), 'Todos los Santos'); add(lun(D(11, 11)), 'Independencia de Cartagena');
+    add(mas(P, -3), 'Jueves Santo'); add(mas(P, -2), 'Viernes Santo'); add(lun(mas(P, 39)), 'Ascensión del Señor'); add(lun(mas(P, 60)), 'Corpus Christi'); add(lun(mas(P, 68)), 'Sagrado Corazón');
+  }
+  return FESTIVOS[y][d.getMonth() * 100 + d.getDate()] || null;
+}
+function domingoOFestivo(d = new Date()) { return d.getDay() === 0 || !!festivo(d); }
+/* horario del Metro: lunes a sábado de 4:30 a. m. a 11 p. m.; domingos y festivos de 5 a. m. a 10 p. m. */
+function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(); return domingoOFestivo(d) ? m >= 300 && m < 1320 : m >= 270 && m < 1380; }
+function abreTxt(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), dia = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (m >= 1320 ? 1 : 0)); return domingoOFestivo(dia) ? '5:00 a. m.' : '4:30 a. m.'; }
+/* EnCicla presta de lunes a viernes de 5:30 a. m. a 9 p. m., los sábados de 6:30 a. m. a 7 p. m. y los domingos y festivos de 8 a. m. a 3 p. m. */
+function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), t = domingoOFestivo(d) ? [480, 900, 'de 8 a. m. a 3 p. m.'] : d.getDay() === 6 ? [390, 1140, 'de 6:30 a. m. a 7 p. m.'] : [330, 1260, 'de 5:30 a. m. a 9 p. m.']; return { abierto: m >= t[0] && m < t[1], txt: 'hoy presta ' + t[2] }; }
 
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';

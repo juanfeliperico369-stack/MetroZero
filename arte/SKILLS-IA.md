@@ -135,7 +135,9 @@ python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ ar
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
 python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
-node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas
+node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas; --sin-ajustes para el antes
+node tools/mapa_ajustes.mjs RUTA_ENCICLA   # src/data/ajustes.js: nombres y barrios fuera de Medellín, puentes y relieve del río, escaleras, calle del tranvía, patio-taller
+node tools/encicla_datos.mjs RUTA_ENCICLA  # src/data/encicla.js: las 133 estaciones de EnCicla para Ciudad Libre
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -401,6 +403,9 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 - Con `--img` dibuja las láminas.
 - Hoja de ruta M1–M12 con sus metas en `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`.
 - **Toda mejora del mapa se entrega con su cifra de antes y de después.**
+- **Ajustes del mapa base (v0.10.0):** `tools/mapa_ajustes.mjs` corre el juego con `window.__sinAjustes` y escribe `src/data/ajustes.js`; `MAP.ajustes()` los aplica al cargar y `MAP.estaciones()` marca las huellas de estación cuando la red ya existe.
+  - El orden importa: capa oficial → nombres y barrios extra (mismo orden de casillas de vía) → cambios de casillas → huellas.
+- **Juega EnCicla** usa la misma cuadrícula y el mismo relieve: lo que se corrija aquí sirve allá, y al revés (ver `docs/auditorias/2026-11-17-auditoria-encicla-v1.2.md`).
 - **Relieve:** SRTM y Copernicus son modelos de **superficie**: miden copas de árboles, puentes y muros, no el agua. Antes de usar el relieve en el río hay que “quemar” el cauce para que siempre baje (regresión isotónica a lo largo del recorrido).
 
 Bello y los demás municipios del norte y del sur aún no tienen capa abierta de barrios. Nominatim limita a las IP de la nube (error 429): no insistas.

@@ -654,7 +654,20 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-#### Estado al 2026-11-17 · v0.9.0 "Maqueta y álbum"
+#### Estado al 2026-11-17 · v0.10.0 "Valle completo y EnCicla"
+**Novedad de v0.10.0:**
+- **El mapa, medido y corregido:**
+  - las 49 estaciones tienen huella y techo;
+  - el río es continuo y siempre baja;
+  - el tranvía va por su calle;
+  - aparece el patio‑taller de Bello;
+  - hay barrios y nombres de calle en todo el valle.
+- **El calendario es real:** festivos de Colombia, y el Metro de 5 a. m. a 10 p. m. los domingos y festivos.
+- **Primer cruce con Juega EnCicla:** sus 133 estaciones en Ciudad Libre, con préstamo, timbre y logros.
+
+Debajo sigue vigente lo de v0.9.0.
+
+##### v0.9.0 "Maqueta y álbum"
 **Novedad de v0.9.0:** la **Maqueta 2:1** (el valle real en 3D isométrico, dentro de La Red) y el **Álbum de postales** (48 postales: los lugares reales con su vista aérea y 5 especiales con ilustración), más el cartel de la fiesta del día. Debajo sigue vigente lo de v0.8.0.
 
 ##### v0.8.0 "Identidad del Metro"
@@ -725,6 +738,51 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 #### Historial
+##### v0.10.0 (2026-11-17) — valle completo, calendario real y cruce con EnCicla
+Pedido del autor: “haz lo que puedas, mejóralo todo” (sobre la auditoría), y “audita Juega EnCicla, toma fragmentos, los huevos de pascua y las mejoras, y prepara la próxima revolución”.
+1. **Mapa (hoja de ruta M1–M6 de la auditoría, todo medido con `tools/auditoria-mapa.mjs`):**
+   - **Ajustes del mapa base** en `src/data/ajustes.js` (171 KB), generados por `tools/mapa_ajustes.mjs` y aplicados al cargar (`MAP.ajustes`):
+     - 86.642 casillas de vía ganan nombre de calle y 205 barrios aproximados llenan los municipios sin capa oficial, con datos de Juega EnCicla v1.2 (OpenStreetMap vía Overture).
+     - **Casas con barrio:** Bello pasa de 1 a 59 %, Girardota de 0 a 99 %, Barbosa de 0 a 98 % y Caldas y La Estrella de 0 y 4 a 83 %.
+     - **Vías con nombre:** Medellín pasa de 63 a 80 %, Itagüí de 18 a 78 % y Bello de 11 a 45 %.
+     - **Río:** 88 puentes donde una vía cortaba el cauce (69 cortes → 0) y 1.339 esquinas del relieve quemadas con regresión isotónica (37 tramos que subían → 0).
+     - 69 casillas de casa pasan a calle bajo el tranvía de Ayacucho (24 % del trazo sobre casas → 0 %).
+     - Se quitan las 32 escaleras sueltas que no conectaban con nada.
+     - **Patio‑taller del Metro en Bello** con balasto y vías, y talleres del antiguo Ferrocarril de Antioquia, ambos de OpenStreetMap.
+   - **Huellas de estación (`MAP.estaciones`):** andén techado orientado con la línea y la franja del color de cada línea.
+     - Medidas: metro 140 × 36 m, tranvía 44 × 16 m, cable 60 × 40 m.
+     - Las 49 estaciones tienen techo; ninguna queda sobre una casa.
+   - **Rótulos:**
+     - un nombre extra no repite el oficial del mismo trozo;
+     - patio y talleres van con ■ en azul.
+2. **Arreglos rápidos de la auditoría:**
+   - **Memoria:** la capa de luces de cada trozo se crea solo de noche, y la caché depende de la memoria del equipo (16, 28 o 40 trozos).
+   - **Sin tirón al arrancar:** cada cuadro construye trozos por 10 ms como máximo (mínimo uno); el resto se pinta liso un instante.
+   - **Resultado:** con 0 estrellas dice “Llegaste, sin estrellas” y da un consejo.
+   - **Accesibilidad:** nombres para los botones de íconos, botones de 44 px, letra de 12 px y avisos en `aria-live`.
+   - **Seguridad:** el código de invitación se descomprime con tope de 64 KB.
+3. **Calendario real, de Juega EnCicla:**
+   - `festivo()` cubre los festivos de Colombia (Ley Emiliani y Semana Santa).
+   - **Horario del Metro corregido:** antes abría a las 7 los domingos y no conocía los festivos. Ahora va de lunes a sábado de 4:30 a. m. a 11 p. m., y los domingos y festivos de 5 a. m. a 10 p. m.
+   - **Fechas:** Feria de las Flores (10 días desde el primer viernes de agosto), Fiesta del Libro, Día del Niño, Día del Padre y ciclovía.
+4. **EnCicla en Ciudad Libre** (`src/data/encicla.js`, 133 estaciones, de `tools/encicla_datos.mjs`):
+   - **Anclajes:** azules con postes verdes y bicis.
+   - **Préstamo:** con el horario de EnCicla y 60 minutos de juego; se devuelve en cualquier anclaje.
+   - **Frases:** al prestar habla un personaje de EnCicla; al devolver lejos se oye “Nadie aplaude al anfitrión, pero todos llegan.”
+   - **Logros nuevos:** *Metro + bici* y *Ciclista secreto* (tres timbrazos debajo de una estación del metro, el espejo del Maquinista secreto de EnCicla).
+   - **Postal** “Metro + EnCicla” y enlace al juego hermano en los créditos.
+   - Las medallas 21 y 22 quedan encargadas a ChatGPT (C‑12). Mientras llegan, la libreta usa emoji.
+5. **Documentos:**
+   - auditoría de Juega EnCicla con ideas para su IA: `docs/auditorias/2026-11-17-auditoria-encicla-v1.2.md`;
+   - plan de la próxima revolución: `docs/REVOLUCION.md`;
+   - actualización de la auditoría del mapa.
+6. **Pruebas:**
+   - el autotest suma el calendario (festivos de 2026 y horarios del Metro y de EnCicla), los ajustes del mapa (barrio en Bello, nombres nuevos, 49 huellas) y los anclajes de EnCicla;
+   - 100 partidas, 0 errores.
+7. **Reglas aprendidas:**
+   - los dos juegos comparten cuadrícula y relieve: cualquier corrección del mapa se mide una vez y sirve dos veces;
+   - el arte de logros nuevos se encarga a ChatGPT; el código solo pone el respaldo.
+
 ##### Auditoría de v0.9.0 (2026-11-17) — juego y mapa medidos
 Pedido del autor: “audita el videojuego, dame ideas y sugerencias y, en especial, analiza el mapa para seguirlo mejorando después”. No cambia el juego.
 1. **Informe:** `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`. Trae rendimiento, balance, código, seguridad, accesibilidad, el mapa a fondo con cuatro láminas, la hoja de ruta del mapa (M1–M12, cada paso con su meta medible) y 14 ideas.
@@ -907,7 +965,8 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
-0. **Hoja de ruta del mapa medida (auditoría del 17‑nov):**
+0. **Hoja de ruta del mapa medida (auditoría del 17‑nov): M1–M6 hechos en v0.10.0.** Siguiente: M7 (quebradas a su tamaño). Plan grande en `docs/REVOLUCION.md`.
+0. **Hoja de ruta original del mapa (auditoría del 17‑nov):**
    - M1–M6 en una sola sesión: estaciones con huella, río continuo y que siempre baja, tranvía por su calle, patio‑taller de Bello y escaleras con sentido;
    - luego M7 (quebradas a su tamaño);
    - luego M8 y M9 (nombres y barrios fuera de Medellín).

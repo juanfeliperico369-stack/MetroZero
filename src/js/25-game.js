@@ -26,12 +26,14 @@ const Game = EM.game = {
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
+    MAP.prisa = t + 10; MAP._hechos = 0;
     try {
       if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
       g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
       for (const vp of this.vps) { g.save(); g.translate(vp.x, vp.y); if (vp.flip) { g.translate(vp.w, vp.h); g.rotate(Math.PI); } g.beginPath(); g.rect(0, 0, vp.w, vp.h); g.clip(); this.mode.draw(g, vp.st, vp); g.restore(); }
       if (this.duel) { g.fillStyle = PAL.negro; g.fillRect(0, this.vps[0].y - 3, w, 6); }
     } catch (e) { EM.errors.push('frame ' + this.mode.id + ': ' + e.message); console.error(e); }
+    MAP.prisa = 0;
     if ((this.hudT -= dt) <= 0) { this.hudT = .2; this.hud(); }
     if (this.net && this.net.tick) this.net.tick(dt);
     if (!this.ended && !(this.net && this.net.guest) && !this.mode.endless) { const r1 = this.mode.result(this.st), r2 = this.st2 ? this.mode.result(this.st2) : null; if (r1.done || (r2 && r2.done)) this.end(r1, r2); }
@@ -67,7 +69,8 @@ const Game = EM.game = {
     const earn = Save.record(M.id, this.lv, r1); Snd.play(r1.win ? 'win' : 'lose'); vib(r1.win ? 40 : 120);
     const lvls = M.levels(), i = lvls.findIndex(l => l.id === this.lv), nx = lvls[i + 1];
     const stars = '★'.repeat(r1.stars | 0) + '☆'.repeat(3 - (r1.stars | 0));
-    UI.modal(`<div class="pag">${r1.win ? 'Misión cumplida' : 'Fin de la partida'}</div><h2>${r1.win ? '¡Bien hecho!' : 'Casi…'}</h2><div style="font-size:34px;color:var(--mostaza);letter-spacing:.1em">${stars}</div>
+    const bien = r1.win && (r1.stars | 0) > 0;
+    UI.modal(`<div class="pag">${r1.win ? (bien ? 'Misión cumplida' : 'Llegaste') : 'Fin de la partida'}</div><h2>${bien ? '¡Bien hecho!' : r1.win ? 'Llegaste, sin estrellas' : 'Casi…'}</h2><div style="font-size:34px;color:var(--mostaza);letter-spacing:.1em">${stars}</div>${r1.win && !bien ? '<p class="m">Para ganar estrellas suma más puntos: suavidad, puntualidad y cuidar a los pasajeros.</p>' : ''}
       <div class="kv" style="margin:10px 0">${(r1.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Puntaje</b><span>${fmt(r1.score)}</span><b>Pasajes</b><span>+${earn} 🎫</span></div>
       ${r1.fact ? `<div class="film" style="margin:10px 0">Dato · ${esc(r1.fact)}</div>` : ''}
       <div class="row"><button class="btn pri" id="rsN" ${nx && r1.win ? '' : 'hidden'}>Siguiente ▶</button><button class="btn sm" id="rsR">↻ Otra vez</button><button class="btn sm gh" id="rsX">Salir</button></div>`);

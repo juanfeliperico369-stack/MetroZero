@@ -1,0 +1,141 @@
+{
+ "tipos": {
+  "pasto": 175723,
+  "monte": 3887776,
+  "casa": 485165,
+  "edificio": 317834,
+  "calle": 268606,
+  "avenida": 46840,
+  "andén": 3976,
+  "ciclorruta": 4256,
+  "agua": 13157,
+  "canal": 73589,
+  "plaza": 5519,
+  "puente": 379,
+  "estación": 233,
+  "lote": 0,
+  "autopista": 22992,
+  "patio": 463,
+  "escaleras": 4330
+ },
+ "municipios": {
+  "(fuera de los 10 municipios)": {
+   "calles_con_nombre_pct": 9,
+   "casas_con_barrio_pct": 1,
+   "agua_km2": 0.14
+  },
+  "Barbosa": {
+   "calles_con_nombre_pct": 34,
+   "casas_con_barrio_pct": 98,
+   "agua_km2": 5.44
+  },
+  "Girardota": {
+   "calles_con_nombre_pct": 23,
+   "casas_con_barrio_pct": 99,
+   "agua_km2": 3.44
+  },
+  "Bello": {
+   "calles_con_nombre_pct": 45,
+   "casas_con_barrio_pct": 59,
+   "agua_km2": 6.18
+  },
+  "Copacabana": {
+   "calles_con_nombre_pct": 34,
+   "casas_con_barrio_pct": 61,
+   "agua_km2": 1.88
+  },
+  "Medellín": {
+   "calles_con_nombre_pct": 80,
+   "casas_con_barrio_pct": 100,
+   "agua_km2": 11.07
+  },
+  "Itagüí": {
+   "calles_con_nombre_pct": 78,
+   "casas_con_barrio_pct": 96,
+   "agua_km2": 0.43
+  },
+  "Envigado": {
+   "calles_con_nombre_pct": 45,
+   "casas_con_barrio_pct": 54,
+   "agua_km2": 0.75
+  },
+  "La Estrella": {
+   "calles_con_nombre_pct": 50,
+   "casas_con_barrio_pct": 83,
+   "agua_km2": 1.45
+  },
+  "Sabaneta": {
+   "calles_con_nombre_pct": 59,
+   "casas_con_barrio_pct": 55,
+   "agua_km2": 0.26
+  },
+  "Caldas": {
+   "calles_con_nombre_pct": 51,
+   "casas_con_barrio_pct": 83,
+   "agua_km2": 3.66
+  }
+ },
+ "estaciones": {
+  "total": 49,
+  "sin_huella": 1,
+  "sin_huella_nombres": [
+   "Alejandro Echavarría"
+  ],
+  "con_techo": 49,
+  "sobre_casas": []
+ },
+ "lineas": {
+  "A": {
+   "tipo": "metro",
+   "puntos_del_trazo": 65,
+   "sobre_casas_pct": 4
+  },
+  "B": {
+   "tipo": "metro",
+   "puntos_del_trazo": 22,
+   "sobre_casas_pct": 5
+  },
+  "T": {
+   "tipo": "tram",
+   "puntos_del_trazo": 17,
+   "sobre_casas_pct": 0
+  }
+ },
+ "agua": {
+  "cuerpos": 4275,
+  "manchones_1a4_casillas": 2266,
+  "rio_y_lagos_km2": 5.26,
+  "quebradas_km2": 29.44
+ },
+ "escaleras": {
+  "casillas": 4330,
+  "sueltas": 300,
+  "sin_conexion": 1
+ },
+ "rio": {
+  "largo_km": 66.9,
+  "altura_inicio_m": 1745,
+  "altura_fin_m": 1273,
+  "inicio": "Caldas",
+  "fin": "Barbosa",
+  "cortes": 0,
+  "casillas_cortadas": 0,
+  "cortes_por_tipo": {},
+  "tramos_que_suben_mas_de_3m": 0,
+  "subida_max_m": 0,
+  "donde_sube_mas": "Barbosa, km 63.6",
+  "correccion_max_m": 0
+ },
+ "relieve": {
+  "min_m": 967,
+  "max_m": 3127,
+  "celda_m": 80,
+  "pendiente_mayor_45_pct": 8.4
+ },
+ "capa_ciudad": {
+  "casillas_corregidas": 89446,
+  "barrios": 502,
+  "calles_con_nombre": 2438,
+  "lugares": 656
+ }
+}

@@ -19,7 +19,18 @@ Los genera `python3 tools/ciudad_datos.py` en `src/data/ciudad.js`, a partir de 
 
 **Transformaciones** (la licencia pide declararlas): rasterizado a casillas de 20 m; recorte al valle; simplificación de líneas; conteo de lotes por casilla (2 bits); nombres de vía abreviados expandidos (CL → Calle, CR → Carrera…).
 
-Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** aún no tienen capa abierta encontrada.
+Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** aún no tienen capa abierta encontrada. Desde v0.10.0 se llenan con la capa aproximada de Juega EnCicla (ver abajo).
+
+## Ajustes del mapa y EnCicla (v0.10.0)
+| Dato | Fuente | Archivo |
+|---|---|---|
+| Nombres de calle y barrios fuera de la capa oficial | Mapa de Juega EnCicla v1.2: vías vectoriales y barrios por punto con nombre (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps). Los barrios son aproximados | `src/data/ajustes.js` (`tools/mapa_ajustes.mjs`) |
+| Patio‑taller del Metro, talleres del Metro y talleres del antiguo Ferrocarril de Antioquia | OpenStreetMap, ways 52513116, 52513115 y 142453569, consultados el 17‑nov‑2026 | `src/data/ajustes.js` |
+| Río continuo y relieve del cauce | Calculados sobre el propio mapa (recorrido por el agua, regresión isotónica) | `src/data/ajustes.js` |
+| 133 estaciones de EnCicla | Juega EnCicla v1.2 (posiciones aproximadas, típicamente a 46 m de la real) | `src/data/encicla.js` (`tools/encicla_datos.mjs`) |
+| Horario del Metro | Metro de Medellín y Telemedellín (2026): lunes a sábado de 4:30 a. m. a 11 p. m.; domingos y festivos de 5 a. m. a 10 p. m.; en fechas especiales cambia | `src/js/00-core.js` |
+| Horario de préstamo de EnCicla | Página oficial de EnCicla, como lo usa Juega EnCicla (consulta del 17‑nov‑2026); los festivos van como domingo por decisión del autor | `src/js/00-core.js` |
+| Festivos de Colombia | Ley 51 de 1983 (Ley Emiliani) y Semana Santa según la Pascua; cálculo tomado de Juega EnCicla | `src/js/00-core.js` |
 
 ## Coordenadas
 

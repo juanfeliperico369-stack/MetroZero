@@ -5,7 +5,7 @@
    ===================================================================== */
 const VM = VALLE_META, MW = VM.W, MH = VM.H, TM = VM.tile, ES = VM.es;
 const TT = { GRASS: 0, MOUNT: 1, BRICK: 2, BLDG: 3, ROAD: 4, AVE: 5, WALK: 6, CICLO: 7, WATER: 8, CANAL: 9, PLAZA: 10, BRIDGE: 11, STATION: 12, LAND: 13, AUTO: 14, DEPOT: 15, STEPS: 16 };
-const TCOL = ['#6f9a4a', '#3d6838', '#b4583a', '#8d97a4', '#4b5059', '#3f444d', '#bdb6a5', '#3f9a50', '#3a87a8', '#4b7f8c', '#d9cdae', '#6d6f75', '#f4ecd0', '#a99a7a', '#34383f', '#5ab0d0', '#a39882'];
+const TCOL = ['#6f9a4a', '#3d6838', '#b4583a', '#8d97a4', '#4b5059', '#3f444d', '#bdb6a5', '#3f9a50', '#3a87a8', '#4b7f8c', '#d9cdae', '#6d6f75', '#f4ecd0', '#a99a7a', '#34383f', '#8a8072', '#a39882'];
 const TRGB = TCOL.map(c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]);
 const geoM = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx * TM, y: (VM.latN - lat) * VM.ky * TM });
 const mGeo = (x, y) => ({ lat: VM.latN - y / TM / VM.ky, lon: VM.lon0 + x / TM / VM.kx });
@@ -23,6 +23,7 @@ const MAP = EM.map = {
     for (let j = 0; j < VM.eH; j++) { let a = 0; for (let i = 0; i < VM.eW; i++) { a += ed[j * VM.eW + i]; E[j * VM.eW + i] = a; } }
     this.mu = raw.slice(nT + nE * 2, nT + nE * 2 + nM); this.co = raw.slice(nT + nE * 2 + nM, nT + nE * 2 + nM * 2);
     if (typeof CIUDAD !== 'undefined') { try { await this.ciudad(); } catch (e) { EM.errors.push('ciudad: ' + e.message); console.error(e); } }
+    if (typeof AJUSTES !== 'undefined' && typeof CIUDAD !== 'undefined' && !window.__sinAjustes) { try { await this.ajustes(); } catch (e) { EM.errors.push('ajustes: ' + e.message); console.error(e); } }
     this.ready = true;
   },
   /* ---------- MEDELLÍN RECONOCIBLE · datos oficiales abiertos (src/data/ciudad.js, de tools/ciudad_datos.py) ----------
@@ -63,11 +64,48 @@ const MAP = EM.map = {
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = t[(y + lo.y0) * MW + x + lo.x0]; if (v === TT.BRICK || v === TT.BLDG) { la[y * w + x] = (lb[bi >> 2] >> ((bi & 3) * 2)) & 3; bi++; } }
     this.lot = { x0: lo.x0, y0: lo.y0, w, h, a: la };
   },
-  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; return v ? C.barrios[v - 1] : null; },
+  /* ---------- AJUSTES DEL MAPA (src/data/ajustes.js, de tools/mapa_ajustes.mjs) ----------
+     nombres de calle y barrios donde la capa oficial no llega (mapa de Juega EnCicla: OpenStreetMap vía Overture; barrios aproximados),
+     río continuo y relieve que siempre baja por el cauce, escaleras sueltas, calle bajo el tranvía y patio-taller del Metro en Bello. */
+  async ajustes() {
+    const A = AJUSTES, t = this.t;
+    if (this.rRow) {   // nombres extra para las casillas de vía sin nombre oficial, en orden: 0 izquierda · 1 arriba · 4 arriba-izq · 5 arriba-der · 2 nada · 3 + varint
+      const cd = await this.unz(A.calles.d, A.calles.n), rE = new Uint16Array(this.rX.length); let p = 0, a = new Uint16Array(MW), b = new Uint16Array(MW);
+      for (let y = 0; y < MH; y++) {
+        const z = a; a = b; b = z; b.fill(0);
+        for (let k = this.rRow[y]; k < this.rRow[y + 1]; k++) { if (this.rN[k] || this.rP[k]) continue; const x = this.rX[k], c = cd[p++]; let id = 0; if (c === 0) id = b[x - 1]; else if (c === 1) id = a[x]; else if (c === 4) id = a[x - 1]; else if (c === 5) id = a[x + 1]; else if (c === 3) { let sh = 0, q; do { q = cd[p++]; id += (q & 127) * 2 ** sh; sh += 7; } while (q & 128); } b[x] = id; rE[k] = id; }
+      }
+      this.rE = rE;
+    }
+    const B = A.barrios, bb = await this.unz(B.d, B.GW * B.GH * 2); this.bgE = new Uint16Array(B.GW * B.GH); for (let i = 0; i < this.bgE.length; i++) this.bgE[i] = bb[2 * i] | bb[2 * i + 1] << 8;
+    this.barriosL = CIUDAD.barrios.concat(B.lista);
+    const T = A.tiles; for (const i of T.puente) t[i] = TT.BRIDGE; for (const i of T.agua) t[i] = TT.WATER; for (const i of T.calle) t[i] = TT.ROAD; for (let i = 0; i < T.pares.length; i += 2) t[T.pares[i]] = T.pares[i + 1];
+    for (let i = 0; i < A.relieve.length; i += 2) this.E[A.relieve[i]] = A.relieve[i + 1];
+    this.lugaresL = CIUDAD.lugares.concat(A.lugares); this.ajustado = true;
+  },
+  /* huellas de estación (andén techado, orientado con su línea): metro 140 × 36 m, tranvía 44 × 16 m y cable 60 × 40 m.
+     Las casillas pasan a estación salvo vías mayores, agua y escaleras; el techo se pinta encima con la franja de cada línea. */
+  estaciones() {
+    if (!this.t || window.__sinAjustes) return; const t = this.t, out = [], keep = new Set([TT.AUTO, TT.AVE, TT.BRIDGE, TT.WATER, TT.CANAL, TT.STEPS, TT.DEPOT]);
+    for (const s of NET.stations) {
+      const Ls = s.lines.filter(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!Ls.length) continue;
+      const L = Ls.find(l => l.kind === 'metro') || Ls.find(l => l.kind === 'tram') || Ls[0], P = L.P.pts; let bi = 0, bd = Infinity;
+      for (let i = 0; i < P.length - 1; i++) { const ax = P[i].x, ay = P[i].y, dx = P[i + 1].x - ax, dy = P[i + 1].y - ay, u = clamp(((s.x - ax) * dx + (s.y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = (ax + dx * u - s.x) ** 2 + (ay + dy * u - s.y) ** 2; if (d < bd) { bd = d; bi = i; } }
+      const a = Math.atan2(P[bi + 1].y - P[bi].y, P[bi + 1].x - P[bi].x), [w, h] = L.kind === 'metro' ? [140, 36] : L.kind === 'tram' ? [44, 16] : [60, 40], ca = Math.cos(a), sa = Math.sin(a), Rr = Math.ceil(w / TM);
+      out.push({ x: s.x, y: s.y, a, w, h, k: L.kind, cols: [...new Set(Ls.map(l => l.color))] });
+      let hechas = 0; const marca = (hh, ok) => { for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) {
+        const tx = Math.floor(s.x / TM) + dx, ty = Math.floor(s.y / TM) + dy, px = (tx + .5) * TM - s.x, py = (ty + .5) * TM - s.y;
+        if (Math.abs(px * ca + py * sa) <= w / 2 && Math.abs(-px * sa + py * ca) <= hh / 2 && tx >= 0 && ty >= 0 && tx < MW && ty < MH && ok(t[ty * MW + tx])) { t[ty * MW + tx] = TT.STATION; hechas++; }
+      } };
+      marca(h, q => !keep.has(q)); if (!hechas) marca(16, q => q !== TT.WATER && q !== TT.CANAL && q !== TT.BRIDGE);
+    }
+    this.techos = out; this.chunks.clear(); this._mini = null;
+  },
+  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; if (v) return C.barrios[v - 1]; if (!this.bgE) return null; const A = AJUSTES.barrios, w = this.bgE[clamp(Math.floor(y / TM / 8), 0, A.GH - 1) * A.GW + clamp(Math.floor(x / TM / 8), 0, A.GW - 1)]; return w ? A.lista[w - 1] : null; },
   /* nombres de la casilla de vía (tx, ty): { n: nomenclatura, p: nombre popular } o null */
   calleT(tx, ty) {
     if (!this.rRow || ty < 0 || ty >= MH) return null; let a = this.rRow[ty], b = this.rRow[ty + 1] - 1;
-    while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m]; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
+    while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m], e = this.rE ? this.rE[m] : 0; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : e ? { n: AJUSTES.calles.lista[e - 1], p: '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
     return null;
   },
   calleAt(x, y) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); return this.calleT(tx, ty) || this.calleT(tx + 1, ty) || this.calleT(tx - 1, ty) || this.calleT(tx, ty + 1) || this.calleT(tx, ty - 1); },
@@ -172,6 +210,7 @@ const MAP = EM.map = {
             m *= db === 2 ? .86 : db === 3 ? .94 : 1; const rp2 = ((X * P + px) * 3 + (Y * P + py) * 7 + ((X * P + px) >> 3)) % 29; if (rp2 === 0 && hh < .7) m *= 1.16; else if (hh < .012) m *= 1.3;   // brillos sueltos, sin rayas
             break; }
           case TT.STEPS: { const up = stx > sty, a = up ? px : py, s2 = up ? py : px; col = [198, 192, 180]; if (s2 === 0 || s2 === P - 1) { col = [120, 116, 108]; m = sh; } else m *= a % 3 === 0 ? .8 : a % 3 === 1 ? 1.06 : 1; break; }
+          case TT.DEPOT: { const a = (X * P + px) % 8; col = [138, 128, 112]; if (a === 2 || a === 5) { col = [62, 62, 66]; m = sh; } else if (a > 2 && a < 5 && (Y * P + py) % 3 === 0) { col = [104, 84, 62]; m = sh; } else m *= .94 + hh * .1; break; }   // patio: balasto y vías
           default: m *= .95 + hh * .08;
         }
         const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
@@ -277,9 +316,21 @@ const MAP = EM.map = {
         else if (h2(X, Y, 74) < .25) { R(ox + 6, oy + 6, 4, 2, '#5a3a22'); R(ox + 6, oy + 5, 4, 1, '#7a5a3a'); }   // banca
       }
     }
+    // techos de estación: andén techado con la franja del color de cada línea (las huellas vienen de MAP.estaciones)
+    if (this.techos) { const kk = P / TM, X0 = cx * CH * TM, Y0 = cy * CH * TM, half = CH * TM / 2;
+      for (const s of this.techos) {
+        if (Math.abs(s.x - X0 - half) > half + s.w || Math.abs(s.y - Y0 - half) > half + s.w) continue; const w = s.w * kk, h = s.h * kk, bw = Math.max(2, Math.round(h / 6));
+        g.save(); g.translate((s.x - X0) * kk, (s.y - Y0) * kk); g.rotate(s.a);
+        g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(-w / 2 + 3, -h / 2 + 3, w, h);
+        g.fillStyle = s.k === 'cable' ? '#d6d0c4' : '#e9e5dc'; g.fillRect(-w / 2, -h / 2, w, h); g.fillStyle = '#8b877f'; g.fillRect(-w / 2, -h / 2, w, 1); g.fillRect(-w / 2, h / 2 - 1, w, 1); g.fillRect(-w / 2, -h / 2, 1, h); g.fillRect(w / 2 - 1, -h / 2, 1, h);
+        if (s.k !== 'cable') { g.fillStyle = 'rgba(120,116,108,.45)'; for (let x = -w / 2 + 6; x < w / 2 - 3; x += 8) g.fillRect(x, -h / 2 + 2, 1, h - 4); }
+        s.cols.forEach((c, i) => { g.fillStyle = c; g.fillRect(-w / 2 + 2, -bw * s.cols.length / 2 + i * bw, w - 4, bw); });
+        if (s.k === 'cable') { g.fillStyle = '#5b5f66'; g.beginPath(); g.arc(0, 0, Math.min(w, h) * .22, 0, TAU); g.fill(); g.fillStyle = s.cols[0]; g.beginPath(); g.arc(0, 0, Math.min(w, h) * .12, 0, TAU); g.fill(); }
+        g.restore(); lights.push([(s.x - X0) * kk - 2, (s.y - Y0) * kk - 1, 4]);
+      }
+    }
     // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
-    const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
-    c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
+    c.lights = lights; this.chunks.set(key, c); while (this.chunks.size > this.maxTrozos()) this.chunks.delete(this.chunks.keys().next().value);
     return c;
   },
   /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
@@ -289,8 +340,10 @@ const MAP = EM.map = {
     g.imageSmoothingEnabled = s < .95; this._vis = [];   // al alejar, suavizado: sin titileo de rayas y bordes
     for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
       if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
-      const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
-      g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
+      const sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
+      if (!this.chunks.has(cx + ',' + cy) && this.prisa && this._hechos > 0 && now() > this.prisa) { g.fillStyle = TCOL[this.tile(cx * this.CH + 16, cy * this.CH + 16)]; g.fillRect(sx, sy, Math.ceil(CHm * k) + 1, Math.ceil(CHm * k) + 1); this.pend = 1; continue; }
+      if (!this.chunks.has(cx + ',' + cy)) this._hechos = (this._hechos || 0) + 1;
+      const c = this.chunk(cx, cy); g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
     }
   },
   /* ---------- rótulos como en un mapa real: calles (con su dirección), barrios y parques ---------- */
@@ -298,17 +351,18 @@ const MAP = EM.map = {
     const CH = this.CH, x0 = cx * CH, x1 = x0 + CH, G = new Map(), out = [];
     for (let ty = cy * CH; ty < Math.min(MH, (cy + 1) * CH); ty++) {
       let a = this.rRow[ty], b = this.rRow[ty + 1]; while (a < b) { const m = (a + b) >> 1; if (this.rX[m] < x0) a = m + 1; else b = m; }
-      for (let i = a; i < this.rRow[ty + 1] && this.rX[i] < x1; i++) for (const [L, id] of [[1, this.rP[i]], [0, this.rN[i]]]) {
+      for (let i = a; i < this.rRow[ty + 1] && this.rX[i] < x1; i++) for (const [L, id] of [[1, this.rP[i]], [0, this.rN[i]], [2, this.rE && !this.rN[i] && !this.rP[i] ? this.rE[i] : 0]]) {
         if (!id) continue; const key = L * 65536 + id; let q = G.get(key); if (!q) G.set(key, q = { L, id, n: 0, sx: 0, sy: 0, xx: 0, yy: 0, xy: 0, pts: [] });
         const x = this.rX[i] + .5, y = ty + .5; q.n++; q.sx += x; q.sy += y; q.xx += x * x; q.yy += y * y; q.xy += x * y; q.pts.push(x, y);
       }
     }
+    const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''), ofi = new Set(); for (const q of G.values()) if (q.L !== 2) ofi.add(norm(CIUDAD.calles[q.id][0]));
     for (const q of G.values()) {
-      if (q.n < (q.L ? 4 : 3)) continue; const mx = q.sx / q.n, my = q.sy / q.n, vx = q.xx / q.n - mx * mx, vy = q.yy / q.n - my * my, cxy = q.xy / q.n - mx * my;
+      if (q.n < (q.L === 1 ? 4 : 3) || (q.L === 2 && ofi.has(norm(AJUSTES.calles.lista[q.id - 1])))) continue; const mx = q.sx / q.n, my = q.sy / q.n, vx = q.xx / q.n - mx * mx, vy = q.yy / q.n - my * my, cxy = q.xy / q.n - mx * my;
       let a = .5 * Math.atan2(2 * cxy, vx - vy); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
       let best = 0, bd = 1e9; for (let i = 0; i < q.pts.length; i += 2) { const d = (q.pts[i] - mx) ** 2 + (q.pts[i + 1] - my) ** 2; if (d < bd) { bd = d; best = i; } }
-      const nm = CIUDAD.calles[q.id][0], av = /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(nm);
-      out.push({ x: q.pts[best] * TM, y: q.pts[best + 1] * TM, a, t: nm, pri: q.L ? 3 : av ? 2 : 1, len: Math.sqrt(Math.max(vx, vy)) * 2 * TM });
+      const nm = q.L === 2 ? AJUSTES.calles.lista[q.id - 1] : CIUDAD.calles[q.id][0], av = /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(nm);
+      out.push({ x: q.pts[best] * TM, y: q.pts[best + 1] * TM, a, t: nm, pri: q.L === 1 ? 3 : av ? 2 : 1, len: Math.sqrt(Math.max(vx, vy)) * 2 * TM });
     }
     return out.sort((p, q) => q.pri - p.pri || q.len - p.len);
   },
@@ -323,28 +377,37 @@ const MAP = EM.map = {
     if (kc >= .75) {
       const fs = clamp(kc * 5.2, 9, 13) * dpr, CHm = this.CH * TM, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
       for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
-        if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
+        if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH || (this.prisa && !this.chunks.has(cx + ',' + cy))) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
         for (const r of c.rot) { if (r.len < (r.pri === 3 ? 60 : 40)) continue; const [x, y] = S(r.x, r.y); texto(r.pri === 3 ? r.t.toUpperCase() : r.t, x, y, r.a, (r.pri >= 2 ? '800 ' : '700 ') + (r.pri === 3 ? fs * .95 : fs) + 'px Cuerpo, sans-serif', r.pri === 3 ? (night > .4 ? '#ffd27a' : '#5a3a12') : ink, halo, 3.2 * dpr); }
       }
     }
     // parques, plazas y miradores
-    if (kc >= .6) for (const L of CIUDAD.lugares) {
+    if (kc >= .6) for (const L of this.lugaresL || CIUDAD.lugares) {
       if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;
       const [x, y] = S(L[2] / 4 * TM, L[3] / 4 * TM); if (x < -80 || y < -40 || x > W + 80 || y > H + 40) continue;
-      texto((L[1] === 'plaza' || L[1] === 'plazoleta' ? '◆ ' : L[1] === 'mirador' ? '▲ ' : '♣ ') + L[0], x, y, 0, 'italic 700 ' + clamp(kc * 4.6, 9, 12) * dpr + 'px Cuerpo, sans-serif', night > .4 ? '#b9e6a0' : '#245a2a', halo, 3 * dpr);
+      const met = L[1] === 'metro' || L[1] === 'historia';
+      texto((met ? '■ ' : L[1] === 'plaza' || L[1] === 'plazoleta' ? '◆ ' : L[1] === 'mirador' ? '▲ ' : '♣ ') + L[0], x, y, 0, 'italic 700 ' + clamp(kc * 4.6, 9, 12) * dpr + 'px Cuerpo, sans-serif', met ? (night > .4 ? '#a9cdf2' : '#1C5C9C') : night > .4 ? '#b9e6a0' : '#245a2a', halo, 3 * dpr);
     }
     // barrios: a media distancia, en mayúsculas espaciadas
-    if (kc >= .14 && kc < 1.6) for (const B of CIUDAD.barrios) {
+    if (kc >= .14 && kc < 1.6) for (const B of this.barriosL || CIUDAD.barrios) {
       if (!B[6] && kc < .9) continue; if (B[5] < (kc < .3 ? 60 : kc < .6 ? 18 : 4)) continue;
       const [x, y] = S(B[3] / 4 * TM, B[4] / 4 * TM); if (x < -120 || y < -30 || x > W + 120 || y > H + 30) continue;
       texto(B[0].toUpperCase().split('').join(String.fromCharCode(8202)), x, y, 0, '800 ' + clamp(kc * 9, 9, 14) * dpr + 'px Cuerpo, sans-serif', night > .4 ? 'rgba(255,236,190,.92)' : 'rgba(35,45,70,.78)', halo, 3.4 * dpr);
     }
     g.restore();
   },
+  /* trozos en caché según la memoria del equipo: cada uno ocupa ~1 MB de imagen (2 con las luces de noche) */
+  maxTrozos() { if (!this._maxT) { const m = navigator.deviceMemory || 4, low = typeof Save !== 'undefined' && Save.d && Save.d.settings && Save.d.settings.q === 'low'; this._maxT = low || m <= 2 ? 16 : m <= 4 ? 28 : 40; } return this._maxT; },
+  /* capa de luces de ventanas de un trozo: se crea la primera vez que se necesita (solo de noche) */
+  luces(c) {
+    if (c.lightCv) return c.lightCv; const n = c.width, lc = mkCanvas(n, n), lg = lc.getContext('2d');
+    for (const [x, y, w] of c.lights || []) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
+    return (c.lightCv = lc);
+  },
   /* luces de ventanas (después del tinte de la noche) */
   lightsTop(g, night, t) {
     if (night < .25 || !this._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1); g.imageSmoothingEnabled = false;
-    for (const [c, sx, sy, s] of this._vis) g.drawImage(c.lightCv, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
+    for (const [c, sx, sy, s] of this._vis) g.drawImage(this.luces(c), sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
     g.restore();
   },
   /* ---------- panorámica: mapa entero con sombreado del relieve (1 px = 2 casillas) ---------- */

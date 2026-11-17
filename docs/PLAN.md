@@ -26,6 +26,8 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 
 - **Auditoría de v0.9.0:** el mapa queda medido y con una hoja de ruta de 12 pasos, cada uno con su meta (`docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`). Siguiente: M1–M6 (estaciones con huella, río continuo y que baja, tranvía por su calle, patio‑taller y escaleras) y los arreglos rápidos de memoria y arranque.
 
+- **v0.10.0:** mapa medido y corregido (estaciones con huella, río continuo y que baja, tranvía por su calle, patio‑taller, barrios y nombres en todo el valle), calendario real y primer cruce con Juega EnCicla. **La próxima revolución está en `docs/REVOLUCION.md`:** el día del Metro, oficios, historia, mapa vectorial y valle común con EnCicla.
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).

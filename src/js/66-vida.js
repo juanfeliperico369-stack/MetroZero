@@ -17,7 +17,8 @@ const LOGROS = [
   ['historia', 'La última vuelta', 'Termina la historia de Rosalba'], ['datos25', 'Enciclopedia paisa', 'Descubre 25 datos de estaciones'], ['noche', 'Turno de la noche', 'Juega después de las 7 p. m.'],
   ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
   ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %'],
-  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados']
+  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados'],
+  ['intermodal', 'Metro + bici', 'En Ciudad Libre, viaja en metro, tranvía o cable y luego devuelve una bici EnCicla lejos de donde la tomaste'], ['ciclista', 'Ciclista secreto', 'Hay un timbre que suena tres veces debajo del metro…']
 ];
 /* Domingo de Pascua (algoritmo anónimo gregoriano) */
 function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
@@ -25,7 +26,7 @@ const Vida = EM.vida = {
   today() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); },
   /* fiestas y fechas del Metro según el calendario real */
   fiestas(d = new Date()) {
-    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
+    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las ' + abreTxt(d) + '). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const fe = festivo(d); if (fe) out.push({ k: 'festivo', t: 'Hoy es festivo (' + fe + '): el Metro va de 5 a. m. a 10 p. m.' }); else if (d.getDay() === 0) out.push({ k: 'domingo', t: 'Domingo: el Metro va de 5 a. m. a 10 p. m.' }); if (domingoOFestivo(d) && h >= 7 && h < 13) out.push({ k: 'ciclovia', t: '🚴 Ciclovía hasta la 1 p. m.: muchas vías son para bicis, patines y peatones' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
   },
   fiestasViejas(d = new Date()) {
     const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), out = [], doy = x => Math.floor((x - new Date(x.getFullYear(), 0, 0)) / 864e5), dd = doy(d);
@@ -36,11 +37,13 @@ const Vida = EM.vida = {
     if (m === 8 && day <= 12) out.push({ k: 'feria', t: 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en los andenes' });
     if (m === 12 && day === 24) out.push({ k: 'navidad', t: 'Nochebuena: el último tren sale más temprano. ¡Feliz Navidad!' });
     const P = pascua(y), dp = Math.round((new Date(y, m - 1, day) - P) / 864e5); if (dp >= -7 && dp <= 0) out.push({ k: 'santa', t: 'Semana Santa: horario especial y muchos viajeros hacia las terminales' });
-    const h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' });
+    const h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las ' + abreTxt(d) + '). Aquí puedes seguir manejando 😉' });
     else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' });
     return out;
   },
   has(k) { return this.fiestas().some(f => f.k === k); },
+  /* entrega un logro desde cualquier modo (Ciudad Libre, EnCicla…) */
+  logro(k) { const d = Save.d, L = d.logros || (d.logros = {}), q = LOGROS.find(x => x[0] === k); if (!q || L[k]) return; L[k] = Date.now(); Save.write(); if (!EM.headless) { Snd.play('star'); UI.toast('🏅 Logro: ' + q[1]); } },
   bonus() { return this.has('aniv') ? 2 : 1; },
   daily() {
     const d = Save.d, t = this.today();

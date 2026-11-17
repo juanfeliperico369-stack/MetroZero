@@ -44,7 +44,11 @@ const Mundo = EM.mundo = {
     if (m === 12 && (day === 24 || day === 25)) add('navidad', '¡Feliz Navidad! El último tren sale más temprano en Nochebuena', 'luces');
     if ((m === 12 && day >= 31) || (m === 1 && day === 1)) add('anonuevo', '¡Feliz año nuevo! Pólvora no, abrazos sí', 'fuegos');
     if (m === 12 || (m === 1 && day <= 10) || (m === 11 && day >= 28)) add('alumbrados', 'Alumbrados navideños: el río y los barrios se llenan de luces', 'luces');
-    if (m === 8 && day <= 12) add('feria', 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en las estaciones', 'flores');
+    const ff = nth(8, 5, 1), fl = nth(9, 5, 2);
+    if (m === 9 && day >= fl && day <= fl + 9) add('libro', 'Fiesta del Libro y la Cultura en el Jardín Botánico: la estación Universidad se llena de lectores', 'banderas');
+    if (m === 4 && wd === 6 && day + 7 > 30) add('nino', 'Día del Niño: juegos y globos en los parques del valle', 'banderas');
+    if (m === 6 && day === nth(6, 0, 3)) add('padre', 'Día del Padre: ¡a llamar al papá!', 'banderas');
+    if (m === 8 && day >= ff && day <= ff + 9) add('feria', 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en las estaciones', 'flores');
     if (m === 8 && day === nth(8, 0, 2)) add('silleteros', 'Hoy es el Desfile de Silleteros', 'flores');
     if (m === 7 && day === 20) add('julio20', '20 de julio: Día de la Independencia · banderas en las estaciones', 'banderas');
     if (m === 8 && day === 7) add('boyaca', '7 de agosto: Batalla de Boyacá', 'banderas');

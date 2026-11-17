@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Auditoría del mapa: mide con el propio juego qué tan completo y limpio está el mapa del valle.
-   Uso: node tools/auditoria-mapa.mjs [--json salida.json] [--img prefijo]
+   Uso: node tools/auditoria-mapa.mjs [--json salida.json] [--img prefijo] [--sin-ajustes]
    - Sin opciones imprime las métricas: tipos de casilla, nombres de calle y barrios por municipio, estaciones,
      líneas, río (continuidad y pendiente), agua, escaleras, relieve y capa de ciudad.
    - --img docs/auditorias/img/AAAA-MM-DD dibuja además cuatro láminas: cobertura, estaciones, agua y escaleras, perfil del río.
@@ -10,6 +10,7 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const arg = k => process.argv.includes(k) ? process.argv[process.argv.indexOf(k) + 1] : null, JSON_OUT = arg('--json'), IMG = arg('--img');
 const browser = await chromium.launch(), page = await browser.newPage({ viewport: { width: 800, height: 600 } }), errores = [];
 page.on('pageerror', e => errores.push(e.message));
+if (process.argv.includes('--sin-ajustes')) await page.addInitScript(() => { window.__sinAjustes = true; });
 await page.goto('file://' + new URL('../dist/index.html', import.meta.url).pathname); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 60000 });
 
 const res = await page.evaluate(async conImg => {
@@ -22,7 +23,7 @@ const res = await page.evaluate(async conImg => {
   m.tipos = Object.fromEntries(NOM.map((n, i) => [n, tot[i]]));
 
   // 2) nombres de calle y barrios por municipio, y por cuadros de 320 m para la lámina de cobertura
-  const conNombre = new Uint8Array(N); for (let y = 0; y < H; y++) for (let k = M.rRow[y]; k < M.rRow[y + 1]; k++) if (M.rN[k] || M.rP[k]) conNombre[y * W + M.rX[k]] = 1;
+  const conNombre = new Uint8Array(N); for (let y = 0; y < H; y++) for (let k = M.rRow[y]; k < M.rRow[y + 1]; k++) if (M.rN[k] || M.rP[k] || (M.rE && M.rE[k])) conNombre[y * W + M.rX[k]] = 1;
   const C = 16, GW = Math.ceil(W / C), GH = Math.ceil(H / C), cV = new Uint16Array(GW * GH), cN = new Uint16Array(GW * GH), cC = new Uint16Array(GW * GH), cB = new Uint16Array(GW * GH), mun = {};
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, v = t[i]; if (!via(v) && !casa(v) && !agua(v)) continue;
@@ -37,7 +38,7 @@ const res = await page.evaluate(async conImg => {
   const fija = l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable', fijas = NET.stations.filter(s => s.lines.some(fija));
   const suelo = s => t[(s.y / TM | 0) * W + (s.x / TM | 0)];
   const huella = s => { const tx = s.x / TM | 0, ty = s.y / TM | 0; let n = 0; for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) if (t[(ty + dy) * W + tx + dx] === 12) n++; return n; };
-  m.estaciones = { total: fijas.length, sin_huella: fijas.filter(s => !huella(s)).length, sobre_casas: fijas.filter(s => casa(suelo(s))).map(s => s.name) };
+  m.estaciones = { total: fijas.length, sin_huella: fijas.filter(s => !huella(s)).length, sin_huella_nombres: fijas.filter(s => !huella(s)).map(s => s.name), con_techo: (M.techos || []).length, sobre_casas: fijas.filter(s => casa(suelo(s))).map(s => s.name) };
 
   // 4) metro y tranvía: parte del trazo que pasa sobre casas (el viaducto y el tranvía van sobre vías, el río o espacio libre)
   m.lineas = {};
@@ -60,7 +61,8 @@ const res = await page.evaluate(async conImg => {
   // 6) escaleras: casillas sueltas (sin otra escalera al lado)
   const suelta = i => t[i] === 16 && t[i - 1] !== 16 && t[i + 1] !== 16 && t[i - W] !== 16 && t[i + W] !== 16;
   let sueltas = 0; for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (suelta(y * W + x)) sueltas++;
-  m.escaleras = { casillas: tot[16], sueltas };
+  let aisladas = 0; for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) { const i = y * W + x; if (suelta(i) && ![t[i - 1], t[i + 1], t[i - W], t[i + W]].some(v => via(v) || v === 6 || v === 10 || v === 12 || v === 7)) aisladas++; }
+  m.escaleras = { casillas: tot[16], sueltas, sin_conexion: aisladas };
 
   // 7) río Medellín: recorrido por el agua de Caldas a Barbosa con puntos de paso junto a la línea A.
   //    A* que prefiere el agua y cruza cada corte por lo más corto; los cortes son casillas del recorrido que no son agua ni puente.
@@ -129,7 +131,7 @@ const res = await page.evaluate(async conImg => {
 
   { // (b) estaciones: el punto real y lo que hay debajo
     const nombres = ['Alpujarra', 'Santo Domingo Savio', 'San Antonio'], CW = 300, GAP = 16, TOP = 64, w = 40 + CW * 3 + GAP * 2, h = TOP + CW + 78, k = .75, [c, g] = lienzo(w, h);
-    encabezado(g, 'Las estaciones no tienen huella en el mapa', 'Mapa del juego, 400 m de lado. El aro rojo marca el punto real de la estación; debajo no hay andén ni edificio de estación.');
+    encabezado(g, m.estaciones.sin_huella ? 'Las estaciones no tienen huella en el mapa' : 'Las estaciones ya tienen huella en el mapa', 'Mapa del juego, 400 m de lado. El aro rojo marca el punto real de la estación; ' + (m.estaciones.sin_huella ? 'debajo no hay andén ni edificio de estación.' : 'encima va su techo con la franja de cada línea.'));
     nombres.forEach((nm, n) => {
       const s = NET.stations.find(q => q.name === nm), ox = 20 + n * (CW + GAP), P = (x, y) => ({ x: CW / 2 + (x - s.x) * k, y: CW / 2 + (y - s.y) * k });
       g.save(); g.translate(ox, TOP); g.beginPath(); g.rect(0, 0, CW, CW); g.clip(); M.drawTop(g, CW, CW, s.x, s.y, k);
@@ -163,22 +165,22 @@ const res = await page.evaluate(async conImg => {
     const w = 1000, h = 470, L = 70, R = 24, T = 78, B = 96, PW = w - L - R, PH = h - T - B, [c, g] = lienzo(w, h);
     const zmin2 = Math.floor(Math.min(...perfil.map(s => s.z)) / 50) * 50, zmax2 = Math.ceil(Math.max(...perfil.map(s => s.z)) / 50) * 50, kmax = perfil[perfil.length - 1].km;
     const X = km => L + km / kmax * PW, Y = z => T + (1 - (z - zmin2) / (zmax2 - zmin2)) * PH;
-    encabezado(g, 'El río Medellín en el juego: debería bajar siempre', `Altura del relieve del juego a lo largo del cauce, de ${m.rio.inicio} a ${m.rio.fin} (${m.rio.largo_km.toLocaleString('es-CO')} km, una muestra cada 200 m).`);
+    encabezado(g, subidas.length ? 'El río Medellín en el juego: debería bajar siempre' : 'El río Medellín en el juego: siempre baja', `Altura del relieve del juego a lo largo del cauce, de ${m.rio.inicio} a ${m.rio.fin} (${m.rio.largo_km.toLocaleString('es-CO')} km, una muestra cada 200 m).`);
     g.font = F(11.5); g.textAlign = 'right';
     for (let z = zmin2; z <= zmax2; z += 50) { const y = Math.round(Y(z)) + .5; g.strokeStyle = REJ; g.lineWidth = 1; g.beginPath(); g.moveTo(L, y); g.lineTo(L + PW, y); g.stroke(); g.fillStyle = TX2; g.fillText(z.toLocaleString('es-CO') + ' m', L - 8, y + 4); }
     g.textAlign = 'center'; for (let km = 0; km <= kmax; km += 10) { g.fillStyle = TX2; g.fillText(km + ' km', Math.round(X(km)) + .5, T + PH + 18); }
     let ini = 0; g.font = F(11.5, 700);
     for (let i = 1; i <= perfil.length; i++) if (i === perfil.length || perfil[i].mu !== perfil[ini].mu) { const a = perfil[ini].km, b = perfil[i - 1].km, nm = perfil[ini].mu; ini = i; if (!nm || b - a < 2.5) continue; const x0 = X(a) + 2, x1 = X(b) - 2; g.strokeStyle = TX2; g.lineWidth = 1; g.beginPath(); g.moveTo(x0, T + PH + 32); g.lineTo(x1, T + PH + 32); g.stroke(); g.fillStyle = TX1; g.fillText(nm, (x0 + x1) / 2, T + PH + 48); }
     g.lineJoin = g.lineCap = 'round';
-    g.strokeStyle = GRIS; g.lineWidth = 1.5; g.beginPath(); corregido.forEach((z, i) => { i ? g.lineTo(X(perfil[i].km), Y(z)) : g.moveTo(X(perfil[i].km), Y(z)); }); g.stroke();
+    if (subidas.length) { g.strokeStyle = GRIS; g.lineWidth = 1.5; } else g.strokeStyle = 'transparent'; g.beginPath(); corregido.forEach((z, i) => { i ? g.lineTo(X(perfil[i].km), Y(z)) : g.moveTo(X(perfil[i].km), Y(z)); }); g.stroke();
     g.strokeStyle = AZUL; g.lineWidth = 2; g.beginPath(); perfil.forEach((s, i) => { i ? g.lineTo(X(s.km), Y(s.z)) : g.moveTo(X(s.km), Y(s.z)); }); g.stroke();
     for (const i of subidas) { const x = X(perfil[i].km), y = Y(perfil[i].z); g.fillStyle = SUP; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.fillStyle = ROJO; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }
-    g.textAlign = 'left'; g.font = F(12, 700); halo(g, `▲ sube ${Math.round(maxSube)} m en 200 m`, X(perfil[maxI].km) + 10, Y(perfil[maxI].z) - 10);
+    g.textAlign = 'left'; g.font = F(12, 700); if (subidas.length) halo(g, `▲ sube ${Math.round(maxSube)} m en 200 m`, X(perfil[maxI].km) + 10, Y(perfil[maxI].z) - 10);
     const ly = h - 26; let lx = 20; g.font = F(12);
     const item = (dib, txt) => { dib(lx, ly); g.fillStyle = TX1; g.fillText(txt, lx + 26, ly + 4); lx += 52 + g.measureText(txt).width; };
     item((x, y) => { g.strokeStyle = AZUL; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 18, y); g.stroke(); }, 'Altura del cauce en el juego (relieve SRTM)');
-    item((x, y) => { g.strokeStyle = GRIS; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 18, y); g.stroke(); }, 'Perfil corregido propuesto (siempre baja)');
-    item((x, y) => { g.fillStyle = ROJO; g.beginPath(); g.arc(x + 9, y, 4, 0, 7); g.fill(); }, `▲ Tramo que sube más de 3 m (${subidas.length})`);
+    if (subidas.length) { item((x, y) => { g.strokeStyle = GRIS; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 18, y); g.stroke(); }, 'Perfil corregido propuesto (siempre baja)'); item((x, y) => { g.fillStyle = ROJO; g.beginPath(); g.arc(x + 9, y, 4, 0, 7); g.fill(); }, `▲ Tramo que sube más de 3 m (${subidas.length})`); }
+    else item(() => { }, 'Cero tramos que suben: el cauce está quemado en el relieve (src/data/ajustes.js)');
     img.rio = c.toDataURL('image/png');
   }
   return { m, img };

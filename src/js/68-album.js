@@ -11,6 +11,7 @@ const ALBUM_EXTRA = [
   { id: 'x-gardel', name: 'Homenaje a Gardel', muni: 'Medellín · Manrique', art: 'esc_tango', dato: 'Carlos Gardel murió en Medellín en 1935, en un accidente de avión. En Manrique hay un barrio tanguero y una estación del Metroplús con su nombre.', como: 'Llega a la estación Gardel del Metroplús.' },
   { id: 'x-silleteros', name: 'Desfile de Silleteros', muni: 'Feria de las Flores', art: 'esc_silleteros', dato: 'Los campesinos de Santa Elena bajan cargando a la espalda silletas de flores de hasta 80 kilos.', como: 'Juega durante la Feria de las Flores (agosto).' },
   { id: 'x-alumbrados', name: 'Alumbrados del río', muni: 'Diciembre', art: 'esc_alumbrados', dato: 'Millones de luces en el río Medellín y en los barrios. Mucha gente los recorre en metro, de noche.', como: 'Juega de noche en temporada de Alumbrados.' },
+  { id: 'x-encicla', name: 'Metro + EnCicla', muni: 'Todo el valle', lat: 6.2586, lon: -75.5971, art: '', dato: 'EnCicla es el sistema público de bicicletas del Valle de Aburrá: desde 2011 une estaciones del Metro con universidades, parques y barrios.', como: 'En Ciudad Libre viaja en metro, tranvía o cable; luego toma una bici EnCicla y devuélvela lejos de donde la tomaste.' },
   { id: 'x-velitas', name: 'Noche de las Velitas', muni: '7 de diciembre', art: 'esc_velitas', dato: 'La noche del 7 de diciembre las familias encienden velas y faroles en andenes y balcones.', como: 'Juega la noche de las velitas.' }
 ];
 const Album = EM.album = {
