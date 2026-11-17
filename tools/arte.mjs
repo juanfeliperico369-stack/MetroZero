@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dir = path.join(root, 'arte');
 const DOCS = [
-  ['inicio', 'Inicio', 'README.md'], ['guia', '★ Guía única para IA', '06-guia-unica-ia.md'], ['biblia', 'Biblia de estilo', '00-biblia-de-estilo.md'], ['juegos', 'Referencias', '01-referencias-videojuegos.md'],
+  ['inicio', 'Inicio', 'README.md'], ['protocolo', '⚠ Protocolo IA', 'PROTOCOLO-IA.md'], ['guia', '★ Guía única para IA', '06-guia-unica-ia.md'], ['biblia', 'Biblia de estilo', '00-biblia-de-estilo.md'], ['juegos', 'Referencias', '01-referencias-videojuegos.md'],
   ['medellin', 'Medellín visual', '02-medellin-visual.md'], ['historia', 'Historia', '03-historia-metro-y-medellin.md'], ['fiestas', 'Folclor y fiestas', '04-folklore-y-fiestas.md'],
   ['diseno', 'Diseño del juego', '05-diseno-mundo-abierto-arcade.md'],
   ['entregas', 'Entregas', '08-entregas-e-integracion.md']];
@@ -47,9 +47,11 @@ function md(src) {
   const gp = path.join(dir, '06-guia-unica-ia.md'), bit = fs.readFileSync(path.join(root, 'docs', 'BITACORA.md'), 'utf8').trim().replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 2)) + ' ');
   let g = fs.readFileSync(gp, 'utf8');
   g = g.replace(/<!-- BITACORA:INICIO -->[\s\S]*?<!-- BITACORA:FIN -->/, `<!-- BITACORA:INICIO -->\n${bit}\n<!-- BITACORA:FIN -->`);
+  const proto = fs.readFileSync(path.join(dir, 'PROTOCOLO-IA.md'), 'utf8').trim();
+  g = g.replace(/<!-- PROTOCOLO:INICIO -->[\s\S]*?<!-- PROTOCOLO:FIN -->/, `<!-- PROTOCOLO:INICIO -->\n${proto.replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 1)) + ' ')}\n<!-- PROTOCOLO:FIN -->`);
   fs.writeFileSync(gp, g);
   const i = g.indexOf('## BLOQUE 1'), a = g.indexOf('```', i), b = g.indexOf('```', a + 3), ctx = g.slice(g.indexOf('\n', a) + 1, b).trim();
-  const out = `# CONTEXTO PARA IA · El Metro\n\n> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT. Contiene el contexto completo del proyecto (Bloque 1 de la guía única) y la bitácora del juego. El **rol** de cada IA y sus **encargos** están en \`06-guia-unica-ia.md\`.\n\n${ctx}\n\n---\n\n# ANEXO A · BITÁCORA DEL JUEGO\n\n${bit}\n`;
+  const out = `# CONTEXTO PARA IA · El Metro\n\n> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT. Contiene el **protocolo**, el contexto completo del proyecto (Bloque 1 de la guía única) y la bitácora del juego. El **rol** de cada IA y sus **encargos** están en \`06-guia-unica-ia.md\` (o en el documento único \`EL-METRO-TODO.md\`).\n\n${proto.replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 1)) + ' ')}\n\n---\n\n${ctx}\n\n---\n\n# ANEXO A · BITÁCORA DEL JUEGO\n\n${bit}\n`;
   fs.writeFileSync(path.join(dir, 'CONTEXTO-IA.md'), out);
 }
 const gal = JSON.parse(fs.readFileSync(path.join(dir, 'galeria.json'), 'utf8'));

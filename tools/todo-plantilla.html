@@ -27,13 +27,14 @@ blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6p
 #msg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:60;background:var(--negro);color:#fff;padding:14px 18px;border:3px solid var(--mante);font-weight:700;display:none}
 </style></head><body>
 <header><h1>El Metro · Todo en un archivo <small>%%VERSION%%</small></h1><div class="band"></div><nav id="nav"></nav></header>
-<div class="acts"><button id="play">▶ Jugar El Metro</button><button data-dl="TODO.md">⬇ TODO.md (todo el texto, para IA)</button><button data-dl="CONTEXTO-IA.md">⬇ CONTEXTO-IA.md</button><button data-dl="SKILLS-IA.md">⬇ SKILLS-IA.md</button><button id="dlgame">⬇ Juego (el-metro.html)</button></div>
+<div class="acts"><button id="play">▶ Jugar El Metro</button><button data-dl="EL-METRO-TODO.md">⬇ EL-METRO-TODO.md (documento único para IA)</button><button data-dl="CONTEXTO-IA.md">⬇ CONTEXTO-IA.md</button><button data-dl="SKILLS-IA.md">⬇ SKILLS-IA.md</button><button id="dlgame">⬇ Juego (el-metro.html)</button></div>
 <main id="main"></main>
 <div id="ov" hidden><iframe id="fr" title="El Metro" allow="fullscreen; autoplay; camera"></iframe><button id="cl">✕ cerrar el juego</button></div>
 <div id="msg"></div>
 <script type="application/json" id="docs">%%DOCS%%</script>
 <script type="application/json" id="gal">%%GAL%%</script>
 <script type="text/plain" id="juego">%%JUEGO%%</script>
+<script type="text/plain" id="todo">%%TODO%%</script>
 <script>
 (function () {
   const DOCS = JSON.parse(document.getElementById('docs').textContent), GAL = JSON.parse(document.getElementById('gal').textContent);
@@ -92,19 +93,18 @@ blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6p
     setTimeout(() => { if (target !== doc) target.scrollIntoView(); else scrollTo(0, 0); const a = nav.querySelector('a.on'); if (a) a.scrollIntoView({ inline: 'center', block: 'nearest' }); }, 0);
   }
   addEventListener('hashchange', show); show();
+  const msg = t => { const m = document.getElementById('msg'); m.textContent = t; m.style.display = t ? 'block' : 'none'; };
   // descargas de texto
   const save = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'text/markdown;charset=utf-8' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); };
   const byFile = f => (DOCS.find(d => d.file === f) || {}).md || '';
-  document.querySelectorAll('[data-dl]').forEach(b => b.onclick = () => { const f = b.dataset.dl; save(f, f === 'TODO.md' ? DOCS.filter(d => d.todo).map(d => d.md.replace(/<!--[\s\S]*?-->/g, '')).join('\n\n---\n\n') : byFile(f)); });
+  async function gunzip(id) { if (!('DecompressionStream' in window)) throw new Error('Este navegador es muy antiguo para extraer el archivo. Descárgalo de https://juanfeliperico369-stack.github.io/MetroZero/'); const b64 = document.getElementById(id).textContent.trim(), bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+  document.querySelectorAll('[data-dl]').forEach(b => b.onclick = async () => { const f = b.dataset.dl; try { save(f, f === 'EL-METRO-TODO.md' ? await gunzip('todo') : byFile(f)); } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } });
   // el juego (HTML comprimido con gzip dentro de este archivo)
-  const msg = t => { const m = document.getElementById('msg'); m.textContent = t; m.style.display = t ? 'block' : 'none'; };
   let gameURL = null;
   async function game() {
     if (gameURL) return gameURL;
     if (!('DecompressionStream' in window)) throw new Error('Este navegador es muy antiguo para abrir el juego desde aquí. Ábrelo en la web: https://juanfeliperico369-stack.github.io/MetroZero/');
-    const b64 = document.getElementById('juego').textContent.trim(), bin = atob(b64), u8 = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-    const html = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    const html = await gunzip('juego');
     gameURL = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' })); game.html = html; return gameURL;
   }
   document.getElementById('play').onclick = async () => { try { msg('Abriendo el juego…'); const u = await game(); const ov = document.getElementById('ov'); document.getElementById('fr').src = u; ov.hidden = false; msg(''); try { if (ov.requestFullscreen) await ov.requestFullscreen(); } catch (e) { } } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } };

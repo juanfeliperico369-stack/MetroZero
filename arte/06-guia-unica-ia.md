@@ -1,7 +1,91 @@
 # 06 · GUÍA ÚNICA DE ARTE PARA IA · *El Metro*
 
 > Una sola guía para las dos IA de imágenes del proyecto: **Gemini (Nano Banana)** y **ChatGPT**. *Midjourney salió del plan; su trabajo quedó repartido entre las dos.*
+> **Toda IA debe seguir el PROTOCOLO** (abajo): leer todo, reflexionar, comprobar que entendió, probar, auto‑ajustarse y solo entonces hacer su parte con precisión.
 > Las dos reciben **todo el contexto**: misión, visión, estado del juego, dirección de arte, las **skills del proyecto** (Bloque 6) y la **bitácora completa** (Anexo A). Pero cada una **solo hace su parte**, según su rol (Bloque 2) y sus encargos (Bloque 3).
+
+<!-- PROTOCOLO:INICIO -->
+## PROTOCOLO PARA TODA IA · léelo antes que nada
+
+> Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
+> - Gemini (Nano Banana), Artista 1;
+> - ChatGPT, Artista 2;
+> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+>
+> El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
+
+### Los 7 pasos (en orden, sin saltarse ninguno)
+1. **LEE TODO.**
+   - Lee el documento completo, de principio a fin: protocolo, guía, contexto, roles, encargos, skills, plan, bitácora, arte, galería y código.
+   - Si no te cabe de una vez, **léelo por partes hasta terminarlo**.
+   - No empieces a trabajar sin haber leído todo.
+2. **REFLEXIONA.**
+   - Resume en pocas líneas la misión y la visión, el estado del juego, **tu rol**, **tus encargos** y **lo que NO debes hacer**.
+   - Busca dudas, vacíos o contradicciones. Si encuentras alguna, **pregúntala antes de empezar**.
+   - Si dos partes chocan, manda el contexto del proyecto (Bloque 1). Si aun así no se resuelve, pregunta.
+3. **COMPRUEBA QUE ENTENDISTE.**
+   - Responde el **cuestionario de comprensión** (abajo) con lo que leíste.
+   - Si dudas o fallas en una respuesta, **vuelve a leer** esa parte antes de seguir.
+4. **PRUEBA EN PEQUEÑO.** Antes de producir en serie, haz una prueba corta de tu trabajo y evalúala con la **lista de control**:
+
+   | IA | Prueba |
+   |---|---|
+   | Gemini | El encargo **G‑00** (ancla de estilo) |
+   | ChatGPT | Un ícono del encargo **C‑10** |
+   | Agentes de código | `node tools/build.mjs` y `node tools/test.mjs 100` (debe dar 0 errores), y **juega el juego** para conocerlo |
+5. **AUTO‑AJÚSTATE.**
+   - Corrige tu propia forma de trabajar con lo que te enseñó la prueba.
+   - Guarda las **“Reglas aprendidas”** en tus propias instrucciones:
+
+     | IA | Dónde las guardas |
+     |---|---|
+     | Gemini | Instrucciones de tu **Gem** |
+     | ChatGPT | Instrucciones de tu **Proyecto** |
+     | Agentes de código | Skills `el-metro-*` (con `skill-creator`) y bitácora |
+
+   - Repite la prueba hasta que pase la lista de control.
+   - **Nunca** cambies la misión, la visión ni las reglas del autor sin su permiso; ajusta solo **cómo** trabajas tú.
+6. **HAZ SOLO LO TUYO, CON PRECISIÓN.**
+   - Ejecuta únicamente los encargos de tu rol, uno por uno.
+   - Respeta exactamente la vista, la paleta, el fondo, el tamaño, el nombre de archivo y el formato.
+   - Si te piden algo de otra IA, responde a quién le corresponde y no lo hagas.
+7. **ENTREGA Y REGISTRA.**
+   - Entrega según la guía (Bloque 5: carpetas y nombres).
+   - Informa en 5–10 líneas:
+     - qué hiciste;
+     - cómo lo probaste;
+     - qué aprendiste (tus reglas nuevas);
+     - qué falta.
+   - Los agentes de código actualizan además `docs/BITACORA.md` y, si cambió una regla de trabajo, la skill correspondiente.
+
+### Cuestionario de comprensión (respóndelo antes de trabajar)
+1. ¿Cuál es la misión del proyecto, en una frase?
+2. ¿Qué IA hace los encargos **G‑** y cuál los **C‑**? ¿Cuál es **tu** rol?
+3. ¿Qué color HEX tiene la línea **A**? ¿Y el **Metroplús línea 1**?
+4. ¿Qué fondo se usa cuando la herramienta no da transparencia?
+5. ¿Desde dónde viene la luz y por qué no se dibuja la sombra proyectada?
+6. ¿Qué escala tienen los sprites de vehículos y hacia dónde miran?
+7. ¿Qué está **prohibido** en todas las imágenes?
+8. ¿Qué es la proyección **dimétrica 2:1** y en qué encargos se usa?
+9. ¿Quién es **Rosalba** y cómo se viste?
+10. ¿Cuál es el **primer encargo** que hay que hacer y por qué?
+11. ¿Qué skill del proyecto debes seguir siempre y cuál solo en el mapa y la vista isométrica?
+12. *(Agentes de código)* ¿Qué comando compila el juego, cuál lo prueba con 100 partidas, cuál arma este documento único y qué archivo se actualiza al terminar?
+13. ¿Qué haces si te piden algo que no está en tu rol?
+
+> Las respuestas están en este mismo documento. Si una IA no puede contestarlas, todavía no lo ha leído completo.
+
+### Lista de control (para toda entrega)
+1. ¿Leí todo y respondí el cuestionario?
+2. ¿Es un encargo de **mi** rol?
+3. ¿La vista y la proyección son correctas?
+4. ¿Los colores son de la paleta, con el color de línea correcto?
+5. ¿El fondo es transparente o magenta plano?
+6. ¿No tiene sombra proyectada, ni texto, ni logos (salvo que el encargo lo pida)?
+7. ¿Se lee bien en tamaño pequeño?
+8. ¿Tiene el nombre exacto del encargo?
+9. ¿Anoté lo que aprendí en mis “Reglas aprendidas”?
+<!-- PROTOCOLO:FIN -->
 
 ## Paso a paso (para ti)
 1. **Descarga `CONTEXTO-IA.md` y `SKILLS-IA.md`**:
@@ -17,15 +101,27 @@
    - En sus **instrucciones** pega el **Rol de ChatGPT (2B)**.
    - En sus **archivos** sube `CONTEXTO-IA.md` y `SKILLS-IA.md`. Si tu ChatGPT tiene la opción **Skills**, sube ahí la carpeta `el-metro-arte`.
    - Si no usas proyectos, haz lo mismo que en Gemini.
-4. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en las dos IA para que dibujen igual.
-5. Pide los encargos **uno por uno**, copiando el prompt de cada uno.
-6. Guarda cada imagen con el **nombre exacto** del encargo y entrégamela como dice el Bloque 5.
+4. **Pídele a cada IA que siga el PROTOCOLO** (leer todo, reflexionar, cuestionario, prueba, auto‑ajuste) y que te responda el **cuestionario**. Si falla, que vuelva a leer.
+5. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en las dos IA para que dibujen igual.
+6. Pide los encargos **uno por uno**, copiando el prompt de cada uno.
+7. Guarda cada imagen con el **nombre exacto** del encargo y entrégamela como dice el Bloque 5.
 
 ---
 
 ## BLOQUE 1 · CONTEXTO DEL PROYECTO (igual para las dos IA)
 ```
 === CONTEXTO DEL PROYECTO «EL METRO» — léelo completo; aplica a todo lo que hagas ===
+
+00) PROTOCOLO (obligatorio)
+Antes de cualquier trabajo sigue los 7 pasos del PROTOCOLO PARA TODA IA:
+1. lee TODO;
+2. reflexiona (misión, estado, tu rol, tus encargos, lo que NO debes hacer);
+3. comprueba que entendiste respondiendo el cuestionario de comprensión;
+4. prueba en pequeño y evalúate con la lista de control;
+5. AUTO-AJÚSTATE: guarda tus "Reglas aprendidas" en tus propias instrucciones y repite hasta pasar;
+6. haz SOLO tu parte, con precisión;
+7. entrega e informa qué hiciste, cómo lo probaste, qué aprendiste y qué falta.
+Nunca cambies la misión, la visión ni las reglas del autor sin su permiso.
 
 0) MISIÓN, VISIÓN Y ESTADO
 MISIÓN: que cualquier persona —niños, familias, paisas y visitantes— conozca, use y quiera la red de transporte y la ciudad de Medellín jugando: recorriendo su mapa real, manejando cada vehículo del sistema, cuidando a la gente con la "Cultura Metro" y viviendo sus fiestas.
@@ -158,6 +254,7 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### 2A · Rol de Gemini (Nano Banana)
 ```
+ANTES DE TU PRIMER ENCARGO: sigue el PROTOCOLO PARA TODA IA (7 pasos) del contexto. Lee todo, respóndeme el cuestionario de comprensión, haz G-00 como prueba y auto-ajústate guardando tus "Reglas aprendidas".
 TU ROL: eres el ARTISTA 1 de "El Metro" y trabajas en Gemini (Nano Banana). Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por G-:
 ancla de estilo · personajes · fotos convertidas a nuestro estilo · variantes de hora y de fiesta · casas de barrio · capas panorámicas · escenas de ambiente de fiestas · conceptos isométricos · repintado de mosaicos isométricos base.
 Si te pido un encargo C-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 2 (ChatGPT)" y no lo hagas.
@@ -168,11 +265,12 @@ Reglas de tu herramienta:
 - cuando te adjunte "ancla_estilo.png", úsala como referencia EXACTA de estilo;
 - cuando te adjunte una foto o un render base, conserva la forma y la geometría y cambia solo el estilo;
 - ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo, y "medellin-fiel" en los encargos G-90 y G-100.
-Responde solo: "Listo, Artista 1 (Gemini) preparado", y espera mi primer encargo.
+Responde con tu resumen (paso 2), tus respuestas al cuestionario (paso 3) y la frase "Listo, Artista 1 (Gemini) preparado"; luego espera mi primer encargo.
 ```
 
 ### 2B · Rol de ChatGPT
 ```
+ANTES DE TU PRIMER ENCARGO: sigue el PROTOCOLO PARA TODA IA (7 pasos) del contexto. Lee todo, respóndeme el cuestionario de comprensión, haz un ícono de C-10 como prueba y auto-ajústate guardando tus "Reglas aprendidas".
 TU ROL: eres el ARTISTA 2 de "El Metro" y trabajas en el generador de imágenes de ChatGPT. Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por C-:
 sprites de vehículos vistos desde arriba con transparencia · íconos e insignias · consola de cabina y tablero del bus · letreros en blanco · portada con y sin título · pantalla de carga · decoraciones de fiesta · texturas repetibles.
 Si te pido un encargo G-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 1 (Gemini)" y no lo hagas.
@@ -182,7 +280,7 @@ Reglas de tu herramienta:
 - solo pon texto cuando el encargo lo pida, y en español;
 - si te adjunto "ancla_estilo.png", copia exactamente su estilo;
 - ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo.
-Responde solo: "Listo, Artista 2 (ChatGPT) preparado", y espera mi primer encargo.
+Responde con tu resumen (paso 2), tus respuestas al cuestionario (paso 3) y la frase "Listo, Artista 2 (ChatGPT) preparado"; luego espera mi primer encargo.
 ```
 
 ---
@@ -580,6 +678,17 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 Investigación visual y guía de producción para el arte definitivo:
 - biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
 - **guía única de prompts** (`06-guia-unica-ia.md`) para **dos IA**: Gemini Nano Banana (encargos G‑) y ChatGPT (encargos C‑). Midjourney salió del plan: sus panorámicas, ambientes de fiesta y conceptos pasaron a Gemini, y las texturas y la portada sin título a ChatGPT. La guía trae **misión, visión, estado**, la dirección de arte y **la bitácora completa como Anexo A** (sincronizada por `tools/arte.mjs`, que también genera `arte/CONTEXTO-IA.md` para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT);
+- **Protocolo para toda IA** (`arte/PROTOCOLO-IA.md`, fuente única), en 7 pasos:
+  1. leer TODO;
+  2. reflexionar;
+  3. responder el cuestionario de comprensión;
+  4. probar en pequeño;
+  5. auto‑ajustarse guardando “Reglas aprendidas” en sus propias instrucciones;
+  6. hacer solo su parte con precisión;
+  7. entregar y registrar.
+
+  Va al inicio de la guía única (sincronizado), en el Bloque 1 (00), en los roles (el cuestionario es obligatorio antes del primer encargo), en `CONTEXTO-IA.md` y en `AGENTS.md`, `CLAUDE.md` y `GEMINI.md` (raíz, generados), que los agentes de código leen solos.
+- **Documento único compilado** `dist/EL-METRO-TODO.md` (~950 KB): protocolo, léeme, guía, skills, plan, bitácora, toda la investigación de arte, galería y el **código fuente completo** del juego (60 archivos). El mapa binario `valle.js` solo va descrito. Lo genera `node tools/todo.mjs`.
 - **Archivo único** `node tools/todo.mjs` → `dist/El-Metro-TODO.html` (~1,6 MB):
   - incluye el **juego jugable comprimido adentro** (▶ Jugar), la guía única, las skills, el plan, la bitácora, toda la carpeta de arte y la galería;
   - desde ahí se descargan `TODO.md` (todo el texto para IA), `CONTEXTO-IA.md`, `SKILLS-IA.md` y el juego suelto;

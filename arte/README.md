@@ -16,6 +16,17 @@ Investigación visual y guía de producción para llevar *El Metro* a un **mundo
 | [`08-entregas-e-integracion.md`](08-entregas-e-integracion.md) | Orden de producción, carpetas, nombres, cómo entregar y cómo se integra |
 | [`index.html`](index.html) (Galería) · [`galeria.md`](galeria.md) · `galeria.json` | **71 fotos de referencia con licencia libre** (metro, cables, tranvía, buses, ciudad, fiestas y cultura), con autor y licencia. Se enlazan, no se copiaron |
 
+**Antes que nada:** toda IA sigue el [`PROTOCOLO-IA.md`](PROTOCOLO-IA.md):
+1. leer todo;
+2. reflexionar;
+3. responder el cuestionario;
+4. probar;
+5. auto‑ajustarse;
+6. hacer solo su parte;
+7. entregar y registrar.
+
+**Documento único para IA:** `node tools/todo.mjs` compila `dist/EL-METRO-TODO.md`, con todo y el código fuente del juego.
+
 **Todo en un archivo:** `node tools/todo.mjs` genera `dist/El-Metro-TODO.html`, con el juego jugable adentro, todos estos documentos y las descargas de `TODO.md`, `CONTEXTO-IA.md` y `SKILLS-IA.md`. Está publicado en GitHub Pages.
 
 **Flujo:**
