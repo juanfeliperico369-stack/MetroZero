@@ -9,7 +9,7 @@ const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/'
 const read = p => fs.readFileSync(p, 'utf8');
 const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
 fs.mkdirSync(dist, { recursive: true });
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)

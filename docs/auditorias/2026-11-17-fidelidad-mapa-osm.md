@@ -45,3 +45,11 @@ Se compara con **OpenStreetMap** porque es el mapa abierto equivalente. Los dato
 2. **Huellas reales de edificios** de OSM donde existan, con alturas estimadas (y reales si hay `building:levels`).
 3. **Usos del suelo** de OSM (comercial, residencial, industrial, parques) para colorear zonas y elegir las casillas G‑60 a G‑63 de Gemini.
 4. **Costo que hay que decidir:** todo el valle con edificios puede sumar varios MB. Hay que medirlo y elegir entre el detalle completo, solo el corredor del metro, o descargar por zonas.
+
+## Actualización v0.7.0 · zonas corregidas con datos oficiales de Medellín
+- **Hallazgo:** entre el **88 y el 97 %** de las casillas “andén” del mapa base estaban **dentro de manzanas catastrales**: eran lotes construidos sin huella de edificio en la fuente. Ese era el “adoquín sin sentido”.
+- **Corrección:** se cambiaron 89.446 casillas como capa aparte (`src/data/ciudad.js`); el mapa base no se modifica:
+  - en Medellín, con manzanas, lotes y espacio público oficiales;
+  - en el resto, con la regla medida en Medellín (precisión del 88 al 97 % según los vecinos).
+- **Calles con nombre:** 112.713 casillas de vía tienen nomenclatura oficial o el nombre de vía principal; 25.270, nombre popular.
+- **Qué falta para “cada barrio”:** Bello y los municipios del norte y del sur sin capa abierta de barrios.

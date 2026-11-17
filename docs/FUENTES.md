@@ -2,6 +2,25 @@
 
 Datos de la red de transporte del Valle de Aburrá para "El Metro". Versión `2026-11`. Consulta: noviembre de 2026.
 
+## Ciudad: barrios, calles, manzanas, lotes y espacio público (v0.7.0)
+Los genera `python3 tools/ciudad_datos.py` en `src/data/ciudad.js`, a partir de capas abiertas descargadas con `tools/ciudad_descarga.py` (ArcGIS Online):
+
+| Capa | Publica | Uso en el juego |
+|---|---|---|
+| Límite barrio-vereda catastral (349) | Alcaldía de Medellín | barrio en el HUD, rótulos y letrero |
+| Manzanas (10.968) | Alcaldía de Medellín | qué casillas son construidas |
+| Malla vial 2026 (23.588 tramos, nomenclatura y ancho) | Alcaldía de Medellín (Infraestructura) | nombre de cada calle |
+| Jerarquía vial (1.030) | Alcaldía de Medellín (Planeación) | nombres populares (Avenida Oriental, Las Vegas…) |
+| Inventario de espacio público (2.187) | Alcaldía de Medellín | parques, plazas y zonas verdes con nombre |
+| Lotes catastrales, febrero de 2026 (312.716, solo centroide y área) | Subsecretaría de Catastro de Medellín | división de las casas |
+| Barrios de Itagüí (85), Envigado (39) y Sabaneta (31) | capas publicadas por esas alcaldías u observatorios | barrio en el HUD y rótulos |
+
+**Cita exigida por la licencia abierta del Catastro:** “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin”. Los lotes son de **febrero de 2026**.
+
+**Transformaciones** (la licencia pide declararlas): rasterizado a casillas de 20 m; recorte al valle; simplificación de líneas; conteo de lotes por casilla (2 bits); nombres de vía abreviados expandidos (CL → Calle, CR → Carrera…).
+
+Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** aún no tienen capa abierta encontrada.
+
 ## Coordenadas
 
 | Datos | Fuente |

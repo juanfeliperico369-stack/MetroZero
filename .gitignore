@@ -12,3 +12,4 @@ android/captures/
 android/app/src/main/assets/www/
 *.iml
 dist/
+.cache/

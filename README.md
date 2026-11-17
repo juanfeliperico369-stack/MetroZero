@@ -12,6 +12,7 @@ node tools/build.mjs     # dist/index.html + manifest + sw.js
 node tools/assets.mjs    # íconos y compartir.png (Chromium/Playwright)
 node tools/test.mjs 100  # servidor local + selfTest + 100 partidas + recorrido de la interfaz
 python3 tools/arte_juego.py  # arte/entregas → src/data/arte.js
+python3 tools/ciudad_descarga.py .cache/ciudad && python3 tools/ciudad_datos.py .cache/ciudad   # datos oficiales → src/data/ciudad.js
 bash tools/apk.sh        # dist/el-metro.apk (ver android/README.md)
 node dist/server.mjs     # servidor local para jugar en red sin internet
 ```
@@ -20,7 +21,7 @@ La historia "La última vuelta" se juega dentro de Ciudad Libre (`src/js/37-tram
 ## Mapa del repositorio
 | Carpeta | Qué hay |
 |---|---|
-| `src/` | El juego: `head.html`, `body.html`, `style.css`, `js/*.js` (módulos en orden) y `data/` (`valle.js` mapa OSM/SRTM de Juega EnCicla, `red.js`, `rutas.js`, `lugares.js` y `arte.js`, el arte embebido) |
+| `src/` | El juego: `head.html`, `body.html`, `style.css`, `js/*.js` (módulos en orden) y `data/` (`valle.js` mapa OSM/SRTM de Juega EnCicla, `red.js`, `rutas.js`, `lugares.js`, `arte.js` (arte embebido) y `ciudad.js` (barrios, calles, lotes y correcciones con datos oficiales)) |
 | `tools/` | Compilar (`build.mjs`), probar (`test.mjs`, `test-servidor.mjs`), arte (`arte_juego.py`, `assets.mjs`, `arte.mjs`), documentos (`todo.mjs`, `skills.mjs`), APK (`apk.sh`), servidor local (`server.mjs`), verificación contra OpenStreetMap (`osm-ventanas.mjs`, `osm_comparar.py`) |
 | `arte/` | Biblia de estilo, referencias, Medellín, historia, folclor, diseño, **guía única para las IA** (`06-guia-unica-ia.md`) y **entregas** de Gemini y ChatGPT (`entregas/`, con su inventario) |
 | `docs/` | `BITACORA.md` (estado e historial), `PLAN.md` (fases), `FUENTES.md`, `auditorias/` (servidor local, fidelidad del mapa) y lo histórico |

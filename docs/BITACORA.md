@@ -2,14 +2,15 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-## Estado al 2026-11-17 · v0.6.0 "El arte llega a la ciudad"
-**Novedad de v0.6.0:**
-- el arte de **Gemini (G‑)** y **ChatGPT (C‑)** entra al juego, siempre con respaldo procedural (`src/js/19-atlas.js` + `src/data/arte.js`, 78 piezas, 533 KB);
-- el **mapa cenital rediseñado**: vías por tipo y ancho, separadores, cebras solo en cruces, río con muros, escaleras y ciclorrutas legibles;
-- **verificado contra OpenStreetMap:** 98–100 % de las calles reales dentro de 20 m (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`);
-- el **servidor local ya no se cae** con rutas mal escritas.
+## Estado al 2026-11-17 · v0.7.0 "Medellín reconocible"
+**Novedad de v0.7.0:** el mapa se corrige y se nombra con **datos abiertos oficiales** (`src/data/ciudad.js`, de `tools/ciudad_datos.py`):
+- **90 mil casillas corregidas:** las "andén" que en realidad eran lotes dentro de manzanas ahora son casas o edificios; parques y plazas reales;
+- **502 barrios** (Medellín, Itagüí, Envigado y Sabaneta) y **2.438 nombres de calle** (nomenclatura oficial y nombres populares);
+- **lotes catastrales** para dividir las casas;
+- rótulos en el mapa, barrio en el HUD y un letrero al entrar a otra calle o barrio;
+- casas con la fachada hacia su calle, andenes con bordillo y plazas y peatonales rediseñadas.
 
-El resto del estado (abajo) sigue vigente. El HTML pesa ~2,4 MB.
+v0.6.0 trajo el arte de Gemini y ChatGPT y el primer rediseño del mapa. El HTML pesa ~2,7 MB.
 
 ### Estado anterior · v0.5.0 "La historia en la ciudad"
 **Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
@@ -66,6 +67,41 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ## Historial
+### v0.7.0 (2026-11-17) — Medellín reconocible
+Pedido del autor: “dibuja bien el mapa, dale vida, que sea preciso en ubicaciones y zonas; los peatonales están desordenados y sin sentido, lo mismo los barrios y la división de las casas; el corazón es reconocer cada calle, cada zona, cada barrio”.
+
+1. **Diagnóstico medido:** cruzando el mapa con las **manzanas catastrales** de Medellín, entre el **88 y el 97 % de las casillas “andén” caían dentro de manzanas**. No eran andenes: eran lotes construidos que la fuente original (Overture/OSM) no marcó. Por eso se pintaba adoquín donde hay casas.
+2. **Datos oficiales:**
+   - `tools/ciudad_descarga.py` baja de ArcGIS Online, una vez, las capas abiertas de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial, espacio público y 312.716 lotes (solo centroide y área). También los barrios de Itagüí, Envigado y Sabaneta.
+   - `tools/ciudad_datos.py` genera `src/data/ciudad.js` (329 KB) **sin tocar el mapa base**:
+     - **parche** de 89.446 casillas, que se aplica al cargar: andén dentro de manzana → casa o edificio según el tamaño de sus lotes; espacio público → parque o plaza. Fuera de Medellín se usa la regla medida en Medellín. No se tocan las plazas a ≤ 60 m de cada estación de la red ni los lugares emblemáticos;
+     - **barrios** en una grilla de 80 m;
+     - **nombre por casilla de vía**: dos capas, nomenclatura y nombre popular, con código predictivo;
+     - **lotes por casilla construida** (2 bits);
+     - **656 lugares** con nombre.
+3. **En el juego (`10-map.js`):**
+   - `MAP.ciudad()` decodifica todo al cargar (+~150 ms);
+   - `MAP.barrioAt`, `MAP.calleAt` y `MAP.lotT`;
+   - `MAP.drawLabels`: calles rotuladas siguiendo su dirección (nombres populares en mayúscula), parques y plazas, y barrios en mayúsculas espaciadas a media distancia; evita que se encimen.
+   - Se usa en Ciudad Libre, en el simulador de bus y en La Red.
+   - **HUD con el barrio** y **letrero** al entrar a otra calle o barrio (Ciudad Libre).
+4. **Dibujo:**
+   - **andén con bordillo** dentro de cada casilla de vía (calle 3 px ≈ 4 m, avenida 2 px; la autopista solo berma);
+   - **casas con fachada hacia su calle** (sur, este, oeste o norte), divididas según los lotes catastrales;
+   - techos de teja, eternit o **terraza paisa**: tanque, ropa tendida, columnas con varilla “para el segundo piso”, matas y, de vez en cuando, un perro;
+   - patios interiores de manzana;
+   - **peatonales de adoquín trabado** y **plazas de losas con franjas de ladrillo**, carritos con sombrilla y bancas con farol;
+   - los lugares emblemáticos ya no son rectángulos planos: solo su ícono (iglesia, estadio, pista, rocas de la Biblioteca España) y su nombre.
+5. **Atribución:** la licencia abierta del Catastro exige citar y declarar las transformaciones. Va en créditos, en La Red y en `docs/FUENTES.md`.
+6. **Pruebas:**
+   - el autotest verifica el parche, los 502 barrios y los 2.438 nombres, además de casos reales: Parque Berrío en La Candelaria; Carrera 50, Carrera 80, Calle 67 y Sistema Vial del Río junto a sus estaciones;
+   - 100 partidas, 0 errores; ~15 ms por trozo, igual que antes;
+   - capturas en Niquía, Parque Berrío, San Antonio, Santo Domingo, Prado, Floresta, Estadio, Manrique, Bello, Madera e Itagüí.
+7. **Pendiente:**
+   - barrios de **Bello** (y del norte y el sur del valle): no se encontró capa abierta, y Nominatim respondió “429, demasiadas solicitudes” desde la nube;
+   - anchos reales de calle por casilla (la malla trae el ancho);
+   - casillas G‑60 a G‑63 de Gemini en un acercamiento.
+
 ### v0.6.0 (2026-11-17) — el arte llega a la ciudad
 1. **Entregas verificadas y ordenadas** en `arte/entregas/` (ver `INVENTARIO.md`):
    - 20 láminas de Gemini con el nombre de su encargo;

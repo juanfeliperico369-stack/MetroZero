@@ -62,3 +62,18 @@ Se dibuja de atrás hacia adelante (orden por x + y), con caras visibles al sur 
   3. diorama 3D con cámara isométrica.
 - Ciudades de ejemplo: [Isometric NYC](https://www.pcgamer.com/software/ai/software-engineer-creates-classic-simcity-style-map-of-nyc-and-argues-that-ai-is-good-for-creatives-actually/) (IA ajustada para repintar), [Tiny Barcelona](https://tiny-barcelona.agenturl.dev), [Tiny Madrid](https://tinymadrid.app), [Tiny València](https://tinyvalencia.com) (datos 3D del Catastro y el IGN repintados), [Isometric Málaga](https://isometric-malaga.xiangminf.com), [CDMX](https://cdmxisometrico.com), [Buenos Aires](https://caba.nicolaspoore.com).
 - [tinyworlds](https://github.com/nihey/tinyworlds): sin IA. Toma OpenStreetMap y Overture Maps, hace un rasterizado por software y arma una pirámide de teselas. Una ciudad grande pesa unos 1,5 GB: por eso aquí se genera en el dispositivo.
+
+## Datos oficiales abiertos (desde v0.7.0)
+La Alcaldía de Medellín publica en ArcGIS Online (cuenta `services1.arcgis.com/FZVaYraI7sEGQ6rF`, unas 525 capas públicas):
+- barrios (`shp_limite_barrio_vereda_cata`) y manzanas;
+- **malla vial 2026**, con nomenclatura (`via_gen`: CL 50, CR 80…) y **ancho** en metros;
+- jerarquía vial con nombres populares e inventario de espacio público;
+- **lotes catastrales**: 312 mil, con centroide y área.
+
+Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
+
+**Licencia del Catastro:** citar “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin” y declarar las transformaciones (ver `docs/FUENTES.md`).
+
+**Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
+
+Bello y los demás municipios del norte y del sur aún no tienen capa abierta de barrios. Nominatim limita a las IP de la nube (error 429): no insistas.

@@ -98,7 +98,7 @@ const Menu = EM.menu = {
   },
   credits() {
     UI.modal(`<div class="pag">Créditos</div><h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
-      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
+      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026) y datos abiertos de la Alcaldía de Medellín (barrios, manzanas, malla vial 2026, jerarquía vial, espacio público), rasterizados a casillas de 20 m; barrios de Itagüí, Envigado y Sabaneta publicados por sus alcaldías · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
       <p class="m">Versión ${EM.version} · Funciona sin internet · Tus partidas se guardan en este dispositivo (exporta para respaldarlas).</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
   },
   bot() {

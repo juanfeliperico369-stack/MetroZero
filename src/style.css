@@ -288,3 +288,11 @@ img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-positio
 .trcard i{display:block;margin-top:6px;font-size:11px;opacity:.6;font-style:normal}
 @keyframes trCard{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 .mcard .mico ~ .t{padding-right:56px}
+/* v0.7.0 · letrero de calle y barrio (Ciudad Libre) */
+.lugar{position:absolute;left:10px;top:calc(118px + var(--sat));z-index:5;pointer-events:none;opacity:0;transform:translateY(-6px);background:var(--noche,#0c2533);color:#fff;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);padding:6px 10px 7px;max-width:72vw}
+.lugar.on{animation:lugarIn 3.6s ease forwards}
+.lugar b{display:block;font-family:var(--fd);font-stretch:80%;font-size:20px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.lugar i{display:block;font-style:normal;font-family:var(--fm);font-size:11px;opacity:.8}
+.lugar span{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mante,#ffd27a);margin-top:2px}
+@keyframes lugarIn{0%{opacity:0;transform:translateY(-6px)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+#game:has(.jobbar:not(.hide)) .lugar{top:calc(196px + var(--sat))}

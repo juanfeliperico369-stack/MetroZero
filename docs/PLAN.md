@@ -13,6 +13,13 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
   - **mapa cenital rediseñado** (vías por tipo y ancho, separadores, cebras en cruces, río con muros);
   - **Fase 1b medida:** el trazado de calles coincide con OpenStreetMap en un 98–100 % a 20 m. Falta la capa vectorial (anchos, glorietas, nombres) y los edificios reales.
 
+- **v0.7.0:** Fase 1b con **datos oficiales**:
+  - corrección de 89 mil casillas: lotes que estaban marcados como andén;
+  - barrios, nombres de calle, lotes y espacio público de Medellín (y barrios de Itagüí, Envigado y Sabaneta);
+  - rótulos, HUD y letrero de barrio y calle;
+  - casas orientadas a su calle con lotes reales, andenes y plazas rediseñadas.
+  - Siguiente: barrios de Bello y del resto del valle; anchos reales de calle; Maqueta 2:1.
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).
