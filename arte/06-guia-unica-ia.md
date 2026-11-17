@@ -1,17 +1,21 @@
 # 06 · GUÍA ÚNICA DE ARTE PARA IA · *El Metro*
 
 > Una sola guía para las dos IA de imágenes del proyecto: **Gemini (Nano Banana)** y **ChatGPT**. *Midjourney salió del plan; su trabajo quedó repartido entre las dos.*
-> Las dos reciben **todo el contexto**: misión, visión, estado del juego, dirección de arte y la **bitácora completa** (Anexo A). Pero cada una **solo hace su parte**, según su rol (Bloque 2) y sus encargos (Bloque 3).
+> Las dos reciben **todo el contexto**: misión, visión, estado del juego, dirección de arte, las **skills del proyecto** (Bloque 6) y la **bitácora completa** (Anexo A). Pero cada una **solo hace su parte**, según su rol (Bloque 2) y sus encargos (Bloque 3).
 
 ## Paso a paso (para ti)
-1. **Descarga `CONTEXTO-IA.md`**: tiene el Bloque 1 más la bitácora en un solo archivo. Está en la carpeta `arte/` y en la página de la carpeta de arte (botón ⬇).
+1. **Descarga `CONTEXTO-IA.md` y `SKILLS-IA.md`**:
+   - `CONTEXTO-IA.md` tiene el Bloque 1 más la bitácora;
+   - `SKILLS-IA.md` tiene las skills del proyecto (Bloque 6).
+
+   Están en la carpeta `arte/` y en la página de la carpeta de arte (botones ⬇).
 2. **Gemini:** crea un **Gem** llamado “Artista 1 · El Metro”.
    - En sus **instrucciones** pega el **Rol de Gemini (2A)**.
-   - En su **conocimiento** sube `CONTEXTO-IA.md`.
-   - Si no usas Gems: al empezar cada conversación pega el Bloque 1 y el Rol 2A, y adjunta `CONTEXTO-IA.md`.
+   - En su **conocimiento** sube `CONTEXTO-IA.md` y `SKILLS-IA.md`.
+   - Si no usas Gems: al empezar cada conversación pega el Bloque 1 y el Rol 2A, y adjunta los dos archivos.
 3. **ChatGPT:** crea un **Proyecto** “El Metro · Arte”.
    - En sus **instrucciones** pega el **Rol de ChatGPT (2B)**.
-   - En sus **archivos** sube `CONTEXTO-IA.md`.
+   - En sus **archivos** sube `CONTEXTO-IA.md` y `SKILLS-IA.md`. Si tu ChatGPT tiene la opción **Skills**, sube ahí la carpeta `el-metro-arte`.
    - Si no usas proyectos, haz lo mismo que en Gemini.
 4. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en las dos IA para que dibujen igual.
 5. Pide los encargos **uno por uno**, copiando el prompt de cada uno.
@@ -137,6 +141,14 @@ Prioridades: el relieve de las laderas, la altura y el trazado del viaducto, la 
 
 12) BITÁCORA
 La bitácora completa del juego (qué se construyó, versiones, pruebas, qué falta) está en el ANEXO A. Léela para entender en qué punto está el proyecto. No tienes que hacer nada con ella.
+
+13) SKILLS DEL PROYECTO (tenlas en cuenta)
+El proyecto tiene skills: instrucciones de trabajo en formato SKILL.md. Están en el archivo SKILLS-IA.md, y en el repositorio en .agents/skills/ y .claude/skills/.
+- el-metro-arte: dirección de arte, paletas, vistas, reparto de encargos, revisión e integración. La siguen TODAS las IA.
+- medellin-fiel: topografía, relieve, estructuras y vista isométrica 2:1. Se usa en los encargos G-90 y G-100 y en todo lo del mapa.
+- el-metro-desarrollo: cómo compilar, probar y publicar el juego (para agentes de código).
+- frontend-design, webapp-testing y skill-creator: skills oficiales de Anthropic (Apache-2.0) para diseño de interfaz, pruebas en el navegador y crear skills (para agentes de código).
+Si una instrucción de una skill choca con este contexto, manda este contexto.
 === FIN DEL CONTEXTO ===
 ```
 
@@ -154,7 +166,8 @@ Reglas de tu herramienta:
 - deja margen libre en las esquinas;
 - mantén el mismo estilo y los mismos personajes en toda la conversación;
 - cuando te adjunte "ancla_estilo.png", úsala como referencia EXACTA de estilo;
-- cuando te adjunte una foto o un render base, conserva la forma y la geometría y cambia solo el estilo.
+- cuando te adjunte una foto o un render base, conserva la forma y la geometría y cambia solo el estilo;
+- ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo, y "medellin-fiel" en los encargos G-90 y G-100.
 Responde solo: "Listo, Artista 1 (Gemini) preparado", y espera mi primer encargo.
 ```
 
@@ -167,7 +180,8 @@ Reglas de tu herramienta:
 - entrega PNG con FONDO TRANSPARENTE; si no puedes, usa magenta plano #FF00FF;
 - tamaños: 1024×1024 (cuadrado), 1536×1024 (horizontal), 1024×1536 (vertical);
 - solo pon texto cuando el encargo lo pida, y en español;
-- si te adjunto "ancla_estilo.png", copia exactamente su estilo.
+- si te adjunto "ancla_estilo.png", copia exactamente su estilo;
+- ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo.
 Responde solo: "Listo, Artista 2 (ChatGPT) preparado", y espera mi primer encargo.
 ```
 
@@ -501,6 +515,37 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 ---
 
+## BLOQUE 6 · SKILLS DEL PROYECTO
+> Las **skills** son instrucciones de trabajo en formato abierto `SKILL.md` ([Agent Skills](https://agentskills.io/specification)). Los agentes de código las leen solos; las IA de imágenes las reciben en el archivo `SKILLS-IA.md`. Así **todas trabajan con las mismas reglas**.
+
+| Skill | Para qué | Gemini (imágenes) | ChatGPT (imágenes) | Agentes de código* |
+|---|---|---|---|---|
+| **el-metro-arte** (propia) | Dirección de arte, paletas, vistas, reparto G‑ y C‑, revisión e integración | ✅ siempre | ✅ siempre | ✅ al integrar arte |
+| **medellin-fiel** (propia) | Topografía, relieve, estructuras y vista isométrica 2:1 | ✅ en G‑90 y G‑100 | — | ✅ al tocar el mapa y las vistas |
+| **el-metro-desarrollo** (propia) | Código, compilar, probar, APK, publicar y bitácora | — | — | ✅ siempre |
+| **frontend-design** (Anthropic, Apache‑2.0) | Dirección visual de menús, HUD y guía | — | — | ✅ en interfaz (con el crema EMSAY como decisión del autor) |
+| **webapp-testing** (Anthropic, Apache‑2.0) | Pruebas en el navegador con Playwright | — | — | ✅ al probar |
+| **skill-creator** (Anthropic, Apache‑2.0) | Crear y mejorar skills | — | — | ✅ al crear skills nuevas |
+
+*Agentes de código: Claude Code, Codex de ChatGPT (“astra”) y Antigravity de Gemini (“argon”).
+
+**Cómo se cargan:**
+- **Gemini (Gem):** sube `SKILLS-IA.md` al conocimiento del Gem, junto con `CONTEXTO-IA.md`.
+- **ChatGPT (Proyecto):** sube `SKILLS-IA.md` a los archivos del Proyecto. Si tu ChatGPT tiene **Skills**, sube la carpeta `el-metro-arte`.
+- **Codex y Antigravity:** abre el repositorio; leen `.agents/skills/` solos.
+- **Claude Code:** lee `.claude/skills/` solo.
+
+**Plugins de Claude recomendados** (se activan en la cuenta de Claude):
+- **image-generation:** guía de prompts para Gemini Image y GPT Image.
+- **frontend-design.**
+- **playwright** (Microsoft).
+- **Android Emulator QA**, para probar la APK.
+- **Unity**, solo si el juego algún día pasa a Unity.
+
+**Mantenimiento:** las skills se editan en `.agents/skills/` y se corre `node tools/skills.mjs`, que copia todo a `.claude/skills/` y regenera `SKILLS-IA.md`.
+
+---
+
 ## ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 <!-- BITACORA:INICIO -->
 ### Bitácora · El Metro
@@ -535,6 +580,11 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 Investigación visual y guía de producción para el arte definitivo:
 - biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
 - **guía única de prompts** (`06-guia-unica-ia.md`) para **dos IA**: Gemini Nano Banana (encargos G‑) y ChatGPT (encargos C‑). Midjourney salió del plan: sus panorámicas, ambientes de fiesta y conceptos pasaron a Gemini, y las texturas y la portada sin título a ChatGPT. La guía trae **misión, visión, estado**, la dirección de arte y **la bitácora completa como Anexo A** (sincronizada por `tools/arte.mjs`, que también genera `arte/CONTEXTO-IA.md` para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT);
+- **Skills del proyecto** (formato abierto Agent Skills, `SKILL.md`) en `.agents/skills/`, que leen Codex y Antigravity; `tools/skills.mjs` las copia a `.claude/skills/` para Claude Code y arma `arte/SKILLS-IA.md` para los Gems y Proyectos.
+  - Tres propias: `el-metro-desarrollo` (código, pruebas y publicación), `el-metro-arte` (dirección de arte, encargos e integración) y `medellin-fiel` (relieve, estructuras e isométrica 2:1).
+  - Tres oficiales de [anthropics/skills](https://github.com/anthropics/skills) (Apache‑2.0, commit `e4bb5d9`): `frontend-design`, `webapp-testing` y `skill-creator`.
+  - Plugins de Claude recomendados: image-generation, playwright, Android Emulator QA y Unity (opcional).
+  - La guía única las incluye (Bloque 6 y sección 13 del contexto).
 - **Fase 1b del plan · Medellín fiel e isométrica:** relieve de 30 m, alturas de edificios por casilla, viaducto, estaciones y cables medidos, vista dimétrica 2:1 procedural y repintado con IA (G‑100) de zonas héroe. Referencias: Isometric NYC, Tiny Barcelona, Madrid, València y Málaga, CDMX, Buenos Aires, isometriccities.com y tinyworlds (detalle en `docs/PLAN.md`);
 - 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
 - `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.

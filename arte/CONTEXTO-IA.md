@@ -118,6 +118,14 @@ Prioridades: el relieve de las laderas, la altura y el trazado del viaducto, la 
 
 12) BITÁCORA
 La bitácora completa del juego (qué se construyó, versiones, pruebas, qué falta) está en el ANEXO A. Léela para entender en qué punto está el proyecto. No tienes que hacer nada con ella.
+
+13) SKILLS DEL PROYECTO (tenlas en cuenta)
+El proyecto tiene skills: instrucciones de trabajo en formato SKILL.md. Están en el archivo SKILLS-IA.md, y en el repositorio en .agents/skills/ y .claude/skills/.
+- el-metro-arte: dirección de arte, paletas, vistas, reparto de encargos, revisión e integración. La siguen TODAS las IA.
+- medellin-fiel: topografía, relieve, estructuras y vista isométrica 2:1. Se usa en los encargos G-90 y G-100 y en todo lo del mapa.
+- el-metro-desarrollo: cómo compilar, probar y publicar el juego (para agentes de código).
+- frontend-design, webapp-testing y skill-creator: skills oficiales de Anthropic (Apache-2.0) para diseño de interfaz, pruebas en el navegador y crear skills (para agentes de código).
+Si una instrucción de una skill choca con este contexto, manda este contexto.
 === FIN DEL CONTEXTO ===
 
 ---
@@ -156,6 +164,11 @@ La bitácora completa del juego (qué se construyó, versiones, pruebas, qué fa
 Investigación visual y guía de producción para el arte definitivo:
 - biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
 - **guía única de prompts** (`06-guia-unica-ia.md`) para **dos IA**: Gemini Nano Banana (encargos G‑) y ChatGPT (encargos C‑). Midjourney salió del plan: sus panorámicas, ambientes de fiesta y conceptos pasaron a Gemini, y las texturas y la portada sin título a ChatGPT. La guía trae **misión, visión, estado**, la dirección de arte y **la bitácora completa como Anexo A** (sincronizada por `tools/arte.mjs`, que también genera `arte/CONTEXTO-IA.md` para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT);
+- **Skills del proyecto** (formato abierto Agent Skills, `SKILL.md`) en `.agents/skills/`, que leen Codex y Antigravity; `tools/skills.mjs` las copia a `.claude/skills/` para Claude Code y arma `arte/SKILLS-IA.md` para los Gems y Proyectos.
+  - Tres propias: `el-metro-desarrollo` (código, pruebas y publicación), `el-metro-arte` (dirección de arte, encargos e integración) y `medellin-fiel` (relieve, estructuras e isométrica 2:1).
+  - Tres oficiales de [anthropics/skills](https://github.com/anthropics/skills) (Apache‑2.0, commit `e4bb5d9`): `frontend-design`, `webapp-testing` y `skill-creator`.
+  - Plugins de Claude recomendados: image-generation, playwright, Android Emulator QA y Unity (opcional).
+  - La guía única las incluye (Bloque 6 y sección 13 del contexto).
 - **Fase 1b del plan · Medellín fiel e isométrica:** relieve de 30 m, alturas de edificios por casilla, viaducto, estaciones y cables medidos, vista dimétrica 2:1 procedural y repintado con IA (G‑100) de zonas héroe. Referencias: Isometric NYC, Tiny Barcelona, Madrid, València y Málaga, CDMX, Buenos Aires, isometriccities.com y tinyworlds (detalle en `docs/PLAN.md`);
 - 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
 - `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.
