@@ -9,10 +9,10 @@ Lo que entregaron **Gemini (Artista 1, encargos G‑)** y **ChatGPT (Artista 2, 
 
 | Archivo recibido | Tamaño | SHA‑256 (inicio) | Qué tenía | Dónde quedó |
 |---|---:|---|---|---|
-| `El_Metro_-_Documento_Maestro_y_Biblia_Visual_con_Arte_Incrustado.pdf` (Gemini) | 4,8 MB | `414bee23cdf44d54` | 20 láminas a resolución completa (G‑00 a G‑100) | `gemini/*.jpg`, con el nombre del encargo |
-| `El_Metro_-_Documento_Maestro_Completo_1.md` (Gemini) | 27 KB | `75de91fc118a4091` | Cuestionario, 9 reglas aprendidas, catálogo de láminas, código propuesto | `gemini/documento-maestro-gemini.md` |
-| `EL_METRO_MAESTRO_TOTAL-2.md` (ChatGPT) | 1,4 MB | `20683446bc8ba1fe` | Inventario C‑, anexos con 92 SVG, 8 scripts, 9 manifiestos y una auditoría | `chatgpt/` y `docs/auditorias/` |
-| `01_Guia_y_vehiculos.pdf` … `04_Vistas_y_arte_historico.pdf` (ChatGPT) | 0,7–1,2 MB c/u | `29eb7b21…` `d8eb07b3…` `eeebfb3d…` `207ea1d3…` | Miniaturas (≤ 233 px) de todo lo C‑ | Se usaron para verificar; las texturas quedaron en `chatgpt/texturas/` |
+| `El_Metro_-_Documento_Maestro_y_Biblia_Visual_con_Arte_Incrustado.pdf` (Gemini) | 4,8 MB | `414bee23cdf44d54` | 20 láminas a resolución completa (G‑00 a G‑100) | `laminas/*.jpg`, con el nombre del encargo |
+| `El_Metro_-_Documento_Maestro_Completo_1.md` (Gemini) | 27 KB | `75de91fc118a4091` | Cuestionario, 9 reglas aprendidas, catálogo de láminas, código propuesto | `laminas/documento-de-entrega.md` |
+| `EL_METRO_MAESTRO_TOTAL-2.md` (ChatGPT) | 1,4 MB | `20683446bc8ba1fe` | Inventario C‑, anexos con 92 SVG, 8 scripts, 9 manifiestos y una auditoría | `vectorial/` y `docs/auditorias/` |
+| `01_Guia_y_vehiculos.pdf` … `04_Vistas_y_arte_historico.pdf` (ChatGPT) | 0,7–1,2 MB c/u | `29eb7b21…` `d8eb07b3…` `eeebfb3d…` `207ea1d3…` | Miniaturas (≤ 233 px) de todo lo C‑ | Se usaron para verificar; las texturas quedaron en `vectorial/texturas/` |
 | `05_Contexto_y_codigo_1.pdf`, `06_Contexto_y_codigo_2.pdf` | 0,4 MB c/u | `3ae1538b…` `90f9fd85…` | Texto de nuestro documento único (sin cambios) | No se copió: es `EL-METRO-TODO.md` |
 | `00_PRUEBA_DE_SUBIDA_1_PAGINA.pdf` | 45 KB | `6f98d92c…` | Prueba de subida, sin imágenes | No se copió |
 
@@ -41,16 +41,16 @@ Los PDF no se guardan en el repositorio: pesan mucho y su contenido ya está ext
 
 | Carpeta | Encargos | Estado |
 |---|---|---|
-| `chatgpt/svg/iconos/c10_modos` | C‑10 · 9 íconos de modos | ✅ **en el juego** (tarjetas del menú) |
-| `chatgpt/svg/iconos/c11_acciones` | C‑11 · 12 íconos de acciones | ✅ **en el juego** (cabina y Ciudad Libre) |
-| `chatgpt/svg/iconos/c12_logros` | C‑12 · 20 medallas | ✅ **en el juego** (libreta de logros; trajo 2 logros nuevos: Feria de las Flores y Alumbrados) |
-| `chatgpt/svg/portadas` | C‑40 portada · C‑41 pantalla de carga | ✅ **en el juego** (portada, historia y capítulos 7 y 8) |
-| `chatgpt/svg/fiestas` | C‑50 · 21 piezas | ✅ (11 **en el juego**: adornos de la portada según la fiesta del día) |
-| `chatgpt/svg/senalizacion` | C‑30 · 16 piezas | ✅ pendiente (placas por línea, flechas, torniquete) |
-| `chatgpt/svg/cabinas` | C‑20, C‑21 · consolas con parabrisas magenta | ✅ pendiente (cabina 3D) |
-| `chatgpt/vehiculos` | C‑01 a C‑03 · 27 vehículos y puertas a 8 px/m | ✅ regenerados con su script: **31 de 33 PNG idénticos byte a byte** a los entregados. Son “prototipos técnicos”: el procedural del juego se mantiene |
-| `chatgpt/texturas` | C‑60 · 10 texturas | ⚠️ solo miniaturas de 183 px (los PNG de 1024 px venían en un ZIP que no llegó) |
-| `chatgpt/scripts`, `chatgpt/manifiestos` | Reproducibilidad | ✅ 8 scripts y 9 manifiestos, tal como se entregaron |
+| `vectorial/svg/iconos/c10_modos` | C‑10 · 9 íconos de modos | ✅ **en el juego** (tarjetas del menú) |
+| `vectorial/svg/iconos/c11_acciones` | C‑11 · 12 íconos de acciones | ✅ **en el juego** (cabina y Ciudad Libre) |
+| `vectorial/svg/iconos/c12_logros` | C‑12 · 20 medallas | ✅ **en el juego** (libreta de logros; trajo 2 logros nuevos: Feria de las Flores y Alumbrados) |
+| `vectorial/svg/portadas` | C‑40 portada · C‑41 pantalla de carga | ✅ **en el juego** (portada, historia y capítulos 7 y 8) |
+| `vectorial/svg/fiestas` | C‑50 · 21 piezas | ✅ (11 **en el juego**: adornos de la portada según la fiesta del día) |
+| `vectorial/svg/senalizacion` | C‑30 · 16 piezas | ✅ pendiente (placas por línea, flechas, torniquete) |
+| `vectorial/svg/cabinas` | C‑20, C‑21 · consolas con parabrisas magenta | ✅ pendiente (cabina 3D) |
+| `vectorial/vehiculos` | C‑01 a C‑03 · 27 vehículos y puertas a 8 px/m | ✅ regenerados con su script: **31 de 33 PNG idénticos byte a byte** a los entregados. Son “prototipos técnicos”: el procedural del juego se mantiene |
+| `vectorial/texturas` | C‑60 · 10 texturas | ⚠️ solo miniaturas de 183 px (los PNG de 1024 px venían en un ZIP que no llegó) |
+| `vectorial/scripts`, `vectorial/manifiestos` | Reproducibilidad | ✅ 8 scripts y 9 manifiestos, tal como se entregaron |
 
 ## 4. Afirmaciones verificadas y corregidas
 

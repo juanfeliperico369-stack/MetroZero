@@ -1,7 +1,7 @@
 /* =====================================================================
    BOT DE PRUEBAS (dentro del juego)
    selfTest(): valida datos de la red, que cada nivel tenga solución y que el horario sea sensato.
-   monkey(n): n partidas automáticas (piloto/IA + toques al azar) buscando errores e invariantes rotas.
+   monkey(n): n partidas automáticas (piloto automático + toques al azar) buscando errores e invariantes rotas.
    Uso: menú → 🤖 Bot de pruebas · consola: EM.test.monkey(100) · node tools/test.mjs
    ===================================================================== */
 const BotT = EM.test = {
@@ -36,6 +36,15 @@ const BotT = EM.test = {
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
     let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
     let nA = 0; try { nA = EM.atlas ? EM.atlas.check(E) : 0; } catch (e) { E('atlas: ' + e.message); }
+    // seguridad: una partida importada no cambia prototipos y los mensajes de otro celular no rompen el juego
+    try {
+      const d = Save.sanitize(JSON.parse('{"v":1,"__proto__":{"contaminado":1},"settings":{"__proto__":{"x":1}},"wallet":-5}'));
+      if (({}).contaminado !== undefined || Object.getPrototypeOf(d) !== Object.prototype || d.wallet !== 0) E('seguridad: importar partidas no se sanea');
+      const P0 = Multi.players;
+      for (const m of [null, 'x', { t: 5 }, { t: 'hello', from: 3, name: {} }, { t: 'roster', p: JSON.parse('{"__proto__":{"name":"x"},"7":{"name":[1]}}'), host: {} }, { t: 'start', mode: 'constructor' }, { t: 'act', a: {} }, { t: 'sc', from: 2, name: 9 }, { t: 'st', s: [1] }]) Multi.onmsg(m);
+      if (Object.values(Multi.players).some(q => typeof q.name !== 'string') || ({}).name !== undefined) E('seguridad: mensajes de red sin validar');
+      Multi.players = P0;
+    } catch (e) { E('seguridad: ' + e.message); }
     // Medellín reconocible: parche de casillas, barrios y nombres de calle (datos oficiales)
     let nBa = 0, nCa = 0; try {
       if (typeof CIUDAD === 'undefined') E('ciudad: falta src/data/ciudad.js'); else {

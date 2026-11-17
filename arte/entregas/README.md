@@ -4,8 +4,8 @@ Lo que producen las IA de arte, ordenado por encargo:
 
 - [`INVENTARIO.md`](INVENTARIO.md): qué llegó, qué se verificó, qué se integró y qué falta.
 - [`USO-EN-EL-JUEGO.md`](USO-EN-EL-JUEGO.md): cada recurso que usa el juego, su fuente y su uso (generado).
-- `gemini/`: láminas G‑ (JPEG, a resolución completa) y su documento.
-- `chatgpt/`: fuentes C‑ (`svg/`, `vehiculos/`, `texturas/`, `scripts/`, `manifiestos/`) y su documento.
+- `laminas/`: láminas G‑ (JPEG, a resolución completa) y su documento.
+- `vectorial/`: fuentes C‑ (`svg/`, `vehiculos/`, `texturas/`, `scripts/`, `manifiestos/`) y su documento.
 
 **Integrar arte nuevo:**
 1. Deja la lámina o el SVG aquí, con el nombre del encargo.

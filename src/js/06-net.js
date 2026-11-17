@@ -79,14 +79,14 @@ const Net = EM.net = {
       ws.onopen = () => { clearTimeout(to); this.setStatus('open'); res(); };
       ws.onerror = () => { clearTimeout(to); rej(new Error('No se pudo conectar al servidor local')); };
       ws.onclose = () => { this.setStatus('closed'); if (this.onmsg) this.onmsg({ t: 'bye', from: -1 }); };
-      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (m.t === 'id') this.myId = m.id | 0; if (this.onmsg) this.onmsg(m); };
+      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (!m || typeof m !== 'object') return; if (m.t === 'id') this.myId = m.id | 0; if (this.onmsg) this.onmsg(m); };
     });
   },
   /* ---------------- mismo navegador (pestañas) ---------------- */
   bcOpen(room, asHost) {
     this.reset(); if (!window.BroadcastChannel) throw new Error('Sin BroadcastChannel');
     this.kind = 'bc'; this.role = asHost ? 'host' : 'guest'; this.myId = asHost ? 0 : 1 + Math.floor(Math.random() * 999);
-    this.bc = new BroadcastChannel('elmetro-' + room); this.bc.onmessage = e => { const m = e.data; if (m && m.from !== this.myId && this.onmsg) this.onmsg(m); }; this.setStatus('open');
+    this.bc = new BroadcastChannel('elmetro-' + room); this.bc.onmessage = e => { const m = e.data; if (m && typeof m === 'object' && m.from !== this.myId && this.onmsg) this.onmsg(m); }; this.setStatus('open');
   },
   /* ---------------- envío común ---------------- */
   send(m) {

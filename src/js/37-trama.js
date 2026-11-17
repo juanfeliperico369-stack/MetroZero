@@ -107,7 +107,7 @@ const TRAMA = [
   ] }
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
-/* arte de cada capítulo (Gemini G- y ChatGPT C-, en src/data/arte.js) y el cielo que va detrás de las que lo traen transparente */
+/* arte de cada capítulo (src/data/arte.js) y el cielo que va detrás de las ilustraciones con fondo transparente */
 const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
 TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
 const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };

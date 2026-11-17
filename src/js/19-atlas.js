@@ -1,7 +1,7 @@
 /* =====================================================================
-   ATLAS · arte de las IA embebido en src/data/arte.js (lo genera tools/arte_juego.py)
-   Gemini (G-): retratos, escenas y la maqueta isométrica, en WebP.  ChatGPT (C-): íconos, logros,
-   fiestas, portada y pantalla de carga, en SVG.
+   ATLAS · arte del juego embebido en src/data/arte.js (lo genera tools/arte_juego.py)
+   Láminas (encargos G-): retratos, escenas y la maqueta isométrica, en WebP.
+   Vectorial (encargos C-): íconos, logros, fiestas, portada y pantalla de carga, en SVG.
    Regla del proyecto: el arte nuevo SIEMPRE tiene respaldo. Si ARTE[id] no existe o no carga,
    cada módulo sigue dibujando su versión procedural de siempre.
    ===================================================================== */
@@ -23,7 +23,7 @@ const Atlas = EM.atlas = {
   },
   /* etiqueta <img> para la interfaz; cadena vacía si no hay arte */
   tag(id, cls = '', alt = '') { return this.has(id) ? `<img class="${cls}" src="${this.url(id)}" alt="${esc(alt)}" draggable="false" decoding="async">` : ''; },
-  /* ícono de botón: el SVG de ChatGPT o, si falta, el respaldo (emoji o letra) */
+  /* ícono de botón: el SVG del juego o, si falta, el respaldo (emoji o letra) */
   ico(id, fb) { return this.has(id) ? `<img class="aico" src="${this.url(id)}" alt="" draggable="false">` : fb; },
   ids(pre = '') { return typeof ARTE === 'undefined' ? [] : Object.keys(ARTE).filter(k => k.startsWith(pre)); },
   /* retrato del que habla, según el tono de la frase (alegre, triste o neutra) */

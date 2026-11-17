@@ -9,17 +9,21 @@ const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/'
 const read = p => fs.readFileSync(p, 'utf8');
 const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
 fs.mkdirSync(dist, { recursive: true });
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
-const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
+// La versión publicada va sin comentarios de línea completa (el código fuente los conserva). Solo se quita un bloque
+// /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
+const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
+const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
 const tmp = path.join(dist, '.check.js'); fs.writeFileSync(tmp, data.join('\n') + '\n' + js);
 try { execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { console.error(String(e.stderr || e)); process.exit(1); } finally { fs.unlinkSync(tmp); }
-const head = read(src('head.html')).replace('%FONTS%', read(src('fonts.css'))).replace('%CSS%', read(src('style.css'))).replaceAll('%URL%', URL_);
+const head = read(src('head.html')).replace('%FONTS%', read(src('fonts.css'))).replace('%CSS%', limpiaCss(read(src('style.css')))).replaceAll('%URL%', URL_);
 const html = head + read(src('body.html')) + data.map(d => '<script>' + d + '</script>\n').join('') + '<script>\n' + js + '\n</script>\n</body></html>\n';
 fs.writeFileSync(path.join(dist, 'index.html'), html);
 const hash = crypto.createHash('sha1').update(html).digest('hex').slice(0, 8);
-const manifest = { name: 'El Metro · La última vuelta', short_name: 'El Metro', description: 'Juego offline sobre el Metro de Medellín: trenes, tranvía, Metroplús, alimentadores y metrocables.', lang: 'es-CO', start_url: './', scope: './', id: './', display: 'standalone', orientation: 'any', background_color: '#efe7cf', theme_color: '#0e5a6b', categories: ['games', 'education'],
+const manifest = { name: 'El Metro · La última vuelta', short_name: 'El Metro', description: 'Juego offline sobre el Metro de Medellín: trenes, tranvía, Metroplús, alimentadores y metrocables.', lang: 'es-CO', start_url: './', scope: './', id: './', display: 'standalone', orientation: 'any', background_color: '#0F2238', theme_color: '#0F2238', categories: ['games', 'education'],
   icons: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' }, { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }] };
 fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify(manifest, null, 1));
 const files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'favicon.svg'];

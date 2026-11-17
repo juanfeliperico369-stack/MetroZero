@@ -1,36 +1,53 @@
 /* =====================================================================
-   MENÚS: portada, modos (páginas de revista), niveles, ajustes y créditos
+   MENÚS: inicio (la línea), elige tu viaje, niveles, ajustes y créditos
    ===================================================================== */
 const MODECARDS = [
-  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.', n: 'Mundo abierto' },
-  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
-  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
-  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
-  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.', n: 'Historia' },
-  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
-  { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
-  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
-  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.', n: 'Extras' }
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.' },
+  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
+  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
+  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
+  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
+  { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
+  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.' },
+  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.' }
 ];
 const Menu = EM.menu = {
   mode: null,
   cover() {
     UI.show('cover', false); Music.play('menu'); const cv = $('#cvArt'), g = cv.getContext('2d');
-    // portada de ChatGPT (C-40); si falta o no carga, sigue la portada procedural animada
+    // ilustración de portada; si falta o no carga, sigue la portada procedural animada
     let pic = $('#cvImg');
-    if (!pic && Atlas.has('portada')) { pic = document.createElement('img'); pic.id = 'cvImg'; pic.className = 'cart pic'; pic.alt = 'Un metro sobre el viaducto al atardecer, con el metrocable y las laderas de Medellín'; pic.onerror = () => { pic.remove(); cv.hidden = false; }; pic.src = Atlas.url('portada'); cv.after(pic); cv.hidden = true; }
-    const fd = $('#cvFiesta'), deco = Atlas.fiesta(); if (fd) fd.outerHTML = `<div id="cvFiesta">${deco}</div>`; else (pic || cv).insertAdjacentHTML('beforebegin', `<div id="cvFiesta">${deco}</div>`);
+    if (!pic && Atlas.has('portada')) { pic = document.createElement('img'); pic.id = 'cvImg'; pic.className = 'cart'; pic.alt = 'Un metro sobre el viaducto al atardecer, con el metrocable y las laderas de Medellín'; pic.onerror = () => { pic.remove(); cv.hidden = false; }; pic.src = Atlas.url('portada'); cv.after(pic); cv.hidden = true; }
+    const fd = $('#cvFiesta'), deco = Atlas.fiesta(); if (fd) fd.innerHTML = deco; else (pic || cv).insertAdjacentHTML('afterend', `<div id="cvFiesta">${deco}</div>`);
+    this.tren($('#bPlay'), true);
     let last = '';
-    const loop = () => { if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19); const t = (serviceOpen() ? 'En servicio · ' : 'Cerrado · ') + clockStr(); if (t !== last) $('#cvClock').textContent = last = t; };
+    const loop = () => {
+      if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19);
+      const abierto = serviceOpen(), t = clockStr() + abierto; if (t === last) return; last = t;
+      const el = $('#cvClock'); el.classList.toggle('cerrado', !abierto); el.textContent = abierto ? 'En servicio, ' + clockStr() : 'Cerrado, abre a las 4:30';
+    };
     loop();
+  },
+  /* el tren del menú de inicio viaja hasta la estación tocada (y al entrar, llega a "Jugar") */
+  tren(btn, entrada) {
+    const tr = $('#cvTren'), nav = tr && tr.parentElement; if (!tr || !btn || !nav) return 0;
+    const dot = btn.querySelector('i'), y = dot.getBoundingClientRect().top - nav.getBoundingClientRect().top + dot.offsetHeight / 2 - tr.offsetHeight / 2;
+    if (entrada) { tr.style.transition = 'none'; tr.style.transform = 'translateY(' + (y - 70) + 'px)'; void tr.offsetWidth; tr.style.transition = ''; }
+    tr.classList.add('on'); tr.style.transform = 'translateY(' + y + 'px)';
+    return matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200;
   },
   modes() {
     UI.show('menu'); $('#mWallet').textContent = fmt(Save.d.wallet) + ' pasajes';
     const h = new Date().getHours(); $('#mGreet').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + Save.d.name;
     $('#mVida').innerHTML = Vida.panel(); Vida.bindPanel();
-    $('#mList').innerHTML = MODECARDS.map((c, i) => { const st = EM.modes[c.id] ? Save.totalStars(c.id) : null; return `<button class="mcard ${c.cls}" data-m="${c.id}"><span class="n">Est. ${pad2(i + 1)} · ${esc(c.n)}</span>${st != null ? `<span class="st">★ ${st}</span>` : c.id === 'historia' ? `<span class="st">Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}</span>` : ''}${Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, 'mico') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`}<span class="t">${esc(c.t)}</span><span class="d">${esc(c.d)}</span></button>`; }).join('');
+    $('#mList').innerHTML = MODECARDS.map(c => {
+      const st = EM.modes[c.id] ? '★ ' + Save.totalStars(c.id) : c.id === 'historia' ? `Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}` : '';
+      const ico = Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, '', '') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`;
+      return `<button class="modo ${c.cls}" data-m="${c.id}"><span class="nodo">${ico}</span><span class="tx"><b>${esc(c.t)}</b><small>${esc(c.d)}</small></span>${st ? `<span class="st">${st}</span>` : ''}</button>`;
+    }).join('');
     $$('#mList canvas').forEach(cv => this.miniArt(cv.getContext('2d'), cv.dataset.a));
-    $$('#mList .mcard').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
+    $$('#mList .modo').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
   },
   go(id) {
     if (id === 'historia') { this.storyList(); return; }
@@ -61,7 +78,7 @@ const Menu = EM.menu = {
     else if (id === 'multi') { Art.person(g, 22, 52, 5, 2, false); Art.person(g, 48, 52, 5, 5, false); }
   },
   storyList() {
-    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
+    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
     const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
     $('#lBody').innerHTML = `${Atlas.tag('carga', 'sthero', 'Rosalba de espaldas en el andén, al atardecer')}<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
       CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
@@ -70,9 +87,9 @@ const Menu = EM.menu = {
     const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
   },
   levels(id) {
-    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
+    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name; $('#lStars').textContent = '★ ' + Save.totalStars(id);
     const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id), B = Save.d.bus && Save.d.bus.done || {};
-    let h = `<div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px"><div><div class="pag">${esc(M.sub || '')}</div><div class="mega" style="font-size:54px">${esc(M.name)}</div></div>${duel ? '<label class="tg"><button id="lDuel">👥 Duelo de mesa</button></label>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
+    let h = `<div class="row cabeza" style="justify-content:space-between;align-items:flex-end"><div><h1>${esc(M.name)}</h1>${M.sub ? `<p class="m">${esc(M.sub)}</p>` : ''}</div>${duel ? '<div class="tg"><button id="lDuel">👥 Duelo de mesa</button></div>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
     if (id === 'conduce' || id === 'volante' || id === 'bus') {
       const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
       for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
@@ -85,7 +102,7 @@ const Menu = EM.menu = {
   },
   settings() {
     const s = Save.d.settings, tg = (k, a, b) => `<div class="tg" data-k="${k}"><button data-v="1" class="${s[k] ? 'on' : ''}">${a}</button><button data-v="0" class="${s[k] ? '' : 'on'}">${b}</button></div>`;
-    UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" maxlength="16" value="${esc(Save.d.name)}" style="border:3px solid var(--negro);padding:8px;font-size:16px">
+    UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" class="campo" maxlength="16" value="${esc(Save.d.name)}">
       <div class="pag">Sonido</div>${tg('snd', 'Sí', 'No')}<div class="pag">Música</div>${tg('mus', 'Sí', 'No')}<div class="pag">Vibración</div>${tg('vib', 'Sí', 'No')}<div class="pag">Voz de anuncios (“Próxima estación…”)</div>${tg('voz', 'Sí', 'No')}
       <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
@@ -97,9 +114,12 @@ const Menu = EM.menu = {
     $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };
   },
   credits() {
-    UI.modal(`<div class="pag">Créditos</div><h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
-      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026) y datos abiertos de la Alcaldía de Medellín (barrios, manzanas, malla vial 2026, jerarquía vial, espacio público), rasterizados a casillas de 20 m; barrios de Itagüí, Envigado y Sabaneta publicados por sus alcaldías · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
-      <p class="m">Versión ${EM.version} · Funciona sin internet · Tus partidas se guardan en este dispositivo (exporta para respaldarlas).</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
+    UI.modal(`<h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
+      <h3>Datos del mapa</h3><ul class="m" style="padding-left:18px;margin:0">
+        <li>Calles, río y relieve: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps; relieve SRTM / NASA (AWS Terrain Tiles); mapa base de “Juega EnCicla”.</li>
+        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026).</li>
+        <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li></ul>
+      <p class="m">Versión ${EM.version}. Funciona sin internet y guarda tus partidas en este dispositivo; exporta una copia para respaldarlas.</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
   },
   bot() {
     UI.modal(`<div class="pag">Bot de pruebas</div><h2>Inspector de la red</h2><p class="m">Revisa los datos, verifica que cada nivel tenga solución y juega partidas automáticas buscando errores.</p><div id="bRes" class="film">Ejecutando…</div><div class="row" style="margin-top:10px"><button class="btn sm" id="bMore">▶ 100 partidas</button><button class="btn sm gh" id="bOk">Cerrar</button></div>`);
@@ -107,10 +127,8 @@ const Menu = EM.menu = {
     $('#bOk').onclick = () => UI.close(); $('#bMore').onclick = () => run(100); run(20);
   },
   bind() {
-    $('#bPlay').onclick = () => { Snd.init(); Snd.play('tap'); this.modes(); };
-    $('#bGuia').onclick = () => { Snd.init(); Guia.open(); };
-    $('#bStory').onclick = () => { Snd.init(); Story.open(); };
-    $('#bMulti').onclick = () => { Snd.init(); Multi.open(); };
+    const viaje = (id, fn) => { $(id).onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(fn, ms); }; };
+    viaje('#bPlay', () => this.modes()); viaje('#bGuia', () => Guia.open()); viaje('#bStory', () => Story.open()); viaje('#bMulti', () => Multi.open());
     $('#bCfg').onclick = () => { Snd.init(); this.settings(); };
     $('#mBack').onclick = $('#lBack').onclick = () => UI.back();
     $('#mBot').onclick = () => this.bot(); $('#mExport').onclick = () => Save.exportFile(); $('#mImport').onclick = () => $('#fileIn').click(); $('#mCred').onclick = () => this.credits();

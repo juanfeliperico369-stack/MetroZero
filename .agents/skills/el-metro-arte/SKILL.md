@@ -84,7 +84,7 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
 ## Integración al juego (así se hizo en v0.6.0)
-1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+1. Lo entregado va en `arte/entregas/laminas/` o `arte/entregas/vectorial/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
 2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
    - `retrato`: dentro del marco, sin fondo;
    - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;

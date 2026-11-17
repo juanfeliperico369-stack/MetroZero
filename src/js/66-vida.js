@@ -1,5 +1,5 @@
 /* =====================================================================
-   VIDA DE LA RED (dinamismo estilo Industry Art): misiones del día, racha,
+   VIDA DE LA RED: misiones del día, racha,
    logros, noticias con el calendario real de Medellín, temas y modo daltónico.
    ===================================================================== */
 const MISIONES = [
@@ -86,7 +86,7 @@ const Vida = EM.vida = {
   panel() {
     const D = this.daily(), d = Save.d, nl = Object.keys(d.logros || {}).length;
     return `<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
-      <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between"><div class="spaced" style="font-size:12px">Misiones de hoy</div><span class="pag">🔥 racha ${d.streak || 0} · 🏅 ${nl}/${LOGROS.length}</span></div>
+      <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Misiones de hoy</h3><span class="pag">🔥 ${d.streak || 0} ${d.streak === 1 ? 'día' : 'días'} seguidos · 🏅 ${nl} de ${LOGROS.length}</span></div>
       ${D.list.map(m => { const M = MISIONES.find(x => x.k === m.k); return `<div class="row" style="margin-top:8px;gap:8px"><span style="flex:1;min-width:0;font-size:14px;${m.done ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(M.t(m.n))}</span><span class="bar" style="width:90px"><i style="width:${Math.round(m.p / m.n * 100)}%"></i></span><b style="font-size:12px;width:44px;text-align:right">${m.p}/${m.n}</b></div>`; }).join('')}
       <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
   },
@@ -98,10 +98,12 @@ const Vida = EM.vida = {
   },
   temas() {
     const s = Save.d.settings;
-    UI.modal(`<div class="pag">Apariencia</div><h2>Tema</h2><div class="tg" id="tmT">${[['revista', 'Revista'], ['noche', 'Noche'], ['contraste', 'Alto contraste']].map(([k, n]) => `<button data-t="${k}" class="${(s.tema || 'revista') === k ? 'on' : ''}">${n}</button>`).join('')}</div><div class="pag" style="margin-top:10px">Colores</div><div class="tg" id="tmD"><button data-d="0" class="${s.dalt ? '' : 'on'}">Normales</button><button data-d="1" class="${s.dalt ? 'on' : ''}">Modo daltónico</button></div><p class="m">El modo daltónico cambia los colores de los vehículos y andenes en los modos de agujas (las letras siempre se muestran).</p><button class="btn pri" id="tmOk">Listo</button>`);
+    UI.modal(`<div class="pag">Apariencia</div><h2>Tema</h2><div class="tg" id="tmT">${[['metro', 'Metro'], ['noche', 'Noche'], ['contraste', 'Alto contraste']].map(([k, n]) => `<button data-t="${k}" class="${this.tema() === k ? 'on' : ''}">${n}</button>`).join('')}</div><div class="pag" style="margin-top:10px">Colores</div><div class="tg" id="tmD"><button data-d="0" class="${s.dalt ? '' : 'on'}">Normales</button><button data-d="1" class="${s.dalt ? 'on' : ''}">Modo daltónico</button></div><p class="m">El modo daltónico cambia los colores de los vehículos y andenes en los modos de agujas (las letras siempre se muestran).</p><button class="btn pri" id="tmOk">Listo</button>`);
     $$('#tmT button').forEach(b => b.onclick = () => { s.tema = b.dataset.t; this.apply(); Save.write(); $$('#tmT button').forEach(x => x.classList.toggle('on', x === b)); });
     $$('#tmD button').forEach(b => b.onclick = () => { s.dalt = +b.dataset.d; Save.write(); $$('#tmD button').forEach(x => x.classList.toggle('on', x === b)); });
     $('#tmOk').onclick = () => UI.close();
   },
-  apply() { const t = Save.d.settings.tema || 'revista'; document.documentElement.className = 't-' + t; const m = $('meta[name=theme-color]'); if (m) m.content = t === 'contraste' ? '#000000' : t === 'noche' ? '#0c2533' : '#0e5a6b'; }
+  /* tema visual: metro (claro), noche o alto contraste; las partidas viejas con 'revista' pasan a 'metro' */
+  tema() { const t = Save.d.settings.tema; return t === 'noche' || t === 'contraste' ? t : 'metro'; },
+  apply() { const t = this.tema(); document.documentElement.className = 't-' + t; const m = $('meta[name=theme-color]'); if (m) m.content = t === 'contraste' ? '#000000' : '#0F2238'; }
 };

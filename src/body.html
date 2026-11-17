@@ -1,31 +1,28 @@
 <body>
 <div id="app">
  <section class="scr" id="cover">
-  <div class="band"><div class="bt">Metro de Medellín · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="cvClock">Servicio 4:30 – 23:00</div></div>
-  <div class="cbody">
-   <div class="srf">Trenes, tranvía, Metroplús, alimentadores y metrocables · un juego para todo público</div>
-   <h1 class="mega">El Metro</h1>
-   <canvas class="cart" id="cvArt" width="320" height="200"></canvas>
-   <div class="kick">¿Sabés a dónde vas, mijo?</div>
-   <h2 class="mega b2">La última vuelta</h2>
-   <div class="ctag">Rosalba maneja su último tren. Tú heredas la ciudad.</div>
-   <div class="cbtns">
-    <button class="btn pri" id="bPlay">▶ Jugar</button>
-    <button class="btn tin" id="bStory">Historia · La última vuelta</button>
-    <div class="row"><button class="btn sm grow" id="bGuia">Aprende a usar el Metro</button><button class="btn sm grow" id="bMulti">Juntos</button><button class="btn sm" id="bCfg">⚙</button></div>
-   </div>
-  </div>
-  <div class="cfoot"><span>La revista que se mueve</span><span class="adv">Cultura Metro<b>Todo público</b>sin internet</span></div>
+  <header class="hero">
+   <canvas class="cart" id="cvArt" width="320" height="200" aria-hidden="true"></canvas>
+   <div class="hero-top"><span class="estado" id="cvClock">Servicio de 4:30 a 23:00</span><button class="ib" id="bCfg" aria-label="Ajustes">⚙</button></div>
+   <div class="hero-tx"><h1 class="titulo">El Metro</h1><p class="lema">Medellín y el Valle de Aburrá en metro, tranvía, cable y bus</p></div>
+  </header>
+  <nav class="linea" aria-label="Menú principal">
+   <span class="tren" id="cvTren" aria-hidden="true"></span>
+   <button class="parada principal" id="bPlay" style="--c:var(--lA)"><i></i><span><b>Jugar</b><small>Ciudad Libre y todos los modos</small></span></button>
+   <button class="parada" id="bStory" style="--c:var(--lH)"><i></i><span><b>La última vuelta</b><small>La historia de Rosalba, el último viaje antes de jubilarse</small></span></button>
+   <button class="parada" id="bGuia" style="--c:var(--lT)"><i></i><span><b>Aprende a usar el Metro</b><small>Cívica, líneas, transbordos y Cultura Metro</small></span></button>
+   <button class="parada" id="bMulti" style="--c:var(--lM)"><i></i><span><b>Jugar juntos</b><small>En el mismo celular o en la misma red Wi‑Fi</small></span></button>
+  </nav>
  </section>
 
  <section class="scr" id="menu">
-  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro · Modos</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
+  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
   <div class="scroll"><div class="wrap">
-   <div class="row" style="justify-content:space-between;align-items:flex-end;margin:4px 0 12px"><div><div class="pag">Est. 01 · Elige tu oficio</div><div class="mega" style="font-size:64px">Modos</div></div><div class="kick" id="mGreet">Buenos días</div></div>
+   <div class="cabeza"><h1>Elige tu viaje</h1><p class="m" id="mGreet">Buenos días</p></div>
    <div id="mVida"></div>
    <div class="modes" id="mList"></div>
-   <div class="wave" style="margin:22px 0 10px"></div>
-   <div class="row"><button class="btn sm" id="mBot">🤖 Bot de pruebas</button><button class="btn sm" id="mExport">⤓ Exportar partidas</button><button class="btn sm" id="mImport">⤒ Importar</button><button class="btn sm" id="mCred">Créditos</button></div>
+   <div class="franja" style="margin:22px 0 12px"></div>
+   <div class="row"><button class="btn sm gh" id="mBot">Ver demostración</button><button class="btn sm gh" id="mExport">Exportar partidas</button><button class="btn sm gh" id="mImport">Importar partidas</button><button class="btn sm gh" id="mCred">Créditos</button></div>
   </div></div>
  </section>
 

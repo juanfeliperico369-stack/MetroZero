@@ -99,14 +99,14 @@ const MAP = EM.map = {
     for (let j = 0; j < SW; j++) for (let i = 0; i < SW; i++) tw[j * SW + i] = this.tile(cx * CH + i - M, cy * CH + j - M);
     const T = (x, y) => tw[(y + M) * SW + x + M], road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE, wet = v => v === TT.WATER || v === TT.CANAL;
     // cada casilla de vía es tramo vertical (1), tramo horizontal (2) o cruce/plazoleta (3), con su ancho en casillas y su posición
-    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), ri = (x, y) => (y + 1) * RS + x + 1;
+    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), rIdx = (x, y) => (y + 1) * RS + x + 1;
     // se mide con las vías del MISMO tipo (autopista, avenida y calle vienen pegadas en los datos); un cruce es donde llega una vía transversal
     const runV = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x, y - k)); k++) n++; for (let k = 1; k < 5 && road(T(x, y + k)); k++) n++; return n; };
     const runH = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x - k, y)); k++) n++; for (let k = 1; k < 5 && road(T(x + k, y)); k++) n++; return n; };
     for (let y = -1; y <= CH; y++) for (let x = -1; x <= CH; x++) {
       const v = T(x, y); if (!road(v) || v === TT.BRIDGE) continue; let l = 0, r = 0, u = 0, w = 0;
       while (l < 9 && T(x - l - 1, y) === v) l++; while (r < 9 && T(x + r + 1, y) === v) r++; while (u < 9 && T(x, y - u - 1) === v) u++; while (w < 9 && T(x, y + w + 1) === v) w++;
-      const h = l + r + 1, vv = u + w + 1, k = ri(x, y);
+      const h = l + r + 1, vv = u + w + 1, k = rIdx(x, y);
       if (vv >= h + 3 && h <= 9) {
         const xa = x - l - 1, xb = x + r + 1, cruce = (road(T(xa, y)) && T(xa, y) !== TT.BRIDGE && runV(xa, y) <= 3) || (road(T(xb, y)) && T(xb, y) !== TT.BRIDGE && runV(xb, y) <= 3);
         if (cruce) RK[k] = 3; else { RK[k] = 1; RW[k] = h; RP[k] = l; }
@@ -115,10 +115,10 @@ const MAP = EM.map = {
         if (cruce) RK[k] = 3; else { RK[k] = 2; RW[k] = vv; RP[k] = u; }
       } else RK[k] = 3;
     }
-    const RKa = (x, y) => RK[ri(x, y)];
+    const RKa = (x, y) => RK[rIdx(x, y)];
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
       const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
-      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = ri(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = rIdx(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
       // tramo de vía: cebras solo a la entrada de un cruce (siempre en avenidas; en calles, algunas)
       let zA = 0, zB = 0, stx = 0, sty = 0;
       if (rk === 1 || rk === 2) {
@@ -252,14 +252,14 @@ const MAP = EM.map = {
         if (!sS) { const y0 = oy + P; R(ox + (sW ? 0 : 0), y0, P, fh, wall); R(ox, y0, P, 1, Art.shade(wall, .78)); if (!sW) R(ox, y0, 1, fh, '#141414'); if (!sE) R(ox + P - 1, y0, 1, fh, '#141414'); R(ox, y0 + fh, P, 1, 'rgba(0,0,0,.4)');
           const glass = hm > 40 && lr > .6; for (let wy = y0 + 2; wy < y0 + fh - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, glass ? '#3d6a8a' : '#2a4560'); lights.push([wx, wy, 2]); }
           if (fh >= 6 && ri > .5) R(ox + 2, y0 + fh - 3, P - 4, 2, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835'][(lr * 5) | 0]); }   // toldo / local comercial
-      } else if (v === TT.AVE && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2) && RW[ri(tx, ty)] >= 2) {
+      } else if (v === TT.AVE && (RK[rIdx(tx, ty)] === 1 || RK[rIdx(tx, ty)] === 2) && RW[rIdx(tx, ty)] >= 2) {
         // árboles del separador, uno cada dos casillas a lo largo
-        const vert = RK[ri(tx, ty)] === 1, rp = RP[ri(tx, ty)], mid = RW[ri(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
+        const vert = RK[rIdx(tx, ty)] === 1, rp = RP[rIdx(tx, ty)], mid = RW[rIdx(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
         if (rp === t0 && ((vert ? Y : X) & 1) === 0 && h2(vert ? X - rp : X, vert ? Y : Y - rp, 99) < .8) {
           const loc = mid - t0 * P, x = vert ? ox + loc : ox + (P >> 1), y = vert ? oy + (P >> 1) : oy + loc, rr = 3.2 + h2(X, Y, 72) * 1.6;
           g.fillStyle = 'rgba(18,38,22,.35)'; g.beginPath(); g.ellipse(x + 1.5, y + 1.5, rr, rr * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = h2(X, Y, 73) < .15 ? '#e0b830' : h2(X, Y, 74) < .15 ? '#c96bb0' : '#4b8640'; g.beginPath(); g.arc(x - .4, y - .5, rr * .72, 0, TAU); g.fill();
         }
-      } else if ((v === TT.ROAD) && r < .3 && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2)) {
+      } else if ((v === TT.ROAD) && r < .3 && (RK[rIdx(tx, ty)] === 1 || RK[rIdx(tx, ty)] === 2)) {
         // carro parqueado junto al andén
         const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
         if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }

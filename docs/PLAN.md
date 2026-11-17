@@ -20,6 +20,8 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
   - casas orientadas a su calle con lotes reales, andenes y plazas rediseñadas.
   - Siguiente: barrios de Bello y del resto del valle; anchos reales de calle; Maqueta 2:1.
 
+- **v0.8.0:** interfaz con la identidad del Metro (inicio como línea), seguridad revisada y código publicado sin comentarios. Pendiente: clave de firma de la APK fuera del repositorio.
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).

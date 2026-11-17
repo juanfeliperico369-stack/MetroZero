@@ -3,8 +3,8 @@
 
   python3 tools/arte_juego.py        (requiere Pillow con WebP y numpy)
 
-- Gemini (G-): láminas JPEG con fondo magenta → recorte, fondo transparente, WebP pequeño.
-- ChatGPT (C-): SVG → se minifican y se embeben como texto (nítidos en cualquier pantalla).
+- Láminas (encargos G-): JPEG con fondo magenta → recorte, fondo transparente, WebP pequeño.
+- Vectorial (encargos C-): SVG → se minifican y se embeben como texto (nítidos en cualquier pantalla).
 - El juego usa ARTE[id] solo si existe: siempre hay respaldo procedural (Atlas en src/js/19-atlas.js).
 - Las cajas de recorte se midieron con una segmentación del fondo magenta (ver arte/entregas/INVENTARIO.md).
 """
@@ -14,8 +14,8 @@ import numpy as np
 from PIL import Image
 
 R = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-G = os.path.join(R, 'arte/entregas/gemini')
-C = os.path.join(R, 'arte/entregas/chatgpt/svg')
+G = os.path.join(R, 'arte/entregas/laminas')
+C = os.path.join(R, 'arte/entregas/vectorial/svg')
 
 ROS, NIE, EFR, MWA = 'G-01-03_rosalba.jpg', 'G-04_nieta.jpg', 'G-05_don-efrain.jpg', 'G-06-08_marleny-wilmar-agente.jpg'
 FIE, VAR, LAD = 'G-80-81_silleteros-y-alumbrados.jpg', 'G-82-86_velitas-tango-comuna13-arvi-aguacero.jpg', 'G-40-55_ladera-y-variantes.jpg'
@@ -50,7 +50,7 @@ RASTER = [
 RASTER = [r if r[0] not in ('esc_aguacero', 'esc_velitas') else
           (r[0], r[1], r[2], (1102, 77, 1374, 692) if r[0] == 'esc_aguacero' else (3, 77, 274, 692)) + r[4:] for r in RASTER]
 
-# SVG de ChatGPT: (id, ruta dentro de svg/, encargo, uso)
+# SVG: (id, ruta dentro de svg/, encargo, uso)
 SVG = [('portada', 'portadas/clave_portada.svg', 'C-40', 'Portada del menú y epílogo'),
        ('carga', 'portadas/clave_carga.svg', 'C-41', 'Pantalla de carga y cap. 7 · La última vuelta')]
 for i, (k, f) in enumerate([('libre', 'ciudad_libre'), ('bus', 'bus'), ('conduce', 'metro'), ('cableviaje', 'metrocable'), ('historia', 'historia'),
@@ -155,8 +155,8 @@ def main():
         filas.append((id_, enc, f, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
     for (id_, f, enc, uso) in SVG:
         s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
-        arte[id_] = s; filas.append((id_, enc, 'chatgpt/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
-    js = ('/* ARTE DEL JUEGO · generado por tools/arte_juego.py desde arte/entregas/ (Gemini G-, ChatGPT C-). No editar a mano.\n'
+        arte[id_] = s; filas.append((id_, enc, 'vectorial/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
+    js = ('/* ARTE DEL JUEGO · generado por tools/arte_juego.py desde arte/entregas/. No editar a mano.\n'
           '   Uso: Atlas.img(id) / Atlas.url(id) en src/js/19-atlas.js; si falta un id, el juego dibuja su respaldo procedural. */\n'
           'const ARTE = ' + json.dumps(arte, ensure_ascii=False, separators=(',', ':')).replace('","', '",\n"') + ';\n')
     open(os.path.join(R, 'src/data/arte.js'), 'w', encoding='utf-8').write(js)

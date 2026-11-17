@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.8.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -31,7 +31,7 @@ function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinute
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'revista', dalt: 0, ciclo: 'rapido' } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido' } };
 }
 const Save = EM.save = {
   d: null,
@@ -43,7 +43,9 @@ const Save = EM.save = {
   },
   sanitize(d) {
     const b = newSave();
-    if (!d || typeof d !== 'object' || d.v !== 1) return b;
+    if (!d || typeof d !== 'object' || Array.isArray(d) || d.v !== 1) return b;
+    d = JSON.parse(JSON.stringify(d), (k, v) => k === '__proto__' || k === 'constructor' || k === 'prototype' ? undefined : v);   // sin claves que cambien prototipos
+    if (!d.settings || typeof d.settings !== 'object') d.settings = b.settings; if (!d.stats || typeof d.stats !== 'object') d.stats = b.stats;
     for (const k in b) if (d[k] == null || typeof d[k] !== typeof b[k]) d[k] = b[k];
     for (const k in b.settings) if (typeof d.settings[k] !== typeof b.settings[k]) d.settings[k] = b.settings[k];
     for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;

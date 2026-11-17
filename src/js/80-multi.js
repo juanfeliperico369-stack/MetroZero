@@ -10,7 +10,7 @@ const Multi = EM.multi = {
   stat() { const n = Object.keys(this.players).length; $('#nStat').textContent = Net.connected() ? (Net.role === 'host' ? 'Anfitrión · ' : 'Invitado · ') + (n + 1) + ' jugadores' : 'Sin conexión'; },
   home() {
     this.stat();
-    $('#nBody').innerHTML = `<div class="pag">Est. 08 · Multijugador</div><div class="mega" style="font-size:56px;margin-bottom:12px">Juntos</div>
+    $('#nBody').innerHTML = `<div class="cabeza"><h1>Jugar juntos</h1></div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">1 · En este celular</div><p class="m">Pongan el celular en la mesa, uno frente al otro. Mismo tablero para los dos: gana quien haga más puntos.</p><div class="row">${NETMODES.map(m => `<button class="btn sm" data-d="${m}">${esc(EM.modes[m].name)}</button>`).join('')}</div></div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">2 · Wi‑Fi sin internet</div><p class="m">Conecten los celulares a la misma red Wi‑Fi o al punto de acceso de uno de ellos (no gasta datos). Se enlazan con un código QR: hasta 4 jugadores.</p>${Net.supported() ? '<div class="row"><button class="btn sm tin" id="nHost">Crear sala</button><button class="btn sm" id="nJoin">Unirme con código</button></div>' : '<p class="bad">Este navegador no soporta WebRTC.</p>'}</div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">3 · Servidor local (PC)</div><p class="m" id="nSrv">Buscando servidor…</p></div>
@@ -23,7 +23,7 @@ const Multi = EM.multi = {
     $('#nBcH').onclick = () => { this.wire(); Net.bcOpen('prueba', true); this.lobby(); };
     $('#nBcJ').onclick = () => { this.wire(); Net.bcOpen('prueba', false); this.hello(); this.lobby(); };
     const lb = $('#nLobby'); if (lb) lb.onclick = () => this.lobby();
-    Net.hasServer().then(ok => { const el = $('#nSrv'); if (!el) return; if (ok) { el.innerHTML = '¡Hay un servidor de El Metro en esta red! <div class="row" style="margin-top:8px"><input id="nRoom" value="sala1" maxlength="12" style="border:3px solid var(--negro);padding:6px;width:110px"><button class="btn sm tin" id="nSH">Crear</button><button class="btn sm" id="nSJ">Entrar</button></div>'; const go = host => { this.wire(); Net.wsConnect(($('#nRoom').value || 'sala1').trim(), host).then(() => { if (!host) this.hello(); this.lobby(); }, e => UI.toast(e.message)); }; $('#nSH').onclick = () => go(true); $('#nSJ').onclick = () => go(false); } else el.innerHTML = 'Para jugar con un PC como servidor (casa, colegio, biblioteca): en el PC ejecuta <b>node server.mjs</b> (viene con el juego) y abre en cada celular la dirección que muestra, por ejemplo <b>http://192.168.1.10:8080</b>. Todo queda dentro de la red local.'; });
+    Net.hasServer().then(ok => { const el = $('#nSrv'); if (!el) return; if (ok) { el.innerHTML = '¡Hay un servidor de El Metro en esta red! <div class="row" style="margin-top:8px"><input id="nRoom" value="sala1" maxlength="12" class="campo" style="width:120px"><button class="btn sm tin" id="nSH">Crear</button><button class="btn sm" id="nSJ">Entrar</button></div>'; const go = host => { this.wire(); Net.wsConnect(($('#nRoom').value || 'sala1').trim(), host).then(() => { if (!host) this.hello(); this.lobby(); }, e => UI.toast(e.message)); }; $('#nSH').onclick = () => go(true); $('#nSJ').onclick = () => go(false); } else el.innerHTML = 'Para jugar con un PC como servidor (casa, colegio, biblioteca): en el PC ejecuta <b>node server.mjs</b> (viene con el juego) y abre en cada celular la dirección que muestra, por ejemplo <b>http://192.168.1.10:8080</b>. Todo queda dentro de la red local.'; });
   },
   wire() { Net.onmsg = m => this.onmsg(m); Net.onstatus = s => { this.stat(); if (s === 'open' && UI.cur === 'multi' && this._wait) { this._wait = false; UI.close(); if (Net.role === 'guest') this.hello(); this.lobby(); } }; },
   async hostFlow() {
@@ -61,10 +61,10 @@ const Multi = EM.multi = {
   hello() { Net.send({ t: 'hello', name: Save.d.name }); },
   lobby() {
     this.stat(); const host = Net.role === 'host', S = this.sel, M = EM.modes[S.mode];
-    $('#nBody').innerHTML = `<div class="pag">Sala</div><div class="mega" style="font-size:52px">${host ? 'Tu sala' : 'En la sala'}</div>
+    $('#nBody').innerHTML = `<div class="cabeza"><h1>${host ? 'Tu sala' : 'En la sala'}</h1></div>
       <div class="boxed" style="margin:10px 0"><b>${esc(Save.d.name)}</b> (tú)${Object.values(this.players).map(p => '<br>' + esc(p.name)).join('')}</div>
       ${host ? `<div class="pag">Modo</div><div class="tg" id="lMode">${NETMODES.map(m => `<button data-m="${m}" class="${S.mode === m ? 'on' : ''}">${esc(EM.modes[m].name)}</button>`).join('')}</div>
-      <div class="pag" style="margin-top:8px">Nivel</div><select id="lLv" style="border:3px solid var(--negro);padding:6px;font-size:15px;max-width:100%">${M.levels().map(l => `<option value="${esc(l.id)}" ${l.id === S.lv ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
+      <div class="pag" style="margin-top:8px">Nivel</div><select id="lLv" class="campo">${M.levels().map(l => `<option value="${esc(l.id)}" ${l.id === S.lv ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
       <div class="pag" style="margin-top:8px">Forma de jugar</div><div class="tg" id="lKind"><button data-k="coop" class="${S.kind === 'coop' ? 'on' : ''}">Cooperativo (mismo tablero)</button><button data-k="duelo" class="${S.kind === 'duelo' ? 'on' : ''}">Duelo (misma partida, cada uno la suya)</button></div>
       <div class="row" style="margin-top:12px"><button class="btn pri" id="lGo">▶ Empezar</button>${Net.kind === 'rtc' ? '<button class="btn sm" id="lMore">+ Invitar otro</button>' : ''}<button class="btn sm gh" id="lOut">Salir de la sala</button></div>` : '<p class="m">Esperando a que el anfitrión elija el juego…</p><button class="btn sm gh" id="lOut">Salir de la sala</button>'}`;
     if (host) {
@@ -96,17 +96,20 @@ const Multi = EM.multi = {
     UI.modal(`<div class="pag">Duelo en red</div><h2>${all[0][0].includes('(tú)') ? '¡Ganaste!' : 'Gana ' + esc(all[0][0])}</h2><div class="kv">${all.map(([n, s]) => `<b>${esc(n)}</b><span>${fmt(s)}</span>`).join('')}</div><p class="m">+${earn} 🎫 · los puntajes de los demás se actualizan cuando terminan.</p><button class="btn pri" id="dOk">Volver a la sala</button>`);
     $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
   },
+  /* lo que llega de otro celular no es confiable: se valida tipo por tipo y los nombres se limpian */
+  nombre(v, def) { const t = typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16) : ''; return t || def; },
   onmsg(m) {
-    const from = m.from;
+    if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
+    const from = m.from | 0;
     switch (m.t) {
-      case 'hello': this.players[from] = { name: String(m.name || 'Jugador').slice(0, 16) }; if (Net.role === 'host') Net.send({ t: 'roster', p: this.players, host: Save.d.name }); this.stat(); if (UI.cur === 'multi') this.lobby(); UI.toast((m.name || 'Alguien') + ' entró a la sala'); break;
-      case 'roster': if (Net.role !== 'host') { this.players = {}; this.players[0] = { name: m.host }; for (const k in m.p) if (+k !== Net.myId) this.players[k] = m.p[k]; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
+      case 'hello': { const n = this.nombre(m.name, 'Jugador'); this.players[from] = { name: n }; if (Net.role === 'host') Net.send({ t: 'roster', p: this.players, host: Save.d.name }); this.stat(); if (UI.cur === 'multi') this.lobby(); UI.toast(n + ' entró a la sala'); break; }
+      case 'roster': if (Net.role !== 'host' && m.p && typeof m.p === 'object') { const P = Object.create(null); P[0] = { name: this.nombre(m.host, 'Anfitrión') }; for (const k of Object.keys(m.p)) { if (!/^\d{1,3}$/.test(k) || +k === Net.myId || !m.p[k] || typeof m.p[k] !== 'object') continue; P[k] = { name: this.nombre(m.p[k].name, 'Jugador') }; } this.players = P; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
       case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
-      case 'start': if (Net.role !== 'host') this.begin(m.mode, m.lv, m.kind, m.seed, false); break;
-      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode) Game.mode.act(Game.st, m.a); break;
-      case 'st': if (Game.net && Game.net.guest && m.s) { Game.st = m.s; } break;
-      case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: String(m.name || 'Rival'), score: m.score | 0, done: !!m.done }; break;
-      case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const r = Object.assign(Game.mode.result(Game.st), m.r || {}); Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
+      case 'start': if (Net.role !== 'host' && NETMODES.includes(m.mode) && (m.kind === 'coop' || m.kind === 'duelo') && EM.modes[m.mode].levels().some(l => l.id === m.lv)) this.begin(m.mode, m.lv, m.kind, +m.seed || 1, false); break;
+      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && (typeof m.a === 'number' || (typeof m.a === 'string' && m.a.length <= 32))) Game.mode.act(Game.st, m.a); break;
+      case 'st': if (Game.net && Game.net.guest && m.s && typeof m.s === 'object' && !Array.isArray(m.s)) { Game.st = m.s; } break;
+      case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: this.nombre(m.name, 'Rival'), score: +m.score | 0, done: !!m.done }; break;
+      case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const q = m.r && typeof m.r === 'object' ? m.r : {}, r = Game.mode.result(Game.st); if (isFinite(+q.score)) r.score = +q.score; if (q.stars != null) r.stars = clamp(q.stars | 0, 0, 3); if (q.win != null) r.win = !!q.win; Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
     }
   },
   bind() { $('#nBack').onclick = () => UI.back(); UI.onshow.multi = () => { if (Net.connected()) this.lobby(); else this.home(); }; }
