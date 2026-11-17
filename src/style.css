@@ -213,3 +213,22 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .jobbar.low{border-left-color:var(--lP);animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{opacity:.6}}
 #game .vsel button#lbRun.on{background:var(--mante)}
+
+.c-guia{background:var(--lT);color:#fff}
+.guia-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.guia-tabs button{border:3px solid var(--negro);background:var(--blanco);padding:5px 9px;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.guia-tabs button.on{background:var(--lA);color:#fff}
+.guia-body{border:3px solid var(--negro);background:var(--papel2);padding:12px;min-height:200px;line-height:1.45}
+.guia-body h4{font-family:var(--fd);font-stretch:75%;font-size:26px;margin:0 0 6px;text-transform:uppercase;color:var(--tinta)}
+.guia-body ol,.guia-body ul{padding-left:20px;margin:6px 0}
+.guia-body li{margin:4px 0}
+.civica{display:inline-block;width:150px;height:94px;border-radius:8px;background:linear-gradient(135deg,#1C5C9C,#59AB42);border:3px solid var(--negro);box-shadow:var(--sh);color:#fff;font-weight:800;padding:8px;position:relative;margin:6px 0}
+.civica:after{content:'CÍVICA';position:absolute;right:10px;bottom:8px;font-family:var(--fd);font-stretch:75%;font-size:22px;letter-spacing:.04em}
+.civica i{position:absolute;left:10px;top:34px;width:26px;height:20px;border-radius:4px;background:#F6C538;border:2px solid var(--negro)}
+.jobbar.stop{border-left-color:var(--lT)}
+/* botones de cabina (metro): panel oscuro con etiquetas LED */
+#game .lever{background:linear-gradient(#59AB42 0 42%,#d9d2bb 42% 50%,#EC343A 50% 100%);border-color:#0b1115;box-shadow:4px 4px 0 #0b1115,inset 0 0 0 3px #1b262e}
+#game .lever .kn{background:#243039;color:#ffd27a;border-color:#0b1115;font-family:var(--fm)}
+#game .gbtns .btn{background:#243039;color:#ffd27a;border-color:#0b1115;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-stretch:100%;font-size:13px;letter-spacing:.06em}
+#game .gbtns .btn.mos{background:#F6C538;color:#141414}
+#game .gbtns .btn[disabled]{opacity:.45}

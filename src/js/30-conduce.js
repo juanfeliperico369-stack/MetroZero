@@ -32,11 +32,11 @@ function trackOf(line) {
   TRACKS.set(line.id, T); return T;
 }
 const Conduce = EM.modes.conduce = {
-  id: 'conduce', name: 'Conduce', sub: 'Metro · Tranvía · Metroplús', music: 'conduce', fullCanvas: true, tip: 'Sube la palanca para acelerar, bájala para frenar. Detén el frente del tren en la marca del andén y abre las puertas.',
+  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
   _lv: null,
   levels() {
     if (this._lv) return this._lv; const L = [];
-    for (const line of NET.lines.filter(l => ['metro', 'tram', 'brt', 'feeder'].includes(l.kind) || (l.kind === 'future' && !/cable/i.test(l.name + ' ' + (l.tech || ''))))) {
+    for (const line of NET.lines.filter(l => ['metro', 'tram'].includes(l.kind) || (l.kind === 'future' && !/cable/i.test(l.name + ' ' + (l.tech || ''))))) {
       const n = line.st.length; let k = 0;
       for (let a = 0; a < n - 1; a += 2) { const b = Math.min(n - 1, a + 2); L.push({ id: line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name + (line.kind === 'future' ? ' · vista al futuro (' + line.status + ')' : ''), k: k++ }); }
       if (n > 3) L.push({ id: line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Recorrido completo', sub: line.name + ' · ' + line.st[0].name + ' → ' + line.st[n - 1].name, k: k++, full: true });
@@ -49,7 +49,7 @@ const Conduce = EM.modes.conduce = {
     const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
     const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
     const hr = opts.hour != null ? opts.hour : new Date().getHours() + new Date().getMinutes() / 60, tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
-    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || 'cab',
+    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
       rain: opts.hour != null ? rng.f() < .25 : Mundo.weather().rain, tod, hour: hr, fixH: opts.hour, paseo: !!opts.paseo, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
     st.tgt = stops.map(tgt);
     // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
@@ -184,13 +184,13 @@ const Conduce = EM.modes.conduce = {
   mount(st, el) {
     el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
       <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
-      <div class="vsel" id="cView"><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="lado">↔</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
+      <div class="vsel" id="cView"><button data-v="lado">↔</button><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
     const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
     lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
     $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
     $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
-    $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
+    $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v !== 'paseo') { Save.d.settings.vistaMetro = b.dataset.v; Save.write(); } if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
     this.updCtl(st); this._kn = kn;
   },
   updCtl(st) {
@@ -218,6 +218,14 @@ const Conduce = EM.modes.conduce = {
     else if (this.gl(st)) this.drawGL(g, st, W, H, st.view === 'tps');
     else this.draw3D(g, st, W, H, st.view !== 'cab');
     if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noNight: st.view !== 'top', noRain: true, noGrain: this.gl(st) }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    this.drawStrip(g, st, W, H);
+  },
+  /* diagrama de la línea: estaciones del tramo y posición del tren */
+  drawStrip(g, st, W, H) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 118 : 104) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
+    g.fillStyle = 'rgba(16,46,80,.82)'; g.fillRect(8 * dpr, y - 16 * dpr, W - 16 * dpr, 30 * dpr); g.strokeStyle = line.color; g.lineWidth = 4 * dpr; g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
+    for (let i = 0; i < n; i++) { const f = n > 1 ? i / (n - 1) : 0, x = x0 + (x1 - x0) * f, done = i < st.ni || (i === st.ni && st.ph === 'dwell'); g.fillStyle = done ? '#fff' : 'rgba(255,255,255,.35)'; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, TAU); g.fill(); g.stroke(); if (n <= 8 || i === 0 || i === n - 1 || i === st.ni) { g.fillStyle = i === st.ni ? PAL.mante : '#fff'; g.font = (i === st.ni ? '800 ' : '600 ') + (8.5 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = i === 0 ? 'left' : i === n - 1 ? 'right' : 'center'; g.fillText(line.st[st.stops[i]].name, x, y - 7 * dpr); } }
+    const f = clamp((st.s - a) / ((b - a) || 1), 0, 1), tx = x0 + (x1 - x0) * f; g.fillStyle = PAL.mante; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(tx, y + 3 * dpr); g.lineTo(tx - 6 * dpr, y + 12 * dpr); g.lineTo(tx + 6 * dpr, y + 12 * dpr); g.closePath(); g.fill(); g.stroke(); g.textAlign = 'left';
   },
   hourOf(st) { return st.fixH != null ? st.fixH + st.t / 3600 : Mundo.hour(); },
   zLine(line, s) { return line.kind === 'metro' || line.kind === 'tram' || line.kind === 'future' ? G3.zOn(line, s) : MAP.elevM(NET.at(line.P, s).x, NET.at(line.P, s).y) + .3; },
@@ -239,6 +247,23 @@ const Conduce = EM.modes.conduce = {
     if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.4)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 80; i++) { const x = (h2(i, 3, 3) * W + st.t * 90) % W, y = (h2(i, 4, 3) * H + st.t * 800 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
     if (st.view === 'cab') this.drawCab(g, st, W, H, K, line, st.tod === 'noche'); else this.drawMiniHud(g, st, W, H, K);
   },
+  /* tren de perfil: carrocería con livery del Metro, ventanas, puertas, cabina, pantógrafo */
+  sideTrain(g, st, line, K, X, Y, k, s, dir, carL, n, col, sky, alpha, me) {
+    g.save(); g.globalAlpha = alpha;
+    for (let i = 0; i < n; i++) { const s1 = s - dir * i * (carL + 1), s2 = s1 - dir * carL, xa = X(s1), xb = X(s2), ya = Y(this.zLine(line, s1)), yb = Y(this.zLine(line, s2)), L = Math.hypot(xa - xb, ya - yb), an = Math.atan2(ya - yb, xa - xb), hh = (st.kind === 'metro' ? 3.7 : 3.3) * k, win = sky.night > .5 ? '#ffe7a0' : '#8fc4dc';
+      g.save(); g.translate(xb, yb); g.rotate(an);
+      g.fillStyle = '#141414'; g.fillRect(-1.2 * k, -hh * .35, L + 2.4 * k, hh * .35);   // bogies y bajos
+      for (const bx of [L * .18, L * .82]) { g.fillStyle = '#2a2d31'; g.fillRect(bx - 1.6 * k, -hh * .3, 3.2 * k, hh * .3); g.fillStyle = '#4a4f55'; g.beginPath(); g.arc(bx - .9 * k, 0, .45 * k, 0, TAU); g.arc(bx + .9 * k, 0, .45 * k, 0, TAU); g.fill(); }
+      g.fillStyle = '#141414'; g.fillRect(-1, -hh - 1, L + 2, hh * .72 + 1); g.fillStyle = st.kind === 'metro' ? '#eef1f3' : '#f3f5f1'; g.fillRect(0, -hh, L, hh * .72);
+      g.fillStyle = col; g.fillRect(0, -hh * .62, L, hh * .16); g.fillStyle = Art.shade(col, .75); g.fillRect(0, -hh * .46, L, hh * .05);   // franja de la línea
+      g.fillStyle = '#d4d8dc'; g.fillRect(0, -hh, L, hh * .08);   // techo
+      const nw = st.kind === 'metro' ? 6 : 5, ww = L / nw; for (let w = 0; w < nw; w++) { const x = ww * w; if (w % 2 === 1) { g.fillStyle = '#b9bfc5'; g.fillRect(x + ww * .3, -hh * .92, ww * .4, hh * .64); g.fillStyle = '#141414'; g.fillRect(x + ww * .5 - .6, -hh * .92, 1.2, hh * .64); g.fillStyle = win; g.fillRect(x + ww * .34, -hh * .88, ww * .32, hh * .28); } else { g.fillStyle = win; g.fillRect(x + ww * .2, -hh * .88, ww * .6, hh * .3); } }
+      const front = (dir > 0 && i === 0) || (dir < 0 && i === n - 1), back = (dir > 0 && i === n - 1) || (dir < 0 && i === 0), fx = dir > 0 ? L : 0;
+      if (front || back) { const cx = (front ? (dir > 0 ? L : 0) : (dir > 0 ? 0 : L)); g.fillStyle = '#1f2e3d'; g.fillRect(cx - (cx ? 1.9 * k : 0), -hh * .9, 1.9 * k, hh * .32); g.fillStyle = front ? '#fff6c0' : '#ff3b2f'; g.fillRect(cx - (cx ? 1.2 * k : 0), -hh * .5, 1.2 * k, hh * .08); }
+      if (st.kind === 'metro' || st.kind === 'tram') { g.fillStyle = '#141414'; g.fillRect(L * .45, -hh - 2.4 * k, .3 * k, 2.4 * k); g.fillRect(L * .33, -hh - 2.5 * k, L * .28, .25 * k); if (me && st.v > 3 && h2(st.t * 30 | 0, i, 1) < .12) { g.fillStyle = '#bfefff'; g.fillRect(L * .45 - 2, -hh - 2.9 * k, 4, 3); } }
+      g.restore(); }
+    g.restore();
+  },
   /* vista lateral en capas: el tren de perfil sobre el viaducto real */
   drawLado(g, st, W, H) {
     if (G3.cv) G3.show(false); const line = NET.byId[st.line], K = KIND[st.kind], R = Lado.prof('line:' + line.id, line.P), dir = st.dir, k = Math.max(W, H * .7) / 230, col = line.color;
@@ -250,13 +275,16 @@ const Conduce = EM.modes.conduce = {
       for (let s = Math.ceil(Math.max(0, sA) / 36) * 36; deck && s <= Math.min(line.P.len, sB); s += 36) { const x = X(s), y = Y(this.zLine(line, s)) + 1.6 * k, yg = Y(Lado.sample(R.near, R, s)); g.fillRect(x - .9 * k, y, 1.8 * k, Math.max(0, yg - y)); }
       for (let s = Math.ceil(Math.max(0, sA) / 48) * 48; (st.kind === 'metro' || st.kind === 'tram') && s <= Math.min(line.P.len, sB); s += 48) { const x = X(s), y = Y(this.zLine(line, s)); g.fillStyle = Lado.css(Lado.mix(cN, [0, 0, 0], .3)); g.fillRect(x - .2 * k, y - 6.4 * k, .4 * k, 6.4 * k); }
       // estaciones
-      for (const sI of line.st) { if (sI.s < sA - 100 || sI.s > sB + 100) continue; const x0 = X(sI.s - K.plat / 2), x1 = X(sI.s + K.plat / 2), y = Y(this.zLine(line, sI.s)); g.fillStyle = Lado.css(Lado.mix(cN, [.9, .86, .78], .6)); g.fillRect(Math.min(x0, x1), y - 1 * k, Math.abs(x1 - x0), 1.2 * k); g.fillStyle = col; g.fillRect(Math.min(x0, x1), y - 5.6 * k, Math.abs(x1 - x0), .8 * k); g.fillStyle = Lado.css(Lado.mix(cN, [0, 0, 0], .2)); for (let q = 0; q < 6; q++) g.fillRect(Math.min(x0, x1) + Math.abs(x1 - x0) * (q + .5) / 6, y - 5 * k, .3 * k, 4 * k); for (let q = 0; q < 7; q++) if (h2(q, sI.i, 3) < .6) Art.person(g, Math.min(x0, x1) + Math.abs(x1 - x0) * (q + .3) / 7, y - 1 * k, Math.max(1, k * .3), q + sI.i * 9, false); }
-      // el tren (carros sobre la pendiente real)
-      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
-      for (let i = 0; i < n; i++) { const s1 = st.s - dir * i * (carL + 1), s2 = s1 - dir * carL, xa = X(s1), xb = X(s2), ya = Y(this.zLine(line, s1)), yb = Y(this.zLine(line, s2)), L = Math.hypot(xa - xb, ya - yb), an = Math.atan2(ya - yb, xa - xb), hh = (st.kind === 'metro' ? 3.6 : 3.2) * k;
-        g.save(); g.translate(xb, yb); g.rotate(an); g.fillStyle = '#141414'; g.fillRect(-1, -hh - 1, L + 2, hh + 2); g.fillStyle = st.kind === 'brt' || st.kind === 'feeder' ? col : '#dfe3e6'; g.fillRect(0, -hh, L, hh); g.fillStyle = sky.night > .5 ? '#ffe7a0' : '#9fd3e6'; for (let w = 0; w < 5; w++) g.fillRect(L * (.08 + w * .18), -hh * .78, L * .12, hh * .34); g.fillStyle = st.kind === 'brt' || st.kind === 'feeder' ? '#f4f1ea' : col; g.fillRect(0, -hh * .3, L, hh * .12);
-        if (i === 0) { g.fillStyle = '#fff6c0'; g.fillRect(L - 2, -hh * .3, 2, 2); if (st.kind === 'metro' || st.kind === 'tram') { g.fillStyle = '#141414'; g.fillRect(L * .45, -hh - 2.6 * k, .3 * k, 2.6 * k); g.fillRect(L * .32, -hh - 2.6 * k, L * .28, .25 * k); if (st.v > 3 && h2(st.t * 30 | 0, i, 1) < .15) { g.fillStyle = '#bfefff'; g.fillRect(L * .45 - 2, -hh - 3 * k, 4, 3); } } }
-        g.restore(); }
+      for (const sI of line.st) { if (sI.s < sA - 100 || sI.s > sB + 100) continue; const x0 = Math.min(X(sI.s - K.plat / 2), X(sI.s + K.plat / 2)), pw = Math.abs(X(sI.s + K.plat / 2) - X(sI.s - K.plat / 2)), y = Y(this.zLine(line, sI.s)), wall = Lado.css(Lado.mix(cN, [.92, .88, .8], .65)), dark = Lado.css(Lado.mix(cN, [0, 0, 0], .35));
+        g.fillStyle = dark; g.fillRect(x0 - .5 * k, y - 6.6 * k, pw + 1 * k, 7 * k * 0 + .5 * k); g.fillStyle = wall; g.fillRect(x0, y - 1.1 * k, pw, 1.3 * k); g.fillStyle = PAL.mante; g.fillRect(x0, y - 1.3 * k, pw, .3 * k);   // andén y línea amarilla
+        for (let q = 0; q <= 6; q++) { const cx = x0 + pw * q / 6; g.fillStyle = dark; g.fillRect(cx - .25 * k, y - 6 * k, .5 * k, 5 * k); }
+        g.fillStyle = Lado.css(Lado.mix(cN, [.85, .82, .76], .6)); g.beginPath(); g.moveTo(x0 - .8 * k, y - 6 * k); g.lineTo(x0 + pw * .5, y - 7.6 * k); g.lineTo(x0 + pw + .8 * k, y - 6 * k); g.lineTo(x0 + pw + .8 * k, y - 5.5 * k); g.lineTo(x0 + pw * .5, y - 7.1 * k); g.lineTo(x0 - .8 * k, y - 5.5 * k); g.fill();   // techo a dos aguas
+        g.fillStyle = col; g.fillRect(x0 + pw * .5 - 7 * k, y - 9.6 * k, 14 * k, 1.8 * k); g.fillStyle = '#fff'; g.font = '700 ' + Math.max(8, 1.3 * k) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText(sI.name.toUpperCase(), x0 + pw * .5, y - 8.3 * k); g.textAlign = 'left';
+        for (let q = 0; q < 9; q++) if (h2(q, sI.i, 3) < .65) Art.person(g, x0 + pw * (q + .4) / 9, y - 1.2 * k, Math.max(1, k * .32), q + sI.i * 9, h2(q, sI.i, 8) < .3); }
+      // otros trenes de la línea (ciudad viva)
+      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1, L2 = line.P.len * 2;
+      for (let q = 0; q < 4; q++) { const s0 = (st.t * K.vmax * .7 + q * L2 / 4 + 500) % L2, od = s0 < line.P.len ? 1 : -1, os = od > 0 ? s0 : L2 - s0; if (Math.abs(os - st.s) < 90 || os < sA - 80 || os > sB + 80) continue; this.sideTrain(g, st, line, K, X, Y, k, os, od, carL, n, col, sky, .85); }
+      this.sideTrain(g, st, line, K, X, Y, k, st.s, dir, carL, n, col, sky, 1, true);
     } });
     this.drawMiniHud(g, st, W, H, K);
   },
@@ -380,27 +408,33 @@ const Conduce = EM.modes.conduce = {
   },
   /* cabina (1a persona): marco, tablero, velocímetro y el tinto que no debe regarse */
   drawCab(g, st, W, H, K, line, night) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), u = Math.max(1, Math.min(W, H) / 220), db = H - Math.min(H * .2, 118 * dpr);
-    g.fillStyle = '#141414'; g.fillRect(0, 0, W, 6 * u); g.fillRect(0, 0, 7 * u, H); g.fillRect(W - 7 * u, 0, 7 * u, H);
-    g.fillStyle = '#1e2a33'; g.beginPath(); g.moveTo(0, db + 12 * u); g.lineTo(W * .2, db); g.lineTo(W * .8, db); g.lineTo(W, db + 12 * u); g.lineTo(W, H); g.lineTo(0, H); g.fill();
-    g.fillStyle = line.color; g.fillRect(W * .2, db, W * .6, 3 * u);
-    // velocímetro (centro, entre los botones y la palanca)
-    const cx = W * .5, R = Math.min(W * .15, (H - db) * .62), cy = H - 6 * dpr, vmax = K.vmax * 3.6;
-    g.fillStyle = '#0d1418'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * u; g.beginPath(); g.arc(cx, cy, R - 2 * u, Math.PI, TAU); g.stroke();
-    const lim = this.limAt(st, st.s) * 3.6, al = Math.PI + Math.PI * clamp(lim / vmax, 0, 1); g.strokeStyle = PAL.rojo; g.lineWidth = 4 * u; g.beginPath(); g.arc(cx, cy, R - 6 * u, al, al + .06); g.stroke();
-    const an = Math.PI + Math.PI * clamp(st.v * 3.6 / vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2 * u; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * (R - 8 * u), cy + Math.sin(an) * (R - 8 * u)); g.stroke();
-    g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .32) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6), cx, cy - R * .18); g.font = '600 ' + (R * .14) + 'px Cuerpo, sans-serif'; g.fillStyle = PAL.mante; g.fillText('KM/H · LÍM ' + Math.round(lim), cx, cy - R * .02);
-    // a la marca (encima del velocímetro)
-    const d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
-    g.fillStyle = 'rgba(13,20,24,.82)'; const bw = Math.min(W * .5, 190 * dpr), by = db - 44 * dpr; g.fillRect(cx - bw / 2, by, bw, 38 * dpr); g.fillStyle = line.color; g.fillRect(cx - bw / 2, by, 4 * dpr, 38 * dpr);
-    g.fillStyle = Math.abs(d) < 2 && st.ph !== 'dwell' ? '#38e07b' : '#fff'; g.font = '700 ' + (20 * dpr) + 'px Titulos, sans-serif';
-    g.fillText(st.ph === 'dwell' ? (st.doors === 1 ? 'ABORDANDO ' + Math.round(st.board * 100) + '%' : 'EN EL ANDÉN') : (Math.abs(d) < 100 ? d.toFixed(1) : Math.round(d)) + ' m a la marca', cx, by + 20 * dpr);
-    g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillStyle = late > 15 ? '#ff6a3d' : PAL.mante; g.fillText('HORARIO ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s' + (st.rain ? ' · LLUVIA' : ''), cx, by + 33 * dpr);
-    // tinto (confort) arriba a la izquierda
-    const tx = 26 * dpr, ty = 62 * dpr, sl = clamp(st.a * 4, -6, 6) * dpr; g.fillStyle = 'rgba(13,20,24,.7)'; g.fillRect(tx - 18 * dpr, ty - 6 * dpr, 36 * dpr, 40 * dpr);
-    g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 14 * dpr); g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 4 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 4 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 13 * dpr); g.lineTo(tx - 6 * dpr, ty + 13 * dpr); g.fill();
-    g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(Math.round(st.comfort) + '%', tx, ty + 27 * dpr); g.textAlign = 'left';
-    if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.25 + .2 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), db = H - Math.min(H * .26, 150 * dpr), vmax = K.vmax * 3.6, lim = this.limAt(st, st.s) * 3.6, d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    // marco de la cabina: pilares, techo con pantalla, parabrisas con limpiaparabrisas si llueve
+    g.fillStyle = '#121a21'; g.fillRect(0, 0, W, 8 * dpr); g.fillRect(0, 0, 10 * dpr, H); g.fillRect(W - 10 * dpr, 0, 10 * dpr, H);
+    if (st.rain) { const a = Math.sin(st.t * 3.2) * .95; g.strokeStyle = '#141414'; g.lineWidth = 3 * dpr; g.beginPath(); g.moveTo(W * .32, db); g.lineTo(W * .32 + Math.sin(a) * H * .34, db - Math.cos(a) * H * .34); g.stroke(); }
+    // consola
+    g.fillStyle = '#1b262e'; g.beginPath(); g.moveTo(0, db + 16 * dpr); g.lineTo(W * .16, db); g.lineTo(W * .84, db); g.lineTo(W, db + 16 * dpr); g.lineTo(W, H); g.lineTo(0, H); g.fill();
+    g.fillStyle = '#243039'; g.fillRect(W * .16, db + 4 * dpr, W * .68, 3 * dpr); g.fillStyle = line.color; g.fillRect(W * .16, db, W * .68, 3 * dpr);
+    // panel LED: próxima estación / estado de puertas
+    const px = W * .5, pw = Math.min(W * .62, 300 * dpr), py = db + 12 * dpr, ph = 30 * dpr; g.fillStyle = '#060a0c'; g.fillRect(px - pw / 2, py, pw, ph); g.strokeStyle = '#3a4a55'; g.lineWidth = 1.5; g.strokeRect(px - pw / 2, py, pw, ph);
+    const nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]]; g.textAlign = 'center'; g.fillStyle = '#ff9a2e'; g.font = '700 ' + (11 * dpr) + 'px ' + 'ui-monospace, Consolas, monospace';
+    g.fillText(st.ph === 'dwell' ? (st.doors === 1 ? '▶ PUERTAS ABIERTAS · ' + Math.round(st.board * 100) + '% ◀' : st.doors === 2 ? 'PUERTAS CERRADAS · TRACCIÓN' : 'EN ANDÉN: ' + nx.name.toUpperCase()) : 'PRÓXIMA: ' + nx.name.toUpperCase() + '  ' + (Math.abs(d) < 100 ? d.toFixed(0) : Math.round(d)) + ' m', px, py + 13 * dpr);
+    g.fillStyle = late > 15 ? '#ff6a3d' : '#7fe0a0'; g.font = '700 ' + (9 * dpr) + 'px ui-monospace, Consolas, monospace'; g.fillText((late >= 0 ? 'RETRASO +' : 'ADELANTO ') + Math.abs(Math.round(late)) + ' s   ·   ' + Mundo.chip() + (st.rain ? '   ·   LLUVIA' : ''), px, py + 25 * dpr);
+    // velocímetro con arco ATP (verde permitido, rojo prohibido)
+    const cx = W * .5, R = Math.min(W * .17, 60 * dpr), cy = H - 8 * dpr;
+    g.fillStyle = '#0b1115'; g.beginPath(); g.arc(cx, cy, R + 4 * dpr, Math.PI, TAU); g.fill(); g.strokeStyle = '#3a4a55'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(cx, cy, R + 3 * dpr, Math.PI, TAU); g.stroke();
+    const al = Math.PI + Math.PI * clamp(lim / vmax, 0, 1); g.lineWidth = 5 * dpr; g.strokeStyle = '#2f9b57'; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, Math.PI, al); g.stroke(); g.strokeStyle = PAL.rojo; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, al, TAU); g.stroke();
+    g.fillStyle = '#c9d6dc'; g.font = '700 ' + (7 * dpr) + 'px Cuerpo, sans-serif'; for (let v = 0; v <= vmax; v += 20) { const a = Math.PI + Math.PI * v / vmax; g.fillRect(cx + Math.cos(a) * (R - 10 * dpr) - 1, cy + Math.sin(a) * (R - 10 * dpr) - 1, 2, 2); g.fillText(String(v), cx + Math.cos(a) * (R - 18 * dpr), cy + Math.sin(a) * (R - 18 * dpr) + 3); }
+    const an = Math.PI + Math.PI * clamp(st.v * 3.6 / vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * (R - 6 * dpr), cy + Math.sin(an) * (R - 6 * dpr)); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, 4 * dpr, 0, TAU); g.fill();
+    g.fillStyle = '#fff'; g.font = '700 ' + (R * .34) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6), cx, cy - R * .36); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .13) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · LÍMITE ' + Math.round(lim), cx, cy - R * .2);
+    // lámparas: ATP, puertas izq/der, tracción/freno, tinto
+    const lamp = (x, y, on, col, t) => { g.fillStyle = '#0b1115'; g.fillRect(x - 11 * dpr, y - 8 * dpr, 22 * dpr, 16 * dpr); g.fillStyle = on ? col : '#2a3238'; g.beginPath(); g.arc(x, y - 1 * dpr, 4.5 * dpr, 0, TAU); g.fill(); if (on) { g.fillStyle = col + '55'; g.beginPath(); g.arc(x, y - 1 * dpr, 8 * dpr, 0, TAU); g.fill(); } g.fillStyle = '#9fb0bb'; g.font = '700 ' + (6 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(t, x, y + 6 * dpr); };
+    const lx = W * .5 - R - 34 * dpr, ly = H - 40 * dpr; lamp(lx, ly, st.v > lim / 3.6 + .5, '#ff3b2f', 'ATP'); lamp(lx, ly - 24 * dpr, st.eb > 0, '#ff3b2f', 'EMERG'); lamp(lx, ly - 48 * dpr, st.lev > 0, '#38e07b', 'TRACC');
+    const rx = W * .5 + R + 34 * dpr; lamp(rx, ly, st.doors === 1, '#ffc23a', 'PUERTAS'); lamp(rx, ly - 24 * dpr, st.ph === 'dwell' && st.board >= 1, '#38e07b', 'TIMBRE'); lamp(rx, ly - 48 * dpr, st.lev < 0, '#ff9a2e', 'FRENO');
+    // tinto en la consola (confort)
+    const tx = W * .5 + R + 34 * dpr, ty = db + 48 * dpr, sl = clamp(st.a * 4, -6, 6) * dpr; g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 12 * dpr); g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 3 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 3 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 11 * dpr); g.lineTo(tx - 6 * dpr, ty + 11 * dpr); g.fill(); g.fillStyle = '#9fb0bb'; g.font = '700 ' + (6 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('TINTO ' + Math.round(st.comfort) + '%', tx, ty + 20 * dpr);
+    g.textAlign = 'left';
+    if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.22 + .18 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
   },
   drawMiniHud(g, st, W, H, K) { const u = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W); g.fillStyle = 'rgba(16,46,80,.85)'; g.fillRect(8 * u, 58 * u, 104 * u, 30 * u); g.fillStyle = '#fff'; g.font = '700 ' + (17 * u) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6) + ' km/h', 16 * u, 80 * u); },
   /* vista cenital (mapa pixelado) y panorámica (toda la línea) */

@@ -7,6 +7,7 @@ const CAPS = [
   { t: 'Niquía, 4:30 a. m.', scene: 'anden', lines: [
     ['Rosalba', 'Mija, despierte. El primer tren sale a las cuatro y media y la ciudad no espera a nadie.'],
     ['Rosalba', 'Hace treinta años me senté en esta cabina por primera vez. Medellín estrenaba metro y yo estrenaba miedo.'],
+    ['Rosalba', 'Primero lo primero: la tarjeta Cívica, el torniquete, la línea amarilla del andén y dejar salir antes de entrar. Eso es Cultura Metro.'],
     ['Tú', '¿Y ahora, abuela?'],
     ['Rosalba', 'Ahora es mi última semana. Y quiero que la manejes conmigo. Suba la palanca despacito… y frene en la marca, que la gente se cansa de caminar.']
   ], go: ['conduce', 'A:0-2'], fin: 'Ese frenazo suave es lo que la gente recuerda. Nadie aplaude al conductor, pero todos llegan.' },
@@ -29,7 +30,7 @@ const CAPS = [
     ['Wílmar (conductor)', 'Venga, súbase. Hoy maneja usted el alimentador: de Santa Rita a la estación Acevedo.'],
     ['Wílmar (conductor)', 'En las lomas de Medellín el bus pesa: en subida, palanca a fondo; en bajada, freno suave. Y pare donde está la gente, no diez metros después.'],
     ['Rosalba', 'Si quiere, deje el asistente de carril. Cuando se sienta segura, apáguelo y maneje con el timón.']
-  ], go: ['volante', 'vo:AL-C6-001:0-3'], fin: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' },
+  ], go: ['bus', 'bus:AL-C6-001:0-3'], fin: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' },
   { t: 'Belén – Aranjuez', scene: 'metroplus', lines: [
     ['Rosalba', 'El Metroplús tiene su propio carril, pero tiene que cruzar las calles como todo el mundo.'],
     ['Agente de tránsito', 'Usted maneja los semáforos. Los buses grandes valen oro, pero no deje a nadie esperando para siempre.'],
@@ -38,7 +39,7 @@ const CAPS = [
   { t: 'El articulado', scene: 'metroplus', lines: [
     ['Rosalba', 'Ahora súbase al articulado. Dieciocho metros de bus con una bisagra en la mitad: en las curvas, la cola va por dentro.'],
     ['Agente de tránsito', 'El carril es exclusivo, pero los semáforos son para todos. Rojo es rojo.']
-  ], go: ['volante', 'vo:MP1:0-4'], fin: 'Al llegar a la estación, el bus quedó justo frente a la puerta del andén. Perfecto.' },
+  ], go: ['bus', 'bus:MP1:0-4'], fin: 'Al llegar a la estación, el bus quedó justo frente a la puerta del andén. Perfecto.' },
   { t: 'Ayacucho sobre llantas', scene: 'tranvia', lines: [
     ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
     ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']

@@ -12,7 +12,8 @@ const WALK_OK = new Set([TT.WALK, TT.PLAZA, TT.GRASS, TT.CICLO, TT.STATION, TT.B
 const PED_FRASES = ['¡Qué pena!', '¿Pa’ dónde va el alimentador?', 'Vea pues…', 'Hágale, mijo', '¿Ya pasó el tren?', '¡Buenas!', 'Con permiso', 'Qué calor, ¿no?', '¿Esta es la estación?', 'Voy tarde pa’l trabajo', '¡Uy, cuidado!', 'Gracias, muy amable', '¿Me regala la hora?', 'Hoy no hay pico y placa', 'Está lloviendo, vea'];
 const PED_COL = ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835', '#743D90', '#fbe7b0', '#141414', '#0E6F76', '#EB318E', '#ffffff', '#8a5a3b'];
 const Ciudad = EM.ciudad = {
-  transit: [], peds: [], cars: [], bubbles: [], marks: [], parts: [], t: 0, spawnT: 0, carT: 0, focus: { x: 0, y: 0 }, ready: false, lm: null,
+  transit: [], peds: [], cars: [], bubbles: [], marks: [], parts: [], vendors: [], t: 0, spawnT: 0, carT: 0, focus: { x: 0, y: 0 }, ready: false, lm: null,
+  PRODUCTOS: [['Mango biche', '#59AB42'], ['Tintico', '#5a3417'], ['Chontaduro', '#E38835'], ['Minutos', '#1C5C9C'], ['Arepa de queso', '#F6C538'], ['Jugo de naranja', '#ff9f1c'], ['Chicles y cigarrillos', '#EC343A']],
   init(seed = 1) {
     this.t = 0; this.peds = []; this.cars = []; this.bubbles = []; this.marks = []; this.parts = []; this.transit = []; TRAF.build(); this.rng = new RNG(seed);
     for (const line of NET.lines) {
@@ -20,6 +21,7 @@ const Ciudad = EM.ciudad = {
       const n = Math.max(2, Math.round(line.P.len / (line.kind === 'metro' ? 1500 : line.kind === 'cable' ? 180 : line.kind === 'tram' ? 900 : 1300))), L2 = line.P.len * 2;
       for (let i = 0; i < n; i++) { const q = (i * L2 / n) % L2, dir = q < line.P.len ? 1 : -1, s = dir > 0 ? q : L2 - q; const ni = this.nextStop(line, s, dir); this.transit.push({ line, s, dir, ph: 'run', dw: 0, ni, spd: K.vmax * (line.kind === 'cable' ? 1 : .72), st: null, id: line.id + i }); }
     }
+    this.vendors = []; for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const r = h2(h.x | 0, h.y | 0, 21); if (r > .75) continue; const P = this.PRODUCTOS[(r * 97 | 0) % this.PRODUCTOS.length]; let x = h.x + 26, y = h.y + 18; for (let k = 0; k < 12; k++) { const a = r * TAU + k * .9, tx = h.x + Math.cos(a) * (22 + k * 2), ty = h.y + Math.sin(a) * (22 + k * 2), v = MAP.tileM(tx, ty); if (v === TT.WALK || v === TT.PLAZA) { x = tx; y = ty; break; } } this.vendors.push({ x, y, a: r * TAU, name: P[0], col: P[1], seed: (r * 1e6) | 0, skin: SKIN[(r * 5) | 0], said: 0 }); }
     if (!this.lm) this.lm = (typeof LUGARES !== 'undefined' ? LUGARES : []).map(([id, name, muni, lat, lon, w, h, k, fact, secret]) => Object.assign({ id, name, muni, w: w * TM, h: h * TM, k, fact, secret: !!secret }, geoM(lat, lon)));
     this.ready = true;
   },
@@ -48,6 +50,8 @@ const Ciudad = EM.ciudad = {
     }
     for (const p of this.peds) {
       p.ph += dt * p.v * 2.4; if (p.stun > 0) { p.stun -= dt; continue; }
+      if (p.board) { const d = dist(p.x, p.y, p.board.x, p.board.y); if (d < 1.2) { p.gone = true; continue; } p.a = Math.atan2(p.board.y - p.y, p.board.x - p.x); p.x += Math.cos(p.a) * 1.7 * dt; p.y += Math.sin(p.a) * 1.7 * dt; continue; }
+      if (p.waitStop != null) { p.ph = Math.sin(this.t * .6 + p.seed) * .3; continue; }
       if (p.scared > 0) { p.scared -= dt; const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
       if (p.wait > 0) { p.wait -= dt; continue; }
       if (!p.tgt || dist(p.x, p.y, p.tgt.x, p.tgt.y) < 4) { if (p.tgt) p.wait = .5 + this.rng.f() * 3; p.tgt = this.pedTarget(p); continue; }
@@ -57,7 +61,16 @@ const Ciudad = EM.ciudad = {
       // miedo a los vehículos rápidos
       if (player && player.veh && Math.abs(player.vf) > 3) { const dx = p.x - player.x, dy = p.y - player.y, d = Math.hypot(dx, dy); if (d < 9) { p.scared = .8; p.a = Math.atan2(dy, dx); if (d < 2.2 && Math.abs(player.vf) > 1.5 && !p.hit) { p.hit = 1; p.stun = 2.5; player.onPed && player.onPed(p); } } }
     }
-    this.peds = this.peds.filter(p => dist(p.x, p.y, fx, fy) < 420);
+    this.peds = this.peds.filter(p => !p.gone && (p.waitStop != null || dist(p.x, p.y, fx, fy) < 420));
+  },
+  /* gente esperando en una parada (para el simulador de bus) */
+  spawnWaiting(stopIdx, x, y, n) {
+    const rng = this.rng, out = [];
+    for (let i = 0; i < n; i++) { let px = x, py = y; for (let k = 0; k < 10; k++) { const a = rng.f() * TAU, r = 2 + rng.f() * 7, tx = x + Math.cos(a) * r, ty = y + Math.sin(a) * r, v = MAP.tileM(tx, ty); if (v === TT.WALK || v === TT.PLAZA || v === TT.STATION) { px = tx; py = ty; break; } } const p = { x: px, y: py, a: rng.f() * TAU, v: 1.2, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: Mundo.weather().rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0, waitStop: stopIdx }; this.peds.push(p); out.push(p); }
+    return out;
+  },
+  vendorsDraw(g, S, k, sh, x0, y0, x1, y1) {
+    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
   },
   pedTarget(p) {
     const rng = this.rng; if (rng.f() < .35) { let best = null, bd = 1e9; for (const h of NET.stations) { const d = dist(h.x, h.y, p.x, p.y); if (d < bd && d > 25) { bd = d; best = h; } } if (best && bd < 260) return { x: best.x + (rng.f() - .5) * 20, y: best.y + (rng.f() - .5) * 20 }; }
@@ -110,33 +123,19 @@ const Ciudad = EM.ciudad = {
   ped(g, p, S, k, sh) {
     const q = S(p.x, p.y), s = Math.max(2, k * 1.6), sw = Math.sin(p.ph) * s * .8;
     g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.beginPath(); g.ellipse(q.x + sh.dx * s, q.y + sh.dy * s, s * 1.1, s * .7, 0, 0, TAU); g.fill();
-    g.save(); g.translate(q.x, q.y); g.rotate(p.a);
-    if (p.stun > 0) { g.fillStyle = p.col; g.fillRect(-s * 1.6, -s * .7, s * 3.2, s * 1.4); g.fillStyle = p.skin; g.beginPath(); g.arc(s * 1.6, 0, s * .7, 0, TAU); g.fill(); g.restore(); return; }
-    g.fillStyle = p.col; g.fillRect(-s * .9, -s * .95, s * 1.8, s * 1.9); g.fillStyle = p.skin; g.fillRect(-s * .3 + sw, -s * 1.3, s * .5, s * .35); g.fillRect(-s * .3 - sw, s * .95, s * .5, s * .35);
-    g.fillStyle = h2(p.seed, 2, 2) < .5 ? '#2a1a12' : '#5a3a22'; g.beginPath(); g.arc(0, 0, s * .62, 0, TAU); g.fill(); g.fillStyle = p.skin; g.beginPath(); g.arc(s * .12, 0, s * .42, 0, TAU); g.fill();
-    if (p.umb) { g.fillStyle = PED_COL[(p.seed * 7) % PED_COL.length]; g.globalAlpha = .9; g.beginPath(); g.arc(0, 0, s * 1.5, 0, TAU); g.fill(); g.globalAlpha = 1; g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(-s * 1.5, -1, s * 3, 1); }
-    g.restore();
+    g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.ped(g, s * .8, p); g.restore();
   },
   /* vehículo cenital con sombra, techo, ventanas, luces (faros de noche) */
-  car(g, x, y, a, len, wid, col, kind, S, k, sh, night, lights) {
+  car(g, x, y, a, len, wid, col, kind, S, k, sh, night, lights, o) {
     const vs = k < 2.5 ? 1.25 : 1, q = S(x, y), L = Math.max(6, len * k * vs), W = Math.max(3.5, wid * k * vs);
     g.save(); g.translate(q.x + sh.dx * k * .8, q.y + sh.dy * k * .8); g.rotate(a); g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.fillRect(-L / 2, -W / 2, L, W); g.restore();
-    g.save(); g.translate(q.x, q.y); g.rotate(a);
-    g.fillStyle = PAL.negro; g.fillRect(-L / 2 - 1, -W / 2 - 1, L + 2, W + 2);
-    const body = kind === 'metro' || kind === 'tram' ? '#e4e7ea' : col; g.fillStyle = body; g.fillRect(-L / 2, -W / 2, L, W);
-    if (kind === 'metro' || kind === 'tram') { g.fillStyle = col; g.fillRect(-L / 2, -W * .16, L, W * .32); g.fillStyle = '#1c2c3a'; for (let i = 0; i < Math.floor(L / 6); i++) { g.fillRect(-L / 2 + 2 + i * 6, -W / 2 + 1, 3, 1.5); g.fillRect(-L / 2 + 2 + i * 6, W / 2 - 2.5, 3, 1.5); } g.fillStyle = Art.shade(body, 1.1); g.fillRect(-L / 2 + L * .1, -W * .1, L * .8, W * .2); }
-    else if (kind === 'moto') { g.fillStyle = '#222'; g.fillRect(-L / 2, -W / 2, L, W); g.fillStyle = col; g.beginPath(); g.arc(0, 0, W * .7, 0, TAU); g.fill(); }
-    else if (kind === 'cable') { g.fillStyle = col; g.fillRect(-L / 2, -W / 2, L, W); g.fillStyle = '#9fd3e6'; g.fillRect(-L * .3, -W * .3, L * .6, W * .6); }
-    else { const bus = kind === 'bus' || kind === 'brt' || kind === 'feeder'; g.fillStyle = Art.shade(body, 1.12); g.fillRect(-L * .3, -W / 2 + 1, L * .55, W - 2); g.fillStyle = 'rgba(20,30,40,.6)'; g.fillRect(L * .18, -W / 2 + 1, Math.max(1.5, L * .14), W - 2); g.fillRect(-L * .42, -W / 2 + 1, Math.max(1.5, L * .1), W - 2); if (bus) { g.fillStyle = 'rgba(20,30,40,.5)'; for (let i = 0; i < Math.floor(L / 5); i++) g.fillRect(-L / 2 + 2 + i * 5, -W / 2 + .5, 2.5, 1.2); g.fillStyle = kind === 'feeder' ? PAL.naranja : '#f4f1ea'; g.fillRect(-L / 2, -W * .12, L, W * .24); } }
-    g.fillStyle = lights ? '#fff6c0' : '#f0e6b0'; g.fillRect(L / 2 - 1.5, -W / 2 + .5, 1.5, Math.max(1, W * .22)); g.fillRect(L / 2 - 1.5, W / 2 - .5 - Math.max(1, W * .22), 1.5, Math.max(1, W * .22));
-    g.fillStyle = lights ? '#ff3b2f' : '#8a2a22'; g.fillRect(-L / 2, -W / 2 + .5, 1.5, Math.max(1, W * .2)); g.fillRect(-L / 2, W / 2 - .5 - Math.max(1, W * .2), 1.5, Math.max(1, W * .2));
-    g.restore();
+    g.save(); g.translate(q.x, q.y); g.rotate(a); Spr.veh(g, kind, L, W, col, Object.assign({ lights, night: night > .3, doors: kind === 'brt' ? 'left' : kind === 'feeder' || kind === 'bus' ? 'right' : null }, o || {})); g.restore();
     if (night > .3 && lights && kind !== 'cable') { g.save(); g.translate(q.x, q.y); g.rotate(a); g.globalCompositeOperation = 'lighter'; const gr = g.createLinearGradient(L / 2, 0, L / 2 + 26 * k, 0); gr.addColorStop(0, 'rgba(255,240,180,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,180,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(L / 2, -W / 2); g.lineTo(L / 2 + 26 * k, -W * 1.6); g.lineTo(L / 2 + 26 * k, W * 1.6); g.lineTo(L / 2, W / 2); g.fill(); g.restore(); }
   },
   transitDraw(g, S, k, sh, night, x0, y0, x1, y1) {
     for (const v of this.transit) {
       const p = this.tpos(v); if (p.x < x0 - 100 || p.x > x1 + 100 || p.y < y0 - 100 || p.y > y1 + 100) continue; const K = KIND[v.line.kind], kind = v.line.kind, col = v.line.color;
-      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, S, k, sh, night, true); } }
+      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, S, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
       else if (kind === 'cable') { const q = NET.at(v.line.P, v.s); this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', S, k, sh, night, false); }
       else { const q = NET.at(v.line.P, v.s - v.dir * K.len / 2, v.dir * 2.2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), K.len, 2.5, col, kind, S, k, sh, night, true); }
     }

@@ -2,17 +2,15 @@
    MENÚS: portada, modos (páginas de revista), niveles, ajustes y créditos
    ===================================================================== */
 const MODECARDS = [
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.', n: 'Mundo abierto' },
+  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
+  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
+  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'La historia de Rosalba y su nieta. Cada capítulo, un oficio de la red.', n: 'Historia' },
-  { id: 'conduce', cls: 'c-conduce', t: 'Conduce', d: 'Metro, tranvía y Metroplús por la vía real. Frena en la marca.', n: 'Cabina · 1ª y 3ª persona' },
-  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el valle a tu aire: a pie, en taxi, bici, moto o bus, o de pasajero en el metro y los cables. Oficios por la radio.', n: 'Mundo abierto · GTA' },
-  { id: 'volante', cls: 'c-volante', t: 'Al volante', d: 'Maneja el articulado de Metroplús o el alimentador por las calles reales, con tráfico y semáforos.', n: 'Buses · 3D' },
-  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Viaje · vista lateral' },
-  { id: 'despacho', cls: 'c-despacho', t: 'Despacho', d: 'Puesto de Control: mueve las agujas y que ningún tren se cruce.', n: 'Agujas' },
-  { id: 'metroplus', cls: 'c-metroplus', t: 'Metroplús', d: 'Semáforos y carril exclusivo. Cuidado con las motos.', n: 'Cruces' },
-  { id: 'alim', cls: 'c-alim', t: 'Alimentadores', d: 'De los barrios a las estaciones: cada una pide su color.', n: 'Reparto' },
-  { id: 'cable', cls: 'c-cable', t: 'Arma el cable', d: 'Gira las piezas y deja la línea conectada sobre la loma.', n: 'Puzle' },
+  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
-  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' }
+  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
+  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.', n: 'Extras' }
 ];
 const Menu = EM.menu = {
   mode: null,
@@ -31,14 +29,22 @@ const Menu = EM.menu = {
   },
   go(id) {
     if (id === 'historia') { this.storyList(); return; }
+    if (id === 'guia') { Guia.open(); return; }
+    if (id === 'arcade') { this.arcade(); return; }
     if (id === 'red') { RedView.open(); return; }
     if (id === 'multi') { Multi.open(); return; }
     this.levels(id);
   },
+  arcade() {
+    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa.</p><div class="col">${[['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
+    $$('#mBody [data-a]').forEach(b => b.onclick = () => { UI.close(); this.levels(b.dataset.a); }); $('#arX').onclick = () => UI.close();
+  },
   miniArt(g, id) {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
     if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
-    else if (id === 'volante') { Art.vehicleBack(g, 35, 52, 36, '#0E6F76', 'brt', true); }
+    else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
+    else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
+    else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }
     else if (id === 'libre') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 16); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 29, 5, 1.5); Art.topVehicle(g, 24, 30, 0, 14, 7, '#f2c400', 'car'); Art.topVehicle(g, 52, 30, Math.PI, 12, 6, '#1C5C9C', 'car'); Art.person(g, 12, 50, 2, 3, true); Art.person(g, 60, 12, 2, 5, true); }
     else if (id === 'cableviaje') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 10); g.lineTo(70, 30); g.stroke(); Art.cabin(g, 38, 21, 3, '#B8CF40'); }
     else if (id === 'despacho') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = '#f08a1c'; g.fillRect(31, 4, 8, 14); }
@@ -57,11 +63,11 @@ const Menu = EM.menu = {
   },
   levels(id) {
     this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
-    const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id);
+    const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id), B = Save.d.bus && Save.d.bus.done || {};
     let h = `<div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px"><div><div class="pag">${esc(M.sub || '')}</div><div class="mega" style="font-size:54px">${esc(M.name)}</div></div>${duel ? '<label class="tg"><button id="lDuel">👥 Duelo de mesa</button></label>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
-    if (id === 'conduce' || id === 'volante') {
+    if (id === 'conduce' || id === 'volante' || id === 'bus') {
       const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
-      for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid)}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
+      for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
     } else {
       h += '<div class="lv">' + L.map((l, i) => { const open = i === 0 || Save.stars(id, L[i - 1].id) > 0 || Save.stars(id, l.id) > 0, s = Save.stars(id, l.id); return `<button class="${open ? '' : 'lock'} ${s ? 'done' : ''}" data-l="${esc(l.id)}"><b>${i + 1}</b><small>${esc(l.name)}</small><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }).join('') + '</div>';
     }
@@ -94,6 +100,7 @@ const Menu = EM.menu = {
   },
   bind() {
     $('#bPlay').onclick = () => { Snd.init(); Snd.play('tap'); this.modes(); };
+    $('#bGuia').onclick = () => { Snd.init(); Guia.open(); };
     $('#bStory').onclick = () => { Snd.init(); Story.open(); };
     $('#bMulti').onclick = () => { Snd.init(); Multi.open(); };
     $('#bCfg').onclick = () => { Snd.init(); this.settings(); };

@@ -96,6 +96,8 @@ const MAP = EM.map = {
         R(ox + 1, oy + P - 3 + hgt, P - 2, 1, 'rgba(0,0,0,.35)');
       }
     }
+    // cebras en los cruces de vías principales
+    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) { const v = T(tx, ty); if (!road(v) || v === TT.BRIDGE) continue; const nN = road(T(tx, ty - 1)), nS = road(T(tx, ty + 1)), nW = road(T(tx - 1, ty)), nE = road(T(tx + 1, ty)); if (!((nN || nS) && (nW || nE))) continue; if (!(v === TT.AVE || v === TT.AUTO || T(tx, ty - 1) === TT.AVE || T(tx - 1, ty) === TT.AVE)) continue; const ox = tx * P, oy = ty * P; g.fillStyle = 'rgba(250,250,245,.85)'; if (nN) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy, 2, 3); if (nS) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy + P - 3, 2, 3); if (nW) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox, oy + i, 3, 2); if (nE) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + P - 3, oy + i, 3, 2); }
     // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
     const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
     c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
