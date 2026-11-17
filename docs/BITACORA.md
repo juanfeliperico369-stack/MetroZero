@@ -29,7 +29,7 @@
 ## Carpeta de arte (`arte/`, 2026-11-17)
 Investigación visual y guía de producción para el arte definitivo:
 - biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
-- **guía de prompts en dos partes**: Gemini Nano Banana (`06`) y ChatGPT + Midjourney (`07`), y especificación de entregas e integración (`08`);
+- **guía única de prompts** (`06-guia-unica-ia.md`): contexto completo para todas las IA + rol de cada una (Gemini Nano Banana hace los encargos G‑, ChatGPT los C‑ y Midjourney los M‑) + encargos, correcciones y entrega; y especificación de entregas e integración (`08`);
 - 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
 - `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.
 

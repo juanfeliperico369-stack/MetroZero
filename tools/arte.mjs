@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dir = path.join(root, 'arte');
 const DOCS = [
-  ['inicio', 'Inicio', 'README.md'], ['biblia', 'Biblia de estilo', '00-biblia-de-estilo.md'], ['juegos', 'Referencias', '01-referencias-videojuegos.md'],
+  ['inicio', 'Inicio', 'README.md'], ['guia', '★ Guía única para IA', '06-guia-unica-ia.md'], ['biblia', 'Biblia de estilo', '00-biblia-de-estilo.md'], ['juegos', 'Referencias', '01-referencias-videojuegos.md'],
   ['medellin', 'Medellín visual', '02-medellin-visual.md'], ['historia', 'Historia', '03-historia-metro-y-medellin.md'], ['fiestas', 'Folclor y fiestas', '04-folklore-y-fiestas.md'],
-  ['diseno', 'Diseño del juego', '05-diseno-mundo-abierto-arcade.md'], ['gemini', 'Prompts · Gemini', '06-guia-gemini-nano-banana.md'],
-  ['chatgpt', 'Prompts · ChatGPT y Midjourney', '07-guia-chatgpt-midjourney.md'], ['entregas', 'Entregas', '08-entregas-e-integracion.md']];
+  ['diseno', 'Diseño del juego', '05-diseno-mundo-abierto-arcade.md'],
+  ['entregas', 'Entregas', '08-entregas-e-integracion.md']];
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const slug = s => s.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
 const fileTo = Object.fromEntries(DOCS.map(([id, , f]) => [f, id]));

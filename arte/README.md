@@ -10,14 +10,13 @@ Investigación visual y guía de producción para llevar *El Metro* a un **mundo
 | [`03-historia-metro-y-medellin.md`](03-historia-metro-y-medellin.md) | Cronología del Metro (1995–hoy, con fuentes), historia de la ciudad e ideas para el juego |
 | [`04-folklore-y-fiestas.md`](04-folklore-y-fiestas.md) | Fiestas, mitos, arriería, música, comida, habla paisa, **calendario del juego** y paletas culturales |
 | [`05-diseno-mundo-abierto-arcade.md`](05-diseno-mundo-abierto-arcade.md) | **Diseño del juego**: fantasía, mundo, bucles, cámaras, capa arcade, eventos en el mundo, progresión e integración al código |
-| [`06-guia-gemini-nano-banana.md`](06-guia-gemini-nano-banana.md) | **Guía de prompts · Parte 1 (Gemini Nano Banana)**: ancla de estilo, personajes, foto → estilo, variantes |
-| [`07-guia-chatgpt-midjourney.md`](07-guia-chatgpt-midjourney.md) | **Guía de prompts · Parte 2 (ChatGPT y Midjourney)**: sprites, íconos, cabina, portada, panorámicas, texturas, fiestas |
+| [`06-guia-unica-ia.md`](06-guia-unica-ia.md) | **GUÍA ÚNICA DE PROMPTS para Gemini Nano Banana, ChatGPT y Midjourney**: Bloque 1 con el contexto completo (para todas las IA), Bloque 2 con el rol de cada una (solo hace su parte), Bloque 3 con los encargos G‑, C‑ y M‑, Bloque 4 con correcciones y Bloque 5 con la entrega |
 | [`08-entregas-e-integracion.md`](08-entregas-e-integracion.md) | Orden de producción, carpetas, nombres, cómo entregar y cómo se integra |
 | [`index.html`](index.html) (Galería) · [`galeria.md`](galeria.md) · `galeria.json` | **71 fotos de referencia con licencia libre** (metro, cables, tranvía, buses, ciudad, fiestas y cultura), con autor y licencia. Se enlazan, no se copiaron |
 
 **Flujo:**
 1. Leer la biblia.
 2. Hacer el ancla de estilo en Gemini.
-3. Producir con las guías 06 y 07.
+3. Producir con la guía única (06): cada IA recibe el contexto completo y su rol.
 4. Entregar según la guía 08.
 5. Yo lo integro, lo pruebo y lo publico.
