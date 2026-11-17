@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.8.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v0.9.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.8.0** · compilado el 2026-11-17.
+> Versión del juego **v0.9.0** · compilado el 2026-11-17.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,7 +799,10 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.8.0 "Identidad del Metro"
+##### Estado al 2026-11-17 · v0.9.0 "Maqueta y álbum"
+**Novedad de v0.9.0:** la **Maqueta 2:1** (el valle real en 3D isométrico, dentro de La Red) y el **Álbum de postales** (48 postales: los lugares reales con su vista aérea y 5 especiales con ilustración), más el cartel de la fiesta del día. Debajo sigue vigente lo de v0.8.0.
+
+###### v0.8.0 "Identidad del Metro"
 **Novedad de v0.8.0:** interfaz nueva con los colores de las líneas; el inicio es un diagrama de línea (cada opción es una estación y un tren viaja a la que se toca); sin la estética de revista ni sus notas; seguridad revisada (red local, importación de partidas, CSP); código del juego sin comentarios en la versión publicada y sin menciones de herramientas de IA. Debajo sigue vigente lo de v0.7.0.
 
 ###### v0.7.0 "Medellín reconocible"
@@ -867,6 +870,24 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ##### Historial
+###### v0.9.0 (2026-11-17) — Maqueta 2:1 y álbum de postales
+Pedido del autor: “continúa desarrollando y mejorando, termina lo pendiente y lo olvidado”.
+1. **Maqueta 2:1 (`src/js/24-iso.js`), en La Red con el botón “⬢ Maqueta 2:1”:** el valle real en proyección dimétrica.
+   - Se dibuja por columnas de adelante hacia atrás con búfer de altura: relieve real con sombreado, calles, río, parques, casas con techos de teja o plancha y edificios con su altura (con hileras de ventanas al acercarse).
+   - Las líneas van sobre el relieve: el metro en viaducto, los cables por encima de la loma. Hay estaciones y nombres de barrios.
+   - **Giro de 90°**, arrastre y pellizco.
+   - Rendimiento: se dibuja a resolución CSS en caché (24–64 ms en el banco), solo al soltar el dedo; si un dibujo pasa de 70 ms, baja la resolución sola.
+   - Un salto rápido por bloques de 640 m evita calcular lo que no asoma.
+2. **Álbum de postales (`src/js/68-album.js`), botón “📷 Álbum” en Elige tu viaje.** Esto estaba olvidado: las postales se tomaban, pero no había dónde verlas.
+   - 43 lugares reales, cada uno con **vista aérea sacada del propio mapa** (con rótulos) o su ilustración (Comuna 13, Biblioteca España, Plaza Botero y Palacio de la Cultura).
+   - **5 especiales:** Parque Arví y Homenaje a Gardel (bajarse en su estación en Ciudad Libre), Silleteros, Alumbrados y Velitas (jugar en esas fechas).
+   - Usa la misma lista `Save.d.fotos` (el guardado no cambia).
+3. **Cartel de la fiesta del día** con su ilustración arriba de las misiones (Alumbrados, Feria de las Flores y Velitas). Con esto se usan las 5 ilustraciones que estaban incluidas y no aparecían en ninguna parte.
+4. **Pruebas:**
+   - el autotest suma el álbum (arte y datos de las 48 postales) y la maqueta (la proyección va y vuelve con los 4 giros; un dibujo de prueba sale con 95 % de ciudad);
+   - 100 partidas, 0 errores, 0 de consola.
+5. **Regla aprendida:** al meter un comentario en una línea de código compacta, usar `/* … */`, nunca `//`: un `//` anuló el resto de una línea y solo lo atrapó la verificación de sintaxis.
+
 ###### v0.8.0 (2026-11-17) — identidad del Metro, seguridad y código limpio
 Pedido del autor: “cambia la estética de revista, usa los colores del metro y crea una interfaz de inicio más original; quita notas innecesarias del estilo revista; pule el código; verifica su seguridad y déjalo sin rastro de uso de IA”.
 1. **Diseño (`src/style.css` reescrita, mismas clases):**
@@ -1012,6 +1033,7 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
+0a. **Maqueta 2:1: hecha en v0.9.0.** Siguiente: usarla también en Ciudad Libre como vista opcional y pintarla con el encargo G‑100.
 0b. **Arte, fase 2:**
    - estaciones y vehículos de perfil de Gemini (G‑20 a G‑37) en la panorámica;
    - consolas C‑20/C‑21 en la cabina; señalética C‑30;
@@ -1133,10 +1155,12 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
 | `22-gl.js` | Motor 3D WebGL1 propio `G3` |
 | `23-lado.js` | Panorámica lateral por capas |
+| `24-iso.js` | Maqueta 2:1: el valle en proyección dimétrica, dibujado por columnas con búfer de altura (`Iso.render`, `Iso.P`, `Iso.Pi`, `Iso.rot`) |
 | `25-game.js` | Bucle de juego, HUD, pausa, `Game.freeze()` |
 | `30-conduce.js` / `31-cabina.js` | Metro y tranvía (panorámica, cabina, ATP, procedimiento) |
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
 | `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad |
+| `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
 | `52-cableviaje.js` | Metrocable |
 | `60-mapa.js` / `65-menu.js` / `66-vida.js` / `67-guia.js` / `70-historia.js` | La Red, menús, misiones y logros, guía, historia clásica |
@@ -1195,6 +1219,7 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 #### Diseño y seguridad (desde v0.8.0)
 - **Diseño:** noche del valle, concreto, andén blanco y el color de cada línea; la franja de las 11 líneas bajo las barras. El inicio es un diagrama de línea (`.linea`, `.parada`, `.tren`). Los modos son filas con `--c` = color de su línea (`.modo`, clases `c-*`). Nada de estética de revista: sin etiquetas en mayúsculas espaciadas, sin bordes negros gruesos.
 - **Seguridad:** todo lo que llega de otro celular pasa por `Multi.onmsg`, que valida por tipo; los nombres, por `Multi.nombre`. En HTML se usa siempre `esc()`. La CSP de `src/head.html` no deja conexiones externas: si una función nueva necesita una, decide si de verdad hace falta. El autotest prueba importar con `__proto__` y mensajes malformados.
+- **Comentarios:** dentro de una línea de código compacta, usa `/* … */`, nunca `//`, porque `//` anula el resto de la línea.
 - **Publicación:** `tools/build.mjs` quita los comentarios de línea completa. No escribas código en la misma línea que un bloque `/* */` que ocupa varias líneas.
 
 #### Errores conocidos
@@ -1447,6 +1472,8 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
   - Siguiente: barrios de Bello y del resto del valle; anchos reales de calle; Maqueta 2:1.
 
 - **v0.8.0:** interfaz con la identidad del Metro (inicio como línea), seguridad revisada y código publicado sin comentarios. Pendiente: clave de firma de la APK fuera del repositorio.
+
+- **v0.9.0:** **Maqueta 2:1 hecha** (Fase 1b, paso 3) en La Red, y álbum de postales con vista aérea real. Siguiente: laderas ilustradas (G‑50 a G‑55) en el Metrocable, estaciones y trenes de perfil (G‑20 a G‑37) en la panorámica, barrios de Bello y anchos reales de calle.
 
 ### Fases
 #### Fase 1 · Arte real (2–3 sesiones)
@@ -2689,7 +2716,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (67 archivos, 838 KB)
+## Código fuente (69 archivos, 858 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3080,6 +3107,21 @@ html.t-contraste .news{background:#ffe600;color:#000}
 @media (orientation:landscape) and (max-height:520px){#cover .hero{height:62vh}.lever{height:min(60vh,240px)}}
 @media (prefers-reduced-motion:reduce){.scr.on,.gm,.mbox,.trtalk,.trcard{animation:none}.news .tick{animation:none;padding-left:0}.fdeco img{animation:none}.tren{transition:none}}
 .campo{border:1px solid var(--linea);border-radius:12px;padding:9px 12px;font-size:16px;background:var(--anden);color:var(--tinta);max-width:100%}
+/* ---------- álbum de postales ---------- */
+.album{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:6px}
+.postal{display:flex;flex-direction:column;text-align:left;background:var(--anden);border-radius:12px;box-shadow:0 1px 0 var(--linea),0 0 0 1px var(--linea);padding:6px 6px 8px;transform:rotate(-.6deg)}
+.postal:nth-child(2n){transform:rotate(.7deg)}
+.postal .foto{display:block;aspect-ratio:8/5;border-radius:8px;overflow:hidden;background:var(--concreto)}
+.postal .foto img{display:block;width:100%;height:100%;object-fit:cover}
+.postal .foto i{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-style:normal;font-family:var(--fd);font-size:34px;color:var(--suave)}
+.postal b{display:block;margin-top:6px;font-size:13.5px;line-height:1.2}
+.postal small{display:block;font-size:11.5px;color:var(--suave)}
+.postal.falta{opacity:.62}
+.postal-grande{border-radius:14px;overflow:hidden;margin:-4px 0 12px}
+.postal-grande img{display:block;width:100%;max-height:46vh;object-fit:cover}
+.fiesta-ban{position:relative;border-radius:var(--r);overflow:hidden;margin:0 0 12px;height:150px;background:var(--noche)}
+.fiesta-ban img{display:block;width:100%;height:100%;object-fit:cover}
+.fiesta-ban span{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 10px;background:linear-gradient(transparent,rgba(15,34,56,.92));color:#fff;font-weight:800;font-size:14px;line-height:1.3}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -3088,7 +3130,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.8.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.9.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4953,6 +4995,83 @@ const Lado = EM.lado = {
 };
 ~~~~
 
+### `src/js/24-iso.js`
+~~~~js
+/* =====================================================================
+   MAQUETA 2:1 · el valle real en proyección dimétrica (la de las "ciudades isométricas")
+   Pantalla: x = (u − v)·a ;  y = (u + v)·a/2 − (z − Z0)·a·kz, con (u, v) el mundo girado 0, 90, 180 o 270°.
+   Se dibuja por columnas, de adelante hacia atrás, con un búfer de altura ("voxel space"): relieve real (80 m,
+   bilineal), calles, río, parques y edificios con su altura. Se dibuja a resolución CSS y queda en caché:
+   mientras se arrastra solo se mueve la imagen; al soltar se vuelve a dibujar.
+   ===================================================================== */
+const Iso = EM.iso = {
+  kz: 1.35, Z0: 1500, rot: 0, cv: null, ms: 0,
+  R(x, y) { switch (this.rot) { case 1: return [y, -x]; case 2: return [-x, -y]; case 3: return [-y, x]; default: return [x, y]; } },
+  Ri(u, v) { switch (this.rot) { case 1: return [-v, u]; case 2: return [-u, -v]; case 3: return [v, -u]; default: return [u, v]; } },
+  /* mundo (m) → pantalla, con la cámara c = { x, y, a } (a = px por metro) en un lienzo w × h */
+  P(x, y, z, c, w, h) { const [u, v] = this.R(x, y), [U, V] = this.R(c.x, c.y); return { x: w / 2 + ((u - v) - (U - V)) * c.a, y: h / 2 + ((u + v) - (U + V)) * c.a / 2 - (z - this.Z0) * c.a * this.kz }; },
+  /* pantalla → mundo, sobre el plano z = Z0 */
+  Pi(sx, sy, c, w, h) { const [U, V] = this.R(c.x, c.y), p = (sx - w / 2) / c.a + (U - V), q = (sy - h / 2) * 2 / c.a + (U + V), [x, y] = this.Ri((p + q) / 2, (q - p) / 2); return { x, y }; },
+  /* sombreado del relieve (luz del noroeste) y máximos por bloques de 640 m para saltar rápido lo que no asoma */
+  prep() {
+    const E = MAP.E, W = VM.eW, H = VM.eH, hs = new Float32Array(W * H), B = 8, bw = Math.ceil(W / B), bh = Math.ceil(H / B), bm = new Float32Array(bw * bh);
+    let zmin = 1e9, zmax = -1e9;
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) { const k = j * W + i, e = E[k], nw = E[Math.max(0, j - 1) * W + Math.max(0, i - 1)]; hs[k] = clamp(1 + (nw - e) * .0068, .62, 1.3); zmin = Math.min(zmin, e); zmax = Math.max(zmax, e); const b = (j / B | 0) * bw + (i / B | 0); if (e > bm[b]) bm[b] = e; }
+    this.hs = hs; this.bm = bm; this.bw = bw; this.zmin = zmin; this.zmax = zmax;
+  },
+  COL: (() => { const c = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    return { 0: c('#6f9a4a'), 1: c('#3d6838'), 4: c('#4a4e57'), 5: c('#44484f'), 6: c('#cdc6b8'), 7: c('#408a60'), 8: c('#3a7a8e'), 9: c('#4a7878'), 10: c('#d9cdae'), 11: c('#96969a'), 12: c('#f4ecd0'), 13: c('#a99a7a'), 14: c('#3a3e45'), 15: c('#5ab0d0'), 16: c('#c6c0b4') }; })(),
+  TECHO: [[154, 160, 166], [185, 181, 173], [167, 170, 168], [207, 200, 187], [176, 168, 150]], MURO: [[230, 220, 200], [216, 210, 196], [201, 206, 212], [239, 232, 216]],
+  TEJA: [[180, 88, 58], [162, 75, 48], [196, 104, 63]], LADR: [[169, 83, 58], [184, 92, 62]],
+  render(c, W, H) {
+    if (!this.hs) this.prep();
+    if (!this.cv || this.cv.width !== W || this.cv.height !== H) { this.cv = mkCanvas(W, H); this.cx = this.cv.getContext('2d'); this.im = this.cx.createImageData(W, H); this.d = new Uint32Array(this.im.data.buffer); }
+    const t0 = performance.now(), d = this.d, a = c.a, kz = this.kz, Z0 = this.Z0, [U0, V0] = this.R(c.x, c.y), P0 = U0 - V0, Q0 = U0 + V0;
+    const E = MAP.E, eW = VM.eW, eH = VM.eH, G = TM * ES, Tt = MAP.t, hs = this.hs, bm = this.bm, bw = this.bw, mW = MW * TM, mH = MH * TM;
+    const [ax, ay] = this.Ri(1, 0), [bx, by] = this.Ri(0, 1), half = a / 2, kzA = a * kz, dq = 2 / a, zTop = this.zmax + 140;
+    const qF = Q0 + H / a + 2 * kz * Math.max(0, zTop - Z0), qB = Q0 - H / a - 2 * kz * Math.max(0, zTop - this.zmin) - 8 / a;
+    const pk = (r, g, b) => 0xff000000 | (b << 16) | (g << 8) | r, cielo = new Uint32Array(H);
+    for (let y = 0; y < H; y++) { const t = y / H; cielo[y] = pk(159 + t * 70 | 0, 199 + t * 42 | 0, 230 + t * 15 | 0); }
+    const COL = this.COL, TE = this.TECHO, MU = this.MURO, TJ = this.TEJA, LA = this.LADR, ventanas = a > 1.1;
+    for (let i = 0; i < W; i++) {
+      const p = (i + .5 - W / 2) / a + P0; let yb = H, dentro = false;
+      for (let q = qF; q > qB && yb > 0; q -= dq) {
+        const u = (p + q) * .5, v = (q - p) * .5, x = ax * u + bx * v, y = ay * u + by * v;
+        if (x < 0 || y < 0 || x >= mW || y >= mH) { dentro = false; continue; }
+        const gx = x / G, gy = y / G, ix = gx | 0, iy = gy | 0;
+        // salto rápido: ni con lo más alto del bloque alcanzaría a asomar sobre lo ya dibujado
+        if (H / 2 + (q - Q0) * half - (bm[(iy >> 3) * bw + (ix >> 3)] + 140 - Z0) * kzA >= yb) { dentro = true; continue; }
+        const fx = gx - ix, fy = gy - iy, k = iy * eW + ix, k2 = Math.min(ix + 1, eW - 1) - ix, k3 = iy + 1 < eH ? eW : 0;
+        const e = (E[k] * (1 - fx) + E[k + k2] * fx) * (1 - fy) + (E[k + k3] * (1 - fx) + E[k + k3 + k2] * fx) * fy;
+        const tx = x / TM | 0, ty = y / TM | 0, tv = Tt[ty * MW + tx], s = hs[k];
+        let bh = 0, top, wall = null;
+        if (tv === 3) {   // edificio: bloques de 2 × 2 casillas con su altura y un callejón entre bloques
+          const lx = x / TM - (tx & ~1), ly = y / TM - (ty & ~1);
+          if (lx < .08 || ly < .08 || lx > 1.92 || ly > 1.92) top = COL[6];
+          else { const hb = h2(tx >> 1, ty >> 1, 77); bh = MAP.bHeight((tx >> 1) * 40, (ty >> 1) * 40, tx * 7 + ty); top = TE[hb * TE.length | 0]; wall = MU[(hb * 97 | 0) % MU.length]; }
+        } else if (tv === 2) { const hb = h2(tx, ty, 78); bh = 5 + hb * 4; top = hb < .45 ? TJ[(hb * 31 | 0) % 3] : TE[(hb * 13 | 0) % TE.length]; wall = LA[(hb * 7 | 0) & 1]; }
+        else top = COL[tv] || COL[0];
+        const z = e + bh, sy = H / 2 + (q - Q0) * half - (z - Z0) * kzA | 0;
+        if (!dentro) {   // borde de la maqueta: el corte de tierra debajo de la primera casilla
+          dentro = true;
+          if (sy < yb) { const base = H / 2 + (q - Q0) * half - (this.zmin - 60 - Z0) * kzA | 0; for (let r = Math.max(sy + 1, 0), rb = Math.min(yb, base); r < rb; r++) d[r * W + i] = pk(92, 72, 52); yb = Math.max(0, Math.min(yb, sy + 1)); }
+        }
+        if (sy >= yb) continue;
+        const r0 = sy < 0 ? 0 : sy, tr = top[0] * s, tg = top[1] * s, tb = top[2] * s, cTop = pk(Math.min(255, tr), Math.min(255, tg), Math.min(255, tb));
+        if (wall) {   // el techo arriba (1–2 px) y la fachada debajo, con hileras de ventanas cuando hay zoom
+          const cW = pk(wall[0] * .86 | 0, wall[1] * .86 | 0, wall[2] * .86 | 0), cV = pk(46, 70, 96);
+          for (let r = r0; r < yb; r++) { const hp = bh - (r - sy) / kzA; d[r * W + i] = r - sy < 2 ? cTop : ventanas && hp > 1.5 && (hp % 3.2) < 1.3 ? cV : cW; }
+        } else for (let r = r0; r < yb; r++) d[r * W + i] = cTop;
+        yb = r0;
+      }
+      for (let r = 0; r < yb; r++) d[r * W + i] = cielo[r];
+    }
+    this.cx.putImageData(this.im, 0, 0); this.ms = performance.now() - t0;
+    return this.cv;
+  }
+};
+~~~~
+
 ### `src/js/25-game.js`
 ~~~~js
 /* =====================================================================
@@ -6183,14 +6302,14 @@ const Libre = EM.modes.libre = {
     else if (J.k === 'ruta') { const s = J.line.st[J.ni]; J.x = s.x; J.y = s.y; J.name = s.name; if (dist(st.x, st.y, s.x, s.y) < 16 && Math.abs(st.vf) < .5) { J.pay += 25; st.pay += 25; Save.d.wallet += 25; this.msg(st, 'Parada ' + s.name + ' +25 🎫', 'g'); this.sfx(st, 'coin'); for (let k = 0; k < 3; k++) Ciudad.parts.push({ x: st.x + (Math.random() - .5) * 6, y: st.y + (Math.random() - .5) * 6, vx: 0, vy: -2, t: 1, t0: 1, c: '#fff', r: .4 }); J.ni++; if (J.ni >= J.stops) this.complete(st); } }
   },
   complete(st) { const J = st.job; let pay = J.pay; if (J.k === 'taxi') { const d = dist(J.client.x0 || J.x, J.client.y0 || J.y, J.x, J.y); pay = 50 + Math.round(J.dist / 35) + (st.crashesJ ? 0 : 40); if (J.client) { J.client.client = false; J.client.wait = 1; J.client.x = st.x + 3; J.client.y = st.y + 3; Ciudad.peds.push(J.client); Ciudad.say(J.client, st.crashesJ ? 'Uy, qué susto' : '¡Gracias, muy amable!'); } }
-    if (J.k === 'postal') { st.photos.push(J.name); const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(J.name)) F.push(J.name); }
+    if (J.k === 'postal') { st.photos.push(J.name); Album.ganar(J.name); }
     if (J.k === 'ruta') pay = 60;
     st.jobs++; st.pay += pay; Save.d.wallet += pay; Save.d.libre.jobs = (Save.d.libre.jobs || 0) + 1; Save.write(); this.msg(st, '✓ ' + J.title + ' · +' + pay + ' 🎫', 'g'); this.sfx(st, 'star'); vib(40); st.job = null; st.jobT = 10; st.crashesJ = 0;
   },
   fail(st, why) { const J = st.job; if (J.k === 'taxi' && J.client) { J.client.client = false; J.client.wait = 1; if (J.stage === 1) { J.client.x = st.x + 3; J.client.y = st.y + 3; Ciudad.peds.push(J.client); } } this.msg(st, '✗ ' + J.title + ': ' + why, 'r'); this.sfx(st, 'bad'); st.job = null; st.jobT = 12; },
   /* ---------- acción (●) ---------- */
   action(st) {
-    if (st.mode === 'ride') { const v = st.ride; if (v.ph === 'dwell' && v.st) { st.mode = 'walk'; st.ride = null; const t = this.nearTile(v.st.x + 8, v.st.y + 8, q => q === TT.WALK || q === TT.PLAZA || q === TT.STATION, 6); st.x = t.x; st.y = t.y; st.vf = 0; this.msg(st, 'Bajas en ' + v.st.name, 'b'); this.sfx(st, 'door'); } else this.msg(st, 'Espera a que pare en la estación', 'y'); return; }
+    if (st.mode === 'ride') { const v = st.ride; if (v.ph === 'dwell' && v.st) { st.mode = 'walk'; st.ride = null; const t = this.nearTile(v.st.x + 8, v.st.y + 8, q => q === TT.WALK || q === TT.PLAZA || q === TT.STATION, 6); st.x = t.x; st.y = t.y; st.vf = 0; this.msg(st, 'Bajas en ' + v.st.name, 'b'); this.sfx(st, 'door'); Album.estacion(v.st.name); } else this.msg(st, 'Espera a que pare en la estación', 'y'); return; }
     if (st.mode === 'veh') {
       const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
@@ -7423,14 +7542,42 @@ const RedView = EM.red = {
   open() {
     UI.show('red'); this.collect(); const cv = $('#rcv'); fitCanvas(cv);
     if (!this.cam.init) { const A = NET.byId.A; const p = A ? NET.at(A.P, A.P.len / 2) : { x: MW * TM / 2, y: MH * TM / 2 }; this.cam = { x: p.x, y: p.y, k: Math.min(cv.width / 16000, cv.height / 26000), init: 1 }; }
-    $('#rChips').innerHTML = GROUPS.filter(([k]) => NET.lines.some(l => l.kind === k)).map(([k, n]) => `<button data-k="${k}" class="${this.on[k] ? '' : 'off'}"><span class="badge" style="background:${(NET.lines.find(l => l.kind === k) || {}).color}">${KIND[k].icon}</span>${n}</button>`).join('') + '<button data-k="_flota">🎫 Flota</button>';
-    $$('#rChips button').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '_flota') { this.flotaCard(); return; } this.on[k] = !this.on[k]; b.classList.toggle('off', !this.on[k]); });
+    $('#rChips').innerHTML = GROUPS.filter(([k]) => NET.lines.some(l => l.kind === k)).map(([k, n]) => `<button data-k="${k}" class="${this.on[k] ? '' : 'off'}"><span class="badge" style="background:${(NET.lines.find(l => l.kind === k) || {}).color}">${KIND[k].icon}</span>${n}</button>`).join('') + '<button data-k="_flota">🎫 Flota</button><button data-k="_iso" class="' + (this.iso ? '' : 'off') + '">⬢ Maqueta 2:1</button><button data-k="_rot" class="' + (this.iso ? '' : 'hide') + '">⟳ Girar</button>';
+    $$('#rChips button').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '_flota') { this.flotaCard(); return; }
+      if (k === '_iso') { this.iso = !this.iso; b.classList.toggle('off', !this.iso); $('#rChips [data-k="_rot"]').classList.toggle('hide', !this.iso); if (this.iso && !this.icam) { const c = this.W($('#rcv').width / 2, $('#rcv').height / 2); this.icam = { x: c.x, y: c.y, a: .32 }; } this.isoKey = ''; if (this.iso && !Save.d.isoVista) { Save.d.isoVista = 1; Save.write(); UI.toast('Maqueta 2:1: el valle real con su relieve y sus edificios. Arrastra, pellizca y gira.'); } return; }
+      if (k === '_rot') { const c = this.icam; Iso.rot = (Iso.rot + 1) % 4; this.isoKey = ''; this.icam = c; return; } this.on[k] = !this.on[k]; b.classList.toggle('off', !this.on[k]); });
     this.info(); cancelAnimationFrame(this.raf); const loop = () => { if (UI.cur !== 'red') return; this.raf = requestAnimationFrame(loop); this.draw(); }; loop();
   },
   info() { $('#rInfo').textContent = fmt(Save.d.wallet) + ' 🎫 · ' + fmt(this.income()) + '/h'; },
   S(x, y) { const cv = $('#rcv'); return { x: cv.width / 2 + (x - this.cam.x) * this.cam.k, y: cv.height / 2 + (y - this.cam.y) * this.cam.k }; },
   W(sx, sy) { const cv = $('#rcv'); return { x: this.cam.x + (sx - cv.width / 2) / this.cam.k, y: this.cam.y + (sy - cv.height / 2) / this.cam.k }; },
+  /* ---------- Maqueta 2:1 (src/js/24-iso.js): se dibuja en caché y se mueve como imagen mientras se arrastra ---------- */
+  drawIso() {
+    const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), c = this.icam; this.t = now(); if (!MAP.ready) return;
+    const cw = Math.ceil(w / dpr * (this.isoRes || 1)), ch = Math.ceil(h / dpr * (this.isoRes || 1)), key = [c.x | 0, c.y | 0, c.a.toFixed(4), Iso.rot, cw, ch].join();
+    if (key !== this.isoKey && (this.ptr.size === 0 || !this.isoCam || now() - (this.isoT || 0) > .35)) {
+      Iso.render({ x: c.x, y: c.y, a: c.a * (this.isoRes || 1) }, cw, ch); this.isoKey = key; this.isoCam = { x: c.x, y: c.y, a: c.a }; this.isoT = now();
+      this.isoRes = Iso.ms > 70 ? Math.max(.5, (this.isoRes || 1) * .8) : Iso.ms < 25 ? Math.min(1, (this.isoRes || 1) * 1.1) : this.isoRes || 1;
+    }
+    const o = this.isoCam, sc = c.a / o.a, [U, V] = Iso.R(c.x, c.y), [Uo, Vo] = Iso.R(o.x, o.y);
+    g.fillStyle = '#9fc7e6'; g.fillRect(0, 0, w, h); g.imageSmoothingEnabled = false;
+    g.drawImage(Iso.cv, w / 2 - w / 2 * sc + ((Uo - Vo) - (U - V)) * c.a * dpr, h / 2 - h / 2 * sc + ((Uo + Vo) - (U + V)) * c.a * dpr / 2, w * sc, h * sc);
+    const C = { x: c.x, y: c.y, a: c.a * dpr }, S = (x, y, z) => Iso.P(x, y, z, C, w, h), lw = clamp(c.a * 9, 2, 6) * dpr;
+    for (const l of NET.lines) {   // las líneas sobre el relieve: metro en viaducto, cables por encima de la loma
+      if (!this.on[l.kind] || l.kind === 'future') continue; const lift = l.kind === 'cable' ? 35 : l.kind === 'metro' ? 10 : 1; g.beginPath();
+      l.P.pts.forEach((p, i) => { const q = S(p.x, p.y, MAP.elevM(p.x, p.y) + lift); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); });
+      g.strokeStyle = 'rgba(15,34,56,.85)'; g.lineWidth = lw + 2 * dpr; g.lineJoin = 'round'; g.stroke(); g.strokeStyle = l.color; g.lineWidth = lw; g.stroke();
+    }
+    for (const s of NET.stations) {
+      if (!s.lines.some(l => this.on[l.kind])) continue; const q = S(s.x, s.y, MAP.elevM(s.x, s.y) + 10); if (q.x < -40 || q.y < -40 || q.x > w + 40 || q.y > h + 40) continue; s._iso = q;
+      const r = (s.lines.length > 1 ? 5 : 3.6) * dpr * clamp(c.a * 2.5, .7, 1.4); g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = '#0F2238'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); g.stroke();
+      if (c.a > .22 || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, q.x + r + 3, q.y + 4 * dpr); g.fillStyle = '#13253A'; g.fillText(s.name, q.x + r + 3, q.y + 4 * dpr); }
+    }
+    if (c.a >= .07 && c.a < .5 && typeof CIUDAD !== 'undefined') { g.textAlign = 'center'; for (const B of CIUDAD.barrios) { if (!B[6] || B[5] < (c.a < .15 ? 70 : 16)) continue; const x = B[3] / 4 * TM, y = B[4] / 4 * TM, q = S(x, y, MAP.elevM(x, y) + 20); if (q.x < 0 || q.y < 0 || q.x > w || q.y > h) continue; g.font = '800 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(15,34,56,.55)'; g.strokeText(B[0].toUpperCase(), q.x, q.y); g.fillStyle = '#fff'; g.fillText(B[0].toUpperCase(), q.x, q.y); } g.textAlign = 'left'; }
+    g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
+  },
   draw() {
+    if (this.iso) { this.drawIso(); return; }
     const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), k = this.cam.k; this.t = now();
     g.fillStyle = PAL.gris; g.fillRect(0, 0, w, h);
     if (MAP.ready) { if (k > .55) { MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
@@ -7456,7 +7603,8 @@ const RedView = EM.red = {
     }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
   },
-  pick(sx, sy) { let best = null, bd = 24 * (window.devicePixelRatio || 1); for (const s of NET.stations) { if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), d = Math.hypot(p.x - sx, p.y - sy); if (d < bd) { bd = d; best = s; } } return best; },
+  pick(sx, sy) {
+    if (this.iso) { let best = null, bd = 26 * (window.devicePixelRatio || 1); for (const s of NET.stations) { if (!s._iso || !s.lines.some(l => this.on[l.kind])) continue; const d = Math.hypot(s._iso.x - sx, s._iso.y - sy); if (d < bd) { bd = d; best = s; } } return best; } let best = null, bd = 24 * (window.devicePixelRatio || 1); for (const s of NET.stations) { if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), d = Math.hypot(p.x - sx, p.y - sy); if (d < bd) { bd = d; best = s; } } return best; },
   card(s) {
     this.sel = s; const el = $('#rCard'); if (!s) { el.classList.add('hide'); return; }
     const fact = NET.fact(s.name), muni = MAP.ready ? MAP.muniAt(s.x, s.y) : '', com = MAP.ready ? MAP.comunaAt(s.x, s.y) : '';
@@ -7482,7 +7630,10 @@ const RedView = EM.red = {
     cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); this.ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); this.moved = 0; });
     cv.addEventListener('pointermove', e => {
       const p = this.ptr.get(e.pointerId); if (!p) return; const r = dpr();
-      if (this.ptr.size === 1) { this.cam.x -= (e.clientX - p.x) * r / this.cam.k; this.cam.y -= (e.clientY - p.y) * r / this.cam.k; this.moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); }
+      if (this.ptr.size === 1) {
+        if (this.iso) { const c = this.icam, dp = -(e.clientX - p.x) / c.a, dqq = -2 * (e.clientY - p.y) / c.a, [dx, dy] = Iso.Ri((dp + dqq) / 2, (dqq - dp) / 2); c.x += dx; c.y += dy; }
+        else { this.cam.x -= (e.clientX - p.x) * r / this.cam.k; this.cam.y -= (e.clientY - p.y) * r / this.cam.k; }
+        this.moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); }
       else if (this.ptr.size === 2) { const o = [...this.ptr.entries()].find(([id]) => id !== e.pointerId)[1], d0 = Math.hypot(p.x - o.x, p.y - o.y), d1 = Math.hypot(e.clientX - o.x, e.clientY - o.y); if (d0 > 0) this.zoom(d1 / d0, (e.clientX + o.x) / 2 * r, (e.clientY + o.y) / 2 * r); this.moved += 99; }
       p.x = e.clientX; p.y = e.clientY;
     });
@@ -7491,7 +7642,9 @@ const RedView = EM.red = {
     cv.addEventListener('wheel', e => { e.preventDefault(); const r = dpr(), rc = cv.getBoundingClientRect(); this.zoom(Math.exp(-e.deltaY * .0015), (e.clientX - rc.left) * r, (e.clientY - rc.top) * r); }, { passive: false });
     $('#rBack').onclick = () => UI.back();
   },
-  zoom(f, sx, sy) { const a = this.W(sx, sy); this.cam.k = clamp(this.cam.k * f, .015, 3); const b = this.W(sx, sy); this.cam.x += a.x - b.x; this.cam.y += a.y - b.y; }
+  zoom(f, sx, sy) {
+    if (this.iso) { const cv = $('#rcv'), r = window.devicePixelRatio || 1, w = cv.width / r, h = cv.height / r, c = this.icam, A = Iso.Pi(sx / r, sy / r, c, w, h); c.a = clamp(c.a * f, .012, 3); const B = Iso.Pi(sx / r, sy / r, c, w, h); c.x += A.x - B.x; c.y += A.y - B.y; return; }
+    const a = this.W(sx, sy); this.cam.k = clamp(this.cam.k * f, .015, 3); const b = this.W(sx, sy); this.cam.x += a.x - b.x; this.cam.y += a.y - b.y; }
 };
 ~~~~
 
@@ -7715,7 +7868,7 @@ const Vida = EM.vida = {
     if (Game.duel) get('duelo'); if (Game.net) get('red'); if ((d.streak || 0) >= 3) get('racha3'); if (d.wallet >= 1000) get('mil');
     if (Object.keys(d.facts).length >= 25) get('datos25'); if (d.story.ch >= CAPS.length - 1) get('historia');
     if (Object.values(d.red.lines).some(x => x.f >= 5)) get('flota');
-    if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
+    Album.fechas(); if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
     Save.write();
   },
   /* noticias para la cinta del menú */
@@ -7730,12 +7883,13 @@ const Vida = EM.vida = {
   /* panel de misiones + logros en el menú */
   panel() {
     const D = this.daily(), d = Save.d, nl = Object.keys(d.logros || {}).length;
-    return `<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
+    const F = this.fiestas().map(f => f.k), ART = { alumbrados: 'esc_alumbrados', feria: 'esc_silleteros', silleteros: 'esc_silleteros', velitas: 'esc_velitas' }, fk = F.find(k => ART[k] && Atlas.has(ART[k])), ft = fk ? this.fiestas().find(f => f.k === fk).t : '';
+    return `${fk ? `<div class="fiesta-ban">${Atlas.tag(ART[fk], '', ft)}<span>${esc(ft)}</span></div>` : ''}<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
       <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Misiones de hoy</h3><span class="pag">🔥 ${d.streak || 0} ${d.streak === 1 ? 'día' : 'días'} seguidos · 🏅 ${nl} de ${LOGROS.length}</span></div>
       ${D.list.map(m => { const M = MISIONES.find(x => x.k === m.k); return `<div class="row" style="margin-top:8px;gap:8px"><span style="flex:1;min-width:0;font-size:14px;${m.done ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(M.t(m.n))}</span><span class="bar" style="width:90px"><i style="width:${Math.round(m.p / m.n * 100)}%"></i></span><b style="font-size:12px;width:44px;text-align:right">${m.p}/${m.n}</b></div>`; }).join('')}
-      <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
+      <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vAlb">📷 Álbum ${Album.n()}/${Album.lista().length}</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
   },
-  bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
+  bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const al = $('#vAlb'); if (al) al.onclick = () => Album.open(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
   logros() {
     const L = Save.d.logros || {};
     UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
@@ -7773,6 +7927,65 @@ const Guia = EM.guia = {
     const show = k => { const t = T.find(x => x[0] === k); $('#guiaBody').innerHTML = t[2](); $$('.guia-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === k)); Save.d.guia = Object.assign(Save.d.guia || {}, { [k]: 1 }); };
     show(tab); $$('.guia-tabs button').forEach(b => b.onclick = () => show(b.dataset.t)); $('#guiaX').onclick = () => { Save.write(); UI.close(); };
   }
+};
+~~~~
+
+### `src/js/68-album.js`
+~~~~js
+/* =====================================================================
+   ÁLBUM DE POSTALES · los 45 lugares reales del valle (src/data/lugares.js) y 5 postales especiales.
+   - Cada postal se gana tomándole la foto en Ciudad Libre (📷 cerca del lugar) o en la historia.
+   - La imagen es una vista aérea del propio mapa del juego en ese punto; si el lugar tiene ilustración, va esa.
+   - Especiales: Parque Arví y Gardel (llegar a su estación) y las fiestas (jugar en esas fechas).
+   Las postales se guardan por nombre en Save.d.fotos (la misma lista de siempre: no cambia el guardado).
+   ===================================================================== */
+const ALBUM_ARTE = { comuna13: 'esc_comuna13', bibespana: 'esc_ladera_atardecer', palacio: 'iso_centro', botero: 'iso_centro' };
+const ALBUM_EXTRA = [
+  { id: 'x-arvi', name: 'Parque Arví', muni: 'Medellín · Santa Elena', art: 'esc_arvi', dato: 'Bosque de pinos y robles sobre la montaña oriental, al final del cable L. Allá arriba hace frío y hay mercado campesino.', como: 'Llega en el cable L hasta la estación Arví.' },
+  { id: 'x-gardel', name: 'Homenaje a Gardel', muni: 'Medellín · Manrique', art: 'esc_tango', dato: 'Carlos Gardel murió en Medellín en 1935, en un accidente de avión. En Manrique hay un barrio tanguero y una estación del Metroplús con su nombre.', como: 'Llega a la estación Gardel del Metroplús.' },
+  { id: 'x-silleteros', name: 'Desfile de Silleteros', muni: 'Feria de las Flores', art: 'esc_silleteros', dato: 'Los campesinos de Santa Elena bajan cargando a la espalda silletas de flores de hasta 80 kilos.', como: 'Juega durante la Feria de las Flores (agosto).' },
+  { id: 'x-alumbrados', name: 'Alumbrados del río', muni: 'Diciembre', art: 'esc_alumbrados', dato: 'Millones de luces en el río Medellín y en los barrios. Mucha gente los recorre en metro, de noche.', como: 'Juega de noche en temporada de Alumbrados.' },
+  { id: 'x-velitas', name: 'Noche de las Velitas', muni: '7 de diciembre', art: 'esc_velitas', dato: 'La noche del 7 de diciembre las familias encienden velas y faroles en andenes y balcones.', como: 'Juega la noche de las velitas.' }
+];
+const Album = EM.album = {
+  _img: {},
+  fotos() { return Save.d.fotos || (Save.d.fotos = []); },
+  tiene(name) { return this.fotos().includes(name); },
+  n() { return this.lista().filter(p => this.tiene(p.name)).length; },
+  /* gana una postal (devuelve true si es nueva) */
+  ganar(name) { const F = this.fotos(); if (F.includes(name)) return false; F.push(name); Save.write(); if (!EM.headless) { Snd.play('star'); UI.toast('📷 Nueva postal en tu álbum: ' + name); } return true; },
+  lista() {
+    const L = (typeof LUGARES !== 'undefined' ? LUGARES : []).filter(l => !l[9] && l[0] !== 'depot').map(l => ({ id: l[0], name: l[1], muni: l[2], lat: l[3], lon: l[4], dato: l[8], art: ALBUM_ARTE[l[0]] || '', como: 'Tómale la foto en Ciudad Libre: acércate y toca 📷.' }));
+    return [...L, ...ALBUM_EXTRA];
+  },
+  /* vista aérea del mapa del juego en el lugar (se dibuja una vez y se guarda) */
+  aerea(P, w, h) {
+    if (this._img[P.id]) return this._img[P.id]; if (!MAP.ready || P.lat == null) return '';
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), m = geoM(P.lat, P.lon);
+    g.fillStyle = '#3a6b45'; g.fillRect(0, 0, w, h); MAP.drawTop(g, w, h, m.x, m.y, .9); MAP.drawLabels(g, w, h, m.x, m.y, .9, 1, 0);
+    return this._img[P.id] = c.toDataURL('image/webp', .8);
+  },
+  open() {
+    const P = this.lista(), n = P.filter(p => this.tiene(p.name)).length;
+    UI.modal(`<h2>Álbum de postales</h2><p class="m">${n} de ${P.length}. Toma la foto en Ciudad Libre con 📷 cerca de cada lugar; las especiales se ganan llegando a su estación o jugando en fiestas.</p>
+      <div class="album">${P.map((p, i) => { const ok = this.tiene(p.name); return `<button class="postal ${ok ? '' : 'falta'}" data-i="${i}"><span class="foto">${ok && p.art && Atlas.has(p.art) ? Atlas.tag(p.art, '', p.name) : ok ? '<i class="aer"></i>' : '<i class="q">?</i>'}</span><b>${esc(p.name)}</b><small>${esc(p.muni)}</small></button>`; }).join('')}</div>
+      <button class="btn pri" id="alOk" style="margin-top:14px">Cerrar</button>`);
+    $('#alOk').onclick = () => UI.close();
+    $$('.album .postal').forEach(b => b.onclick = () => this.ver(P[+b.dataset.i]));
+    // las vistas aéreas se dibujan de a una, sin trabar la pantalla
+    const pend = [...document.querySelectorAll('.album .postal i.aer')]; let k = 0;
+    const paso = () => { if (k >= pend.length || !pend[k].isConnected) return; const el = pend[k++], p = P[+el.closest('.postal').dataset.i], u = this.aerea(p, 240, 150); if (u) el.outerHTML = `<img src="${u}" alt="${esc(p.name)}">`; setTimeout(paso, 16); };
+    setTimeout(paso, 60);
+  },
+  ver(p) {
+    const ok = this.tiene(p.name), img = ok ? (p.art && Atlas.has(p.art) ? Atlas.tag(p.art, '', p.name) : `<img src="${this.aerea(p, 480, 300)}" alt="${esc(p.name)}">`) : '';
+    UI.modal(`${img ? `<div class="postal-grande">${img}</div>` : ''}<h2>${esc(p.name)}</h2><p class="pag">${esc(p.muni)}</p><p class="m">${ok ? esc(p.dato) : esc(p.como)}</p><button class="btn pri" id="alVolver">Volver al álbum</button>`);
+    $('#alVolver').onclick = () => this.open();
+  },
+  /* postales especiales al bajarse en su estación (Ciudad Libre) y por fechas (al terminar una partida) */
+  estacion(nombre) { if (nombre === 'Arví') this.ganar('Parque Arví'); if (nombre === 'Gardel') this.ganar('Homenaje a Gardel'); },
+  fechas() { const h = new Date().getHours(), noche = h >= 18 || h < 5; if (Vida.has('feria') || Vida.has('silleteros')) this.ganar('Desfile de Silleteros'); if (Vida.has('alumbrados') && noche) this.ganar('Alumbrados del río'); if (Vida.has('velitas')) this.ganar('Noche de las Velitas'); },
+  check(E) { for (const p of this.lista()) { if (p.art && !Atlas.has(p.art)) E('álbum: falta el arte ' + p.art); if (!p.dato) E('álbum: sin dato ' + p.name); } return this.lista().length; }
 };
 ~~~~
 
@@ -8049,6 +8262,13 @@ const BotT = EM.test = {
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
     let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
     let nA = 0; try { nA = EM.atlas ? EM.atlas.check(E) : 0; } catch (e) { E('atlas: ' + e.message); }
+    let nPo = 0; try { nPo = Album.check(E); } catch (e) { E('álbum: ' + e.message); }
+    // maqueta 2:1: la proyección va y vuelve, y el dibujo pinta ciudad (no solo cielo)
+    try {
+      const s = NET.stations.find(q => q.name === 'San Antonio'), c = { x: s.x, y: s.y, a: .3 }, r0 = Iso.rot;
+      for (let r = 0; r < 4; r++) { Iso.rot = r; const p = Iso.P(s.x + 50, s.y - 30, Iso.Z0, c, 200, 160), w = Iso.Pi(p.x, p.y, c, 200, 160); if (Math.hypot(w.x - s.x - 50, w.y - s.y + 30) > .5) E('maqueta: la proyección no vuelve con giro ' + r); }
+      Iso.rot = r0; if (!EM.headless) { Iso.render(c, 96, 72); const d = Iso.d; let tierra = 0; for (let i = 0; i < d.length; i++) if (((d[i] >> 16) & 255) - (d[i] & 255) < 20) tierra++; /* el cielo es azulado: azul mucho mayor que rojo */ if (tierra < d.length * .3) E('maqueta: el dibujo salió casi vacío'); }
+    } catch (e) { E('maqueta: ' + e.message); }
     // seguridad: una partida importada no cambia prototipos y los mensajes de otro celular no rompen el juego
     try {
       const d = Save.sanitize(JSON.parse('{"v":1,"__proto__":{"contaminado":1},"settings":{"__proto__":{"x":1}},"wallet":-5}'));
@@ -8066,7 +8286,7 @@ const BotT = EM.test = {
         const B = NET.stations.find(q => q.name === 'Parque Berrío'), bb = B && MAP.barrioAt(B.x, B.y); if (!bb || bb[0] !== 'La Candelaria') E('ciudad: Parque Berrío debería quedar en La Candelaria (' + (bb && bb[0]) + ')');
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nBa} barrios · ${nCa} calles con nombre · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
