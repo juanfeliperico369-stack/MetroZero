@@ -2,15 +2,15 @@
 
 > Para qué sirve: entender **qué hace grande a cada referencia** (gráficos, color, cámara, interfaz, mecánicas) y **qué principio tomamos** para *El Metro*, un juego de **mundo abierto + arcade** sobre el Metro de Medellín. No copiamos personajes, nombres, logos ni assets de nadie: tomamos principios de diseño.
 > Las paletas HEX son **aproximadas** (estimadas a partir del estilo de cada juego) y sirven como punto de partida.
-> Las referencias marcadas *(sin verificar)* no se pudieron confirmar del todo. Los 4 reels de Instagram se analizaron por su texto público, porque no se puede ver el video desde aquí.
+> **Verificado en la Play Store (Colombia) el 17 nov 2026:** se usan los nombres y desarrolladores exactos que aparecen en la tienda de Android. Las marcadas *(sin verificar)* no se pudieron confirmar del todo. Los 4 reels de Instagram se analizaron por su texto público, porque no se puede ver el video desde aquí.
 
 ## Índice
 1. [Tabla resumen](#tabla-resumen)
 2. Mundo abierto cenital: [GTA 1](#gta-1) · [GTA 2](#gta-2) · [GTA London](#gta-london-1969--1961) · [GTA Chinatown Wars](#gta-chinatown-wars)
-3. Ciudad realista y velocidad: [The Getaway 1 y 2](#the-getaway-1-y-2) · [Need for Speed](#need-for-speed) · [Forza Horizon](#forza-horizon)
+3. Persecución y velocidad: [Reckless Getaway 1 y 2](#reckless-getaway-1-y-2) · [Need for Speed](#need-for-speed) · [Forza Horizon](#forza-horizon)
 4. Arcade de conducción móvil: [FR Legends](#fr-legends) · [#DRIVE](#drive) · [PAKO Forever](#pako-forever) · [Super Arcade Racing](#super-arcade-racing) · [APEX Racer](#apex-racer)
 5. Vuelo y esquivar: [Simulador de vuelo 3D](#simulador-de-vuelo-3d) · [Missiles!](#missiles) · [1945 Air Force](#1945-air-force)
-6. Trenes y logística: [Tiny Rails](#tiny-rails) · Infinity Games: [Railways](#railways) · [Traffix](#traffix) · [Package Inc](#package-inc) · [Infinity Loop](#infinity-loop) · [Laser](#laser) · [Laberinto (Maze)](#laberinto-maze)
+6. Trenes y logística: [Tiny Rails](#tiny-rails) · Infinity Games: [Railways](#railways) · [Traffix](#traffix) · [Package Inc](#package-inc) · [Infinity Loop](#infinity-loop) · [Laser](#laser) · [Laberinto](#laberinto)
 7. Paisaje, calma y construcción: [Grand Mountain Adventure](#grand-mountain-adventure) · [Alto's Odyssey](#altos-odyssey) · [Townscaper](#townscaper) · [Town Brush](#town-brush) · [CityRT](#cityrt)
 8. Arte y reels: [Josh White](#josh-white-joshwhite_artist) · [Holstin](#holstin-reel-1) · [Prototipo de carreras cinematográfico](#prototipo-de-carreras-cinematográfico-reel-2) · [Cairn](#cairn-reel-3) · [Conducción realista con gráficos simples](#conducción-realista-con-gráficos-simples-reel-4)
 9. [Referencias propias del autor](#referencias-propias-del-autor) · [Síntesis transversal y 10 pilares](#síntesis-transversal)
@@ -22,7 +22,7 @@
 | GTA 2 | Igual + luces nocturnas | Cenital con zoom | Respeto por bandas, trenes y buses usables | Reputación por comuna, transporte usable |
 | GTA London | Cenital, ambientación de época | Cenital | Identidad local: vehículos, jerga, radio | Medellín 1995, parlache, radio |
 | GTA Chinatown Wars | 3D con contorno de cómic | Cenital inclinada que gira con el vehículo | Mini‑interacciones táctiles, GPS | Validar Cívica, agujas, GPS en la vía |
-| The Getaway 1–2 | 3D realista de Londres | Persecución cinematográfica | Sin HUD: direccionales del carro guían | Modo HUD mínimo con direccionales del bus |
+| Reckless Getaway 1–2 | 3D caricatura con física de choques | Cenital/isométrica que sigue al carro | Escapar en niveles cortos, recoger botín, desbloquear carros | Eventos de evasión con obstáculos y física divertida |
 | Need for Speed | 3D realista nocturno/neón | Persecución con FOV dinámico | Sensación de velocidad, personalización | Viaducto nocturno, decoraciones de fiesta |
 | Forza Horizon | 3D realista luminoso | Persecución, capó, fotos | Festival, estaciones del año, cadenas de habilidad | Feria de las Flores como festival‑hub |
 | FR Legends | 3D caricatura (cabezones) | Persecución baja | Derrape juzgado por zonas, editor de livery | Editor de decoración de buses, zonas de parada |
@@ -39,7 +39,7 @@
 | Package Inc | Isométrico minimalista | Isométrica | Bandas y desvíos de paquetes | Encomiendas y despacho de alimentadores |
 | Infinity Loop | Línea mínima | Cenital fija | Girar piezas para cerrar circuitos | Conectar la red (La Red) |
 | Laser | Neón sobre oscuro | Cenital fija | Desviar luz con espejos | Puzle de Alumbrados |
-| Laberinto (Maze) | Mínimo | Cenital fija | Encontrar la salida | Orientarse dentro de estaciones |
+| Laberinto: Infinito y sencillo | Mínimo | Cenital fija | Encontrar la salida | Orientarse dentro de estaciones |
 | Grand Mountain Adventure | Low‑poly isométrico | Inclinada, efecto maqueta | Muchos retos sueltos en un mundo abierto, telesillas | Cables como conectores, retos marcados |
 | Alto's Odyssey | Siluetas 2D por capas | Lateral | Infinito, metas de 3 en 3, modo zen y foto | Panorámica del metro, modo zen |
 | Townscaper | 3D de juguete | Orbital libre | Construir tocando, sin metas | “Pinta tu barrio” en las laderas |
@@ -88,15 +88,15 @@
 - **Mecánicas:** mundo abierto compacto; las interacciones táctiles dan textura física a acciones cotidianas.
 - **Para El Metro:** acciones táctiles de un segundo en vez de minijuegos aparte: pasar la Cívica por el torniquete, girar la llave de la cabina, tocar el timbre de la buseta, mover una aguja; ruta del bus pintada en la calle; contorno oscuro en sprites para leerlos en pantallas pequeñas.
 
-## The Getaway 1 y 2
-**The Getaway (2002) y The Getaway: Black Monday (2004) · Team Soho (SCE) · PlayStation 2** · [Wikipedia](https://es.wikipedia.org/wiki/The_Getaway)
-> Se asume que “Getaway 1 y 2” son estos dos juegos, porque el autor los nombra junto a GTA London y ambos ocurren en Londres. *(sin verificar con el autor)*
-- **Gráficos y estética:** recreación **realista y fiel** de Londres (calles reales), tono cinematográfico, colores desaturados.
-- **Paleta (aprox.):** gris piedra `#6b6f73`, cielo nublado `#9da3a6`, parque `#3d4a3f`, bus rojo `#b03a2e`, ladrillo claro `#d9c9a3`.
-- **Cámara:** tercera persona de persecución, cinemáticas con planos de cine.
-- **Interfaz y funciones:** **sin HUD**: no hay minimapa; las **direccionales del carro parpadean** hacia donde hay que girar; la salud se recupera descansando.
-- **Mecánicas:** historia lineal en una ciudad fiel.
-- **Para El Metro:** opción “**HUD mínimo**” en el bus: las direccionales y flechas en el asfalto guían, sin minimapa; fidelidad a lugares reales (estaciones, plazas, río); cinemáticas cortas en los capítulos de la historia.
+## Reckless Getaway 1 y 2
+**Pixelbite (Suecia), publicado por Miniclip · Android, iOS** · en la Play Store: [Reckless Getaway 2](https://play.google.com/store/apps/details?id=com.pixelbite.ga2) (más de 50 millones de descargas, 4,5 ★, apto para todo público con “violencia de fantasía leve”)
+> El primer *Reckless Getaway* ya no aparece en la Play Store; queda la secuela.
+- **Gráficos y estética:** 3D de caricatura con colores vivos, ciudades de juguete y **física de choques exagerada**: carros que saltan, vallas que vuelan, tráfico que se amontona. *(estilo descrito de memoria; confirmar con capturas)*
+- **Paleta (aprox.):** asfalto `#3a3d44`, verde ciudad `#7cb342`, rojo patrulla `#e53935`, azul `#1e88e5`, amarillo botín `#fdd835`.
+- **Cámara:** cenital/isométrica alta que sigue al carro y se aleja con la velocidad.
+- **Interfaz y funciones:** controles táctiles simples, monedas o botín por recoger, garaje con carros desbloqueables, niveles con estrellas.
+- **Mecánicas:** escapar dentro de **niveles cortos**, esquivar tráfico y obstáculos, recoger botín, desbloquear carros. El lema de la tienda: “¡Esquiva el calor y no te mueras!”.
+- **Para El Metro:** sin persecuciones policiales. Se toman los **eventos de evasión cortos** con física divertida y legible: llegar a la estación esquivando el **trancón** de hora pico o las calles inundadas por un aguacero (junto con PAKO Forever). También la cámara alta que se aleja con la velocidad y un garaje de vehículos desbloqueables.
 
 ## Need for Speed
 **Saga desde 1994 · EA (Black Box, Criterion, Ghost Games) · consolas, PC, móvil** · [Wikipedia](https://es.wikipedia.org/wiki/Need_for_Speed)
@@ -127,7 +127,7 @@
 - **Para El Metro:** el **editor de decoración** (buses, cabinas de cable, tranvía con motivos de fiesta); **zonas marcadas que se califican** (la marca de parada del bus y del tren como “zona de toque”: más puntos cuanto más exacto); personajes expresivos y simpáticos.
 
 ## #DRIVE
-**2019 · Pixel Perfect Dude · iOS, Android, PC, Switch** · [Steam](https://store.steampowered.com/app/1253140/DRIVE/) *(enlace sin verificar)*
+**2019 · Pixel Perfect Dude S.A. · iOS, Android (Play Store: “#DRIVE”, 4,6 ★), PC, Switch** · [Steam](https://store.steampowered.com/app/1253140/DRIVE/) *(enlace sin verificar)*
 - **Gráficos y estética:** low‑poly retro, carreteras infinitas, atardeceres, ambiente ochentero de casete.
 - **Paleta (aprox.):** `#1b1b3a`, coral `#ff6f61`, amarillo `#ffcc5c`, menta `#88d8b0`, violeta `#6a4c93`.
 - **Cámara:** persecución fija detrás del carro, horizonte amplio.
@@ -136,7 +136,7 @@
 - **Para El Metro:** un **“Paseo”** sin metas (ya existe el modo paseo del metro): de noche por la Autopista o subiendo a Las Palmas, con música sintetizada; colección de vehículos y colores desbloqueables.
 
 ## PAKO Forever
-**2019 · Tree Men Games · iOS, Android, PC, Switch** · [Steam](https://store.steampowered.com/app/1003700/PAKO_Forever/) *(enlace sin verificar)*
+**2019 · Tree Men Games · iOS, Android (Play Store: “PAKO para siempre”), PC, Switch** · [Steam](https://store.steampowered.com/app/1003700/PAKO_Forever/) *(enlace sin verificar)*
 - **Gráficos y estética:** low‑poly con colores pastel, mapas pequeños tipo diorama, siluetas muy legibles.
 - **Paleta (aprox.):** `#f4a259`, `#5b8e7d`, `#bc4b51`, `#8cb369`, `#f4e285`.
 - **Cámara:** cenital/isométrica que sigue al carro dentro de una arena.
@@ -145,7 +145,7 @@
 - **Para El Metro:** **eventos relámpago** en la ciudad (2–3 min, para todo público): “llega antes del aguacero”, “lleva el tinto caliente”, “recoge a los pasajeros antes de que cierre la estación”; mapas acotados dentro del mismo mundo.
 
 ## Super Arcade Racing
-**2019 · OutOfTheBit (Reino Unido) · iOS, Android, Steam** · [Steam](https://store.steampowered.com/app/1103770) · [Pocket Gamer](https://www.pocketgamer.com/super-arcade-racing/five-reasons-to-play-super-arcade-racing-from-outofthebit-studio/)
+**2019 · OutOfTheBit Ltd (Reino Unido) · iOS, Android (Play Store: “Super Arcade Racing”), Steam** · [Steam](https://store.steampowered.com/app/1103770) · [Pocket Gamer](https://www.pocketgamer.com/super-arcade-racing/five-reasons-to-play-super-arcade-racing-from-outofthebit-studio/)
 - **Gráficos y estética:** **pixel art de 16 bits** cenital, pistas coloridas, guiño a las carreras arcade de los 80–90.
 - **Paleta (aprox.):** pasto `#3e8948`, verde claro `#6abe30`, amarillo `#fbf236`, rojo `#ac3232`, azul `#5b6ee1`, sombra `#222034`.
 - **Cámara:** cenital que sigue al carro.
@@ -154,7 +154,7 @@
 - **Para El Metro:** **modo niños de dos botones** en el bus y el taxi (el asistente de carril ya gira solo); niveles cortos con estrellas; mejoras del vehículo con pasajes.
 
 ## APEX Racer
-**G63 Holdings LTD · iOS** · [App Store](https://apps.apple.com/us/app/apex-racer/id1668705222)
+**En Android: “APEX Racer - Pixel Cars”, de PIXELDEV GAMES** (en el App Store aparece publicado por G63 Holdings) · [App Store](https://apps.apple.com/us/app/apex-racer/id1668705222)
 - **Gráficos y estética:** estilo **pixel con toques 3D modernos**: carros retro con iluminación actual.
 - **Paleta (aprox.):** `#2b2d42`, rosa `#ef476f`, amarillo `#ffd166`, menta `#06d6a0`, azul `#118ab2`.
 - **Cámara:** persecución en autopista.
@@ -163,7 +163,7 @@
 - **Para El Metro:** confirma el **híbrido pixel + 3D** del juego; mejoras visibles del bus (aire, suspensión, luces); paseo en red por la Autopista con amigos (modo Juntos).
 
 ## Simulador de vuelo 3D
-*(sin verificar: el autor no dio el título exacto; el más probable es un simulador móvil tipo “Flight Pilot Simulator 3D”)*
+**“Simulador de Vuelo 3D”, de Wildlife Studios en la Play Store** (paquete `com.fungames.flightpilot`; en inglés se conoce como *Flight Pilot Simulator 3D*) · [Play Store](https://play.google.com/store/apps/details?id=com.fungames.flightpilot)
 - **Gráficos y estética:** 3D low‑poly limpio, cielos amplios, terreno con ciudades y montañas.
 - **Paleta (aprox.):** cielo `#6fb7e8`, nubes `#f2f6fa`, montaña `#5e7d4f`, tierra `#b9a27a`, avión `#d64545`.
 - **Cámara:** externa de persecución, **cabina**, cinemática y torre.
@@ -172,7 +172,7 @@
 - **Para El Metro:** vistas aéreas del valle (cable, dron en Alumbrados), **varias cámaras con una de cabina**, controles por inclinación opcionales (ya existen en Al volante).
 
 ## Missiles!
-**2015 · Macaque (Polonia) · iOS, Android** · [MobileSyrup](https://mobilesyrup.com/2018/03/11/missiles-reminder-simple-games-can-still-fun-game-week/)
+**2015 · Macaque (Polonia) · iOS, Android** · en la Play Store como **“Misiles!”** (paquete `pl.macaque.Missiles`) · [MobileSyrup](https://mobilesyrup.com/2018/03/11/missiles-reminder-simple-games-can-still-fun-game-week/)
 - **Gráficos y estética:** **minimalismo plano**: un avioncito rojo de hélice, cielo en degradé, estelas blancas.
 - **Paleta (aprox.):** cielo `#87ceeb`, nube `#ffffff`, avión `#e63946`, crema `#f1faee`, azul `#1d3557`.
 - **Cámara:** cenital fija centrada en el avión.
@@ -181,7 +181,7 @@
 - **Para El Metro:** evento de temporada **“Dron de los Alumbrados”**: volar sobre el río recogiendo estrellas de luz y esquivando **pólvora** (con mensaje de cuidado: la pólvora quema); controles de un dedo.
 
 ## 1945 Air Force
-**OneSoft Global · iOS, Android** · [App Store](https://apps.apple.com/us/app/1945-air-force-airplane-games/id1204384567) *(enlace sin verificar)*
+**OneSoft · iOS, Android** · [App Store](https://apps.apple.com/us/app/1945-air-force-airplane-games/id1204384567) *(enlace sin verificar)*
 - **Gráficos y estética:** shoot’em up vertical con aviones de la Segunda Guerra, mar y costas, efectos brillantes.
 - **Paleta (aprox.):** mar `#0a3d62`, `#3c6382`, explosión `#e58e26`, rojo `#b71540`, arena `#f8c291`.
 - **Cámara:** cenital con desplazamiento vertical constante.
@@ -199,7 +199,7 @@
 - **Para El Metro:** **pasajeros con historia** en la panorámica (el abuelo que va a la feria, la estudiante de la UdeA); **ver el interior del tren** al parar (corte en vista lateral); vagones o cabinas temáticas en fiestas; monumentos reales a lo largo de la línea.
 
 ## Railways
-**Infinity Games (Portugal) · iOS, Android** · [Infinity Games en App Store](https://apps.apple.com/us/developer/-/id1088875165)
+**Infinity Games, Lda (Portugal) · iOS, Android** · Play Store: **“Railways - Simulador de tren”** · [Infinity Games en App Store](https://apps.apple.com/us/developer/-/id1088875165)
 - **Gráficos y estética:** puzle **minimalista plano**: vías, trenes y estaciones de colores sobre fondo claro.
 - **Paleta (aprox.):** fondo `#f5f1e8`, vía `#5d5d5d`, rojo `#e94f37`, azul `#3f88c5`, amarillo `#f6ae2d`, verde `#44bba4`.
 - **Cámara:** cenital fija.
@@ -208,7 +208,7 @@
 - **Para El Metro:** el **Puesto de Control** como momento de la historia (agujas por colores de línea); código de color de las líneas en todo el juego.
 
 ## Traffix
-**Infinity Games · iOS, Android, Mac (también Traffix 3D)** · [App Store](https://apps.apple.com/us/app/-/id1483904390)
+**Infinity Games · iOS, Android, Mac (también Traffix 3D)** · Play Store: **“Traffix: Simulador de Tráfico”** · [App Store](https://apps.apple.com/us/app/-/id1483904390)
 - **Gráficos y estética:** cruces de ciudades reales en estilo **minimalista**; la versión 3D tiene carros de juguete.
 - **Paleta (aprox.):** asfalto `#2d3436`, `#636e72`, verde semáforo `#00b894`, amarillo `#fdcb6e`, rojo `#d63031`, azul `#0984e3`.
 - **Cámara:** cenital fija sobre la intersección.
@@ -217,7 +217,7 @@
 - **Para El Metro:** el autor lo ve perfecto para Metroplús. Ya existe el puzle Arcade; el siguiente paso es llevarlo **al mundo**: en hora pico, como agente de tránsito, das prioridad al articulado en cruces reales de la avenida.
 
 ## Package Inc
-**Infinity Games · iOS, Android** · [App Store (desarrollador)](https://apps.apple.com/us/developer/-/id1088875165)
+**Infinity Games · iOS, Android** · Play Store: **“Package Inc Juegos de gestión”**
 - **Gráficos y estética:** isométrico minimalista con bandas transportadoras y camiones.
 - **Paleta (aprox.):** `#f7f7f2`, `#4f5d75`, `#ef8354`, `#2d3142`, `#bfc0c0`.
 - **Cámara:** isométrica fija.
@@ -226,7 +226,7 @@
 - **Para El Metro:** red de **encomiendas** en Ciudad Libre y despacho de alimentadores en hora pico (los buses como “paquetes” que salen al barrio correcto).
 
 ## Infinity Loop
-**Infinity Games · iOS, Android** · [App Store](https://apps.apple.com/us/app/-/id977028266)
+**Infinity Games · iOS, Android** · Play Store: **“Infinity Loop: Calma y Relája”** · [App Store](https://apps.apple.com/us/app/-/id977028266)
 - **Gráficos y estética:** líneas blancas sobre fondo oscuro (o al revés), animaciones suaves, sonido ambiental.
 - **Paleta (aprox.):** `#1e1e24`, `#fbfef9`, `#92dce5`, `#f8a1d1`.
 - **Cámara:** fija.
@@ -235,17 +235,17 @@
 - **Para El Metro:** calma y claridad en la interfaz; un modo de **“conectar la red”** en La Red (unir estaciones con piezas de vía y cable) como pausa relajada.
 
 ## Laser
-*(sin verificar: no se encontró un título exacto “Laser” de Infinity Games; el estudio tiene puzles de energía y luz como “Power On: Energy Flow” y “Light the Lamps”)*
-- **Gráficos y estética:** rayos de luz neón sobre fondo oscuro.
+**Infinity Games · Android, iOS** · Play Store: **“Laser: Relajante y Placentero”** (el estudio también tiene **“Laser Quest”**)
+- **Gráficos y estética:** rayos de luz neón sobre fondo oscuro, piezas limpias, animaciones suaves.
 - **Paleta (aprox.):** `#0b0f1a`, `#00f5d4`, `#f15bb5`, `#fee440`.
 - **Cámara:** fija.
-- **Mecánicas:** girar espejos o piezas para llevar la luz o la energía a su destino.
+- **Mecánicas:** girar o mover espejos y piezas para que la luz llegue a su destino; sin prisa.
 - **Para El Metro:** puzle de temporada **“Enciende los Alumbrados”**: llevar la energía a las figuras de luz del río (diciembre), dentro del mundo y no como menú aparte.
 
-## Laberinto (Maze)
-**“Maze: Puzzle and Relaxing Game” · Infinity Games** *(el autor lo llama “laberinto”)* · [App Store (desarrollador)](https://apps.apple.com/us/developer/-/id1088875165)
+## Laberinto
+**Infinity Games · Android, iOS** · Play Store: **“Laberinto: Infinito y sencillo”**
 - **Gráficos y estética:** laberintos de líneas limpias con transiciones suaves.
-- **Mecánicas:** deslizar para salir; niveles crecientes.
+- **Mecánicas:** deslizar para salir; niveles infinitos y crecientes.
 - **Para El Metro:** **orientarse dentro de las estaciones** (torniquetes, escaleras, andén correcto) para niños; señalética clara.
 
 ## Grand Mountain Adventure
@@ -276,7 +276,7 @@
 - **Para El Metro:** modo creativo **“Pinta tu barrio”**: casas en ladera que se adaptan a la pendiente, escaleras y terrazas que aparecen solas, colores de fachadas; la ciudad responde con vida (gente, perros, ropa al sol).
 
 ## Town Brush
-*(sin verificar: proyecto visto en Instagram @townbrush, “the cozy…”; no se encontró ficha en tiendas)*
+*(sin verificar: proyecto visto en Instagram @townbrush, “the cozy…”; **no aparece en la Play Store** ni en otras tiendas, posiblemente aún en desarrollo)*
 - **Gráficos y estética:** según la imagen que compartió el autor: **pixel art denso en 3/4**, río con orillas suaves, árboles en masas, tejados de teja, torre, lluvia fina animada, luz difusa.
 - **Paleta (aprox., de la imagen):** río `#4f7f8f`, pasto `#5f8f4a`, árbol oscuro `#2f5a3a`, teja `#b5573b`, muro `#d9cdb5`, lluvia `#cfe3ea`.
 - **Cámara:** cenital 3/4 (se ven techos y algo de fachada).

@@ -33,7 +33,7 @@
 |---|---|---|---|
 | A pie | Cenital 3/4 cercana | GTA 1/2, Town Brush | existe |
 | Vehículo en la ciudad | Cenital con **zoom según velocidad**; opción de **girar con el rumbo** | GTA 1 / Chinatown Wars | zoom existe; giro [nuevo] |
-| Bus | Cenital de seguimiento; **HUD mínimo** opcional con direccionales y flechas en el asfalto | Getaway | seguimiento existe; HUD mínimo [nuevo] |
+| Bus | Cenital de seguimiento; **HUD mínimo** opcional con direccionales y flechas en el asfalto | Idea propia (minimalismo de Alto) | seguimiento existe; HUD mínimo [nuevo] |
 | Metro y tranvía | Panorámica por capas ↔ cabina 1ª persona ↔ 3ª persona ↔ cine | Alto, Tiny Rails, simuladores | existe |
 | Metrocable | Panorámica, 3D y cabina | Grand Mountain (góndolas) | existe |
 | Llegadas y finales | **Repetición de cine** (cámara baja junto a la vía, paneo) | Forza, reel de carreras | [nuevo] |
@@ -69,7 +69,8 @@
 ## 7. Eventos arcade dentro del mundo (no en menús aparte)
 | Evento | Cómo se juega | De dónde sale |
 |---|---|---|
-| **Antes del aguacero** | Llevar pasajeros a la estación antes de que llegue la lluvia (2 min) | PAKO Forever |
+| **Antes del aguacero** | Llevar pasajeros a la estación antes de que llegue la lluvia (2 min) | PAKO Forever, Reckless Getaway |
+| **Esquiva el trancón** | Llegar a la estación en hora pico esquivando tráfico y obstáculos con física divertida | Reckless Getaway |
 | **El tinto caliente** | Llevar el tinto sin regarlo (existe como oficio) | Industry Art / EnCicla |
 | **El último tren** | Llegar a tiempo al último tren de la noche | GTA (contrarreloj) |
 | **Agente de tránsito** | En hora pico, dar prioridad al Metroplús en cruces reales | Traffix |
@@ -82,7 +83,7 @@
 | **Exhibición de clásicos** (Feria) | Desfile calificado por precisión y estilo (no velocidad) | FR Legends |
 | **Pinta tu barrio** | Modo creativo: pintar fachadas en ladera; las casas se acomodan solas | Townscaper |
 | **Enciende los Alumbrados** | Llevar la energía a las figuras del río | Laser, Infinity Loop |
-| **Orientar pasajeros** | Responder rutas reales (existe en la historia) | Laberinto / Maze |
+| **Orientar pasajeros** | Responder rutas reales (existe en la historia) | Laberinto: Infinito y sencillo |
 | **Sube la loma** | Subir a pie las escaleras de la Comuna 13 con barra de aliento | Cairn |
 
 ## 8. Mundo vivo
