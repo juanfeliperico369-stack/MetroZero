@@ -264,6 +264,23 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .cb.warn b{color:#fff}
 .cb[disabled]{opacity:.45}
 .jobbar.tut{top:calc(190px + var(--sat));right:84px;border-left-color:var(--lT);background:rgba(16,46,80,.95)}
+/* historia en la ciudad: barra del capítulo y conversación con los personajes */
+.jobbar.trama{border-left-color:var(--lH);top:calc(104px + var(--sat))}
+.jobbar.trama b{font-size:16px}
+.trtalk{position:absolute;left:8px;right:8px;bottom:calc(158px + var(--sab));background:var(--papel,#f1ece0);color:var(--negro);border:3px solid var(--negro);border-left:10px solid var(--lA);box-shadow:5px 5px 0 var(--negro);padding:10px 12px 12px;z-index:6;max-width:560px;margin:0 auto;animation:trIn .18s ease-out}
+.trtalk .who{display:inline-block;font-family:var(--fd);font-stretch:80%;font-size:15px;text-transform:uppercase;background:var(--lA);color:#fff;padding:1px 8px;margin-bottom:4px}
+.trtalk p{margin:2px 0 8px;font-size:15px;line-height:1.35}
+.trtalk .opts{display:flex;flex-wrap:wrap;gap:6px}
+.trtalk .opts .btn{flex:1 1 auto;text-align:left;white-space:normal;line-height:1.2}
+.trtalk .x{position:absolute;right:6px;top:4px;border:0;background:none;font-size:18px;font-weight:900;cursor:pointer}
+.trtalk.hide{display:none}
+#game .vsel button#lbFF.on{background:var(--lT);color:#fff}
+@keyframes trIn{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+#game:has(.jobbar.trama:not(.hide)) #gmsg{top:calc(176px + var(--sat))}
+.trcap{position:absolute;left:0;right:0;top:38%;z-index:7;pointer-events:none;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(12,37,51,.92) 18%,rgba(12,37,51,.92) 82%,transparent);padding:14px 10px 16px;animation:trCap 3.8s ease forwards}
+.trcap small{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mante)}
+.trcap b{display:block;font-family:var(--fd);font-stretch:80%;font-size:34px;line-height:1;text-transform:uppercase;margin-top:4px}
+@keyframes trCap{0%{opacity:0;transform:scaleY(.6)}10%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
 
 </style></head>
 <body>
@@ -527,7 +544,7 @@ const LUGARES = [
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.4.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -1996,6 +2013,8 @@ const Lado = EM.lado = {
     // suavizado para siluetas limpias
     const sm = (a, r) => { const o = new Float32Array(a.length); for (let i = 0; i < a.length; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - r); j <= Math.min(a.length - 1, i + r); j++) { s += a[j]; c++; } o[i] = s / c; } return o; };
     const R = { id: key, n, st, near: sm(near, 1), mid: sm(mid, 3), far: sm(far, 6), tile, urb, side: sd };
+    // capa intermedia (cerros entre la cordillera y las laderas) para el escalonado de siluetas
+    const inter = new Float32Array(n); for (let i = 0; i < n; i++) inter[i] = R.far[i] * .6 + R.mid[i] * .4 + Math.sin(i * .045) * 40 + Math.sin(i * .013 + 1) * 60; R.inter = sm(inter, 4);
     let lo = 1e9, hi = -1e9; for (let i = 0; i < n; i++) { lo = Math.min(lo, R.far[i], R.mid[i]); hi = Math.max(hi, R.far[i]); } R.lo = lo; R.hi = hi;
     return (this.cache[key] = R);
   },
@@ -2005,7 +2024,7 @@ const Lado = EM.lado = {
   /* laderas con barrios: casas de ladrillo que trepan desde el valle, monte arriba y luces de noche.
      Se pinta en una tira en caché (espacio de la capa) y se vuelve a pintar solo al salir del margen o cambiar la luz. */
   barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, id) {
-    const far = id === 'far', hw = Math.max(far ? 2 : 4, Math.round(k * (far ? 1.2 : 2.6))), rh = Math.max(2, Math.round(hw * .72)), U0 = o.s * k * par, umin = dir > 0 ? U0 - cx : U0 + cx - W;
+    const far = id === 'far' || id === 'inter', hw = Math.max(far ? 2 : 4, Math.round(k * (far ? 1.2 : 2.6))), rh = Math.max(2, Math.round(hw * .72)), U0 = o.s * k * par, umin = dir > 0 ? U0 - cx : U0 + cx - W;
     const yTop = Math.floor(base - H * (far ? .44 : .26)), yBot = Math.ceil(base + H * .05), bh = yBot - yTop, nq = Math.round(sky.night * 5), dq = Math.round(sky.day * 5);
     const key = [R.id, W, H, par, k.toFixed(3), nq, dq, R.n, R.st, col.map(v => (v * 40) | 0).join('.')].join(':'), C = (this._bc = this._bc || {})[id];
     let c = C && C.key === key && umin >= C.u0 && umin + W <= C.u0 + C.w ? C : null;
@@ -2024,7 +2043,7 @@ const Lado = EM.lado = {
           const X0 = x + xo, Y0 = yy - yTop + yo;
           if (hv < p) {
             const hc = BR[(hv * 997 | 0) % BR.length], cb = this.mix(this.mix(hc, col, tint), [0, 0, 0], night * .6), tall = h2(cc, r, 44) < .22 ? 1 + (h2(cc, r, 48) * 2 | 0) : 0, hh = rh * (1 + tall * .7);
-            if (far) { q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1, hh); }
+            if (far) { if (night > .25) { q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1, hh); } }
             else {
               q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1.5, hh);
               q.fillStyle = this.css(this.mix(this.mix(RF[(hv * 31 | 0) % RF.length], col, tint), [0, 0, 0], night * .6)); q.fillRect(X0 - .5, Y0 - (hh - rh) - rh * .18, hw - .5, rh * .36);
@@ -2061,8 +2080,15 @@ const Lado = EM.lado = {
       if (opt.barrio) this.barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, opt.barrio);
       return pts;
     };
-    const cFar = this.mix(this.mix(this.mix(sky.bot, sky.top, .45), [.3, .42, .5], .25 * sky.day), ink, .26 + .22 * sky.night), cMid = this.mix(this.mix(cFar, [.2, .4, .24], .55 * sky.day), ink, .3), cNear = this.mix(this.mix(cMid, [.36, .52, .32], .4 * sky.day), ink, .22 + .3 * sky.night);
+    // paleta por capas: de día cordillera azul de bruma, laderas verdes saturadas y suelo verde oscuro (estilo ilustración);
+    // de noche se apagan hacia la tinta; al atardecer la luz cálida del cielo tiñe la bruma
+    const D = sky.day, warm = clamp((sky.bot[0] - sky.bot[2]) * 2.2, 0, 1) * (1 - sky.night);
+    const oFar = this.mix(this.mix(this.mix(sky.bot, sky.top, .45), [.3, .42, .5], .25 * D), ink, .26 + .22 * sky.night), oMid = this.mix(this.mix(oFar, [.2, .4, .24], .55 * D), ink, .3), oNear = this.mix(this.mix(oMid, [.36, .52, .32], .4 * D), ink, .22 + .3 * sky.night);
+    const dFar = this.mix(this.mix(sky.top, [.5, .62, .76], .5), sky.bot, .18), dMid = this.mix([.25, .5, .3], dFar, .2), dNear = [.21, .4, .23], dd = clamp((D - .55) / .35, 0, 1) * (1 - warm * .8);
+    let cFar = this.mix(oFar, dFar, dd), cMid = this.mix(oMid, dMid, dd), cNear = this.mix(oNear, dNear, dd);
+    if (o.rain) { cFar = this.mix(cFar, sky.fog, .3); cMid = this.mix(cMid, [.4, .45, .45], .15); }
     layer(R.far, .18, H * .36, H * .06, cFar, { haze: .45, barrio: o.barrio === false ? 0 : 'far' });
+    if (R.inter) layer(R.inter, .3, H * .3, H * .025, this.mix(cFar, cMid, .42), { haze: .38, barrio: o.barrio === false ? 0 : 'inter' });
     if (o.fog || sky.day < .6) { const fg = g.createLinearGradient(0, base - H * .3, 0, base); fg.addColorStop(0, this.css(sky.fog, 0)); fg.addColorStop(1, this.css(sky.fog, o.fog ? .7 : .35)); g.fillStyle = fg; g.fillRect(0, base - H * .3, W, H * .3); }
     layer(R.mid, .45, H * .26, -H * .02, cMid, { haze: .22, barrio: o.barrio === false ? 0 : 'mid' });
     // gallinazos planeando
@@ -3125,7 +3151,7 @@ const Ciudad = EM.ciudad = {
     }
   },
   /* vehículo del transporte detenido en el andén de una estación (para subirse) */
-  atHub(hub, x, y) { let best = null, bd = 1e9; for (const v of this.transit) { if (v.ph !== 'dwell' || !v.st || v.st.hub !== hub) continue; const p = this.tpos(v), d = dist(x, y, p.x, p.y); if (d < bd) { bd = d; best = v; } } return best && bd < 70 ? best : null; },
+  atHub(hub, x, y, pref) { let best = null, bd = 1e9; for (const v of this.transit) { if (v.ph !== 'dwell' || !v.st || v.st.hub !== hub) continue; const p = this.tpos(v), d = dist(x, y, p.x, p.y) - (pref && v.line.id === pref ? 60 : 0); if (d < bd) { bd = d; best = v; } } return best && bd < 70 ? best : null; },
   /* ---------- peatones ---------- */
   pedTick(dt, player) {
     const L = Mundo.light(), w = L.w, want = Math.round((Save.d.settings.q === 'low' ? 28 : 56) * (1 - .6 * L.night) * (w.rain ? .6 : 1)), fx = this.focus.x, fy = this.focus.y;
@@ -3292,20 +3318,22 @@ const Libre = EM.modes.libre = {
   id: 'libre', name: 'Ciudad Libre', sub: 'Recorre el valle', music: 'ciudad', fullCanvas: true, endless: true,
   tip: 'Joystick a la izquierda para moverte. ● sirve para subirte a un vehículo o al metro, hablar o entregar. En carro: ▲ acelera, ▼ frena, ✋ freno de mano para derrapar. Los oficios llegan por la radio.',
   STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
-  levels() { const L = [{ id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
+  levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
   /* casilla transitable más cercana para parquear o aparecer */
   nearTile(x, y, ok, maxR = 8) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); for (let r = 0; r <= maxR; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; if (ok(MAP.tile(tx + dx, ty + dy))) return { x: (tx + dx + .5) * TM, y: (ty + dy + .5) * TM }; } return { x, y }; },
   create(lv, opts) {
     Ciudad.init((opts.seed | 0) || 1); const rng = new RNG((opts.seed | 0) + 3), sv = Save.d.libre || {};
-    let start; if (lv === 'lb:ultimo' && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.nearTile(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
+    const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
+    let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.nearTile(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
     const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
     // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
     const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
     for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
     const bello = this.hub('Bello'); park('camioneta', bello.x + 60, bello.y + 40); park('camioneta', bello.x - 50, bello.y + 70); const sa = this.hub('San Antonio'); park('camioneta', sa.x + 60, sa.y - 50);
     for (const l of NET.lines) { if (l.kind === 'feeder') park('alimentador', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); if (l.kind === 'brt') { park('metroplus', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); park('metroplus', l.st[l.st.length - 1].x, l.st[l.st.length - 1].y, NET.at(l.P, l.P.len - 5).a + Math.PI); } }
-    if (sv.veh && lv === 'lb:ultimo' && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
+    if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
+    if (trama) Trama.init(st);
     return st;
   },
   V(st) { return st.veh ? VEH[st.veh.kind] : null; },
@@ -3325,7 +3353,7 @@ const Libre = EM.modes.libre = {
     if (!J) return; J.t = 0; st.job = J; this.msg(st, '📻 ' + J.title + ' · ' + (J.pay ? '+' + J.pay + ' 🎫' : ''), 'b'); this.sfx(st, 'beep');
   },
   jobTick(st, dt) {
-    const J = st.job; if (!J) { st.jobT -= dt; if (st.jobT <= 0) { st.jobT = 16 + Ciudad.rng.f() * 14; this.offer(st); } return; }
+    const J = st.job; if (!J) { if (st.trama && Trama.active()) return; st.jobT -= dt; if (st.jobT <= 0) { st.jobT = 16 + Ciudad.rng.f() * 14; this.offer(st); } return; }
     J.t += dt; if (J.limit && J.t > J.limit) { this.fail(st, 'Se acabó el tiempo'); return; }
     if (J.k === 'taxi') { if (J.stage === 0) { if (!Ciudad.peds.includes(J.client)) { this.fail(st, 'El pasajero se fue'); return; } J.x = J.client.x; J.y = J.client.y; } else { J.x = J.dest.x; J.y = J.dest.y; if (dist(st.x, st.y, J.x, J.y) < 18 && Math.abs(st.vf) < .5) this.complete(st); } }
     else if (J.k === 'encomienda' || J.k === 'tinto') { if (dist(st.x, st.y, J.x, J.y) < 16 && Math.abs(st.vf) < 1) this.complete(st); }
@@ -3347,10 +3375,11 @@ const Libre = EM.modes.libre = {
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
       const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.nearTile(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
     }
-    // a pie: vehículo cercano, transporte en la estación, persona
+    // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
+    if (st.trama && Trama.onAction(st)) return;
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
     if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
-    const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
+    const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
       st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
     const p = Ciudad.peds.find(p => dist(p.x, p.y, st.x, st.y) < 3); if (p) { p.wait = 2; if (p.dog) { Ciudad.say(p, '¡Guau! 🐾'); p.owner = p.owner || null; return; } Ciudad.say(p); if (st.job && st.job.hint && Ciudad.rng.f() < .4) setTimeout(() => Ciudad.say(p, st.job.hint.slice(0, 40)), 1200); return; }
@@ -3361,11 +3390,13 @@ const Libre = EM.modes.libre = {
   step(st, dt) {
     if (st.done) return; st.t += dt; const J = st.job;
     if (st.auto) { st.joy = { x: Math.sin(st.t * .3), y: -.8, m: 1 }; if (Math.floor(st.t) % 7 === 0 && !st._a) { st._a = 1; this.action(st); } else if (Math.floor(st.t) % 7) st._a = 0; }
+    if (st.trama && st.trama.talk) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; }
+    const ffOn = st.ff && (st.mode === 'ride' || !!this.nearHub(st, 70)); if (st.ff && !ffOn) st.ff = 0; const wdt = ffOn ? dt * 5 : dt;
     if (st.mode === 'ride') { const p = Ciudad.tpos(st.ride); st.x = p.x; st.y = p.y; st.h = p.a + (st.ride.dir < 0 ? Math.PI : 0); st.vf = st.ride.v || 0; const v = st.ride; if (v.ph === 'dwell' && v.st && st._lastSt !== v.st) { st._lastSt = v.st; st.visited[v.st.name] = 1; this.msg(st, '🚉 ' + v.st.name + ' · ● para bajarte', 'b'); if (NET.fact(v.st.name) && Ciudad.rng.f() < .5) this.msg(st, NET.fact(v.st.name), 'y'); } }
     else if (st.mode === 'veh') this.drive(st, dt);
     else this.walk(st, dt);
-    Ciudad.tick(dt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
-    this.jobTick(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
+    Ciudad.tick(wdt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
+    this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
     if (st.shake > 0) st.shake -= dt;
     // cámara: sigue al jugador con adelanto y zoom según la velocidad
     const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
@@ -3411,7 +3442,7 @@ const Libre = EM.modes.libre = {
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp">▲</button><button class="abtn brk" id="lbDown">▼</button><button class="abtn hb" id="lbHb">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbFoto">📷</button><button id="lbZoom">🔎</button><button id="lbRun">🏃</button></div><div id="lbJob" class="jobbar hide"></div>`;
+      <div class="vsel" id="lbView"><button id="lbFoto">📷</button><button id="lbZoom">🔎</button><button id="lbRun">🏃</button><button id="lbFF" title="Adelantar el viaje">⏩</button></div><div id="lbJob" class="jobbar hide"></div><div id="trTalk" class="trtalk hide"></div>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -3419,19 +3450,21 @@ const Libre = EM.modes.libre = {
     const hold = (id, key, down, up) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); if (down) down(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); if (up) up(); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
     hold('#lbUp', 'up', () => { st.run = true; }, () => { st.run = false; }); hold('#lbDown', 'down'); hold('#lbHb', 'hb', () => { st.hb = true; }, () => { st.hb = false; });
     hold('#lbAct', 'act', () => { st.act = 1; this.action(st); }, () => { st.act = 0; });
-    $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); };
+    $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { st.ff = st.ff ? 0 : 1; this.msg(st, st.ff ? '⏩ Adelantando el viaje (×5)' : '▶ Tiempo normal', 'b'); };
     this.updCtl(st);
   },
   updCtl(st) {
-    if (EM.headless || Game.st !== st) return; const jb = $('#lbJob'); if (!jb) return; const J = st.job;
-    if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else jb.classList.add('hide');
+    if (EM.headless || Game.st !== st) return; const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
+    if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
+    const ff = $('#lbFF'); if (ff) { ff.style.display = st.mode === 'ride' || this.nearHub(st, 70) ? '' : 'none'; ff.classList.toggle('on', !!st.ff); }
+    if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal) jb.classList.add('hide');
     const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; $('#lbHb').style.visibility = veh && !this.V(st).walk ? '' : 'hidden';
     const a = $('#lbAct'); let lbl = 'acción'; if (st.mode === 'ride') lbl = st.ride.ph === 'dwell' ? 'bajar' : 'viajando'; else if (veh) lbl = (st.job && st.job.k === 'taxi' && st.job.stage === 0 && dist(st.x, st.y, st.job.client.x, st.job.client.y) < 9) ? 'recoger' : 'bajarse'; else { const p = st.parked.find(p => dist(p.x, p.y, st.x, st.y) < 4.5 + VEH[p.kind].len / 2); if (p) lbl = VEH[p.kind].icon + ' subir'; else if (this.nearHub(st, 34)) lbl = 'abordar'; else if (Ciudad.peds.some(p => dist(p.x, p.y, st.x, st.y) < 3)) lbl = 'hablar'; }
     a.querySelector('small').textContent = lbl; a.classList.toggle('hot', lbl !== 'acción' && lbl !== 'viajando' && lbl !== 'bajarse');
     // motor (zumbido según la velocidad)
     if (Snd.ac && Save.d.settings.snd) { if (veh && !this.V(st).walk) { if (!this._eng) { const o = Snd.ac.createOscillator(), g = Snd.ac.createGain(); o.type = 'sawtooth'; g.gain.value = 0; o.connect(g); g.connect(Snd.sfxG); o.start(); this._eng = { o, g }; } const f = 40 + Math.abs(st.vf) * 7 + st.engine * 25; this._eng.o.frequency.setTargetAtTime(f, Snd.ac.currentTime, .08); this._eng.g.gain.setTargetAtTime(.025 + .02 * st.engine, Snd.ac.currentTime, .1); } else if (this._eng) this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .1); }
   },
-  photo(st) { const J = st.job; if (J && J.k === 'postal' && dist(st.x, st.y, J.x, J.y) < 70) { st.flash = .4; this.complete(st); return; } const L = Ciudad.lm.find(l => dist(l.x, l.y, st.x, st.y) < 70); st.flash = .4; this.sfx(st, 'ok'); if (L) { const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(L.name)) { F.push(L.name); Save.d.wallet += 20; this.msg(st, '📷 ' + L.name + ' · nueva postal +20 🎫', 'g'); this.msg(st, L.fact, 'y'); Save.write(); } else this.msg(st, '📷 ' + L.name, 'b'); } else this.msg(st, '📷 Foto del valle', 'b'); },
+  photo(st) { if (st.trama && Trama.onPhoto(st)) return; const J = st.job; if (J && J.k === 'postal' && dist(st.x, st.y, J.x, J.y) < 70) { st.flash = .4; this.complete(st); return; } const L = Ciudad.lm.find(l => dist(l.x, l.y, st.x, st.y) < 70); st.flash = .4; this.sfx(st, 'ok'); if (L) { const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(L.name)) { F.push(L.name); Save.d.wallet += 20; this.msg(st, '📷 ' + L.name + ' · nueva postal +20 🎫', 'g'); this.msg(st, L.fact, 'y'); Save.write(); } else this.msg(st, '📷 ' + L.name, 'b'); } else this.msg(st, '📷 Foto del valle', 'b'); },
   key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
   /* ---------- dibujo ---------- */
   draw(g, st, vp) {
@@ -3444,6 +3477,7 @@ const Libre = EM.modes.libre = {
     Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1);
     for (const c of Ciudad.cars) Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, S, k, sh, night, true);
     for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) { Ciudad.ped(g, p, S, k, sh); if (p.client) { const q = S(p.x, p.y); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y - 12 * Math.max(.6, k * .4) - 6, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = PAL.negro; g.font = '700 11px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('!', q.x, q.y - 12 * Math.max(.6, k * .4) - 2); g.textAlign = 'left'; } }
+    if (st.trama) Trama.draw(g, st, S, k, sh);
     // jugador
     if (st.mode === 'veh') { const V = this.V(st); if (st.veh.kind === 'bici') { const q = S(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, { x: st.x, y: st.y, a: st.h, ph: st.t * 8, col: '#1C5C9C', skin: SKIN[1], seed: 7, stun: 0 }, S, k, sh); } else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'metroplus' ? 'brt' : st.veh.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, true); }
     if (st.mode !== 'ride') { const q = S(st.x, st.y); g.strokeStyle = 'rgba(251,231,176,.9)'; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (st.mode === 'veh' ? this.V(st).len * .7 : 2.2) * k, 0, TAU); g.stroke(); }
@@ -3451,8 +3485,8 @@ const Libre = EM.modes.libre = {
     Ciudad.partsDraw(g, S, k); Ciudad.bubblesDraw(g, S, k);
     // noche, luces y clima
     if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noRain: false, noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); if (night > .3 && st.mode === 'veh') { const q = S(st.x, st.y); g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, 30 * k); gr.addColorStop(0, 'rgba(255,240,200,' + (.18 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.fillRect(q.x - 30 * k, q.y - 30 * k, 60 * k, 60 * k); g.restore(); } Mundo.grain(g, W, H); }
-    // objetivo: flecha al borde y marcador
-    const J = st.job; if (J && J.x != null) { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.strokeStyle = PAL.mostaza; g.lineWidth = 3; g.beginPath(); g.arc(q.x, q.y, 10 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 26); g.lineTo(q.x - 7, q.y - 38); g.lineTo(q.x + 7, q.y - 38); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4, ax = cx + Math.cos(a) * r, ay = cy + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
+    // objetivo: flecha al borde y marcador (la historia tiene prioridad sobre los oficios)
+    const J = st.goal || st.job; if (J && J.x != null) { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.strokeStyle = PAL.mostaza; g.lineWidth = 3; g.beginPath(); g.arc(q.x, q.y, 10 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 26); g.lineTo(q.x - 7, q.y - 38); g.lineTo(q.x + 7, q.y - 38); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4, ax = cx + Math.cos(a) * r, ay = cy + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
     this.minimap(g, st, W, H);
   },
@@ -3463,12 +3497,271 @@ const Libre = EM.modes.libre = {
     const S = (x, y) => ({ x: cx + (x - st.x) * km * dpr, y: cy + (y - st.y) * km * dpr });
     for (const l of NET.lines) { if (l.kind === 'future' || l.kind === 'feeder') continue; g.strokeStyle = l.color; g.lineWidth = (l.kind === 'metro' ? 3 : 1.5) * dpr; g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); }
     for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const q = S(h.x, h.y); if (Math.hypot(q.x - cx, q.y - cy) > R) continue; g.fillStyle = st.visited[h.name] ? '#fff' : 'rgba(255,255,255,.45)'; g.fillRect(q.x - 1.5 * dpr, q.y - 1.5 * dpr, 3 * dpr, 3 * dpr); }
-    if (st.job && st.job.x != null) { const q = S(st.job.x, st.job.y), d = Math.hypot(q.x - cx, q.y - cy), f = d > R - 6 ? (R - 6) / d : 1; g.fillStyle = PAL.mostaza; g.beginPath(); g.arc(cx + (q.x - cx) * f, cy + (q.y - cy) * f, 4 * dpr, 0, TAU); g.fill(); }
+    const GJ = st.goal || st.job; if (GJ && GJ.x != null) { const q = S(GJ.x, GJ.y), d = Math.hypot(q.x - cx, q.y - cy), f = d > R - 6 ? (R - 6) / d : 1; g.fillStyle = PAL.mostaza; g.beginPath(); g.arc(cx + (q.x - cx) * f, cy + (q.y - cy) * f, 4 * dpr, 0, TAU); g.fill(); }
     g.save(); g.translate(cx, cy); g.rotate(st.h); g.fillStyle = PAL.naranja; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(7 * dpr, 0); g.lineTo(-5 * dpr, -5 * dpr); g.lineTo(-5 * dpr, 5 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore();
     g.restore(); g.strokeStyle = PAL.negro; g.lineWidth = 3 * dpr; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke(); g.strokeStyle = PAL.mante; g.lineWidth = 1.5 * dpr; g.stroke();
     g.fillStyle = PAL.mante; g.font = '800 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('N', cx, cy - R + 11 * dpr); g.textAlign = 'left';
   },
   ai(st) { return null; }
+};
+
+/* ---- 37-trama.js ---- */
+/* =====================================================================
+   HISTORIA EN LA CIUDAD · "La última vuelta" jugada sobre el mapa real.
+   Pasos: hablar con personajes, ir a un lugar, abordar una línea, bajarse en una estación,
+   tomar una postal, orientar pasajeros y pasar a manejar (metro, cable, bus, tranvía).
+   Al terminar cada módulo se vuelve a la ciudad en la estación de llegada.
+   Progreso: Save.d.trama = { c: capítulo, s: paso, fin }.
+   ===================================================================== */
+const TRAMA_WHO = {
+  'Rosalba': { col: '#12446c', hair: '#dcd8d0', skin: '#f1c9a5' },
+  'Don Efraín': { col: '#5a6470', hair: '#e6e6e6', skin: '#d9a77f' },
+  'Doña Marleny': { col: '#c8201f', hair: '#2a1a12', skin: '#b07a52' },
+  'Wílmar': { col: '#f4f1ea', hat: '#1C5C9C', skin: '#8a5a3b' },
+  'Agente de tránsito': { col: '#c7e000', hat: '#f4f1ea', skin: '#d9a77f' },
+  'Pasajero': { col: '#7a5cc4', skin: '#d9a77f' }
+};
+const TRAMA = [
+  { t: 'Niquía, 4:30 a. m.', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Niquía', txt: 'Rosalba te espera en la estación Niquía', lines: [
+      ['Rosalba', 'Mija, despierte. El primer tren sale a las cuatro y media y la ciudad no espera a nadie.'],
+      ['Rosalba', 'Hace treinta años me senté en una cabina por primera vez. Medellín estrenaba metro y yo estrenaba miedo.'],
+      ['Rosalba', 'Esta es mi última semana. Y quiero que la manejemos juntas: usted adelante y yo al lado, con mi tinto.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'Niquía', m: 'conduce', lv: 'A:0-2#escuela', fin: 'Madera', finLine: 'A', txt: 'Sube a la cabina con Rosalba: Escuela de conducción de Niquía a Madera', lines: [
+      ['Rosalba', 'Primero la llave, después el sentido, y espere la señal. Suba la palanca despacito… y frene en la marca, que la gente se cansa de caminar.']],
+      ok: 'Ese frenazo suave es lo que la gente recuerda. Nadie aplaude al conductor, pero todos llegan.' }
+  ] },
+  { t: 'Santo Domingo mira al cielo', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Madera', line: 'A', txt: 'Habla con Rosalba en Madera', lines: [
+      ['Rosalba', 'Ahora va a conocer el cable. En 2004 subió aquí el primer metrocable del mundo hecho para transporte público de verdad.'],
+      ['Rosalba', 'Tome el metro hacia el sur hasta Acevedo. Allá, sin salir de la estación, se pasa al Metrocable K. Yo me voy en el que sigue.']] },
+    { k: 'abordar', line: 'A', at: 'Madera', txt: 'Sube al metro en Madera (hacia La Estrella)' },
+    { k: 'bajar', line: 'A', at: 'Acevedo', txt: 'Bájate en Acevedo' },
+    { k: 'abordar', line: 'K', at: 'Acevedo', txt: 'Sube al Metrocable K en Acevedo' },
+    { k: 'bajar', line: 'K', at: 'Santo Domingo Savio', txt: 'Bájate arriba, en Santo Domingo Savio' },
+    { k: 'hablar', who: 'Doña Marleny', at: 'Santo Domingo Savio', line: 'K', txt: 'Doña Marleny vende arepas junto a la estación', lines: [
+      ['Doña Marleny', '¡Usted es la nieta de Rosalba! Antes yo bajaba hora y media a pie con el mercado. Ahora en minutos estoy arriba viendo toda la ciudad.'],
+      ['Doña Marleny', 'Vaya y tómele una foto a la biblioteca, la de las tres rocas negras. Desde allá se ve el valle completico.']] },
+    { k: 'foto', lugar: 'bibespana', txt: 'Toma la postal del Parque Biblioteca España con 📷' },
+    { k: 'modulo', who: 'Doña Marleny', at: 'Santo Domingo Savio', line: 'K', m: 'cableviaje', lv: 'cv:K', fin: 'Santo Domingo Savio', finLine: 'K', txt: 'Vuelve con Doña Marleny: hoy operas la línea K', lines: [
+      ['Doña Marleny', 'Rosalba dice que hoy usted opera la línea. Si el viento sopla duro, baje la velocidad; si truena, se detiene todo. Y no se olvide de las fotos.']],
+      ok: 'Desde la cabina, el valle se ve como un pesebre encendido.' }
+  ] },
+  { t: 'Los que alimentan la red', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Santo Domingo Savio', line: 'K', txt: 'Rosalba llegó en el cable de atrás: habla con ella', lines: [
+      ['Rosalba', 'El metro no llega a cada esquina. Por eso existen los alimentadores: buses que bajan de los barrios hasta las estaciones.'],
+      ['Rosalba', 'Baje en el cable hasta Acevedo y súbase al alimentador de Santa Rita. Allá la espera Wílmar, que se sabe las lomas de memoria.']] },
+    { k: 'abordar', line: 'K', at: 'Santo Domingo Savio', txt: 'Baja en el Metrocable K hacia Acevedo' },
+    { k: 'bajar', line: 'K', at: 'Acevedo', txt: 'Bájate en Acevedo' },
+    { k: 'abordar', line: 'AL-C6-001', at: 'Acevedo', txt: 'Sube al alimentador C6-001 hacia Santa Rita' },
+    { k: 'bajar', line: 'AL-C6-001', at: 'Santa Rita', txt: 'Bájate en Santa Rita, al final de la ruta' },
+    { k: 'hablar', who: 'Wílmar', at: 'Santa Rita', line: 'AL-C6-001', txt: 'Wílmar te espera en la cabecera', lines: [
+      ['Wílmar', '¡Llegó la aprendiz! Venga, súbase: hoy maneja usted, de Santa Rita a la estación Acevedo.'],
+      ['Wílmar', 'En subida, palanca a fondo; en bajada, freno suave. Y pare donde está la gente, no diez metros después.']] },
+    { k: 'modulo', who: 'Wílmar', at: 'Santa Rita', line: 'AL-C6-001', m: 'bus', lv: 'bus:AL-C6-001:0-3', fin: 'Acevedo', finLine: 'A', txt: 'Maneja el alimentador de Santa Rita a Acevedo', lines: [
+      ['Wílmar', 'Si quiere, deje el asistente de carril. Cuando se sienta segura, apáguelo y maneje con el timón.']],
+      ok: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' }
+  ] },
+  { t: 'El articulado', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Acevedo', line: 'A', txt: 'Rosalba te espera en Acevedo', lines: [
+      ['Rosalba', '¡Así se hace! Ahora el Metroplús: buses articulados de dieciocho metros con su propio carril.'],
+      ['Rosalba', 'Tome el metro hasta Hospital y allá el Metroplús hacia Parque Aranjuez. El agente de tránsito la espera.']] },
+    { k: 'abordar', line: 'A', at: 'Acevedo', txt: 'Sube al metro hacia el sur (andén a La Estrella)' },
+    { k: 'bajar', line: 'A', at: 'Hospital', txt: 'Bájate en Hospital' },
+    { k: 'abordar', line: 'MP1', at: 'Hospital', txt: 'Sube al Metroplús Línea 1 hacia Parque Aranjuez' },
+    { k: 'bajar', line: 'MP1', at: 'Parque Aranjuez', txt: 'Bájate en Parque Aranjuez' },
+    { k: 'hablar', who: 'Agente de tránsito', at: 'Parque Aranjuez', line: 'MP1', txt: 'Habla con el agente de tránsito', lines: [
+      ['Agente de tránsito', 'El carril es exclusivo, pero los semáforos son para todos. Rojo es rojo.'],
+      ['Agente de tránsito', 'Y ojo con las motos: esas se cuelan hasta por el ojo de una aguja.']] },
+    { k: 'modulo', who: 'Agente de tránsito', at: 'Parque Aranjuez', line: 'MP1', m: 'bus', lv: 'bus:MP1:0-4', fin: 'Gardel', finLine: 'MP1', txt: 'Maneja el articulado de Parque Aranjuez a Gardel', lines: [
+      ['Agente de tránsito', 'Dieciocho metros con una bisagra en la mitad: en las curvas, la cola va por dentro. Pare justo frente a la puerta del andén.']],
+      ok: 'Al llegar a Gardel, el bus quedó justo frente a la puerta del andén. Perfecto.' }
+  ] },
+  { t: 'Ayacucho sobre llantas', steps: [
+    { k: 'ir', at: 'San Antonio', line: 'T', r: 35, txt: 'Ve al tranvía en San Antonio (Metroplús 2 hasta San José y tranvía, o como quieras)' },
+    { k: 'hablar', who: 'Rosalba', at: 'San Antonio', line: 'T', txt: 'Rosalba está en el andén del tranvía', lines: [
+      ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
+      ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'San Antonio', line: 'T', m: 'conduce', lv: 'T:0-2', fin: 'Pabellón del Agua', finLine: 'T', txt: 'Maneja el tranvía de San Antonio a Pabellón del Agua', lines: [
+      ['Rosalba', 'Vamos, que la loma no se sube sola.']],
+      ok: 'Una señora le dijo adiós desde un balcón con una ruana en la mano.' }
+  ] },
+  { t: 'La hora pico', steps: [
+    { k: 'ir', at: 'San Antonio', line: 'A', r: 40, txt: 'Vuelve a la estación San Antonio: Don Efraín necesita ayuda' },
+    { k: 'hablar', who: 'Don Efraín', at: 'San Antonio', line: 'A', txt: 'Habla con Don Efraín', lines: [
+      ['Don Efraín', '¡Rosalbita me contó de usted! Llegó la hora pico: las cinco y media, cuando todo el valle quiere volver a casa.'],
+      ['Don Efraín', 'En San Antonio se cruzan la línea A, la B y el tranvía, y la gente se enreda. Ayúdeme a orientar a tres pasajeros.']] },
+    { k: 'orientar', at: 'San Antonio', line: 'A', n: 3, txt: 'Orienta a los pasajeros con ❓' },
+    { k: 'hablar', who: 'Don Efraín', at: 'San Antonio', line: 'A', txt: 'Vuelve con Don Efraín', lines: [
+      ['Don Efraín', 'Usted tiene mano. Lo difícil no es mover los trenes: es no perder la calma.'],
+      ['Don Efraín', 'Rosalba la espera en Niquía para la última vuelta. Súbase al metro hacia el norte.']] }
+  ] },
+  { t: 'La última vuelta', steps: [
+    { k: 'abordar', line: 'A', at: 'San Antonio', txt: 'Sube al metro hacia el norte (andén a Niquía)' },
+    { k: 'bajar', line: 'A', at: 'Niquía', txt: 'Bájate en Niquía' },
+    { k: 'hablar', who: 'Rosalba', at: 'Niquía', txt: 'Rosalba te espera con dos tintos', lines: [
+      ['Rosalba', 'Mañana ya no vengo. Hoy maneja usted, de Niquía a La Estrella, todo el valle de punta a punta.'],
+      ['Tú', '¿Y usted qué va a hacer?'],
+      ['Rosalba', 'Montarme de pasajera. Sentarme en la ventana, mirar el río y saber que el tren está en buenas manos.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'Niquía', m: 'conduce', lv: 'A:0-20', fin: 'La Estrella', finLine: 'A', txt: 'La última vuelta: maneja de Niquía a La Estrella', lines: [
+      ['Rosalba', 'Vamos, mija. Sin afán y sin regar el tinto.']],
+      ok: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' }
+  ] },
+  { t: 'Epílogo', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'La Estrella', line: 'A', txt: 'Despídete de Rosalba en La Estrella', lines: [
+      ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
+      ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],
+      ['', 'FIN DE LA HISTORIA · La ciudad sigue abierta: oficios, postales y todas las líneas.']] }
+  ] }
+];
+/* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
+const TRAMA_PREG = [
+  ['¿Cómo llego a Santo Domingo Savio?', ['Línea A al norte hasta Acevedo y ahí el Metrocable K', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'Santo Domingo Savio'],
+  ['Voy para La Aurora, arriba de San Javier.', ['Línea B hasta San Javier y el Metrocable J', 'Línea A hasta Acevedo y el cable P', 'Tranvía hasta Miraflores y el cable M'], 'La Aurora'],
+  ['¿Cómo subo a Villa Sierra?', ['Tranvía de Ayacucho hasta Oriente y el Metrocable H', 'Línea A hasta Acevedo y el cable K', 'Línea B hasta San Javier y el cable J'], 'Villa Sierra'],
+  ['Quiero ir a caminar al Parque Arví.', ['Línea A a Acevedo, cable K a Santo Domingo y luego el cable L', 'Tranvía a Oriente y cable H', 'Línea B a San Javier y cable J'], 'Arví'],
+  ['Necesito llegar al Trece de Noviembre.', ['Tranvía hasta Miraflores y el Metrocable M', 'Línea A hasta Acevedo y el cable P', 'Línea B hasta Estadio y caminar'], 'Trece de Noviembre'],
+  ['¿Cómo llego a El Progreso, en el Doce de Octubre?', ['Línea A al norte hasta Acevedo y el Metrocable P', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'El Progreso'],
+  ['Voy para el parque de Envigado.', ['Línea A hacia el sur hasta la estación Envigado', 'Línea B hacia San Javier', 'Tranvía hacia Oriente'], 'Envigado'],
+  ['Tengo partido en el Atanasio Girardot.', ['Línea B hasta la estación Estadio', 'Línea A hasta Industriales', 'Tranvía hasta Bicentenario'], 'Estadio']
+];
+const Trama = EM.trama = {
+  save() { const d = Save.d; return d.trama || (d.trama = { c: 0, s: 0, fin: 0 }); },
+  cap() { return TRAMA[this.save().c] || null; },
+  step() { const C = this.cap(); return C ? C.steps[this.save().s] || null : null; },
+  active() { const T = this.save(); return !T.fin && !!this.step(); },
+  /* posición de una estación (de una línea concreta si se indica), de un centro o de un lugar */
+  stPos(name, line) {
+    const l = line && NET.byId[line], s = l ? l.st.find(q => q.name === name) : null; if (s) return { x: s.x, y: s.y, name };
+    const h = NET.stations.find(q => q.name === name); if (h) return { x: h.x, y: h.y, name };
+    const L = (Ciudad.lm || []).find(q => q.id === name || q.name === name); if (L) return { x: L.x, y: L.y, name: L.name };
+    return null;
+  },
+  walkable(q) { return q === TT.WALK || q === TT.PLAZA || q === TT.STATION || q === TT.STEPS || q === TT.GRASS; },
+  npcPos(S, i = 0) {
+    const p = this.stPos(S.at, S.line); if (!p) return null; const a = h2(hashStr((S.who || 'p') + i), 3, 11) * TAU, r = 12 + i * 7;
+    const t = Libre.nearTile(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
+  },
+  /* ---------- ciclo de vida ---------- */
+  init(st) { st.trama = { npcs: [], talk: null, key: '', talked: 0, warned: 0, rode: 0, ok: 0 }; this.enter(st); },
+  enter(st) {
+    const T = this.save(), C = this.cap(), S = this.step(), tr = st.trama; tr.key = T.c + ':' + T.s; tr.npcs = []; tr.talk = null; tr.talked = 0; tr.warned = 0; tr.rode = st.mode === 'ride' ? 1 : 0; tr.ok = 0;
+    if (!S) { st.goal = null; return; }
+    if (S.k === 'hablar' || S.k === 'modulo') { const p = this.npcPos(S); if (p) tr.npcs.push(Object.assign({ who: S.who, mark: S.k === 'modulo' ? '▶' : '!' }, p)); }
+    if (S.k === 'orientar') { const rng = new RNG(T.c * 31 + (T.preg || 0) + 7), pool = TRAMA_PREG.slice(); for (let i = 0; i < S.n && pool.length; i++) { const q = pool.splice(rng.i(0, pool.length - 1), 1)[0], p = this.npcPos({ at: S.at, line: S.line, who: 'Pasajero' }, i + 1); if (p) tr.npcs.push(Object.assign({ who: 'Pasajero', mark: '?', q, ord: rng.shuffle([0, 1, 2]), col: ROPA[(i * 3 + 1) % ROPA.length] }, p)); } }
+    const g = S.k === 'foto' ? this.stPos(S.lugar) : (tr.npcs[0] || this.stPos(S.at, S.line));
+    st.goal = g ? { x: g.x, y: g.y, title: 'Cap. ' + (T.c + 1) + ' · ' + C.t, hint: S.txt, k: S.k } : null;
+    if (T.s === 0) { Libre.msg(st, '📖 Capítulo ' + (T.c + 1) + ' · ' + C.t, 'b'); this.card(st, T.c, C.t); }
+    Libre.msg(st, '📖 ' + S.txt, 'y');
+  },
+  card(st, c, t) {
+    if (EM.headless || Game.st !== st) return; const host = $('#gctl'); if (!host) return; const el = document.createElement('div'); el.className = 'trcap';
+    el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
+  },
+  advance() { const T = this.save(); T.s++; let newCap = false; if (T.s >= TRAMA[T.c].steps.length) { T.c++; T.s = 0; newCap = true; Save.d.wallet += 30; if (T.c >= TRAMA.length) { T.fin = 1; const L = Save.d.logros || (Save.d.logros = {}); if (!L.historia) { L.historia = Date.now(); if (!EM.headless) UI.toast('🏅 Logro: La última vuelta'); } } } Save.write(); return newCap; },
+  next(st) {
+    const T = this.save(), c0 = T.c, newCap = this.advance();
+    if (newCap) { Libre.msg(st, '✓ Capítulo ' + (c0 + 1) + ' completo · +30 🎫', 'g'); Libre.sfx(st, 'win'); } else Libre.sfx(st, 'star');
+    if (T.fin) { st.goal = null; st.trama.npcs = []; Libre.msg(st, 'FIN · La ciudad sigue abierta: oficios, postales y todas las líneas', 'g'); return; }
+    this.enter(st);
+  },
+  wantLine(st) { const S = this.step(); return S && S.k === 'abordar' ? S.line : null; },
+  tick(st, dt) {
+    const S = this.step(), tr = st.trama; if (!S || this.save().fin) return; if (tr.key !== this.save().c + ':' + this.save().s) this.enter(st);
+    if (tr.talk) { if (st.mode !== 'walk' || !tr.talk.n || dist(st.x, st.y, tr.talk.n.x, tr.talk.n.y) > 9) this.close(st); return; }
+    if (S.k === 'hablar' || S.k === 'modulo' || S.k === 'orientar') {
+      if (st.mode === 'walk') { const n = tr.npcs.find(q => !q.done && dist(q.x, q.y, st.x, st.y) < 4); if (n && !tr.talked) this.talk(st, n); else if (!n && tr.talked && !tr.npcs.some(q => !q.done && dist(q.x, q.y, st.x, st.y) < 8)) tr.talked = 0; }
+      if (S.k === 'orientar') { const left = tr.npcs.filter(q => !q.done); if (left.length && st.goal) { let b = left[0], bd = 1e9; for (const q of left) { const d = dist(q.x, q.y, st.x, st.y); if (d < bd) { bd = d; b = q; } } st.goal.x = b.x; st.goal.y = b.y; st.goal.hint = S.txt + ' (' + (S.n - left.length) + '/' + S.n + ')'; } }
+      if (st.auto) { const n = tr.npcs.find(q => !q.done); if (n) { st.x = n.x; st.y = n.y; } }
+    } else if (S.k === 'ir') { if (st.goal && dist(st.x, st.y, st.goal.x, st.goal.y) < (S.r || 30) && st.mode !== 'ride') this.next(st); }
+    else if (S.k === 'abordar') {
+      if (st.mode === 'ride') { if (st.ride.line.id === S.line) { tr.rode = 1; this.next(st); } else if (!tr.warned) { tr.warned = 1; Libre.msg(st, 'Esa es la ' + st.ride.line.name + '. Necesitas la ' + NET.byId[S.line].name, 'y'); } }
+      else tr.warned = 0;
+    } else if (S.k === 'bajar') {
+      const g = st.goal, d = g ? dist(st.x, st.y, g.x, g.y) : 1e9;
+      if (st.mode === 'ride') { tr.rode = 1; const v = st.ride; if (v.ph === 'dwell' && v.st && v.st.name === S.at && !tr.warned) { tr.warned = 1; Libre.msg(st, '🚉 ¡Es aquí! Bájate en ' + S.at + ' con ●', 'g'); Libre.sfx(st, 'beep'); } else if (v.ph !== 'dwell') tr.warned = 0; if (st.auto && v.ph === 'dwell' && v.st && v.st.name === S.at) Libre.action(st); }
+      else if (d < 90) this.next(st);
+      else if (tr.rode && !tr.warned2) { tr.warned2 = 1; Libre.msg(st, 'Te bajaste antes de tiempo: vuelve a subir y bájate en ' + S.at, 'y'); }
+    }
+  },
+  /* ---------- conversación ---------- */
+  talk(st, n) {
+    const S = this.step(), tr = st.trama; tr.talked = 1; if (!S) return;
+    tr.talk = { n, i: 0, lines: n.q ? null : (S.lines || []) };
+    if (EM.headless || st.auto || Game.st !== st) { // el bot responde solo
+      if (n.q) this.answer(st, 0); else { tr.talk = null; if (S.k === 'modulo') this.launch(st, S); else this.next(st); } return;
+    }
+    Snd.play('tap'); this.render(st);
+  },
+  render(st) {
+    const el = $('#trTalk'), tr = st.trama, T = tr.talk; if (!el) return; if (!T) { el.className = 'trtalk hide'; el.innerHTML = ''; return; }
+    const S = this.step(), n = T.n; el.className = 'trtalk';
+    if (n.q) {
+      const [q, opts] = n.q; el.innerHTML = `<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
+      el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
+    }
+    const L = T.lines[T.i] || ['', '']; const last = T.i >= T.lines.length - 1;
+    if (T.said !== T.i) { T.said = T.i; if (L[1]) Snd.say(L[1]); }
+    el.innerHTML = `${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
+    const nb = el.querySelector('[data-n]'); if (nb) nb.onclick = () => { Snd.play('tap'); if (T.i < T.lines.length - 1) { T.i++; this.render(st); } else { tr.talk = null; this.render(st); this.next(st); } };
+    const go = el.querySelector('[data-go]'); if (go) go.onclick = () => { tr.talk = null; this.render(st); this.launch(st, S); };
+    const lt = el.querySelector('[data-later]'); if (lt) lt.onclick = () => this.close(st);
+  },
+  close(st) { st.trama.talk = null; this.render(st); },
+  answer(st, o) {
+    const tr = st.trama, T = tr.talk, n = T && T.n; if (!n) return; const ok = o === 0, dest = n.q[2];
+    if (ok) { n.done = 1; tr.ok++; Save.d.wallet += 5; Libre.msg(st, '✓ «¡Mil gracias!» · +5 🎫', 'g'); Libre.sfx(st, 'coin'); Ciudad.say(n, '¡Gracias, mija!'); tr.talk = null; this.render(st); if (tr.npcs.every(q => q.done)) { const T2 = this.save(); T2.preg = (T2.preg || 0) + 1; this.next(st); } }
+    else { T.msg = 'Mmm… creo que por ahí no llego a ' + dest + '. Mira dónde se cruza esa línea con el metro.'; Libre.sfx(st, 'bad'); this.render(st); }
+  },
+  onAction(st) {
+    if (st.mode !== 'walk' || !this.active()) return false; const tr = st.trama;
+    const n = tr.npcs.find(q => !q.done && dist(q.x, q.y, st.x, st.y) < 5); if (n) { this.talk(st, n); return true; } return false;
+  },
+  onPhoto(st) {
+    const S = this.step(); if (!S || S.k !== 'foto' || !st.goal || !this.active()) return false;
+    if (dist(st.x, st.y, st.goal.x, st.goal.y) < 90) { st.flash = .4; const L = this.stPos(S.lugar), F = Save.d.fotos || (Save.d.fotos = []); if (L && !F.includes(L.name)) F.push(L.name); Libre.msg(st, '📷 ' + (L ? L.name : 'Postal') + ' · guardada en tu libreta', 'g'); this.next(st); return true; }
+    return false;
+  },
+  /* ---------- módulos: manejar y volver a la ciudad ---------- */
+  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.nearTile(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
+  launch(st, S) {
+    if (EM.headless || st.auto) { this.next(st); return; }
+    const T = this.save(), C = this.cap(), M = EM.modes[S.m], lvl = M.levels().find(l => l.id === S.lv) || M.levels()[0];
+    Game.start(S.m, lvl.id, { back: 'menu', trama: 1, onEnd: r => {
+      const ok = r.win || r.stars > 0, earn = Save.record(S.m, lvl.id, r);
+      if (ok && this.step() === S) { this.place(S.fin, S.finLine); this.advance(); }
+      UI.modal(`<div class="pag">Capítulo ${T.c + 1} · ${esc(C.t)}</div><h2>${ok ? '¡Lo lograste!' : 'Casi'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="film" style="margin:10px 0">${esc(ok ? S.ok : 'Rosalba: “Tranquila, mija. Nadie nace aprendido. Otra vez.”')}</div><p class="m">+${earn} 🎫</p><div class="row">${ok ? '' : '<button class="btn" id="trAgain">↻ Otra vez</button>'}<button class="btn pri" id="trCity">🏙️ Volver a la ciudad</button></div>`);
+      $('#trCity').onclick = () => { UI.close(); Game.stop(); Game.start('libre', 'lb:trama', {}); };
+      const a = $('#trAgain'); if (a) a.onclick = () => { UI.close(); Game.stop(); this.launch({}, S); };
+    } });
+  },
+  /* ---------- dibujo de personajes ---------- */
+  draw(g, st, S, k, sh) {
+    const tr = st.trama; if (!tr || !tr.npcs.length) return; const t = st.t;
+    for (const n of tr.npcs) {
+      if (n.done) continue; const W = TRAMA_WHO[n.who] || TRAMA_WHO.Pasajero, q = S(n.x, n.y); if (q.x < -60 || q.y < -60 || q.x > g.canvas.width + 60 || q.y > g.canvas.height + 60) continue;
+      Ciudad.ped(g, { x: n.x, y: n.y, a: n.a, ph: Math.sin(t * 2 + n.x) * .3, col: n.col || W.col, skin: W.skin, hair: W.hair, hat: W.hat, seed: 3, stun: 0 }, S, k, sh);
+      const s = Math.max(.6, k * .4), y = q.y - 12 * s - 12, bob = Math.sin(t * 4 + n.x) * 3;
+      g.font = '800 ' + Math.round(10 * Math.max(1, k / 2.4)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; const label = n.who === 'Pasajero' ? 'Pasajero' : n.who, w = g.measureText(label).width + 10, fh = Math.round(14 * Math.max(1, k / 2.4));
+      g.fillStyle = 'rgba(12,37,51,.88)'; g.fillRect(q.x - w / 2, y - fh, w, fh); g.fillStyle = PAL.mostaza; g.fillText(label, q.x, y - fh * .28);
+      g.fillStyle = n.mark === '?' ? '#7ab648' : PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, y - fh - 12 + bob, 9, 0, TAU); g.fill(); g.stroke();
+      g.fillStyle = PAL.negro; g.font = '900 12px Cuerpo, sans-serif'; g.fillText(n.mark, q.x, y - fh - 8 + bob); g.textAlign = 'left';
+    }
+  },
+  /* ---------- validación de datos (autotest) ---------- */
+  check(E) {
+    TRAMA.forEach((C, ci) => C.steps.forEach((S, si) => {
+      const id = 'trama ' + (ci + 1) + '.' + (si + 1);
+      if (S.line && !NET.byId[S.line]) E(id + ': línea ' + S.line + ' no existe');
+      if (S.at && !this.stPos(S.at, S.line)) E(id + ': lugar ' + S.at + ' no existe');
+      if (S.line && S.at && NET.byId[S.line] && !NET.byId[S.line].st.some(q => q.name === S.at)) E(id + ': ' + S.at + ' no está en la línea ' + S.line);
+      if (S.k === 'foto' && !(typeof LUGARES !== 'undefined' && LUGARES.some(l => l[0] === S.lugar))) E(id + ': postal ' + S.lugar + ' no existe');
+      if (S.k === 'modulo') { const M = EM.modes[S.m]; if (!M) E(id + ': módulo ' + S.m); else if (!M.levels().some(l => l.id === S.lv)) E(id + ': nivel ' + S.lv); if (!this.stPos(S.fin, S.finLine)) E(id + ': llegada ' + S.fin); }
+      if ((S.k === 'hablar' || S.k === 'modulo') && !TRAMA_WHO[S.who]) E(id + ': personaje ' + S.who);
+    }));
+    for (const q of TRAMA_PREG) { if (q[1].length !== 3) E('pregunta con opciones raras: ' + q[0]); if (!NET.stations.some(h => h.name === q[2])) E('pregunta: destino ' + q[2] + ' no existe'); }
+    return TRAMA.length;
+  }
 };
 
 /* ---- 38-bus.js ---- */
@@ -4355,7 +4648,7 @@ const MODECARDS = [
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
-  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'La historia de Rosalba y su nieta. Cada capítulo, un oficio de la red.', n: 'Historia' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.', n: 'Historia' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
   { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
@@ -4406,9 +4699,12 @@ const Menu = EM.menu = {
   },
   storyList() {
     this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
-    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
+    const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
+    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
       CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
     $$('#lBody [data-c]').forEach(b => b.onclick = () => { const i = +b.dataset.c; if (i > Save.d.story.ch) { UI.toast('Termina el capítulo anterior'); return; } Story.open(i); });
+    $('#stCity').onclick = () => { Snd.init(); Game.start('libre', 'lb:trama', {}); };
+    const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
   },
   levels(id) {
     this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
@@ -4854,7 +5150,8 @@ const BotT = EM.test = {
     let nK = 0; for (const lv of Cable.levels()) { try { const st = Cable.create(lv.id, {}); nK++; const s2 = Object.assign({}, st, { m: st.sol }); if (!Cable.solved(s2)) E(lv.id + ': la solución no conecta'); if (Cable.solved(st)) E(lv.id + ': empieza resuelto'); } catch (e) { E('cable ' + lv.id + ': ' + e.message); } }
     // historia
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
