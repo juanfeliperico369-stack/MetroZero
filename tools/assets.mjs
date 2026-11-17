@@ -6,19 +6,24 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dist = path.join(root, 'dist');
 const b = await chromium.launch(), p = await b.newPage();
 await p.goto('file://' + path.join(dist, 'index.html')); await p.waitForFunction(() => window.EM && EM.ready); await p.evaluate(() => document.fonts.ready);
+await p.evaluate(() => new Promise(r => { if (!EM.atlas.has('portada')) return r(); if (EM.atlas.img('portada', r)) r(); setTimeout(r, 3000); }));
 const out = await p.evaluate(() => {
   const A = EM.art, mk = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); f(g, w, h); return c.toDataURL('image/png'); };
   const icon = (S, mask) => mk(S, S, g => A.icon(g, S, mask));
+  // imagen para compartir: la ilustración del valle, el título y la línea con sus estaciones (identidad del Metro)
   const share = mk(1200, 630, (g, W, H) => {
-    g.fillStyle = '#f8f1dc'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#0e5a6b'; g.fillRect(0, 0, W, 64); g.fillStyle = '#141414'; g.fillRect(0, 64, W, 6);
-    g.fillStyle = '#fbf8ee'; g.font = '800 22px Cuerpo, sans-serif'; g.fillText('M E T R O   D E   M E D E L L Í N   ·   V A L L E   D E   A B U R R Á', 28, 42);
-    const art = document.createElement('canvas'); art.width = 320; art.height = 200; const ag = art.getContext('2d'); A.cover(ag, 320, 200, 7.3, false);
-    g.imageSmoothingEnabled = false; g.fillStyle = '#141414'; g.fillRect(586, 110, 588, 380); g.drawImage(art, 594, 118, 572, 357.5);
-    g.fillStyle = '#12446c'; g.font = '700 220px Titulos, Impact, sans-serif'; g.fontStretch = 'condensed'; g.fillText('EL', 30, 290); g.fillText('METRO', 30, 480);
-    g.fillStyle = '#c8201f'; g.font = 'italic 34px Georgia, serif'; g.fillText('¿Sabés a dónde vas?', 36, 545);
-    g.fillStyle = '#1b8088'; g.font = '700 54px Titulos, Impact, sans-serif'; g.fillText('LA ÚLTIMA VUELTA', 600, 560);
-    g.fillStyle = '#f9e4a4'; g.fillRect(0, H - 40, W, 40); g.fillStyle = '#141414'; g.fillRect(0, H - 43, W, 3); g.fillStyle = '#12446c'; g.font = '700 24px Cuerpo, sans-serif'; g.fillText('Trenes · Tranvía · Metroplús · Alimentadores · Metrocables  —  juega sin internet', 28, H - 12);
+    g.fillStyle = '#0F2238'; g.fillRect(0, 0, W, H);
+    const pic = EM.atlas.img('portada');
+    if (pic) { const s2 = Math.max(W / pic.naturalWidth, H / pic.naturalHeight); g.drawImage(pic, (W - pic.naturalWidth * s2) / 2, (H - pic.naturalHeight * s2) / 2 - 40, pic.naturalWidth * s2, pic.naturalHeight * s2); }
+    else { const art = document.createElement('canvas'); art.width = 320; art.height = 200; A.cover(art.getContext('2d'), 320, 200, 7.3, false); g.imageSmoothingEnabled = false; g.drawImage(art, 0, 0, W, W / 1.6); }
+    const sombra = g.createLinearGradient(0, 0, W * .62, 0); sombra.addColorStop(0, 'rgba(15,34,56,.96)'); sombra.addColorStop(.75, 'rgba(15,34,56,.72)'); sombra.addColorStop(1, 'rgba(15,34,56,0)'); g.fillStyle = sombra; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#fff'; g.font = '700 168px Titulos, Impact, sans-serif'; g.fillText('El Metro', 60, 250);
+    g.fillStyle = '#d7e2ec'; g.font = '600 34px Cuerpo, sans-serif'; g.fillText('Medellín y el Valle de Aburrá', 64, 312); g.fillText('en metro, tranvía, cable y bus', 64, 356);
+    const est = [['Jugar', '#1C5C9C'], ['La última vuelta', '#EB318E'], ['Sin internet', '#59AB42']];
+    g.fillStyle = '#1C5C9C'; g.fillRect(84, 404, 10, 168);
+    est.forEach(([t, c], i) => { const y = 420 + i * 66; g.fillStyle = '#fff'; g.beginPath(); g.arc(89, y, 19, 0, Math.PI * 2); g.fill(); g.lineWidth = 8; g.strokeStyle = c; g.stroke(); g.fillStyle = '#fff'; g.font = '700 34px Titulos, Impact, sans-serif'; g.fillText(t, 126, y + 12); });
+    const L = ['#1C5C9C', '#E38835', '#59AB42', '#B8CF40', '#F6C538', '#EB318E', '#8E612A', '#743D90', '#EC343A', '#0E6F76', '#65A9AC'];
+    L.forEach((c, i) => { g.fillStyle = c; g.fillRect(i * W / L.length, H - 14, W / L.length + 1, 14); });
   });
   return { i192: icon(192), i512: icon(512), m512: icon(512, true), apple: icon(180, true), fav: icon(32), share };
 });

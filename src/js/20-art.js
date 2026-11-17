@@ -102,14 +102,14 @@ const Art = EM.art = {
   /* ícono: frente de tren pixelado sobre petróleo (para íconos e instalador) */
   icon(g, S, maskable) {
     g.imageSmoothingEnabled = false; const u = S / 32, pad = maskable ? 5 * u : 2 * u;
-    g.fillStyle = PAL.petro; g.fillRect(0, 0, S, S);
-    if (!maskable) { g.fillStyle = PAL.mante; g.fillRect(u, u, S - 2 * u, S - 2 * u); g.fillStyle = PAL.petro; g.fillRect(2 * u, 2 * u, S - 4 * u, S - 4 * u); }
+    g.fillStyle = '#0F2238'; g.fillRect(0, 0, S, S);   // noche del valle, con la franja de las líneas abajo
+    const L = ['#1C5C9C', '#E38835', '#59AB42', '#B8CF40', '#F6C538', '#EB318E', '#8E612A', '#743D90', '#EC343A', '#0E6F76', '#65A9AC'], fy = S - pad - u * 1.6;
+    L.forEach((c, i) => { g.fillStyle = c; g.fillRect(Math.floor(pad + i * (S - 2 * pad) / L.length), Math.round(fy), Math.ceil((S - 2 * pad) / L.length), Math.max(1, Math.round(u * 1.2))); });
     const x = pad + 4 * u, y = pad + 3 * u, w = S - 2 * pad - 8 * u, h = S - 2 * pad - 7 * u, r = (a, b, c, d, col) => { g.fillStyle = col; g.fillRect(Math.round(a), Math.round(b), Math.round(c), Math.round(d)); };
-    r(x - u, y - u, w + 2 * u, h + 2 * u, PAL.negro); r(x, y, w, h, PAL.plata);
+    r(x - u, y - u, w + 2 * u, h + 2 * u, '#081627'); r(x, y, w, h, '#f4f6f8');
     r(x + w * .12, y + h * .12, w * .76, h * .36, PAL.tinta); r(x + w * .16, y + h * .15, w * .2, h * .08, '#6fb5d8');
     r(x, y + h * .6, w, h * .1, '#1f63ad'); r(x + w * .08, y + h * .76, w * .16, h * .1, '#fff3b0'); r(x + w * .76, y + h * .76, w * .16, h * .1, '#fff3b0');
     r(x + w * .36, y + h * .76, w * .28, h * .12, PAL.negro);
     r(x + w / 2 - u * .6, y - 3 * u, u * 1.2, 2 * u, PAL.negro); r(x + w * .25, y - 3.2 * u, w * .5, u, PAL.negro);
-    r(x - 2 * u, y + h + u, w + 4 * u, u, PAL.rojo);
   }
 };
