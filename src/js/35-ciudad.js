@@ -40,7 +40,7 @@ const Ciudad = EM.ciudad = {
     }
   },
   /* vehículo del transporte detenido en el andén de una estación (para subirse) */
-  atHub(hub, x, y) { let best = null, bd = 1e9; for (const v of this.transit) { if (v.ph !== 'dwell' || !v.st || v.st.hub !== hub) continue; const p = this.tpos(v), d = dist(x, y, p.x, p.y); if (d < bd) { bd = d; best = v; } } return best && bd < 70 ? best : null; },
+  atHub(hub, x, y, pref) { let best = null, bd = 1e9; for (const v of this.transit) { if (v.ph !== 'dwell' || !v.st || v.st.hub !== hub) continue; const p = this.tpos(v), d = dist(x, y, p.x, p.y) - (pref && v.line.id === pref ? 60 : 0); if (d < bd) { bd = d; best = v; } } return best && bd < 70 ? best : null; },
   /* ---------- peatones ---------- */
   pedTick(dt, player) {
     const L = Mundo.light(), w = L.w, want = Math.round((Save.d.settings.q === 'low' ? 28 : 56) * (1 - .6 * L.night) * (w.rain ? .6 : 1)), fx = this.focus.x, fy = this.focus.y;

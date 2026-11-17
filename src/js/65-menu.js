@@ -6,7 +6,7 @@ const MODECARDS = [
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
-  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'La historia de Rosalba y su nieta. Cada capítulo, un oficio de la red.', n: 'Historia' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.', n: 'Historia' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
   { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
@@ -57,9 +57,12 @@ const Menu = EM.menu = {
   },
   storyList() {
     this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
-    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
+    const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
+    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
       CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
     $$('#lBody [data-c]').forEach(b => b.onclick = () => { const i = +b.dataset.c; if (i > Save.d.story.ch) { UI.toast('Termina el capítulo anterior'); return; } Story.open(i); });
+    $('#stCity').onclick = () => { Snd.init(); Game.start('libre', 'lb:trama', {}); };
+    const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
   },
   levels(id) {
     this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);

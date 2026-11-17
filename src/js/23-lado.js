@@ -18,6 +18,8 @@ const Lado = EM.lado = {
     // suavizado para siluetas limpias
     const sm = (a, r) => { const o = new Float32Array(a.length); for (let i = 0; i < a.length; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - r); j <= Math.min(a.length - 1, i + r); j++) { s += a[j]; c++; } o[i] = s / c; } return o; };
     const R = { id: key, n, st, near: sm(near, 1), mid: sm(mid, 3), far: sm(far, 6), tile, urb, side: sd };
+    // capa intermedia (cerros entre la cordillera y las laderas) para el escalonado de siluetas
+    const inter = new Float32Array(n); for (let i = 0; i < n; i++) inter[i] = R.far[i] * .6 + R.mid[i] * .4 + Math.sin(i * .045) * 40 + Math.sin(i * .013 + 1) * 60; R.inter = sm(inter, 4);
     let lo = 1e9, hi = -1e9; for (let i = 0; i < n; i++) { lo = Math.min(lo, R.far[i], R.mid[i]); hi = Math.max(hi, R.far[i]); } R.lo = lo; R.hi = hi;
     return (this.cache[key] = R);
   },
@@ -27,7 +29,7 @@ const Lado = EM.lado = {
   /* laderas con barrios: casas de ladrillo que trepan desde el valle, monte arriba y luces de noche.
      Se pinta en una tira en caché (espacio de la capa) y se vuelve a pintar solo al salir del margen o cambiar la luz. */
   barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, id) {
-    const far = id === 'far', hw = Math.max(far ? 2 : 4, Math.round(k * (far ? 1.2 : 2.6))), rh = Math.max(2, Math.round(hw * .72)), U0 = o.s * k * par, umin = dir > 0 ? U0 - cx : U0 + cx - W;
+    const far = id === 'far' || id === 'inter', hw = Math.max(far ? 2 : 4, Math.round(k * (far ? 1.2 : 2.6))), rh = Math.max(2, Math.round(hw * .72)), U0 = o.s * k * par, umin = dir > 0 ? U0 - cx : U0 + cx - W;
     const yTop = Math.floor(base - H * (far ? .44 : .26)), yBot = Math.ceil(base + H * .05), bh = yBot - yTop, nq = Math.round(sky.night * 5), dq = Math.round(sky.day * 5);
     const key = [R.id, W, H, par, k.toFixed(3), nq, dq, R.n, R.st, col.map(v => (v * 40) | 0).join('.')].join(':'), C = (this._bc = this._bc || {})[id];
     let c = C && C.key === key && umin >= C.u0 && umin + W <= C.u0 + C.w ? C : null;
@@ -46,7 +48,7 @@ const Lado = EM.lado = {
           const X0 = x + xo, Y0 = yy - yTop + yo;
           if (hv < p) {
             const hc = BR[(hv * 997 | 0) % BR.length], cb = this.mix(this.mix(hc, col, tint), [0, 0, 0], night * .6), tall = h2(cc, r, 44) < .22 ? 1 + (h2(cc, r, 48) * 2 | 0) : 0, hh = rh * (1 + tall * .7);
-            if (far) { q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1, hh); }
+            if (far) { if (night > .25) { q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1, hh); } }
             else {
               q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1.5, hh);
               q.fillStyle = this.css(this.mix(this.mix(RF[(hv * 31 | 0) % RF.length], col, tint), [0, 0, 0], night * .6)); q.fillRect(X0 - .5, Y0 - (hh - rh) - rh * .18, hw - .5, rh * .36);
@@ -83,8 +85,15 @@ const Lado = EM.lado = {
       if (opt.barrio) this.barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, opt.barrio);
       return pts;
     };
-    const cFar = this.mix(this.mix(this.mix(sky.bot, sky.top, .45), [.3, .42, .5], .25 * sky.day), ink, .26 + .22 * sky.night), cMid = this.mix(this.mix(cFar, [.2, .4, .24], .55 * sky.day), ink, .3), cNear = this.mix(this.mix(cMid, [.36, .52, .32], .4 * sky.day), ink, .22 + .3 * sky.night);
+    // paleta por capas: de día cordillera azul de bruma, laderas verdes saturadas y suelo verde oscuro (estilo ilustración);
+    // de noche se apagan hacia la tinta; al atardecer la luz cálida del cielo tiñe la bruma
+    const D = sky.day, warm = clamp((sky.bot[0] - sky.bot[2]) * 2.2, 0, 1) * (1 - sky.night);
+    const oFar = this.mix(this.mix(this.mix(sky.bot, sky.top, .45), [.3, .42, .5], .25 * D), ink, .26 + .22 * sky.night), oMid = this.mix(this.mix(oFar, [.2, .4, .24], .55 * D), ink, .3), oNear = this.mix(this.mix(oMid, [.36, .52, .32], .4 * D), ink, .22 + .3 * sky.night);
+    const dFar = this.mix(this.mix(sky.top, [.5, .62, .76], .5), sky.bot, .18), dMid = this.mix([.25, .5, .3], dFar, .2), dNear = [.21, .4, .23], dd = clamp((D - .55) / .35, 0, 1) * (1 - warm * .8);
+    let cFar = this.mix(oFar, dFar, dd), cMid = this.mix(oMid, dMid, dd), cNear = this.mix(oNear, dNear, dd);
+    if (o.rain) { cFar = this.mix(cFar, sky.fog, .3); cMid = this.mix(cMid, [.4, .45, .45], .15); }
     layer(R.far, .18, H * .36, H * .06, cFar, { haze: .45, barrio: o.barrio === false ? 0 : 'far' });
+    if (R.inter) layer(R.inter, .3, H * .3, H * .025, this.mix(cFar, cMid, .42), { haze: .38, barrio: o.barrio === false ? 0 : 'inter' });
     if (o.fog || sky.day < .6) { const fg = g.createLinearGradient(0, base - H * .3, 0, base); fg.addColorStop(0, this.css(sky.fog, 0)); fg.addColorStop(1, this.css(sky.fog, o.fog ? .7 : .35)); g.fillStyle = fg; g.fillRect(0, base - H * .3, W, H * .3); }
     layer(R.mid, .45, H * .26, -H * .02, cMid, { haze: .22, barrio: o.barrio === false ? 0 : 'mid' });
     // gallinazos planeando

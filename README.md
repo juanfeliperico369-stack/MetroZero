@@ -15,4 +15,5 @@ bash tools/apk.sh        # dist/el-metro.apk (ver android/README.md)
 node dist/server.mjs     # servidor local para jugar en red sin internet
 ```
 Código en `src/js/*.js` (se concatenan en orden). Datos: `src/data/valle.js` (mapa OSM/SRTM de Juega EnCicla), `src/data/red.js` (líneas, estaciones, datos y trivia; fuentes en `docs/FUENTES.md`).
+La historia "La última vuelta" se juega dentro de Ciudad Libre (`src/js/37-trama.js`): caminar, abordar líneas reales, hablar con los personajes y pasar a manejar.
 Bitácora para retomar el trabajo: `docs/BITACORA.md` · plan: `docs/PLAN.md` · encargos para otras IA: `docs/PROMPTS-IA.md`.

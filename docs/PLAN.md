@@ -5,6 +5,7 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 
 ## Avance
 - **v0.4.0:** Fase 1 en curso con arte procedural mejorado (ciudad por lotes y manzanas, laderas con barrios en la panorámica, viaducto 3D realista); Fase 2: cabina con procedimiento real + Escuela de conducción, Cívica al subir al bus; Fase 3: perros (callejeros y con correa) en la ciudad. Pendiente el atlas pintado (encargos 1–3 de `PROMPTS-IA.md`).
+- **v0.5.0:** Fase 3 iniciada: la historia se juega dentro de Ciudad Libre (`37-trama.js`), con módulos encadenados y regreso a la ciudad; panorámica con paleta de ilustración y capa intermedia.
 
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
