@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Metro · Todo en un archivo (%%VERSION%%)</title><meta name="robots" content="noindex">
+<style>
+:root{--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lK:#B8CF40;--lJ:#F6C538;--lH:#EB318E;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--papel:#f1ece0;--crema:#faf6ec;--tinta:#154a80;--negro:#141414;--mante:#fbe7b0}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--papel);color:var(--negro);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--tinta);color:#fff;border-bottom:4px solid var(--negro)}
+header h1{margin:0;padding:10px 14px 4px;font:900 21px/1.1 "Arial Narrow",Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+header h1 small{font:700 11px system-ui;opacity:.8;letter-spacing:0;text-transform:none}
+.band{height:6px;background:linear-gradient(90deg,var(--lA) 0 11%,var(--lB) 0 22%,var(--lT) 0 33%,var(--lK) 0 44%,var(--lJ) 0 55%,var(--lH) 0 66%,var(--lL) 0 77%,var(--lM) 0 88%,var(--lP) 0)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;white-space:nowrap;scrollbar-width:none}nav a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:5px 10px;border:2px solid rgba(255,255,255,.5);border-radius:99px}nav a.on{background:var(--mante);color:var(--negro);border-color:var(--mante)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;max-width:920px;margin:12px auto 0;padding:0 14px}
+.acts button{border:3px solid var(--negro);background:var(--crema);font-weight:800;font-size:13px;padding:7px 11px;box-shadow:3px 3px 0 var(--negro);cursor:pointer}
+.acts #play{background:var(--lT);color:#fff;font-size:16px}
+main{max-width:920px;margin:0 auto;padding:12px 14px 80px}.doc{display:none}.doc.on{display:block}
+section,h1,h2,h3,h4{scroll-margin-top:118px}
+h1,h2,h3{font-family:"Arial Narrow",Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;line-height:1.1}h1{font-size:30px;border-bottom:4px solid var(--negro);padding-bottom:6px}h2{font-size:22px;margin-top:28px;border-left:8px solid var(--lA);padding-left:8px}h3{font-size:18px;margin-top:22px}h4{margin:16px 0 4px}
+a{color:var(--tinta)}code{background:var(--crema);border:1px solid #d8d0bd;padding:0 4px;border-radius:3px;font-size:.9em}
+blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6px solid var(--lJ)}
+.tw{overflow-x:auto;margin:10px 0}table{border-collapse:collapse;min-width:100%;background:var(--crema);font-size:14px}th,td{border:2px solid var(--negro);padding:5px 7px;vertical-align:top;text-align:left}th{background:var(--negro);color:#fff}
+.pre{position:relative;margin:12px 0}pre{background:#0f2a45;color:#f1ece0;padding:12px;padding-top:34px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);white-space:pre-wrap;word-break:break-word;font-size:13px}
+.cp{position:absolute;right:8px;top:6px;border:2px solid var(--negro);background:var(--mante);font-weight:800;font-size:12px;padding:3px 10px;cursor:pointer}.cp.ok{background:var(--lT);color:#fff}
+.sw{display:inline-block;width:.9em;height:.9em;border:1px solid var(--negro);vertical-align:-1px;margin-right:3px;border-radius:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.ph{display:block;background:var(--crema);border:2px solid var(--negro);text-decoration:none;color:var(--negro);box-shadow:3px 3px 0 var(--negro)}.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}.ph span{display:block;padding:5px 7px;font-size:12px;line-height:1.3}.ph small{opacity:.7}.nota{font-size:14px;background:var(--crema);padding:8px;border:2px dashed var(--negro)}
+#ov{position:fixed;inset:0;z-index:50;background:#000}#ov[hidden]{display:none}#ov iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#cl{position:absolute;left:8px;bottom:8px;z-index:51;border:2px solid #000;background:#fbe7b0;font-weight:800;font-size:12px;padding:4px 8px;opacity:.85}
+#msg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:60;background:var(--negro);color:#fff;padding:14px 18px;border:3px solid var(--mante);font-weight:700;display:none}
+</style></head><body>
+<header><h1>El Metro · Todo en un archivo <small>%%VERSION%%</small></h1><div class="band"></div><nav id="nav"></nav></header>
+<div class="acts"><button id="play">▶ Jugar El Metro</button><button data-dl="TODO.md">⬇ TODO.md (todo el texto, para IA)</button><button data-dl="CONTEXTO-IA.md">⬇ CONTEXTO-IA.md</button><button data-dl="SKILLS-IA.md">⬇ SKILLS-IA.md</button><button id="dlgame">⬇ Juego (el-metro.html)</button></div>
+<main id="main"></main>
+<div id="ov" hidden><iframe id="fr" title="El Metro" allow="fullscreen; autoplay; camera"></iframe><button id="cl">✕ cerrar el juego</button></div>
+<div id="msg"></div>
+<script type="application/json" id="docs">%%DOCS%%</script>
+<script type="application/json" id="gal">%%GAL%%</script>
+<script type="text/plain" id="juego">%%JUEGO%%</script>
+<script>
+(function () {
+  const DOCS = JSON.parse(document.getElementById('docs').textContent), GAL = JSON.parse(document.getElementById('gal').textContent);
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const slug = s => s.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
+  const fileTo = {}; DOCS.forEach(d => { if (d.file) fileTo[d.file] = d.id; }); fileTo['galeria.md'] = 'galeria'; fileTo['CONTEXTO-IA.md'] = 'guia'; fileTo['SKILLS-IA.md'] = 'skills'; fileTo['BITACORA.md'] = 'guia'; fileTo['PLAN.md'] = 'plan';
+  function inline(t) {
+    const codes = [];
+    let s = t.replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+    s = esc(s);
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, href) => {
+      const f = href.split('#')[0].split('/').pop();
+      if (/\.md$/.test(f) && fileTo[f] && !/^https?:/.test(href)) return '<a href="#' + fileTo[f] + '">' + txt + '</a>';
+      if (/^index\.html/.test(href)) return '<a href="#' + (href.split('#')[1] || 'inicio') + '">' + txt + '</a>';
+      if (href.startsWith('#')) return '<a href="' + href + '">' + txt + '</a>';
+      return '<a href="' + href + '" target="_blank" rel="noopener">' + txt + '</a>';
+    });
+    s = s.replace(/(^|[\s(,;])(#[0-9a-fA-F]{6})\b/g, (m, p, c) => p + '<i class="sw" style="background:' + c + '"></i>' + c);
+    s = s.replace(/\u0000(\d+)\u0000/g, (m, k) => { const c = codes[+k], hex = /^#[0-9a-fA-F]{6}$/.test(c) ? '<i class="sw" style="background:' + c + '"></i>' : ''; return hex + '<code>' + esc(c) + '</code>'; });
+    return s;
+  }
+  function md(src) {
+    const L = src.replace(/\r/g, '').replace(/<!--[\s\S]*?-->/g, '').split('\n'), out = []; let i = 0;
+    while (i < L.length) {
+      const l = L[i];
+      if (/^```/.test(l)) { const buf = []; i++; while (i < L.length && !/^```/.test(L[i])) buf.push(L[i++]); i++; out.push('<div class="pre"><button class="cp">Copiar</button><pre>' + esc(buf.join('\n')) + '</pre></div>'); continue; }
+      if (/^#{1,6} /.test(l)) { const h = Math.min(4, l.match(/^#+/)[0].length), t = l.replace(/^#+ /, ''); out.push('<h' + h + ' id="' + slug(t) + '">' + inline(t) + '</h' + h + '>'); i++; continue; }
+      if (/^---\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
+      if (/^\|/.test(l)) { const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]); const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim()); let h = '<div class="tw"><table><thead><tr>' + cells(rows[0]).map(c => '<th>' + inline(c) + '</th>').join('') + '</tr></thead><tbody>'; for (const r of rows.slice(2)) h += '<tr>' + cells(r).map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>'; out.push(h + '</tbody></table></div>'); continue; }
+      if (/^>\s?/.test(l)) { const buf = []; while (i < L.length && /^>\s?/.test(L[i])) buf.push(L[i++].replace(/^>\s?/, '')); out.push('<blockquote>' + buf.map(inline).join('<br>') + '</blockquote>'); continue; }
+      if (/^\s*([-*]|\d+\.)\s/.test(l)) { const ord = /^\s*\d+\./.test(l), items = []; while (i < L.length && /^\s*([-*]|\d+\.)\s/.test(L[i])) { const ind = L[i].match(/^\s*/)[0].length, txt = L[i].replace(/^\s*([-*]|\d+\.)\s/, ''); if (ind >= 2 && items.length) items[items.length - 1].sub.push(txt); else items.push({ txt, sub: [] }); i++; } out.push('<' + (ord ? 'ol' : 'ul') + '>' + items.map(it => '<li>' + inline(it.txt) + (it.sub.length ? '<ul>' + it.sub.map(x => '<li>' + inline(x) + '</li>').join('') + '</ul>' : '') + '</li>').join('') + '</' + (ord ? 'ol' : 'ul') + '>'); continue; }
+      if (!l.trim()) { i++; continue; }
+      const buf = []; while (i < L.length && L[i].trim() && !/^(#{1,6} |```|\||>|\s*([-*]|\d+\.)\s|---\s*$)/.test(L[i])) buf.push(L[i++]); out.push('<p>' + inline(buf.join(' ')) + '</p>');
+    }
+    return out.join('\n');
+  }
+  // pestañas
+  const nav = document.getElementById('nav'), main = document.getElementById('main'), shown = DOCS.filter(d => d.tab);
+  nav.innerHTML = shown.map(d => '<a href="#' + d.id + '">' + esc(d.tab) + '</a>').join('') + '<a href="#galeria">Galería</a>';
+  for (const d of shown) { const s = document.createElement('section'); s.id = d.id; s.className = 'doc'; main.appendChild(s); }
+  const g = document.createElement('section'); g.id = 'galeria'; g.className = 'doc'; main.appendChild(g);
+  const CAT = { metro: 'Metro (A y B)', cable: 'Metrocable', tranvia: 'Tranvía de Ayacucho', bus: 'Metroplús, alimentadores y busetas', ciudad: 'Ciudad', fiesta: 'Fiestas', cultura: 'Cultura' };
+  function fill(sec) {
+    if (sec.dataset.ok) return; sec.dataset.ok = 1;
+    if (sec.id === 'galeria') { let h = '<h1>Galería de referencia</h1><p class="nota">Fotos con licencia libre (Wikimedia Commons y Flickr, vía Openverse). Se cargan desde su sitio original (necesitan internet); toca una para ver la fuente, el autor y la licencia.</p>'; for (const c in CAT) { const L = GAL.filter(x => x.cat === c); if (!L.length) continue; h += '<h2>' + CAT[c] + ' <small>(' + L.length + ')</small></h2><div class="grid">' + L.map(x => '<a class="ph" href="' + x.fuente + '" target="_blank" rel="noopener"><img loading="lazy" referrerpolicy="no-referrer" src="' + x.miniatura + '" alt="' + esc(x.titulo || '') + '"><span>' + esc(x.titulo || '') + '<br><small>' + esc(x.autor || 'autor sin nombre') + ' · ' + esc(x.licencia) + '</small></span></a>').join('') + '</div>'; } sec.innerHTML = h; return; }
+    const d = DOCS.find(x => x.id === sec.id); sec.innerHTML = md(d.md);
+    sec.querySelectorAll('.cp').forEach(b => b.onclick = async () => { const t = b.nextElementSibling.textContent; try { await navigator.clipboard.writeText(t); } catch (e) { const r = document.createRange(); r.selectNodeContents(b.nextElementSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); } b.textContent = '¡Copiado!'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500); });
+  }
+  function show() {
+    const id = decodeURIComponent((location.hash || '#inicio').slice(1)); let doc = document.getElementById(id), target = doc;
+    if (!doc || !doc.classList.contains('doc')) { for (const s of main.querySelectorAll('.doc')) { fill(s); const t = s.querySelector('[id="' + CSS.escape(id) + '"]'); if (t) { doc = s; target = t; break; } } }
+    if (!doc || !doc.classList.contains('doc')) doc = target = document.getElementById('inicio');
+    fill(doc); main.querySelectorAll('.doc').forEach(s => s.classList.toggle('on', s === doc));
+    nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + doc.id));
+    setTimeout(() => { if (target !== doc) target.scrollIntoView(); else scrollTo(0, 0); const a = nav.querySelector('a.on'); if (a) a.scrollIntoView({ inline: 'center', block: 'nearest' }); }, 0);
+  }
+  addEventListener('hashchange', show); show();
+  // descargas de texto
+  const save = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'text/markdown;charset=utf-8' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); };
+  const byFile = f => (DOCS.find(d => d.file === f) || {}).md || '';
+  document.querySelectorAll('[data-dl]').forEach(b => b.onclick = () => { const f = b.dataset.dl; save(f, f === 'TODO.md' ? DOCS.filter(d => d.todo).map(d => d.md.replace(/<!--[\s\S]*?-->/g, '')).join('\n\n---\n\n') : byFile(f)); });
+  // el juego (HTML comprimido con gzip dentro de este archivo)
+  const msg = t => { const m = document.getElementById('msg'); m.textContent = t; m.style.display = t ? 'block' : 'none'; };
+  let gameURL = null;
+  async function game() {
+    if (gameURL) return gameURL;
+    if (!('DecompressionStream' in window)) throw new Error('Este navegador es muy antiguo para abrir el juego desde aquí. Ábrelo en la web: https://juanfeliperico369-stack.github.io/MetroZero/');
+    const b64 = document.getElementById('juego').textContent.trim(), bin = atob(b64), u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const html = await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    gameURL = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' })); game.html = html; return gameURL;
+  }
+  document.getElementById('play').onclick = async () => { try { msg('Abriendo el juego…'); const u = await game(); const ov = document.getElementById('ov'); document.getElementById('fr').src = u; ov.hidden = false; msg(''); try { if (ov.requestFullscreen) await ov.requestFullscreen(); } catch (e) { } } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } };
+  document.getElementById('cl').onclick = () => { const ov = document.getElementById('ov'); ov.hidden = true; document.getElementById('fr').src = 'about:blank'; if (document.fullscreenElement) document.exitFullscreen().catch(() => { }); };
+  document.getElementById('dlgame').onclick = async () => { try { await game(); save('el-metro.html', game.html, 'text/html;charset=utf-8'); } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } };
+})();
+</script>
+</body></html>
