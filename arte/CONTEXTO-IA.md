@@ -230,7 +230,10 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-#### Estado al 2026-11-17 · v0.7.0 "Medellín reconocible"
+#### Estado al 2026-11-17 · v0.8.0 "Identidad del Metro"
+**Novedad de v0.8.0:** interfaz nueva con los colores de las líneas; el inicio es un diagrama de línea (cada opción es una estación y un tren viaja a la que se toca); sin la estética de revista ni sus notas; seguridad revisada (red local, importación de partidas, CSP); código del juego sin comentarios en la versión publicada y sin menciones de herramientas de IA. Debajo sigue vigente lo de v0.7.0.
+
+##### v0.7.0 "Medellín reconocible"
 **Novedad de v0.7.0:** el mapa se corrige y se nombra con **datos abiertos oficiales** (`src/data/ciudad.js`, de `tools/ciudad_datos.py`):
 - **90 mil casillas corregidas:** las "andén" que en realidad eran lotes dentro de manzanas ahora son casas o edificios; parques y plazas reales;
 - **502 barrios** (Medellín, Itagüí, Envigado y Sabaneta) y **2.438 nombres de calle** (nomenclatura oficial y nombres populares);
@@ -295,6 +298,37 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 #### Historial
+##### v0.8.0 (2026-11-17) — identidad del Metro, seguridad y código limpio
+Pedido del autor: “cambia la estética de revista, usa los colores del metro y crea una interfaz de inicio más original; quita notas innecesarias del estilo revista; pule el código; verifica su seguridad y déjalo sin rastro de uso de IA”.
+1. **Diseño (`src/style.css` reescrita, mismas clases):**
+   - paleta: noche del valle `#0F2238`, concreto `#E8ECEF`, andén blanco, tinta `#13253A` y los colores de cada línea;
+   - **franja de las 11 líneas** bajo las barras;
+   - botones en píldora, paneles redondeados y nada de bordes negros gruesos ni sombras duras;
+   - tablero de anuncios con texto ámbar como el de las estaciones.
+2. **Inicio original:**
+   - la ilustración del valle arriba, con el título y el estado del servicio (“En servicio, 18:18” o “Cerrado, abre a las 4:30”);
+   - el **menú es una línea de metro**: Jugar, La última vuelta, Aprende a usar el Metro y Jugar juntos son estaciones de colores sobre el trazo;
+   - **un tren viaja a la estación que se toca** (respeta “reducir movimiento”).
+3. **Elige tu viaje:** cada modo es una fila con el color de su línea: ícono en una estación, nombre, descripción y estrellas.
+   - Se quitaron las notas de revista: “La revista que se mueve”, “Est. 01…”, el lema en cursiva, el pie con sellos, “Estética: revista EMSAY” en créditos y la etiqueta del bot.
+   - El tema por defecto pasa de “revista” a **“metro”**; las partidas guardadas con “revista” se leen como “metro”.
+4. **Seguridad:**
+   - los mensajes del modo Juntos se validan por tipo: nombres limpios y acotados, modo y nivel existentes, acciones primitivas, sin claves `__proto__`, resultados con solo puntaje, estrellas y victoria;
+   - importar partidas descarta claves que cambian prototipos;
+   - **CSP** en el HTML: sin conexiones externas, sin objetos ni marcos y sin `base` ni formularios;
+   - `no-referrer`.
+   - Android revisado: solo carga sus archivos, los enlaces externos van al navegador, el acceso a archivos está apagado y los nombres de archivo se limpian.
+   - **Pendiente del autor:** la APK se firma con la clave de desarrollo que está en el repositorio. Con ella, cualquiera podría firmar una “actualización”. Hay que crear una clave de publicación fuera del repositorio; las instalaciones actuales tendrían que reinstalar una vez.
+5. **Código:**
+   - la versión publicada se compila **sin comentarios** (`tools/build.mjs`, solo líneas completas de comentario);
+   - sin menciones de herramientas de IA en `src/`, en las herramientas del juego ni en Android;
+   - carpetas de arte neutras: `arte/entregas/laminas` y `arte/entregas/vectorial`;
+   - índice de vías renombrado (`rIdx`) para no chocar con otra variable.
+6. **Pruebas:**
+   - el autotest suma pruebas de seguridad;
+   - 100 partidas, 0 errores, 0 de consola (con la CSP activa);
+   - pruebas maliciosas a mano: importar con `__proto__` y mensajes de red malformados, todas bien.
+
 ##### v0.7.0 (2026-11-17) — Medellín reconocible
 Pedido del autor: “dibuja bien el mapa, dale vida, que sea preciso en ubicaciones y zonas; los peatonales están desordenados y sin sentido, lo mismo los barrios y la división de las casas; el corazón es reconocer cada calle, cada zona, cada barrio”.
 

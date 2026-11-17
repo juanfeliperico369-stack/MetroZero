@@ -8,8 +8,8 @@
  "id": "./",
  "display": "standalone",
  "orientation": "any",
- "background_color": "#efe7cf",
- "theme_color": "#0e5a6b",
+ "background_color": "#0F2238",
+ "theme_color": "#0F2238",
  "categories": [
   "games",
   "education"

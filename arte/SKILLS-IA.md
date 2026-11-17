@@ -160,6 +160,11 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
    2. espera a que el `sw.js` publicado muestre la nueva caché;
    3. corre `node tools/verify-pages.mjs`.
 
+### Diseño y seguridad (desde v0.8.0)
+- **Diseño:** noche del valle, concreto, andén blanco y el color de cada línea; la franja de las 11 líneas bajo las barras. El inicio es un diagrama de línea (`.linea`, `.parada`, `.tren`). Los modos son filas con `--c` = color de su línea (`.modo`, clases `c-*`). Nada de estética de revista: sin etiquetas en mayúsculas espaciadas, sin bordes negros gruesos.
+- **Seguridad:** todo lo que llega de otro celular pasa por `Multi.onmsg`, que valida por tipo; los nombres, por `Multi.nombre`. En HTML se usa siempre `esc()`. La CSP de `src/head.html` no deja conexiones externas: si una función nueva necesita una, decide si de verdad hace falta. El autotest prueba importar con `__proto__` y mensajes malformados.
+- **Publicación:** `tools/build.mjs` quita los comentarios de línea completa. No escribas código en la misma línea que un bloque `/* */` que ocupa varias líneas.
+
 ### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
@@ -258,7 +263,7 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
 ### Integración al juego (así se hizo en v0.6.0)
-1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+1. Lo entregado va en `arte/entregas/laminas/` o `arte/entregas/vectorial/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
 2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
    - `retrato`: dentro del marco, sin fondo;
    - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;

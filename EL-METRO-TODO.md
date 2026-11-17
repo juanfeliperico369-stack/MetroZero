@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.7.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v0.8.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.7.0** · compilado el 2026-11-17.
+> Versión del juego **v0.8.0** · compilado el 2026-11-17.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -717,7 +717,7 @@ C-60. Textura cuadrada REPETIBLE sin costuras (que encaje por los cuatro lados),
 
 G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya sirve.
 
-**Carpetas** (dentro de `arte/entregas/`):
+**Carpetas** (dentro de `arte/entregas/`; las láminas terminadas se ordenan en `laminas/` y los SVG en `vectorial/`):
 
 | Carpeta | Qué va |
 |---|---|
@@ -799,7 +799,10 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.7.0 "Medellín reconocible"
+##### Estado al 2026-11-17 · v0.8.0 "Identidad del Metro"
+**Novedad de v0.8.0:** interfaz nueva con los colores de las líneas; el inicio es un diagrama de línea (cada opción es una estación y un tren viaja a la que se toca); sin la estética de revista ni sus notas; seguridad revisada (red local, importación de partidas, CSP); código del juego sin comentarios en la versión publicada y sin menciones de herramientas de IA. Debajo sigue vigente lo de v0.7.0.
+
+###### v0.7.0 "Medellín reconocible"
 **Novedad de v0.7.0:** el mapa se corrige y se nombra con **datos abiertos oficiales** (`src/data/ciudad.js`, de `tools/ciudad_datos.py`):
 - **90 mil casillas corregidas:** las "andén" que en realidad eran lotes dentro de manzanas ahora son casas o edificios; parques y plazas reales;
 - **502 barrios** (Medellín, Itagüí, Envigado y Sabaneta) y **2.438 nombres de calle** (nomenclatura oficial y nombres populares);
@@ -864,6 +867,37 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ##### Historial
+###### v0.8.0 (2026-11-17) — identidad del Metro, seguridad y código limpio
+Pedido del autor: “cambia la estética de revista, usa los colores del metro y crea una interfaz de inicio más original; quita notas innecesarias del estilo revista; pule el código; verifica su seguridad y déjalo sin rastro de uso de IA”.
+1. **Diseño (`src/style.css` reescrita, mismas clases):**
+   - paleta: noche del valle `#0F2238`, concreto `#E8ECEF`, andén blanco, tinta `#13253A` y los colores de cada línea;
+   - **franja de las 11 líneas** bajo las barras;
+   - botones en píldora, paneles redondeados y nada de bordes negros gruesos ni sombras duras;
+   - tablero de anuncios con texto ámbar como el de las estaciones.
+2. **Inicio original:**
+   - la ilustración del valle arriba, con el título y el estado del servicio (“En servicio, 18:18” o “Cerrado, abre a las 4:30”);
+   - el **menú es una línea de metro**: Jugar, La última vuelta, Aprende a usar el Metro y Jugar juntos son estaciones de colores sobre el trazo;
+   - **un tren viaja a la estación que se toca** (respeta “reducir movimiento”).
+3. **Elige tu viaje:** cada modo es una fila con el color de su línea: ícono en una estación, nombre, descripción y estrellas.
+   - Se quitaron las notas de revista: “La revista que se mueve”, “Est. 01…”, el lema en cursiva, el pie con sellos, “Estética: revista EMSAY” en créditos y la etiqueta del bot.
+   - El tema por defecto pasa de “revista” a **“metro”**; las partidas guardadas con “revista” se leen como “metro”.
+4. **Seguridad:**
+   - los mensajes del modo Juntos se validan por tipo: nombres limpios y acotados, modo y nivel existentes, acciones primitivas, sin claves `__proto__`, resultados con solo puntaje, estrellas y victoria;
+   - importar partidas descarta claves que cambian prototipos;
+   - **CSP** en el HTML: sin conexiones externas, sin objetos ni marcos y sin `base` ni formularios;
+   - `no-referrer`.
+   - Android revisado: solo carga sus archivos, los enlaces externos van al navegador, el acceso a archivos está apagado y los nombres de archivo se limpian.
+   - **Pendiente del autor:** la APK se firma con la clave de desarrollo que está en el repositorio. Con ella, cualquiera podría firmar una “actualización”. Hay que crear una clave de publicación fuera del repositorio; las instalaciones actuales tendrían que reinstalar una vez.
+5. **Código:**
+   - la versión publicada se compila **sin comentarios** (`tools/build.mjs`, solo líneas completas de comentario);
+   - sin menciones de herramientas de IA en `src/`, en las herramientas del juego ni en Android;
+   - carpetas de arte neutras: `arte/entregas/laminas` y `arte/entregas/vectorial`;
+   - índice de vías renombrado (`rIdx`) para no chocar con otra variable.
+6. **Pruebas:**
+   - el autotest suma pruebas de seguridad;
+   - 100 partidas, 0 errores, 0 de consola (con la CSP activa);
+   - pruebas maliciosas a mano: importar con `__proto__` y mensajes de red malformados, todas bien.
+
 ###### v0.7.0 (2026-11-17) — Medellín reconocible
 Pedido del autor: “dibuja bien el mapa, dale vida, que sea preciso en ubicaciones y zonas; los peatonales están desordenados y sin sentido, lo mismo los barrios y la división de las casas; el corazón es reconocer cada calle, cada zona, cada barrio”.
 
@@ -1158,6 +1192,11 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
    2. espera a que el `sw.js` publicado muestre la nueva caché;
    3. corre `node tools/verify-pages.mjs`.
 
+#### Diseño y seguridad (desde v0.8.0)
+- **Diseño:** noche del valle, concreto, andén blanco y el color de cada línea; la franja de las 11 líneas bajo las barras. El inicio es un diagrama de línea (`.linea`, `.parada`, `.tren`). Los modos son filas con `--c` = color de su línea (`.modo`, clases `c-*`). Nada de estética de revista: sin etiquetas en mayúsculas espaciadas, sin bordes negros gruesos.
+- **Seguridad:** todo lo que llega de otro celular pasa por `Multi.onmsg`, que valida por tipo; los nombres, por `Multi.nombre`. En HTML se usa siempre `esc()`. La CSP de `src/head.html` no deja conexiones externas: si una función nueva necesita una, decide si de verdad hace falta. El autotest prueba importar con `__proto__` y mensajes malformados.
+- **Publicación:** `tools/build.mjs` quita los comentarios de línea completa. No escribas código en la misma línea que un bloque `/* */` que ocupa varias líneas.
+
 #### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
@@ -1256,7 +1295,7 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
 #### Integración al juego (así se hizo en v0.6.0)
-1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+1. Lo entregado va en `arte/entregas/laminas/` o `arte/entregas/vectorial/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
 2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
    - `retrato`: dentro del marco, sin fondo;
    - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;
@@ -1406,6 +1445,8 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
   - rótulos, HUD y letrero de barrio y calle;
   - casas orientadas a su calle con lotes reales, andenes y plazas rediseñadas.
   - Siguiente: barrios de Bello y del resto del valle; anchos reales de calle; Maqueta 2:1.
+
+- **v0.8.0:** interfaz con la identidad del Metro (inicio como línea), seguridad revisada y código publicado sin comentarios. Pendiente: clave de firma de la APK fuera del repositorio.
 
 ### Fases
 #### Fase 1 · Arte real (2–3 sesiones)
@@ -2648,16 +2689,18 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (67 archivos, 834 KB)
+## Código fuente (67 archivos, 838 KB)
 
 ### `src/head.html`
 ~~~~html
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#0e5a6b"><meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0F2238"><meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' ws: wss:; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>El Metro · La última vuelta</title>
-<meta name="description" content="El Metro: videojuego offline sobre el Metro de Medellín. Conduce trenes, tranvía y Metroplús, despacha agujas, alimenta la red y arma los metrocables sobre el mapa real del Valle de Aburrá.">
+<meta name="description" content="El Metro: videojuego sin internet sobre el Metro de Medellín. Recorre el Valle de Aburrá real con sus barrios y calles, maneja el metro, el tranvía, los buses y los cables.">
 <meta name="application-name" content="El Metro"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="El Metro"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2678,31 +2721,28 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 <body>
 <div id="app">
  <section class="scr" id="cover">
-  <div class="band"><div class="bt">Metro de Medellín · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="cvClock">Servicio 4:30 – 23:00</div></div>
-  <div class="cbody">
-   <div class="srf">Trenes, tranvía, Metroplús, alimentadores y metrocables · un juego para todo público</div>
-   <h1 class="mega">El Metro</h1>
-   <canvas class="cart" id="cvArt" width="320" height="200"></canvas>
-   <div class="kick">¿Sabés a dónde vas, mijo?</div>
-   <h2 class="mega b2">La última vuelta</h2>
-   <div class="ctag">Rosalba maneja su último tren. Tú heredas la ciudad.</div>
-   <div class="cbtns">
-    <button class="btn pri" id="bPlay">▶ Jugar</button>
-    <button class="btn tin" id="bStory">Historia · La última vuelta</button>
-    <div class="row"><button class="btn sm grow" id="bGuia">Aprende a usar el Metro</button><button class="btn sm grow" id="bMulti">Juntos</button><button class="btn sm" id="bCfg">⚙</button></div>
-   </div>
-  </div>
-  <div class="cfoot"><span>La revista que se mueve</span><span class="adv">Cultura Metro<b>Todo público</b>sin internet</span></div>
+  <header class="hero">
+   <canvas class="cart" id="cvArt" width="320" height="200" aria-hidden="true"></canvas>
+   <div class="hero-top"><span class="estado" id="cvClock">Servicio de 4:30 a 23:00</span><button class="ib" id="bCfg" aria-label="Ajustes">⚙</button></div>
+   <div class="hero-tx"><h1 class="titulo">El Metro</h1><p class="lema">Medellín y el Valle de Aburrá en metro, tranvía, cable y bus</p></div>
+  </header>
+  <nav class="linea" aria-label="Menú principal">
+   <span class="tren" id="cvTren" aria-hidden="true"></span>
+   <button class="parada principal" id="bPlay" style="--c:var(--lA)"><i></i><span><b>Jugar</b><small>Ciudad Libre y todos los modos</small></span></button>
+   <button class="parada" id="bStory" style="--c:var(--lH)"><i></i><span><b>La última vuelta</b><small>La historia de Rosalba, el último viaje antes de jubilarse</small></span></button>
+   <button class="parada" id="bGuia" style="--c:var(--lT)"><i></i><span><b>Aprende a usar el Metro</b><small>Cívica, líneas, transbordos y Cultura Metro</small></span></button>
+   <button class="parada" id="bMulti" style="--c:var(--lM)"><i></i><span><b>Jugar juntos</b><small>En el mismo celular o en la misma red Wi‑Fi</small></span></button>
+  </nav>
  </section>
 
  <section class="scr" id="menu">
-  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro · Modos</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
+  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
   <div class="scroll"><div class="wrap">
-   <div class="row" style="justify-content:space-between;align-items:flex-end;margin:4px 0 12px"><div><div class="pag">Est. 01 · Elige tu oficio</div><div class="mega" style="font-size:64px">Modos</div></div><div class="kick" id="mGreet">Buenos días</div></div>
+   <div class="cabeza"><h1>Elige tu viaje</h1><p class="m" id="mGreet">Buenos días</p></div>
    <div id="mVida"></div>
    <div class="modes" id="mList"></div>
-   <div class="wave" style="margin:22px 0 10px"></div>
-   <div class="row"><button class="btn sm" id="mBot">🤖 Bot de pruebas</button><button class="btn sm" id="mExport">⤓ Exportar partidas</button><button class="btn sm" id="mImport">⤒ Importar</button><button class="btn sm" id="mCred">Créditos</button></div>
+   <div class="franja" style="margin:22px 0 12px"></div>
+   <div class="row"><button class="btn sm gh" id="mBot">Ver demostración</button><button class="btn sm gh" id="mExport">Exportar partidas</button><button class="btn sm gh" id="mImport">Importar partidas</button><button class="btn sm gh" id="mCred">Créditos</button></div>
   </div></div>
  </section>
 
@@ -2742,304 +2782,304 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 
 ### `src/style.css`
 ~~~~css
-/* EL METRO · estilo revista EMSAY evolucionado: papel crema, tinta azul, banda petróleo, rojo, mostaza, marcos gruesos y tiras de película */
-:root{--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lH:#EB318E;--lJ:#F6C538;--lK:#B8CF40;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--mp1:#0E6F76;--mp2:#65A9AC;--papel:#f1ece0;--papel2:#faf6ec;--mante:#fbe7b0;--tinta:#154a80;--petro:#1C5C9C;--teal:#0E6F76;--rojo:#EC343A;--mostaza:#F6C538;--gris:#9aa1a8;--noche:#0f2a45;--noche2:#163a5c;--naranja:#E38835;--negro:#141414;--blanco:#fdfbf5;--verde:#59AB42;
---fd:"Titulos","Arial Narrow",Impact,sans-serif;--fb:"Cuerpo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fm:ui-monospace,"Roboto Mono",Consolas,monospace;--fs:Georgia,"Times New Roman",serif;
---sh:4px 4px 0 var(--negro);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+/* EL METRO · interfaz con la identidad del sistema: noche del valle, concreto de estación, andén blanco
+   y el color de cada línea. El inicio es un diagrama de línea: cada opción es una estación. */
+:root{
+--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lH:#EB318E;--lJ:#F6C538;--lK:#B8CF40;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--mp1:#0E6F76;--mp2:#65A9AC;
+--noche:#0F2238;--noche2:#17304d;--concreto:#E8ECEF;--anden:#FFFFFF;--tinta:#13253A;--suave:#566676;--linea:#D3DAE0;--led:#FFC861;
+--papel:var(--concreto);--papel2:var(--anden);--blanco:#FFFFFF;--negro:var(--tinta);--petro:var(--noche);--teal:var(--mp1);--rojo:var(--lP);--mostaza:var(--lJ);--naranja:var(--lB);--verde:var(--lT);--mante:var(--led);--gris:#9aa1a8;--noche-texto:#EAF0F5;
+--franja:linear-gradient(90deg,var(--lA) 0 9.1%,var(--lB) 0 18.2%,var(--lT) 0 27.3%,var(--lK) 0 36.4%,var(--lJ) 0 45.5%,var(--lH) 0 54.6%,var(--lL) 0 63.7%,var(--lM) 0 72.8%,var(--lP) 0 81.9%,var(--mp1) 0 91%,var(--mp2) 0 100%);
+--fd:"Titulos","Arial Narrow",Impact,sans-serif;--fb:"Cuerpo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fm:ui-monospace,"Roboto Mono",Consolas,monospace;
+--r:16px;--sombra:0 12px 32px rgba(8,22,40,.22);--sh:0 3px 0 rgba(8,22,40,.28);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--noche);color:var(--negro);font-family:var(--fb);font-size:15px;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+html,body{margin:0;height:100%;background:var(--noche);color:var(--tinta);font-family:var(--fb);font-size:15px;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
-button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--naranja);outline-offset:2px}
+button:focus-visible,[tabindex]:focus-visible,input:focus-visible{outline:3px solid var(--lJ);outline-offset:2px}
 input,textarea{font:inherit;-webkit-user-select:text;user-select:text}
-#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--papel)}
-.scr{position:absolute;inset:0;display:none;flex-direction:column;background:var(--papel);overflow:hidden}
-.scr.on{display:flex;animation:entra .28s cubic-bezier(.2,.8,.2,1)}
-@keyframes entra{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(18px + var(--sab))}
-.wrap{max-width:820px;margin:0 auto;width:100%}
-/* ---------- banda de revista ---------- */
-.band{flex:none;display:flex;align-items:stretch;min-height:calc(48px + var(--sat));padding-top:var(--sat);background:var(--petro);color:var(--blanco);border-bottom:3px solid var(--negro);position:relative}
-.band:after{content:'';position:absolute;left:0;right:0;bottom:-9px;height:6px;background:linear-gradient(90deg,var(--lA) 0 11%,var(--lB) 11% 22%,var(--lT) 22% 33%,var(--lK) 33% 44%,var(--lJ) 44% 55%,var(--lH) 55% 66%,var(--lM) 66% 77%,var(--lP) 77% 88%,var(--mp1) 88% 100%);z-index:2;pointer-events:none}
-.band .bt{display:flex;align-items:center;padding:0 12px;font-weight:800;letter-spacing:.34em;font-size:12px;text-transform:uppercase;white-space:nowrap;overflow:hidden}
-.band .tag{margin:6px;display:flex;align-items:center;padding:0 10px;background:var(--papel2);color:var(--petro);font-weight:700;letter-spacing:.2em;font-size:11px;text-transform:uppercase;white-space:nowrap}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--concreto)}
+.scr{position:absolute;inset:0;display:none;flex-direction:column;background:var(--concreto);overflow:hidden}
+.scr.on{display:flex;animation:entra .22s ease-out}
+@keyframes entra{from{opacity:0}to{opacity:1}}
+.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px calc(18px + var(--sab))}
+.wrap{max-width:760px;margin:0 auto;width:100%}
+/* ---------- barra superior: noche del valle con la franja de las líneas ---------- */
+.band{flex:none;display:flex;align-items:stretch;min-height:calc(52px + var(--sat));padding-top:var(--sat);background:var(--noche);color:#fff;position:relative}
+.band:after{content:'';position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--franja);pointer-events:none}
+.band .bt{display:flex;align-items:center;padding:0 6px;font-family:var(--fd);font-stretch:90%;font-weight:700;font-size:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.band .tag{margin:9px 8px 12px;display:flex;align-items:center;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:13px;white-space:nowrap}
 .band .sp{flex:1}
-.band .ib{width:48px;display:flex;align-items:center;justify-content:center;font-size:22px;border-left:3px solid var(--negro)}
+.band .ib{width:52px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
 /* ---------- tipografía ---------- */
-.mega{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;line-height:.84;color:var(--tinta);margin:0;letter-spacing:-.01em}
-.kick{font-family:var(--fs);font-style:italic;color:var(--rojo);font-size:17px}
-.spaced{font-weight:800;letter-spacing:.42em;text-transform:uppercase}
-.outline{font-family:var(--fd);font-stretch:75%;font-weight:700;color:transparent;-webkit-text-stroke:2px var(--negro);text-transform:uppercase;line-height:.85}
-.pag{font-weight:800;font-size:11px;letter-spacing:.14em;color:#55606a;text-transform:uppercase}
-.m{font-size:13.5px;color:#3c4650;line-height:1.45}
-.w{color:var(--blanco)}.ok{color:var(--verde)}.bad{color:var(--rojo)}.gold{color:var(--mostaza)}
-h2{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;font-size:34px;line-height:.9;margin:4px 0 8px;color:var(--tinta)}
-h3{font-weight:800;letter-spacing:.3em;text-transform:uppercase;font-size:13px;margin:16px 0 8px}
-.boxed{border:4px solid var(--negro);padding:12px 14px;background:var(--papel2)}
-.film{position:relative;background:#0e0e0e;color:var(--blanco);padding:26px 16px;font-family:var(--fm);text-transform:uppercase;font-size:12.5px;line-height:1.6;letter-spacing:.06em}
-.film:before,.film:after{content:"";position:absolute;left:8px;right:8px;height:10px;background:repeating-linear-gradient(90deg,var(--mante) 0 11px,transparent 11px 24px);border-radius:2px}
-.film:before{top:7px}.film:after{bottom:7px}
-.dash{border:3px dashed var(--negro)}
-.wave{height:14px;background:radial-gradient(circle at 10px -4px,transparent 9px,var(--naranja) 10px 13px,transparent 14px) 0 0/20px 14px repeat-x}
-.badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 6px;border-radius:13px;color:#fff;font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:17px;border:2px solid var(--negro)}
-.adv{display:inline-block;border:2px solid var(--negro);font-family:var(--fd);font-stretch:75%;font-weight:700;text-align:center;line-height:.95;padding:3px 7px;font-size:11px;text-transform:uppercase;background:var(--blanco)}
-.adv b{display:block;font-size:16px;background:var(--negro);color:var(--blanco);margin:2px -7px;padding:1px 4px}
-/* ---------- botones ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:3px solid var(--negro);padding:10px 16px;font-family:var(--fd);font-stretch:80%;font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em;color:var(--negro);background:var(--blanco);box-shadow:var(--sh);min-height:48px;transition:transform .08s,box-shadow .08s}
-.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro)}
-.btn.pri{background:var(--rojo);color:#fff}
-.btn.tin{background:var(--tinta);color:#fff}
-.btn.mos{background:var(--mostaza);color:#fff}
-.btn.gh{box-shadow:none;background:transparent}
-.btn.sm{font-size:16px;min-height:38px;padding:6px 11px;box-shadow:3px 3px 0 var(--negro)}
-.btn[disabled]{opacity:.38;pointer-events:none}
+.mega,.titulo{font-family:var(--fd);font-stretch:85%;font-weight:700;line-height:.9;color:var(--tinta);margin:0}
+.spaced{font-weight:800;font-size:13px;color:var(--tinta)}
+.outline{font-family:var(--fd);font-weight:700;color:var(--tinta)}
+.pag{font-weight:700;font-size:12.5px;color:var(--suave)}
+.m{font-size:14px;color:#3d4d5c;line-height:1.45}
+.w{color:#fff}.ok{color:var(--lT)}.bad{color:var(--lP)}.gold{color:var(--lJ)}
+h2{font-family:var(--fd);font-stretch:90%;font-weight:700;font-size:28px;line-height:1.05;margin:2px 0 10px;color:var(--tinta)}
+h3{font-weight:800;font-size:15px;margin:16px 0 8px}
+.boxed{border-radius:var(--r);padding:14px 16px;background:var(--anden);box-shadow:0 1px 0 var(--linea)}
+.film{position:relative;background:var(--noche);color:var(--noche-texto);padding:18px 16px;font-size:15px;line-height:1.55;border-radius:var(--r) var(--r) 0 0}
+.dash{border:2px dashed var(--linea);border-radius:var(--r)}
+.franja,.wave{height:5px;border-radius:3px;background:var(--franja)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 7px;border-radius:14px;color:#fff;font-family:var(--fd);font-weight:700;font-size:16px}
+.adv{display:inline-block;font-weight:700;font-size:12px;color:var(--suave)}
+.adv b{display:block}
+/* ---------- botones: píldoras con el color de la línea ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid transparent;border-radius:999px;padding:10px 20px;font-family:var(--fb);font-weight:800;font-size:16px;color:var(--tinta);background:var(--anden);box-shadow:var(--sh);min-height:48px;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(8,22,40,.28)}
+.btn.pri{background:var(--lA);color:#fff}
+.btn.tin{background:var(--noche);color:#fff}
+.btn.mos{background:var(--lJ);color:var(--tinta)}
+.btn.gh{box-shadow:none;background:transparent;border-color:var(--linea)}
+.btn.sm{font-size:14px;min-height:40px;padding:7px 15px}
+.btn[disabled]{opacity:.45;pointer-events:none}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .col{display:flex;flex-direction:column;gap:10px}
 .grow{flex:1}
-/* ---------- portada ---------- */
-#cover{background:var(--papel2)}
-#cover .cbody{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 14px 0;overflow-y:auto}
-#cover .srf{font-family:var(--fs);text-transform:uppercase;font-size:clamp(12px,3.3vw,18px);letter-spacing:.04em;line-height:1.25;max-width:560px}
-#cover .mega{font-size:clamp(84px,30vw,230px);width:100%;position:relative;z-index:1}
-#cover .mega.b2{font-size:clamp(46px,16vw,118px);color:var(--teal);margin-top:-.04em}
-#cover canvas.cart{width:min(92vw,560px);aspect-ratio:16/10;margin:-34px auto -20px;position:relative;z-index:0;image-rendering:pixelated;border:4px solid var(--negro);background:var(--noche)}
-#cover .kick{position:relative;z-index:2;margin:6px 0 2px;background:var(--papel2);padding:0 6px}
-#cover .ctag{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;font-size:clamp(30px,9vw,60px);line-height:.86;color:var(--teal);text-align:left;align-self:flex-start;margin:10px 0 4px;max-width:560px}
-.cbtns{display:flex;flex-direction:column;gap:12px;width:min(100%,380px);margin:12px 0 18px}
-.cfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px calc(8px + var(--sab));background:var(--mante);border-top:3px solid var(--negro);font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:20px;text-transform:uppercase;color:var(--tinta)}
-/* ---------- menú de modos (cada uno con la página de la revista) ---------- */
-.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.mcard{position:relative;border:4px solid var(--negro);min-height:150px;padding:12px 14px 12px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;box-shadow:var(--sh);transition:transform .1s}
-.mcard:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro)}
-.mcard .n{position:absolute;top:8px;left:12px;font-weight:800;font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.85}
-.mcard .t{font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:44px;line-height:.85;text-transform:uppercase;position:relative;z-index:1}
-.mcard .d{font-size:13px;line-height:1.3;margin-top:6px;position:relative;z-index:1;max-width:92%}
-.mcard canvas{position:absolute;right:-6px;top:-6px;width:140px;height:110px;image-rendering:pixelated;opacity:.95}
-.mcard .st{position:absolute;top:8px;right:12px;font-family:var(--fm);font-size:12px;z-index:2}
-.c-conduce{background:var(--lA);color:#fff}
-.c-volante{background:var(--mp1);color:#fff}
-.c-cableviaje{background:var(--lK);color:var(--negro)}
-.c-despacho{background:var(--lB);color:#fff}
-.c-metroplus{background:var(--lH);color:#fff}
-.c-alim{background:var(--mp2);color:var(--negro)}
-.c-cable{background:var(--lJ);color:var(--negro)}
-.c-red{background:var(--papel2);color:var(--negro);background-image:linear-gradient(90deg,var(--lA) 0 12%,var(--lB) 12% 24%,var(--lT) 24% 36%,var(--lK) 36% 48%,var(--lJ) 48% 60%,var(--lH) 60% 72%,var(--lM) 72% 84%,var(--lP) 84% 100%);background-size:100% 8px;background-repeat:no-repeat;background-position:0 100%}
-.c-red .t{color:transparent;-webkit-text-stroke:2px var(--negro)}
-.c-hist{background:var(--lP);color:#fff}
-.c-multi{background:var(--lM);color:#fff}
-/* ---------- lista de niveles ---------- */
-.lv{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
-.lv button{border:3px solid var(--negro);background:var(--blanco);min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;box-shadow:3px 3px 0 var(--negro)}
-.lv button b{font-family:var(--fd);font-stretch:75%;font-size:30px;line-height:.9}
-.lv button small{font-size:10.5px;line-height:1.15;margin-top:3px;text-align:center}
+/* ---------- inicio: el valle arriba y el menú como una línea de metro ---------- */
+#cover{background:var(--noche);color:#fff;overflow-y:auto}
+#cover .hero{position:relative;flex:none;height:min(52vh,420px);overflow:hidden;background:#3D2E5F}
+#cover .cart{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;display:block}
+#cover img.cart{image-rendering:auto}
+#cover .hero:after{content:'';position:absolute;inset:auto 0 0 0;height:62%;background:linear-gradient(transparent,rgba(15,34,56,.55) 45%,var(--noche));pointer-events:none}
+#cover .hero-top{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + var(--sat)) 10px 0 14px}
+#cover .estado{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(15,34,56,.72);color:#fff;font-weight:700;font-size:13px;backdrop-filter:blur(4px)}
+#cover .estado:before{content:'';width:9px;height:9px;border-radius:50%;background:var(--lT);box-shadow:0 0 0 3px rgba(89,171,66,.3)}
+#cover .estado.cerrado:before{background:var(--lP);box-shadow:0 0 0 3px rgba(236,52,58,.3)}
+#cover .hero-top .ib{width:44px;height:44px;border-radius:50%;background:rgba(15,34,56,.72);color:#fff;font-size:21px}
+#cover .hero-tx{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:0 20px 18px}
+#cover .titulo{color:#fff;font-size:clamp(64px,19vw,132px);letter-spacing:-.02em;text-shadow:0 3px 18px rgba(15,34,56,.55)}
+#cover .lema{margin:6px 0 0;max-width:30em;font-size:15px;line-height:1.4;color:#d7e2ec}
+#cvFiesta{position:absolute;left:0;right:0;top:calc(58px + var(--sat));z-index:2;height:0}
+.fdeco{display:flex;justify-content:space-between;padding:0 10px;pointer-events:none}
+.fdeco img{width:30px;height:30px;animation:fdeco 2.6s ease-in-out infinite alternate;animation-delay:calc(var(--i) * -.37s)}
+@keyframes fdeco{from{transform:translateY(0) rotate(-7deg)}to{transform:translateY(5px) rotate(7deg)}}
+/* la línea: un trazo vertical y una estación por opción; el tren viaja a la que se toca */
+.linea{position:relative;flex:1;display:flex;flex-direction:column;gap:4px;padding:8px 18px calc(24px + var(--sab)) 18px;max-width:560px;width:100%;margin:0 auto}
+.linea:before{content:'';position:absolute;left:41px;top:0;bottom:calc(30px + var(--sab));width:10px;border-radius:5px;background:linear-gradient(var(--lA) 0 30%,var(--lH) 30% 52%,var(--lT) 52% 76%,var(--lM) 76%)}
+.parada{position:relative;display:flex;align-items:center;gap:16px;min-height:72px;padding:8px 10px 8px 6px;text-align:left;border-radius:var(--r);color:#fff}
+.parada:active,.parada:focus-visible{background:rgba(255,255,255,.07)}
+.parada i{flex:none;position:relative;z-index:1;width:42px;height:42px;border-radius:50%;background:var(--anden);border:7px solid var(--c);box-shadow:0 0 0 4px var(--noche)}
+.parada b{display:block;font-family:var(--fd);font-stretch:90%;font-weight:700;font-size:25px;line-height:1.05}
+.parada small{display:block;margin-top:3px;font-size:13.5px;line-height:1.35;color:#b9c8d6}
+.parada.principal{min-height:92px}
+.parada.principal i{width:54px;height:54px;margin-left:-6px;margin-right:-6px;border-width:9px}
+.parada.principal b{font-size:36px}
+.parada[disabled]{opacity:.6;pointer-events:none}
+.tren{position:absolute;left:33px;top:0;z-index:2;width:26px;height:44px;border-radius:9px 9px 7px 7px;background:#fff;border:3px solid var(--lA);box-shadow:0 4px 10px rgba(0,0,0,.35);pointer-events:none;transition:transform .32s cubic-bezier(.45,0,.2,1);opacity:0}
+.tren:before{content:'';position:absolute;left:3px;right:3px;top:5px;height:9px;border-radius:3px;background:#9fc3e0}
+.tren:after{content:'';position:absolute;left:3px;right:3px;bottom:6px;height:4px;border-radius:2px;background:var(--lA)}
+.tren.on{opacity:1}
+/* ---------- elige tu viaje: cada modo con el color de su línea ---------- */
+.cabeza{margin:2px 0 14px}
+.cabeza h1{font-family:var(--fd);font-stretch:85%;font-weight:700;font-size:clamp(40px,11vw,58px);line-height:.95;margin:0;color:var(--tinta)}
+.cabeza p{margin:4px 0 0}
+.modes{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:760px){.modes{grid-template-columns:1fr 1fr}}
+.modo{--c:var(--lA);display:flex;align-items:center;gap:14px;min-height:84px;padding:10px 14px 10px 12px;text-align:left;background:var(--anden);border-radius:var(--r);box-shadow:inset 6px 0 0 var(--c),0 1px 0 var(--linea);color:var(--tinta)}
+.modo:active{transform:translateY(1px)}
+.modo .nodo{flex:none;width:58px;height:58px;border-radius:50%;background:var(--anden);border:5px solid var(--c);display:flex;align-items:center;justify-content:center;margin-left:4px}
+.modo .nodo img{width:38px;height:38px}
+.modo .nodo canvas{width:44px;height:34px;image-rendering:pixelated}
+.modo .tx{flex:1;min-width:0}
+.modo .tx b{display:block;font-family:var(--fd);font-stretch:90%;font-weight:700;font-size:22px;line-height:1.05}
+.modo .tx small{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:var(--suave)}
+.modo .st{flex:none;align-self:flex-start;font-weight:800;font-size:13px;color:var(--suave);padding-top:2px}
+.c-libre{--c:var(--lA)}.c-volante{--c:var(--mp1)}.c-conduce{--c:var(--lB)}.c-cableviaje{--c:var(--lK)}.c-hist{--c:var(--lH)}.c-guia{--c:var(--lT)}.c-multi{--c:var(--lM)}.c-despacho{--c:var(--lP)}
+.c-metroplus{--c:var(--mp1)}.c-alim{--c:var(--mp2)}.c-cable{--c:var(--lJ)}.c-red{--c:var(--noche)}
+.c-red .nodo{border-color:transparent;background:linear-gradient(var(--anden),var(--anden)) padding-box,conic-gradient(var(--lA),var(--lB),var(--lT),var(--lK),var(--lJ),var(--lH),var(--lM),var(--lP),var(--mp1),var(--lA)) border-box}
+/* ---------- niveles y tramos ---------- */
+.lv{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.lv button{border-radius:14px;background:var(--anden);min-height:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 6px;box-shadow:0 1px 0 var(--linea)}
+.lv button b{font-family:var(--fd);font-weight:700;font-size:28px;line-height:.95}
+.lv button small{font-size:11px;line-height:1.2;margin-top:4px;text-align:center;color:var(--suave)}
 .lv button.lock{opacity:.4}
-.lv button.done{background:var(--mante)}
-.stars{color:var(--mostaza);letter-spacing:.08em;font-size:13px}
+.lv button.done{box-shadow:inset 0 -5px 0 var(--lT),0 1px 0 var(--linea)}
+.stars{color:#d9a400;letter-spacing:.06em;font-size:13px}
 .tramos{display:flex;flex-direction:column;gap:10px}
-.tramo{display:flex;align-items:center;gap:10px;border:3px solid var(--negro);background:var(--blanco);padding:10px 12px;box-shadow:3px 3px 0 var(--negro);text-align:left}
+.tramo{display:flex;align-items:center;gap:12px;border-radius:var(--r);background:var(--anden);padding:12px 14px;box-shadow:0 1px 0 var(--linea);text-align:left}
 .tramo .tx{flex:1;min-width:0}
-.tramo b{display:block;font-family:var(--fd);font-stretch:80%;font-size:22px;line-height:1;text-transform:uppercase}
-.tramo small{color:#4a5560}
+.tramo b{display:block;font-family:var(--fd);font-stretch:90%;font-weight:700;font-size:21px;line-height:1.05}
+.tramo small{color:var(--suave)}
 .tramo.lock{opacity:.4}
 /* ---------- juego ---------- */
 #game{background:var(--noche)}
 #gcv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;image-rendering:pixelated}
-#ghud{position:absolute;left:0;right:0;top:0;display:flex;align-items:stretch;padding-top:var(--sat);background:rgba(16,46,80,.9);color:var(--blanco);border-bottom:3px solid var(--negro);min-height:calc(46px + var(--sat));z-index:3}
-#ghud .gt{display:flex;flex-direction:column;justify-content:center;padding:0 10px;min-width:0;flex:1}
-#ghud .gt b{font-family:var(--fd);font-stretch:75%;font-size:22px;line-height:.95;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#ghud .gt small{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#ghud .chips{display:flex;align-items:center;gap:6px;padding:0 6px;font-family:var(--fm);font-size:12px}
-.chip{border:2px solid var(--mante);padding:2px 7px;color:var(--mante);white-space:nowrap;background:rgba(0,0,0,.25)}
-.chip b{color:#fff}
-#ghud .ib{width:46px;font-size:20px;border-left:3px solid var(--negro);color:var(--mante)}
-#gmsg{position:absolute;left:50%;top:calc(64px + var(--sat));transform:translateX(-50%);z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(94%,520px)}
-.gm{background:var(--blanco);border:3px solid var(--negro);padding:6px 12px;font-weight:700;box-shadow:3px 3px 0 var(--negro);animation:gm 2.6s forwards;text-align:center;font-size:14px}
-.gm.r{background:var(--rojo);color:#fff}.gm.y{background:var(--mante)}.gm.g{background:var(--verde);color:#fff}.gm.b{background:var(--tinta);color:#fff}
-@keyframes gm{0%{opacity:0;transform:translateY(-10px) scale(.9)}8%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+#ghud{position:absolute;left:0;right:0;top:0;display:flex;align-items:stretch;padding-top:var(--sat);background:rgba(15,34,56,.9);color:#fff;min-height:calc(48px + var(--sat));z-index:3}
+#ghud:after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--franja)}
+#ghud .gt{display:flex;flex-direction:column;justify-content:center;padding:0 12px;min-width:0;flex:1}
+#ghud .gt b{font-family:var(--fd);font-stretch:85%;font-size:20px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ghud .gt small{font-size:11.5px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ghud .chips{display:flex;align-items:center;gap:6px;padding:0 6px;font-size:12.5px}
+.chip{border-radius:999px;padding:3px 9px;color:#fff;white-space:nowrap;background:rgba(255,255,255,.12);font-weight:700}
+.chip b{color:var(--led)}
+#ghud .ib{width:48px;font-size:20px;color:var(--led)}
+#gmsg{position:absolute;left:50%;top:calc(104px + var(--sat));transform:translateX(-50%);z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(94%,520px)}
+.gm{background:var(--anden);color:var(--tinta);border-radius:999px;padding:7px 16px;font-weight:700;box-shadow:var(--sombra);animation:gm 2.6s forwards;text-align:center;font-size:14px}
+.gm.r{background:var(--lP);color:#fff}.gm.y{background:var(--lJ)}.gm.g{background:var(--lT);color:#fff}.gm.b{background:var(--lA);color:#fff}
+@keyframes gm{0%{opacity:0;transform:translateY(-8px)}8%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
 #gctl{position:absolute;inset:0;z-index:3;pointer-events:none;padding-bottom:var(--sab)}
 #gctl>*{pointer-events:auto}
-.big{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase}
+.big{font-family:var(--fd);font-weight:700}
+.num{font-variant-numeric:tabular-nums}
 /* palanca (manipulador) */
-.lever{position:absolute;right:8px;bottom:calc(10px + var(--sab));width:62px;height:min(34vh,230px);border:3px solid var(--negro);background:linear-gradient(#2f9b57 0 42%,#d9d2bb 42% 50%,#c8201f 50% 100%);box-shadow:var(--sh);touch-action:none}
-.lever .kn{position:absolute;left:-8px;right:-8px;height:30px;background:var(--blanco);border:3px solid var(--negro);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-stretch:75%;font-size:16px;font-weight:700}
-.lever .lb{position:absolute;left:0;right:0;text-align:center;font-size:9px;font-weight:800;letter-spacing:.12em;color:#fff;text-shadow:0 1px 0 #000}
+.lever{position:absolute;right:8px;bottom:calc(10px + var(--sab));width:62px;height:min(34vh,230px);border-radius:12px;background:linear-gradient(#2f9b57 0 42%,#d9d2bb 42% 50%,#c8201f 50% 100%);box-shadow:var(--sombra);touch-action:none;overflow:visible}
+.lever .kn{position:absolute;left:-8px;right:-8px;height:30px;border-radius:8px;background:#fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.lever .lb{position:absolute;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 0 #000}
 .gbtns{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:flex;flex-direction:column;gap:7px}
-.gbtns .btn{min-width:96px;font-size:15px;min-height:36px;padding:4px 8px}
-.vsel{position:fixed;right:8px;top:calc(56px + var(--sat));display:flex;gap:6px;z-index:4}
-.vsel button{width:46px;height:40px;border:3px solid var(--negro);background:var(--blanco);font-weight:800;font-size:12px;box-shadow:3px 3px 0 var(--negro)}
-.vsel button.on{background:var(--mante)}
-/* ---------- modal ---------- */
-#modal{position:fixed;inset:0;z-index:60;background:rgba(12,37,51,.72);display:flex;align-items:center;justify-content:center;padding:14px}
+.gbtns .btn{min-width:96px;font-size:14px;min-height:38px;padding:5px 12px}
+.vsel{position:fixed;right:8px;top:calc(58px + var(--sat));display:flex;gap:6px;z-index:4}
+.vsel button{width:46px;height:42px;border-radius:12px;background:var(--anden);color:var(--tinta);font-weight:800;font-size:12px;box-shadow:var(--sh)}
+.vsel button.on{background:var(--lJ)}
+/* ---------- ventanas ---------- */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(15,34,56,.66);display:flex;align-items:center;justify-content:center;padding:14px}
 #modal[hidden]{display:none}
-.mbox{background:var(--papel2);border:4px solid var(--negro);box-shadow:8px 8px 0 var(--negro);width:min(560px,100%);max-height:calc(100% - 20px);overflow-y:auto;padding:16px;animation:entra .22s}
-.mbox p{line-height:1.45}
+.mbox{position:relative;background:var(--anden);border-radius:20px;box-shadow:var(--sombra);width:min(560px,100%);max-height:calc(100% - 20px);overflow-y:auto;padding:22px 18px 18px;animation:sube .2s ease-out}
+.mbox:before{content:'';position:absolute;left:18px;right:18px;top:0;height:5px;border-radius:0 0 3px 3px;background:var(--franja)}
+@keyframes sube{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.mbox p{line-height:1.5}
 #toast{position:fixed;left:50%;bottom:calc(20px + var(--sab));transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
-#toast div{background:var(--negro);color:var(--mante);padding:8px 14px;font-weight:700;font-size:13.5px;border:2px solid var(--mante);animation:gm 3s forwards;max-width:90vw;text-align:center}
-/* ---------- historia ---------- */
-#story{background:#0e0e0e}
+#toast div{background:var(--noche);color:#fff;padding:9px 16px;border-radius:999px;font-weight:700;font-size:13.5px;box-shadow:var(--sombra);animation:gm 3s forwards;max-width:90vw;text-align:center}
+/* ---------- historia clásica ---------- */
+#story{background:#0b1726}
 #story canvas{width:100%;flex:1;min-height:0;image-rendering:pixelated;display:block}
-#story .sbox{flex:none;padding:0 0 var(--sab)}
-#story .film{min-height:150px;font-size:13.5px}
-#story .who{display:inline-block;background:var(--rojo);color:#fff;padding:1px 8px;margin-bottom:6px;font-weight:800;letter-spacing:.2em}
-#story .sbt{display:flex;gap:8px;padding:8px 10px;background:#0e0e0e;justify-content:flex-end}
-/* ---------- red / mapa ---------- */
+#story .sbox{flex:none;padding:0 0 var(--sab);background:var(--noche)}
+#story .film{min-height:150px}
+#story .who{display:inline-block;background:var(--lH);color:#fff;padding:2px 10px;border-radius:999px;margin-bottom:6px;font-weight:800}
+#story .sbt{display:flex;gap:8px;padding:8px 12px 12px;background:var(--noche);justify-content:flex-end}
+/* ---------- la red ---------- */
 #red canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .lchips{position:absolute;left:8px;right:8px;bottom:calc(8px + var(--sab));display:flex;gap:6px;overflow-x:auto;padding:4px 2px;z-index:3}
-.lchips button{flex:none;display:flex;align-items:center;gap:6px;border:3px solid var(--negro);background:var(--blanco);padding:5px 9px;font-weight:700;font-size:13px;box-shadow:3px 3px 0 var(--negro)}
+.lchips button{flex:none;display:flex;align-items:center;gap:6px;border-radius:999px;background:var(--anden);padding:5px 12px 5px 5px;font-weight:700;font-size:13px;box-shadow:var(--sh)}
 .lchips button.off{opacity:.45}
-.card{position:absolute;left:8px;right:8px;top:calc(56px + var(--sat));z-index:4;max-width:460px;background:var(--papel2);border:4px solid var(--negro);box-shadow:6px 6px 0 var(--negro);padding:12px 14px;max-height:56%;overflow-y:auto}
+.card{position:absolute;left:8px;right:8px;top:calc(60px + var(--sat));z-index:4;max-width:460px;background:var(--anden);border-radius:18px;box-shadow:var(--sombra);padding:14px 16px;max-height:56%;overflow-y:auto}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
 .kv b{font-weight:800}
-.bar{height:10px;border:2px solid var(--negro);background:var(--blanco)}
-.bar i{display:block;height:100%;background:var(--verde)}
-.qr{display:flex;justify-content:center;padding:8px;background:#fff;border:3px solid var(--negro)}
+.bar{height:10px;border-radius:5px;background:var(--concreto);overflow:hidden;display:inline-block}
+.bar i{display:block;height:100%;background:var(--lT);border-radius:5px}
+.qr{display:flex;justify-content:center;padding:10px;background:#fff;border-radius:var(--r);box-shadow:0 1px 0 var(--linea)}
 .qr canvas{image-rendering:pixelated;width:min(70vw,260px);height:auto}
-textarea.code{width:100%;min-height:64px;border:3px solid var(--negro);background:#fff;font-family:var(--fm);font-size:11px;padding:6px}
+textarea.code{width:100%;min-height:64px;border:1px solid var(--linea);border-radius:12px;background:#fff;font-family:var(--fm);font-size:11px;padding:8px}
 .tg{display:flex;gap:6px;flex-wrap:wrap}
-.tg button{border:3px solid var(--negro);background:var(--blanco);padding:6px 10px;font-weight:700;font-size:13px}
-.tg button.on{background:var(--tinta);color:#fff}
+.tg button{border-radius:999px;background:var(--concreto);padding:7px 14px;font-weight:700;font-size:13.5px}
+.tg button.on{background:var(--lA);color:#fff}
 .hide{display:none!important}
-@media (min-width:900px){#cover .cbody{padding-top:18px}.mcard .t{font-size:52px}}
-@media (orientation:landscape) and (max-height:520px){#cover canvas.cart{width:min(60vw,420px)}.lever{height:min(60vh,240px)}}
-@media (prefers-reduced-motion:reduce){.scr.on,.gm,.mbox{animation:none}}
-/* ---------- cinta de noticias (estilo Industry Art) ---------- */
-.news{overflow:hidden;border:3px solid var(--negro);background:var(--negro);color:var(--mante);white-space:nowrap;font-weight:700;font-size:13px;padding:6px 0}
+/* tablero de anuncios: texto ámbar como los paneles de las estaciones */
+.news{overflow:hidden;border-radius:12px;background:#0b1a2b;color:var(--led);white-space:nowrap;font-family:var(--fm);font-weight:700;font-size:13px;padding:9px 0}
 .news .tick{display:inline-block;padding-left:100%;animation:tick 60s linear infinite}
 .news .tick span{margin-right:42px}
 @keyframes tick{to{transform:translateX(-100%)}}
-#gmsg{top:calc(104px + var(--sat))}
-/* ---------- temas ---------- */
-html.t-noche{--papel:#0c2533;--papel2:#123447;--blanco:#173f55;--negro:#f4ecd0;--tinta:#f9e4a4;--mante:#f9e4a4}
-html.t-noche .m,html.t-noche .pag,html.t-noche .tramo small{color:#c9d6dc}
-html.t-noche body,html.t-noche .scr{color:#f4ecd0}
-html.t-noche .btn,html.t-noche .tramo,html.t-noche .lv button,html.t-noche .lchips button,html.t-noche .tg button{color:#f4ecd0}
-html.t-noche .btn.pri{color:#fff}
-html.t-noche .news{color:#0c2533;background:#f9e4a4}
-html.t-noche .lv button.done{background:#2c5568}
-html.t-contraste{--papel:#000;--papel2:#000;--blanco:#000;--negro:#fff;--tinta:#ffe600;--teal:#ffe600;--rojo:#ff4d4d;--mante:#ffe600;--petro:#000}
-html.t-contraste .m,html.t-contraste .pag,html.t-contraste .tramo small{color:#fff}
-html.t-contraste body,html.t-contraste .scr,html.t-contraste .btn,html.t-contraste .tramo,html.t-contraste .lv button,html.t-contraste .tg button,html.t-contraste .lchips button{color:#fff}
-html.t-contraste .mcard{background:#000!important;color:#ffe600!important}
-html.t-contraste .news{background:#ffe600;color:#000}
-@media (prefers-reduced-motion:reduce){.news .tick{animation:none;padding-left:0}}
-
-/* ---------- timón (Al volante) ---------- */
-.wheel{position:absolute;left:8px;bottom:calc(10px + var(--sab));width:132px;height:132px;border-radius:50%;border:4px solid var(--negro);background:radial-gradient(circle,#2a3a4a 0 28%,transparent 29%),conic-gradient(from 0deg,#1e2a33,#33495c,#1e2a33);box-shadow:var(--sh);touch-action:none}
-.wheel .wh-in{position:absolute;inset:8px;border-radius:50%;border:10px solid var(--mante);transition:transform .05s}
-.wheel .wh-in i{position:absolute;left:50%;top:-10px;width:8px;height:22px;margin-left:-4px;background:var(--rojo);border:2px solid var(--negro)}
-#cover .mega{color:var(--lA)}#cover .mega.b2{color:var(--lB)}#cover .ctag{color:var(--mp1)}
-.num{font-variant-numeric:tabular-nums}
-/* ---------- pedales (Al volante) ---------- */
+/* ---------- volante y pedales ---------- */
+.wheel{position:absolute;left:8px;bottom:calc(10px + var(--sab));width:132px;height:132px;border-radius:50%;border:4px solid rgba(8,22,40,.7);background:radial-gradient(circle,#2a3a4a 0 28%,transparent 29%),conic-gradient(from 0deg,#1e2a33,#33495c,#1e2a33);box-shadow:var(--sombra);touch-action:none}
+.wheel .wh-in{position:absolute;inset:8px;border-radius:50%;border:10px solid var(--led);transition:transform .05s}
+.wheel .wh-in i{position:absolute;left:50%;top:-10px;width:8px;height:22px;margin-left:-4px;border-radius:3px;background:var(--lP)}
 .pedals{position:absolute;right:8px;bottom:calc(10px + var(--sab));display:flex;flex-direction:column;gap:8px}
-.pedal{width:84px;height:min(17vh,110px);border:3px solid var(--negro);background:var(--blanco);box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;touch-action:none;-webkit-user-select:none;user-select:none}
+.pedal{width:84px;height:min(17vh,110px);border-radius:16px;background:var(--anden);box-shadow:0 4px 0 rgba(8,22,40,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:12px;touch-action:none;-webkit-user-select:none;user-select:none}
 .pedal b{font-size:26px;line-height:1}
 .pedal.acc{background:var(--lT);color:#fff}.pedal.brk{background:var(--lP);color:#fff}
-.pedal.on{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro);filter:brightness(1.15)}
-
+.pedal.on{transform:translateY(3px);box-shadow:0 1px 0 rgba(8,22,40,.35);filter:brightness(1.12)}
 /* ---------- Ciudad Libre ---------- */
-.c-libre{background:var(--negro);color:var(--mante);background-image:radial-gradient(circle at 80% 20%,rgba(246,197,56,.25),transparent 40%)}
-.c-libre .t{color:var(--mante)}
 .joyzone{position:absolute;left:0;top:30%;width:52%;bottom:0;touch-action:none}
-.joy{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid rgba(253,251,245,.8);background:rgba(16,46,80,.35);display:none;pointer-events:none}
+.joy{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid rgba(255,255,255,.7);background:rgba(15,34,56,.35);display:none;pointer-events:none}
 .joy.on{display:block}
-.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--mante);border:3px solid var(--negro);box-shadow:3px 3px 0 var(--negro)}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--led);box-shadow:0 3px 0 rgba(0,0,0,.35)}
 .lbbtns{position:absolute;right:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:64px 64px;grid-template-rows:64px 64px;gap:8px;touch-action:none}
-.abtn{border:3px solid var(--negro);background:var(--blanco);box-shadow:var(--sh);font-size:24px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;-webkit-user-select:none;user-select:none;touch-action:none}
-.abtn small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.abtn{border-radius:18px;background:var(--anden);color:var(--tinta);box-shadow:0 4px 0 rgba(8,22,40,.35);font-size:24px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;-webkit-user-select:none;user-select:none;touch-action:none}
+.abtn small{font-size:10px;margin-top:3px}
 .abtn.big{grid-row:1/3;grid-column:2;background:var(--lB);color:#fff;font-size:34px}
-.abtn.big.hot{background:var(--mostaza);color:var(--negro);animation:pulse .8s infinite alternate}
-@keyframes pulse{to{transform:scale(1.06)}}
-.abtn.acc{background:var(--lT);color:#fff}.abtn.brk{background:var(--lP);color:#fff}.abtn.hb{background:var(--lJ);color:var(--negro);grid-column:1}
-.abtn.on{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro);filter:brightness(1.12)}
-.jobbar{position:absolute;left:8px;right:8px;top:calc(54px + var(--sat));background:rgba(16,46,80,.92);color:#fff;border:3px solid var(--negro);border-left:8px solid var(--mostaza);padding:6px 10px;display:flex;flex-direction:column;gap:2px;z-index:3;pointer-events:none;max-width:460px}
-.jobbar b{font-family:var(--fd);font-stretch:80%;font-size:19px;line-height:1;text-transform:uppercase}
-.jobbar span{font-size:12px;opacity:.9}
-.jobbar em{font-style:normal;font-family:var(--fm);font-size:12px;color:var(--mante)}
-.jobbar.low{border-left-color:var(--lP);animation:blink .5s steps(2) infinite}
+.abtn.big.hot{background:var(--lJ);color:var(--tinta);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{transform:scale(1.05)}}
+.abtn.acc{background:var(--lT);color:#fff}.abtn.brk{background:var(--lP);color:#fff}.abtn.hb{background:var(--lJ);color:var(--tinta);grid-column:1}
+.abtn.on{transform:translateY(3px);box-shadow:0 1px 0 rgba(8,22,40,.35);filter:brightness(1.1)}
+.jobbar{position:absolute;left:8px;right:8px;top:calc(56px + var(--sat));background:rgba(15,34,56,.93);color:#fff;border-radius:14px;box-shadow:inset 6px 0 0 var(--lJ),var(--sombra);padding:8px 12px 8px 16px;display:flex;flex-direction:column;gap:2px;z-index:3;pointer-events:none;max-width:460px}
+.jobbar b{font-family:var(--fd);font-stretch:90%;font-size:18px;line-height:1.05}
+.jobbar span{font-size:12.5px;opacity:.9}
+.jobbar em{font-style:normal;font-weight:800;font-size:12.5px;color:var(--led)}
+.jobbar.low{box-shadow:inset 6px 0 0 var(--lP),var(--sombra);animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{opacity:.6}}
-#game .vsel button#lbRun.on{background:var(--mante)}
-
-.c-guia{background:var(--lT);color:#fff}
+.jobbar.stop{box-shadow:inset 6px 0 0 var(--lT),var(--sombra)}
+.jobbar.tut{top:calc(190px + var(--sat));right:84px;box-shadow:inset 6px 0 0 var(--lT),var(--sombra)}
+.jobbar.trama{box-shadow:inset 6px 0 0 var(--lH),var(--sombra);top:calc(104px + var(--sat))}
+.jobbar.trama b{font-size:16px}
+#game .vsel button#lbRun.on{background:var(--lJ)}
+#game .vsel button#lbFF.on{background:var(--lT);color:#fff}
+/* ---------- guía ---------- */
 .guia-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
-.guia-tabs button{border:3px solid var(--negro);background:var(--blanco);padding:5px 9px;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-.guia-tabs button.on{background:var(--lA);color:#fff}
-.guia-body{border:3px solid var(--negro);background:var(--papel2);padding:12px;min-height:200px;line-height:1.45}
-.guia-body h4{font-family:var(--fd);font-stretch:75%;font-size:26px;margin:0 0 6px;text-transform:uppercase;color:var(--tinta)}
+.guia-tabs button{border-radius:999px;background:var(--anden);padding:7px 13px;font-weight:800;font-size:13px;box-shadow:0 1px 0 var(--linea)}
+.guia-tabs button.on{background:var(--lT);color:#fff}
+.guia-body{border-radius:var(--r);background:var(--anden);padding:14px 16px;min-height:200px;line-height:1.5}
+.guia-body h4{font-family:var(--fd);font-stretch:90%;font-size:24px;margin:0 0 8px;color:var(--tinta)}
 .guia-body ol,.guia-body ul{padding-left:20px;margin:6px 0}
 .guia-body li{margin:4px 0}
-.civica{display:inline-block;width:150px;height:94px;border-radius:8px;background:linear-gradient(135deg,#1C5C9C,#59AB42);border:3px solid var(--negro);box-shadow:var(--sh);color:#fff;font-weight:800;padding:8px;position:relative;margin:6px 0}
-.civica:after{content:'CÍVICA';position:absolute;right:10px;bottom:8px;font-family:var(--fd);font-stretch:75%;font-size:22px;letter-spacing:.04em}
-.civica i{position:absolute;left:10px;top:34px;width:26px;height:20px;border-radius:4px;background:#F6C538;border:2px solid var(--negro)}
-.jobbar.stop{border-left-color:var(--lT)}
-/* botones de cabina (metro): panel oscuro con etiquetas LED */
-#game .lever{background:linear-gradient(#59AB42 0 42%,#d9d2bb 42% 50%,#EC343A 50% 100%);border-color:#0b1115;box-shadow:4px 4px 0 #0b1115,inset 0 0 0 3px #1b262e}
-#game .lever .kn{background:#243039;color:#ffd27a;border-color:#0b1115;font-family:var(--fm)}
-#game .gbtns .btn{background:#243039;color:#ffd27a;border-color:#0b1115;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-stretch:100%;font-size:13px;letter-spacing:.06em}
+.civica{display:inline-block;width:150px;height:94px;border-radius:10px;background:linear-gradient(135deg,#1C5C9C,#59AB42);box-shadow:var(--sombra);color:#fff;font-weight:800;padding:8px;position:relative;margin:6px 0}
+.civica:after{content:'Cívica';position:absolute;right:10px;bottom:8px;font-family:var(--fd);font-size:22px}
+.civica i{position:absolute;left:10px;top:34px;width:26px;height:20px;border-radius:4px;background:#F6C538}
+/* ---------- cabina del metro: consola oscura con botones iluminados ---------- */
+#game .lever{background:linear-gradient(#59AB42 0 42%,#d9d2bb 42% 50%,#EC343A 50% 100%);box-shadow:0 4px 0 #0b1115,inset 0 0 0 3px #1b262e}
+#game .lever .kn{background:#243039;color:#ffd27a;font-family:var(--fm);box-shadow:0 3px 0 #0b1115}
+#game .gbtns .btn{background:#243039;color:#ffd27a;box-shadow:0 3px 0 #0b1115;font-family:var(--fm);font-size:13px;border-radius:10px}
 #game .gbtns .btn.mos{background:#F6C538;color:#141414}
 #game .gbtns .btn[disabled]{opacity:.45}
-/* ---------- cabina del metro: botonera iluminada ---------- */
 .cabgrid{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:repeat(4,48px);grid-auto-rows:46px;gap:6px;pointer-events:auto}
-.cb{border:3px solid #0b1115;background:#243039;color:#9fb0bb;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-size:7.5px;font-weight:800;letter-spacing:.03em;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;padding:0 1px;-webkit-user-select:none;user-select:none}
+.cb{border-radius:8px;background:#243039;color:#9fb0bb;box-shadow:0 3px 0 #0b1115;font-family:var(--fm);font-size:7.5px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;padding:0 1px;-webkit-user-select:none;user-select:none}
 .cb b{font-size:15px;color:#ffd27a;line-height:1.1;font-family:var(--fm)}
-.cb:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b1115}
-.cb.on{background:#1f3a2a;color:#7fe0a0;box-shadow:3px 3px 0 #0b1115,inset 0 0 12px rgba(127,224,160,.55)}
+.cb:active{transform:translateY(2px);box-shadow:0 1px 0 #0b1115}
+.cb.on{background:#1f3a2a;color:#7fe0a0;box-shadow:0 3px 0 #0b1115,inset 0 0 12px rgba(127,224,160,.55)}
 .cb.on b{color:#bfffd3}
 .cb.hot{background:#F6C538;color:#141414;animation:pulse .7s infinite alternate}
 .cb.hot b{color:#141414}
 .cb.warn{background:#7a1414;color:#fff;animation:blink .35s steps(2) infinite}
 .cb.warn b{color:#fff}
 .cb[disabled]{opacity:.45}
-.jobbar.tut{top:calc(190px + var(--sat));right:84px;border-left-color:var(--lT);background:rgba(16,46,80,.95)}
-/* historia en la ciudad: barra del capítulo y conversación con los personajes */
-.jobbar.trama{border-left-color:var(--lH);top:calc(104px + var(--sat))}
-.jobbar.trama b{font-size:16px}
-.trtalk{position:absolute;left:8px;right:8px;bottom:calc(158px + var(--sab));background:var(--papel,#f1ece0);color:var(--negro);border:3px solid var(--negro);border-left:10px solid var(--lA);box-shadow:5px 5px 0 var(--negro);padding:10px 12px 12px;z-index:6;max-width:560px;margin:0 auto;animation:trIn .18s ease-out}
-.trtalk .who{display:inline-block;font-family:var(--fd);font-stretch:80%;font-size:15px;text-transform:uppercase;background:var(--lA);color:#fff;padding:1px 8px;margin-bottom:4px}
-.trtalk p{margin:2px 0 8px;font-size:15px;line-height:1.35}
+/* ---------- historia en la ciudad: conversación, tarjeta de capítulo y letrero del lugar ---------- */
+.trtalk{position:absolute;left:8px;right:8px;bottom:calc(158px + var(--sab));background:var(--anden);color:var(--tinta);border-radius:18px;box-shadow:inset 0 5px 0 var(--lA),var(--sombra);padding:14px 14px 12px;z-index:6;max-width:560px;margin:0 auto;animation:sube .18s ease-out}
+.trtalk .who{display:inline-block;font-family:var(--fd);font-stretch:90%;font-size:16px;background:var(--lA);color:#fff;padding:2px 10px;border-radius:999px;margin-bottom:6px}
+.trtalk p{margin:2px 0 10px;font-size:15px;line-height:1.4}
 .trtalk .opts{display:flex;flex-wrap:wrap;gap:6px}
-.trtalk .opts .btn{flex:1 1 auto;text-align:left;white-space:normal;line-height:1.2}
-.trtalk .x{position:absolute;right:6px;top:4px;border:0;background:none;font-size:18px;font-weight:900;cursor:pointer}
+.trtalk .opts .btn{flex:1 1 auto;text-align:left;white-space:normal;line-height:1.2;justify-content:flex-start}
+.trtalk .x{position:absolute;right:8px;top:6px;font-size:18px;font-weight:900;color:var(--suave)}
 .trtalk.hide{display:none}
-#game .vsel button#lbFF.on{background:var(--lT);color:#fff}
-@keyframes trIn{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.trtalk.conface{padding-left:104px;min-height:96px}
+.trtalk .face{position:absolute;left:10px;top:-24px;width:84px;height:84px;border-radius:50%;background:#cfe0ea;border:4px solid var(--anden);box-shadow:0 0 0 3px var(--lA)}
 #game:has(.jobbar.trama:not(.hide)) #gmsg{top:calc(176px + var(--sat))}
-.trcap{position:absolute;left:0;right:0;top:38%;z-index:7;pointer-events:none;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(12,37,51,.92) 18%,rgba(12,37,51,.92) 82%,transparent);padding:14px 10px 16px;animation:trCap 3.8s ease forwards}
-.trcap small{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mante)}
-.trcap b{display:block;font-family:var(--fd);font-stretch:80%;font-size:34px;line-height:1;text-transform:uppercase;margin-top:4px}
-@keyframes trCap{0%{opacity:0;transform:scaleY(.6)}10%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
-/* ---------- v0.6.0 · arte de las IA (Atlas) ---------- */
-#cover img.cart{display:block;width:min(92vw,560px);aspect-ratio:16/10;object-fit:cover;margin:-34px auto -20px;position:relative;z-index:0;border:4px solid var(--negro);background:var(--noche)}
-@media (orientation:landscape) and (max-height:520px){#cover img.cart{width:min(60vw,420px)}}
-#cvFiesta{position:relative;z-index:2;height:0;width:min(92vw,560px);margin:0 auto}
-.fdeco{position:absolute;left:0;right:0;top:-40px;display:flex;justify-content:space-between;padding:0 4px;pointer-events:none}
-.fdeco img{width:30px;height:30px;animation:fdeco 2.6s ease-in-out infinite alternate;animation-delay:calc(var(--i) * -.37s)}
-@keyframes fdeco{from{transform:translateY(0) rotate(-7deg)}to{transform:translateY(5px) rotate(7deg)}}
-@media (prefers-reduced-motion:reduce){.fdeco img{animation:none}}
-.mcard .mico{position:absolute;right:10px;top:10px;width:54px;height:54px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.35))}
+.trcap{position:absolute;left:0;right:0;top:38%;z-index:7;pointer-events:none;text-align:center;color:#fff;background:rgba(15,34,56,.9);padding:14px 10px 16px;animation:trCap 3.8s ease forwards}
+.trcap small{display:block;font-size:12px;color:var(--led)}
+.trcap b{display:block;font-family:var(--fd);font-stretch:90%;font-size:32px;line-height:1.05;margin-top:4px}
+@keyframes trCap{0%{opacity:0}10%{opacity:1}82%{opacity:1}100%{opacity:0}}
+.trcard{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(15,34,56,.62);animation:entra .3s ease;cursor:pointer;padding:12px}
+.trcard.out{opacity:0;transition:opacity .3s}
+.trcard .in{background:var(--anden);color:var(--tinta);border-radius:20px;box-shadow:var(--sombra);padding:10px 10px 14px;max-width:min(94vw,540px);text-align:center}
+.trcard .pic{border-radius:14px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.trcard .pic img{display:block;max-width:100%;max-height:min(50vh,420px);object-fit:contain}
+.trcard small{display:block;margin-top:12px;font-size:13px;font-weight:700;color:var(--lH)}
+.trcard b{display:block;font-family:var(--fd);font-stretch:90%;font-size:clamp(26px,7vw,36px);line-height:1.05;margin-top:2px}
+.trcard i{display:block;margin-top:6px;font-size:12px;color:var(--suave);font-style:normal}
+.lugar{position:absolute;left:10px;top:calc(118px + var(--sat));z-index:5;pointer-events:none;opacity:0;background:var(--noche);color:#fff;border-radius:14px;box-shadow:inset 0 -4px 0 var(--lT),var(--sombra);padding:8px 14px 11px;max-width:72vw}
+.lugar.on{animation:lugarIn 3.6s ease forwards}
+.lugar b{display:block;font-family:var(--fd);font-stretch:90%;font-size:21px;line-height:1.05}
+.lugar i{display:block;font-style:normal;font-size:12px;opacity:.8}
+.lugar span{display:block;font-size:12px;font-weight:700;color:var(--led);margin-top:2px}
+@keyframes lugarIn{0%{opacity:0;transform:translateY(-6px)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+#game:has(.jobbar:not(.hide)) .lugar{top:calc(196px + var(--sat))}
+/* ---------- arte ---------- */
 .aico{display:block;width:22px;height:22px;margin:0 auto;pointer-events:none}
 .vsel button .aico{width:26px;height:26px}
 .cb b .aico{width:20px;height:20px}
 img.medal{width:42px;height:42px;flex:0 0 42px}
-img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-position:50% 80%;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);margin:0 0 14px;background:#3d2e5f}
-.trtalk.conface{padding-left:98px;min-height:92px}
-.trtalk .face{position:absolute;left:6px;top:-26px;width:84px;height:84px;background:#cfe0ea;border:3px solid var(--negro);box-shadow:3px 3px 0 var(--negro)}
-.trcard{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(8,18,28,.6);animation:trCard .35s ease;cursor:pointer;padding:12px}
-.trcard.out{opacity:0;transition:opacity .3s}
-.trcard .in{background:var(--papel,#f1ece0);color:var(--negro);border:4px solid var(--negro);box-shadow:7px 7px 0 var(--negro);padding:10px 10px 12px;max-width:min(94vw,540px);text-align:center}
-.trcard .pic{border:3px solid var(--negro);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
-.trcard .pic img{display:block;max-width:100%;max-height:min(50vh,420px);object-fit:contain}
-.trcard small{display:block;margin-top:10px;font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--lA)}
-.trcard b{display:block;font-family:var(--fd);font-stretch:80%;font-size:clamp(24px,7vw,34px);line-height:1;text-transform:uppercase;margin-top:4px}
-.trcard i{display:block;margin-top:6px;font-size:11px;opacity:.6;font-style:normal}
-@keyframes trCard{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-.mcard .mico ~ .t{padding-right:56px}
-/* v0.7.0 · letrero de calle y barrio (Ciudad Libre) */
-.lugar{position:absolute;left:10px;top:calc(118px + var(--sat));z-index:5;pointer-events:none;opacity:0;transform:translateY(-6px);background:var(--noche,#0c2533);color:#fff;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);padding:6px 10px 7px;max-width:72vw}
-.lugar.on{animation:lugarIn 3.6s ease forwards}
-.lugar b{display:block;font-family:var(--fd);font-stretch:80%;font-size:20px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
-.lugar i{display:block;font-style:normal;font-family:var(--fm);font-size:11px;opacity:.8}
-.lugar span{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mante,#ffd27a);margin-top:2px}
-@keyframes lugarIn{0%{opacity:0;transform:translateY(-6px)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
-#game:has(.jobbar:not(.hide)) .lugar{top:calc(196px + var(--sat))}
+img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-position:50% 80%;border-radius:var(--r);margin:0 0 14px;background:#3d2e5f}
+/* ---------- temas ---------- */
+html.t-noche{--concreto:#0F2238;--anden:#17304d;--tinta:#EAF0F5;--suave:#9fb2c4;--linea:#28466a}
+html.t-noche .m{color:#c9d6dc}
+html.t-noche .btn.tin{background:#26476b}
+html.t-contraste{--concreto:#000;--anden:#000;--tinta:#fff;--suave:#ffe600;--linea:#fff;--lA:#0a5fd0}
+html.t-contraste .m{color:#fff}
+html.t-contraste .modo,html.t-contraste .boxed,html.t-contraste .tramo,html.t-contraste .lv button,html.t-contraste .mbox{box-shadow:0 0 0 2px #fff}
+html.t-contraste .news{background:#ffe600;color:#000}
+@media (min-width:900px){.parada b{font-size:28px}}
+@media (orientation:landscape) and (max-height:520px){#cover .hero{height:62vh}.lever{height:min(60vh,240px)}}
+@media (prefers-reduced-motion:reduce){.scr.on,.gm,.mbox,.trtalk,.trcard{animation:none}.news .tick{animation:none;padding-left:0}.fdeco img{animation:none}.tren{transition:none}}
+.campo{border:1px solid var(--linea);border-radius:12px;padding:9px 12px;font-size:16px;background:var(--anden);color:var(--tinta);max-width:100%}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -3048,7 +3088,7 @@ img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-positio
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.8.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3077,7 +3117,7 @@ function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinute
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'revista', dalt: 0, ciclo: 'rapido' } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido' } };
 }
 const Save = EM.save = {
   d: null,
@@ -3089,7 +3129,9 @@ const Save = EM.save = {
   },
   sanitize(d) {
     const b = newSave();
-    if (!d || typeof d !== 'object' || d.v !== 1) return b;
+    if (!d || typeof d !== 'object' || Array.isArray(d) || d.v !== 1) return b;
+    d = JSON.parse(JSON.stringify(d), (k, v) => k === '__proto__' || k === 'constructor' || k === 'prototype' ? undefined : v);   // sin claves que cambien prototipos
+    if (!d.settings || typeof d.settings !== 'object') d.settings = b.settings; if (!d.stats || typeof d.stats !== 'object') d.stats = b.stats;
     for (const k in b) if (d[k] == null || typeof d[k] !== typeof b[k]) d[k] = b[k];
     for (const k in b.settings) if (typeof d.settings[k] !== typeof b.settings[k]) d.settings[k] = b.settings[k];
     for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;
@@ -3616,14 +3658,14 @@ const Net = EM.net = {
       ws.onopen = () => { clearTimeout(to); this.setStatus('open'); res(); };
       ws.onerror = () => { clearTimeout(to); rej(new Error('No se pudo conectar al servidor local')); };
       ws.onclose = () => { this.setStatus('closed'); if (this.onmsg) this.onmsg({ t: 'bye', from: -1 }); };
-      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (m.t === 'id') this.myId = m.id | 0; if (this.onmsg) this.onmsg(m); };
+      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (!m || typeof m !== 'object') return; if (m.t === 'id') this.myId = m.id | 0; if (this.onmsg) this.onmsg(m); };
     });
   },
   /* ---------------- mismo navegador (pestañas) ---------------- */
   bcOpen(room, asHost) {
     this.reset(); if (!window.BroadcastChannel) throw new Error('Sin BroadcastChannel');
     this.kind = 'bc'; this.role = asHost ? 'host' : 'guest'; this.myId = asHost ? 0 : 1 + Math.floor(Math.random() * 999);
-    this.bc = new BroadcastChannel('elmetro-' + room); this.bc.onmessage = e => { const m = e.data; if (m && m.from !== this.myId && this.onmsg) this.onmsg(m); }; this.setStatus('open');
+    this.bc = new BroadcastChannel('elmetro-' + room); this.bc.onmessage = e => { const m = e.data; if (m && typeof m === 'object' && m.from !== this.myId && this.onmsg) this.onmsg(m); }; this.setStatus('open');
   },
   /* ---------------- envío común ---------------- */
   send(m) {
@@ -3743,14 +3785,14 @@ const MAP = EM.map = {
     for (let j = 0; j < SW; j++) for (let i = 0; i < SW; i++) tw[j * SW + i] = this.tile(cx * CH + i - M, cy * CH + j - M);
     const T = (x, y) => tw[(y + M) * SW + x + M], road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE, wet = v => v === TT.WATER || v === TT.CANAL;
     // cada casilla de vía es tramo vertical (1), tramo horizontal (2) o cruce/plazoleta (3), con su ancho en casillas y su posición
-    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), ri = (x, y) => (y + 1) * RS + x + 1;
+    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), rIdx = (x, y) => (y + 1) * RS + x + 1;
     // se mide con las vías del MISMO tipo (autopista, avenida y calle vienen pegadas en los datos); un cruce es donde llega una vía transversal
     const runV = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x, y - k)); k++) n++; for (let k = 1; k < 5 && road(T(x, y + k)); k++) n++; return n; };
     const runH = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x - k, y)); k++) n++; for (let k = 1; k < 5 && road(T(x + k, y)); k++) n++; return n; };
     for (let y = -1; y <= CH; y++) for (let x = -1; x <= CH; x++) {
       const v = T(x, y); if (!road(v) || v === TT.BRIDGE) continue; let l = 0, r = 0, u = 0, w = 0;
       while (l < 9 && T(x - l - 1, y) === v) l++; while (r < 9 && T(x + r + 1, y) === v) r++; while (u < 9 && T(x, y - u - 1) === v) u++; while (w < 9 && T(x, y + w + 1) === v) w++;
-      const h = l + r + 1, vv = u + w + 1, k = ri(x, y);
+      const h = l + r + 1, vv = u + w + 1, k = rIdx(x, y);
       if (vv >= h + 3 && h <= 9) {
         const xa = x - l - 1, xb = x + r + 1, cruce = (road(T(xa, y)) && T(xa, y) !== TT.BRIDGE && runV(xa, y) <= 3) || (road(T(xb, y)) && T(xb, y) !== TT.BRIDGE && runV(xb, y) <= 3);
         if (cruce) RK[k] = 3; else { RK[k] = 1; RW[k] = h; RP[k] = l; }
@@ -3759,10 +3801,10 @@ const MAP = EM.map = {
         if (cruce) RK[k] = 3; else { RK[k] = 2; RW[k] = vv; RP[k] = u; }
       } else RK[k] = 3;
     }
-    const RKa = (x, y) => RK[ri(x, y)];
+    const RKa = (x, y) => RK[rIdx(x, y)];
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
       const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
-      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = ri(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = rIdx(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
       // tramo de vía: cebras solo a la entrada de un cruce (siempre en avenidas; en calles, algunas)
       let zA = 0, zB = 0, stx = 0, sty = 0;
       if (rk === 1 || rk === 2) {
@@ -3896,14 +3938,14 @@ const MAP = EM.map = {
         if (!sS) { const y0 = oy + P; R(ox + (sW ? 0 : 0), y0, P, fh, wall); R(ox, y0, P, 1, Art.shade(wall, .78)); if (!sW) R(ox, y0, 1, fh, '#141414'); if (!sE) R(ox + P - 1, y0, 1, fh, '#141414'); R(ox, y0 + fh, P, 1, 'rgba(0,0,0,.4)');
           const glass = hm > 40 && lr > .6; for (let wy = y0 + 2; wy < y0 + fh - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, glass ? '#3d6a8a' : '#2a4560'); lights.push([wx, wy, 2]); }
           if (fh >= 6 && ri > .5) R(ox + 2, y0 + fh - 3, P - 4, 2, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835'][(lr * 5) | 0]); }   // toldo / local comercial
-      } else if (v === TT.AVE && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2) && RW[ri(tx, ty)] >= 2) {
+      } else if (v === TT.AVE && (RK[rIdx(tx, ty)] === 1 || RK[rIdx(tx, ty)] === 2) && RW[rIdx(tx, ty)] >= 2) {
         // árboles del separador, uno cada dos casillas a lo largo
-        const vert = RK[ri(tx, ty)] === 1, rp = RP[ri(tx, ty)], mid = RW[ri(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
+        const vert = RK[rIdx(tx, ty)] === 1, rp = RP[rIdx(tx, ty)], mid = RW[rIdx(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
         if (rp === t0 && ((vert ? Y : X) & 1) === 0 && h2(vert ? X - rp : X, vert ? Y : Y - rp, 99) < .8) {
           const loc = mid - t0 * P, x = vert ? ox + loc : ox + (P >> 1), y = vert ? oy + (P >> 1) : oy + loc, rr = 3.2 + h2(X, Y, 72) * 1.6;
           g.fillStyle = 'rgba(18,38,22,.35)'; g.beginPath(); g.ellipse(x + 1.5, y + 1.5, rr, rr * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = h2(X, Y, 73) < .15 ? '#e0b830' : h2(X, Y, 74) < .15 ? '#c96bb0' : '#4b8640'; g.beginPath(); g.arc(x - .4, y - .5, rr * .72, 0, TAU); g.fill();
         }
-      } else if ((v === TT.ROAD) && r < .3 && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2)) {
+      } else if ((v === TT.ROAD) && r < .3 && (RK[rIdx(tx, ty)] === 1 || RK[rIdx(tx, ty)] === 2)) {
         // carro parqueado junto al andén
         const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
         if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }
@@ -4189,9 +4231,9 @@ const Mundo = EM.mundo = {
 ### `src/js/19-atlas.js`
 ~~~~js
 /* =====================================================================
-   ATLAS · arte de las IA embebido en src/data/arte.js (lo genera tools/arte_juego.py)
-   Gemini (G-): retratos, escenas y la maqueta isométrica, en WebP.  ChatGPT (C-): íconos, logros,
-   fiestas, portada y pantalla de carga, en SVG.
+   ATLAS · arte del juego embebido en src/data/arte.js (lo genera tools/arte_juego.py)
+   Láminas (encargos G-): retratos, escenas y la maqueta isométrica, en WebP.
+   Vectorial (encargos C-): íconos, logros, fiestas, portada y pantalla de carga, en SVG.
    Regla del proyecto: el arte nuevo SIEMPRE tiene respaldo. Si ARTE[id] no existe o no carga,
    cada módulo sigue dibujando su versión procedural de siempre.
    ===================================================================== */
@@ -4213,7 +4255,7 @@ const Atlas = EM.atlas = {
   },
   /* etiqueta <img> para la interfaz; cadena vacía si no hay arte */
   tag(id, cls = '', alt = '') { return this.has(id) ? `<img class="${cls}" src="${this.url(id)}" alt="${esc(alt)}" draggable="false" decoding="async">` : ''; },
-  /* ícono de botón: el SVG de ChatGPT o, si falta, el respaldo (emoji o letra) */
+  /* ícono de botón: el SVG del juego o, si falta, el respaldo (emoji o letra) */
   ico(id, fb) { return this.has(id) ? `<img class="aico" src="${this.url(id)}" alt="" draggable="false">` : fb; },
   ids(pre = '') { return typeof ARTE === 'undefined' ? [] : Object.keys(ARTE).filter(k => k.startsWith(pre)); },
   /* retrato del que habla, según el tono de la frase (alegre, triste o neutra) */
@@ -4351,15 +4393,15 @@ const Art = EM.art = {
   /* ícono: frente de tren pixelado sobre petróleo (para íconos e instalador) */
   icon(g, S, maskable) {
     g.imageSmoothingEnabled = false; const u = S / 32, pad = maskable ? 5 * u : 2 * u;
-    g.fillStyle = PAL.petro; g.fillRect(0, 0, S, S);
-    if (!maskable) { g.fillStyle = PAL.mante; g.fillRect(u, u, S - 2 * u, S - 2 * u); g.fillStyle = PAL.petro; g.fillRect(2 * u, 2 * u, S - 4 * u, S - 4 * u); }
+    g.fillStyle = '#0F2238'; g.fillRect(0, 0, S, S);   // noche del valle, con la franja de las líneas abajo
+    const L = ['#1C5C9C', '#E38835', '#59AB42', '#B8CF40', '#F6C538', '#EB318E', '#8E612A', '#743D90', '#EC343A', '#0E6F76', '#65A9AC'], fy = S - pad - u * 1.6;
+    L.forEach((c, i) => { g.fillStyle = c; g.fillRect(Math.floor(pad + i * (S - 2 * pad) / L.length), Math.round(fy), Math.ceil((S - 2 * pad) / L.length), Math.max(1, Math.round(u * 1.2))); });
     const x = pad + 4 * u, y = pad + 3 * u, w = S - 2 * pad - 8 * u, h = S - 2 * pad - 7 * u, r = (a, b, c, d, col) => { g.fillStyle = col; g.fillRect(Math.round(a), Math.round(b), Math.round(c), Math.round(d)); };
-    r(x - u, y - u, w + 2 * u, h + 2 * u, PAL.negro); r(x, y, w, h, PAL.plata);
+    r(x - u, y - u, w + 2 * u, h + 2 * u, '#081627'); r(x, y, w, h, '#f4f6f8');
     r(x + w * .12, y + h * .12, w * .76, h * .36, PAL.tinta); r(x + w * .16, y + h * .15, w * .2, h * .08, '#6fb5d8');
     r(x, y + h * .6, w, h * .1, '#1f63ad'); r(x + w * .08, y + h * .76, w * .16, h * .1, '#fff3b0'); r(x + w * .76, y + h * .76, w * .16, h * .1, '#fff3b0');
     r(x + w * .36, y + h * .76, w * .28, h * .12, PAL.negro);
     r(x + w / 2 - u * .6, y - 3 * u, u * 1.2, 2 * u, PAL.negro); r(x + w * .25, y - 3.2 * u, w * .5, u, PAL.negro);
-    r(x - 2 * u, y + h + u, w + 4 * u, u, PAL.rojo);
   }
 };
 ~~~~
@@ -6404,7 +6446,7 @@ const TRAMA = [
   ] }
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
-/* arte de cada capítulo (Gemini G- y ChatGPT C-, en src/data/arte.js) y el cielo que va detrás de las que lo traen transparente */
+/* arte de cada capítulo (src/data/arte.js) y el cielo que va detrás de las ilustraciones con fondo transparente */
 const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
 TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
 const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
@@ -7456,38 +7498,55 @@ const RedView = EM.red = {
 ### `src/js/65-menu.js`
 ~~~~js
 /* =====================================================================
-   MENÚS: portada, modos (páginas de revista), niveles, ajustes y créditos
+   MENÚS: inicio (la línea), elige tu viaje, niveles, ajustes y créditos
    ===================================================================== */
 const MODECARDS = [
-  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.', n: 'Mundo abierto' },
-  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
-  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
-  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
-  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.', n: 'Historia' },
-  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
-  { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
-  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
-  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.', n: 'Extras' }
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.' },
+  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
+  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
+  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
+  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
+  { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
+  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.' },
+  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.' }
 ];
 const Menu = EM.menu = {
   mode: null,
   cover() {
     UI.show('cover', false); Music.play('menu'); const cv = $('#cvArt'), g = cv.getContext('2d');
-    // portada de ChatGPT (C-40); si falta o no carga, sigue la portada procedural animada
+    // ilustración de portada; si falta o no carga, sigue la portada procedural animada
     let pic = $('#cvImg');
-    if (!pic && Atlas.has('portada')) { pic = document.createElement('img'); pic.id = 'cvImg'; pic.className = 'cart pic'; pic.alt = 'Un metro sobre el viaducto al atardecer, con el metrocable y las laderas de Medellín'; pic.onerror = () => { pic.remove(); cv.hidden = false; }; pic.src = Atlas.url('portada'); cv.after(pic); cv.hidden = true; }
-    const fd = $('#cvFiesta'), deco = Atlas.fiesta(); if (fd) fd.outerHTML = `<div id="cvFiesta">${deco}</div>`; else (pic || cv).insertAdjacentHTML('beforebegin', `<div id="cvFiesta">${deco}</div>`);
+    if (!pic && Atlas.has('portada')) { pic = document.createElement('img'); pic.id = 'cvImg'; pic.className = 'cart'; pic.alt = 'Un metro sobre el viaducto al atardecer, con el metrocable y las laderas de Medellín'; pic.onerror = () => { pic.remove(); cv.hidden = false; }; pic.src = Atlas.url('portada'); cv.after(pic); cv.hidden = true; }
+    const fd = $('#cvFiesta'), deco = Atlas.fiesta(); if (fd) fd.innerHTML = deco; else (pic || cv).insertAdjacentHTML('afterend', `<div id="cvFiesta">${deco}</div>`);
+    this.tren($('#bPlay'), true);
     let last = '';
-    const loop = () => { if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19); const t = (serviceOpen() ? 'En servicio · ' : 'Cerrado · ') + clockStr(); if (t !== last) $('#cvClock').textContent = last = t; };
+    const loop = () => {
+      if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19);
+      const abierto = serviceOpen(), t = clockStr() + abierto; if (t === last) return; last = t;
+      const el = $('#cvClock'); el.classList.toggle('cerrado', !abierto); el.textContent = abierto ? 'En servicio, ' + clockStr() : 'Cerrado, abre a las 4:30';
+    };
     loop();
+  },
+  /* el tren del menú de inicio viaja hasta la estación tocada (y al entrar, llega a "Jugar") */
+  tren(btn, entrada) {
+    const tr = $('#cvTren'), nav = tr && tr.parentElement; if (!tr || !btn || !nav) return 0;
+    const dot = btn.querySelector('i'), y = dot.getBoundingClientRect().top - nav.getBoundingClientRect().top + dot.offsetHeight / 2 - tr.offsetHeight / 2;
+    if (entrada) { tr.style.transition = 'none'; tr.style.transform = 'translateY(' + (y - 70) + 'px)'; void tr.offsetWidth; tr.style.transition = ''; }
+    tr.classList.add('on'); tr.style.transform = 'translateY(' + y + 'px)';
+    return matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200;
   },
   modes() {
     UI.show('menu'); $('#mWallet').textContent = fmt(Save.d.wallet) + ' pasajes';
     const h = new Date().getHours(); $('#mGreet').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + Save.d.name;
     $('#mVida').innerHTML = Vida.panel(); Vida.bindPanel();
-    $('#mList').innerHTML = MODECARDS.map((c, i) => { const st = EM.modes[c.id] ? Save.totalStars(c.id) : null; return `<button class="mcard ${c.cls}" data-m="${c.id}"><span class="n">Est. ${pad2(i + 1)} · ${esc(c.n)}</span>${st != null ? `<span class="st">★ ${st}</span>` : c.id === 'historia' ? `<span class="st">Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}</span>` : ''}${Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, 'mico') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`}<span class="t">${esc(c.t)}</span><span class="d">${esc(c.d)}</span></button>`; }).join('');
+    $('#mList').innerHTML = MODECARDS.map(c => {
+      const st = EM.modes[c.id] ? '★ ' + Save.totalStars(c.id) : c.id === 'historia' ? `Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}` : '';
+      const ico = Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, '', '') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`;
+      return `<button class="modo ${c.cls}" data-m="${c.id}"><span class="nodo">${ico}</span><span class="tx"><b>${esc(c.t)}</b><small>${esc(c.d)}</small></span>${st ? `<span class="st">${st}</span>` : ''}</button>`;
+    }).join('');
     $$('#mList canvas').forEach(cv => this.miniArt(cv.getContext('2d'), cv.dataset.a));
-    $$('#mList .mcard').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
+    $$('#mList .modo').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
   },
   go(id) {
     if (id === 'historia') { this.storyList(); return; }
@@ -7518,7 +7577,7 @@ const Menu = EM.menu = {
     else if (id === 'multi') { Art.person(g, 22, 52, 5, 2, false); Art.person(g, 48, 52, 5, 5, false); }
   },
   storyList() {
-    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
+    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
     const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
     $('#lBody').innerHTML = `${Atlas.tag('carga', 'sthero', 'Rosalba de espaldas en el andén, al atardecer')}<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
       CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
@@ -7527,9 +7586,9 @@ const Menu = EM.menu = {
     const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
   },
   levels(id) {
-    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
+    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name; $('#lStars').textContent = '★ ' + Save.totalStars(id);
     const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id), B = Save.d.bus && Save.d.bus.done || {};
-    let h = `<div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px"><div><div class="pag">${esc(M.sub || '')}</div><div class="mega" style="font-size:54px">${esc(M.name)}</div></div>${duel ? '<label class="tg"><button id="lDuel">👥 Duelo de mesa</button></label>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
+    let h = `<div class="row cabeza" style="justify-content:space-between;align-items:flex-end"><div><h1>${esc(M.name)}</h1>${M.sub ? `<p class="m">${esc(M.sub)}</p>` : ''}</div>${duel ? '<div class="tg"><button id="lDuel">👥 Duelo de mesa</button></div>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
     if (id === 'conduce' || id === 'volante' || id === 'bus') {
       const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
       for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
@@ -7542,7 +7601,7 @@ const Menu = EM.menu = {
   },
   settings() {
     const s = Save.d.settings, tg = (k, a, b) => `<div class="tg" data-k="${k}"><button data-v="1" class="${s[k] ? 'on' : ''}">${a}</button><button data-v="0" class="${s[k] ? '' : 'on'}">${b}</button></div>`;
-    UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" maxlength="16" value="${esc(Save.d.name)}" style="border:3px solid var(--negro);padding:8px;font-size:16px">
+    UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" class="campo" maxlength="16" value="${esc(Save.d.name)}">
       <div class="pag">Sonido</div>${tg('snd', 'Sí', 'No')}<div class="pag">Música</div>${tg('mus', 'Sí', 'No')}<div class="pag">Vibración</div>${tg('vib', 'Sí', 'No')}<div class="pag">Voz de anuncios (“Próxima estación…”)</div>${tg('voz', 'Sí', 'No')}
       <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
@@ -7554,9 +7613,12 @@ const Menu = EM.menu = {
     $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };
   },
   credits() {
-    UI.modal(`<div class="pag">Créditos</div><h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
-      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026) y datos abiertos de la Alcaldía de Medellín (barrios, manzanas, malla vial 2026, jerarquía vial, espacio público), rasterizados a casillas de 20 m; barrios de Itagüí, Envigado y Sabaneta publicados por sus alcaldías · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
-      <p class="m">Versión ${EM.version} · Funciona sin internet · Tus partidas se guardan en este dispositivo (exporta para respaldarlas).</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
+    UI.modal(`<h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
+      <h3>Datos del mapa</h3><ul class="m" style="padding-left:18px;margin:0">
+        <li>Calles, río y relieve: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps; relieve SRTM / NASA (AWS Terrain Tiles); mapa base de “Juega EnCicla”.</li>
+        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026).</li>
+        <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li></ul>
+      <p class="m">Versión ${EM.version}. Funciona sin internet y guarda tus partidas en este dispositivo; exporta una copia para respaldarlas.</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
   },
   bot() {
     UI.modal(`<div class="pag">Bot de pruebas</div><h2>Inspector de la red</h2><p class="m">Revisa los datos, verifica que cada nivel tenga solución y juega partidas automáticas buscando errores.</p><div id="bRes" class="film">Ejecutando…</div><div class="row" style="margin-top:10px"><button class="btn sm" id="bMore">▶ 100 partidas</button><button class="btn sm gh" id="bOk">Cerrar</button></div>`);
@@ -7564,10 +7626,8 @@ const Menu = EM.menu = {
     $('#bOk').onclick = () => UI.close(); $('#bMore').onclick = () => run(100); run(20);
   },
   bind() {
-    $('#bPlay').onclick = () => { Snd.init(); Snd.play('tap'); this.modes(); };
-    $('#bGuia').onclick = () => { Snd.init(); Guia.open(); };
-    $('#bStory').onclick = () => { Snd.init(); Story.open(); };
-    $('#bMulti').onclick = () => { Snd.init(); Multi.open(); };
+    const viaje = (id, fn) => { $(id).onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(fn, ms); }; };
+    viaje('#bPlay', () => this.modes()); viaje('#bGuia', () => Guia.open()); viaje('#bStory', () => Story.open()); viaje('#bMulti', () => Multi.open());
     $('#bCfg').onclick = () => { Snd.init(); this.settings(); };
     $('#mBack').onclick = $('#lBack').onclick = () => UI.back();
     $('#mBot').onclick = () => this.bot(); $('#mExport').onclick = () => Save.exportFile(); $('#mImport').onclick = () => $('#fileIn').click(); $('#mCred').onclick = () => this.credits();
@@ -7584,7 +7644,7 @@ const Menu = EM.menu = {
 ### `src/js/66-vida.js`
 ~~~~js
 /* =====================================================================
-   VIDA DE LA RED (dinamismo estilo Industry Art): misiones del día, racha,
+   VIDA DE LA RED: misiones del día, racha,
    logros, noticias con el calendario real de Medellín, temas y modo daltónico.
    ===================================================================== */
 const MISIONES = [
@@ -7671,7 +7731,7 @@ const Vida = EM.vida = {
   panel() {
     const D = this.daily(), d = Save.d, nl = Object.keys(d.logros || {}).length;
     return `<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
-      <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between"><div class="spaced" style="font-size:12px">Misiones de hoy</div><span class="pag">🔥 racha ${d.streak || 0} · 🏅 ${nl}/${LOGROS.length}</span></div>
+      <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">Misiones de hoy</h3><span class="pag">🔥 ${d.streak || 0} ${d.streak === 1 ? 'día' : 'días'} seguidos · 🏅 ${nl} de ${LOGROS.length}</span></div>
       ${D.list.map(m => { const M = MISIONES.find(x => x.k === m.k); return `<div class="row" style="margin-top:8px;gap:8px"><span style="flex:1;min-width:0;font-size:14px;${m.done ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(M.t(m.n))}</span><span class="bar" style="width:90px"><i style="width:${Math.round(m.p / m.n * 100)}%"></i></span><b style="font-size:12px;width:44px;text-align:right">${m.p}/${m.n}</b></div>`; }).join('')}
       <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
   },
@@ -7683,12 +7743,14 @@ const Vida = EM.vida = {
   },
   temas() {
     const s = Save.d.settings;
-    UI.modal(`<div class="pag">Apariencia</div><h2>Tema</h2><div class="tg" id="tmT">${[['revista', 'Revista'], ['noche', 'Noche'], ['contraste', 'Alto contraste']].map(([k, n]) => `<button data-t="${k}" class="${(s.tema || 'revista') === k ? 'on' : ''}">${n}</button>`).join('')}</div><div class="pag" style="margin-top:10px">Colores</div><div class="tg" id="tmD"><button data-d="0" class="${s.dalt ? '' : 'on'}">Normales</button><button data-d="1" class="${s.dalt ? 'on' : ''}">Modo daltónico</button></div><p class="m">El modo daltónico cambia los colores de los vehículos y andenes en los modos de agujas (las letras siempre se muestran).</p><button class="btn pri" id="tmOk">Listo</button>`);
+    UI.modal(`<div class="pag">Apariencia</div><h2>Tema</h2><div class="tg" id="tmT">${[['metro', 'Metro'], ['noche', 'Noche'], ['contraste', 'Alto contraste']].map(([k, n]) => `<button data-t="${k}" class="${this.tema() === k ? 'on' : ''}">${n}</button>`).join('')}</div><div class="pag" style="margin-top:10px">Colores</div><div class="tg" id="tmD"><button data-d="0" class="${s.dalt ? '' : 'on'}">Normales</button><button data-d="1" class="${s.dalt ? 'on' : ''}">Modo daltónico</button></div><p class="m">El modo daltónico cambia los colores de los vehículos y andenes en los modos de agujas (las letras siempre se muestran).</p><button class="btn pri" id="tmOk">Listo</button>`);
     $$('#tmT button').forEach(b => b.onclick = () => { s.tema = b.dataset.t; this.apply(); Save.write(); $$('#tmT button').forEach(x => x.classList.toggle('on', x === b)); });
     $$('#tmD button').forEach(b => b.onclick = () => { s.dalt = +b.dataset.d; Save.write(); $$('#tmD button').forEach(x => x.classList.toggle('on', x === b)); });
     $('#tmOk').onclick = () => UI.close();
   },
-  apply() { const t = Save.d.settings.tema || 'revista'; document.documentElement.className = 't-' + t; const m = $('meta[name=theme-color]'); if (m) m.content = t === 'contraste' ? '#000000' : t === 'noche' ? '#0c2533' : '#0e5a6b'; }
+  /* tema visual: metro (claro), noche o alto contraste; las partidas viejas con 'revista' pasan a 'metro' */
+  tema() { const t = Save.d.settings.tema; return t === 'noche' || t === 'contraste' ? t : 'metro'; },
+  apply() { const t = this.tema(); document.documentElement.className = 't-' + t; const m = $('meta[name=theme-color]'); if (m) m.content = t === 'contraste' ? '#000000' : '#0F2238'; }
 };
 ~~~~
 
@@ -7841,7 +7903,7 @@ const Multi = EM.multi = {
   stat() { const n = Object.keys(this.players).length; $('#nStat').textContent = Net.connected() ? (Net.role === 'host' ? 'Anfitrión · ' : 'Invitado · ') + (n + 1) + ' jugadores' : 'Sin conexión'; },
   home() {
     this.stat();
-    $('#nBody').innerHTML = `<div class="pag">Est. 08 · Multijugador</div><div class="mega" style="font-size:56px;margin-bottom:12px">Juntos</div>
+    $('#nBody').innerHTML = `<div class="cabeza"><h1>Jugar juntos</h1></div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">1 · En este celular</div><p class="m">Pongan el celular en la mesa, uno frente al otro. Mismo tablero para los dos: gana quien haga más puntos.</p><div class="row">${NETMODES.map(m => `<button class="btn sm" data-d="${m}">${esc(EM.modes[m].name)}</button>`).join('')}</div></div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">2 · Wi‑Fi sin internet</div><p class="m">Conecten los celulares a la misma red Wi‑Fi o al punto de acceso de uno de ellos (no gasta datos). Se enlazan con un código QR: hasta 4 jugadores.</p>${Net.supported() ? '<div class="row"><button class="btn sm tin" id="nHost">Crear sala</button><button class="btn sm" id="nJoin">Unirme con código</button></div>' : '<p class="bad">Este navegador no soporta WebRTC.</p>'}</div>
       <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">3 · Servidor local (PC)</div><p class="m" id="nSrv">Buscando servidor…</p></div>
@@ -7854,7 +7916,7 @@ const Multi = EM.multi = {
     $('#nBcH').onclick = () => { this.wire(); Net.bcOpen('prueba', true); this.lobby(); };
     $('#nBcJ').onclick = () => { this.wire(); Net.bcOpen('prueba', false); this.hello(); this.lobby(); };
     const lb = $('#nLobby'); if (lb) lb.onclick = () => this.lobby();
-    Net.hasServer().then(ok => { const el = $('#nSrv'); if (!el) return; if (ok) { el.innerHTML = '¡Hay un servidor de El Metro en esta red! <div class="row" style="margin-top:8px"><input id="nRoom" value="sala1" maxlength="12" style="border:3px solid var(--negro);padding:6px;width:110px"><button class="btn sm tin" id="nSH">Crear</button><button class="btn sm" id="nSJ">Entrar</button></div>'; const go = host => { this.wire(); Net.wsConnect(($('#nRoom').value || 'sala1').trim(), host).then(() => { if (!host) this.hello(); this.lobby(); }, e => UI.toast(e.message)); }; $('#nSH').onclick = () => go(true); $('#nSJ').onclick = () => go(false); } else el.innerHTML = 'Para jugar con un PC como servidor (casa, colegio, biblioteca): en el PC ejecuta <b>node server.mjs</b> (viene con el juego) y abre en cada celular la dirección que muestra, por ejemplo <b>http://192.168.1.10:8080</b>. Todo queda dentro de la red local.'; });
+    Net.hasServer().then(ok => { const el = $('#nSrv'); if (!el) return; if (ok) { el.innerHTML = '¡Hay un servidor de El Metro en esta red! <div class="row" style="margin-top:8px"><input id="nRoom" value="sala1" maxlength="12" class="campo" style="width:120px"><button class="btn sm tin" id="nSH">Crear</button><button class="btn sm" id="nSJ">Entrar</button></div>'; const go = host => { this.wire(); Net.wsConnect(($('#nRoom').value || 'sala1').trim(), host).then(() => { if (!host) this.hello(); this.lobby(); }, e => UI.toast(e.message)); }; $('#nSH').onclick = () => go(true); $('#nSJ').onclick = () => go(false); } else el.innerHTML = 'Para jugar con un PC como servidor (casa, colegio, biblioteca): en el PC ejecuta <b>node server.mjs</b> (viene con el juego) y abre en cada celular la dirección que muestra, por ejemplo <b>http://192.168.1.10:8080</b>. Todo queda dentro de la red local.'; });
   },
   wire() { Net.onmsg = m => this.onmsg(m); Net.onstatus = s => { this.stat(); if (s === 'open' && UI.cur === 'multi' && this._wait) { this._wait = false; UI.close(); if (Net.role === 'guest') this.hello(); this.lobby(); } }; },
   async hostFlow() {
@@ -7892,10 +7954,10 @@ const Multi = EM.multi = {
   hello() { Net.send({ t: 'hello', name: Save.d.name }); },
   lobby() {
     this.stat(); const host = Net.role === 'host', S = this.sel, M = EM.modes[S.mode];
-    $('#nBody').innerHTML = `<div class="pag">Sala</div><div class="mega" style="font-size:52px">${host ? 'Tu sala' : 'En la sala'}</div>
+    $('#nBody').innerHTML = `<div class="cabeza"><h1>${host ? 'Tu sala' : 'En la sala'}</h1></div>
       <div class="boxed" style="margin:10px 0"><b>${esc(Save.d.name)}</b> (tú)${Object.values(this.players).map(p => '<br>' + esc(p.name)).join('')}</div>
       ${host ? `<div class="pag">Modo</div><div class="tg" id="lMode">${NETMODES.map(m => `<button data-m="${m}" class="${S.mode === m ? 'on' : ''}">${esc(EM.modes[m].name)}</button>`).join('')}</div>
-      <div class="pag" style="margin-top:8px">Nivel</div><select id="lLv" style="border:3px solid var(--negro);padding:6px;font-size:15px;max-width:100%">${M.levels().map(l => `<option value="${esc(l.id)}" ${l.id === S.lv ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
+      <div class="pag" style="margin-top:8px">Nivel</div><select id="lLv" class="campo">${M.levels().map(l => `<option value="${esc(l.id)}" ${l.id === S.lv ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
       <div class="pag" style="margin-top:8px">Forma de jugar</div><div class="tg" id="lKind"><button data-k="coop" class="${S.kind === 'coop' ? 'on' : ''}">Cooperativo (mismo tablero)</button><button data-k="duelo" class="${S.kind === 'duelo' ? 'on' : ''}">Duelo (misma partida, cada uno la suya)</button></div>
       <div class="row" style="margin-top:12px"><button class="btn pri" id="lGo">▶ Empezar</button>${Net.kind === 'rtc' ? '<button class="btn sm" id="lMore">+ Invitar otro</button>' : ''}<button class="btn sm gh" id="lOut">Salir de la sala</button></div>` : '<p class="m">Esperando a que el anfitrión elija el juego…</p><button class="btn sm gh" id="lOut">Salir de la sala</button>'}`;
     if (host) {
@@ -7927,17 +7989,20 @@ const Multi = EM.multi = {
     UI.modal(`<div class="pag">Duelo en red</div><h2>${all[0][0].includes('(tú)') ? '¡Ganaste!' : 'Gana ' + esc(all[0][0])}</h2><div class="kv">${all.map(([n, s]) => `<b>${esc(n)}</b><span>${fmt(s)}</span>`).join('')}</div><p class="m">+${earn} 🎫 · los puntajes de los demás se actualizan cuando terminan.</p><button class="btn pri" id="dOk">Volver a la sala</button>`);
     $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
   },
+  /* lo que llega de otro celular no es confiable: se valida tipo por tipo y los nombres se limpian */
+  nombre(v, def) { const t = typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16) : ''; return t || def; },
   onmsg(m) {
-    const from = m.from;
+    if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
+    const from = m.from | 0;
     switch (m.t) {
-      case 'hello': this.players[from] = { name: String(m.name || 'Jugador').slice(0, 16) }; if (Net.role === 'host') Net.send({ t: 'roster', p: this.players, host: Save.d.name }); this.stat(); if (UI.cur === 'multi') this.lobby(); UI.toast((m.name || 'Alguien') + ' entró a la sala'); break;
-      case 'roster': if (Net.role !== 'host') { this.players = {}; this.players[0] = { name: m.host }; for (const k in m.p) if (+k !== Net.myId) this.players[k] = m.p[k]; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
+      case 'hello': { const n = this.nombre(m.name, 'Jugador'); this.players[from] = { name: n }; if (Net.role === 'host') Net.send({ t: 'roster', p: this.players, host: Save.d.name }); this.stat(); if (UI.cur === 'multi') this.lobby(); UI.toast(n + ' entró a la sala'); break; }
+      case 'roster': if (Net.role !== 'host' && m.p && typeof m.p === 'object') { const P = Object.create(null); P[0] = { name: this.nombre(m.host, 'Anfitrión') }; for (const k of Object.keys(m.p)) { if (!/^\d{1,3}$/.test(k) || +k === Net.myId || !m.p[k] || typeof m.p[k] !== 'object') continue; P[k] = { name: this.nombre(m.p[k].name, 'Jugador') }; } this.players = P; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
       case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
-      case 'start': if (Net.role !== 'host') this.begin(m.mode, m.lv, m.kind, m.seed, false); break;
-      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode) Game.mode.act(Game.st, m.a); break;
-      case 'st': if (Game.net && Game.net.guest && m.s) { Game.st = m.s; } break;
-      case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: String(m.name || 'Rival'), score: m.score | 0, done: !!m.done }; break;
-      case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const r = Object.assign(Game.mode.result(Game.st), m.r || {}); Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
+      case 'start': if (Net.role !== 'host' && NETMODES.includes(m.mode) && (m.kind === 'coop' || m.kind === 'duelo') && EM.modes[m.mode].levels().some(l => l.id === m.lv)) this.begin(m.mode, m.lv, m.kind, +m.seed || 1, false); break;
+      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && (typeof m.a === 'number' || (typeof m.a === 'string' && m.a.length <= 32))) Game.mode.act(Game.st, m.a); break;
+      case 'st': if (Game.net && Game.net.guest && m.s && typeof m.s === 'object' && !Array.isArray(m.s)) { Game.st = m.s; } break;
+      case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: this.nombre(m.name, 'Rival'), score: +m.score | 0, done: !!m.done }; break;
+      case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const q = m.r && typeof m.r === 'object' ? m.r : {}, r = Game.mode.result(Game.st); if (isFinite(+q.score)) r.score = +q.score; if (q.stars != null) r.stars = clamp(q.stars | 0, 0, 3); if (q.win != null) r.win = !!q.win; Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
     }
   },
   bind() { $('#nBack').onclick = () => UI.back(); UI.onshow.multi = () => { if (Net.connected()) this.lobby(); else this.home(); }; }
@@ -7949,7 +8014,7 @@ const Multi = EM.multi = {
 /* =====================================================================
    BOT DE PRUEBAS (dentro del juego)
    selfTest(): valida datos de la red, que cada nivel tenga solución y que el horario sea sensato.
-   monkey(n): n partidas automáticas (piloto/IA + toques al azar) buscando errores e invariantes rotas.
+   monkey(n): n partidas automáticas (piloto automático + toques al azar) buscando errores e invariantes rotas.
    Uso: menú → 🤖 Bot de pruebas · consola: EM.test.monkey(100) · node tools/test.mjs
    ===================================================================== */
 const BotT = EM.test = {
@@ -7984,6 +8049,15 @@ const BotT = EM.test = {
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
     let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
     let nA = 0; try { nA = EM.atlas ? EM.atlas.check(E) : 0; } catch (e) { E('atlas: ' + e.message); }
+    // seguridad: una partida importada no cambia prototipos y los mensajes de otro celular no rompen el juego
+    try {
+      const d = Save.sanitize(JSON.parse('{"v":1,"__proto__":{"contaminado":1},"settings":{"__proto__":{"x":1}},"wallet":-5}'));
+      if (({}).contaminado !== undefined || Object.getPrototypeOf(d) !== Object.prototype || d.wallet !== 0) E('seguridad: importar partidas no se sanea');
+      const P0 = Multi.players;
+      for (const m of [null, 'x', { t: 5 }, { t: 'hello', from: 3, name: {} }, { t: 'roster', p: JSON.parse('{"__proto__":{"name":"x"},"7":{"name":[1]}}'), host: {} }, { t: 'start', mode: 'constructor' }, { t: 'act', a: {} }, { t: 'sc', from: 2, name: 9 }, { t: 'st', s: [1] }]) Multi.onmsg(m);
+      if (Object.values(Multi.players).some(q => typeof q.name !== 'string') || ({}).name !== undefined) E('seguridad: mensajes de red sin validar');
+      Multi.players = P0;
+    } catch (e) { E('seguridad: ' + e.message); }
     // Medellín reconocible: parche de casillas, barrios y nombres de calle (datos oficiales)
     let nBa = 0, nCa = 0; try {
       if (typeof CIUDAD === 'undefined') E('ciudad: falta src/data/ciudad.js'); else {
@@ -8037,13 +8111,13 @@ const BotT = EM.test = {
    ===================================================================== */
 async function boot() {
   Save.load(); Vida.apply();
-  const play = $('#bPlay'); play.disabled = true; play.textContent = 'Cargando el valle…';
+  const play = $('#bPlay'), playTx = play.querySelector('small'); play.disabled = true; playTx.textContent = 'Cargando el valle…';
   Game.bind(); Menu.bind(); RedView.bind(); Story.bind(); Multi.bind();
   $('#gPause').onclick = () => Game.pause(true);
   Menu.cover();
   try { await MAP.load(); } catch (e) { EM.errors.push('mapa: ' + e.message); }
   try { NET.build(); } catch (e) { EM.errors.push('red: ' + e.message); console.error(e); }
-  play.disabled = false; play.textContent = '▶ Jugar';
+  play.disabled = false; playTx.textContent = 'Ciudad Libre y todos los modos';
   history.pushState(null, '');
   document.addEventListener('pointerdown', () => { Snd.init(); Snd.resume(); }, { once: true });
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !window.AndroidBridge) navigator.serviceWorker.register('sw.js').catch(() => { });
@@ -8456,8 +8530,8 @@ console.log('arte/index.html', Math.round(html.length / 1024), 'KB ·', DOCS.len
 
   python3 tools/arte_juego.py        (requiere Pillow con WebP y numpy)
 
-- Gemini (G-): láminas JPEG con fondo magenta → recorte, fondo transparente, WebP pequeño.
-- ChatGPT (C-): SVG → se minifican y se embeben como texto (nítidos en cualquier pantalla).
+- Láminas (encargos G-): JPEG con fondo magenta → recorte, fondo transparente, WebP pequeño.
+- Vectorial (encargos C-): SVG → se minifican y se embeben como texto (nítidos en cualquier pantalla).
 - El juego usa ARTE[id] solo si existe: siempre hay respaldo procedural (Atlas en src/js/19-atlas.js).
 - Las cajas de recorte se midieron con una segmentación del fondo magenta (ver arte/entregas/INVENTARIO.md).
 """
@@ -8467,8 +8541,8 @@ import numpy as np
 from PIL import Image
 
 R = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-G = os.path.join(R, 'arte/entregas/gemini')
-C = os.path.join(R, 'arte/entregas/chatgpt/svg')
+G = os.path.join(R, 'arte/entregas/laminas')
+C = os.path.join(R, 'arte/entregas/vectorial/svg')
 
 ROS, NIE, EFR, MWA = 'G-01-03_rosalba.jpg', 'G-04_nieta.jpg', 'G-05_don-efrain.jpg', 'G-06-08_marleny-wilmar-agente.jpg'
 FIE, VAR, LAD = 'G-80-81_silleteros-y-alumbrados.jpg', 'G-82-86_velitas-tango-comuna13-arvi-aguacero.jpg', 'G-40-55_ladera-y-variantes.jpg'
@@ -8503,7 +8577,7 @@ RASTER = [
 RASTER = [r if r[0] not in ('esc_aguacero', 'esc_velitas') else
           (r[0], r[1], r[2], (1102, 77, 1374, 692) if r[0] == 'esc_aguacero' else (3, 77, 274, 692)) + r[4:] for r in RASTER]
 
-# SVG de ChatGPT: (id, ruta dentro de svg/, encargo, uso)
+# SVG: (id, ruta dentro de svg/, encargo, uso)
 SVG = [('portada', 'portadas/clave_portada.svg', 'C-40', 'Portada del menú y epílogo'),
        ('carga', 'portadas/clave_carga.svg', 'C-41', 'Pantalla de carga y cap. 7 · La última vuelta')]
 for i, (k, f) in enumerate([('libre', 'ciudad_libre'), ('bus', 'bus'), ('conduce', 'metro'), ('cableviaje', 'metrocable'), ('historia', 'historia'),
@@ -8608,8 +8682,8 @@ def main():
         filas.append((id_, enc, f, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
     for (id_, f, enc, uso) in SVG:
         s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
-        arte[id_] = s; filas.append((id_, enc, 'chatgpt/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
-    js = ('/* ARTE DEL JUEGO · generado por tools/arte_juego.py desde arte/entregas/ (Gemini G-, ChatGPT C-). No editar a mano.\n'
+        arte[id_] = s; filas.append((id_, enc, 'vectorial/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
+    js = ('/* ARTE DEL JUEGO · generado por tools/arte_juego.py desde arte/entregas/. No editar a mano.\n'
           '   Uso: Atlas.img(id) / Atlas.url(id) en src/js/19-atlas.js; si falta un id, el juego dibuja su respaldo procedural. */\n'
           'const ARTE = ' + json.dumps(arte, ensure_ascii=False, separators=(',', ':')).replace('","', '",\n"') + ';\n')
     open(os.path.join(R, 'src/data/arte.js'), 'w', encoding='utf-8').write(js)
@@ -8637,19 +8711,24 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dist = path.join(root, 'dist');
 const b = await chromium.launch(), p = await b.newPage();
 await p.goto('file://' + path.join(dist, 'index.html')); await p.waitForFunction(() => window.EM && EM.ready); await p.evaluate(() => document.fonts.ready);
+await p.evaluate(() => new Promise(r => { if (!EM.atlas.has('portada')) return r(); if (EM.atlas.img('portada', r)) r(); setTimeout(r, 3000); }));
 const out = await p.evaluate(() => {
   const A = EM.art, mk = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); f(g, w, h); return c.toDataURL('image/png'); };
   const icon = (S, mask) => mk(S, S, g => A.icon(g, S, mask));
+  // imagen para compartir: la ilustración del valle, el título y la línea con sus estaciones (identidad del Metro)
   const share = mk(1200, 630, (g, W, H) => {
-    g.fillStyle = '#f8f1dc'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#0e5a6b'; g.fillRect(0, 0, W, 64); g.fillStyle = '#141414'; g.fillRect(0, 64, W, 6);
-    g.fillStyle = '#fbf8ee'; g.font = '800 22px Cuerpo, sans-serif'; g.fillText('M E T R O   D E   M E D E L L Í N   ·   V A L L E   D E   A B U R R Á', 28, 42);
-    const art = document.createElement('canvas'); art.width = 320; art.height = 200; const ag = art.getContext('2d'); A.cover(ag, 320, 200, 7.3, false);
-    g.imageSmoothingEnabled = false; g.fillStyle = '#141414'; g.fillRect(586, 110, 588, 380); g.drawImage(art, 594, 118, 572, 357.5);
-    g.fillStyle = '#12446c'; g.font = '700 220px Titulos, Impact, sans-serif'; g.fontStretch = 'condensed'; g.fillText('EL', 30, 290); g.fillText('METRO', 30, 480);
-    g.fillStyle = '#c8201f'; g.font = 'italic 34px Georgia, serif'; g.fillText('¿Sabés a dónde vas?', 36, 545);
-    g.fillStyle = '#1b8088'; g.font = '700 54px Titulos, Impact, sans-serif'; g.fillText('LA ÚLTIMA VUELTA', 600, 560);
-    g.fillStyle = '#f9e4a4'; g.fillRect(0, H - 40, W, 40); g.fillStyle = '#141414'; g.fillRect(0, H - 43, W, 3); g.fillStyle = '#12446c'; g.font = '700 24px Cuerpo, sans-serif'; g.fillText('Trenes · Tranvía · Metroplús · Alimentadores · Metrocables  —  juega sin internet', 28, H - 12);
+    g.fillStyle = '#0F2238'; g.fillRect(0, 0, W, H);
+    const pic = EM.atlas.img('portada');
+    if (pic) { const s2 = Math.max(W / pic.naturalWidth, H / pic.naturalHeight); g.drawImage(pic, (W - pic.naturalWidth * s2) / 2, (H - pic.naturalHeight * s2) / 2 - 40, pic.naturalWidth * s2, pic.naturalHeight * s2); }
+    else { const art = document.createElement('canvas'); art.width = 320; art.height = 200; A.cover(art.getContext('2d'), 320, 200, 7.3, false); g.imageSmoothingEnabled = false; g.drawImage(art, 0, 0, W, W / 1.6); }
+    const sombra = g.createLinearGradient(0, 0, W * .62, 0); sombra.addColorStop(0, 'rgba(15,34,56,.96)'); sombra.addColorStop(.75, 'rgba(15,34,56,.72)'); sombra.addColorStop(1, 'rgba(15,34,56,0)'); g.fillStyle = sombra; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#fff'; g.font = '700 168px Titulos, Impact, sans-serif'; g.fillText('El Metro', 60, 250);
+    g.fillStyle = '#d7e2ec'; g.font = '600 34px Cuerpo, sans-serif'; g.fillText('Medellín y el Valle de Aburrá', 64, 312); g.fillText('en metro, tranvía, cable y bus', 64, 356);
+    const est = [['Jugar', '#1C5C9C'], ['La última vuelta', '#EB318E'], ['Sin internet', '#59AB42']];
+    g.fillStyle = '#1C5C9C'; g.fillRect(84, 404, 10, 168);
+    est.forEach(([t, c], i) => { const y = 420 + i * 66; g.fillStyle = '#fff'; g.beginPath(); g.arc(89, y, 19, 0, Math.PI * 2); g.fill(); g.lineWidth = 8; g.strokeStyle = c; g.stroke(); g.fillStyle = '#fff'; g.font = '700 34px Titulos, Impact, sans-serif'; g.fillText(t, 126, y + 12); });
+    const L = ['#1C5C9C', '#E38835', '#59AB42', '#B8CF40', '#F6C538', '#EB318E', '#8E612A', '#743D90', '#EC343A', '#0E6F76', '#65A9AC'];
+    L.forEach((c, i) => { g.fillStyle = c; g.fillRect(i * W / L.length, H - 14, W / L.length + 1, 14); });
   });
   return { i192: icon(192), i512: icon(512), m512: icon(512, true), apple: icon(180, true), fav: icon(32), share };
 });
@@ -8672,17 +8751,21 @@ const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/'
 const read = p => fs.readFileSync(p, 'utf8');
 const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
 fs.mkdirSync(dist, { recursive: true });
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
-const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
+// La versión publicada va sin comentarios de línea completa (el código fuente los conserva). Solo se quita un bloque
+// /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
+const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
+const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
 const tmp = path.join(dist, '.check.js'); fs.writeFileSync(tmp, data.join('\n') + '\n' + js);
 try { execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { console.error(String(e.stderr || e)); process.exit(1); } finally { fs.unlinkSync(tmp); }
-const head = read(src('head.html')).replace('%FONTS%', read(src('fonts.css'))).replace('%CSS%', read(src('style.css'))).replaceAll('%URL%', URL_);
+const head = read(src('head.html')).replace('%FONTS%', read(src('fonts.css'))).replace('%CSS%', limpiaCss(read(src('style.css')))).replaceAll('%URL%', URL_);
 const html = head + read(src('body.html')) + data.map(d => '<script>' + d + '</script>\n').join('') + '<script>\n' + js + '\n</script>\n</body></html>\n';
 fs.writeFileSync(path.join(dist, 'index.html'), html);
 const hash = crypto.createHash('sha1').update(html).digest('hex').slice(0, 8);
-const manifest = { name: 'El Metro · La última vuelta', short_name: 'El Metro', description: 'Juego offline sobre el Metro de Medellín: trenes, tranvía, Metroplús, alimentadores y metrocables.', lang: 'es-CO', start_url: './', scope: './', id: './', display: 'standalone', orientation: 'any', background_color: '#efe7cf', theme_color: '#0e5a6b', categories: ['games', 'education'],
+const manifest = { name: 'El Metro · La última vuelta', short_name: 'El Metro', description: 'Juego offline sobre el Metro de Medellín: trenes, tranvía, Metroplús, alimentadores y metrocables.', lang: 'es-CO', start_url: './', scope: './', id: './', display: 'standalone', orientation: 'any', background_color: '#0F2238', theme_color: '#0F2238', categories: ['games', 'education'],
   icons: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' }, { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }] };
 fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify(manifest, null, 1));
 const files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'favicon.svg'];
