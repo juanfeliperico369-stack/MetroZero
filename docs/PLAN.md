@@ -24,6 +24,8 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 
 - **v0.9.0:** **Maqueta 2:1 hecha** (Fase 1b, paso 3) en La Red, y álbum de postales con vista aérea real. Siguiente: laderas ilustradas (G‑50 a G‑55) en el Metrocable, estaciones y trenes de perfil (G‑20 a G‑37) en la panorámica, barrios de Bello y anchos reales de calle.
 
+- **Auditoría de v0.9.0:** el mapa queda medido y con una hoja de ruta de 12 pasos, cada uno con su meta (`docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`). Siguiente: M1–M6 (estaciones con huella, río continuo y que baja, tranvía por su calle, patio‑taller y escaleras) y los arreglos rápidos de memoria y arranque.
+
 ## Fases
 ### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).

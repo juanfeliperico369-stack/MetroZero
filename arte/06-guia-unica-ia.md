@@ -725,6 +725,24 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 #### Historial
+##### Auditoría de v0.9.0 (2026-11-17) — juego y mapa medidos
+Pedido del autor: “audita el videojuego, dame ideas y sugerencias y, en especial, analiza el mapa para seguirlo mejorando después”. No cambia el juego.
+1. **Informe:** `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`. Trae rendimiento, balance, código, seguridad, accesibilidad, el mapa a fondo con cuatro láminas, la hoja de ruta del mapa (M1–M12, cada paso con su meta medible) y 14 ideas.
+2. **Herramienta nueva, `tools/auditoria-mapa.mjs`:** mide el mapa con el propio juego y dibuja las láminas. Sus cifras son los criterios de aceptación de cada mejora del mapa.
+3. **Hallazgos principales:**
+   - **Memoria:** la caché del mapa puede ocupar ~80 MB de imagen (40 trozos × 2 lienzos de 512²).
+   - **Rendimiento:** la panorámica lateral satura el hilo principal, y Ciudad Libre y el bus se congelan 0,2–0,3 s al arrancar.
+   - **Resultado incoherente:** el viaje en Metrocable se “gana” con puntaje negativo y dice “¡Bien hecho!”.
+   - **Accesibilidad:** el botón 🏃 de Ciudad Libre no tiene nombre y no hay región `aria-live`.
+   - **Seguridad:** las invitaciones se descomprimen sin tope.
+   - **Mapa:**
+     - las 49 estaciones no tienen huella y dos caen sobre edificios;
+     - el río se corta 69 veces y sube en 37 tramos (hasta 27 m en Copacabana);
+     - las quebradas ocupan 29,4 km², con 2.266 manchones de agua;
+     - el tranvía va en un 24 % sobre casas;
+     - fuera de Medellín e Itagüí casi no hay barrios (Bello 1 %), y fuera de Medellín pocas calles tienen nombre (4–18 %).
+4. **Regla aprendida:** el bot sirve para encontrar errores, no para balancear. El piloto automático del bus y de “Al volante” no intenta ganar. Para balancear hacen falta datos de jugadores.
+
 ##### v0.9.0 (2026-11-17) — Maqueta 2:1 y álbum de postales
 Pedido del autor: “continúa desarrollando y mejorando, termina lo pendiente y lo olvidado”.
 1. **Maqueta 2:1 (`src/js/24-iso.js`), en La Red con el botón “⬢ Maqueta 2:1”:** el valle real en proyección dimétrica.
@@ -889,6 +907,12 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
+0. **Hoja de ruta del mapa medida (auditoría del 17‑nov):**
+   - M1–M6 en una sola sesión: estaciones con huella, río continuo y que siempre baja, tranvía por su calle, patio‑taller de Bello y escaleras con sentido;
+   - luego M7 (quebradas a su tamaño);
+   - luego M8 y M9 (nombres y barrios fuera de Medellín).
+   - Metas y fuentes en `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`. Comprobar con `node tools/auditoria-mapa.mjs`.
+   - **Arreglos rápidos del juego** del mismo informe: memoria del mapa, arranque sin tirón, resultado coherente con 0 estrellas, accesibilidad en juego y tope a las invitaciones.
 0a. **Maqueta 2:1: hecha en v0.9.0.** Siguiente: usarla también en Ciudad Libre como vista opcional y pintarla con el encargo G‑100.
 0b. **Arte, fase 2:**
    - estaciones y vehículos de perfil de Gemini (G‑20 a G‑37) en la panorámica;

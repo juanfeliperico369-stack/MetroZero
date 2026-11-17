@@ -78,6 +78,7 @@ python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ ar
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
 python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
+node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK

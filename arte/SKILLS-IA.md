@@ -135,6 +135,7 @@ python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ ar
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
 python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
+node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -388,6 +389,19 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 **Licencia del Catastro:** citar “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin” y declarar las transformaciones (ver `docs/FUENTES.md`).
 
 **Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
+
+### Medir antes y después (desde la auditoría del 17‑nov)
+- `node tools/auditoria-mapa.mjs` da las cifras que sirven de criterio de aceptación:
+  - nombres de calle y barrios por municipio;
+  - estaciones sin huella o sobre edificios;
+  - trazo del metro y del tranvía sobre casas;
+  - cortes y subidas del río;
+  - manchones de agua y escaleras sueltas;
+  - relieve.
+- Con `--img` dibuja las láminas.
+- Hoja de ruta M1–M12 con sus metas en `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`.
+- **Toda mejora del mapa se entrega con su cifra de antes y de después.**
+- **Relieve:** SRTM y Copernicus son modelos de **superficie**: miden copas de árboles, puentes y muros, no el agua. Antes de usar el relieve en el río hay que “quemar” el cauce para que siempre baje (regresión isotónica a lo largo del recorrido).
 
 Bello y los demás municipios del norte y del sur aún no tienen capa abierta de barrios. Nominatim limita a las IP de la nube (error 429): no insistas.
 
