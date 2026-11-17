@@ -265,7 +265,7 @@ v0.6.0 trajo el arte de Gemini y ChatGPT y el primer rediseño del mapa. El HTML
 
 **Pruebas:** `node tools/test.mjs 100` → selfTest (datos, solubilidad, rutas) + partidas automáticas en todos los modos + recorrido de pantallas. Última corrida: ver Historial v0.4.0. El bot también vive en el menú (🤖).
 
-**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; **v0.7.0 verificada el 2026-11-17**: carga, service worker con caché `el-metro-v0.7.0-d9668e14`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 7, 4,3 MB). Todo en un archivo: `/El-Metro-TODO.html`; documento único: `/EL-METRO-TODO.md`.
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; **v0.8.0 verificada el 2026-11-17**: carga con la CSP activa, service worker con caché `el-metro-v0.8.0-fccee683`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 8, 4,3 MB).
 
 #### Carpeta de arte (`arte/`, 2026-11-17)
 Investigación visual y guía de producción para el arte definitivo:
