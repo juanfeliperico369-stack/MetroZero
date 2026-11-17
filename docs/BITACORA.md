@@ -24,7 +24,7 @@
 
 **Pruebas:** `node tools/test.mjs 100` → selfTest (datos, solubilidad, rutas) + partidas automáticas en todos los modos + recorrido de pantallas. Última corrida: ver Historial v0.4.0. El bot también vive en el menú (🤖).
 
-**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; v0.4.0 verificada el 2026-11-17: carga, service worker con caché `el-metro-v0.4.0-aff25a11`, sin conexión, instalable sin errores) · APK v0.4.0 (versionCode 4) en `/el-metro.apk`.
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; v0.5.0 verificada el 2026-11-17: carga, service worker con caché `el-metro-v0.5.0-63270c88`, sin conexión, instalable sin errores) · APK v0.5.0 (versionCode 5) en `/el-metro.apk`.
 
 ## Historial
 ### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
