@@ -1,0 +1,327 @@
+# SKILLS PARA IA · El Metro
+
+> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT (junto con `CONTEXTO-IA.md`). Reúne el índice de skills y las **skills propias del proyecto**. Los agentes de código (Claude Code, Codex, Antigravity) las leen directo del repositorio en `.agents/skills/` y `.claude/skills/`.
+
+## Skills del proyecto *El Metro*
+
+Las **skills** son carpetas con un `SKILL.md` (instrucciones y, a veces, scripts). Siguen el formato abierto **Agent Skills** ([agentskills.io](https://agentskills.io/specification)), que leen Claude, Codex de ChatGPT, Antigravity y Gemini CLI. Cada agente carga una skill cuando la tarea coincide con su descripción.
+
+## Dónde las lee cada IA
+| IA | Carpeta |
+|---|---|
+| **Claude Code** | `.claude/skills/` (copia automática con `node tools/skills.mjs`) |
+| **ChatGPT Codex** (“astra”) | `.agents/skills/`, la carpeta común. Algunas versiones usan `.codex/skills/` *(verificar en la documentación de Codex)* |
+| **Gemini Antigravity** (“argon”) y Gemini CLI | `.agents/skills/` del espacio de trabajo. La documentación oficial de Antigravity la indica para skills de proyecto; la ruta global cambia según la versión |
+| **Gemini (Nano Banana)** y **ChatGPT** como generadores de imágenes | No leen carpetas. Sube `arte/SKILLS-IA.md` (y `arte/CONTEXTO-IA.md`) como conocimiento de un **Gem** o como archivo de un **Proyecto** |
+
+## Skills instaladas
+| Skill | Para qué | Quién la usa | Origen y licencia |
+|---|---|---|---|
+| **el-metro-desarrollo** | Estructura del código, compilar, probar (100 partidas), capturas, APK, publicar y bitácora | Agentes de código (Claude, Codex, Antigravity) | Propia del proyecto |
+| **el-metro-arte** | Dirección de arte, paletas, vistas, reparto G‑ y C‑, revisión e integración de imágenes | Todas las IA (las de imágenes, vía `SKILLS-IA.md`) | Propia del proyecto |
+| **medellin-fiel** | Topografía, relieve, estructuras y vista isométrica 2:1 (Fase 1b) | Agentes de código; Gemini para el repintado G‑100 | Propia del proyecto |
+| **frontend-design** | Dirección visual de interfaces: tipografía, jerarquía, evitar diseños genéricos (menús, HUD, guía) | Agentes de código | [anthropics/skills](https://github.com/anthropics/skills) · Apache‑2.0 (`LICENSE.txt` en la carpeta) |
+| **webapp-testing** | Probar aplicaciones web con Playwright: capturas, consola, DOM (complementa `tools/test.mjs`) | Agentes de código | anthropics/skills · Apache‑2.0 |
+| **skill-creator** | Crear, mejorar y evaluar skills nuevas del proyecto | Agentes de código | anthropics/skills · Apache‑2.0 |
+
+Versión de anthropics/skills copiada: commit `e4bb5d9` (16 nov 2026).
+
+> **Nota sobre `frontend-design`:** marca como “cliché” el fondo crema con acento terracota. En *El Metro*, el papel crema `#f1ece0` es **decisión del autor** (revista EMSAY). Se mantiene, con los colores de las líneas del Metro como acentos (ver `el-metro-arte`).
+
+## Recomendadas, no instaladas aquí
+**Plugins de Claude** que el autor puede activar en su cuenta:
+
+| Plugin | Para qué |
+|---|---|
+| **image-generation** | Guía de prompts para Gemini Image y GPT Image; sirve para mejorar los encargos G‑ y C‑ |
+| **frontend-design** | La misma skill de arriba, para usarla en cualquier proyecto |
+| **playwright** (Microsoft) | Manejar el navegador de forma interactiva |
+| **Android Emulator QA** | Probar la APK en un emulador del PC |
+| **Unity** | Solo si algún día el juego pasa a Unity: sprites pixel‑perfect, atlas, mosaicos |
+
+**Skills oficiales que no se copiaron:**
+- **canvas-design** pesa 5,6 MB por sus fuentes.
+- **algorithmic-art** usa p5.js, que el juego no lleva.
+
+Ambas están en anthropics/skills si se necesitan.
+
+## Mantenimiento
+- Las skills propias se editan **solo** en `.agents/skills/`.
+- Después se corre `node tools/skills.mjs`, que copia todo a `.claude/skills/` y regenera `arte/SKILLS-IA.md`.
+- Al cambiar una regla del proyecto, actualiza la skill correspondiente y la bitácora.
+
+
+---
+
+# Skill · el-metro-desarrollo
+
+```yaml
+name: el-metro-desarrollo
+description: Cómo trabajar en el código del videojuego "El Metro" (Metro de Medellín). Explica la estructura de un solo HTML sin librerías, el mapa de módulos en src/js, la compilación, las pruebas con bot y 100 partidas, las capturas en Chromium, la APK de Android, la publicación en GitHub Pages y la bitácora. Úsala siempre que vayas a leer, modificar, probar, compilar o publicar el juego.
+```
+
+## El Metro · desarrollo
+
+### Qué es
+Videojuego **offline** de mundo abierto + arcade sobre el Metro de Medellín, para todo público y para celulares modestos. Se entrega como **un solo `index.html`** (PWA en GitHub Pages) y como **APK** de Android (WebView).
+- **Misión:** que cualquiera conozca, use y quiera la red y la ciudad jugando.
+- **Visión:** el gran juego de Medellín, fiel a la ciudad.
+
+**Antes de tocar nada, lee:**
+- `docs/BITACORA.md`: estado, historial y pendientes.
+- `docs/PLAN.md`: fases.
+- `arte/README.md`: arte.
+
+### Reglas que no se rompen
+1. **Un solo HTML, sin librerías externas ni internet** en tiempo de juego. Todo va embebido (datos, fuentes, arte).
+2. **Celulares modestos:** cuida los ms por cuadro, cachea lo dibujado y evita asignar memoria en el bucle.
+3. **Español** en todo el juego y en los textos; **todo público** (sin violencia).
+4. **No romper el guardado** (`localStorage` clave `elmetro.v1`, objeto `Save.d`). Si agregas campos, que tengan valor por defecto.
+5. **El arte nuevo siempre va con respaldo:** si falta una imagen, sigue el dibujo procedural actual.
+6. **Cerrar cada sesión actualizando `docs/BITACORA.md`**: qué cambió, qué se probó y qué falta.
+
+### Mapa del código (`src/js/*.js` se concatenan en orden)
+| Archivo | Qué hace |
+|---|---|
+| `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
+| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
+| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
+| `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
+| `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
+| `22-gl.js` | Motor 3D WebGL1 propio `G3` |
+| `23-lado.js` | Panorámica lateral por capas |
+| `25-game.js` | Bucle de juego, HUD, pausa, `Game.freeze()` |
+| `30-conduce.js` / `31-cabina.js` | Metro y tranvía (panorámica, cabina, ATP, procedimiento) |
+| `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
+| `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad |
+| `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
+| `52-cableviaje.js` | Metrocable |
+| `60-mapa.js` / `65-menu.js` / `66-vida.js` / `67-guia.js` / `70-historia.js` | La Red, menús, misiones y logros, guía, historia clásica |
+| `80-multi.js` / `06-net.js` / `05-qr.js` | Multijugador local (WebRTC/QR, servidor local) |
+| `90-bot.js` | `EM.test.selfTest()` y partidas automáticas (monkey) |
+
+Datos en `src/data/`:
+- `valle.js`: mapa y relieve de EnCicla;
+- `red.js`: líneas y estaciones;
+- `rutas.js`: recorridos de buses por calles reales;
+- `lugares.js`: lugares con postal.
+
+**Convenciones:**
+- Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
+- Cada modo implementa `levels()`, `create(lv, opts)`, `step(st, dt)`, `draw(g, st, vp)`, `hud(st)`, `mount(st, el)`.
+- Usa `EM.headless` y `st.auto` para que el bot juegue sin interfaz.
+
+### Comandos
+```
+node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
+node tools/test.mjs 100              # selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
+node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
+bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
+node tools/verify-pages.mjs          # verifica la web publicada: carga, service worker, sin conexión, instalable
+node tools/arte.mjs                  # regenera arte/index.html y arte/CONTEXTO-IA.md (bitácora sincronizada)
+node tools/skills.mjs                # copia .agents/skills → .claude/skills y arma arte/SKILLS-IA.md
+```
+**Chromium y Playwright** ya vienen instalados (`require('playwright')`). En la nube, el 3D usa SwiftShader: lanza Chromium con `--enable-unsafe-swiftshader --use-angle=swiftshader --ignore-gpu-blocklist`.
+
+**Capturas:**
+- Llama `EM.game.freeze(true)` antes de capturar y `false` después.
+- La primera captura de cada modo puede tardar mucho: reintenta con más tiempo.
+
+### Flujo de un cambio
+1. Lee la bitácora y el archivo que vas a tocar.
+2. Cambia el código.
+3. Compila con `node tools/build.mjs`.
+4. Prueba con `node tools/test.mjs 100` (0 errores) y mira capturas en vertical (412×860) y horizontal.
+5. Sube la versión en `00-core.js` (`EM.version`).
+6. Actualiza la bitácora (y el plan si aplica).
+7. Haz commit en la rama de trabajo.
+8. Publica:
+   1. copia `dist/` a la rama `gh-pages`, que lleva `.nojekyll`;
+   2. espera a que el `sw.js` publicado muestre la nueva caché;
+   3. corre `node tools/verify-pages.mjs`.
+
+### Errores conocidos
+- Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
+- No uses capturas de Google Maps ni de Google Earth como base de arte.
+- El tamaño del HTML importa: hoy pesa unos 1,8 MB. El arte nuevo va en atlas comprimidos.
+
+
+---
+
+# Skill · el-metro-arte
+
+```yaml
+name: el-metro-arte
+description: Dirección de arte y producción de imágenes para el videojuego "El Metro" (Metro de Medellín). Cubre las paletas HEX, las vistas y escalas, los personajes y las reglas (sin texto ni logos, fondo magenta); el reparto de encargos entre Gemini Nano Banana (G-) y ChatGPT (C-); y la revisión, entrega e integración del arte al juego. Úsala al generar, encargar, revisar o integrar cualquier imagen, sprite, ícono, panorámica o mosaico del juego.
+```
+
+## El Metro · arte
+
+### Dónde está todo
+| Archivo | Qué contiene |
+|---|---|
+| `arte/06-guia-unica-ia.md` | **Guía única**: contexto completo, roles, encargos G‑ y C‑, correcciones, entrega y bitácora |
+| `arte/CONTEXTO-IA.md` | Contexto y bitácora en un archivo, para subir a un Gem o a un Proyecto |
+| `arte/00-biblia-de-estilo.md` | Reglas visuales completas |
+| `arte/01` a `arte/05` | Referencias de juegos, Medellín visual, historia, folclor y fiestas, diseño |
+| `arte/galeria.md` | Fotos de referencia con licencia libre |
+
+### Concepto
+**“Medellín de verdad, dibujada con cariño”.**
+- Ciudad vista desde arriba en pixel art denso y acogedor.
+- Panorámica de siluetas por capas con bruma.
+- Vista isométrica dimétrica 2:1.
+- 3D low‑poly limpio.
+- Interfaz editorial con los colores de las líneas del Metro como acentos.
+
+> El fondo crema de la interfaz (`#f1ece0`) es **decisión del autor**: viene de la revista EMSAY. Si otra skill de diseño lo marca como cliché, se mantiene igual.
+
+### Reglas para toda imagen
+- Luz desde arriba a la izquierda; **sin sombra proyectada** (la pone el juego).
+- Contorno `#141414` fino en personajes y vehículos.
+- Máximo 32 colores, tomados de la paleta.
+- **Fondo magenta plano `#FF00FF`** o transparente; nunca blanco.
+- **Prohibido:** texto (salvo pedido y en español), logos o marcas reales, marcas de agua, violencia, alcohol, cigarrillo y pólvora en manos de niños.
+- Arte **original**: no se copian juegos ni artistas.
+- No se usan capturas de Google Maps ni de Google Earth como base.
+
+### Paletas clave
+**Líneas:**
+
+| A | B | T | K | J | H | L | M | P | MP1 | MP2 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `#1C5C9C` | `#E38835` | `#59AB42` | `#B8CF40` | `#F6C538` | `#EB318E` | `#8E612A` | `#743D90` | `#EC343A` | `#0E6F76` | `#65A9AC` |
+
+**Ciudad:**
+- asfalto `#3b3f45`
+- andén `#c9c1ad`
+- ladrillo `#b4583a` y `#9a4630`
+- teja `#a8452f`
+- losa `#9e9a92`
+- pasto `#4f8a3c`
+- árbol `#2f6b35`
+- río `#5f7f73`
+- concreto `#a9a59b`
+- vidrio `#9fd3e6`
+
+**Interfaz:**
+- papel `#f1ece0`
+- tinta `#154a80`
+- negro `#141414`
+- manteca `#fbe7b0`
+
+### Vistas y escalas
+| Vista | Regla |
+|---|---|
+| Cenital 3/4 | ~15° de inclinación; casilla de 20 m (entrega a 64 px por casilla) |
+| Sprites de vehículos | Vista superior pura, mirando a la derecha, **1 m = 8 px** |
+| Peatones | 16×16 px por cuadro, 4 cuadros |
+| Panorámica | Perfil puro, sin cielo, capas anchas (21:9 o más) |
+| Isométrica | Dimétrica 2:1 (~26,6°) |
+| Cabina | 9:16 y 16:9, con el parabrisas en magenta |
+| Retratos | Busto 3/4 mirando a la derecha |
+| Íconos | 128 px, planos, contorno grueso |
+
+### Reparto de encargos
+- **Gemini Nano Banana, encargos G‑:** ancla de estilo (G‑00), personajes, foto → estilo, variantes de hora y fiesta, casas de barrio, panorámicas (G‑70 a G‑73), ambientes de fiesta (G‑80 a G‑86), conceptos isométricos (G‑90) y repintado de mosaicos base (G‑100).
+- **ChatGPT, encargos C‑:** sprites cenitales con transparencia, íconos e insignias, cabina, letreros, portadas, decoraciones de fiesta y texturas (C‑60).
+- Cada IA **solo hace lo suyo**. Los prompts exactos están en la guía única.
+
+### Revisión (antes de aceptar una imagen)
+1. ¿La vista es correcta?
+2. ¿Los colores son de la paleta y la línea tiene su color?
+3. ¿El fondo es plano?
+4. ¿No tiene sombra proyectada, ni texto, ni logos?
+5. ¿Se lee bien en pequeño?
+6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
+
+### Integración al juego
+1. Lo entregado va en `arte/entregas/<carpeta>/` (estructura en la guía única, Bloque 5).
+2. Se quita el magenta (transparencia) y se recorta a la cuadrícula.
+3. Se reduce con **vecino más cercano** a la escala del juego y se **cuantiza a la paleta**.
+4. Se arman **atlas** en `src/art/` (PNG o WebP más un JSON de coordenadas), embebidos en el HTML. La meta es menos de 4 MB de arte.
+5. Se conecta el arte, siempre con respaldo al dibujo procedural:
+
+   | Arte | Archivo |
+   |---|---|
+   | Casillas | `10-map.js` |
+   | Sprites | `21-sprites.js` |
+   | Capas | `23-lado.js` |
+   | Vehículos de perfil | `30-conduce.js`, `52-cableviaje.js` |
+   | Consola | `31-cabina.js` |
+   | Retratos | `37-trama.js` |
+   | Íconos | menús |
+   | Isométrico | vista nueva (ver skill `medellin-fiel`) |
+6. Se prueba con `node tools/test.mjs 100` y capturas, y se publica (skill `el-metro-desarrollo`).
+
+
+---
+
+# Skill · medellin-fiel
+
+```yaml
+name: medellin-fiel
+description: Fidelidad geográfica de Medellín en el videojuego "El Metro" (Fase 1b del plan). Cubre topografía y relieve, río, vías, viaducto y estaciones del metro, cables sobre las lomas, alturas de edificios, lugares icónicos y la vista isométrica dimétrica 2:1 (mosaicos base desde datos abiertos más repintado con IA). Úsala al tocar el mapa, el relieve, las vistas cenital, panorámica, 3D o isométrica, o al generar o repintar mosaicos de la ciudad.
+```
+
+## Medellín fiel e isométrica
+
+### Objetivo
+Que la topografía, el relieve, el río, las vías y las estructuras de Medellín sean **fieles**, y crear una **ciudad en miniatura en proyección dimétrica 2:1**, como los mapas de ciudades reales en pixel art. Hoy el juego tiene detalles mal diseñados:
+- relieve suavizado (modelo de 80 m);
+- laderas sin escalonamiento;
+- viaducto y estaciones con alturas y formas aproximadas;
+- cables que no siguen bien las lomas;
+- alturas de edificios genéricas;
+- lugares icónicos sin forma propia.
+
+### Datos actuales del juego
+- `src/data/valle.js`: casillas de 20 m con tipo de suelo (`TT.*`) y relieve de 80 m (`MAP.elevM`, `MAP.tileM`, `MAP.bHeight`), tomado de “Juega EnCicla” (OpenStreetMap + SRTM).
+- `src/data/red.js`: líneas y estaciones; `NET` las convierte en recorridos (`NET.at(P, s)`).
+- `src/data/rutas.js` (recorridos de buses, `tools/rutas.mjs`) y `src/data/lugares.js` (lugares con postal).
+
+### Fuentes abiertas para mejorar
+*(Verificar cobertura y licencia antes de usar.)*
+
+| Fuente | Qué aporta | Licencia |
+|---|---|---|
+| **OpenStreetMap** | Calles, edificios, río, parques | ODbL; atribución “© OpenStreetMap contributors” |
+| **Overture Maps** | Huellas de edificios (con datos de Microsoft y Google) y alturas cuando existen | CDLA o ODbL según la capa |
+| **Google Open Buildings 2.5D Temporal** | Ráster de alturas desde satélite; tinyworlds lo calibra con edificios de pisos conocidos | CC BY 4.0 *(cobertura en Colombia sin verificar)* |
+| **Copernicus GLO‑30** | Relieve de 30 m, mejor que los 80 m actuales | Libre con atribución |
+| Datos de la Alcaldía de Medellín y el Área Metropolitana (MEData, GeoMedellín) | Posible modelo de terreno más fino, catastro, red vial | *(sin verificar)* |
+
+**Prohibido:** usar imágenes de Google Maps o de Google Earth como base (sus términos lo restringen).
+
+**Meta de datos compactos:** 1 byte de altura por casilla de 20 m, más el tipo de techo y la forma de los lugares icónicos. Todo comprimido y embebido; el juego genera las vistas en el celular.
+
+### Proyección dimétrica 2:1
+El “isométrico” de pixel art es **dimétrico 2:1**: por cada píxel hacia arriba, dos hacia el lado (unos 26,565°).
+
+Con la convención del juego (metros; x al este, y al sur, z hacia arriba; `s` = píxeles por metro):
+```
+pantallaX = (x − y) · s
+pantallaY = (x + y) · s / 2 − z · s · kz      (kz ≈ 0,8 a 1; ajústalo para que las alturas se vean naturales)
+```
+Se dibuja de atrás hacia adelante (orden por x + y), con caras visibles al sur y al este y luz desde arriba a la izquierda.
+
+### Tubería
+1. **Datos** (`tools/`): descargar y reducir las fuentes a la grilla de 20 m (alturas, techos), cambiar el relieve a 30 m y medir viaducto, estaciones y torres de cable.
+2. **Escena real:** terreno; edificios con su altura; río canalizado; jerarquía vial (autopistas, la 80, Las Vegas, Las Palmas, Regional); viaducto con su altura; estaciones con cubierta, accesos y puentes; torres de cable con la curva del cable sobre el terreno. Lugares icónicos: Catedral, Coltejer, Nutibara con el Pueblito Paisa, El Volador, Biblioteca España, estadio y Olaya Herrera.
+3. **Vista isométrica procedural** en el juego: nueva vista de Ciudad Libre y maqueta en La Red, generada en el celular desde los datos, con el pixel art del juego (enfoque tipo tinyworlds).
+4. **Mosaicos base 2:1** de las zonas héroe (centro, estaciones, lugares icónicos) con la geometría real. **Gemini los repinta** (encargo G‑100) sin mover nada. El resto queda procedural para mantener el peso bajo.
+5. **Corregir las otras vistas** con la misma escena:
+   - cenital: alturas y sombras;
+   - panorámica: perfiles de relieve de 30 m;
+   - 3D: viaducto y estaciones medidos.
+6. **Verificación:** comparar capturas con las fotos de `arte/galeria.md` y con el mapa, y llevar la lista de detalles corregidos en la bitácora.
+
+### Referencias
+- [Isometric Cities](https://isometriccities.com/): directorio y técnicas. Hay tres caminos:
+  1. IA que repinta mosaicos;
+  2. render por código desde datos abiertos;
+  3. diorama 3D con cámara isométrica.
+- Ciudades de ejemplo: [Isometric NYC](https://www.pcgamer.com/software/ai/software-engineer-creates-classic-simcity-style-map-of-nyc-and-argues-that-ai-is-good-for-creatives-actually/) (IA ajustada para repintar), [Tiny Barcelona](https://tiny-barcelona.agenturl.dev), [Tiny Madrid](https://tinymadrid.app), [Tiny València](https://tinyvalencia.com) (datos 3D del Catastro y el IGN repintados), [Isometric Málaga](https://isometric-malaga.xiangminf.com), [CDMX](https://cdmxisometrico.com), [Buenos Aires](https://caba.nicolaspoore.com).
+- [tinyworlds](https://github.com/nihey/tinyworlds): sin IA. Toma OpenStreetMap y Overture Maps, hace un rasterizado por software y arma una pirámide de teselas. Una ciudad grande pesa unos 1,5 GB: por eso aquí se genera en el dispositivo.
+
