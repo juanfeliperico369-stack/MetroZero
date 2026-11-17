@@ -111,7 +111,7 @@ h3{font-weight:800;letter-spacing:.3em;text-transform:uppercase;font-size:13px;m
 .gm{background:var(--blanco);border:3px solid var(--negro);padding:6px 12px;font-weight:700;box-shadow:3px 3px 0 var(--negro);animation:gm 2.6s forwards;text-align:center;font-size:14px}
 .gm.r{background:var(--rojo);color:#fff}.gm.y{background:var(--mante)}.gm.g{background:var(--verde);color:#fff}.gm.b{background:var(--tinta);color:#fff}
 @keyframes gm{0%{opacity:0;transform:translateY(-10px) scale(.9)}8%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
-#gctl{position:absolute;left:0;right:0;bottom:0;z-index:3;pointer-events:none;padding-bottom:var(--sab)}
+#gctl{position:absolute;inset:0;z-index:3;pointer-events:none;padding-bottom:var(--sab)}
 #gctl>*{pointer-events:auto}
 .big{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase}
 /* palanca (manipulador) */

@@ -7,17 +7,17 @@ const Lado = EM.lado = {
   /* perfil de una polilínea: suelo bajo el recorrido + colinas (0,4–1,6 km) + cordillera (1,6–7 km) al lado más alto */
   prof(key, P) {
     this.cache = this.cache || {}; if (this.cache[key]) return this.cache[key];
-    const st = 20, n = Math.max(2, Math.ceil(P.len / st) + 1), near = new Float32Array(n), mid = new Float32Array(n), far = new Float32Array(n), tile = new Uint8Array(n);
+    const st = 20, n = Math.max(2, Math.ceil(P.len / st) + 1), near = new Float32Array(n), mid = new Float32Array(n), far = new Float32Array(n), tile = new Uint8Array(n), urb = new Uint8Array(n), URB = new Set([TT.BRICK, TT.BLDG, TT.ROAD, TT.AVE, TT.AUTO, TT.WALK, TT.PLAZA, TT.STATION, TT.BRIDGE, TT.CICLO]);
     let up = 0; for (let i = 0; i < n; i += 8) { const p = NET.at(P, i * st), sx = -Math.sin(p.a), sy = Math.cos(p.a); up += MAP.elevM(p.x + sx * 2500, p.y + sy * 2500) - MAP.elevM(p.x - sx * 2500, p.y - sy * 2500); }
     const sd = up >= 0 ? 1 : -1;
     for (let i = 0; i < n; i++) {
-      const p = NET.at(P, i * st), sx = -Math.sin(p.a) * sd, sy = Math.cos(p.a) * sd; near[i] = MAP.elevM(p.x, p.y); tile[i] = MAP.tileM(p.x + sx * 30, p.y + sy * 30);
+      const p = NET.at(P, i * st), sx = -Math.sin(p.a) * sd, sy = Math.cos(p.a) * sd; near[i] = MAP.elevM(p.x, p.y); tile[i] = MAP.tileM(p.x + sx * 30, p.y + sy * 30); urb[i] = URB.has(MAP.tileM(p.x - sx * 14, p.y - sy * 14)) || URB.has(MAP.tileM(p.x + sx * 14, p.y + sy * 14)) ? 1 : 0;
       let m = 0, f = 0; for (const d of [400, 700, 1000, 1300, 1600]) m = Math.max(m, MAP.elevM(p.x + sx * d, p.y + sy * d)); for (const d of [2000, 3000, 4200, 5600, 7000]) f = Math.max(f, MAP.elevM(p.x + sx * d, p.y + sy * d));
       mid[i] = m; far[i] = f;
     }
     // suavizado para siluetas limpias
     const sm = (a, r) => { const o = new Float32Array(a.length); for (let i = 0; i < a.length; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - r); j <= Math.min(a.length - 1, i + r); j++) { s += a[j]; c++; } o[i] = s / c; } return o; };
-    const R = { n, st, near: sm(near, 1), mid: sm(mid, 3), far: sm(far, 6), tile, side: sd };
+    const R = { n, st, near: sm(near, 1), mid: sm(mid, 3), far: sm(far, 6), tile, urb, side: sd };
     let lo = 1e9, hi = -1e9; for (let i = 0; i < n; i++) { lo = Math.min(lo, R.far[i], R.mid[i]); hi = Math.max(hi, R.far[i]); } R.lo = lo; R.hi = hi;
     return (this.cache[key] = R);
   },
@@ -62,6 +62,15 @@ const Lado = EM.lado = {
       else if ((tv === TT.GRASS || tv === TT.MOUNT) && hv < .6) { const r = (3 + hv * 4) * k; g.fillStyle = this.css(this.mix(cNear, [.15, .3, .18], .4 * sky.day)); g.beginPath(); g.arc(x, y - r * .9, r, 0, TAU); g.fill(); g.fillRect(x - r * .12, y - r * .3, r * .24, r * .4); }
       else if (tv === TT.WATER && hv < .5) { g.fillStyle = this.css([.6, .8, .9], .35 * sky.day + .1); g.fillRect(x - 6 * k, y - 1, 12 * k, 2); }
     }
+    // calle de primer plano bajo el recorrido (en zonas urbanas): asfalto, andén, carros y peatones
+    const asph = this.css(this.mix(cNear, [.26, .28, .31], .75)), walk = this.css(this.mix(cNear, [.78, .74, .64], .7)), st0 = Math.floor(s0 / R.st) * R.st;
+    for (let s = st0; s < s1; s += R.st) { const i = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[i]) continue; const x = X(s), x2 = X(s + R.st), y = Y(this.sample(R.near, R, s)); g.fillStyle = asph; g.fillRect(Math.min(x, x2), y + 1.5 * k, Math.abs(x2 - x) + 1, 9 * k); g.fillStyle = walk; g.fillRect(Math.min(x, x2), y, Math.abs(x2 - x) + 1, 1.6 * k); g.fillStyle = 'rgba(255,240,200,.45)'; if (((s / R.st) | 0) % 2 === 0) g.fillRect(Math.min(x, x2) + 2, y + 6 * k, Math.abs(x2 - x) * .5, Math.max(1, .25 * k)); }
+    // primer plano urbano: explanada y fachadas cercanas (paralaje 1.25) que enmarcan la escena
+    const fgc = this.css(this.mix(cNear, [.2, .21, .24], .7)), fgb = this.mix(cNear, ink, .55);
+    for (let x = 0; x <= W + 40; x += 40) { const s = o.s + (x - cx) / (k * 1.25) * dir, idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; const yTop = Y(this.sample(R.near, R, s)) + 11 * k; g.fillStyle = fgc; g.fillRect(x - 1, yTop, 42, H - yTop); const hv = h2(Math.floor(s / 40), 3, 17), bh = (14 + hv * 22) * k, bw = 36; if (hv < .75) { g.fillStyle = this.css(this.mix(fgb, [.72, .36, .24], hv < .35 ? .4 : 0)); g.fillRect(x + 2, H - bh, bw, bh); g.fillStyle = this.css(this.mix(fgb, [0, 0, 0], .3)); g.fillRect(x + 2, H - bh, bw, 2 * k); if (sky.night > .3) { g.fillStyle = 'rgba(255,214,120,' + (sky.night * .8) + ')'; for (let q = 0; q < 4; q++) if (h2(x, q, 5) < .5) g.fillRect(x + 6 + (q % 2) * 16, H - bh + 6 * k + (q >> 1) * 7 * k, 5, 4); } else { g.fillStyle = 'rgba(20,30,40,.35)'; for (let q = 0; q < 4; q++) g.fillRect(x + 6 + (q % 2) * 16, H - bh + 6 * k + (q >> 1) * 7 * k, 5, 4); } } else if (hv < .9) { g.fillStyle = this.css(this.mix(fgb, [.2, .4, .22], .5)); g.beginPath(); g.arc(x + 20, H - 8 * k, 9 * k, 0, TAU); g.fill(); } }
+    const carS = (g, x, y, L, c, dir, lit) => { g.fillStyle = '#141414'; g.fillRect(x - L / 2 - 1, y - L * .42 - 1, L + 2, L * .42 + 1); g.fillStyle = c; g.fillRect(x - L / 2, y - L * .4, L, L * .4); g.fillStyle = Art.shade(c, 1.15); g.fillRect(x - L * .3, y - L * .62, L * .55, L * .24); g.fillStyle = lit ? '#ffe7a0' : '#8fc4dc'; g.fillRect(x - L * .26 + (dir > 0 ? L * .3 : 0), y - L * .58, L * .22, L * .16); g.fillStyle = '#141414'; g.beginPath(); g.arc(x - L * .3, y, L * .12, 0, TAU); g.arc(x + L * .3, y, L * .12, 0, TAU); g.fill(); if (lit) { g.fillStyle = '#fff6c0'; g.fillRect(dir > 0 ? x + L / 2 - 2 : x - L / 2, y - L * .2, 2, 2); } };
+    for (const lane of [1, -1]) for (let i = 0; i < 14; i++) { const spd = 9 + (i % 3) * 2, pos = ((o.t * spd + i * 97 + (lane > 0 ? 0 : 48)) % (R.n * R.st + 300)) - 150, s = lane > 0 ? pos : R.n * R.st - pos; if (s < s0 - 10 || s > s1 + 10) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; carS(g, X(s), Y(this.sample(R.near, R, s)) + (lane > 0 ? 5 * k : 8.6 * k), (i % 4 === 0 ? 7 : 4.4) * k, i % 5 === 0 ? '#f2c400' : ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#3d6b3a', '#d98a3a'][i % 7], lane * (dir || 1), sky.night > .4); }
+    for (let i = 0; i < 10; i++) { const pos = ((o.t * 1.3 + i * 61) % (R.n * R.st + 100)) - 50, s = i % 2 ? pos : R.n * R.st - pos; if (s < s0 || s > s1) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; Art.person(g, X(s), Y(this.sample(R.near, R, s)) + .2 * k, Math.max(1, k * .3), i * 13, true); }
     if (o.fg) o.fg(g, X, Y, cNear, sky);
     // título de estación (tipografía grande y translúcida)
     if (o.title) { g.save(); g.globalAlpha = o.title.a; g.fillStyle = sky.night > .5 ? '#f9e4a4' : PAL.negro; g.font = '700 ' + Math.round(Math.min(W, H) * .1) + 'px Titulos, sans-serif'; g.textAlign = 'center'; g.fillText(o.title.t.toUpperCase(), W / 2, H * .2); g.font = '800 ' + Math.round(Math.min(W, H) * .028) + 'px Cuerpo, sans-serif'; g.fillText(o.title.sub || '', W / 2, H * .2 + Math.min(W, H) * .05); g.restore(); }
