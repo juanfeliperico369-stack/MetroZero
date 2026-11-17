@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.5.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v0.6.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.5.0** · compilado el 2026-11-17.
+> Versión del juego **v0.6.0** · compilado el 2026-11-17.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -694,6 +694,10 @@ C-60. Textura cuadrada REPETIBLE sin costuras (que encaje por los cuatro lados),
 | Muy realista o recargado | “Más simple: formas planas y pocos colores de la paleta.” |
 | El personaje cambió de cara | “Es el MISMO personaje de la hoja adjunta: misma cara, peinado, ropa y colores.” |
 | Pediste algo de la otra IA | La IA debe responder “Eso le corresponde a…”. Pídeselo a la que corresponde. |
+| Escribió el código de color como texto en la imagen | “No escribas códigos de color en la imagen. Usa el color de la paleta adjunta.” (En tus prompts nombra los colores; adjunta la paleta como imagen.) |
+| Los retratos cambian de encuadre | “Mismo encuadre, tamaño y altura de ojos en los tres gestos.” |
+
+**Reglas aprendidas en la entrega 1 (nov‑2026):** retratos en la misma posición; fondo magenta también dentro de los marcos; colores por nombre y paleta adjunta; grilla de píxel entera; vistas separadas; cero sombras; **entrega la fuente** (SVG o script); distingue “válido”, “probado” y “jugado”; verifica los datos del mundo real. Detalle en la skill `el-metro-arte`.
 
 ---
 
@@ -793,9 +797,18 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
 
-> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `docs/PROMPTS-IA.md`, y actualizar esta bitácora al cerrar cada sesión.
+> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.5.0 "La historia en la ciudad"
+##### Estado al 2026-11-17 · v0.6.0 "El arte llega a la ciudad"
+**Novedad de v0.6.0:**
+- el arte de **Gemini (G‑)** y **ChatGPT (C‑)** entra al juego, siempre con respaldo procedural (`src/js/19-atlas.js` + `src/data/arte.js`, 78 piezas, 533 KB);
+- el **mapa cenital rediseñado**: vías por tipo y ancho, separadores, cebras solo en cruces, río con muros, escaleras y ciclorrutas legibles;
+- **verificado contra OpenStreetMap:** 98–100 % de las calles reales dentro de 20 m (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`);
+- el **servidor local ya no se cae** con rutas mal escritas.
+
+El resto del estado (abajo) sigue vigente. El HTML pesa ~2,4 MB.
+
+###### Estado anterior · v0.5.0 "La historia en la ciudad"
 **Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
 
 | Módulo | Archivo | Qué hace |
@@ -850,6 +863,48 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ##### Historial
+###### v0.6.0 (2026-11-17) — el arte llega a la ciudad
+1. **Entregas verificadas y ordenadas** en `arte/entregas/` (ver `INVENTARIO.md`):
+   - 20 láminas de Gemini con el nombre de su encargo;
+   - 92 SVG de ChatGPT recuperados de su documento maestro;
+   - sus 8 scripts regeneran los vehículos **idénticos byte a byte** (31 de 33);
+   - miniaturas de las texturas.
+   - Se corrigieron afirmaciones: no existió una v0.5.1; la **Línea O es de buses eléctricos** por la 80 (el Metro de la 80 será la **Línea E, rosada**); el código propuesto por Gemini en `src/data/` se habría borrado al cargar.
+2. **`tools/arte_juego.py` → `src/data/arte.js`:**
+   - recorta las láminas por segmentación del fondo magenta, quita el fondo sin tocar los rosados interiores y reduce a WebP;
+   - minifica los SVG.
+   - La lista con su uso queda en `arte/entregas/USO-EN-EL-JUEGO.md`.
+3. **`Atlas` (`19-atlas.js`):** `has`, `url`, `img`, `tag`, `ico`, `retrato` (gesto alegre, triste o neutro según la frase), `fiesta` (adornos según el calendario) y `check` (autotest).
+4. **En el juego:**
+   - portada C‑40; íconos C‑10 en las tarjetas de modos; íconos C‑11 en la cabina y en Ciudad Libre;
+   - medallas C‑12 y **2 logros nuevos** (Feria de las Flores y Alumbrados);
+   - adornos C‑50 en la portada durante las fiestas;
+   - pantalla C‑41 en el menú de historia;
+   - **retratos** de Rosalba, la nieta, Don Efraín, Doña Marleny, Wílmar, la agente y el pasajero en los diálogos;
+   - **tarjeta ilustrada por capítulo**: panorama nocturno, ladera al atardecer, aguacero, tango y Gardel, centro isométrico, panorama de día, Rosalba en el andén y la portada.
+5. **Mapa cenital (`10-map.js`) rediseñado** tras la queja del autor (“parecía un parqueadero”):
+   - cada casilla de vía se clasifica como tramo vertical, tramo horizontal o cruce, midiendo solo con vías **del mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados);
+   - un cruce solo se marca si llega una vía transversal;
+   - calles con una línea amarilla; avenidas con **separador verde y árboles** (algunos guayacanes); autopista con **barrera de concreto**; calzadas cada dos casillas en franjas muy anchas;
+   - **cebras solo a la entrada de los cruces**;
+   - puentes y viaducto como losa de concreto; río con **muros de canal** y brillos sueltos (sin rayas); quebradas con orilla verde;
+   - **escaleras** orientadas por la pendiente real, con baranda; **ciclorrutas** como carril verde sobre andén;
+   - andenes y plazas más sutiles; techos más variados (menos tanques);
+   - suavizado al alejar (sin titileo).
+   - Mismo rendimiento: ~15 ms por trozo.
+6. **Fidelidad medida contra OpenStreetMap** (`tools/osm-ventanas.mjs` + `tools/osm_comparar.py`) en centro, Niquía y Santo Domingo:
+   - 98–100 % de las calles reales a ≤ 20 m de una vía del juego; 99,5–99,9 % de las vías del juego existen; 457 de 457 tramos con nombre.
+   - **No es exacto:** anchos (todo mide 20 m), curvas en escalera, glorietas, edificios (procedurales) y alturas (por comuna).
+7. **Servidor local (`tools/server.mjs`):**
+   - se confirmó la caída de la auditoría de ChatGPT (`GET /%E0%A4%A` tumbaba el proceso) y se corrigió;
+   - además: rutas resueltas dentro de la carpeta, salas de 4, tramas enmascaradas y acotadas.
+   - `tools/test-servidor.mjs` hace 16 comprobaciones (con el servidor viejo fallan 11) y corre dentro de `test.mjs`.
+8. **Pruebas:**
+   - autotest con 78 piezas de arte verificadas; 100 partidas, 0 errores, 0 de consola;
+   - capturas de portada, modos, logros, historia, tarjetas y diálogo;
+   - banco del mapa en 8 sitios reales a 3 escalas.
+   - Un error que el bot no veía (un comentario que anulaba la tarjeta del capítulo) salió en las capturas y se corrigió.
+
 ###### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
 1. Nuevo `37-trama.js`: motor de pasos (hablar, ir, abordar, bajar, foto, orientar, módulo) con datos validados por el autotest (`Trama.check`): estaciones, líneas, niveles y postales deben existir.
 2. Personajes en el mapa (Rosalba, Don Efraín, Doña Marleny, Wílmar, agente de tránsito, pasajeros con ❓) con nombre y marcador; conversación en caja inferior con voz opcional; preguntas de orientación de rutas reales (A→K, B→J, T→H, T→M, A→P, A→K→L…).
@@ -881,8 +936,20 @@ Ciudad Libre, Al volante 3D, Metrocable viaje, 3D WebGL, vista lateral, mundo (r
 Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Metroplús, Cable), La Red, historia, misiones/logros, multijugador local, APK, PWA, bot.
 
 ##### Qué falta (prioridad)
-0. **Medellín fiel (Fase 1b):** corregir topografía, relieve y estructuras (viaducto, estaciones, cables, alturas, lugares icónicos) y crear la vista isométrica 2:1.
-1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `docs/PROMPTS-IA.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
+0. **Medellín fiel (Fase 1b):**
+   - **capa vectorial de OpenStreetMap**: ejes de vía con su ancho, glorietas, curvas y **nombres de calles**;
+   - **huellas reales de edificios** y usos del suelo;
+   - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
+   - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
+   - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
+0b. **Arte, fase 2:**
+   - estaciones y vehículos de perfil de Gemini (G‑20 a G‑37) en la panorámica;
+   - consolas C‑20/C‑21 en la cabina; señalética C‑30;
+   - casillas G‑60 a G‑63 en un acercamiento de Ciudad Libre;
+   - variantes de ladera G‑50 a G‑55 en el Metrocable.
+   - Pedir a ChatGPT el ZIP con las texturas de 1024 px y a Gemini la ladera de día (G‑40).
+0c. **Firma de la APK:** hoy se firma con la clave de desarrollo del repositorio (lo señaló la auditoría). Cambiarla impide actualizar las APK instaladas: lo decide el autor.
+1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `arte/06-guia-unica-ia.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
 2. **Bus:** interiores en parada (cámara que se acerca), pasajeros con destinos, cobro con Cívica, paradas intermedias reales de Metroplús (en la mediana), pico y placa/hora pico, 3D opcional dentro del simulador.
 3. **Metro:** señales en la vía (ATP real), anuncios de voz grabados, interior del tren (pasajeros), tramos nocturnos con Alumbrados, cables desde el metro, escuela también para tranvía (pantógrafo, señales de tranvía).
 4. **Ciudad Libre / historia:** sesión 2 de la historia (Alumbrados, cable Arví, línea J y Comuna 13, Metro de la 80), escenas de corte con los personajes, más NPC (policía de tránsito, ciclistas EnCicla), interiores de estación, retos de tiempo, cooperativo.
@@ -992,6 +1059,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
+| `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
 | `22-gl.js` | Motor 3D WebGL1 propio `G3` |
 | `23-lado.js` | Panorámica lateral por capas |
@@ -1009,7 +1077,8 @@ Datos en `src/data/`:
 - `valle.js`: mapa y relieve de EnCicla;
 - `red.js`: líneas y estaciones;
 - `rutas.js`: recorridos de buses por calles reales;
-- `lugares.js`: lugares con postal.
+- `lugares.js`: lugares con postal;
+- `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 
 **Convenciones:**
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
@@ -1019,7 +1088,10 @@ Datos en `src/data/`:
 #### Comandos
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
-node tools/test.mjs 100              # selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
+python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
+node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -1050,7 +1122,9 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 #### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
-- El tamaño del HTML importa: hoy pesa unos 1,8 MB. El arte nuevo va en atlas comprimidos.
+- El tamaño del HTML importa: hoy pesa unos 2,4 MB (533 KB son arte). El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`.
+- Lo que el bot no ve (tarjetas, diálogos, portada) se revisa con capturas: en v0.6.0 un comentario anuló una línea y solo se notó en la captura.
+- El mapa cenital: mide las vías **con las de su mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados) y revisa el banco de sitios reales (Niquía, Acevedo, San Antonio, Parque Berrío, Santo Domingo, Poblado, Industriales, Floresta) a k = 2,1, 1 y 0,42.
 
 
 ---
@@ -1142,12 +1216,20 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 5. ¿Se lee bien en pequeño?
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
-#### Integración al juego
-1. Lo entregado va en `arte/entregas/<carpeta>/` (estructura en la guía única, Bloque 5).
-2. Se quita el magenta (transparencia) y se recorta a la cuadrícula.
-3. Se reduce con **vecino más cercano** a la escala del juego y se **cuantiza a la paleta**.
-4. Se arman **atlas** en `src/art/` (PNG o WebP más un JSON de coordenadas), embebidos en el HTML. La meta es menos de 4 MB de arte.
-5. Se conecta el arte, siempre con respaldo al dibujo procedural:
+#### Integración al juego (así se hizo en v0.6.0)
+1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
+   - `retrato`: dentro del marco, sin fondo;
+   - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;
+   - `escena`: recorte y WebP;
+   - los SVG de ChatGPT se minifican tal cual.
+3. `python3 tools/arte_juego.py` genera `src/data/arte.js` y `arte/entregas/USO-EN-EL-JUEGO.md`. Las cajas de recorte salen de una segmentación del fondo magenta.
+4. En el código se usa `Atlas` (`src/js/19-atlas.js`), siempre con respaldo procedural:
+   - `Atlas.tag(id)` para la interfaz;
+   - `Atlas.img(id)` para el lienzo;
+   - `Atlas.retrato(quien, frase)` para los diálogos;
+   - `Atlas.fiesta()` para los adornos.
+   - El autotest (`Atlas.check`) exige que existan las piezas que el juego nombra.
 
    | Arte | Archivo |
    |---|---|
@@ -1156,7 +1238,21 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
    | Capas | `23-lado.js` |
    | Vehículos de perfil | `30-conduce.js`, `52-cableviaje.js` |
    | Consola | `31-cabina.js` |
-   | Retratos | `37-trama.js` |
+   | Retratos y tarjetas de capítulo | `37-trama.js` |
+   | Portada, íconos de modos e historia | `65-menu.js` |
+   | Medallas | `66-vida.js` |
+
+#### Reglas aprendidas en la entrega 1 (nov‑2026)
+Las propusieron Gemini y ChatGPT y se comprobaron al integrar:
+1. **Retratos en la misma posición** en cada gesto (mismo encuadre y altura de ojos): así se cambian sin saltos.
+2. **Fondo magenta plano** incluso dentro de los marcos: el recorte lo quita solo.
+3. **No escribas códigos HEX en el texto de un prompt de imagen:** el modelo puede dibujarlos como letras. Nombra el color (“azul metro”) y adjunta la paleta como imagen.
+4. **Grilla de píxel entera**, sin mezclar tamaños de píxel (nada de *mixels*); máximo 2 tonos por superficie más el contorno.
+5. **No mezcles vistas:** cenital 3/4 (casillas) e isométrica 2:1 (maqueta) van en láminas separadas.
+6. **Cero sombras proyectadas:** las pone el juego.
+7. **Entrega también la fuente** (SVG o el script que la genera): con eso se recuperó todo lo de ChatGPT aunque faltó el ZIP.
+8. **Distingue las evidencias:** “sintaxis válida”, “prueba ejecutada” y “partida real jugada” son cosas distintas. No digas “probado” si solo validaste archivos.
+9. **Lo que dices del mundo real, verifícalo:** la “Línea O” es de buses por la 80, no del Metro de la 80 (será la Línea E, rosada).
    | Íconos | menús |
    | Isométrico | vista nueva (ver skill `medellin-fiel`) |
 6. Se prueba con `node tools/test.mjs 100` y capturas, y se publica (skill `el-metro-desarrollo`).
@@ -1245,6 +1341,11 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 - **Carpeta de arte (nov 2026):** investigación visual completa y **guía única para IA** (Gemini Nano Banana y ChatGPT; Midjourney salió del plan) en `arte/`. Nueva **Fase 1b**: Medellín fiel e isométrica.
 - **v0.5.0:** Fase 3 iniciada: la historia se juega dentro de Ciudad Libre (`37-trama.js`), con módulos encadenados y regreso a la ciudad; panorámica con paleta de ilustración y capa intermedia.
 
+- **v0.6.0:** Fase 1 (arte real) **iniciada con las entregas de Gemini y ChatGPT**:
+  - retratos, tarjetas de capítulo, portada, íconos, medallas y adornos de fiestas, con `Atlas` y respaldo procedural;
+  - **mapa cenital rediseñado** (vías por tipo y ancho, separadores, cebras en cruces, río con muros);
+  - **Fase 1b medida:** el trazado de calles coincide con OpenStreetMap en un 98–100 % a 20 m. Falta la capa vectorial (anchos, glorietas, nombres) y los edificios reales.
+
 ### Fases
 #### Fase 1 · Arte real (2–3 sesiones)
 - **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).
@@ -1284,6 +1385,17 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 3. **Vista isométrica 2:1 procedural** (como tinyworlds) dentro del juego: nueva vista de Ciudad Libre y “maqueta” en La Red, generada en el celular desde los datos, con el mismo pixel art del juego.
 4. **Repintado con IA donde más luce:** genero **mosaicos base 2:1** con la geometría real y Gemini los repinta (encargo **G‑100** de la guía única) sin mover nada. Va solo para zonas héroe: centro, estaciones, lugares icónicos y portada. El resto queda procedural para mantener el peso bajo.
 5. **Corregir las otras vistas con la misma escena:** cenital (alturas y sombras reales), panorámica (perfiles de las laderas con relieve de 30 m), 3D (viaducto y estaciones medidos).
+**Estado en v0.6.0:**
+- **Medido:** fidelidad de calles contra OSM (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`, con `tools/osm-ventanas.mjs` y `tools/osm_comparar.py`).
+- **Diseñada (sin publicar) la Maqueta 2:1:** render “voxel” por columnas de adelante hacia atrás con búfer de altura, sobre el relieve real (bilineal de 80 m) y los edificios con su altura.
+  - Pantalla: x = (u − v)·a; y = (u + v)·a/2 − z·a·kz, con kz ≈ 1,4. Giro de 90°.
+  - Rendimiento: se dibuja a resolución CSS en caché y se mueve con transformaciones mientras se arrastra; se vuelve a dibujar al soltar.
+  - Muestras por cuadro ≈ ancho × alto de pantalla.
+- **Siguiente:**
+  1. Capa vectorial de OSM con nombres de calles, procesada fuera del juego (Geofabrik está bloqueado desde la nube).
+  2. La Maqueta en La Red.
+  3. Casillas G‑60 a G‑63 en un acercamiento.
+
 6. **Verificación:** comparar capturas del juego con fotos de la galería (`arte/galeria.md`) y con el mapa; lista de “detalles mal diseñados” marcada uno por uno. El autor puede señalar los que vea con capturas.
 
 #### Fase 2 · Bus y Metro a fondo
@@ -2471,9 +2583,10 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 
 ## Datos que no van como texto
 - **`src/data/valle.js`** (1060 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
+- **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (60 archivos, 752 KB)
+## Código fuente (65 archivos, 793 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -2831,6 +2944,32 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .trcap small{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mante)}
 .trcap b{display:block;font-family:var(--fd);font-stretch:80%;font-size:34px;line-height:1;text-transform:uppercase;margin-top:4px}
 @keyframes trCap{0%{opacity:0;transform:scaleY(.6)}10%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
+/* ---------- v0.6.0 · arte de las IA (Atlas) ---------- */
+#cover img.cart{display:block;width:min(92vw,560px);aspect-ratio:16/10;object-fit:cover;margin:-34px auto -20px;position:relative;z-index:0;border:4px solid var(--negro);background:var(--noche)}
+@media (orientation:landscape) and (max-height:520px){#cover img.cart{width:min(60vw,420px)}}
+#cvFiesta{position:relative;z-index:2;height:0;width:min(92vw,560px);margin:0 auto}
+.fdeco{position:absolute;left:0;right:0;top:-40px;display:flex;justify-content:space-between;padding:0 4px;pointer-events:none}
+.fdeco img{width:30px;height:30px;animation:fdeco 2.6s ease-in-out infinite alternate;animation-delay:calc(var(--i) * -.37s)}
+@keyframes fdeco{from{transform:translateY(0) rotate(-7deg)}to{transform:translateY(5px) rotate(7deg)}}
+@media (prefers-reduced-motion:reduce){.fdeco img{animation:none}}
+.mcard .mico{position:absolute;right:10px;top:10px;width:54px;height:54px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.35))}
+.aico{display:block;width:22px;height:22px;margin:0 auto;pointer-events:none}
+.vsel button .aico{width:26px;height:26px}
+.cb b .aico{width:20px;height:20px}
+img.medal{width:42px;height:42px;flex:0 0 42px}
+img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-position:50% 80%;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);margin:0 0 14px;background:#3d2e5f}
+.trtalk.conface{padding-left:98px;min-height:92px}
+.trtalk .face{position:absolute;left:6px;top:-26px;width:84px;height:84px;background:#cfe0ea;border:3px solid var(--negro);box-shadow:3px 3px 0 var(--negro)}
+.trcard{position:absolute;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(8,18,28,.6);animation:trCard .35s ease;cursor:pointer;padding:12px}
+.trcard.out{opacity:0;transition:opacity .3s}
+.trcard .in{background:var(--papel,#f1ece0);color:var(--negro);border:4px solid var(--negro);box-shadow:7px 7px 0 var(--negro);padding:10px 10px 12px;max-width:min(94vw,540px);text-align:center}
+.trcard .pic{border:3px solid var(--negro);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.trcard .pic img{display:block;max-width:100%;max-height:min(50vh,420px);object-fit:contain}
+.trcard small{display:block;margin-top:10px;font-family:var(--fm);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--lA)}
+.trcard b{display:block;font-family:var(--fd);font-stretch:80%;font-size:clamp(24px,7vw,34px);line-height:1;text-transform:uppercase;margin-top:4px}
+.trcard i{display:block;margin-top:6px;font-size:11px;opacity:.6;font-style:normal}
+@keyframes trCard{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.mcard .mico ~ .t{padding-right:56px}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -2839,7 +2978,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.6.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3479,31 +3618,78 @@ const MAP = EM.map = {
      río con ondas. Las ventanas se guardan para encenderlas de noche. */
   chunk(cx, cy) {
     const key = cx + ',' + cy; let c = this.chunks.get(key); if (c) { this.chunks.delete(key); this.chunks.set(key, c); return c; }
-    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data, T = (x, y) => this.tile(cx * CH + x, cy * CH + y);
-    const road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data;
+    // ventana de casillas con margen: anchos de vía y orillas sin salirse del trozo ni llamar this.tile a cada píxel
+    const M = 10, SW = CH + 2 * M, tw = new Uint8Array(SW * SW);
+    for (let j = 0; j < SW; j++) for (let i = 0; i < SW; i++) tw[j * SW + i] = this.tile(cx * CH + i - M, cy * CH + j - M);
+    const T = (x, y) => tw[(y + M) * SW + x + M], road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE, wet = v => v === TT.WATER || v === TT.CANAL;
+    // cada casilla de vía es tramo vertical (1), tramo horizontal (2) o cruce/plazoleta (3), con su ancho en casillas y su posición
+    const RS = CH + 2, RK = new Uint8Array(RS * RS), RW = new Uint8Array(RS * RS), RP = new Uint8Array(RS * RS), ri = (x, y) => (y + 1) * RS + x + 1;
+    // se mide con las vías del MISMO tipo (autopista, avenida y calle vienen pegadas en los datos); un cruce es donde llega una vía transversal
+    const runV = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x, y - k)); k++) n++; for (let k = 1; k < 5 && road(T(x, y + k)); k++) n++; return n; };
+    const runH = (x, y) => { let n = 1; for (let k = 1; k < 5 && road(T(x - k, y)); k++) n++; for (let k = 1; k < 5 && road(T(x + k, y)); k++) n++; return n; };
+    for (let y = -1; y <= CH; y++) for (let x = -1; x <= CH; x++) {
+      const v = T(x, y); if (!road(v) || v === TT.BRIDGE) continue; let l = 0, r = 0, u = 0, w = 0;
+      while (l < 9 && T(x - l - 1, y) === v) l++; while (r < 9 && T(x + r + 1, y) === v) r++; while (u < 9 && T(x, y - u - 1) === v) u++; while (w < 9 && T(x, y + w + 1) === v) w++;
+      const h = l + r + 1, vv = u + w + 1, k = ri(x, y);
+      if (vv >= h + 3 && h <= 9) {
+        const xa = x - l - 1, xb = x + r + 1, cruce = (road(T(xa, y)) && T(xa, y) !== TT.BRIDGE && runV(xa, y) <= 3) || (road(T(xb, y)) && T(xb, y) !== TT.BRIDGE && runV(xb, y) <= 3);
+        if (cruce) RK[k] = 3; else { RK[k] = 1; RW[k] = h; RP[k] = l; }
+      } else if (h >= vv + 3 && vv <= 9) {
+        const ya = y - u - 1, yb = y + w + 1, cruce = (road(T(x, ya)) && T(x, ya) !== TT.BRIDGE && runH(x, ya) <= 3) || (road(T(x, yb)) && T(x, yb) !== TT.BRIDGE && runH(x, yb) <= 3);
+        if (cruce) RK[k] = 3; else { RK[k] = 2; RW[k] = vv; RP[k] = u; }
+      } else RK[k] = 3;
+    }
+    const RKa = (x, y) => RK[ri(x, y)];
     for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
       const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
-      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty);
-      // vías anchas (manchas de asfalto): sentido dominante y carriles de ~5 m
-      let wide = 0, vert = false; if ((v === TT.AVE || v === TT.AUTO) && road(nN) && road(nS) && road(nW) && road(nE)) { let rv = 0, rh = 0; for (let k = 1; k <= 4; k++) { if (road(T(tx, ty - k))) rv++; if (road(T(tx, ty + k))) rv++; if (road(T(tx - k, ty))) rh++; if (road(T(tx + k, ty))) rh++; } wide = 1; vert = rv >= rh; }
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), k0 = ri(tx, ty), rk = RK[k0], rw = RW[k0], rp = RP[k0];
+      // tramo de vía: cebras solo a la entrada de un cruce (siempre en avenidas; en calles, algunas)
+      let zA = 0, zB = 0, stx = 0, sty = 0;
+      if (rk === 1 || rk === 2) {
+        const X0 = rk === 1 ? X - rp : X, Y0 = rk === 2 ? Y - rp : Y, ok = (jx, jy) => v === TT.AVE || v === TT.ROAD && h2(jx, jy, 97) < .45;
+        if (rk === 1) { zA = RKa(tx, ty - 1) === 3 && ok(X0, Y - 1); zB = RKa(tx, ty + 1) === 3 && ok(X0, Y + 1); }
+        else { zA = RKa(tx - 1, ty) === 3 && ok(X - 1, Y0); zB = RKa(tx + 1, ty) === 3 && ok(X + 1, Y0); }
+      } else if (v === TT.STEPS) { stx = Math.abs(this.elevM(X * TM + 18, Y * TM + 10) - this.elevM(X * TM + 2, Y * TM + 10)); sty = Math.abs(this.elevM(X * TM + 10, Y * TM + 18) - this.elevM(X * TM + 10, Y * TM + 2)); }
+      const cvert = v === TT.CICLO ? (nN === TT.CICLO) + (nS === TT.CICLO) >= (nW === TT.CICLO) + (nE === TT.CICLO) : 0;
       for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
         let m = sh, col = base; const hh = h2(X * P + px, Y * P + py, v), chk = (px + py) % 2;
         switch (v) {
-          case TT.GRASS: m *= chk ? .95 : 1.02; if (hh < .02) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 150) | 0]; break;
+          case TT.GRASS: m *= chk ? .96 : 1.02; if (hh < .015) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 200) | 0]; else if (hh > .93) m *= .9; break;
           case TT.MOUNT: m *= .9 + (chk ? 0 : .05); break;
           case TT.BRICK: case TT.BLDG: col = [96, 112, 74]; m *= chk ? .95 : 1; break;   // patio (la casa se pinta encima)
           case TT.ROAD: case TT.AVE: case TT.AUTO: case TT.BRIDGE: {
-            m *= .97 + hh * .05; const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
-            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; }
-            else if (wide) { const a = vert ? px : py, b2 = vert ? Y * P + py : X * P + px; if (a % 4 === 0 && b2 % 8 < 4) { col = [236, 232, 214]; m = sh * .95; } else if (h2(X, Y, 90) < .08 && hh < .05) m *= .8; }
-            else if (v !== TT.ROAD && ((road(nN) || road(nS)) && px === (P >> 1) && py % 4 < 2 || (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && px % 4 < 2)) { col = [244, 236, 208]; m = sh; }
-            else if (v === TT.ROAD && (road(nN) || road(nS)) && !(road(nW) || road(nE)) && px === (P >> 1) && (Y * P + py) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
-            else if (v === TT.ROAD && (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && (X * P + px) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
+            m *= .97 + hh * .05; if (hh > .985) m *= .86;   // parches del asfalto
+            const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
+            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; break; }
+            if (v === TT.BRIDGE) { col = [150, 150, 154]; m = sh * ((((X * P + px) + (Y * P + py)) % 9 === 0) ? .82 : .97 + hh * .05); break; }   // puente o viaducto: losa de concreto con juntas
+            if (rk !== 1 && rk !== 2) break;   // cruce: asfalto limpio
+            { const vt = rk === 1, a0 = vt ? px : py, nA = vt ? nW : nN, nB = vt ? nE : nS, sw = v === TT.AVE ? 2 : 1;   // frontera con otra vía paralela: separador
+              if ((road(nA) && nA !== v && a0 < sw) || (road(nB) && nB !== v && a0 >= P - sw)) { col = v === TT.AUTO ? [212, 208, 198] : v === TT.AVE ? [88, 128, 70] : [201, 194, 178]; m = sh; break; } }
+            const vert = rk === 1, a = (vert ? px : py) + rp * P, al = vert ? Y * P + py : X * P + px, ln = vert ? py : px, Wd = rw * P, mid = Wd / 2, dm = Math.abs(a + .5 - mid);
+            const med = rw >= 2 && v !== TT.ROAD && v !== TT.BRIDGE, sep = rw >= 4 ? Math.abs(((a + P) % (2 * P)) - P + .5) : 99;   // vías muy anchas: calzadas de dos casillas
+            if (med && Math.min(dm, sep) <= (v === TT.AUTO ? 1 : 2.5)) { const dd = Math.min(dm, sep);   // separador: verde con bordillo (avenida) o barrera de concreto (autopista)
+              if (v === TT.AUTO) { col = dd <= .5 ? [176, 172, 164] : [214, 210, 200]; } else { col = dd > 1.5 ? [204, 198, 184] : (hh < .5 ? [92, 132, 72] : [84, 122, 66]); }
+              m = sh; break;
+            }
+            if ((zA && ln >= 1 && ln <= 4) || (zB && ln >= P - 5 && ln <= P - 2)) { if (a % 4 < 2) { col = [238, 236, 228]; m = sh; } break; }   // cebra
+            if (rw === 1) {
+              if (v === TT.AVE || v === TT.AUTO) { if (a === 6 || a === 9) { col = [244, 196, 52]; m = sh * .95; } }   // doble línea amarilla
+              else if ((a === 7 || a === 8) && al % 10 < 5 && (a === 8 || v === TT.BRIDGE)) { col = [244, 196, 52]; m = sh * .92; }   // línea central discontinua
+            } else if (!med && (a === Math.floor(mid) - 1 || a === Math.floor(mid))) { col = [244, 196, 52]; m = sh * .92; }   // calle ancha sin separador
+            else if (a % 8 === 0 && a > 3 && a < Wd - 4 && dm > 4 && sep > 4 && al % 12 < 5) { col = [232, 230, 220]; m = sh * .95; }   // carriles
             break; }
-          case TT.WALK: case TT.PLAZA: m *= (px % 3 === 0 || py % 3 === 0) ? .9 : 1.02; break;
-          case TT.CICLO: if (px === P >> 1 && py % 4 < 2) { col = [250, 250, 245]; m = sh; } break;
-          case TT.WATER: case TT.CANAL: { const nb = !(nN === v) || !(nS === v); m *= (py + Math.floor(X * 1.7)) % 5 === 0 && hh < .6 ? 1.18 : nb && (py < 2 || py > P - 3) ? .82 : 1; break; }
-          case TT.STEPS: m *= py % 2 ? .85 : 1.05; break;
+          case TT.WALK: m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.015 + (h2((X * P + px) >> 2, (Y * P + py) >> 2, 5) - .5) * .05; break;
+          case TT.PLAZA: m *= (((px >> 1) + (py >> 1)) % 2 ? .965 : 1.02) * ((px % 8 === 0 || py % 8 === 0) ? .93 : 1); break;
+          case TT.CICLO: { const a = cvert ? px : py, al = cvert ? Y * P + py : X * P + px; col = [189, 182, 165]; m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.01;
+            if (a >= 5 && a <= 10) { col = a === 5 || a === 10 ? [236, 234, 226] : [64, 138, 96]; m = sh * (a === 7 || a === 8 ? (al % 8 < 4 ? 1.02 : .97) : 1); } break; }
+          case TT.WATER: case TT.CANAL: {
+            const db = Math.min(wet(nN) ? 99 : py, wet(nS) ? 99 : P - 1 - py, wet(nW) ? 99 : px, wet(nE) ? 99 : P - 1 - px);
+            if (v === TT.CANAL) { if (db === 0) { col = [206, 202, 192]; m = sh; break; } if (db === 1) { col = [126, 124, 118]; m = sh; break; } col = [72, 120, 120]; }
+            else { if (db === 0) { col = [92, 120, 70]; m = sh * (hh < .5 ? 1 : .9); break; } col = [58, 118, 138]; }
+            m *= db === 2 ? .86 : db === 3 ? .94 : 1; const rp2 = ((X * P + px) * 3 + (Y * P + py) * 7 + ((X * P + px) >> 3)) % 29; if (rp2 === 0 && hh < .7) m *= 1.16; else if (hh < .012) m *= 1.3;   // brillos sueltos, sin rayas
+            break; }
+          case TT.STEPS: { const up = stx > sty, a = up ? px : py, s2 = up ? py : px; col = [198, 192, 180]; if (s2 === 0 || s2 === P - 1) { col = [120, 116, 108]; m = sh; } else m *= a % 3 === 0 ? .8 : a % 3 === 1 ? 1.06 : 1; break; }
           default: m *= .95 + hh * .08;
         }
         const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
@@ -3513,7 +3699,7 @@ const MAP = EM.map = {
     // segunda pasada: sombras, edificios por manzana (techos y fachadas), casas por lote, árboles, carros parqueados
     const lights = [], R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
     const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICKS = ['#b85c3e', '#a9533a', '#c0654a', '#9c4a33'];
-    const AP_WALL = ['#e6dcc8', '#d8d2c4', '#c9ced4', '#efe8d8', '#b05a3c', '#a9533a', '#cfd9df', '#d9c7a6'], AP_ROOF = ['#9aa0a6', '#b9b5ad', '#a7aaa8', '#8e9499', '#c4bfb4', '#9c8f80'];
+    const AP_WALL = ['#e6dcc8', '#d8d2c4', '#c9ced4', '#efe8d8', '#b05a3c', '#a9533a', '#cfd9df', '#d9c7a6'], AP_ROOF = ['#9aa0a6', '#b9b5ad', '#a7aaa8', '#8e9499', '#c4bfb4', '#9c8f80', '#b9a48c', '#a8877a', '#cfc8bb'];
     // manzanas de edificios: lotes de 1–3 casillas por supermanzana de 8×8
     const lot = (X, Y) => { const sx = X >> 3, sy = Y >> 3, lw = 1 + (h2(sx, sy, 31) * 3 | 0), lh = 1 + (h2(sx, sy, 32) * 2.4 | 0), ox = h2(sx, sy, 33) * lw | 0, oy = h2(sx, sy, 34) * lh | 0; return sx * 997 + sy * 7919 + Math.floor((X + ox) / lw) * 31 + Math.floor((Y + oy) / lh) * 131071; };
     const TW = (x, y) => this.tile(cx * CH + x, cy * CH + y), same = (x1, y1, x2, y2) => TW(x1, y1) === TT.BLDG && TW(x2, y2) === TT.BLDG && lot(cx * CH + x1, cy * CH + y1) === lot(cx * CH + x2, cy * CH + y2);
@@ -3552,16 +3738,23 @@ const MAP = EM.map = {
         if (!sN) R(ox, oy, P, 1, '#141414'); if (!sW) R(ox, oy, 1, P, '#141414'); if (!sE) R(ox + P - 1, oy, 1, P, '#141414');
         if (!sN) R(ox + (sW ? 0 : 1), oy + 1, P - (sW ? 0 : 1) - (sE ? 0 : 1), 1, Art.shade(roof, 1.15)); if (!sW) R(ox + 1, oy + 1, 1, P - 1, Art.shade(roof, 1.1)); if (!sE) R(ox + P - 2, oy + 1, 1, P - 1, Art.shade(roof, .85));
         const ri = h2(X, Y, 62);
-        if (ri < .32) { const tx2 = ox + 3 + (h2(X, Y, 63) * (P - 9) | 0), ty2 = oy + 3 + (h2(X, Y, 64) * (P - 9) | 0); g.fillStyle = '#141414'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 3, 0, TAU); g.fill(); g.fillStyle = ri < .16 ? '#2f5f9c' : '#2a2a2a'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 2.2, 0, TAU); g.fill(); R(tx2 + 1, ty2 + 1, 1, 1, '#9cc0e6'); }
-        else if (ri < .5) { R(ox + 4, oy + 4, 4, 3, '#7d8792'); R(ox + 5, oy + 5, 2, 1, '#cfd5da'); R(ox + 9, oy + 9, 3, 3, '#7d8792'); }
-        else if (ri < .58 && hm > 30) { R(ox + 3, oy + 3, P - 6, P - 6, Art.shade(roof, .82)); R(ox + 5, oy + 5, P - 10, P - 10, '#4a5560'); }   // cuarto de máquinas
-        else if (ri < .63) { for (let q = 0; q < 3; q++) R(ox + 3 + q * 4, oy + 5, 3, 6, '#2e4a66'); }   // calentadores solares
-        else if (ri < .67) { R(ox + 3, oy + 3, P - 6, P - 6, '#4f7a3a'); for (let q = 0; q < 5; q++) R(ox + 4 + h2(X, q, 65) * (P - 9), oy + 4 + h2(Y, q, 66) * (P - 9), 2, 2, '#79ac56'); }   // azotea verde
+        if (ri < .13) { const tx2 = ox + 3 + (h2(X, Y, 63) * (P - 9) | 0), ty2 = oy + 3 + (h2(X, Y, 64) * (P - 9) | 0); g.fillStyle = '#141414'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 3, 0, TAU); g.fill(); g.fillStyle = ri < .16 ? '#2f5f9c' : '#2a2a2a'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 2.2, 0, TAU); g.fill(); R(tx2 + 1, ty2 + 1, 1, 1, '#9cc0e6'); }
+        else if (ri < .27) { R(ox + 4, oy + 4, 4, 3, '#7d8792'); R(ox + 5, oy + 5, 2, 1, '#cfd5da'); R(ox + 9, oy + 9, 3, 3, '#7d8792'); }
+        else if (ri < .35 && hm > 30) { R(ox + 3, oy + 3, P - 6, P - 6, Art.shade(roof, .82)); R(ox + 5, oy + 5, P - 10, P - 10, '#4a5560'); }   // cuarto de máquinas
+        else if (ri < .41) { for (let q = 0; q < 3; q++) R(ox + 3 + q * 4, oy + 5, 3, 6, '#2e4a66'); }   // calentadores solares
+        else if (ri < .47) { R(ox + 3, oy + 3, P - 6, P - 6, '#4f7a3a'); for (let q = 0; q < 5; q++) R(ox + 4 + h2(X, q, 65) * (P - 9), oy + 4 + h2(Y, q, 66) * (P - 9), 2, 2, '#79ac56'); }   // azotea verde
         if (hm > 45 && ri > .9) { R(ox + (P >> 1), oy + 2, 1, 4, '#141414'); R(ox + (P >> 1) - 1, oy + 1, 3, 1, '#EC343A'); lights.push([ox + (P >> 1) - 1, oy + 1, 3]); }
         if (!sS) { const y0 = oy + P; R(ox + (sW ? 0 : 0), y0, P, fh, wall); R(ox, y0, P, 1, Art.shade(wall, .78)); if (!sW) R(ox, y0, 1, fh, '#141414'); if (!sE) R(ox + P - 1, y0, 1, fh, '#141414'); R(ox, y0 + fh, P, 1, 'rgba(0,0,0,.4)');
           const glass = hm > 40 && lr > .6; for (let wy = y0 + 2; wy < y0 + fh - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, glass ? '#3d6a8a' : '#2a4560'); lights.push([wx, wy, 2]); }
           if (fh >= 6 && ri > .5) R(ox + 2, y0 + fh - 3, P - 4, 2, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835'][(lr * 5) | 0]); }   // toldo / local comercial
-      } else if ((v === TT.ROAD) && r < .3) {
+      } else if (v === TT.AVE && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2) && RW[ri(tx, ty)] >= 2) {
+        // árboles del separador, uno cada dos casillas a lo largo
+        const vert = RK[ri(tx, ty)] === 1, rp = RP[ri(tx, ty)], mid = RW[ri(tx, ty)] * P / 2, t0 = Math.floor(mid / P);
+        if (rp === t0 && ((vert ? Y : X) & 1) === 0 && h2(vert ? X - rp : X, vert ? Y : Y - rp, 99) < .8) {
+          const loc = mid - t0 * P, x = vert ? ox + loc : ox + (P >> 1), y = vert ? oy + (P >> 1) : oy + loc, rr = 3.2 + h2(X, Y, 72) * 1.6;
+          g.fillStyle = 'rgba(18,38,22,.35)'; g.beginPath(); g.ellipse(x + 1.5, y + 1.5, rr, rr * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = h2(X, Y, 73) < .15 ? '#e0b830' : h2(X, Y, 74) < .15 ? '#c96bb0' : '#4b8640'; g.beginPath(); g.arc(x - .4, y - .5, rr * .72, 0, TAU); g.fill();
+        }
+      } else if ((v === TT.ROAD) && r < .3 && (RK[ri(tx, ty)] === 1 || RK[ri(tx, ty)] === 2)) {
         // carro parqueado junto al andén
         const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
         if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }
@@ -3573,8 +3766,6 @@ const MAP = EM.map = {
         else if (h2(X, Y, 74) < .25) { R(ox + 6, oy + 6, 4, 2, '#5a3a22'); R(ox + 6, oy + 5, 4, 1, '#7a5a3a'); }   // banca
       }
     }
-    // cebras en los cruces de vías principales
-    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) { const v = T(tx, ty); if (!road(v) || v === TT.BRIDGE) continue; const nN = road(T(tx, ty - 1)), nS = road(T(tx, ty + 1)), nW = road(T(tx - 1, ty)), nE = road(T(tx + 1, ty)); if (!((nN || nS) && (nW || nE))) continue; if (road(T(tx - 1, ty - 1)) || road(T(tx + 1, ty - 1)) || road(T(tx - 1, ty + 1)) || road(T(tx + 1, ty + 1))) continue; if (v === TT.AUTO) continue; const ox = tx * P, oy = ty * P; g.fillStyle = 'rgba(250,250,245,.85)'; if (nN) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy, 2, 3); if (nS) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy + P - 3, 2, 3); if (nW) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox, oy + i, 3, 2); if (nE) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + P - 3, oy + i, 3, 2); }
     // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
     const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
     c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
@@ -3584,7 +3775,7 @@ const MAP = EM.map = {
   drawTop(g, W, H, mx, my, k, night = 0) {
     const CHm = this.CH * TM, s = k * TM / this.PX;
     const x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
-    g.imageSmoothingEnabled = false; this._vis = [];
+    g.imageSmoothingEnabled = s < .95; this._vis = [];   // al alejar, suavizado: sin titileo de rayas y bordes
     for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
       if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
       const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
@@ -3788,6 +3979,65 @@ const Mundo = EM.mundo = {
     if (d === 'fuegos' && L.night > .4) for (let i = 0; i < 3; i++) { const p = (t * .35 + i * .37) % 1, x = W * (.2 + .6 * h2(i, Math.floor(t * .35 + i * .37), 1)), y = H * (.12 + .2 * h2(i, 2, Math.floor(t * .35))), r = p * Math.min(W, H) * .12; for (let k = 0; k < 14; k++) { const a = k / 14 * TAU; g.fillStyle = ['#EC343A', '#F6C538', '#59AB42', '#1C5C9C', '#EB318E'][(i + k) % 5]; g.globalAlpha = 1 - p; g.fillRect(x + Math.cos(a) * r, y + Math.sin(a) * r, 3, 3); } g.globalAlpha = 1; }
     if (d === 'corazones') for (let i = 0; i < 8; i++) { const x = h2(i, 1, 4) * W, y = H - ((t * 30 + h2(i, 2, 4) * H) % H); g.fillStyle = 'rgba(236,52,58,.55)'; g.font = '16px sans-serif'; g.fillText('❤', x, y); }
     if (d === 'banderines') { const n = 18; for (let i = 0; i < n; i++) { const x = W * i / n, y = 4 + Math.sin(i * 1.3) * 3; g.fillStyle = ['#1C5C9C', '#E38835', '#59AB42', '#F6C538', '#EB318E', '#743D90', '#EC343A'][i % 7]; g.beginPath(); g.moveTo(x, y); g.lineTo(x + W / n * .8, y); g.lineTo(x + W / n * .4, y + 12); g.fill(); } }
+  }
+};
+~~~~
+
+### `src/js/19-atlas.js`
+~~~~js
+/* =====================================================================
+   ATLAS · arte de las IA embebido en src/data/arte.js (lo genera tools/arte_juego.py)
+   Gemini (G-): retratos, escenas y la maqueta isométrica, en WebP.  ChatGPT (C-): íconos, logros,
+   fiestas, portada y pantalla de carga, en SVG.
+   Regla del proyecto: el arte nuevo SIEMPRE tiene respaldo. Si ARTE[id] no existe o no carga,
+   cada módulo sigue dibujando su versión procedural de siempre.
+   ===================================================================== */
+const Atlas = EM.atlas = {
+  _u: {}, _i: {},
+  has(id) { return typeof ARTE !== 'undefined' && Object.prototype.hasOwnProperty.call(ARTE, id); },
+  /* URL lista para <img> o CSS (los SVG se convierten en data:image/svg+xml) */
+  url(id) {
+    if (!this.has(id)) return ''; if (this._u[id]) return this._u[id];
+    const a = ARTE[id]; return this._u[id] = a.charCodeAt(0) === 60 ? 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(a) : a;
+  },
+  /* imagen lista para drawImage; null mientras carga o si no existe (y entonces va el respaldo) */
+  img(id, onload) {
+    if (!this.has(id) || typeof Image === 'undefined') return null;
+    let im = this._i[id];
+    if (!im) { im = this._i[id] = new Image(); im.decoding = 'async'; im.onload = () => { im._ok = 1; if (onload) onload(im); }; im.onerror = () => { im._bad = 1; }; im.src = this.url(id); }
+    else if (onload && !im._ok && !im._bad) im.addEventListener('load', () => onload(im), { once: true });
+    return im._ok ? im : null;
+  },
+  /* etiqueta <img> para la interfaz; cadena vacía si no hay arte */
+  tag(id, cls = '', alt = '') { return this.has(id) ? `<img class="${cls}" src="${this.url(id)}" alt="${esc(alt)}" draggable="false" decoding="async">` : ''; },
+  /* ícono de botón: el SVG de ChatGPT o, si falta, el respaldo (emoji o letra) */
+  ico(id, fb) { return this.has(id) ? `<img class="aico" src="${this.url(id)}" alt="" draggable="false">` : fb; },
+  ids(pre = '') { return typeof ARTE === 'undefined' ? [] : Object.keys(ARTE).filter(k => k.startsWith(pre)); },
+  /* retrato del que habla, según el tono de la frase (alegre, triste o neutra) */
+  WHO: { 'Rosalba': 'rosalba', 'Don Efraín': 'efrain', 'Doña Marleny': 'marleny', 'Wílmar': 'wilmar', 'Agente de tránsito': 'agente', 'Pasajero': 'pasajero', 'Tú': 'nieta', 'La nieta': 'nieta' },
+  retrato(who, txt = '') {
+    const b = this.WHO[who]; if (!b) return '';
+    if (this.has('ret_' + b)) return 'ret_' + b;
+    const tono = /(adi[oó]s|desp[ie]d|extra[ñn]|[uú]ltima vuelta|llor|l[aá]grim|me voy|jubil|triste|nunca m[aá]s)/i.test(txt) ? 'triste'
+      : /(¡|jaja|qu[eé] bueno|felic|bien hecho|gracias|bacano|ch[eé]vere|qu[eé] belleza|orgull)/i.test(txt) ? 'alegre' : 'neutra';
+    return ['ret_' + b + '_' + tono, 'ret_' + b + '_neutra'].find(k => this.has(k)) || '';
+  },
+  /* decoración de fiestas (C-50) para la portada y el menú, según el calendario real */
+  FIESTA: { luces: ['fie_luz_estrella', 'fie_luz_flor', 'fie_farol_amarillo'], flores: ['fie_petalo_01', 'fie_petalo_02', 'fie_petalo_03', 'fie_petalo_05'], velas: ['fie_velita', 'fie_farol_rojo', 'fie_velita', 'fie_farol_amarillo'], banderas: ['fie_banderines_feria'] },
+  fiesta() {
+    const deco = typeof Mundo !== 'undefined' ? Mundo.deco() : '', L = this.FIESTA[deco]; if (!L) return '';
+    const ids = L.filter(k => this.has(k)); if (!ids.length) return '';
+    let h = ''; for (let i = 0; i < 9; i++) h += `<img src="${this.url(ids[i % ids.length])}" alt="" style="--i:${i}">`;
+    return `<div class="fdeco ${deco}" aria-hidden="true">${h}</div>`;
+  },
+  /* verificación para el selfTest: ids bien formados y referencias del juego presentes */
+  check(E) {
+    if (typeof ARTE === 'undefined') { E('atlas: falta src/data/arte.js'); return 0; }
+    for (const [k, v] of Object.entries(ARTE)) if (!/^data:image\/webp;base64,/.test(v) && !/^<svg[\s>]/.test(v)) E('atlas: ' + k + ' no es WebP ni SVG');
+    const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
+    for (const w of Object.keys(TRAMA_WHO)) if (this.WHO[w] && !this.retrato(w)) E('atlas: sin retrato de ' + w);
+    for (const k of need) if (!this.has(k)) E('atlas: falta ' + k);
+    return Object.keys(ARTE).length;
   }
 };
 ~~~~
@@ -5084,8 +5334,8 @@ const Conduce = EM.modes.conduce = {
   C.mount = function (st, el) {
     base.mount.call(this, st, el);
     const gb = el.querySelector('.gbtns'); gb.className = 'cabgrid';
-    gb.innerHTML = `<button class="cb" id="cbKey"><b>🔑</b>LLAVE</button><button class="cb" id="cbSel"><b>N</b>SENTIDO</button><button class="cb" id="cbVig"><b>◉</b>VIGILANTE</button><button class="cb" id="cbAnn"><b>🎙</b>ANUNCIO</button>
-      <button class="cb" id="cbDL"><b>◧</b>PUERTAS IZQ</button><button class="cb" id="cbDR"><b>◨</b>PUERTAS DER</button><button class="cb" id="cFF"><b>⏩</b>CRUCERO</button><button class="cb" id="cHorn"><b>📯</b>PITO</button><button id="cDoor" hidden></button>`;
+    gb.innerHTML = `<button class="cb" id="cbKey"><b>${Atlas.ico('ico_llave', '🔑')}</b>LLAVE</button><button class="cb" id="cbSel"><b>N</b>SENTIDO</button><button class="cb" id="cbVig"><b>${Atlas.ico('ico_vigilante', '◉')}</b>VIGILANTE</button><button class="cb" id="cbAnn"><b>${Atlas.ico('ico_megafono', '🎙')}</b>ANUNCIO</button>
+      <button class="cb" id="cbDL"><b>${Atlas.ico('ico_puerta_izquierda', '◧')}</b>PUERTAS IZQ</button><button class="cb" id="cbDR"><b>${Atlas.ico('ico_puerta_derecha', '◨')}</b>PUERTAS DER</button><button class="cb" id="cFF"><b>${Atlas.ico('ico_adelantar', '⏩')}</b>CRUCERO</button><button class="cb" id="cHorn"><b>${Atlas.ico('ico_pito', '📯')}</b>PITO</button><button id="cDoor" hidden></button>`;
     const tut = document.createElement('div'); tut.id = 'cTut'; tut.className = 'jobbar tut hide'; el.appendChild(tut);
     $('#cbKey').onclick = () => { if (st.v > .1) { this.msg(st, 'Detén el tren para mover la llave', 'y'); return; } st.key = !st.key; if (!st.key) st.sel = 0; this.sfx2(st, 'switch'); vib(15); };
     $('#cbSel').onclick = () => { if (!st.key) { this.msg(st, 'Primero gira la llave', 'y'); return; } if (st.v > .1) { this.msg(st, 'El sentido solo cambia detenido', 'y'); return; } st.sel = st.sel === 0 ? 1 : st.sel === 1 ? -1 : 0; this.sfx2(st, 'switch'); if (st.sel === -1) this.msg(st, 'ATRÁS: solo para maniobras (el juego no permite retroceder en servicio)', 'y'); };
@@ -5768,7 +6018,7 @@ const Libre = EM.modes.libre = {
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp">▲</button><button class="abtn brk" id="lbDown">▼</button><button class="abtn hb" id="lbHb">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbFoto">📷</button><button id="lbZoom">🔎</button><button id="lbRun">🏃</button><button id="lbFF" title="Adelantar el viaje">⏩</button></div><div id="lbJob" class="jobbar hide"></div><div id="trTalk" class="trtalk hide"></div>`;
+      <div class="vsel" id="lbView"><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Adelantar el viaje">${Atlas.ico('ico_adelantar', '⏩')}</button></div><div id="lbJob" class="jobbar hide"></div><div id="trTalk" class="trtalk hide"></div>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -5943,6 +6193,10 @@ const TRAMA = [
   ] }
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
+/* arte de cada capítulo (Gemini G- y ChatGPT C-, en src/data/arte.js) y el cielo que va detrás de las que lo traen transparente */
+const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
+TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
+const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
 const TRAMA_PREG = [
   ['¿Cómo llego a Santo Domingo Savio?', ['Línea A al norte hasta Acevedo y ahí el Metrocable K', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'Santo Domingo Savio'],
   ['Voy para La Aurora, arriba de San Javier.', ['Línea B hasta San Javier y el Metrocable J', 'Línea A hasta Acevedo y el cable P', 'Tranvía hasta Miraflores y el cable M'], 'La Aurora'],
@@ -5982,9 +6236,16 @@ const Trama = EM.trama = {
     if (T.s === 0) { Libre.msg(st, '📖 Capítulo ' + (T.c + 1) + ' · ' + C.t, 'b'); this.card(st, T.c, C.t); }
     Libre.msg(st, '📖 ' + S.txt, 'y');
   },
-  card(st, c, t) {
-    if (EM.headless || Game.st !== st) return; const host = $('#gctl'); if (!host) return; const el = document.createElement('div'); el.className = 'trcap';
-    el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
+  card(st, c, t, tries = 0) {
+    if (EM.headless || st.auto) return;
+    // al empezar, la partida aún no está montada: se reintenta un momento después
+    if (Game.st !== st) { if (tries < 8) setTimeout(() => this.card(st, c, t, tries + 1), 250); return; }
+    const host = $('#gctl'); if (!host) return; const el = document.createElement('div'), art = TRAMA[c] && TRAMA[c].art;
+    if (art && Atlas.has(art)) {   // tarjeta ilustrada del capítulo: se cierra sola o al tocarla
+      el.className = 'trcard'; el.innerHTML = `<div class="in"><div class="pic" style="background:${TRAMA_SKY[art] || 'var(--noche)'}">${Atlas.tag(art, '', t)}</div><small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b><i>Toca para seguir</i></div>`;
+      const bye = () => { if (el.isConnected) { el.classList.add('out'); setTimeout(() => el.remove(), 300); } }; el.onclick = bye; host.appendChild(el); setTimeout(bye, 5200); return;
+    }
+    el.className = 'trcap'; el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
   },
   advance() { const T = this.save(); T.s++; let newCap = false; if (T.s >= TRAMA[T.c].steps.length) { T.c++; T.s = 0; newCap = true; Save.d.wallet += 30; if (T.c >= TRAMA.length) { T.fin = 1; const L = Save.d.logros || (Save.d.logros = {}); if (!L.historia) { L.historia = Date.now(); if (!EM.headless) UI.toast('🏅 Logro: La última vuelta'); } } } Save.write(); return newCap; },
   next(st) {
@@ -6025,12 +6286,13 @@ const Trama = EM.trama = {
     const el = $('#trTalk'), tr = st.trama, T = tr.talk; if (!el) return; if (!T) { el.className = 'trtalk hide'; el.innerHTML = ''; return; }
     const S = this.step(), n = T.n; el.className = 'trtalk';
     if (n.q) {
-      const [q, opts] = n.q; el.innerHTML = `<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
-      el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
+      const [q, opts] = n.q; el.innerHTML = `${Atlas.tag(Atlas.retrato('Pasajero'), 'face', 'Pasajero')}<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
+      el.classList.toggle('conface', !!el.querySelector('.face')); el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
     }
     const L = T.lines[T.i] || ['', '']; const last = T.i >= T.lines.length - 1;
     if (T.said !== T.i) { T.said = T.i; if (L[1]) Snd.say(L[1]); }
-    el.innerHTML = `${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
+    const face = L[0] ? Atlas.retrato(L[0], L[1]) : ''; el.classList.toggle('conface', !!face);
+    el.innerHTML = `${face ? Atlas.tag(face, 'face', L[0]) : ''}${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
     const nb = el.querySelector('[data-n]'); if (nb) nb.onclick = () => { Snd.play('tap'); if (T.i < T.lines.length - 1) { T.i++; this.render(st); } else { tr.talk = null; this.render(st); this.next(st); } };
     const go = el.querySelector('[data-go]'); if (go) go.onclick = () => { tr.talk = null; this.render(st); this.launch(st, S); };
     const lt = el.querySelector('[data-later]'); if (lt) lt.onclick = () => this.close(st);
@@ -7000,14 +7262,19 @@ const Menu = EM.menu = {
   mode: null,
   cover() {
     UI.show('cover', false); Music.play('menu'); const cv = $('#cvArt'), g = cv.getContext('2d');
-    const loop = () => { if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); Art.cover(g, 320, 200, now(), h < 6 || h >= 19); $('#cvClock').textContent = (serviceOpen() ? 'En servicio · ' : 'Cerrado · ') + clockStr(); };
+    // portada de ChatGPT (C-40); si falta o no carga, sigue la portada procedural animada
+    let pic = $('#cvImg');
+    if (!pic && Atlas.has('portada')) { pic = document.createElement('img'); pic.id = 'cvImg'; pic.className = 'cart pic'; pic.alt = 'Un metro sobre el viaducto al atardecer, con el metrocable y las laderas de Medellín'; pic.onerror = () => { pic.remove(); cv.hidden = false; }; pic.src = Atlas.url('portada'); cv.after(pic); cv.hidden = true; }
+    const fd = $('#cvFiesta'), deco = Atlas.fiesta(); if (fd) fd.outerHTML = `<div id="cvFiesta">${deco}</div>`; else (pic || cv).insertAdjacentHTML('beforebegin', `<div id="cvFiesta">${deco}</div>`);
+    let last = '';
+    const loop = () => { if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19); const t = (serviceOpen() ? 'En servicio · ' : 'Cerrado · ') + clockStr(); if (t !== last) $('#cvClock').textContent = last = t; };
     loop();
   },
   modes() {
     UI.show('menu'); $('#mWallet').textContent = fmt(Save.d.wallet) + ' pasajes';
     const h = new Date().getHours(); $('#mGreet').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + Save.d.name;
     $('#mVida').innerHTML = Vida.panel(); Vida.bindPanel();
-    $('#mList').innerHTML = MODECARDS.map((c, i) => { const st = EM.modes[c.id] ? Save.totalStars(c.id) : null; return `<button class="mcard ${c.cls}" data-m="${c.id}"><span class="n">Est. ${pad2(i + 1)} · ${esc(c.n)}</span>${st != null ? `<span class="st">★ ${st}</span>` : c.id === 'historia' ? `<span class="st">Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}</span>` : ''}<canvas width="70" height="55" data-a="${c.id}"></canvas><span class="t">${esc(c.t)}</span><span class="d">${esc(c.d)}</span></button>`; }).join('');
+    $('#mList').innerHTML = MODECARDS.map((c, i) => { const st = EM.modes[c.id] ? Save.totalStars(c.id) : null; return `<button class="mcard ${c.cls}" data-m="${c.id}"><span class="n">Est. ${pad2(i + 1)} · ${esc(c.n)}</span>${st != null ? `<span class="st">★ ${st}</span>` : c.id === 'historia' ? `<span class="st">Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}</span>` : ''}${Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, 'mico') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`}<span class="t">${esc(c.t)}</span><span class="d">${esc(c.d)}</span></button>`; }).join('');
     $$('#mList canvas').forEach(cv => this.miniArt(cv.getContext('2d'), cv.dataset.a));
     $$('#mList .mcard').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
   },
@@ -7042,7 +7309,7 @@ const Menu = EM.menu = {
   storyList() {
     this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
     const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
-    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
+    $('#lBody').innerHTML = `${Atlas.tag('carga', 'sthero', 'Rosalba de espaldas en el andén, al atardecer')}<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
       CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
     $$('#lBody [data-c]').forEach(b => b.onclick = () => { const i = +b.dataset.c; if (i > Save.d.story.ch) { UI.toast('Termina el capítulo anterior'); return; } Story.open(i); });
     $('#stCity').onclick = () => { Snd.init(); Game.start('libre', 'lb:trama', {}); };
@@ -7123,7 +7390,8 @@ const LOGROS = [
   ['cables6', 'Ciudad colgante', 'Arma un metrocable de cada línea'], ['tres10', 'Diez de diez', 'Consigue 3 ★ en 10 niveles'], ['flota', 'Gerente', 'Lleva una flota al máximo'],
   ['historia', 'La última vuelta', 'Termina la historia de Rosalba'], ['datos25', 'Enciclopedia paisa', 'Descubre 25 datos de estaciones'], ['noche', 'Turno de la noche', 'Juega después de las 7 p. m.'],
   ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
-  ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %']
+  ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %'],
+  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados']
 ];
 /* Domingo de Pascua (algoritmo anónimo gregoriano) */
 function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
@@ -7176,6 +7444,7 @@ const Vida = EM.vida = {
     if (Game.duel) get('duelo'); if (Game.net) get('red'); if ((d.streak || 0) >= 3) get('racha3'); if (d.wallet >= 1000) get('mil');
     if (Object.keys(d.facts).length >= 25) get('datos25'); if (d.story.ch >= CAPS.length - 1) get('historia');
     if (Object.values(d.red.lines).some(x => x.f >= 5)) get('flota');
+    if (Vida.has('feria') || Vida.has('silleteros')) get('flores'); if (Vida.has('alumbrados') && (h >= 18 || h < 5)) get('alumbrados');
     Save.write();
   },
   /* noticias para la cinta del menú */
@@ -7198,7 +7467,7 @@ const Vida = EM.vida = {
   bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
   logros() {
     const L = Save.d.logros || {};
-    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}"><span style="font-size:22px">${L[k] ? '🏅' : '○'}</span><span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
+    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
     $('#lgOk').onclick = () => UI.close();
   },
   temas() {
@@ -7503,7 +7772,8 @@ const BotT = EM.test = {
     // historia
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
     let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    let nA = 0; try { nA = EM.atlas ? EM.atlas.check(E) : 0; } catch (e) { E('atlas: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
@@ -7960,6 +8230,184 @@ fs.writeFileSync(path.join(dir, 'index.html'), html);
 console.log('arte/index.html', Math.round(html.length / 1024), 'KB ·', DOCS.length, 'documentos ·', gal.length, 'fotos');
 ~~~~
 
+### `tools/arte_juego.py`
+~~~~
+#!/usr/bin/env python3
+"""ARTE DEL JUEGO · prepara el arte recibido (arte/entregas/) y genera src/data/arte.js.
+
+  python3 tools/arte_juego.py        (requiere Pillow con WebP y numpy)
+
+- Gemini (G-): láminas JPEG con fondo magenta → recorte, fondo transparente, WebP pequeño.
+- ChatGPT (C-): SVG → se minifican y se embeben como texto (nítidos en cualquier pantalla).
+- El juego usa ARTE[id] solo si existe: siempre hay respaldo procedural (Atlas en src/js/19-atlas.js).
+- Las cajas de recorte se midieron con una segmentación del fondo magenta (ver arte/entregas/INVENTARIO.md).
+"""
+import base64, io, json, os, re, sys
+from collections import deque
+import numpy as np
+from PIL import Image
+
+R = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+G = os.path.join(R, 'arte/entregas/gemini')
+C = os.path.join(R, 'arte/entregas/chatgpt/svg')
+
+ROS, NIE, EFR, MWA = 'G-01-03_rosalba.jpg', 'G-04_nieta.jpg', 'G-05_don-efrain.jpg', 'G-06-08_marleny-wilmar-agente.jpg'
+FIE, VAR, LAD = 'G-80-81_silleteros-y-alumbrados.jpg', 'G-82-86_velitas-tango-comuna13-arvi-aguacero.jpg', 'G-40-55_ladera-y-variantes.jpg'
+# (id, archivo, tipo, caja, ancho final, calidad, encargo, uso)
+RASTER = [
+    ('ret_rosalba_neutra', ROS, 'retrato', (38, 508, 254, 726), 144, 80, 'G-02', 'Diálogos de la historia'),
+    ('ret_rosalba_alegre', ROS, 'retrato', (270, 508, 486, 726), 144, 80, 'G-02', 'Diálogos (frases alegres)'),
+    ('ret_rosalba_triste', ROS, 'retrato', (502, 508, 718, 726), 144, 80, 'G-02', 'Diálogos (despedida)'),
+    ('ret_nieta_neutra', NIE, 'retrato', (40, 524, 242, 726), 144, 80, 'G-04', 'Diálogos: la nieta (tú)'),
+    ('ret_nieta_alegre', NIE, 'retrato', (252, 524, 454, 726), 144, 80, 'G-04', 'Diálogos: la nieta'),
+    ('ret_nieta_triste', NIE, 'retrato', (464, 524, 666, 726), 144, 80, 'G-04', 'Diálogos: la nieta'),
+    ('ret_efrain_neutra', EFR, 'retrato', (40, 518, 236, 726), 144, 80, 'G-05', 'Diálogos: Don Efraín'),
+    ('ret_efrain_alegre', EFR, 'retrato', (252, 518, 454, 726), 144, 80, 'G-05', 'Diálogos: Don Efraín'),
+    ('ret_efrain_triste', EFR, 'retrato', (470, 518, 666, 726), 144, 80, 'G-05', 'Diálogos: Don Efraín'),
+    ('ret_marleny', MWA, 'busto', (276, 266, 454, 474), 144, 80, 'G-06', 'Diálogos: Doña Marleny'),
+    ('ret_wilmar', MWA, 'busto', (700, 266, 878, 474), 144, 80, 'G-07', 'Diálogos: Wílmar'),
+    ('ret_agente', MWA, 'busto', (1146, 266, 1326, 474), 144, 80, 'G-08', 'Diálogos: agente de tránsito'),
+    ('ret_pasajero', 'G-09_pasajeros.jpg', 'busto', (198, 36, 342, 196), 144, 80, 'G-09', 'Preguntas de pasajeros'),
+    ('esc_noche', 'G-70-73_panorama-noche.jpg', 'magenta', None, 720, 58, 'G-70..73', 'Cap. 1 · Niquía, 4:30 a. m.'),
+    ('esc_dia', 'G-70-73_panorama-dia.jpg', 'magenta', None, 720, 58, 'G-70..73', 'Cap. 6 · La hora pico'),
+    ('esc_ladera_atardecer', LAD, 'magenta', (458, 0, 918, 382), 460, 66, 'G-51', 'Cap. 2 · Santo Domingo (cielo propio detrás)'),
+    ('esc_aguacero', VAR, 'escena', (3, 77, 274, 692), 271, 62, 'G-86', 'Cap. 3 · alimentadores'),
+    ('esc_tango', VAR, 'escena', (277, 77, 549, 692), 272, 62, 'G-83', 'Cap. 4 · El articulado (Gardel)'),
+    ('esc_velitas', VAR, 'escena', (1102, 77, 1374, 692), 272, 62, 'G-82', 'Fiesta: Noche de las Velitas'),
+    ('esc_comuna13', VAR, 'escena', (551, 77, 824, 692), 273, 62, 'G-84', 'Postal: Comuna 13'),
+    ('esc_arvi', VAR, 'escena', (827, 77, 1099, 692), 272, 62, 'G-85', 'Postal: Parque Arví (cable L)'),
+    ('esc_silleteros', FIE, 'escena', (0, 0, 686, 768), 400, 60, 'G-80', 'Fiesta: Feria de las Flores'),
+    ('esc_alumbrados', FIE, 'escena', (691, 0, 1376, 768), 400, 60, 'G-81', 'Fiesta: Alumbrados'),
+    ('iso_centro', 'G-90_isometrico-centro.jpg', 'magenta', (24, 114, 1000, 920), 560, 66, 'G-90', 'Cap. 5 · Ayacucho y la Maqueta 2:1'),
+]
+# En la lámina G-82..86 el orden real es: velitas, tango, comuna 13, Arví, aguacero (de izquierda a derecha)
+RASTER = [r if r[0] not in ('esc_aguacero', 'esc_velitas') else
+          (r[0], r[1], r[2], (1102, 77, 1374, 692) if r[0] == 'esc_aguacero' else (3, 77, 274, 692)) + r[4:] for r in RASTER]
+
+# SVG de ChatGPT: (id, ruta dentro de svg/, encargo, uso)
+SVG = [('portada', 'portadas/clave_portada.svg', 'C-40', 'Portada del menú y epílogo'),
+       ('carga', 'portadas/clave_carga.svg', 'C-41', 'Pantalla de carga y cap. 7 · La última vuelta')]
+for i, (k, f) in enumerate([('libre', 'ciudad_libre'), ('bus', 'bus'), ('conduce', 'metro'), ('cableviaje', 'metrocable'), ('historia', 'historia'),
+                            ('guia', 'guia'), ('red', 'red'), ('multi', 'juntos'), ('arcade', 'arcade')]):
+    SVG.append((f'ico_modo_{k}', f'iconos/c10_modos/{i + 1:02d}_{f}.svg', 'C-10', 'Tarjeta del modo en el menú'))
+for f in ['01_llave', '02_sentido', '03_vigilante', '04_megafono', '05_puerta_izquierda', '06_puerta_derecha', '07_pito', '08_foto', '09_lupa', '10_correr', '11_adelantar', '12_tarjeta']:
+    SVG.append(('ico_' + f[3:], f'iconos/c11_acciones/{f}.svg', 'C-11', 'Botón de la cabina o de Ciudad Libre'))
+LOG = ['primer', 'perfecto', 'diez', 'lineaA', 'despacho100', 'mp50', 'cables6', 'tres10', 'flota', 'historia', 'datos25', 'noche', 'madrugada', 'duelo', 'red', 'racha3', 'mil', 'tinto', 'flores', 'alumbrados']
+for i, f in enumerate(sorted(os.listdir(os.path.join(C, 'iconos/c12_logros')))):
+    SVG.append(('logro_' + LOG[i], 'iconos/c12_logros/' + f, 'C-12', 'Medalla en la libreta de logros'))
+for f in ['guirnalda_curva', 'banderines_feria', 'petalo_01', 'petalo_02', 'petalo_03', 'petalo_05', 'velita', 'farol_rojo', 'farol_amarillo', 'luz_estrella', 'luz_flor']:
+    SVG.append(('fie_' + f, f'fiestas/{f}.svg', 'C-50', 'Decoración de fiestas en el menú'))
+
+
+def magenta(a, tol=1.0):
+    r, g, b = a[..., 0].astype(int), a[..., 1].astype(int), a[..., 2].astype(int)
+    lo = np.minimum(r, b)
+    return (lo - g > 70 * tol) & (r > 100) & (b > 90) & (np.abs(r - b) < 85)
+
+
+def inunda(bg):
+    """Fondo = píxeles de color fondo conectados con el borde (no borra rosados del interior)."""
+    H, W = bg.shape
+    out = np.zeros_like(bg); q = deque()
+    for x in range(W):
+        for y in (0, H - 1):
+            if bg[y, x] and not out[y, x]: out[y, x] = True; q.append((y, x))
+    for y in range(H):
+        for x in (0, W - 1):
+            if bg[y, x] and not out[y, x]: out[y, x] = True; q.append((y, x))
+    while q:
+        y, x = q.popleft()
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            ny, nx = y + dy, x + dx
+            if 0 <= ny < H and 0 <= nx < W and bg[ny, nx] and not out[ny, nx]:
+                out[ny, nx] = True; q.append((ny, nx))
+    return out
+
+
+def sin_fondo(im):
+    a = np.asarray(im.convert('RGB')).astype(np.float32)
+    bg = inunda(magenta(a))
+    # crece 1 px hacia los bordes con tinte magenta (compresión JPEG) y quita el tinte de los vecinos
+    near = np.zeros_like(bg)
+    near[1:, :] |= bg[:-1, :]; near[:-1, :] |= bg[1:, :]; near[:, 1:] |= bg[:, :-1]; near[:, :-1] |= bg[:, 1:]
+    near &= ~bg
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    spill = np.clip(np.minimum(r, b) - g - 8, 0, 255)
+    alpha = np.where(bg, 0, 255).astype(np.float32)
+    alpha = np.where(near, 255 - np.clip(spill * 1.6, 0, 200), alpha)
+    k = np.where(near | (spill > 40), spill * .85, 0)
+    a[..., 0] = r - k; a[..., 2] = b - k
+    rgba = np.dstack([np.clip(a, 0, 255), alpha]).astype(np.uint8)
+    return Image.fromarray(rgba, 'RGBA')
+
+
+def marco_interior(im):
+    """En los retratos con marco oscuro, se queda con lo de adentro del marco."""
+    a = np.asarray(im.convert('RGB')).astype(int); H, W = a.shape[:2]
+    dark = a.sum(-1) < 170
+    top = next((y for y in range(H // 4) if dark[y].mean() < .5 and y > 0 and dark[y - 1].mean() >= .5), 0)
+    lt = next((x for x in range(W // 4) if dark[:, x].mean() < .5 and x > 0 and dark[:, x - 1].mean() >= .5), 0)
+    bt = next((y for y in range(H - 1, H * 3 // 4, -1) if dark[y].mean() < .5 and y < H - 1 and dark[y + 1].mean() >= .5), H - 1)
+    rt = next((x for x in range(W - 1, W * 3 // 4, -1) if dark[:, x].mean() < .5 and x < W - 1 and dark[:, x + 1].mean() >= .5), W - 1)
+    m = 2
+    return im.crop((lt + m, top + m, rt - m + 1, bt - m + 1))
+
+
+def cuadrado_abajo(im):
+    w, h = im.size; s = max(w, h)
+    out = Image.new('RGBA', (s, s), (0, 0, 0, 0)); out.paste(im, ((s - w) // 2, s - h)); return out
+
+
+def webp(im, q, alpha):
+    buf = io.BytesIO()
+    if alpha: im.save(buf, 'WEBP', quality=q, method=6, alpha_quality=90)
+    else: im.convert('RGB').save(buf, 'WEBP', quality=q, method=6)
+    return buf.getvalue()
+
+
+def svg_min(s):
+    s = re.sub(r'<\?xml[^>]*>', '', s); s = re.sub(r'<title>.*?</title>', '', s, flags=re.S)
+    s = re.sub(r'>\s+<', '><', s); s = re.sub(r'\s+', ' ', s).strip()
+    s = re.sub(r'(\d+\.\d{2})\d+', r'\1', s)   # 2 decimales bastan
+    return s
+
+
+def main():
+    arte, filas, total = {}, [], 0
+    for (id_, f, tipo, caja, w, q, enc, uso) in RASTER:
+        im = Image.open(os.path.join(G, f)).convert('RGB')
+        if caja: im = im.crop(caja)
+        alpha = tipo in ('retrato', 'busto', 'magenta')
+        if tipo == 'retrato': im = sin_fondo(marco_interior(im))
+        elif tipo in ('busto', 'magenta'): im = sin_fondo(im)
+        if tipo == 'busto': im = cuadrado_abajo(im)
+        if tipo == 'retrato': im = cuadrado_abajo(im)
+        h = round(im.size[1] * w / im.size[0])
+        if im.size[0] != w: im = im.resize((w, h), Image.LANCZOS)
+        data = webp(im, q, alpha)
+        arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
+        filas.append((id_, enc, f, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
+    for (id_, f, enc, uso) in SVG:
+        s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
+        arte[id_] = s; filas.append((id_, enc, 'chatgpt/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
+    js = ('/* ARTE DEL JUEGO · generado por tools/arte_juego.py desde arte/entregas/ (Gemini G-, ChatGPT C-). No editar a mano.\n'
+          '   Uso: Atlas.img(id) / Atlas.url(id) en src/js/19-atlas.js; si falta un id, el juego dibuja su respaldo procedural. */\n'
+          'const ARTE = ' + json.dumps(arte, ensure_ascii=False, separators=(',', ':')).replace('","', '",\n"') + ';\n')
+    open(os.path.join(R, 'src/data/arte.js'), 'w', encoding='utf-8').write(js)
+    md = ['# Arte integrado al juego', '', 'Generado por `python3 tools/arte_juego.py` (no editar a mano). Cada recurso tiene respaldo procedural en el juego.', '',
+          f'**{len(filas)} recursos · {total // 1024} KB dentro del HTML** (WebP en base64 y SVG minificado).', '',
+          '| id | encargo | fuente | uso en el juego | tamaño | bytes |', '|---|---|---|---|---|---:|']
+    md += [f'| `{a}` | {b} | `{c}` | {d} | {e} | {n:,} |'.replace(',', '.') for a, b, c, d, e, n in filas]
+    open(os.path.join(R, 'arte/entregas/USO-EN-EL-JUEGO.md'), 'w', encoding='utf-8').write('\n'.join(md) + '\n')
+    print(f'{len(filas)} recursos · src/data/arte.js {len(js) // 1024} KB')
+    if '--ver' in sys.argv:
+        for fl in filas: print('  ', fl[0], fl[4], fl[5])
+
+
+if __name__ == '__main__':
+    main()
+~~~~
+
 ### `tools/assets.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -8005,7 +8453,7 @@ const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/'
 const read = p => fs.readFileSync(p, 'utf8');
 const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
 fs.mkdirSync(dist, { recursive: true });
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -8031,6 +8479,109 @@ self.addEventListener('fetch', e => {
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
 fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.mjs'));
 console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);
+~~~~
+
+### `tools/osm-ventanas.mjs`
+~~~~js
+// Verificación del mapa contra OpenStreetMap (1/2): exporta ventanas de casillas del juego y sus cajas lat/lon.
+// Uso: node tools/osm-ventanas.mjs ventanas.json  → luego descarga cada caja de api.openstreetmap.org/api/0.6/map y corre tools/osm_comparar.py
+import { createRequire } from 'node:module'; import fs from 'node:fs'; const { chromium } = createRequire(import.meta.url)('playwright');
+const OUT = process.argv[2], R = 30, sitios = ['San Antonio', 'Niquía', 'Santo Domingo Savio'];
+const b = await chromium.launch(); const p = await b.newPage();
+await p.goto('file://' + new URL('../dist/index.html', import.meta.url).pathname); await p.waitForFunction(() => window.EM && EM.ready, null, { timeout: 60000 });
+const res = await p.evaluate(({ sitios, R }) => sitios.map(nm => {
+  const s = NET.stations.find(q => q.name === nm), tx = Math.floor(s.x / 20), ty = Math.floor(s.y / 20), t = [];
+  for (let y = ty - R; y < ty + R; y++) for (let x = tx - R; x < tx + R; x++) t.push(EM.map.tile(x, y));
+  const VM = VALLE_META, g = (x, y) => ({ lat: VM.latN - y / VM.ky, lon: VM.lon0 + x / VM.kx });   // en casillas
+  const a = g(tx - R, ty + R), c = g(tx + R, ty - R);
+  return { nm, tx0: tx - R, ty0: ty - R, n: 2 * R, t, bbox: [a.lon, a.lat, c.lon, c.lat], meta: { lon0: VM.lon0, latN: VM.latN, kx: VM.kx, ky: VM.ky } };
+}), { sitios, R });
+fs.writeFileSync(OUT, JSON.stringify(res)); console.log(res.map(r => r.nm + ' ' + r.bbox.map(v => v.toFixed(5)).join(',')).join('\n'));
+await b.close();
+~~~~
+
+### `tools/osm_comparar.py`
+~~~~
+#!/usr/bin/env python3
+"""Verificación del mapa contra OpenStreetMap (2/2): compara las casillas del juego con las vías de OSM.
+Uso: python3 -I tools/osm_comparar.py ventanas.json DIR_CON_zonaN.osm DIR_SALIDA   (zonaN.osm = api.openstreetmap.org/api/0.6/map?bbox=...)"""
+import sys, json, math, os
+import xml.etree.ElementTree as ET
+from PIL import Image, ImageDraw
+
+V = json.load(open(sys.argv[1])); DOSM, OUT = sys.argv[2], sys.argv[3]
+ROAD = {4, 5, 14, 11}; BLD = {2, 3}
+CARRO = {'motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'unclassified', 'residential', 'living_street', 'service', 'road',
+         'motorway_link', 'trunk_link', 'primary_link', 'secondary_link', 'tertiary_link'}
+ARTER = {'motorway', 'trunk', 'primary', 'secondary', 'motorway_link', 'trunk_link', 'primary_link', 'secondary_link'}
+PIE = {'footway', 'path', 'steps', 'pedestrian', 'cycleway', 'track'}
+COL = {0: (111, 154, 74), 1: (61, 104, 56), 2: (180, 88, 58), 3: (141, 151, 164), 4: (75, 80, 89), 5: (63, 68, 77), 6: (189, 182, 165), 7: (63, 154, 80),
+       8: (58, 135, 168), 9: (75, 127, 140), 10: (217, 205, 174), 11: (109, 111, 117), 12: (244, 236, 208), 13: (169, 154, 122), 14: (52, 56, 63), 15: (90, 176, 208), 16: (163, 152, 130)}
+res = []
+for zi, z in enumerate(V):
+    m = z['meta']; n = z['n']; tx0, ty0 = z['tx0'], z['ty0']; t = z['t']
+    tile = lambda x, y: t[(y - ty0) * n + (x - tx0)] if 0 <= x - tx0 < n and 0 <= y - ty0 < n else None
+    TX = lambda lon: (lon - m['lon0']) * m['kx']; TY = lambda lat: (m['latN'] - lat) * m['ky']
+    root = ET.parse(os.path.join(DOSM, f'zona{zi}.osm')).getroot()
+    nodes = {nd.get('id'): (float(nd.get('lat')), float(nd.get('lon'))) for nd in root.iter('node')}
+    ways = []
+    for w in root.iter('way'):
+        tags = {tg.get('k'): tg.get('v') for tg in w.iter('tag')}
+        pts = [nodes[r.get('ref')] for r in w.iter('nd') if r.get('ref') in nodes]
+        if len(pts) >= 2: ways.append((tags, pts))
+    def muestras(pts, paso=0.2):   # en casillas (0.2 = 4 m)
+        out = []
+        for (la1, lo1), (la2, lo2) in zip(pts, pts[1:]):
+            x1, y1, x2, y2 = TX(lo1), TY(la1), TX(lo2), TY(la2); L = math.hypot(x2 - x1, y2 - y1); k = max(1, int(L / paso))
+            for i in range(k + 1): out.append((x1 + (x2 - x1) * i / k, y1 + (y2 - y1) * i / k))
+        return out
+    cerca = lambda x, y, S: any(tile(x + dx, y + dy) in S for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+    osm_c, osm_a, osm_p, osm_b, calles = set(), set(), set(), set(), []
+    for tags, pts in ways:
+        hw = tags.get('highway')
+        if hw in CARRO:
+            ss = [(int(math.floor(x)), int(math.floor(y))) for x, y in muestras(pts)]
+            ss = [s for s in ss if tile(*s) is not None]
+            for s in ss: osm_c.add(s); (osm_a.add(s) if hw in ARTER else None)
+            if len(ss) >= 8 and tags.get('name'): calles.append((tags.get('name'), hw, sum(cerca(x, y, ROAD) for x, y in ss) / len(ss)))
+        elif hw in PIE:
+            for x, y in muestras(pts):
+                s = (int(math.floor(x)), int(math.floor(y)))
+                if tile(*s) is not None: osm_p.add(s)
+        elif 'building' in tags and tags['building'] != 'no':
+            xs = [TX(lo) for la, lo in pts]; ys = [TY(la) for la, lo in pts]
+            for x in range(int(min(xs)), int(max(xs)) + 1):
+                for y in range(int(min(ys)), int(max(ys)) + 1):
+                    if tile(x, y) is not None: osm_b.add((x, y))
+    nuestras = {(x, y) for y in range(ty0, ty0 + n) for x in range(tx0, tx0 + n) if tile(x, y) in ROAD}
+    nb = {(x, y) for y in range(ty0, ty0 + n) for x in range(tx0, tx0 + n) if tile(x, y) in BLD}
+    def cerca_set(s, S, r=1): return any((s[0] + dx, s[1] + dy) in S for dx in range(-r, r + 1) for dy in range(-r, r + 1))
+    r_exact = sum(tile(*s) in ROAD for s in osm_c) / max(1, len(osm_c))
+    r_near = sum(cerca(*s, ROAD) for s in osm_c) / max(1, len(osm_c))
+    r_art = sum(cerca(*s, ROAD) for s in osm_a) / max(1, len(osm_a))
+    prec = sum(cerca_set(s, osm_c) for s in nuestras) / max(1, len(nuestras))
+    prec_any = sum(cerca_set(s, osm_c | osm_p) for s in nuestras) / max(1, len(nuestras))
+    b_rec = sum(tile(*s) in BLD for s in osm_b) / max(1, len(osm_b)) if osm_b else None
+    completas = sum(1 for c in calles if c[2] >= .8)
+    res.append(dict(zona=z['nm'], casillas_via_osm=len(osm_c), casillas_via_juego=len(nuestras), recall_exacto=round(r_exact, 3), recall_20m=round(r_near, 3),
+                    recall_arterias_20m=round(r_art, 3), precision_20m=round(prec, 3), precision_20m_incl_peatonal=round(prec_any, 3),
+                    edificios_osm_casillas=len(osm_b), edificios_osm_en_juego=None if b_rec is None else round(b_rec, 3),
+                    calles_con_nombre=len(calles), calles_80pct=completas, peores=sorted(calles, key=lambda c: c[2])[:5]))
+    # imagen: el juego (colores planos) con las vías de OSM encima
+    E = 8; im = Image.new('RGB', (n * E, n * E)); d = ImageDraw.Draw(im)
+    for y in range(n):
+        for x in range(n):
+            c = COL.get(t[y * n + x], (0, 0, 0)); c = tuple(int(v * .55 + 255 * .45) for v in c)   # mapa del juego, lavado
+            d.rectangle([x * E, y * E, x * E + E - 1, y * E + E - 1], fill=c)
+    for tags, pts in ways:
+        hw = tags.get('highway')
+        if hw in CARRO or hw in PIE:
+            xy = [((TX(lo) - tx0) * E, (TY(la) - ty0) * E) for la, lo in pts]
+            d.line(xy, fill=(220, 30, 40) if hw in CARRO else (30, 90, 220), width=3 if hw in ARTER else 2 if hw in CARRO else 1)
+        elif tags.get('waterway') in ('river', 'stream', 'canal'):
+            d.line([((TX(lo) - tx0) * E, (TY(la) - ty0) * E) for la, lo in pts], fill=(0, 200, 230), width=3)
+    im.save(os.path.join(OUT, f'osm-{zi}.png'))
+print(json.dumps(res, ensure_ascii=False, indent=1))
 ~~~~
 
 ### `tools/rutas.mjs`
@@ -8096,19 +8647,31 @@ const PORT = +process.argv[2] || 8080, here = path.dirname(new URL(import.meta.u
 const dir = fs.existsSync(path.join(here, 'index.html')) ? here : path.join(here, '..', 'dist');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.apk': 'application/vnd.android.package-archive' };
 const rooms = new Map(); // sala -> {host, peers: Map(id -> socket), next}
+const MAX_JUG = 4, MAX_MSG = 65536, MAX_BUF = 131072;   // salas de hasta 4 (como el juego) y mensajes acotados
+const base = path.resolve(dir);
+const no = (res, code, txt) => { res.writeHead(code, { 'content-type': 'text/plain; charset=utf-8' }); res.end(txt); };
 const server = http.createServer((req, res) => {
-  const u = new URL(req.url, 'http://x'); let p = decodeURIComponent(u.pathname);
+  // una ruta mal escrita (p. ej. %E0%A4%A) no debe tumbar el servidor: responde 400 y sigue
+  let p; try { p = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (e) { no(res, 400, 'Ruta inválida'); return; }
+  if (p.includes('\0')) { no(res, 400, 'Ruta inválida'); return; }
   if (p.endsWith('/em-server.json')) { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify({ app: 'el-metro', rooms: [...rooms.keys()] })); return; }
   if (p === '/' || p.endsWith('/')) p += 'index.html';
-  const f = path.join(dir, path.normalize(p).replace(/^(\.\.[/\\])+/, ''));
-  if (!f.startsWith(dir) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end('No encontrado'); return; }
-  res.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(res);
+  const f = path.resolve(base, '.' + path.posix.normalize('/' + p.replace(/\\/g, '/')));
+  if (f !== base && !f.startsWith(base + path.sep)) { no(res, 403, 'Acceso denegado'); return; }
+  let st; try { st = fs.statSync(f); } catch (e) { no(res, 404, 'No encontrado'); return; }
+  if (!st.isFile()) { no(res, 404, 'No encontrado'); return; }
+  res.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' });
+  fs.createReadStream(f).on('error', () => res.destroy()).pipe(res);
 });
 /* --- WebSocket mínimo (RFC 6455, solo texto) --- */
 function frame(txt) { const b = Buffer.from(txt), n = b.length, h = n < 126 ? Buffer.from([0x81, n]) : n < 65536 ? Buffer.from([0x81, 126, n >> 8, n & 255]) : Buffer.concat([Buffer.from([0x81, 127, 0, 0, 0, 0]), Buffer.from([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255])]); return Buffer.concat([h, b]); }
 server.on('upgrade', (req, sock) => {
-  const u = new URL(req.url, 'http://x'); if (!u.pathname.endsWith('/em-ws')) { sock.destroy(); return; }
-  const key = req.headers['sec-websocket-key']; if (!key) { sock.destroy(); return; }
+  let u; try { u = new URL(req.url, 'http://x'); } catch (e) { sock.destroy(); return; }
+  if (!u.pathname.endsWith('/em-ws')) { sock.destroy(); return; }
+  const key = req.headers['sec-websocket-key']; if (typeof key !== 'string' || !/^[A-Za-z0-9+/]{22}==$/.test(key)) { sock.destroy(); return; }
+  sock.on('error', () => {});
+  const name0 = (u.searchParams.get('sala') || 'sala1').slice(0, 24), R0 = rooms.get(name0);
+  if (R0 && R0.peers.size >= MAX_JUG) { sock.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\nContent-Length: 0\r\n\r\n'); return; }
   const acc = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   sock.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + acc + '\r\n\r\n');
   const name = (u.searchParams.get('sala') || 'sala1').slice(0, 24), wantHost = u.searchParams.get('host') === '1';
@@ -8118,11 +8681,14 @@ server.on('upgrade', (req, sock) => {
   send(sock, { t: 'id', id }); console.log(`[${name}] entra jugador ${id} (${R.peers.size} en la sala)`);
   let buf = Buffer.alloc(0);
   sock.on('data', d => {
+    if (buf.length + d.length > MAX_BUF) { sock.destroy(); return; }
     buf = Buffer.concat([buf, d]);
     while (buf.length >= 2) {
       const op = buf[0] & 15, masked = buf[1] & 128; let len = buf[1] & 127, o = 2;
+      if (!masked) { sock.destroy(); return; }   // RFC 6455: el navegador siempre enmascara
       if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); o = 4; } else if (len === 127) { if (buf.length < 10) return; len = Number(buf.readBigUInt64BE(2)); o = 10; }
-      const mk = masked ? buf.slice(o, o + 4) : null; o += masked ? 4 : 0; if (buf.length < o + len) return;
+      if (!Number.isSafeInteger(len) || len > MAX_MSG) { sock.destroy(); return; }
+      const mk = buf.slice(o, o + 4); o += 4; if (buf.length < o + len) return;
       let pl = buf.slice(o, o + len); if (mk) { pl = Buffer.from(pl); for (let i = 0; i < pl.length; i++) pl[i] ^= mk[i & 3]; } buf = buf.slice(o + len);
       if (op === 8) { sock.end(); return; } if (op === 9) { sock.write(Buffer.from([0x8a, 0])); continue; } if (op !== 1) continue;
       let m; try { m = JSON.parse(pl.toString()); } catch (e) { continue; } m.from = id;
@@ -8132,6 +8698,7 @@ server.on('upgrade', (req, sock) => {
   const bye = () => { if (R.peers.get(id) !== sock) return; R.peers.delete(id); for (const s of R.peers.values()) send(s, { t: 'bye', from: id }); console.log(`[${name}] sale jugador ${id}`); if (!R.peers.size) rooms.delete(name); };
   sock.on('close', bye); sock.on('error', bye);
 });
+server.on('error', e => { console.error(e.code === 'EADDRINUSE' ? '\n  El puerto ' + PORT + ' ya está en uso. Prueba: node server.mjs ' + (PORT + 1) + '\n' : e); process.exit(1); });
 server.listen(PORT, '0.0.0.0', () => {
   console.log('\n  EL METRO · servidor local listo (sin internet)\n  Abre en los celulares conectados a esta misma red:');
   for (const l of Object.values(os.networkInterfaces()).flat()) if (l && l.family === 'IPv4' && !l.internal) console.log('   → http://' + l.address + ':' + PORT);
@@ -8167,6 +8734,72 @@ fs.writeFileSync(path.join(root, 'arte', 'SKILLS-IA.md'), out);
 console.log(`.claude/skills ← ${n} skills · arte/SKILLS-IA.md ${Math.round(out.length / 1024)} KB`);
 ~~~~
 
+### `tools/test-servidor.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Prueba de regresión del servidor local (tools/server.mjs), sin librerías.
+   Comprueba que una petición mal formada NO tumba el servidor, que no se sale de la carpeta del juego
+   y que las salas WebSocket respetan el máximo de 4 jugadores y las tramas enmascaradas.
+   Uso: node tools/test-servidor.mjs   (lo llama también tools/test.mjs) */
+import { spawn } from 'node:child_process'; import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
+import net from 'node:net'; import http from 'node:http'; import crypto from 'node:crypto';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+export async function probarServidor() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'em-srv-'));
+  fs.copyFileSync(path.join(root, 'tools/server.mjs'), path.join(tmp, 'server.mjs'));
+  fs.writeFileSync(path.join(tmp, 'index.html'), '<!DOCTYPE html><title>ok</title>');
+  const port = 20000 + (process.pid % 20000);
+  const srv = spawn(process.execPath, [path.join(tmp, 'server.mjs'), String(port)], { stdio: 'ignore' });
+  const fallos = [], ok = (c, m) => { if (!c) fallos.push(m); };
+  const get = p => new Promise(r => { const q = http.request({ host: '127.0.0.1', port, path: p, method: 'GET' }, s => { let b = ''; s.on('data', d => b += d); s.on('end', () => r({ code: s.statusCode, body: b })); }); q.on('error', e => r({ code: 0, body: e.code })); q.end(); });
+  const vivo = async () => (await get('/')).code === 200;
+  // cliente WebSocket mínimo: devuelve {sock, msgs, status}
+  const ws = (sala, key) => new Promise(r => {
+    const s = net.connect(port, '127.0.0.1'), msgs = []; let head = '', st = 0, buf = Buffer.alloc(0);
+    key = key || crypto.randomBytes(16).toString('base64');
+    s.on('connect', () => s.write(`GET /em-ws?sala=${sala} HTTP/1.1\r\nHost: x\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: ${key}\r\nSec-WebSocket-Version: 13\r\n\r\n`));
+    s.on('data', d => {
+      if (!st) { head += d.toString('latin1'); const i = head.indexOf('\r\n\r\n'); if (i < 0) return; st = +head.split(' ')[1]; buf = Buffer.from(head.slice(i + 4), 'latin1'); r({ sock: s, msgs, status: st }); } else buf = Buffer.concat([buf, d]);
+      while (buf.length >= 2) { let len = buf[1] & 127, o = 2; if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); o = 4; } if (buf.length < o + len) return; msgs.push(JSON.parse(buf.slice(o, o + len).toString())); buf = buf.slice(o + len); }
+    });
+    s.on('error', () => r({ sock: s, msgs, status: st || -1 })); s.on('close', () => { if (!st) r({ sock: s, msgs, status: -1 }); });
+  });
+  const trama = (obj, masked = true) => { const pl = Buffer.from(JSON.stringify(obj)), mk = crypto.randomBytes(4), h = Buffer.from([0x81, (masked ? 128 : 0) | pl.length]); if (!masked) return Buffer.concat([h, pl]); const x = Buffer.from(pl); for (let i = 0; i < x.length; i++) x[i] ^= mk[i & 3]; return Buffer.concat([h, mk, x]); };
+  const espera = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    for (let i = 0; i < 30 && !(await vivo()); i++) await espera(100);
+    ok(await vivo(), 'el servidor no arrancó');
+    ok((await get('/%E0%A4%A')).code === 400, 'ruta mal codificada: se esperaba 400');
+    ok(await vivo(), 'el servidor se cayó con una ruta mal codificada');
+    ok((await get('/a%00b')).code === 400, 'byte nulo: se esperaba 400');
+    ok([403, 404].includes((await get('/../../../etc/passwd')).code), 'salida de carpeta con ../');
+    ok([403, 404].includes((await get('/%2e%2e/%2e%2e/etc/passwd')).code), 'salida de carpeta con %2e%2e');
+    ok((await get('/..%5c..%5cetc%5cpasswd')).code !== 200, 'salida de carpeta con barra invertida');
+    const j = await get('/em-server.json'); ok(j.code === 200 && JSON.parse(j.body).app === 'el-metro', 'em-server.json');
+    ok((await get('/no-existe.txt')).code === 404, 'archivo inexistente: 404');
+    const c = []; for (let i = 0; i < 4; i++) c.push(await ws('prueba'));
+    ok(c.every(x => x.status === 101), 'cuatro jugadores deben entrar a la sala');
+    const quinto = await ws('prueba'); ok(quinto.status === 503, 'el quinto jugador debe recibir 503');
+    c[0].sock.write(trama({ t: 'hola', n: 1 })); await espera(150);
+    ok(c[1].msgs.some(m => m.t === 'hola' && m.from !== undefined), 'el mensaje enmascarado debe llegar a los demás');
+    const malo = await ws('otra'); malo.sock.write(trama({ t: 'x' }, false)); await espera(150);
+    ok(malo.sock.destroyed || malo.sock.readableEnded, 'una trama sin máscara debe cerrar la conexión');
+    const grande = await ws('otra2'); grande.sock.write(Buffer.from([0x81, 0xff, 0, 0, 0, 0, 0x7f, 0xff, 0xff, 0xff])); await espera(150);
+    ok(grande.sock.destroyed || grande.sock.readableEnded, 'una trama gigante debe cerrar la conexión');
+    const llave = await ws('otra3', 'no-es-base64'); ok(llave.status !== 101, 'llave WebSocket inválida rechazada');
+    ok(await vivo(), 'el servidor debe seguir vivo al final');
+    for (const x of [...c, quinto, malo, grande, llave]) x.sock.destroy();
+  } catch (e) { fallos.push('excepción: ' + e.message); }
+  srv.kill(); fs.rmSync(tmp, { recursive: true, force: true });
+  return { pruebas: 16, fallos };
+}
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+  const r = await probarServidor();
+  console.log(r.fallos.length ? 'servidor: ' + r.fallos.length + ' fallos ' + JSON.stringify(r.fallos) : 'servidor: OK, ' + r.pruebas + ' comprobaciones');
+  process.exit(r.fallos.length ? 1 : 0);
+}
+~~~~
+
 ### `tools/test.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -8175,9 +8808,12 @@ console.log(`.claude/skills ← ${n} skills · arte/SKILLS-IA.md ${Math.round(ou
    Uso: node tools/test.mjs [partidas=100] [--shots carpeta] [--url http://...] */
 import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
 import { spawn } from 'node:child_process'; import path from 'node:path'; import fs from 'node:fs';
+import { probarServidor } from './test-servidor.mjs';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const N = +process.argv[2] || 100, shots = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
 const ext = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : null;
+const srvT = ext ? { pruebas: 0, fallos: [] } : await probarServidor();
+if (!ext) console.log(srvT.fallos.length ? 'servidor local: ' + srvT.fallos.length + ' fallos ' + JSON.stringify(srvT.fallos) : 'servidor local: OK, ' + srvT.pruebas + ' comprobaciones');
 let srv = null, url = ext;
 if (!url) { srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), '8765'], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600)); url = 'http://localhost:8765/'; }
 const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] }), ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true });
@@ -8209,7 +8845,7 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length;
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);
 ~~~~
 
@@ -8389,7 +9025,7 @@ const codeFiles = [
   'src/head.html', 'src/body.html', 'src/style.css',
   ...fs.readdirSync(path.join(root, 'src/js')).filter(f => f.endsWith('.js')).sort().map(f => 'src/js/' + f),
   'src/data/red.js', 'src/data/lugares.js', 'src/data/rutas.js',
-  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html)$/.test(f)).sort().map(f => 'tools/' + f),
+  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html|py)$/.test(f)).sort().map(f => 'tools/' + f),
   ...(fs.existsSync(path.join(root, 'android')) ? walk('android').filter(f => /\.(kt|kts|java|xml|md|properties)$/.test(f) && !/local\.properties$|gradle-wrapper/.test(f)).sort() : [])
 ];
 let code = '', codeBytes = 0;
@@ -8416,6 +9052,7 @@ Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos 
 
 ## Datos que no van como texto
 - **\`src/data/valle.js\`** (${valleKB} KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con \`MAP.tile\`, \`MAP.tileM\` y \`MAP.elevM\` (ver \`src/js/10-map.js\`).
+- **\`src/data/arte.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/arte.js')).size / 1024)} KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera \`python3 tools/arte_juego.py\` desde \`arte/entregas/\`; la lista con su uso está en \`arte/entregas/USO-EN-EL-JUEGO.md\`. Se usa con \`Atlas.img(id)\`, \`Atlas.url(id)\` y \`Atlas.tag(id)\` (\`src/js/19-atlas.js\`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
 ## Código fuente (${codeFiles.length} archivos, ${Math.round(codeBytes / 1024)} KB)
@@ -8470,6 +9107,8 @@ ${demote(PROTO, 1)}
 | \`docs/PLAN.md\` | Fases, incluida la 1b: Medellín fiel e isométrica |
 | \`arte/06-guia-unica-ia.md\` | Contexto, roles, encargos y skills |
 | \`arte/README.md\` | Índice de la carpeta de arte |
+| \`arte/entregas/INVENTARIO.md\` | Lo que entregaron Gemini y ChatGPT, verificado, y qué está en el juego |
+| \`docs/auditorias/\` | Auditorías: servidor local y fidelidad del mapa contra OpenStreetMap |
 | \`.agents/skills/\` y \`.claude/skills/\` | Skills \`el-metro-desarrollo\`, \`el-metro-arte\`, \`medellin-fiel\`, \`frontend-design\`, \`webapp-testing\`, \`skill-creator\` |
 
 **Todo junto, con el código:** \`node tools/todo.mjs\` genera:

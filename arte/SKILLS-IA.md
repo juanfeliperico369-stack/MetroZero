@@ -97,6 +97,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
+| `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
 | `22-gl.js` | Motor 3D WebGL1 propio `G3` |
 | `23-lado.js` | Panorámica lateral por capas |
@@ -114,7 +115,8 @@ Datos en `src/data/`:
 - `valle.js`: mapa y relieve de EnCicla;
 - `red.js`: líneas y estaciones;
 - `rutas.js`: recorridos de buses por calles reales;
-- `lugares.js`: lugares con postal.
+- `lugares.js`: lugares con postal;
+- `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 
 **Convenciones:**
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
@@ -124,7 +126,10 @@ Datos en `src/data/`:
 ### Comandos
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
-node tools/test.mjs 100              # selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
+python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
+node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -155,7 +160,9 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 ### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
-- El tamaño del HTML importa: hoy pesa unos 1,8 MB. El arte nuevo va en atlas comprimidos.
+- El tamaño del HTML importa: hoy pesa unos 2,4 MB (533 KB son arte). El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`.
+- Lo que el bot no ve (tarjetas, diálogos, portada) se revisa con capturas: en v0.6.0 un comentario anuló una línea y solo se notó en la captura.
+- El mapa cenital: mide las vías **con las de su mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados) y revisa el banco de sitios reales (Niquía, Acevedo, San Antonio, Parque Berrío, Santo Domingo, Poblado, Industriales, Floresta) a k = 2,1, 1 y 0,42.
 
 
 ---
@@ -247,12 +254,20 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
 5. ¿Se lee bien en pequeño?
 6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
 
-### Integración al juego
-1. Lo entregado va en `arte/entregas/<carpeta>/` (estructura en la guía única, Bloque 5).
-2. Se quita el magenta (transparencia) y se recorta a la cuadrícula.
-3. Se reduce con **vecino más cercano** a la escala del juego y se **cuantiza a la paleta**.
-4. Se arman **atlas** en `src/art/` (PNG o WebP más un JSON de coordenadas), embebidos en el HTML. La meta es menos de 4 MB de arte.
-5. Se conecta el arte, siempre con respaldo al dibujo procedural:
+### Integración al juego (así se hizo en v0.6.0)
+1. Lo entregado va en `arte/entregas/gemini/` o `arte/entregas/chatgpt/`, con el **nombre del encargo** (por ejemplo `G-01-03_rosalba.jpg`). El inventario y la verificación van en `arte/entregas/INVENTARIO.md`.
+2. Se agrega la receta en `tools/arte_juego.py` (id, archivo, tipo, caja de recorte, ancho final y uso). Los tipos:
+   - `retrato`: dentro del marco, sin fondo;
+   - `busto` y `magenta`: sin el fondo magenta conectado al borde, así no se borran los rosados interiores;
+   - `escena`: recorte y WebP;
+   - los SVG de ChatGPT se minifican tal cual.
+3. `python3 tools/arte_juego.py` genera `src/data/arte.js` y `arte/entregas/USO-EN-EL-JUEGO.md`. Las cajas de recorte salen de una segmentación del fondo magenta.
+4. En el código se usa `Atlas` (`src/js/19-atlas.js`), siempre con respaldo procedural:
+   - `Atlas.tag(id)` para la interfaz;
+   - `Atlas.img(id)` para el lienzo;
+   - `Atlas.retrato(quien, frase)` para los diálogos;
+   - `Atlas.fiesta()` para los adornos.
+   - El autotest (`Atlas.check`) exige que existan las piezas que el juego nombra.
 
    | Arte | Archivo |
    |---|---|
@@ -261,7 +276,21 @@ description: Dirección de arte y producción de imágenes para el videojuego "E
    | Capas | `23-lado.js` |
    | Vehículos de perfil | `30-conduce.js`, `52-cableviaje.js` |
    | Consola | `31-cabina.js` |
-   | Retratos | `37-trama.js` |
+   | Retratos y tarjetas de capítulo | `37-trama.js` |
+   | Portada, íconos de modos e historia | `65-menu.js` |
+   | Medallas | `66-vida.js` |
+
+### Reglas aprendidas en la entrega 1 (nov‑2026)
+Las propusieron Gemini y ChatGPT y se comprobaron al integrar:
+1. **Retratos en la misma posición** en cada gesto (mismo encuadre y altura de ojos): así se cambian sin saltos.
+2. **Fondo magenta plano** incluso dentro de los marcos: el recorte lo quita solo.
+3. **No escribas códigos HEX en el texto de un prompt de imagen:** el modelo puede dibujarlos como letras. Nombra el color (“azul metro”) y adjunta la paleta como imagen.
+4. **Grilla de píxel entera**, sin mezclar tamaños de píxel (nada de *mixels*); máximo 2 tonos por superficie más el contorno.
+5. **No mezcles vistas:** cenital 3/4 (casillas) e isométrica 2:1 (maqueta) van en láminas separadas.
+6. **Cero sombras proyectadas:** las pone el juego.
+7. **Entrega también la fuente** (SVG o el script que la genera): con eso se recuperó todo lo de ChatGPT aunque faltó el ZIP.
+8. **Distingue las evidencias:** “sintaxis válida”, “prueba ejecutada” y “partida real jugada” son cosas distintas. No digas “probado” si solo validaste archivos.
+9. **Lo que dices del mundo real, verifícalo:** la “Línea O” es de buses por la 80, no del Metro de la 80 (será la Línea E, rosada).
    | Íconos | menús |
    | Isométrico | vista nueva (ver skill `medellin-fiel`) |
 6. Se prueba con `node tools/test.mjs 100` y capturas, y se publica (skill `el-metro-desarrollo`).
