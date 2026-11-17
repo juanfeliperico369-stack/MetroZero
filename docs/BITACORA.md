@@ -40,7 +40,7 @@ v0.6.0 trajo el arte de Gemini y ChatGPT y el primer rediseño del mapa. El HTML
 
 **Pruebas:** `node tools/test.mjs 100` → selfTest (datos, solubilidad, rutas) + partidas automáticas en todos los modos + recorrido de pantallas. Última corrida: ver Historial v0.4.0. El bot también vive en el menú (🤖).
 
-**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; **v0.8.0 verificada el 2026-11-17**: carga con la CSP activa, service worker con caché `el-metro-v0.8.0-fccee683`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 8, 4,3 MB).
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; **v0.9.0 verificada el 2026-11-17**: carga con la CSP activa, service worker con caché `el-metro-v0.9.0-e4a3360f`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 9, **1,9 MB**).
 
 ## Carpeta de arte (`arte/`, 2026-11-17)
 Investigación visual y guía de producción para el arte definitivo:
@@ -89,7 +89,8 @@ Pedido del autor: “continúa desarrollando y mejorando, termina lo pendiente y
 4. **Pruebas:**
    - el autotest suma el álbum (arte y datos de las 48 postales) y la maqueta (la proyección va y vuelve con los 4 giros; un dibujo de prueba sale con 95 % de ciudad);
    - 100 partidas, 0 errores, 0 de consola.
-5. **Regla aprendida:** al meter un comentario en una línea de código compacta, usar `/* … */`, nunca `//`: un `//` anuló el resto de una línea y solo lo atrapó la verificación de sintaxis.
+5. **APK solo con el juego:** desde v0.6.0 la APK metía también los documentos del proyecto (El-Metro-TODO.html y EL-METRO-TODO.md), la imagen para redes y el servidor local. Ahora `android/app/build.gradle.kts` los excluye y la APK pasa de 4,9 a 1,9 MB.
+6. **Regla aprendida:** al meter un comentario en una línea de código compacta, usar `/* … */`, nunca `//`: un `//` anuló el resto de una línea y solo lo atrapó la verificación de sintaxis.
 
 ### v0.8.0 (2026-11-17) — identidad del Metro, seguridad y código limpio
 Pedido del autor: “cambia la estética de revista, usa los colores del metro y crea una interfaz de inicio más original; quita notas innecesarias del estilo revista; pule el código; verifica su seguridad y déjalo sin rastro de uso de IA”.

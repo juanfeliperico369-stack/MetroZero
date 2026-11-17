@@ -24,7 +24,8 @@ fun setting(name: String, env: String, default: String): String =
 
 // Juego web ya construido (index.html, manifest, iconos...). Por defecto ../../dist.
 val distDir: Directory = rootProject.layout.projectDirectory.dir(prop("elmetro.distDir", "../dist"))
-val webExcludes = listOf("**/*.apk", "**/*.apk.idsig", "**/.DS_Store", "**/Thumbs.db")
+// Solo el juego: fuera los documentos del proyecto, la imagen para redes y el servidor de red local (son de la web).
+val webExcludes = listOf("**/*.apk", "**/*.apk.idsig", "**/.DS_Store", "**/Thumbs.db", "El-Metro-TODO.html", "EL-METRO-TODO.md", "compartir.png", "server.mjs", ".nojekyll")
 
 android {
     namespace = "co.metrozero.elmetro"
