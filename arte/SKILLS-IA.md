@@ -72,6 +72,16 @@ Videojuego **offline** de mundo abierto + arcade sobre el Metro de Medellín, pa
 - `docs/PLAN.md`: fases.
 - `arte/README.md`: arte.
 
+### Protocolo
+Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, también en `AGENTS.md`):
+1. lee todo;
+2. reflexiona;
+3. responde el cuestionario;
+4. prueba;
+5. auto‑ajústate;
+6. haz solo lo tuyo;
+7. entrega y registra.
+
 ### Reglas que no se rompen
 1. **Un solo HTML, sin librerías externas ni internet** en tiempo de juego. Todo va embebido (datos, fuentes, arte).
 2. **Celulares modestos:** cuida los ms por cuadro, cachea lo dibujado y evita asignar memoria en el bucle.
@@ -121,7 +131,7 @@ bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
 node tools/verify-pages.mjs          # verifica la web publicada: carga, service worker, sin conexión, instalable
 node tools/arte.mjs                  # regenera arte/index.html y arte/CONTEXTO-IA.md (bitácora sincronizada)
 node tools/skills.mjs                # copia .agents/skills → .claude/skills y arma arte/SKILLS-IA.md
-node tools/todo.mjs                  # dist/El-Metro-TODO.html: UN archivo con el juego jugable + guía, skills, plan, bitácora y arte
+node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (documento único con código), dist/El-Metro-TODO.html (con el juego) y AGENTS.md, CLAUDE.md, GEMINI.md
 ```
 **Chromium y Playwright** ya vienen instalados (`require('playwright')`). En la nube, el 3D usa SwiftShader: lanza Chromium con `--enable-unsafe-swiftshader --use-angle=swiftshader --ignore-gpu-blocklist`.
 

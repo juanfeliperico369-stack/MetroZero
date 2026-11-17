@@ -1,0 +1,9914 @@
+# EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
+
+> **Versión del juego v0.5.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+>
+> **SI ERES UNA IA:**
+> 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
+> 2. **Lee TODO**, de principio a fin (si no te cabe de una vez, léelo por partes hasta terminar).
+> 3. Reflexiona, responde el **cuestionario** y prueba en pequeño.
+> 4. **Auto‑ajústate** guardando tus “Reglas aprendidas”.
+> 5. Solo entonces haz **tu** parte, con precisión.
+
+## Índice
+- 0 · Protocolo para toda IA
+- 1 · Léeme: qué es y cómo usarlo
+- 2 · Guía única para IA (contexto, roles, encargos, skills y bitácora)
+- 3 · Skills del proyecto
+- 4 · Plan de desarrollo
+- 5 · Biblia de estilo
+- 6 · Referencias de videojuegos
+- 7 · Medellín y su transporte: identidad visual
+- 8 · Historia del Metro y de Medellín
+- 9 · Folclor y fiestas
+- 10 · Diseño: mundo abierto + arcade
+- 11 · Entregas e integración
+- 12 · Galería de referencia (créditos)
+- 13 · El videojuego: cómo jugarlo y código fuente completo
+
+---
+
+# 0 · Protocolo para toda IA
+
+## PROTOCOLO PARA TODA IA · léelo antes que nada
+
+> Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
+> - Gemini (Nano Banana), Artista 1;
+> - ChatGPT, Artista 2;
+> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+>
+> El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
+
+### Los 7 pasos (en orden, sin saltarse ninguno)
+1. **LEE TODO.**
+   - Lee el documento completo, de principio a fin: protocolo, guía, contexto, roles, encargos, skills, plan, bitácora, arte, galería y código.
+   - Si no te cabe de una vez, **léelo por partes hasta terminarlo**.
+   - No empieces a trabajar sin haber leído todo.
+2. **REFLEXIONA.**
+   - Resume en pocas líneas la misión y la visión, el estado del juego, **tu rol**, **tus encargos** y **lo que NO debes hacer**.
+   - Busca dudas, vacíos o contradicciones. Si encuentras alguna, **pregúntala antes de empezar**.
+   - Si dos partes chocan, manda el contexto del proyecto (Bloque 1). Si aun así no se resuelve, pregunta.
+3. **COMPRUEBA QUE ENTENDISTE.**
+   - Responde el **cuestionario de comprensión** (abajo) con lo que leíste.
+   - Si dudas o fallas en una respuesta, **vuelve a leer** esa parte antes de seguir.
+4. **PRUEBA EN PEQUEÑO.** Antes de producir en serie, haz una prueba corta de tu trabajo y evalúala con la **lista de control**:
+
+   | IA | Prueba |
+   |---|---|
+   | Gemini | El encargo **G‑00** (ancla de estilo) |
+   | ChatGPT | Un ícono del encargo **C‑10** |
+   | Agentes de código | `node tools/build.mjs` y `node tools/test.mjs 100` (debe dar 0 errores), y **juega el juego** para conocerlo |
+5. **AUTO‑AJÚSTATE.**
+   - Corrige tu propia forma de trabajar con lo que te enseñó la prueba.
+   - Guarda las **“Reglas aprendidas”** en tus propias instrucciones:
+
+     | IA | Dónde las guardas |
+     |---|---|
+     | Gemini | Instrucciones de tu **Gem** |
+     | ChatGPT | Instrucciones de tu **Proyecto** |
+     | Agentes de código | Skills `el-metro-*` (con `skill-creator`) y bitácora |
+
+   - Repite la prueba hasta que pase la lista de control.
+   - **Nunca** cambies la misión, la visión ni las reglas del autor sin su permiso; ajusta solo **cómo** trabajas tú.
+6. **HAZ SOLO LO TUYO, CON PRECISIÓN.**
+   - Ejecuta únicamente los encargos de tu rol, uno por uno.
+   - Respeta exactamente la vista, la paleta, el fondo, el tamaño, el nombre de archivo y el formato.
+   - Si te piden algo de otra IA, responde a quién le corresponde y no lo hagas.
+7. **ENTREGA Y REGISTRA.**
+   - Entrega según la guía (Bloque 5: carpetas y nombres).
+   - Informa en 5–10 líneas:
+     - qué hiciste;
+     - cómo lo probaste;
+     - qué aprendiste (tus reglas nuevas);
+     - qué falta.
+   - Los agentes de código actualizan además `docs/BITACORA.md` y, si cambió una regla de trabajo, la skill correspondiente.
+
+### Cuestionario de comprensión (respóndelo antes de trabajar)
+1. ¿Cuál es la misión del proyecto, en una frase?
+2. ¿Qué IA hace los encargos **G‑** y cuál los **C‑**? ¿Cuál es **tu** rol?
+3. ¿Qué color HEX tiene la línea **A**? ¿Y el **Metroplús línea 1**?
+4. ¿Qué fondo se usa cuando la herramienta no da transparencia?
+5. ¿Desde dónde viene la luz y por qué no se dibuja la sombra proyectada?
+6. ¿Qué escala tienen los sprites de vehículos y hacia dónde miran?
+7. ¿Qué está **prohibido** en todas las imágenes?
+8. ¿Qué es la proyección **dimétrica 2:1** y en qué encargos se usa?
+9. ¿Quién es **Rosalba** y cómo se viste?
+10. ¿Cuál es el **primer encargo** que hay que hacer y por qué?
+11. ¿Qué skill del proyecto debes seguir siempre y cuál solo en el mapa y la vista isométrica?
+12. *(Agentes de código)* ¿Qué comando compila el juego, cuál lo prueba con 100 partidas, cuál arma este documento único y qué archivo se actualiza al terminar?
+13. ¿Qué haces si te piden algo que no está en tu rol?
+
+> Las respuestas están en este mismo documento. Si una IA no puede contestarlas, todavía no lo ha leído completo.
+
+### Lista de control (para toda entrega)
+1. ¿Leí todo y respondí el cuestionario?
+2. ¿Es un encargo de **mi** rol?
+3. ¿La vista y la proyección son correctas?
+4. ¿Los colores son de la paleta, con el color de línea correcto?
+5. ¿El fondo es transparente o magenta plano?
+6. ¿No tiene sombra proyectada, ni texto, ni logos (salvo que el encargo lo pida)?
+7. ¿Se lee bien en tamaño pequeño?
+8. ¿Tiene el nombre exacto del encargo?
+9. ¿Anoté lo que aprendí en mis “Reglas aprendidas”?
+
+---
+
+# 1 · Léeme: qué es y cómo usarlo
+
+## El Metro · Todo en uno
+
+> Versión del juego **v0.5.0** · compilado el 2026-11-17.
+> **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
+
+Aquí está **todo** el proyecto:
+- el **videojuego** (▶ Jugar en el archivo HTML; su **código fuente completo** va al final del documento único);
+- la **guía única para IA** (Gemini y ChatGPT): misión, visión, contexto, roles, encargos con prompts, correcciones, entrega y **skills**;
+- el **plan** y la **bitácora**;
+- toda la **carpeta de arte**: biblia, referencias, Medellín, historia, folclor y fiestas, diseño, entregas y galería.
+
+### Cómo usarlo
+1. **Jugar:** en `El-Metro-TODO.html`, botón **▶ Jugar El Metro** (funciona sin internet; el progreso queda en ese navegador). También en la web: https://juanfeliperico369-stack.github.io/MetroZero/
+2. **Gemini (Nano Banana) y ChatGPT:**
+   1. Sube **`EL-METRO-TODO.md`** (el documento único) como conocimiento de tu **Gem** o como archivo de tu **Proyecto**.
+   2. En las instrucciones pega el **rol** que corresponde (Guía única → Bloque 2).
+   3. Pídele que siga el **protocolo** y te responda el cuestionario.
+   4. Después, pide los encargos **uno por uno**, empezando por **G‑00**.
+3. **Agentes de código** (Codex “astra”, Antigravity “argon”, Claude Code): abren el repositorio; leen solos `AGENTS.md`, `GEMINI.md` o `CLAUDE.md` y las skills de `.agents/skills/` y `.claude/skills/`. Este documento les da todo junto.
+4. **Entregas de arte:** según la Guía única, Bloque 5 (carpetas, nombres y lista de control).
+
+### Enlaces
+- Juego en la web (PWA): https://juanfeliperico369-stack.github.io/MetroZero/
+- App Android (APK): https://juanfeliperico369-stack.github.io/MetroZero/el-metro.apk
+- Archivo con todo y el juego: https://juanfeliperico369-stack.github.io/MetroZero/El-Metro-TODO.html
+- Carpeta de arte en línea: https://juanfeliperico369-stack.github.io/MetroZero/arte/
+- Repositorio: https://github.com/juanfeliperico369-stack/MetroZero (rama de trabajo `ccr-2a67f935-oat714`)
+
+---
+
+# 2 · Guía única para IA (contexto, roles, encargos, skills y bitácora)
+
+## 06 · GUÍA ÚNICA DE ARTE PARA IA · *El Metro*
+
+> Una sola guía para las dos IA de imágenes del proyecto: **Gemini (Nano Banana)** y **ChatGPT**. *Midjourney salió del plan; su trabajo quedó repartido entre las dos.*
+> **Toda IA debe seguir el PROTOCOLO** (abajo): leer todo, reflexionar, comprobar que entendió, probar, auto‑ajustarse y solo entonces hacer su parte con precisión.
+> Las dos reciben **todo el contexto**: misión, visión, estado del juego, dirección de arte, las **skills del proyecto** (Bloque 6) y la **bitácora completa** (Anexo A). Pero cada una **solo hace su parte**, según su rol (Bloque 2) y sus encargos (Bloque 3).
+
+### PROTOCOLO PARA TODA IA · léelo antes que nada
+
+> Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
+> - Gemini (Nano Banana), Artista 1;
+> - ChatGPT, Artista 2;
+> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+>
+> El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
+
+#### Los 7 pasos (en orden, sin saltarse ninguno)
+1. **LEE TODO.**
+   - Lee el documento completo, de principio a fin: protocolo, guía, contexto, roles, encargos, skills, plan, bitácora, arte, galería y código.
+   - Si no te cabe de una vez, **léelo por partes hasta terminarlo**.
+   - No empieces a trabajar sin haber leído todo.
+2. **REFLEXIONA.**
+   - Resume en pocas líneas la misión y la visión, el estado del juego, **tu rol**, **tus encargos** y **lo que NO debes hacer**.
+   - Busca dudas, vacíos o contradicciones. Si encuentras alguna, **pregúntala antes de empezar**.
+   - Si dos partes chocan, manda el contexto del proyecto (Bloque 1). Si aun así no se resuelve, pregunta.
+3. **COMPRUEBA QUE ENTENDISTE.**
+   - Responde el **cuestionario de comprensión** (abajo) con lo que leíste.
+   - Si dudas o fallas en una respuesta, **vuelve a leer** esa parte antes de seguir.
+4. **PRUEBA EN PEQUEÑO.** Antes de producir en serie, haz una prueba corta de tu trabajo y evalúala con la **lista de control**:
+
+   | IA | Prueba |
+   |---|---|
+   | Gemini | El encargo **G‑00** (ancla de estilo) |
+   | ChatGPT | Un ícono del encargo **C‑10** |
+   | Agentes de código | `node tools/build.mjs` y `node tools/test.mjs 100` (debe dar 0 errores), y **juega el juego** para conocerlo |
+5. **AUTO‑AJÚSTATE.**
+   - Corrige tu propia forma de trabajar con lo que te enseñó la prueba.
+   - Guarda las **“Reglas aprendidas”** en tus propias instrucciones:
+
+     | IA | Dónde las guardas |
+     |---|---|
+     | Gemini | Instrucciones de tu **Gem** |
+     | ChatGPT | Instrucciones de tu **Proyecto** |
+     | Agentes de código | Skills `el-metro-*` (con `skill-creator`) y bitácora |
+
+   - Repite la prueba hasta que pase la lista de control.
+   - **Nunca** cambies la misión, la visión ni las reglas del autor sin su permiso; ajusta solo **cómo** trabajas tú.
+6. **HAZ SOLO LO TUYO, CON PRECISIÓN.**
+   - Ejecuta únicamente los encargos de tu rol, uno por uno.
+   - Respeta exactamente la vista, la paleta, el fondo, el tamaño, el nombre de archivo y el formato.
+   - Si te piden algo de otra IA, responde a quién le corresponde y no lo hagas.
+7. **ENTREGA Y REGISTRA.**
+   - Entrega según la guía (Bloque 5: carpetas y nombres).
+   - Informa en 5–10 líneas:
+     - qué hiciste;
+     - cómo lo probaste;
+     - qué aprendiste (tus reglas nuevas);
+     - qué falta.
+   - Los agentes de código actualizan además `docs/BITACORA.md` y, si cambió una regla de trabajo, la skill correspondiente.
+
+#### Cuestionario de comprensión (respóndelo antes de trabajar)
+1. ¿Cuál es la misión del proyecto, en una frase?
+2. ¿Qué IA hace los encargos **G‑** y cuál los **C‑**? ¿Cuál es **tu** rol?
+3. ¿Qué color HEX tiene la línea **A**? ¿Y el **Metroplús línea 1**?
+4. ¿Qué fondo se usa cuando la herramienta no da transparencia?
+5. ¿Desde dónde viene la luz y por qué no se dibuja la sombra proyectada?
+6. ¿Qué escala tienen los sprites de vehículos y hacia dónde miran?
+7. ¿Qué está **prohibido** en todas las imágenes?
+8. ¿Qué es la proyección **dimétrica 2:1** y en qué encargos se usa?
+9. ¿Quién es **Rosalba** y cómo se viste?
+10. ¿Cuál es el **primer encargo** que hay que hacer y por qué?
+11. ¿Qué skill del proyecto debes seguir siempre y cuál solo en el mapa y la vista isométrica?
+12. *(Agentes de código)* ¿Qué comando compila el juego, cuál lo prueba con 100 partidas, cuál arma este documento único y qué archivo se actualiza al terminar?
+13. ¿Qué haces si te piden algo que no está en tu rol?
+
+> Las respuestas están en este mismo documento. Si una IA no puede contestarlas, todavía no lo ha leído completo.
+
+#### Lista de control (para toda entrega)
+1. ¿Leí todo y respondí el cuestionario?
+2. ¿Es un encargo de **mi** rol?
+3. ¿La vista y la proyección son correctas?
+4. ¿Los colores son de la paleta, con el color de línea correcto?
+5. ¿El fondo es transparente o magenta plano?
+6. ¿No tiene sombra proyectada, ni texto, ni logos (salvo que el encargo lo pida)?
+7. ¿Se lee bien en tamaño pequeño?
+8. ¿Tiene el nombre exacto del encargo?
+9. ¿Anoté lo que aprendí en mis “Reglas aprendidas”?
+
+### Paso a paso (para ti)
+1. **Descarga `CONTEXTO-IA.md` y `SKILLS-IA.md`**:
+   - `CONTEXTO-IA.md` tiene el Bloque 1 más la bitácora;
+   - `SKILLS-IA.md` tiene las skills del proyecto (Bloque 6).
+
+   Están en la carpeta `arte/` y en la página de la carpeta de arte (botones ⬇).
+2. **Gemini:** crea un **Gem** llamado “Artista 1 · El Metro”.
+   - En sus **instrucciones** pega el **Rol de Gemini (2A)**.
+   - En su **conocimiento** sube `CONTEXTO-IA.md` y `SKILLS-IA.md`.
+   - Si no usas Gems: al empezar cada conversación pega el Bloque 1 y el Rol 2A, y adjunta los dos archivos.
+3. **ChatGPT:** crea un **Proyecto** “El Metro · Arte”.
+   - En sus **instrucciones** pega el **Rol de ChatGPT (2B)**.
+   - En sus **archivos** sube `CONTEXTO-IA.md` y `SKILLS-IA.md`. Si tu ChatGPT tiene la opción **Skills**, sube ahí la carpeta `el-metro-arte`.
+   - Si no usas proyectos, haz lo mismo que en Gemini.
+4. **Pídele a cada IA que siga el PROTOCOLO** (leer todo, reflexionar, cuestionario, prueba, auto‑ajuste) y que te responda el **cuestionario**. Si falla, que vuelva a leer.
+5. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en las dos IA para que dibujen igual.
+6. Pide los encargos **uno por uno**, copiando el prompt de cada uno.
+7. Guarda cada imagen con el **nombre exacto** del encargo y entrégamela como dice el Bloque 5.
+
+---
+
+### BLOQUE 1 · CONTEXTO DEL PROYECTO (igual para las dos IA)
+```
+=== CONTEXTO DEL PROYECTO «EL METRO» — léelo completo; aplica a todo lo que hagas ===
+
+00) PROTOCOLO (obligatorio)
+Antes de cualquier trabajo sigue los 7 pasos del PROTOCOLO PARA TODA IA:
+1. lee TODO;
+2. reflexiona (misión, estado, tu rol, tus encargos, lo que NO debes hacer);
+3. comprueba que entendiste respondiendo el cuestionario de comprensión;
+4. prueba en pequeño y evalúate con la lista de control;
+5. AUTO-AJÚSTATE: guarda tus "Reglas aprendidas" en tus propias instrucciones y repite hasta pasar;
+6. haz SOLO tu parte, con precisión;
+7. entrega e informa qué hiciste, cómo lo probaste, qué aprendiste y qué falta.
+Nunca cambies la misión, la visión ni las reglas del autor sin su permiso.
+
+0) MISIÓN, VISIÓN Y ESTADO
+MISIÓN: que cualquier persona —niños, familias, paisas y visitantes— conozca, use y quiera la red de transporte y la ciudad de Medellín jugando: recorriendo su mapa real, manejando cada vehículo del sistema, cuidando a la gente con la "Cultura Metro" y viviendo sus fiestas.
+VISIÓN: ser el gran juego de mundo abierto sobre Medellín y su Metro. Una ciudad fiel (relieve, río, barrios, estaciones y estructuras), con arte propio de calidad y viva de día y de noche. Que funcione sin internet en celulares modestos y se juegue en familia y en red local. Más adelante, crecer a otras redes de metro y trenes del mundo.
+VALORES: Cultura Metro (respeto y cuidado), para todo público, fidelidad a la ciudad real, ligereza y accesibilidad, arte original.
+ESTADO ACTUAL (v0.5.0, publicado como web y app Android): el juego funciona con dibujo procedural (hecho por código). Lo que falta es el ARTE REAL que ustedes van a producir. La bitácora completa del juego está en el Anexo A de esta guía o en el archivo CONTEXTO-IA.md.
+
+1) QUÉ ES
+"El Metro" es un videojuego para celulares (web y Android), sin conexión y para todo público, sobre el Metro de Medellín (Colombia) y la ciudad real del Valle de Aburrá. Es un MUNDO ABIERTO + ARCADE: se recorre la ciudad real a pie, en bici, taxi, bus, metro, metrocable y tranvía.
+Módulos:
+- Ciudad Libre: mundo abierto visto desde arriba, con misiones, pasajeros, peatones, perros y vendedores.
+- Bus: simulador visto desde arriba del Metroplús (articulado de 18 m) y de los alimentadores, de parada en parada, con pasajeros que pasan su tarjeta.
+- Metro y tranvía: vista lateral panorámica por capas (cordillera, cerros, laderas con barrios, ciudad) y cabina en primera persona con botones y procedimiento real.
+- Metrocable: viajar y operar las 6 líneas de cable.
+- Historia "La última vuelta": Rosalba, conductora del primer tren de 1995, vive su última semana de trabajo y le enseña todo a su nieta (la protagonista) recorriendo la ciudad.
+- Fiestas reales: el juego cambia con el calendario: Feria de las Flores (agosto), Alumbrados navideños (diciembre), Noche de las Velitas (7 de diciembre) y aniversario del Metro (30 de noviembre).
+Restricción técnica: todo el arte se reduce después a pixel art liviano. Por eso se necesita arte limpio, con siluetas claras, la vista correcta y fondo plano.
+
+2) DIRECCIÓN DE ARTE
+Concepto: "Medellín de verdad, dibujada con cariño".
+- Ciudad vista desde arriba: pixel art denso y acogedor (techos, árboles en masa, río con orillas suaves, lluvia), con la claridad de los juegos clásicos de ciudad vista desde el cielo.
+- Panorámica lateral: siluetas planas por capas con bruma; el cielo lo pinta el juego.
+- Vista isométrica (nueva, ver sección 10): ciudad en miniatura en proyección dimétrica 2:1.
+- 3D: maqueta low-poly limpia.
+- Interfaz: estética editorial (papel crema, tinta azul, letras condensadas gruesas) con los colores de las líneas del Metro como acentos.
+Reglas para TODA imagen:
+- Luz desde arriba a la izquierda. SIN sombra proyectada en el piso (la pone el juego).
+- Contorno oscuro fino (#141414) en personajes y vehículos; edificios sin contorno grueso.
+- Paleta limitada (máximo 32 colores por imagen), tomada de la sección 3.
+- Silueta legible en tamaño pequeño; formas simples; sin texturas fotográficas.
+- Fondo magenta plano #FF00FF, o transparente si tu herramienta lo permite, salvo que el encargo diga otra cosa. Nunca fondo blanco.
+- PROHIBIDO: texto, letras o números (salvo cuando el encargo lo pida, y en español); logos o marcas reales (ni el logo del Metro ni de empresas); marcas de agua; armas; violencia; alcohol; cigarrillo; pólvora en manos de niños; estereotipos de narcotráfico. Todo es para todo público.
+- Arte ORIGINAL: no copies personajes, logos ni escenarios de otros juegos. Las referencias de la sección 8 son solo principios.
+- No uses capturas de Google Maps ni de Google Earth como base: sus términos lo restringen. Las bases reales las doy yo, hechas con datos abiertos.
+
+3) PALETAS (HEX)
+Líneas del sistema: A #1C5C9C · B #E38835 · T (tranvía) #59AB42 · K #B8CF40 · J #F6C538 · H #EB318E · L #8E612A · M #743D90 · P #EC343A · Metroplús 1 #0E6F76 · Metroplús 2 #65A9AC.
+Interfaz: papel #f1ece0 · crema #faf6ec · manteca #fbe7b0 · tinta #154a80 · negro #141414 · noche #0f2a45 · gris #9aa1a8 · blanco #fdfbf5.
+Ciudad de día: asfalto #3b3f45 · andén #c9c1ad · ladrillo #b4583a y #9a4630 · teja #a8452f · losa #9e9a92 · eternit #8f9497 · pasto #4f8a3c · árbol #2f6b35 · río #5f7f73 · concreto #a9a59b · vidrio #9fd3e6 · tanque de agua #1d1f24.
+Panorámica: día (cielo #3f8bd0 a #d6ecf3, cordillera #7f9fbf, cerros #5f8f86, laderas #3f7f4a, suelo #36663b) · atardecer (#3d2e5f #8e5b7a #f08a5d #f4d9a8) · noche (#08122a #1a2b4f, ventanas #ffd27a #ffb347).
+Gente: pieles #f1c9a5 #d9a77f #b07a52 #8a5a3b #5e3b26 · ropa #c8201f #12446c #2f9b57 #c3952f #ff6a3d #7a5cc4 #f9e4a4 #141414 #1b8088.
+Fiestas: Feria de las Flores #9b3faf #f7c325 #d7263d #f28c28 #3a7d44 · Alumbrados #fff1c1 #ffc23d #e83e8c #2ec4f1 #0b1530 · Velitas #ffb347 #d62828 #2a9d8f #f4d35e.
+
+4) VISTAS Y TAMAÑOS
+- Ciudad (cenital 3/4): desde arriba con unos 15° de inclinación; se ve el techo y una franja de la fachada de abajo. Una casilla del mapa = 20 m.
+- Isométrica (dimétrica 2:1): por cada píxel hacia arriba, dos hacia el lado (unos 26,6°); edificios con su altura real.
+- Sprites de vehículos: vista superior pura, mirando a la DERECHA. Escala 1 m = 8 px: carro 36×16, moto 16×8, bici 14×6, buseta 64×20, alimentador 96×20, articulado 144×20, coche de metro 176×24, cabina de cable 24×24.
+- Peatones: vista superior pura, 16×16 px por cuadro, 4 cuadros de caminar.
+- Panorámica: perfil puro, sin punto de fuga, SIN cielo; capas horizontales muy anchas (21:9 o más): cordillera lejana, cerros, laderas con barrios, ciudad cercana.
+- Vehículos y estaciones de perfil: perfil puro mirando a la derecha.
+- Cabina en primera persona: vertical 9:16 y horizontal 16:9; el parabrisas en magenta plano.
+- Retratos: busto en tres cuartos mirando a la derecha, cuadrado.
+- Íconos: cuadrados, planos, contorno negro grueso, 2 colores más negro, sin texto.
+Las IA generan grande (1024 px o más) y luego se reduce y se pixela. Lo importante: la vista correcta, las proporciones y el fondo plano.
+
+5) CÓMO SE VE MEDELLÍN (TOPOGRAFÍA Y ESTRUCTURAS)
+- Valle largo y angosto de norte a sur, a unos 1.495 m de altura. El río Medellín va canalizado en el fondo, con autopistas a lado y lado, y el metro elevado corre junto al río.
+- Laderas empinadas a oriente y occidente llenas de barrios de LADRILLO naranja a la vista que suben hasta el monte verde. Las calles de ladera son estrechas, con escaleras y curvas. De noche, las laderas son un "pesebre" de luces cálidas.
+- Casas de barrio: 2 a 4 pisos, terrazas planas con tanques de agua negros, varillas esperando el siguiente piso, ropa al sol, escaleras exteriores, algunas fachadas pintadas (menta, amarillo, rosado).
+- Otros lugares:
+  · barrios tradicionales con techos de teja de barro;
+  · El Poblado, con torres altas de ladrillo y vidrio entre mucho verde;
+  · el centro, con la Catedral de ladrillo, el Palacio de la Cultura en damero blanco y negro, la Plaza Botero con esculturas de bronce y el Parque de los Pies Descalzos (guadua, agua, arena);
+  · el Pueblito Paisa sobre el cerro Nutibara.
+- Cerros tutelares: El Volador, Nutibara, Pan de Azúcar, El Picacho y Quitasol. Vegetación: ceibas, guayacanes amarillos y rosados, palmas y guadua.
+- Clima de eterna primavera: sol fuerte al mediodía, aguaceros en la tarde, niebla en la madrugada.
+
+6) EL SISTEMA DE TRANSPORTE
+- Metro (líneas A y B): viaducto de concreto gris claro sobre columnas, catenaria con postes; estaciones elevadas con cubierta metálica y andén con línea amarilla; trenes de 3 coches con cabina en ambos extremos, carrocería clara con franja de color.
+- Metrocable (K, J, L, H, M, P): cabinas pequeñas tipo góndola sobre torres metálicas que suben las laderas pasando por encima de las casas; la L (Arví) entra a un bosque de pinos con neblina.
+- Tranvía de Ayacucho: rueda sobre llantas guiado por un riel central, varios módulos, verde #59AB42, sube por una calle de casas de colores.
+- Metroplús: buses articulados de 18 m (#0E6F76) en carril exclusivo, con estaciones en el separador de la avenida y puertas de vidrio.
+- Alimentadores: buses blancos con franja que bajan de los barrios a las estaciones.
+- En la calle: busetas de colores con letrero de ruta, taxis amarillos (#f2c400), muchas motos, bicicletas públicas verdes, chivas (buses escalera pintados a mano) en las fiestas, vendedores ambulantes con carrito (tinto, arepas, chontaduro) y perros criollos.
+
+7) PERSONAJES
+- ROSALBA (unos 60 años): conductora del metro a punto de jubilarse. Pelo canoso recogido (#dcd8d0), piel clara cálida (#f1c9a5), uniforme azul (#12446c) con franja (#1C5C9C) y sin logos, pañoleta, termo de tinto, sonrisa cálida.
+- LA NIETA (16 años, la protagonista): pelo oscuro, chaqueta azul (#1C5C9C), morral, tenis blancos, mirada curiosa.
+- DON EFRAÍN (unos 65 años): controlador del Puesto de Control. Bigote y pelo blancos, chaqueta gris (#5a6470), audífonos de radio al cuello.
+- DOÑA MARLENY (unos 55 años): vende arepas en Santo Domingo. Ruana roja (#c8201f), delantal, pelo negro recogido.
+- WÍLMAR (unos 40 años): conductor de alimentador. Piel morena (#8a5a3b), camisa blanca, gorra azul, bigote corto, risa fácil.
+- AGENTE DE TRÁNSITO (unos 35 años): chaleco reflectivo verde-amarillo (#c7e000), casco blanco, silbato, amable.
+- PASAJEROS: estudiantes, abuelos con sombrero aguadeño y carriel, obreros, hinchas, turistas, niños; variedad de pieles.
+
+8) REFERENCIAS DE JUEGOS (solo principios; NO copiar ni nombrar en las imágenes)
+- Clásicos de ciudad vista desde arriba (GTA 1, 2, London y Chinatown Wars): ciudad cenital legible, zoom que cambia con la velocidad, contorno de cómic, ruta pintada sobre la calle.
+- Arcade móvil (Super Arcade Racing, PAKO Forever, Reckless Getaway, #DRIVE, APEX Racer, FR Legends): siluetas claras, colores vivos, partidas cortas, mezcla de pixel y 3D, personajes expresivos.
+- Velocidad y festival (Need for Speed, Forza Horizon): sensación de velocidad, noches de neón, un festival con eventos repartidos por el mapa.
+- Vuelo (Simulador de Vuelo 3D, Misiles!, 1945 Air Force): cielos amplios, minimalismo plano, lectura vertical.
+- Trenes y puzles (Tiny Rails; de Infinity Games: Railways, Traffix, Package Inc, Infinity Loop, Laser, Laberinto): pixel lateral cálido, minimalismo, código de colores.
+- Paisaje y calma (Grand Mountain Adventure, Alto's Odyssey, Townscaper, Town Brush): maqueta low-poly, siluetas por capas con degradados, casas de colores que encajan, pixel art denso con lluvia.
+- Ciudades isométricas en pixel art (Isometric NYC; Tiny Barcelona, Madrid, València y Málaga; las de Ciudad de México y Buenos Aires): ciudades reales en miniatura, fieles a su trazado y sus edificios.
+- Atmósfera (arte digital de túneles de neón, Holstin, Cairn): noches cinematográficas, pixel isométrico con luz, ilustración estilizada.
+
+9) REPARTO DEL TRABAJO (cada IA hace SOLO lo suyo)
+- ARTISTA 1 = GEMINI NANO BANANA, encargos G-:
+  ancla de estilo; personajes (hojas, retratos, sprites); fotos reales convertidas a nuestro estilo (estaciones y vehículos de perfil); ladera desde foto; variantes por hora y por fiesta; hojas de casas de barrio; CAPAS PANORÁMICAS por zona y hora; ESCENAS DE AMBIENTE de las fiestas; CONCEPTOS ISOMÉTRICOS por región; REPINTADO de los mosaicos isométricos base que yo genero con datos reales.
+- ARTISTA 2 = CHATGPT, encargos C-:
+  sprites de vehículos vistos desde arriba con fondo transparente; íconos e insignias; consola de cabina y tablero del bus; letreros en blanco; portada con título y sin título; pantalla de carga; decoraciones de fiesta; TEXTURAS REPETIBLES.
+
+10) INICIATIVA: MEDELLÍN FIEL E ISOMÉTRICA
+Meta: que la topografía, el relieve, el río, las vías y las estructuras de Medellín sean fieles. Hoy el juego tiene detalles mal ubicados o mal proporcionados. Se hará una ciudad en miniatura en proyección dimétrica 2:1, como los mapas de ciudades en pixel art (Isometric NYC, Tiny Barcelona, Tiny Madrid y similares).
+Cómo:
+(a) Yo genero, con datos abiertos (OpenStreetMap, alturas de edificios, modelo de relieve de 30 m), mosaicos BASE en 2:1 con la geometría real: laderas, edificios con su altura, calles, río, viaductos, estaciones y torres de cable.
+(b) La IA los REPINTA en nuestro estilo sin mover la geometría.
+(c) El juego usa el resultado en la vista isométrica y para corregir la vista desde arriba, la panorámica y el 3D.
+Prioridades: el relieve de las laderas, la altura y el trazado del viaducto, la ubicación y forma de las estaciones, las torres y la curva de los cables sobre las lomas, las alturas de El Poblado frente a los barrios, y los lugares icónicos (Catedral, Coltejer, Nutibara, El Volador, Biblioteca España, estadio, aeropuerto Olaya Herrera).
+
+11) ENTREGA
+- Cada imagen se guarda con el nombre exacto del encargo: minúsculas, sin tildes ni espacios (por ejemplo ret_rosalba_alegre.png).
+- Formato PNG, con fondo transparente o magenta #FF00FF.
+- Una imagen por encargo, o la hoja que se pida.
+
+12) BITÁCORA
+La bitácora completa del juego (qué se construyó, versiones, pruebas, qué falta) está en el ANEXO A. Léela para entender en qué punto está el proyecto. No tienes que hacer nada con ella.
+
+13) SKILLS DEL PROYECTO (tenlas en cuenta)
+El proyecto tiene skills: instrucciones de trabajo en formato SKILL.md. Están en el archivo SKILLS-IA.md, y en el repositorio en .agents/skills/ y .claude/skills/.
+- el-metro-arte: dirección de arte, paletas, vistas, reparto de encargos, revisión e integración. La siguen TODAS las IA.
+- medellin-fiel: topografía, relieve, estructuras y vista isométrica 2:1. Se usa en los encargos G-90 y G-100 y en todo lo del mapa.
+- el-metro-desarrollo: cómo compilar, probar y publicar el juego (para agentes de código).
+- frontend-design, webapp-testing y skill-creator: skills oficiales de Anthropic (Apache-2.0) para diseño de interfaz, pruebas en el navegador y crear skills (para agentes de código).
+Si una instrucción de una skill choca con este contexto, manda este contexto.
+=== FIN DEL CONTEXTO ===
+```
+
+---
+
+### BLOQUE 2 · ROLES (pega solo el de la IA que vas a usar)
+
+#### 2A · Rol de Gemini (Nano Banana)
+```
+ANTES DE TU PRIMER ENCARGO: sigue el PROTOCOLO PARA TODA IA (7 pasos) del contexto. Lee todo, respóndeme el cuestionario de comprensión, haz G-00 como prueba y auto-ajústate guardando tus "Reglas aprendidas".
+TU ROL: eres el ARTISTA 1 de "El Metro" y trabajas en Gemini (Nano Banana). Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por G-:
+ancla de estilo · personajes · fotos convertidas a nuestro estilo · variantes de hora y de fiesta · casas de barrio · capas panorámicas · escenas de ambiente de fiestas · conceptos isométricos · repintado de mosaicos isométricos base.
+Si te pido un encargo C-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 2 (ChatGPT)" y no lo hagas.
+Reglas de tu herramienta:
+- no das transparencia: usa siempre fondo magenta plano #FF00FF;
+- deja margen libre en las esquinas;
+- mantén el mismo estilo y los mismos personajes en toda la conversación;
+- cuando te adjunte "ancla_estilo.png", úsala como referencia EXACTA de estilo;
+- cuando te adjunte una foto o un render base, conserva la forma y la geometría y cambia solo el estilo;
+- ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo, y "medellin-fiel" en los encargos G-90 y G-100.
+Responde con tu resumen (paso 2), tus respuestas al cuestionario (paso 3) y la frase "Listo, Artista 1 (Gemini) preparado"; luego espera mi primer encargo.
+```
+
+#### 2B · Rol de ChatGPT
+```
+ANTES DE TU PRIMER ENCARGO: sigue el PROTOCOLO PARA TODA IA (7 pasos) del contexto. Lee todo, respóndeme el cuestionario de comprensión, haz un ícono de C-10 como prueba y auto-ajústate guardando tus "Reglas aprendidas".
+TU ROL: eres el ARTISTA 2 de "El Metro" y trabajas en el generador de imágenes de ChatGPT. Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por C-:
+sprites de vehículos vistos desde arriba con transparencia · íconos e insignias · consola de cabina y tablero del bus · letreros en blanco · portada con y sin título · pantalla de carga · decoraciones de fiesta · texturas repetibles.
+Si te pido un encargo G-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 1 (Gemini)" y no lo hagas.
+Reglas de tu herramienta:
+- entrega PNG con FONDO TRANSPARENTE; si no puedes, usa magenta plano #FF00FF;
+- tamaños: 1024×1024 (cuadrado), 1536×1024 (horizontal), 1024×1536 (vertical);
+- solo pon texto cuando el encargo lo pida, y en español;
+- si te adjunto "ancla_estilo.png", copia exactamente su estilo;
+- ten en cuenta las skills del proyecto (SKILLS-IA.md): sigue "el-metro-arte" en todo.
+Responde con tu resumen (paso 2), tus respuestas al cuestionario (paso 3) y la frase "Listo, Artista 2 (ChatGPT) preparado"; luego espera mi primer encargo.
+```
+
+---
+
+### BLOQUE 3 · ENCARGOS
+
+#### 3A · Gemini Nano Banana (Artista 1) · encargos G‑
+> Gemini ya tiene el contexto, así que los prompts son cortos. **Adjunta `ancla_estilo.png` en cada conversación nueva**, en cuanto exista.
+
+**G‑00 · Ancla de estilo** → `ancla_estilo.png`
+```
+G-00. Crea el tablero de estilo del juego: imagen cuadrada (1:1) dividida en 4 recuadros, todo en el mismo estilo:
+1) una manzana de barrio de Medellín vista desde arriba con leve inclinación: casas de ladrillo naranja a la vista, terrazas planas con tanques de agua negros, una calle gris con andén y un árbol;
+2) un tren de metro de tres coches de perfil, carrocería clara con franja #1C5C9C, sobre un viaducto de concreto;
+3) tres personas de frente: Rosalba (abuela conductora con uniforme azul y termo), un joven con morral y una vendedora con delantal;
+4) una ladera verde llena de casitas de ladrillo con un metrocable de cabinas pequeñas pasando por encima.
+Fondo de cada recuadro: papel #f1ece0. Sin texto.
+```
+
+**G‑01 · Hoja de Rosalba** → `per_rosalba_hoja.png`
+```
+G-01. Hoja de personaje (16:9) de ROSALBA, según la ficha del contexto. Cuerpo entero en 4 vistas en fila (frente, tres cuartos, perfil, espalda) y, debajo, 3 caras: neutra, alegre y emocionada (con lágrimas de felicidad). Fondo magenta plano. Sin texto.
+```
+**G‑02 · Retratos** → `ret_rosalba_neutra.png`, `ret_rosalba_alegre.png`
+```
+G-02. Con la misma Rosalba de la hoja: retrato de busto en tres cuartos mirando a la derecha, cuadrado (1:1), en pixel art de 64×64 ampliado (píxeles grandes y nítidos), expresión NEUTRA. Fondo magenta. Después repite idéntico con expresión ALEGRE.
+```
+**G‑03 · Sprite cenital** → `spr_rosalba_cenital.png`
+```
+G-03. La misma Rosalba vista desde ARRIBA (vista cenital pura): coronilla canosa, hombros con el uniforme azul y brazos. Hoja de 4 cuadros de caminar en fila, mirando a la derecha, pixel art de 16×16 por cuadro, ampliado. Fondo magenta. Sin sombra.
+```
+**G‑04 a G‑08** repiten G‑01, G‑02 y G‑03 con cada personaje. Cambia el nombre en el prompt y en el archivo:
+
+| ID | Personaje | Archivos |
+|---|---|---|
+| G‑04 | La nieta | `per_nieta_*`, `ret_nieta_*`, `spr_nieta_cenital` |
+| G‑05 | Don Efraín | `per_efrain_*` … |
+| G‑06 | Doña Marleny | `per_marleny_*` … |
+| G‑07 | Wílmar | `per_wilmar_*` … |
+| G‑08 | Agente de tránsito | `per_agente_*` … |
+
+**G‑09 · Pasajeros** → `per_pasajeros_hoja.png` y `spr_pasajeros_cenital.png`
+```
+G-09. Hoja (16:9) con 8 pasajeros de Medellín de cuerpo entero y de frente: estudiante universitaria con morral, abuelo con sombrero aguadeño y carriel, señora con bolsa de mercado, obrero con casco, hincha de fútbol con camiseta verde, turista con mapa, niño con uniforme de colegio, mujer con bebé en canguro. Pieles variadas de la paleta. Fondo magenta. Después: los mismos 8 vistos desde arriba, 4 cuadros de caminar cada uno (16×16 por cuadro), en una cuadrícula de 8 filas.
+```
+**G‑10 · Gente de la calle** → `per_calle_hoja.png`
+```
+G-10. Igual que G-09 (de frente y luego desde arriba) con: vendedor de tinto con termo, vendedora de arepas con carrito, vendedor de chontaduro con carreta, lustrabotas, silletero con silleta de flores a la espalda, músico con guitarra, ciclista en bicicleta pública verde, y 3 perros criollos (café, negro y manchado).
+```
+**G‑20 · Estación de perfil desde foto** → `est_lado_parque_berrio.png`
+```
+G-20. [Adjunto una foto real de la estación y el ancla] Redibuja la estación de la foto como ilustración de PERFIL perfecto (vista lateral plana, sin perspectiva), en nuestro estilo: concreto gris claro, cubierta metálica, andén con línea amarilla, escaleras. Conserva la forma real. Formato horizontal muy ancho (21:9). Fondo magenta. Sin letreros ni texto.
+```
+**G‑21 a G‑25** repiten G‑20 con otras estaciones:
+- G‑21: San Antonio, `est_lado_san_antonio`.
+- G‑22: Niquía, `est_lado_niquia`.
+- G‑23: una estación de Metroplús, `est_lado_metroplus`.
+- G‑24: una estación de Metrocable, `est_lado_cable`.
+- G‑25: una parada del tranvía, `est_lado_tranvia`.
+
+**G‑30 · Tren de perfil desde foto** → `veh_lado_metro_a.png`
+```
+G-30. [Adjunto una foto real de un tren del Metro de Medellín y el ancla] Conviértelo en un sprite de PERFIL perfecto mirando a la derecha: 3 coches con cabina en los extremos, ventanas, puertas marcadas, pantógrafo y franja #1C5C9C. Formato horizontal muy ancho (21:9). Fondo magenta. Sin logos ni texto.
+```
+**G‑31 a G‑37** repiten G‑30 con otros vehículos:
+- G‑31: tren de la generación más nueva, `veh_lado_metro_nuevo`.
+- G‑32: tranvía de 3 módulos verde #59AB42, `veh_lado_tranvia`.
+- G‑33: cabina de Metrocable en los 6 colores de línea, en una fila, `veh_lado_cabinas`.
+- G‑34: articulado de Metroplús, `veh_lado_articulado`.
+- G‑35: alimentador, `veh_lado_alimentador`.
+- G‑36: buseta, `veh_lado_buseta`.
+- G‑37: chiva, `veh_lado_chiva`.
+
+**G‑40 · Ladera desde foto** → `pan_ladera_casas.png`
+```
+G-40. [Adjunto una foto real de una comuna en ladera y el ancla] Conviértela en una capa de fondo de vista lateral: silueta de montaña con casitas de ladrillo apiladas que suben desde abajo y se vuelven bosque verde arriba. Ilustración plana con detalle pixelado en las casas. Formato 21:9. Arriba de la montaña, fondo magenta. Sin texto.
+```
+**G‑50 a G‑55 · Variantes por edición.** Adjunta la imagen ya aprobada y pide solo el cambio:
+
+| ID | Prompt | Archivo |
+|---|---|---|
+| G‑50 | “La misma imagen, de NOCHE: ventanas cálidas #ffd27a encendidas (no todas) y faroles #ffb347, sin cambiar las formas.” | `…_noche.png` |
+| G‑51 | “La misma imagen al ATARDECER: luz dorada desde la derecha y sombras más largas.” | `…_tarde.png` |
+| G‑52 | “La misma imagen bajo la LLUVIA: superficies brillantes, charcos y gente con paraguas de colores.” | `…_lluvia.png` |
+| G‑53 | “La misma imagen en los ALUMBRADOS de diciembre: figuras y guirnaldas de luces (#fff1c1 #ffc23d #e83e8c #2ec4f1).” | `…_alumbrados.png` |
+| G‑54 | “La misma imagen en la FERIA DE LAS FLORES: guirnaldas y silletas de flores (#9b3faf #f7c325 #d7263d #f28c28).” | `…_feria.png` |
+| G‑55 | “La misma imagen en la NOCHE DE LAS VELITAS: velas y faroles de papel en el andén.” | `…_velitas.png` |
+
+**G‑60 · Casas de barrio desde arriba** → `cas_barrio_hoja.png`
+```
+G-60. Hoja cuadrada con una cuadrícula de 4×4 casillas iguales y alineadas. Cada casilla es una casa o lote de barrio de Medellín vista desde arriba con leve inclinación (techo y franja de la fachada de abajo): losas grises con tanque de agua negro, tejas de barro, terrazas con ropa colgada y matas, una casa sin terminar con varillas, fachadas menta, amarilla y rosada, ladrillo naranja a la vista. Fondo magenta entre casillas. Sin sombra proyectada.
+```
+**G‑61 a G‑63** repiten G‑60 con otros temas:
+- G‑61: edificios de El Poblado (ladrillo y vidrio, azoteas con aire acondicionado), `cas_poblado_hoja`.
+- G‑62: parques, plazas, canchas y árboles, con guayacán amarillo y rosado, `cas_parques_hoja`.
+- G‑63: orillas del río, quebradas, escaleras de la Comuna 13 y grafitis vistos desde arriba, `cas_rio_comuna13_hoja`.
+
+**G‑70 a G‑73 · Capas panorámicas** → `pan_<zona>_<hora>_<capa>.png`
+```
+G-70. Capa de fondo para la vista lateral del juego: silueta de la CORDILLERA LEJANA de los Andes sobre el valle de Medellín, formas planas con bruma suave y un filo apenas iluminado, color #7f9fbf que se aclara hacia #a8c0d8 abajo. Vista de perfil perfecta, horizonte nivelado, sin edificios. Arriba del filo, fondo magenta plano (el cielo lo pone el juego). Formato horizontal muy ancho (21:9). Zona: [ZONA]. Hora: [HORA]. Sin texto.
+```
+- **G‑71 · Cerros** (`_2cerros`): “colinas verdes #5f8f86 delante de la cordillera, con pocas casas de ladrillo al pie”, con el mismo formato.
+- **G‑72 · Laderas con barrios** (`_3laderas`): “ladera empinada llena de casitas de ladrillo #b4583a con terrazas y tanques negros, que suben desde el valle y se vuelven bosque arriba, con una línea de metrocable de cabinas pequeñas”, con el mismo formato.
+- **G‑73 · Ciudad cercana** (`_4ciudad`): “siluetas de edificios de ladrillo de mediana altura, algunas torres de vidrio, la catedral de ladrillo, árboles y el viaducto elevado del metro”, con el mismo formato.
+
+Si queda corta, pide: “Extiende la misma imagen hacia la derecha, igual de alta y sin cambiar nada”. Yo empato los bordes al final.
+
+**Zonas [ZONA]** (y nombre del archivo):
+
+| Zona | Texto para el prompt |
+|---|---|
+| `norte` | Bello, casas bajas y fábricas textiles antiguas |
+| `centro` | catedral de ladrillo, edificios altos y una torre con aguja |
+| `occidente` | San Javier y Comuna 13: laderas muy pobladas con murales de colores |
+| `nororiente` | Santo Domingo: biblioteca de tres edificios negros como rocas en lo alto |
+| `sur` | El Poblado: torres de vidrio y ladrillo entre mucho verde |
+| `ayacucho` | una calle empinada con casas de colores |
+
+**Horas [HORA]** (y nombre del archivo):
+
+| Hora | Texto para el prompt |
+|---|---|
+| `dia` | luz de mediodía |
+| `tarde` | atardecer dorado con bruma naranja y violeta |
+| `noche` | noche con miles de ventanas cálidas #ffd27a en la ladera |
+| `alumbrados` | noche de diciembre con figuras de luces de colores junto al río |
+
+**G‑80 a G‑86 · Escenas de ambiente de fiestas** (sirven de referencia para todo el equipo) → `amb_<fiesta>.png`
+```
+G-80. Escena ilustrada (16:9) del DESFILE DE SILLETEROS en Medellín: campesinos cargan a la espalda grandes silletas de madera llenas de flores (#9b3faf #f7c325 #d7263d #f28c28) por una avenida ancha, familias aplaudiendo, sol de agosto y el viaducto del metro al fondo. Ambiente alegre y familiar, ilustración plana con detalles de pixel art, en el estilo del ancla. Sin texto.
+```
+Para los demás, cambia solo la escena:
+
+| ID | Escena | Archivo |
+|---|---|---|
+| G‑81 | Río de noche con enormes figuras de luces de colores (#fff1c1 #ffc23d #e83e8c #2ec4f1), familias paseando y un tren cruzando un viaducto iluminado | `amb_alumbrados` |
+| G‑82 | Barrio de ladera al anochecer, con velas y faroles de papel de colores en cada puerta | `amb_velitas` |
+| G‑83 | Avión antiguo de hélice de los años 30 y la silueta de una pareja bailando tango al atardecer, en homenaje | `amb_tango` |
+| G‑84 | Escaleras eléctricas techadas que suben una ladera de colores con murales enormes | `amb_comuna13` |
+| G‑85 | Cabinas de cable entrando a un bosque de pinos con neblina sobre la ciudad | `amb_arvi` |
+| G‑86 | Aguacero de tarde sobre la ciudad: calles brillantes, paraguas de colores y buses con las luces encendidas | `amb_aguacero` |
+
+**G‑90 · Concepto isométrico de región** (nuevo) → `concepto_iso_<region>.png`
+```
+G-90. Concepto de una porción de Medellín en miniatura, en proyección DIMÉTRICA 2:1 (pixel art "isométrico" de juego: por cada píxel hacia arriba, dos hacia el lado), en el estilo del ancla: [REGIÓN]. Edificios con su altura relativa real, techos detallados (losas con tanques de agua, tejas, azoteas), calles con carros diminutos, árboles en masa, gente pequeñita. Luz desde arriba a la izquierda. Fondo magenta fuera del terreno. Cuadrado (1:1). Sin texto.
+```
+**Regiones [REGIÓN]:**
+
+| Región | Texto para el prompt | Archivo |
+|---|---|---|
+| centro | Parque Berrío y la estación elevada del metro junto al Palacio de la Cultura en damero blanco y negro | `concepto_iso_centro` |
+| ladera | ladera de la Comuna 13 con casas de ladrillo apiladas, escaleras eléctricas techadas y una torre de metrocable | `concepto_iso_ladera` |
+| poblado | torres de ladrillo y vidrio entre árboles, con calles curvas en pendiente | `concepto_iso_poblado` |
+| río | el río canalizado con autopistas a los lados y el viaducto del metro | `concepto_iso_rio` |
+| cable | Santo Domingo con la estación del cable y la biblioteca de rocas negras | `concepto_iso_cable` |
+
+**G‑100 · Repintar mosaicos isométricos base** (cuando yo los envíe) → `iso_<zona>_<fila>_<col>.png`
+```
+G-100. Te adjunto un RENDER BASE en proyección dimétrica 2:1 de una zona REAL de Medellín, generado con datos abiertos (relieve, edificios con su altura, calles, río, viaductos, estaciones y torres de cable). Repíntalo en el estilo del ancla SIN mover ni cambiar la geometría: cada edificio, calle, árbol, vía y estación queda exactamente en la misma posición, con el mismo tamaño y el mismo encuadre. Solo cambia materiales y detalles: ladrillo naranja a la vista, losas con tanques de agua negros, tejas, vidrio en torres, andenes, cebras, árboles frondosos y gente pequeñita. Las zonas que en la base estén en magenta siguen en magenta. Sin texto.
+```
+*Si te devuelve algo movido, pide: “Vuelve a hacerlo calcando la base adjunta: misma geometría al píxel, solo cambia el estilo”.*
+
+#### 3B · ChatGPT (Artista 2) · encargos C‑
+> ChatGPT ya tiene el contexto. Adjunta `ancla_estilo.png` cuando exista.
+
+**C‑01 · Vehículos del sistema vistos desde arriba** → `spr_vehiculos_sistema.png` (1536×1024)
+```
+C-01. Hoja de sprites con fondo transparente. Vehículos en vista cenital pura (solo se ve el techo y un poco de los costados), todos mirando a la DERECHA, a la misma escala (1 m = 8 px), en filas y con espacio entre ellos.
+Fila 1: coche de metro con cabina (22 m, techo plateado con equipos y pantógrafo, franja #1C5C9C a los lados), coche intermedio y coche con cabina hacia atrás.
+Fila 2: tranvía de 3 módulos #59AB42; bus articulado de 18 m #0E6F76 con techo blanco y fuelle oscuro.
+Fila 3: alimentador blanco con franja; buseta de colores; chiva (bus escalera pintado a mano, con parrilla en el techo).
+Fila 4: cabinas de metrocable desde arriba en 6 colores (#B8CF40 #F6C538 #8E612A #EB318E #743D90 #EC343A).
+Sin sombra, sin texto, sin logos.
+```
+**C‑02 · Vehículos de la calle** → `spr_vehiculos_calle.png`
+```
+C-02. Misma vista, escala y fondo que C-01: taxi amarillo #f2c400 con aviso en el techo, 6 carros particulares (rojo, azul, blanco, gris, negro, verde), camioneta azul de servicio con platón, moto con conductor y casco, bicicleta pública verde con ciclista, carrito de vendedor ambulante, ambulancia y camión pequeño de mercado. En cuadrícula.
+```
+**C‑03 · Puertas del bus** → `spr_puertas_bus.png`
+```
+C-03. El bus articulado de C-01 en 3 cuadros (puertas del lado izquierdo cerradas, medio abiertas y abiertas), vista cenital, fondo transparente.
+```
+**C‑10 · Íconos de modos** → `ico_modos.png`
+```
+C-10. 9 íconos cuadrados (128×128 cada uno) en cuadrícula de 3×3, fondo transparente. Estilo afiche plano, contorno negro grueso, máximo 2 colores más negro, sin texto:
+1) ciudad libre (manzana con edificio y persona caminando)
+2) bus articulado de frente
+3) tren de metro de frente con franja azul
+4) cabina de metrocable colgando del cable
+5) libro abierto con un tren (historia)
+6) brújula con una tarjeta (guía)
+7) mapa de líneas de colores (la red)
+8) dos celulares conectados (juntos)
+9) palanca de arcade (arcade)
+```
+**C‑11 · Íconos de acciones** → `ico_acciones.png`
+```
+C-11. Mismo estilo que C-10, 12 íconos: llave, flechas de sentido, mano de vigilante (hombre muerto), megáfono, puertas a la izquierda, puertas a la derecha, pito, cámara de fotos, lupa, persona corriendo, adelantar ⏩, tarjeta de transporte genérica (sin logos).
+```
+**C‑12 · Insignias de logros** → `ico_logros.png`
+```
+C-12. 20 insignias redondas tipo medalla en cuadrícula de 5×4, fondo transparente, estilo afiche con contorno negro, sin texto:
+primer viaje · frenada al centímetro · mano firme · punta a punta (tren largo) · puesto de control (agujas) · carril exclusivo (bus articulado) · ciudad colgante (cabinas) · diez de diez (estrellas) · gerente (gráfica) · la última vuelta (taza de tinto humeante) · enciclopedia (libro) · turno de noche (luna) · antes del primer tren (madrugada con farol) · duelo (dos manos) · en red (antena) · costumbre (calendario) · bolsillo lleno (monedero) · ni una gota (tinto en equilibrio) · feria de las flores (silleta) · alumbrados (estrella de luces).
+```
+**C‑20 · Consola del metro** → `cab_consola_vertical.png` (1024×1536) y `cab_consola_horizontal.png` (1536×1024)
+```
+C-20. Ilustración en primera persona desde el asiento del conductor de un metro moderno.
+Abajo, la consola: palanca combinada de tracción y freno a la derecha, llave de activación, selector de sentido, botones grandes iluminados con placas vacías (SIN texto), velocímetro analógico con aguja, pantalla LED ámbar vacía y lámparas de señal.
+La mitad de arriba es el parabrisas, en MAGENTA PLANO #FF00FF (ahí el juego dibuja la vía).
+Interior gris grafito con azul #1C5C9C y detalles ámbar. Pixel art limpio y detallado. Sin logos ni texto.
+```
+**C‑21 · Tablero del bus** → `cab_bus.png`
+```
+C-21. Igual que C-20, pero del bus articulado: timón grande, palanca de puertas, validador de tarjeta y espejo. El parabrisas en magenta.
+```
+**C‑30 · Señalética** → `ui_letreros.png`
+```
+C-30. Letreros de estación en blanco (placas rectangulares con borde del color de cada línea), panel LED de próximo tren apagado, flechas de salida, la línea amarilla del andén y un torniquete visto de frente. Fondo transparente. Sin texto.
+```
+**C‑40 · Portada** → `clave_compartir.png` (con título) y `clave_portada.png` (sin título), ambas a 1536×1024
+```
+C-40. Un tren de metro claro con franja #1C5C9C cruza un viaducto al amanecer sobre el río de Medellín. Detrás, montañas con laderas llenas de casitas de ladrillo, un metrocable de cabinas de colores sube por la ladera y hay gallinazos en el cielo naranja y violeta. En la ventana de la cabina, Rosalba (abuela conductora con uniforme azul) sonríe con su termo de tinto. Ilustración plana por capas con detalle de pixel art, ambiente tierno y esperanzador.
+Versión 1: arriba a la izquierda, el título "EL METRO" en letras condensadas gruesas color crema #fbe7b0 con borde #141414 y, debajo, "La última vuelta" en letra más pequeña.
+Versión 2: la misma imagen SIN ningún texto.
+Sin logos reales.
+```
+**C‑41 · Pantalla de carga** → `clave_carga.png` (1024×1536)
+```
+C-41. La misma escena de C-40 en vertical, con Rosalba de espaldas mirando la ciudad desde el andén. Sin texto.
+```
+**C‑50 · Decoraciones de fiesta** → `fiesta_sprites.png`
+```
+C-50. Hoja con fondo transparente y vista cenital: pétalos sueltos (8 tipos), una silleta de flores vista desde arriba, faroles de papel (rojo, verde y amarillo) y velas, guirnaldas de luces en tramo recto y en curva, figuras de luz de Navidad vistas desde arriba (estrella, flor, pesebre sencillo) y banderines de la Feria.
+```
+**C‑60 · Texturas repetibles** → `tex_<material>.png` (1024×1024)
+```
+C-60. Textura cuadrada REPETIBLE sin costuras (que encaje por los cuatro lados), vista desde arriba ortográfica, luz plana y pareja, apta para pixel art: [MATERIAL]. Sin sombras, sin texto, sin logos.
+```
+*Yo arreglo las costuras que queden. Haz una textura por material:*
+
+| Material [MATERIAL] | Colores | Archivo |
+|---|---|---|
+| Ladrillo naranja a la vista con juntas claras | #b4583a #9a4630 #c8714d #d8c3a5 | `tex_ladrillo` |
+| Teja de barro | #a8452f | `tex_teja` |
+| Asfalto con grietas suaves | #3b3f45 | `tex_asfalto` |
+| Baldosa de andén | #c9c1ad | `tex_anden` |
+| Concreto de viaducto | #a9a59b | `tex_concreto` |
+| Balasto con traviesas | — | `tex_balasto` |
+| Pasto | #4f8a3c | `tex_pasto` |
+| Agua de río café verdosa | #5f7f73 | `tex_rio` |
+| Techo de eternit ondulado | — | `tex_eternit` |
+| Adoquín de plaza | — | `tex_adoquin` |
+
+---
+
+### BLOQUE 4 · CORRECCIONES RÁPIDAS (para Gemini y ChatGPT)
+| Problema | Díselo así |
+|---|---|
+| Cambió el estilo | “Vuelve EXACTAMENTE al estilo del ancla adjunta: mismos colores y mismo grosor de píxel.” |
+| Salió texto o un logo | “Quita todo el texto, letras, números y logos.” |
+| La vista quedó en perspectiva | “Vista de perfil PERFECTA, sin punto de fuga” / “Vista cenital PURA desde arriba” / “Proyección dimétrica 2:1 exacta.” |
+| Se movió la geometría de una base o foto | “Calca la base adjunta: misma geometría al píxel; solo cambia el estilo.” |
+| El fondo no es plano | “Fondo magenta #FF00FF completamente plano, sin sombra ni degradado.” |
+| Se ve borroso | “Píxeles grandes, nítidos y cuadrados, sin suavizado.” |
+| Muy realista o recargado | “Más simple: formas planas y pocos colores de la paleta.” |
+| El personaje cambió de cara | “Es el MISMO personaje de la hoja adjunta: misma cara, peinado, ropa y colores.” |
+| Pediste algo de la otra IA | La IA debe responder “Eso le corresponde a…”. Pídeselo a la que corresponde. |
+
+---
+
+### BLOQUE 5 · ENTREGA
+**Orden recomendado:**
+1. G‑00 (ancla de estilo);
+2. personajes (G‑01 a G‑10);
+3. vehículos vistos desde arriba (C‑01, C‑02);
+4. panorámicas del centro y el norte, de día y de noche (G‑70 a G‑73);
+5. casas de barrio (G‑60 a G‑63) y texturas (C‑60);
+6. conceptos isométricos (G‑90);
+7. estaciones y vehículos de perfil (G‑20 a G‑37);
+8. íconos (C‑10 a C‑12);
+9. cabina (C‑20, C‑21);
+10. fiestas (G‑53 a G‑55, C‑50, G‑80 a G‑86);
+11. portadas (C‑40, C‑41).
+
+G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya sirve.
+
+**Carpetas** (dentro de `arte/entregas/`):
+
+| Carpeta | Qué va |
+|---|---|
+| `00_ancla` | el ancla de estilo |
+| `personajes` | hojas, retratos y sprites de personajes |
+| `vehiculos` | sprites cenitales y vehículos de perfil |
+| `estaciones` | estaciones de perfil |
+| `panoramicas` | capas panorámicas y la ladera |
+| `casillas` | hojas de casas y barrios |
+| `texturas` | texturas repetibles |
+| `isometrico` | conceptos isométricos y mosaicos repintados |
+| `cabinas` | consola del metro y tablero del bus |
+| `iconos` | íconos e insignias |
+| `clave` | portadas y pantalla de carga |
+| `fiestas` | variantes, decoraciones y ambiente de fiestas |
+
+**Reglas:**
+- Nombres en minúsculas, sin tildes ni espacios.
+- PNG con fondo transparente o magenta.
+- Opcional: un `.txt` con el mismo nombre y el prompt que funcionó.
+
+**Cómo me lo entregas** (elige una):
+1. Adjunto en esta conversación, suelto o en un `.zip` por carpeta.
+2. Subido en GitHub, en `arte/entregas/` de la rama de trabajo.
+3. Una carpeta de Google Drive compartida.
+
+**Qué hago yo:**
+1. Reviso cada imagen con la lista de control.
+2. Quito el magenta.
+3. Reduzco y cuantizo a la paleta.
+4. Armo los atlas.
+5. Lo conecto al juego, manteniendo el dibujo actual como respaldo.
+6. Pruebo con 100 partidas y capturas.
+7. Publico la nueva versión.
+
+**Lista de control** (antes de enviarme cada imagen):
+1. ¿La vista es correcta?
+2. ¿Los colores son de la paleta?
+3. ¿El fondo es transparente o magenta?
+4. ¿No tiene sombra proyectada, ni texto, ni logos?
+5. ¿Se lee bien en pequeño?
+6. ¿Tiene el nombre exacto del encargo?
+
+---
+
+### BLOQUE 6 · SKILLS DEL PROYECTO
+> Las **skills** son instrucciones de trabajo en formato abierto `SKILL.md` ([Agent Skills](https://agentskills.io/specification)). Los agentes de código las leen solos; las IA de imágenes las reciben en el archivo `SKILLS-IA.md`. Así **todas trabajan con las mismas reglas**.
+
+| Skill | Para qué | Gemini (imágenes) | ChatGPT (imágenes) | Agentes de código* |
+|---|---|---|---|---|
+| **el-metro-arte** (propia) | Dirección de arte, paletas, vistas, reparto G‑ y C‑, revisión e integración | ✅ siempre | ✅ siempre | ✅ al integrar arte |
+| **medellin-fiel** (propia) | Topografía, relieve, estructuras y vista isométrica 2:1 | ✅ en G‑90 y G‑100 | — | ✅ al tocar el mapa y las vistas |
+| **el-metro-desarrollo** (propia) | Código, compilar, probar, APK, publicar y bitácora | — | — | ✅ siempre |
+| **frontend-design** (Anthropic, Apache‑2.0) | Dirección visual de menús, HUD y guía | — | — | ✅ en interfaz (con el crema EMSAY como decisión del autor) |
+| **webapp-testing** (Anthropic, Apache‑2.0) | Pruebas en el navegador con Playwright | — | — | ✅ al probar |
+| **skill-creator** (Anthropic, Apache‑2.0) | Crear y mejorar skills | — | — | ✅ al crear skills nuevas |
+
+*Agentes de código: Claude Code, Codex de ChatGPT (“astra”) y Antigravity de Gemini (“argon”).
+
+**Cómo se cargan:**
+- **Gemini (Gem):** sube `SKILLS-IA.md` al conocimiento del Gem, junto con `CONTEXTO-IA.md`.
+- **ChatGPT (Proyecto):** sube `SKILLS-IA.md` a los archivos del Proyecto. Si tu ChatGPT tiene **Skills**, sube la carpeta `el-metro-arte`.
+- **Codex y Antigravity:** abre el repositorio; leen `.agents/skills/` solos.
+- **Claude Code:** lee `.claude/skills/` solo.
+
+**Plugins de Claude recomendados** (se activan en la cuenta de Claude):
+- **image-generation:** guía de prompts para Gemini Image y GPT Image.
+- **frontend-design.**
+- **playwright** (Microsoft).
+- **Android Emulator QA**, para probar la APK.
+- **Unity**, solo si el juego algún día pasa a Unity.
+
+**Mantenimiento:** las skills se editan en `.agents/skills/` y se corre `node tools/skills.mjs`, que copia todo a `.claude/skills/` y regenera `SKILLS-IA.md`.
+
+---
+
+### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
+#### Bitácora · El Metro
+
+> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `docs/PROMPTS-IA.md`, y actualizar esta bitácora al cerrar cada sesión.
+
+##### Estado al 2026-11-17 · v0.5.0 "La historia en la ciudad"
+**Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
+
+| Módulo | Archivo | Qué hace |
+|---|---|---|
+| Ciudad Libre | `36-libre.js` + `35-ciudad.js` | Mundo abierto cenital estilo GTA 1/2: a pie, bici, moto, taxi, camioneta; abordar metro/tranvía/cables/buses reales; oficios por radio; Cívica al abordar. |
+| Bus (Metroplús y alimentadores) | `38-bus.js` | Simulador cenital de estación a estación por calles reales: pasajeros que esperan y suben validando la Cívica (bip; a veces sin saldo y recargan), puertas, semáforos, tráfico, horario, confort, asistente de carril. 35 rutas (MP1, MP2, O y 15 alimentadores). |
+| Metro | `30-conduce.js` + `31-cabina.js` + `23-lado.js` | Metro y tranvía en vista panorámica 2D (relieve real en capas, laderas con barrios que se encienden de noche, calle con carros y gente bajo el viaducto, estaciones con techo) y cabina 1ª persona con **procedimiento real**: llave, selector de sentido, señal de salida, vigilante (hombre muerto), puertas por lado del andén, anuncio, botonera iluminada y **Escuela de conducción** (9 pasos). También 3ª persona/cine (WebGL). |
+| Metrocable | `52-cableviaje.js` | Opera la línea: viento, péndulo de la cabina, tormentas, fotos en miradores; vista lateral o 3D. |
+| Guía | `67-guia.js` | Aprende a usar el Metro: Cívica, cómo viajar, líneas, Cultura Metro, datos. |
+| Historia en la ciudad | `37-trama.js` (+ ganchos en `36-libre.js`) | "La última vuelta" jugada en el mapa: 8 capítulos con pasos (hablar, ir, abordar una línea, bajarse en una estación, postal, orientar pasajeros, manejar) sobre la red real: Niquía → Madera (escuela) → metro a Acevedo → cable K a Santo Domingo → alimentador C6‑001 a Santa Rita → metro a Hospital → Metroplús a Parque Aranjuez → tranvía en San Antonio → hora pico (orientar) → Niquía → La Estrella. Personajes con nombre en el mapa, diálogos con voz opcional, título de capítulo, ⏩ para adelantar viajes. Al terminar cada módulo se vuelve a la ciudad en la estación de llegada. Progreso en `Save.d.trama`. |
+| Historia clásica | `70-historia.js` | Los 11 capítulos con escenas pixeladas que llevan a cada módulo (siguen disponibles en el menú Historia). |
+| La Red / Juntos / Arcade | `60-mapa.js`, `80-multi.js`, `40/45/50-*.js`, `32-volante.js` | Mapa‑gerencia; multijugador local (duelo, QR Wi‑Fi, servidor `server.mjs`); los puzles antiguos quedaron como "Arcade". |
+
+**Mundo vivo:** `18-mundo.js` (reloj ×30/real/día/noche, clima por temporada y hora con semilla del día, fechas: aniversario 30/11, Alumbrados, Velitas, Novena, Navidad, Año Nuevo, Feria de las Flores, Silleteros, 20 de julio, 7 de agosto, Antioqueñidad, Amor y Amistad, Halloween, Madre, Semana Santa). `35-ciudad.js`: transporte real en movimiento con paradas, peatones con rumbo/paraguas/miedo/conversación, gente esperando el bus, vendedores ambulantes, tráfico en carriles reales con semáforos de 32 s, sombras por sol, faros, postes, ventanas encendidas.
+
+**Arte:** `10-map.js` casillas de 16 px dibujadas por **manzanas/lotes** (tejados unidos por lote con tanques, aires, paneles, terrazas verdes; fachada sur con ventanas y toldos; sombras en capa aparte; barrios de ladrillo con 2–3 casas por casilla y techos de teja/plancha/eternit, ropa tendida; carros parqueados, árboles y bancas en andenes; avenidas con carriles, línea amarilla en calles locales y cebras solo en cruces reales), viaductos con rieles, andenes, torres de cable; `21-sprites.js` sprites cenitales con detalle (metro por carros con cabina, articulado con fuelle, alimentador, taxi con aviso, carros, motos, cabinas, peatones con cabeza/brazos/paraguas, carrito de vendedor); `22-gl.js` 3D low‑poly propio (WebGL 1; viaducto de concreto con balasto, rieles de acero y pretiles; sin edificios encima de la vía); `23-lado.js` panorámica por capas (cordillera y laderas con barrios de ladrillo y monte por ruido suave, en tira cacheada; luces de ventanas de noche; fachadas y árboles de primer plano anclados al mundo).
+
+**Datos:** `src/data/red.js` (31 líneas, 222 paradas, 97 datos de línea, 58 de estación, 38 trivias; fuentes en `docs/FUENTES.md`), `rutas.js` (recorridos de bus por calles reales, A*), `lugares.js` (45 lugares reales con postal), `valle.js` (mapa).
+
+**Pruebas:** `node tools/test.mjs 100` → selfTest (datos, solubilidad, rutas) + partidas automáticas en todos los modos + recorrido de pantallas. Última corrida: ver Historial v0.4.0. El bot también vive en el menú (🤖).
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; v0.5.0 verificada el 2026-11-17: carga, service worker con caché `el-metro-v0.5.0-63270c88`, sin conexión, instalable sin errores) · APK v0.5.0 (versionCode 5) en `/el-metro.apk`.
+
+##### Carpeta de arte (`arte/`, 2026-11-17)
+Investigación visual y guía de producción para el arte definitivo:
+- biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
+- **guía única de prompts** (`06-guia-unica-ia.md`) para **dos IA**: Gemini Nano Banana (encargos G‑) y ChatGPT (encargos C‑). Midjourney salió del plan: sus panorámicas, ambientes de fiesta y conceptos pasaron a Gemini, y las texturas y la portada sin título a ChatGPT. La guía trae **misión, visión, estado**, la dirección de arte y **la bitácora completa como Anexo A** (sincronizada por `tools/arte.mjs`, que también genera `arte/CONTEXTO-IA.md` para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT);
+- **Protocolo para toda IA** (`arte/PROTOCOLO-IA.md`, fuente única), en 7 pasos:
+  1. leer TODO;
+  2. reflexionar;
+  3. responder el cuestionario de comprensión;
+  4. probar en pequeño;
+  5. auto‑ajustarse guardando “Reglas aprendidas” en sus propias instrucciones;
+  6. hacer solo su parte con precisión;
+  7. entregar y registrar.
+
+  Va al inicio de la guía única (sincronizado), en el Bloque 1 (00), en los roles (el cuestionario es obligatorio antes del primer encargo), en `CONTEXTO-IA.md` y en `AGENTS.md`, `CLAUDE.md` y `GEMINI.md` (raíz, generados), que los agentes de código leen solos.
+- **Documento único compilado** `dist/EL-METRO-TODO.md` (~950 KB): protocolo, léeme, guía, skills, plan, bitácora, toda la investigación de arte, galería y el **código fuente completo** del juego (60 archivos). El mapa binario `valle.js` solo va descrito. Lo genera `node tools/todo.mjs`.
+- **Archivo único** `node tools/todo.mjs` → `dist/El-Metro-TODO.html` (~1,6 MB):
+  - incluye el **juego jugable comprimido adentro** (▶ Jugar), la guía única, las skills, el plan, la bitácora, toda la carpeta de arte y la galería;
+  - desde ahí se descargan `TODO.md` (todo el texto para IA), `CONTEXTO-IA.md`, `SKILLS-IA.md` y el juego suelto;
+  - plantilla en `tools/todo-plantilla.html`; publicado en la raíz de GitHub Pages.
+- **Skills del proyecto** (formato abierto Agent Skills, `SKILL.md`) en `.agents/skills/`, que leen Codex y Antigravity; `tools/skills.mjs` las copia a `.claude/skills/` para Claude Code y arma `arte/SKILLS-IA.md` para los Gems y Proyectos.
+  - Tres propias: `el-metro-desarrollo` (código, pruebas y publicación), `el-metro-arte` (dirección de arte, encargos e integración) y `medellin-fiel` (relieve, estructuras e isométrica 2:1).
+  - Tres oficiales de [anthropics/skills](https://github.com/anthropics/skills) (Apache‑2.0, commit `e4bb5d9`): `frontend-design`, `webapp-testing` y `skill-creator`.
+  - Plugins de Claude recomendados: image-generation, playwright, Android Emulator QA y Unity (opcional).
+  - La guía única las incluye (Bloque 6 y sección 13 del contexto).
+- **Fase 1b del plan · Medellín fiel e isométrica:** relieve de 30 m, alturas de edificios por casilla, viaducto, estaciones y cables medidos, vista dimétrica 2:1 procedural y repintado con IA (G‑100) de zonas héroe. Referencias: Isometric NYC, Tiny Barcelona, Madrid, València y Málaga, CDMX, Buenos Aires, isometriccities.com y tinyworlds (detalle en `docs/PLAN.md`);
+- 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
+- `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.
+
+**Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
+
+##### Historial
+###### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
+1. Nuevo `37-trama.js`: motor de pasos (hablar, ir, abordar, bajar, foto, orientar, módulo) con datos validados por el autotest (`Trama.check`): estaciones, líneas, niveles y postales deben existir.
+2. Personajes en el mapa (Rosalba, Don Efraín, Doña Marleny, Wílmar, agente de tránsito, pasajeros con ❓) con nombre y marcador; conversación en caja inferior con voz opcional; preguntas de orientación de rutas reales (A→K, B→J, T→H, T→M, A→P, A→K→L…).
+3. Módulos encadenados: "¡Vamos!" lanza el metro/cable/bus/tranvía y al terminar vuelve a Ciudad Libre en la estación de llegada (`Trama.place`), avanzando el capítulo.
+4. Ciudad Libre: barra de capítulo con distancia, flecha y punto en el minimapa (`st.goal`), botón ⏩ (×5 al viajar o esperar en una estación), preferencia de línea al abordar en estaciones compartidas (`Ciudad.atHub(..., pref)`), los oficios se pausan durante la historia.
+5. Panorámica: paleta de día tipo ilustración (cordillera azul, cerros intermedios, suelo verde), capa intermedia `R.inter` para escalonar siluetas, sin "ruido" de casas en la cordillera de día (solo luces de noche).
+6. Menú Historia: "Nuevo · la historia en la ciudad" (empezar/seguir/reiniciar) sobre los capítulos clásicos.
+7. Pruebas: autotest con 8 capítulos validados; 100 partidas, 0 errores, 0 de consola, todas las capturas; prueba guiada en Chromium (hablar → manejar → volver a Madera; abordar en Madera con ⏩ y bajarse en Acevedo).
+
+###### v0.4.0 (2026-11-17) — ciudad de verdad, cabina real, laderas
+1. Ciudad cenital redibujada por lotes y manzanas (`10-map.js`): tejados unidos, fachadas, sombras, tanques, barrios de ladrillo variados, carros parqueados, árboles de andén, carriles en avenidas, cebras solo en cruces.
+2. `31-cabina.js`: procedimiento de cabina (llave → sentido → señal → tracción; vigilante cada 25–40 s; puertas del lado correcto según el andén; anuncio) con botonera iluminada y Escuela de conducción de 9 pasos (`A:0-2#escuela`).
+3. 3D: sin edificios bajo/encima del viaducto (`G3.railMask`), tablero de concreto con balasto, rieles claros y pretiles.
+4. Panorámica: laderas con barrios (comunas) y monte con ruido de valor, filo iluminado y bruma; de noche las laderas se llenan de luces; fachadas con ventanas/toldos y árboles de primer plano anclados al mundo (antes "saltaban"); título de estación más abajo en horizontal.
+5. Bus: validación Cívica al subir (bip, pasajeros sin saldo que recargan), pasajes en el HUD y en el resumen.
+6. **Corrección importante:** los buses largos se trababan contra esquinas de manzana (casillas de 20 m) al girar y el piloto automático no avanzaba; ahora el corredor de la ruta (±7 m) es transitable (`st.lane` en `38-bus.js`, usado por `Libre.drive`).
+7. Ciudad: perros callejeros y paseados con correa (`Spr.dog`), ladran cuando un vehículo los asusta; no son clientes de taxi.
+8. Pruebas: 100 partidas (0 errores) + 60 partidas con la versión final (0 errores, 0 de consola). `tools/test.mjs` reintenta capturas lentas (SwiftShader tarda en la primera captura de cada modo).
+
+###### v0.3.0 (2026-11-17) — rediseño por retroalimentación del autor
+1. Se abandona el enfoque de minijuegos: el menú ahora son módulos de simulación sobre el mapa; los puzles pasan a "Arcade".
+2. Nuevo `38-bus.js` (simulador cenital de Metroplús/alimentadores) con pasajeros que esperan y abordan, puertas, horario, paradas perdidas, confort, semáforos, choques; rutas se "abren" al completarse.
+3. Metro: vista panorámica 2D por defecto (recuerda la última vista), cabina rediseñada, diagrama de línea, otros trenes en la vía, estaciones con techo/letrero/gente, calle con carros y peatones y fachadas de primer plano.
+4. Sprites nuevos (`21-sprites.js`), cebras, vendedores, Cívica al abordar, guía educativa, reloj configurable.
+5. Correcciones: `#gctl` ocupa toda la pantalla (barras de misión visibles), luces de ventanas cacheadas por trozo, bucle congelable para capturas, pendientes limitadas para buses.
+###### v0.2.0 (2026-11-16)
+Ciudad Libre, Al volante 3D, Metrocable viaje, 3D WebGL, vista lateral, mundo (reloj/clima/fechas), paleta oficial de líneas, pedales/inclinar.
+###### v0.1.0 (2026-11-16)
+Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Metroplús, Cable), La Red, historia, misiones/logros, multijugador local, APK, PWA, bot.
+
+##### Qué falta (prioridad)
+0. **Medellín fiel (Fase 1b):** corregir topografía, relieve y estructuras (viaducto, estaciones, cables, alturas, lugares icónicos) y crear la vista isométrica 2:1.
+1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `docs/PROMPTS-IA.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
+2. **Bus:** interiores en parada (cámara que se acerca), pasajeros con destinos, cobro con Cívica, paradas intermedias reales de Metroplús (en la mediana), pico y placa/hora pico, 3D opcional dentro del simulador.
+3. **Metro:** señales en la vía (ATP real), anuncios de voz grabados, interior del tren (pasajeros), tramos nocturnos con Alumbrados, cables desde el metro, escuela también para tranvía (pantógrafo, señales de tranvía).
+4. **Ciudad Libre / historia:** sesión 2 de la historia (Alumbrados, cable Arví, línea J y Comuna 13, Metro de la 80), escenas de corte con los personajes, más NPC (policía de tránsito, ciclistas EnCicla), interiores de estación, retos de tiempo, cooperativo.
+5. **Datos:** alimentadores del sur (Itagüí, Envigado, Sabaneta, Bello) y paraderos exactos; estaciones de Metroplús en la mediana con sus accesos.
+6. **Técnico:** trozos del mapa en Web Worker (hoy ~50 ms por trozo de 640 m al entrar en zona nueva), probar en celulares reales (rendimiento 3D y cenital, WebRTC), modo Bluetooth/“Cerca” nativo en el APK, lector QR JS para iPhone, sonido de motor por vehículo, música por módulo.
+
+---
+
+# 3 · Skills del proyecto
+
+## SKILLS PARA IA · El Metro
+
+> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT (junto con `CONTEXTO-IA.md`). Reúne el índice de skills y las **skills propias del proyecto**. Los agentes de código (Claude Code, Codex, Antigravity) las leen directo del repositorio en `.agents/skills/` y `.claude/skills/`.
+
+### Skills del proyecto *El Metro*
+
+Las **skills** son carpetas con un `SKILL.md` (instrucciones y, a veces, scripts). Siguen el formato abierto **Agent Skills** ([agentskills.io](https://agentskills.io/specification)), que leen Claude, Codex de ChatGPT, Antigravity y Gemini CLI. Cada agente carga una skill cuando la tarea coincide con su descripción.
+
+### Dónde las lee cada IA
+| IA | Carpeta |
+|---|---|
+| **Claude Code** | `.claude/skills/` (copia automática con `node tools/skills.mjs`) |
+| **ChatGPT Codex** (“astra”) | `.agents/skills/`, la carpeta común. Algunas versiones usan `.codex/skills/` *(verificar en la documentación de Codex)* |
+| **Gemini Antigravity** (“argon”) y Gemini CLI | `.agents/skills/` del espacio de trabajo. La documentación oficial de Antigravity la indica para skills de proyecto; la ruta global cambia según la versión |
+| **Gemini (Nano Banana)** y **ChatGPT** como generadores de imágenes | No leen carpetas. Sube `arte/SKILLS-IA.md` (y `arte/CONTEXTO-IA.md`) como conocimiento de un **Gem** o como archivo de un **Proyecto** |
+
+### Skills instaladas
+| Skill | Para qué | Quién la usa | Origen y licencia |
+|---|---|---|---|
+| **el-metro-desarrollo** | Estructura del código, compilar, probar (100 partidas), capturas, APK, publicar y bitácora | Agentes de código (Claude, Codex, Antigravity) | Propia del proyecto |
+| **el-metro-arte** | Dirección de arte, paletas, vistas, reparto G‑ y C‑, revisión e integración de imágenes | Todas las IA (las de imágenes, vía `SKILLS-IA.md`) | Propia del proyecto |
+| **medellin-fiel** | Topografía, relieve, estructuras y vista isométrica 2:1 (Fase 1b) | Agentes de código; Gemini para el repintado G‑100 | Propia del proyecto |
+| **frontend-design** | Dirección visual de interfaces: tipografía, jerarquía, evitar diseños genéricos (menús, HUD, guía) | Agentes de código | [anthropics/skills](https://github.com/anthropics/skills) · Apache‑2.0 (`LICENSE.txt` en la carpeta) |
+| **webapp-testing** | Probar aplicaciones web con Playwright: capturas, consola, DOM (complementa `tools/test.mjs`) | Agentes de código | anthropics/skills · Apache‑2.0 |
+| **skill-creator** | Crear, mejorar y evaluar skills nuevas del proyecto | Agentes de código | anthropics/skills · Apache‑2.0 |
+
+Versión de anthropics/skills copiada: commit `e4bb5d9` (16 nov 2026).
+
+> **Nota sobre `frontend-design`:** marca como “cliché” el fondo crema con acento terracota. En *El Metro*, el papel crema `#f1ece0` es **decisión del autor** (revista EMSAY). Se mantiene, con los colores de las líneas del Metro como acentos (ver `el-metro-arte`).
+
+### Recomendadas, no instaladas aquí
+**Plugins de Claude** que el autor puede activar en su cuenta:
+
+| Plugin | Para qué |
+|---|---|
+| **image-generation** | Guía de prompts para Gemini Image y GPT Image; sirve para mejorar los encargos G‑ y C‑ |
+| **frontend-design** | La misma skill de arriba, para usarla en cualquier proyecto |
+| **playwright** (Microsoft) | Manejar el navegador de forma interactiva |
+| **Android Emulator QA** | Probar la APK en un emulador del PC |
+| **Unity** | Solo si algún día el juego pasa a Unity: sprites pixel‑perfect, atlas, mosaicos |
+
+**Skills oficiales que no se copiaron:**
+- **canvas-design** pesa 5,6 MB por sus fuentes.
+- **algorithmic-art** usa p5.js, que el juego no lleva.
+
+Ambas están en anthropics/skills si se necesitan.
+
+### Mantenimiento
+- Las skills propias se editan **solo** en `.agents/skills/`.
+- Después se corre `node tools/skills.mjs`, que copia todo a `.claude/skills/` y regenera `arte/SKILLS-IA.md`.
+- Al cambiar una regla del proyecto, actualiza la skill correspondiente y la bitácora.
+
+
+---
+
+## Skill · el-metro-desarrollo
+
+```yaml
+name: el-metro-desarrollo
+description: Cómo trabajar en el código del videojuego "El Metro" (Metro de Medellín). Explica la estructura de un solo HTML sin librerías, el mapa de módulos en src/js, la compilación, las pruebas con bot y 100 partidas, las capturas en Chromium, la APK de Android, la publicación en GitHub Pages y la bitácora. Úsala siempre que vayas a leer, modificar, probar, compilar o publicar el juego.
+```
+
+### El Metro · desarrollo
+
+#### Qué es
+Videojuego **offline** de mundo abierto + arcade sobre el Metro de Medellín, para todo público y para celulares modestos. Se entrega como **un solo `index.html`** (PWA en GitHub Pages) y como **APK** de Android (WebView).
+- **Misión:** que cualquiera conozca, use y quiera la red y la ciudad jugando.
+- **Visión:** el gran juego de Medellín, fiel a la ciudad.
+
+**Antes de tocar nada, lee:**
+- `docs/BITACORA.md`: estado, historial y pendientes.
+- `docs/PLAN.md`: fases.
+- `arte/README.md`: arte.
+
+#### Protocolo
+Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, también en `AGENTS.md`):
+1. lee todo;
+2. reflexiona;
+3. responde el cuestionario;
+4. prueba;
+5. auto‑ajústate;
+6. haz solo lo tuyo;
+7. entrega y registra.
+
+#### Reglas que no se rompen
+1. **Un solo HTML, sin librerías externas ni internet** en tiempo de juego. Todo va embebido (datos, fuentes, arte).
+2. **Celulares modestos:** cuida los ms por cuadro, cachea lo dibujado y evita asignar memoria en el bucle.
+3. **Español** en todo el juego y en los textos; **todo público** (sin violencia).
+4. **No romper el guardado** (`localStorage` clave `elmetro.v1`, objeto `Save.d`). Si agregas campos, que tengan valor por defecto.
+5. **El arte nuevo siempre va con respaldo:** si falta una imagen, sigue el dibujo procedural actual.
+6. **Cerrar cada sesión actualizando `docs/BITACORA.md`**: qué cambió, qué se probó y qué falta.
+
+#### Mapa del código (`src/js/*.js` se concatenan en orden)
+| Archivo | Qué hace |
+|---|---|
+| `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
+| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
+| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
+| `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
+| `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
+| `22-gl.js` | Motor 3D WebGL1 propio `G3` |
+| `23-lado.js` | Panorámica lateral por capas |
+| `25-game.js` | Bucle de juego, HUD, pausa, `Game.freeze()` |
+| `30-conduce.js` / `31-cabina.js` | Metro y tranvía (panorámica, cabina, ATP, procedimiento) |
+| `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
+| `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad |
+| `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
+| `52-cableviaje.js` | Metrocable |
+| `60-mapa.js` / `65-menu.js` / `66-vida.js` / `67-guia.js` / `70-historia.js` | La Red, menús, misiones y logros, guía, historia clásica |
+| `80-multi.js` / `06-net.js` / `05-qr.js` | Multijugador local (WebRTC/QR, servidor local) |
+| `90-bot.js` | `EM.test.selfTest()` y partidas automáticas (monkey) |
+
+Datos en `src/data/`:
+- `valle.js`: mapa y relieve de EnCicla;
+- `red.js`: líneas y estaciones;
+- `rutas.js`: recorridos de buses por calles reales;
+- `lugares.js`: lugares con postal.
+
+**Convenciones:**
+- Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
+- Cada modo implementa `levels()`, `create(lv, opts)`, `step(st, dt)`, `draw(g, st, vp)`, `hud(st)`, `mount(st, el)`.
+- Usa `EM.headless` y `st.auto` para que el bot juegue sin interfaz.
+
+#### Comandos
+```
+node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
+node tools/test.mjs 100              # selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
+node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
+bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
+node tools/verify-pages.mjs          # verifica la web publicada: carga, service worker, sin conexión, instalable
+node tools/arte.mjs                  # regenera arte/index.html y arte/CONTEXTO-IA.md (bitácora sincronizada)
+node tools/skills.mjs                # copia .agents/skills → .claude/skills y arma arte/SKILLS-IA.md
+node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (documento único con código), dist/El-Metro-TODO.html (con el juego) y AGENTS.md, CLAUDE.md, GEMINI.md
+```
+**Chromium y Playwright** ya vienen instalados (`require('playwright')`). En la nube, el 3D usa SwiftShader: lanza Chromium con `--enable-unsafe-swiftshader --use-angle=swiftshader --ignore-gpu-blocklist`.
+
+**Capturas:**
+- Llama `EM.game.freeze(true)` antes de capturar y `false` después.
+- La primera captura de cada modo puede tardar mucho: reintenta con más tiempo.
+
+#### Flujo de un cambio
+1. Lee la bitácora y el archivo que vas a tocar.
+2. Cambia el código.
+3. Compila con `node tools/build.mjs`.
+4. Prueba con `node tools/test.mjs 100` (0 errores) y mira capturas en vertical (412×860) y horizontal.
+5. Sube la versión en `00-core.js` (`EM.version`).
+6. Actualiza la bitácora (y el plan si aplica).
+7. Haz commit en la rama de trabajo.
+8. Publica:
+   1. copia `dist/` a la rama `gh-pages`, que lleva `.nojekyll`;
+   2. espera a que el `sw.js` publicado muestre la nueva caché;
+   3. corre `node tools/verify-pages.mjs`.
+
+#### Errores conocidos
+- Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
+- No uses capturas de Google Maps ni de Google Earth como base de arte.
+- El tamaño del HTML importa: hoy pesa unos 1,8 MB. El arte nuevo va en atlas comprimidos.
+
+
+---
+
+## Skill · el-metro-arte
+
+```yaml
+name: el-metro-arte
+description: Dirección de arte y producción de imágenes para el videojuego "El Metro" (Metro de Medellín). Cubre las paletas HEX, las vistas y escalas, los personajes y las reglas (sin texto ni logos, fondo magenta); el reparto de encargos entre Gemini Nano Banana (G-) y ChatGPT (C-); y la revisión, entrega e integración del arte al juego. Úsala al generar, encargar, revisar o integrar cualquier imagen, sprite, ícono, panorámica o mosaico del juego.
+```
+
+### El Metro · arte
+
+#### Dónde está todo
+| Archivo | Qué contiene |
+|---|---|
+| `arte/06-guia-unica-ia.md` | **Guía única**: contexto completo, roles, encargos G‑ y C‑, correcciones, entrega y bitácora |
+| `arte/CONTEXTO-IA.md` | Contexto y bitácora en un archivo, para subir a un Gem o a un Proyecto |
+| `arte/00-biblia-de-estilo.md` | Reglas visuales completas |
+| `arte/01` a `arte/05` | Referencias de juegos, Medellín visual, historia, folclor y fiestas, diseño |
+| `arte/galeria.md` | Fotos de referencia con licencia libre |
+
+#### Concepto
+**“Medellín de verdad, dibujada con cariño”.**
+- Ciudad vista desde arriba en pixel art denso y acogedor.
+- Panorámica de siluetas por capas con bruma.
+- Vista isométrica dimétrica 2:1.
+- 3D low‑poly limpio.
+- Interfaz editorial con los colores de las líneas del Metro como acentos.
+
+> El fondo crema de la interfaz (`#f1ece0`) es **decisión del autor**: viene de la revista EMSAY. Si otra skill de diseño lo marca como cliché, se mantiene igual.
+
+#### Reglas para toda imagen
+- Luz desde arriba a la izquierda; **sin sombra proyectada** (la pone el juego).
+- Contorno `#141414` fino en personajes y vehículos.
+- Máximo 32 colores, tomados de la paleta.
+- **Fondo magenta plano `#FF00FF`** o transparente; nunca blanco.
+- **Prohibido:** texto (salvo pedido y en español), logos o marcas reales, marcas de agua, violencia, alcohol, cigarrillo y pólvora en manos de niños.
+- Arte **original**: no se copian juegos ni artistas.
+- No se usan capturas de Google Maps ni de Google Earth como base.
+
+#### Paletas clave
+**Líneas:**
+
+| A | B | T | K | J | H | L | M | P | MP1 | MP2 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `#1C5C9C` | `#E38835` | `#59AB42` | `#B8CF40` | `#F6C538` | `#EB318E` | `#8E612A` | `#743D90` | `#EC343A` | `#0E6F76` | `#65A9AC` |
+
+**Ciudad:**
+- asfalto `#3b3f45`
+- andén `#c9c1ad`
+- ladrillo `#b4583a` y `#9a4630`
+- teja `#a8452f`
+- losa `#9e9a92`
+- pasto `#4f8a3c`
+- árbol `#2f6b35`
+- río `#5f7f73`
+- concreto `#a9a59b`
+- vidrio `#9fd3e6`
+
+**Interfaz:**
+- papel `#f1ece0`
+- tinta `#154a80`
+- negro `#141414`
+- manteca `#fbe7b0`
+
+#### Vistas y escalas
+| Vista | Regla |
+|---|---|
+| Cenital 3/4 | ~15° de inclinación; casilla de 20 m (entrega a 64 px por casilla) |
+| Sprites de vehículos | Vista superior pura, mirando a la derecha, **1 m = 8 px** |
+| Peatones | 16×16 px por cuadro, 4 cuadros |
+| Panorámica | Perfil puro, sin cielo, capas anchas (21:9 o más) |
+| Isométrica | Dimétrica 2:1 (~26,6°) |
+| Cabina | 9:16 y 16:9, con el parabrisas en magenta |
+| Retratos | Busto 3/4 mirando a la derecha |
+| Íconos | 128 px, planos, contorno grueso |
+
+#### Reparto de encargos
+- **Gemini Nano Banana, encargos G‑:** ancla de estilo (G‑00), personajes, foto → estilo, variantes de hora y fiesta, casas de barrio, panorámicas (G‑70 a G‑73), ambientes de fiesta (G‑80 a G‑86), conceptos isométricos (G‑90) y repintado de mosaicos base (G‑100).
+- **ChatGPT, encargos C‑:** sprites cenitales con transparencia, íconos e insignias, cabina, letreros, portadas, decoraciones de fiesta y texturas (C‑60).
+- Cada IA **solo hace lo suyo**. Los prompts exactos están en la guía única.
+
+#### Revisión (antes de aceptar una imagen)
+1. ¿La vista es correcta?
+2. ¿Los colores son de la paleta y la línea tiene su color?
+3. ¿El fondo es plano?
+4. ¿No tiene sombra proyectada, ni texto, ni logos?
+5. ¿Se lee bien en pequeño?
+6. ¿Tiene el nombre exacto del encargo (minúsculas, sin tildes)?
+
+#### Integración al juego
+1. Lo entregado va en `arte/entregas/<carpeta>/` (estructura en la guía única, Bloque 5).
+2. Se quita el magenta (transparencia) y se recorta a la cuadrícula.
+3. Se reduce con **vecino más cercano** a la escala del juego y se **cuantiza a la paleta**.
+4. Se arman **atlas** en `src/art/` (PNG o WebP más un JSON de coordenadas), embebidos en el HTML. La meta es menos de 4 MB de arte.
+5. Se conecta el arte, siempre con respaldo al dibujo procedural:
+
+   | Arte | Archivo |
+   |---|---|
+   | Casillas | `10-map.js` |
+   | Sprites | `21-sprites.js` |
+   | Capas | `23-lado.js` |
+   | Vehículos de perfil | `30-conduce.js`, `52-cableviaje.js` |
+   | Consola | `31-cabina.js` |
+   | Retratos | `37-trama.js` |
+   | Íconos | menús |
+   | Isométrico | vista nueva (ver skill `medellin-fiel`) |
+6. Se prueba con `node tools/test.mjs 100` y capturas, y se publica (skill `el-metro-desarrollo`).
+
+
+---
+
+## Skill · medellin-fiel
+
+```yaml
+name: medellin-fiel
+description: Fidelidad geográfica de Medellín en el videojuego "El Metro" (Fase 1b del plan). Cubre topografía y relieve, río, vías, viaducto y estaciones del metro, cables sobre las lomas, alturas de edificios, lugares icónicos y la vista isométrica dimétrica 2:1 (mosaicos base desde datos abiertos más repintado con IA). Úsala al tocar el mapa, el relieve, las vistas cenital, panorámica, 3D o isométrica, o al generar o repintar mosaicos de la ciudad.
+```
+
+### Medellín fiel e isométrica
+
+#### Objetivo
+Que la topografía, el relieve, el río, las vías y las estructuras de Medellín sean **fieles**, y crear una **ciudad en miniatura en proyección dimétrica 2:1**, como los mapas de ciudades reales en pixel art. Hoy el juego tiene detalles mal diseñados:
+- relieve suavizado (modelo de 80 m);
+- laderas sin escalonamiento;
+- viaducto y estaciones con alturas y formas aproximadas;
+- cables que no siguen bien las lomas;
+- alturas de edificios genéricas;
+- lugares icónicos sin forma propia.
+
+#### Datos actuales del juego
+- `src/data/valle.js`: casillas de 20 m con tipo de suelo (`TT.*`) y relieve de 80 m (`MAP.elevM`, `MAP.tileM`, `MAP.bHeight`), tomado de “Juega EnCicla” (OpenStreetMap + SRTM).
+- `src/data/red.js`: líneas y estaciones; `NET` las convierte en recorridos (`NET.at(P, s)`).
+- `src/data/rutas.js` (recorridos de buses, `tools/rutas.mjs`) y `src/data/lugares.js` (lugares con postal).
+
+#### Fuentes abiertas para mejorar
+*(Verificar cobertura y licencia antes de usar.)*
+
+| Fuente | Qué aporta | Licencia |
+|---|---|---|
+| **OpenStreetMap** | Calles, edificios, río, parques | ODbL; atribución “© OpenStreetMap contributors” |
+| **Overture Maps** | Huellas de edificios (con datos de Microsoft y Google) y alturas cuando existen | CDLA o ODbL según la capa |
+| **Google Open Buildings 2.5D Temporal** | Ráster de alturas desde satélite; tinyworlds lo calibra con edificios de pisos conocidos | CC BY 4.0 *(cobertura en Colombia sin verificar)* |
+| **Copernicus GLO‑30** | Relieve de 30 m, mejor que los 80 m actuales | Libre con atribución |
+| Datos de la Alcaldía de Medellín y el Área Metropolitana (MEData, GeoMedellín) | Posible modelo de terreno más fino, catastro, red vial | *(sin verificar)* |
+
+**Prohibido:** usar imágenes de Google Maps o de Google Earth como base (sus términos lo restringen).
+
+**Meta de datos compactos:** 1 byte de altura por casilla de 20 m, más el tipo de techo y la forma de los lugares icónicos. Todo comprimido y embebido; el juego genera las vistas en el celular.
+
+#### Proyección dimétrica 2:1
+El “isométrico” de pixel art es **dimétrico 2:1**: por cada píxel hacia arriba, dos hacia el lado (unos 26,565°).
+
+Con la convención del juego (metros; x al este, y al sur, z hacia arriba; `s` = píxeles por metro):
+```
+pantallaX = (x − y) · s
+pantallaY = (x + y) · s / 2 − z · s · kz      (kz ≈ 0,8 a 1; ajústalo para que las alturas se vean naturales)
+```
+Se dibuja de atrás hacia adelante (orden por x + y), con caras visibles al sur y al este y luz desde arriba a la izquierda.
+
+#### Tubería
+1. **Datos** (`tools/`): descargar y reducir las fuentes a la grilla de 20 m (alturas, techos), cambiar el relieve a 30 m y medir viaducto, estaciones y torres de cable.
+2. **Escena real:** terreno; edificios con su altura; río canalizado; jerarquía vial (autopistas, la 80, Las Vegas, Las Palmas, Regional); viaducto con su altura; estaciones con cubierta, accesos y puentes; torres de cable con la curva del cable sobre el terreno. Lugares icónicos: Catedral, Coltejer, Nutibara con el Pueblito Paisa, El Volador, Biblioteca España, estadio y Olaya Herrera.
+3. **Vista isométrica procedural** en el juego: nueva vista de Ciudad Libre y maqueta en La Red, generada en el celular desde los datos, con el pixel art del juego (enfoque tipo tinyworlds).
+4. **Mosaicos base 2:1** de las zonas héroe (centro, estaciones, lugares icónicos) con la geometría real. **Gemini los repinta** (encargo G‑100) sin mover nada. El resto queda procedural para mantener el peso bajo.
+5. **Corregir las otras vistas** con la misma escena:
+   - cenital: alturas y sombras;
+   - panorámica: perfiles de relieve de 30 m;
+   - 3D: viaducto y estaciones medidos.
+6. **Verificación:** comparar capturas con las fotos de `arte/galeria.md` y con el mapa, y llevar la lista de detalles corregidos en la bitácora.
+
+#### Referencias
+- [Isometric Cities](https://isometriccities.com/): directorio y técnicas. Hay tres caminos:
+  1. IA que repinta mosaicos;
+  2. render por código desde datos abiertos;
+  3. diorama 3D con cámara isométrica.
+- Ciudades de ejemplo: [Isometric NYC](https://www.pcgamer.com/software/ai/software-engineer-creates-classic-simcity-style-map-of-nyc-and-argues-that-ai-is-good-for-creatives-actually/) (IA ajustada para repintar), [Tiny Barcelona](https://tiny-barcelona.agenturl.dev), [Tiny Madrid](https://tinymadrid.app), [Tiny València](https://tinyvalencia.com) (datos 3D del Catastro y el IGN repintados), [Isometric Málaga](https://isometric-malaga.xiangminf.com), [CDMX](https://cdmxisometrico.com), [Buenos Aires](https://caba.nicolaspoore.com).
+- [tinyworlds](https://github.com/nihey/tinyworlds): sin IA. Toma OpenStreetMap y Overture Maps, hace un rasterizado por software y arma una pirámide de teselas. Una ciudad grande pesa unos 1,5 GB: por eso aquí se genera en el dispositivo.
+
+---
+
+# 4 · Plan de desarrollo
+
+## Plan de desarrollo · El Metro (a partir de v0.3.0)
+
+### Visión (del autor)
+Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el sistema Metro completo. No minijuegos: **módulos de simulación** (bus cenital de estación a estación, metro en panorámica 2D + cabina, metrocable, ciudad libre), arte con identidad (colores oficiales del Metro, revista EMSAY, pixel art tipo Town Brush/Townscaper, referencias arcade: GTA 1/2, PAKO, Getaway, #DRIVE), mundo vivo (día/noche, clima, fechas de Medellín, NPC), para todo público, offline, celulares modestos.
+
+### Avance
+- **v0.4.0:** Fase 1 en curso con arte procedural mejorado (ciudad por lotes y manzanas, laderas con barrios en la panorámica, viaducto 3D realista); Fase 2: cabina con procedimiento real + Escuela de conducción, Cívica al subir al bus; Fase 3: perros (callejeros y con correa) en la ciudad. Pendiente el atlas pintado (encargos 1–3 de `PROMPTS-IA.md`).
+- **Carpeta de arte (nov 2026):** investigación visual completa y **guía única para IA** (Gemini Nano Banana y ChatGPT; Midjourney salió del plan) en `arte/`. Nueva **Fase 1b**: Medellín fiel e isométrica.
+- **v0.5.0:** Fase 3 iniciada: la historia se juega dentro de Ciudad Libre (`37-trama.js`), con módulos encadenados y regreso a la ciudad; panorámica con paleta de ilustración y capa intermedia.
+
+### Fases
+#### Fase 1 · Arte real (2–3 sesiones)
+- **Tiles cenitales (16 px/casilla):** asfalto con textura, andenes, bordillos, cebras, manzanas con tejados variados (ladrillo, teja, azotea), parques con caminos, río con orillas, canchas, iglesias/plazas de los lugares reales. Entregable: `src/art/tiles.png` + `tiles.json` (atlas) y carga en `10-map.js` (reemplaza el dibujo procedural tile a tile, manteniendo el fallback).
+- **Sprites:** metro (3 carros, cabina), tranvía, articulado, alimentador, taxi, carros ×6, motos, bici, cabinas de cable, peatones (8 variantes × 4 frames), vendedores. Vista cenital, 8 direcciones no necesarias (se rota). Atlas `src/art/sprites.png`.
+- **Panorámica:** fondos pintados en 3 capas (cerros lejanos, laderas con barrios, ciudad) por tramo de línea (Norte, Centro, Sur, Occidente, Ayacucho), variantes día/tarde/noche; el relieve real sigue mandando la silueta.
+- **Cabina:** consola del metro ilustrada (referencia: cabinas MAN/CAF del Metro de Medellín), botones DOM con estilo; interior del bus para el simulador en parada.
+- **Portada/compartir/íconos** ilustrados.
+#### Fase 1b · Medellín fiel e isométrica (relieve, estructuras y vista 2:1)
+**Por qué:** el juego todavía tiene detalles mal diseñados:
+- relieve suavizado (modelo de 80 m);
+- laderas sin escalonamiento;
+- viaducto y estaciones con alturas y formas aproximadas;
+- cables que no siguen bien las lomas;
+- alturas de edificios genéricas;
+- lugares icónicos sin forma propia.
+
+**Referencias** (mapas de ciudades reales en pixel art “isométrico”):
+- [Isometric Cities](https://isometriccities.com/): directorio de unas 95 ciudades y explicación de las técnicas.
+- [Isometric NYC](https://www.pcgamer.com/software/ai/software-engineer-creates-classic-simcity-style-map-of-nyc-and-argues-that-ai-is-good-for-creatives-actually/) (Andy Coenen, enero de 2026): ajustó un modelo de edición de imagen para repintar en pixel art imágenes de la ciudad.
+- [Tiny Barcelona](https://tiny-barcelona.agenturl.dev) · [Tiny Madrid](https://tinymadrid.app) (modos Conducir, Volar y Carreras) · [Tiny València](https://tinyvalencia.com) (parte de datos 3D del Catastro y del IGN y los repinta con IA) · [Isometric Málaga](https://isometric-malaga.xiangminf.com) · [CDMX isométrico](https://cdmxisometrico.com) · [Buenos Aires](https://caba.nicolaspoore.com).
+- [tinyworlds](https://github.com/nihey/tinyworlds): sin IA. Rasteriza por código huellas y alturas de edificios, calles, parques, agua y árboles de OpenStreetMap y Overture Maps en una pirámide de teselas con zoom. Donde faltan alturas, usa el ráster de alturas satelital *Google Open Buildings 2.5D* calibrado con edificios de pisos conocidos.
+
+**Claves técnicas:**
+- El “isométrico” de pixel art es en realidad **dimétrico 2:1** (unos 26,6°).
+- Hay tres técnicas:
+  1. IA que repinta mosaicos base;
+  2. render por código desde datos abiertos;
+  3. diorama 3D con cámara isométrica.
+- Una ciudad grande completa pesa del orden de **1,5 GB** en teselas (tinyworlds). Por eso en un HTML sin conexión hay que **generar en el dispositivo** desde datos compactos, no cargar imágenes gigantes.
+
+**Plan:**
+1. **Datos** (`tools/`): sumar al mapa de EnCicla:
+   - alturas de edificios por casilla de 20 m (1 byte), desde Overture Maps / OSM y *Open Buildings 2.5D* *(cobertura en Colombia por verificar)*;
+   - relieve de **30 m** (Copernicus GLO‑30) en lugar del de 80 m, y revisar si la Alcaldía o el Área Metropolitana tienen un modelo de terreno abierto más fino;
+   - tipo de techo por casilla.
+2. **Escena real:** viaducto con su altura y trazado medidos, estaciones con su forma (cubierta, accesos y puentes), torres de cable en sus posiciones y con la curva del cable sobre el terreno, río canalizado con su ancho y jerarquía vial (autopistas, la 80, Las Vegas, Las Palmas, Regional). También los lugares icónicos modelados: Catedral, Coltejer, Nutibara con el Pueblito Paisa, El Volador, Biblioteca España, estadio y Olaya Herrera.
+3. **Vista isométrica 2:1 procedural** (como tinyworlds) dentro del juego: nueva vista de Ciudad Libre y “maqueta” en La Red, generada en el celular desde los datos, con el mismo pixel art del juego.
+4. **Repintado con IA donde más luce:** genero **mosaicos base 2:1** con la geometría real y Gemini los repinta (encargo **G‑100** de la guía única) sin mover nada. Va solo para zonas héroe: centro, estaciones, lugares icónicos y portada. El resto queda procedural para mantener el peso bajo.
+5. **Corregir las otras vistas con la misma escena:** cenital (alturas y sombras reales), panorámica (perfiles de las laderas con relieve de 30 m), 3D (viaducto y estaciones medidos).
+6. **Verificación:** comparar capturas del juego con fotos de la galería (`arte/galeria.md`) y con el mapa; lista de “detalles mal diseñados” marcada uno por uno. El autor puede señalar los que vea con capturas.
+
+#### Fase 2 · Bus y Metro a fondo
+- Bus: paradas en la mediana (Metroplús) con acceso por puente, cola de pasajeros con destino, cobro Cívica al subir, hora pico con más gente, 3D opcional (el motor ya existe), misiones de ruta (horario, lleno, lluvia).
+- Metro: señales ATP en la vía, anuncios grabados (voz), interior del tren con pasajeros al abrir puertas, despacho desde el PCC como meta‑juego (Arcade → integrado), tramos especiales de fechas (Alumbrados).
+#### Fase 3 · Ciudad Libre como columna vertebral
+- La historia se juega dentro del mundo (ir a la estación X, tomar el metro, etc.).
+- Más NPC y eventos (policía de tránsito, ciclovía los domingos, Feria de las Flores con silleteros), interiores de estación, retos de tiempo, cooperativo en red dentro de la ciudad.
+#### Fase 4 · Datos y realismo
+- Completar alimentadores del sur y paraderos exactos; estaciones de Metroplús exactas; Metro de la 80 con estaciones oficiales; verificar horarios y tarifas vigentes.
+#### Fase 5 · Plataformas
+- Pruebas en celulares reales; APK con modo "Cerca" (Bluetooth/Wi‑Fi Direct) y lector QR; iPhone (lector QR JS); rendimiento (chunks en Web Worker, sprites en atlas).
+
+### Reglas de trabajo
+- Un solo HTML sin librerías; cada módulo en `src/js/NN-nombre.js`; datos en `src/data`.
+- Antes de entregar: `node tools/build.mjs && node tools/test.mjs 100` (0 errores) y capturas en Chromium.
+- Publicar: `node tools/assets.mjs`, `bash tools/apk.sh`, copiar `dist/` a la rama `gh-pages`, `node tools/verify-pages.mjs`.
+- Cerrar cada sesión actualizando `docs/BITACORA.md` (qué cambió, qué se probó, qué falta).
+
+---
+
+# 5 · Biblia de estilo
+
+## 00 · Biblia de estilo de *El Metro*
+
+> Las reglas visuales que debe cumplir **todo** el arte, lo haga una persona, Gemini o ChatGPT. Si una imagen no cumple esto, no entra al juego.
+
+### 1. Concepto en una frase
+**“Medellín de verdad, dibujada con cariño”**:
+- la ciudad real del mapa de EnCicla;
+- con la densidad de un pueblo en pixel art (Town Brush, GTA 2);
+- el cielo y las montañas en capas de ilustración (Alto's Odyssey);
+- un 3D de maqueta limpia (Grand Mountain Adventure);
+- una interfaz editorial con los colores de las líneas del Metro (revista EMSAY + Industry Art).
+
+### 2. Paletas maestras
+**Líneas del sistema** (acentos de interfaz, vehículos y señalética)
+| A | B | T | K | J | H | L | M | P | Metroplús 1 | Metroplús 2 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `#1C5C9C` | `#E38835` | `#59AB42` | `#B8CF40` | `#F6C538` | `#EB318E` | `#8E612A` | `#743D90` | `#EC343A` | `#0E6F76` | `#65A9AC` |
+
+**Interfaz (papel editorial)**
+- papel `#f1ece0`
+- crema `#faf6ec`
+- manteca `#fbe7b0`
+- tinta `#154a80`
+- negro `#141414`
+- noche `#0f2a45`
+- noche 2 `#163a5c`
+- gris `#9aa1a8`
+- blanco `#fdfbf5`
+
+**Ciudad de día (cenital)**
+- asfalto `#3b3f45`
+- andén `#c9c1ad`
+- ladrillo `#b4583a` / `#9a4630`
+- teja `#a8452f`
+- losa `#9e9a92`
+- eternit `#8f9497`
+- pasto `#4f8a3c`
+- árbol `#2f6b35`
+- río `#5f7f73`
+- concreto `#a9a59b`
+- vidrio `#9fd3e6`
+- tanque de agua `#1d1f24`
+
+**Panorámica por hora**
+| Hora | Colores |
+|---|---|
+| Día | cielo `#3f8bd0`→`#d6ecf3`, cordillera `#7f9fbf`, cerros `#5f8f86`, laderas `#3f7f4a`, suelo `#36663b` |
+| Atardecer | `#3d2e5f` `#8e5b7a` `#f08a5d` `#f4d9a8` |
+| Noche | `#08122a` `#1a2b4f`, ventanas `#ffd27a` `#ffb347` |
+
+**Gente**
+- Pieles: `#f1c9a5` `#d9a77f` `#b07a52` `#8a5a3b` `#5e3b26`.
+- Ropa: `#c8201f` `#12446c` `#2f9b57` `#c3952f` `#ff6a3d` `#7a5cc4` `#f9e4a4` `#141414` `#1b8088`.
+
+**Fiestas:** ver `04-folklore-y-fiestas.md`, sección D.
+
+### 3. Luz
+- **Cenital:** el sol viene de **arriba a la izquierda**; las sombras caen **abajo a la derecha a 45°**, en negro al 25–30 %. Al mediodía las sombras son cortas; en la mañana y la tarde, largas. El juego mueve la sombra según la hora: las imágenes deben venir **sin sombra proyectada** (va aparte) y con un leve volumen interno (cara iluminada / cara en sombra).
+- **Noche:** ventanas cálidas `#ffd27a` (que no se enciendan todas), faroles `#ffb347` con halo suave, faros blancos y luces traseras rojas. El juego oscurece el resto.
+- **Lluvia:** superficies brillantes, reflejos verticales de las luces, paraguas de colores.
+
+### 4. Vistas, escalas y tamaños de entrega
+La IA no entrega tamaños exactos de pixel art. Por eso **se genera grande y limpio**, y yo lo reduzco, cuantizo y recorto. Lo importante son la **vista**, las **proporciones** y el **fondo plano**.
+
+| Vista | Uso en el juego | Proyección | Entrega |
+|---|---|---|---|
+| **Cenital 3/4** | Ciudad Libre, bus | Desde arriba con ~15° de inclinación: se ve el techo y una franja de la fachada sur | Casillas de 20 m → **64×64 px** (3,2 px/m); hojas de 8×8 casillas = 512×512 px |
+| **Sprites de vehículos** | Todos los modos cenitales | Vista superior pura, **mirando a la derecha (+x)**, sin sombra | **8 px/m**: carro 36×16, taxi 36×16, moto 16×8, bici 14×6, buseta 64×20, alimentador 96×20, articulado 144×20, tren (1 coche) 176×24, cabina de cable 24×24 |
+| **Peatones y NPC** | Mundo | Vista superior, cabeza un poco grande | 16×16 por cuadro, 4 cuadros de caminar, 8 variantes |
+| **Panorámica lateral** | Metro, tranvía y cable | Perfil puro, sin cielo (lo pinta el juego) | Capas de **2048×512** repetibles en X: cordillera, cerros, laderas con barrios, ciudad cercana, primer plano |
+| **Vehículos de perfil** | Panorámica | Perfil puro mirando a la derecha | Tren de 3 coches 1536×192; tranvía 1024×160; cabina 192×192; bus 768×160 |
+| **Cabina 1ª persona** | Metro (y luego bus) | Desde el asiento del conductor | 1080×1920 y 1920×1080, con el **parabrisas en magenta `#FF00FF`** (ahí se ve la vía) |
+| **Interiores isométricos** (futuro) | Estaciones | Isométrico 2:1 en pixel art | Piezas de 128×64 px |
+| **Retratos** | Diálogos de la historia | Busto 3/4, mirada a la derecha | 512×512, fondo plano; neutra y alegre |
+| **Íconos de interfaz** | Botones, mapa, logros | Frontal plano, trazo grueso | 128×128, 2 colores + negro, sin texto |
+| **Arte clave** | Portada, compartir, carga | Ilustración | 1200×630 (compartir), 1080×1920 (carga) |
+
+**Fondo:** magenta plano `#FF00FF` (o verde `#00FF00` si el objeto es rosado o morado) cuando la herramienta no da transparencia. Si da PNG transparente, mejor.
+
+### 5. Línea y forma
+- **Sprites** (vehículos, gente): contorno oscuro `#141414` de 1 px a escala final, formas simples, **silueta legible a 20 px**.
+- **Edificios y casillas:** sin contorno negro grueso; borde 1 px más oscuro del mismo tono; techos con 2–3 tonos.
+- **Panorámica:** sin contornos; formas planas con bandas de color; detalle solo en el filo de los cerros y en las casas.
+- **3D low‑poly:** caras planas, sin texturas fotográficas.
+
+### 6. Reglas de pixel art (para lo que se pixela)
+- **≤ 32 colores** por recurso, tomados de las paletas de arriba; bandas de 3–4 tonos, no degradados suaves.
+- Píxeles cuadrados, sin desenfoque ni anti‑aliasing en el resultado final (yo cuantizo la imagen de la IA).
+- Animaciones a 8–12 cuadros por segundo: caminar en 4 cuadros, puertas en 3, luces en 2.
+
+### 7. Tipografía e interfaz
+- **Títulos:** letra condensada, en mayúsculas, gruesa (la “Titulos” del juego).
+- **Texto:** humanista legible (la “Cuerpo”).
+- **LED de cabina:** monoespaciada ámbar.
+- Botones grandes (mínimo 44 px), bordes negros de 3 px, sombra dura desplazada (estilo afiche).
+- Franja con los colores de las líneas en la parte superior.
+- **Nada de texto dentro de las imágenes generadas**: los textos los pone el juego. Excepción: letreros de estación cuando se pidan.
+
+### 8. Personajes principales (fichas de diseño)
+| Personaje | Edad | Ropa y colores | Rasgos |
+|---|---|---|---|
+| **Rosalba** | ~60 | Uniforme de conductora azul `#12446c` con franja `#1C5C9C`, pañoleta, termo de **tinto** | Pelo canoso recogido `#dcd8d0`, gafas en el bolsillo, sonrisa cálida |
+| **La nieta (tú)** | 16 | Chaqueta azul de la línea A, morral, tenis blancos | Pelo oscuro, mirada curiosa |
+| **Don Efraín** | ~65 | Chaqueta gris `#5a6470`, camisa clara, audífonos de radio | Bigote blanco, pelo blanco corto |
+| **Doña Marleny** | ~55 | Ruana roja `#c8201f`, delantal, termo de arepas | Pelo negro recogido, manos de trabajo |
+| **Wílmar** | ~40 | Camisa blanca, gorra azul `#1C5C9C` | Piel morena `#8a5a3b`, bigote corto, risa fácil |
+| **Agente de tránsito** | ~35 | Chaleco reflectivo verde‑amarillo `#c7e000`, casco blanco, silbato | Postura firme y amable |
+| **Pasajeros** | variados | Ropa de la paleta “gente” | Estudiantes, abuelos, trabajadores, turistas, deportistas |
+
+### 9. Qué sí y qué no
+**Sí:**
+- ladrillo, montaña, río y metro elevado;
+- flores y luces en fechas reales;
+- gente diversa en su rutina;
+- perros;
+- vendedores con carrito;
+- buses de colores.
+
+**No:**
+- logos o marcas reales;
+- personajes de otros juegos;
+- armas, violencia, alcohol, cigarrillo o pólvora en manos de niños;
+- estereotipos;
+- texto ilegible o en inglés dentro de las imágenes;
+- marcas de agua;
+- estilos “de película de narcos”.
+
+### 10. Lista de control antes de entregar un recurso
+1. ¿Vista y proyección correctas (cenital 3/4, superior pura, perfil, cabina)?
+2. ¿Colores dentro de la paleta, con el color de línea correcto?
+3. ¿Fondo transparente o magenta plano, sin sombra proyectada?
+4. ¿Silueta legible en pequeño?
+5. ¿Sin texto ni logos (salvo lo pedido)?
+6. ¿Nombre de archivo según `08-entregas-e-integracion.md`?
+
+---
+
+# 6 · Referencias de videojuegos
+
+## 01 · Referencias de videojuegos (todas las que dio el autor)
+
+> Para qué sirve: entender **qué hace grande a cada referencia** (gráficos, color, cámara, interfaz, mecánicas) y **qué principio tomamos** para *El Metro*, un juego de **mundo abierto + arcade** sobre el Metro de Medellín. No copiamos personajes, nombres, logos ni assets de nadie: tomamos principios de diseño.
+> Las paletas HEX son **aproximadas** (estimadas a partir del estilo de cada juego) y sirven como punto de partida.
+> **Verificado en la Play Store (Colombia) el 17 nov 2026:** se usan los nombres y desarrolladores exactos que aparecen en la tienda de Android. Las marcadas *(sin verificar)* no se pudieron confirmar del todo. Los 4 reels de Instagram se analizaron por su texto público, porque no se puede ver el video desde aquí.
+
+### Índice
+1. [Tabla resumen](#tabla-resumen)
+2. Mundo abierto cenital: [GTA 1](#gta-1) · [GTA 2](#gta-2) · [GTA London](#gta-london-1969--1961) · [GTA Chinatown Wars](#gta-chinatown-wars)
+3. Persecución y velocidad: [Reckless Getaway 1 y 2](#reckless-getaway-1-y-2) · [Need for Speed](#need-for-speed) · [Forza Horizon](#forza-horizon)
+4. Arcade de conducción móvil: [FR Legends](#fr-legends) · [#DRIVE](#drive) · [PAKO Forever](#pako-forever) · [Super Arcade Racing](#super-arcade-racing) · [APEX Racer](#apex-racer)
+5. Vuelo y esquivar: [Simulador de vuelo 3D](#simulador-de-vuelo-3d) · [Missiles!](#missiles) · [1945 Air Force](#1945-air-force)
+6. Trenes y logística: [Tiny Rails](#tiny-rails) · Infinity Games: [Railways](#railways) · [Traffix](#traffix) · [Package Inc](#package-inc) · [Infinity Loop](#infinity-loop) · [Laser](#laser) · [Laberinto](#laberinto)
+7. Paisaje, calma y construcción: [Grand Mountain Adventure](#grand-mountain-adventure) · [Alto's Odyssey](#altos-odyssey) · [Townscaper](#townscaper) · [Town Brush](#town-brush) · [CityRT](#cityrt)
+8. Arte y reels: [Josh White](#josh-white-joshwhite_artist) · [Holstin](#holstin-reel-1) · [Prototipo de carreras cinematográfico](#prototipo-de-carreras-cinematográfico-reel-2) · [Cairn](#cairn-reel-3) · [Conducción realista con gráficos simples](#conducción-realista-con-gráficos-simples-reel-4)
+9. [Referencias propias del autor](#referencias-propias-del-autor) · [Síntesis transversal y 10 pilares](#síntesis-transversal)
+
+### Tabla resumen
+| Juego | Gráficos | Cámara | Mecánica clave | Dónde aplica en El Metro |
+|---|---|---|---|---|
+| GTA 1 | 2D cenital con edificios en bloque 3D | Cenital, zoom según velocidad | Ciudad abierta, misiones por teléfono, puntaje que abre zonas | Ciudad Libre: cámara y desbloqueo por puntos |
+| GTA 2 | Igual + luces nocturnas | Cenital con zoom | Respeto por bandas, trenes y buses usables | Reputación por comuna, transporte usable |
+| GTA London | Cenital, ambientación de época | Cenital | Identidad local: vehículos, jerga, radio | Medellín 1995, parlache, radio |
+| GTA Chinatown Wars | 3D con contorno de cómic | Cenital inclinada que gira con el vehículo | Mini‑interacciones táctiles, GPS | Validar Cívica, agujas, GPS en la vía |
+| Reckless Getaway 1–2 | 3D caricatura con física de choques | Cenital/isométrica que sigue al carro | Escapar en niveles cortos, recoger botín, desbloquear carros | Eventos de evasión con obstáculos y física divertida |
+| Need for Speed | 3D realista nocturno/neón | Persecución con FOV dinámico | Sensación de velocidad, personalización | Viaducto nocturno, decoraciones de fiesta |
+| Forza Horizon | 3D realista luminoso | Persecución, capó, fotos | Festival, estaciones del año, cadenas de habilidad | Feria de las Flores como festival‑hub |
+| FR Legends | 3D caricatura (cabezones) | Persecución baja | Derrape juzgado por zonas, editor de livery | Editor de decoración de buses, zonas de parada |
+| #DRIVE | Low‑poly retro | Persecución fija | Manejo infinito relajado, colección | Paseo nocturno sin metas |
+| PAKO Forever | Low‑poly pastel | Cenital/isométrica | Persecución corta en arena | Eventos relámpago de 2–3 min |
+| Super Arcade Racing | Pixel art 16 bits | Cenital | Dos botones, niveles con estrellas, garaje | Modo niños de dos botones |
+| APEX Racer | Pixel + toques 3D | Persecución | Afinar partes, crucero con otros | Mejoras del bus, crucero en red |
+| Simulador de vuelo 3D | Low‑poly | Cabina y externa | Misiones de transporte | Vista aérea del valle, dron |
+| Missiles! | Plano minimalista | Cenital fija | Esquivar perseguidores, estrellas | Evento “Dron de los Alumbrados” |
+| 1945 Air Force | 2D/3D shmup vertical | Cenital vertical | Patrones, mejoras, jefes | Retos del cable con desplazamiento vertical |
+| Tiny Rails | Pixel art lateral | Lateral con paralaje | Pasajeros con historias, vagones mejorables | Panorámica, pasajeros con historia |
+| Railways | Plano minimalista | Cenital | Cambiar agujas por colores | Despacho en el Puesto de Control |
+| Traffix | Plano/3D minimalista | Cenital | Semáforos para evitar choques | Agente de tránsito en hora pico |
+| Package Inc | Isométrico minimalista | Isométrica | Bandas y desvíos de paquetes | Encomiendas y despacho de alimentadores |
+| Infinity Loop | Línea mínima | Cenital fija | Girar piezas para cerrar circuitos | Conectar la red (La Red) |
+| Laser | Neón sobre oscuro | Cenital fija | Desviar luz con espejos | Puzle de Alumbrados |
+| Laberinto: Infinito y sencillo | Mínimo | Cenital fija | Encontrar la salida | Orientarse dentro de estaciones |
+| Grand Mountain Adventure | Low‑poly isométrico | Inclinada, efecto maqueta | Muchos retos sueltos en un mundo abierto, telesillas | Cables como conectores, retos marcados |
+| Alto's Odyssey | Siluetas 2D por capas | Lateral | Infinito, metas de 3 en 3, modo zen y foto | Panorámica del metro, modo zen |
+| Townscaper | 3D de juguete | Orbital libre | Construir tocando, sin metas | “Pinta tu barrio” en las laderas |
+| Town Brush | Pixel art denso 3/4 | Cenital 3/4 | Pintar un pueblo acogedor | Densidad del mapa cenital, lluvia |
+| CityRT | Constructor de ciudades en el navegador | (sin verificar) | Construir, presupuesto, jugar con amigos | La Red cooperativa |
+| Josh White | Arte digital surreal 3D | Cinematográfica | (arte) túneles de neón | Pantalla de título, noche, música |
+| Holstin | Pixel art isométrico con luz 3D | Isométrica → sobre el hombro | Exploración con cambio de cámara | Interiores de estación |
+| Carreras cinematográficas | 3D cinematográfico | Cámaras de repetición | Carreras | Repeticiones de llegada |
+| Cairn | Ilustración estilizada | Tercera persona libre | Escalar con física | Verticalidad de las comunas |
+| Conducción realista simple | Gráficos simples | Persecución | Física de suspensión y peso | Física del bus |
+
+---
+
+### GTA 1
+**1997 · DMA Design (hoy Rockstar North) · PC, PlayStation, Game Boy Color** · [Wikipedia](https://es.wikipedia.org/wiki/Grand_Theft_Auto_(videojuego))
+- **Gráficos y estética:** ciudad vista desde arriba con calles y personajes en sprites 2D, y edificios como bloques 3D texturizados, de modo que las fachadas se “inclinan” hacia afuera al moverse. Texturas sucias, urbanas, de los 90.
+- **Paleta (aprox.):** asfalto `#4a4a4a`, acera `#7a7a6e`, muro `#9b8f7a`, parque `#3c5a2e`, carro rojo `#c23b22`, azul `#2f4f8f`, taxi `#e3c74a`.
+- **Cámara:** cenital; **se aleja cuando el carro acelera** y se acerca al caminar. El norte siempre queda arriba.
+- **Interfaz y funciones:** puntaje con multiplicador, vidas, flecha que apunta al objetivo, misiones que llegan por teléfonos públicos y buscapersonas, radio en cada vehículo.
+- **Mecánicas:** tres ciudades abiertas; cada ciudad se gana al llegar a un puntaje; misiones encadenadas; tráfico y peatones que reaccionan.
+- **Para El Metro:** zoom según la velocidad (ya está en Ciudad Libre); los puntos/pasajes abren barrios o líneas; un “teléfono” equivalente (puntos de atención Cívica, la radio del bus) para recibir encargos; una radio distinta en cada vehículo.
+
+### GTA 2
+**1999 · DMA Design / Rockstar · PC, PlayStation, Dreamcast** · [Wikipedia](https://es.wikipedia.org/wiki/Grand_Theft_Auto_2)
+- **Gráficos y estética:** el mismo motor cenital con mejores texturas e **iluminación de noche**: faros, ventanas y letreros encendidos. Ciudad retrofuturista.
+- **Paleta (aprox.):** noche `#2b2d42`, concreto `#8d99ae`, neón rojo `#ef233c`, ámbar `#fca311`, azul eléctrico `#3a86ff`.
+- **Cámara:** cenital con zoom dinámico, más suave que en GTA 1.
+- **Interfaz y funciones:** medidor de **respeto** con tres bandas, teléfonos de misión por zona, guardado en puntos fijos.
+- **Mecánicas:** las acciones con un grupo cambian cómo te trata el otro; distritos con identidad propia; **trenes y buses** que se pueden usar.
+- **Para El Metro:** “confianza” por comuna (ayudar en un barrio abre misiones allá), noches con luces de ventanas y avisos (ya iniciado), transporte usable como pieza central (ya existe en Ciudad Libre).
+
+### GTA London 1969 / 1961
+**1999 · Rockstar · PC, PlayStation (expansiones de GTA 1)** · [Wikipedia](https://es.wikipedia.org/wiki/Grand_Theft_Auto:_London_1969)
+- **Gráficos y estética:** el motor de GTA 1 con **ambientación de época**: buses rojos de dos pisos, taxis negros, conducción por la izquierda, música y jerga británicas de los 60.
+- **Paleta (aprox.):** bus rojo `#b51f24`, taxi `#1d1d1d`, piedra `#c9b28f`, parque `#52653b`, crema `#e6d27a`.
+- **Cámara e interfaz:** como GTA 1.
+- **Mecánicas:** las de GTA 1; la novedad es la **identidad local**: los vehículos, la jerga y la radio hacen la ciudad.
+- **Para El Metro:** la ciudad se reconoce por sus vehículos (busetas, chivas, Metroplús, taxis amarillos), su habla (parlache para todo público) y su música; capítulo o modo **“Medellín 1995”** con estética de la época del primer tren.
+
+### GTA Chinatown Wars
+**2009 · Rockstar Leeds / Rockstar North · Nintendo DS, PSP, iOS, Android** · [Wikipedia](https://es.wikipedia.org/wiki/Grand_Theft_Auto:_Chinatown_Wars)
+- **Gráficos y estética:** 3D cenital con **contornos negros tipo cómic** (cel‑shading), colores planos y saturados, interfaz de “agenda” (PDA).
+- **Paleta (aprox.):** `#f2c14e`, `#e4572e`, `#29335c`, `#76b041`, `#17bebb`, contorno `#111111`.
+- **Cámara:** cenital inclinada que **gira para seguir el rumbo del vehículo**, con zoom.
+- **Interfaz y funciones:** mapa con **ruta GPS dibujada sobre las calles**, minijuegos táctiles cortos (abrir, conectar, rascar) dentro de la acción, correo y misiones en la agenda.
+- **Mecánicas:** mundo abierto compacto; las interacciones táctiles dan textura física a acciones cotidianas.
+- **Para El Metro:** acciones táctiles de un segundo en vez de minijuegos aparte: pasar la Cívica por el torniquete, girar la llave de la cabina, tocar el timbre de la buseta, mover una aguja; ruta del bus pintada en la calle; contorno oscuro en sprites para leerlos en pantallas pequeñas.
+
+### Reckless Getaway 1 y 2
+**Pixelbite (Suecia), publicado por Miniclip · Android, iOS** · en la Play Store: [Reckless Getaway 2](https://play.google.com/store/apps/details?id=com.pixelbite.ga2) (más de 50 millones de descargas, 4,5 ★, apto para todo público con “violencia de fantasía leve”)
+> El primer *Reckless Getaway* ya no aparece en la Play Store; queda la secuela.
+- **Gráficos y estética:** 3D de caricatura con colores vivos, ciudades de juguete y **física de choques exagerada**: carros que saltan, vallas que vuelan, tráfico que se amontona. *(estilo descrito de memoria; confirmar con capturas)*
+- **Paleta (aprox.):** asfalto `#3a3d44`, verde ciudad `#7cb342`, rojo patrulla `#e53935`, azul `#1e88e5`, amarillo botín `#fdd835`.
+- **Cámara:** cenital/isométrica alta que sigue al carro y se aleja con la velocidad.
+- **Interfaz y funciones:** controles táctiles simples, monedas o botín por recoger, garaje con carros desbloqueables, niveles con estrellas.
+- **Mecánicas:** escapar dentro de **niveles cortos**, esquivar tráfico y obstáculos, recoger botín, desbloquear carros. El lema de la tienda: “¡Esquiva el calor y no te mueras!”.
+- **Para El Metro:** sin persecuciones policiales. Se toman los **eventos de evasión cortos** con física divertida y legible: llegar a la estación esquivando el **trancón** de hora pico o las calles inundadas por un aguacero (junto con PAKO Forever). También la cámara alta que se aleja con la velocidad y un garaje de vehículos desbloqueables.
+
+### Need for Speed
+**Saga desde 1994 · EA (Black Box, Criterion, Ghost Games) · consolas, PC, móvil** · [Wikipedia](https://es.wikipedia.org/wiki/Need_for_Speed)
+> De mundo abierto destacan *Underground 2* (2004), *Most Wanted* (2005) y *Heat* (2019).
+- **Gráficos y estética:** 3D realista; *Underground* con ciudad nocturna, neón y asfalto mojado; *Most Wanted* con filtro cálido de tarde; *Heat* con contraste día/noche.
+- **Paleta (aprox., noche neón):** `#0d0d1a`, `#1f1f3a`, cian `#00e5ff`, magenta `#ff2e88`, ámbar `#ffd166`.
+- **Cámara:** persecución con retraso elástico, **campo de visión que se abre con la velocidad**, sacudidas, desenfoque de movimiento; cámaras de capó y de defensa.
+- **Interfaz y funciones:** velocímetro grande, minimapa con ruta, garaje de personalización (pintura, vinilos, rines).
+- **Mecánicas:** carreras, eventos de día y de noche, progresión por reputación, personalización.
+- **Para El Metro:** sensación de velocidad en el viaducto (FOV, líneas de velocidad, vibración leve en la cabina); noches de **Alumbrados** con reflejos en el piso mojado; **decoraciones de fiesta** para buses y trenes (vinilos temáticos), nunca carreras ilegales.
+
+### Forza Horizon
+**Saga desde 2012 · Playground Games / Xbox Game Studios · Xbox, PC** · [Wikipedia](https://es.wikipedia.org/wiki/Forza_Horizon)
+- **Gráficos y estética:** 3D fotorrealista luminoso, cielos dramáticos, **estaciones del año** que cambian el mapa, ambiente de **festival** con carpas, música y escenarios.
+- **Paleta (aprox.):** naranja festival `#f5a623`, rosa `#e94e77`, turquesa `#2bb3c0`, verde campo `#6ab04c`, asfalto `#2d3436`.
+- **Cámara:** persecución, capó, cabina, **modo foto** y dron.
+- **Interfaz y funciones:** mapa lleno de eventos, **cadenas de habilidad** (derrapes, casi choques, saltos) que suman puntos si no chocas, carreteras por descubrir, radios temáticas, “autos olvidados” escondidos.
+- **Mecánicas:** el festival es el centro; todo da progreso; temporadas semanales.
+- **Para El Metro:** **la Feria de las Flores como festival‑hub** de agosto, con eventos repartidos por la ciudad; cadenas de “Cultura Metro” (frenar suave, parar exacto, ceder el paso) que se rompen con un choque; **postales escondidas** como los autos olvidados (ya existen); temporadas de lluvia y sequía.
+
+### FR Legends
+**2018 · Feng Li / TWIN TURBO TECH · iOS, Android** · [App Store](https://apps.apple.com/us/app/fr-legends/id1435740083) *(enlace sin verificar)*
+- **Gráficos y estética:** 3D caricaturesco: carros detallados y **pilotos cabezones**, pistas sencillas, mucho humo.
+- **Paleta (aprox.):** naranja `#ff6b35`, durazno `#f7c59f`, turquesa `#2ec4b6`, azul noche `#011627`, rojo `#e71d36`.
+- **Cámara:** persecución baja detrás del carro y cámara de jueces en la repetición.
+- **Interfaz y funciones:** controles táctiles (volante, acelerador, freno de mano), **editor de livery** (calcomanías, colores), garaje.
+- **Mecánicas:** derrape **juzgado por línea, ángulo y estilo**, con **zonas de toque** marcadas; duelos en tándem.
+- **Para El Metro:** el **editor de decoración** (buses, cabinas de cable, tranvía con motivos de fiesta); **zonas marcadas que se califican** (la marca de parada del bus y del tren como “zona de toque”: más puntos cuanto más exacto); personajes expresivos y simpáticos.
+
+### #DRIVE
+**2019 · Pixel Perfect Dude S.A. · iOS, Android (Play Store: “#DRIVE”, 4,6 ★), PC, Switch** · [Steam](https://store.steampowered.com/app/1253140/DRIVE/) *(enlace sin verificar)*
+- **Gráficos y estética:** low‑poly retro, carreteras infinitas, atardeceres, ambiente ochentero de casete.
+- **Paleta (aprox.):** `#1b1b3a`, coral `#ff6f61`, amarillo `#ffcc5c`, menta `#88d8b0`, violeta `#6a4c93`.
+- **Cámara:** persecución fija detrás del carro, horizonte amplio.
+- **Interfaz y funciones:** controles de un dedo, colección de carros, música retro.
+- **Mecánicas:** manejar sin fin esquivando tráfico; progreso por distancia y colección.
+- **Para El Metro:** un **“Paseo”** sin metas (ya existe el modo paseo del metro): de noche por la Autopista o subiendo a Las Palmas, con música sintetizada; colección de vehículos y colores desbloqueables.
+
+### PAKO Forever
+**2019 · Tree Men Games · iOS, Android (Play Store: “PAKO para siempre”), PC, Switch** · [Steam](https://store.steampowered.com/app/1003700/PAKO_Forever/) *(enlace sin verificar)*
+- **Gráficos y estética:** low‑poly con colores pastel, mapas pequeños tipo diorama, siluetas muy legibles.
+- **Paleta (aprox.):** `#f4a259`, `#5b8e7d`, `#bc4b51`, `#8cb369`, `#f4e285`.
+- **Cámara:** cenital/isométrica que sigue al carro dentro de una arena.
+- **Interfaz y funciones:** partidas de un toque, metas por mapa, desbloqueo de carros.
+- **Mecánicas:** sobrevivir y cumplir objetivos mientras te persiguen; partidas de 1–3 minutos.
+- **Para El Metro:** **eventos relámpago** en la ciudad (2–3 min, para todo público): “llega antes del aguacero”, “lleva el tinto caliente”, “recoge a los pasajeros antes de que cierre la estación”; mapas acotados dentro del mismo mundo.
+
+### Super Arcade Racing
+**2019 · OutOfTheBit Ltd (Reino Unido) · iOS, Android (Play Store: “Super Arcade Racing”), Steam** · [Steam](https://store.steampowered.com/app/1103770) · [Pocket Gamer](https://www.pocketgamer.com/super-arcade-racing/five-reasons-to-play-super-arcade-racing-from-outofthebit-studio/)
+- **Gráficos y estética:** **pixel art de 16 bits** cenital, pistas coloridas, guiño a las carreras arcade de los 80–90.
+- **Paleta (aprox.):** pasto `#3e8948`, verde claro `#6abe30`, amarillo `#fbf236`, rojo `#ac3232`, azul `#5b6ee1`, sombra `#222034`.
+- **Cámara:** cenital que sigue al carro.
+- **Interfaz y funciones:** en móvil, **solo dos botones** (acelerar y frenar); garaje de mejoras pagado con premios; duelos de 2 jugadores.
+- **Mecánicas:** más de 80 niveles cortos con historia (rescatar al hermano), mejoras del único carro.
+- **Para El Metro:** **modo niños de dos botones** en el bus y el taxi (el asistente de carril ya gira solo); niveles cortos con estrellas; mejoras del vehículo con pasajes.
+
+### APEX Racer
+**En Android: “APEX Racer - Pixel Cars”, de PIXELDEV GAMES** (en el App Store aparece publicado por G63 Holdings) · [App Store](https://apps.apple.com/us/app/apex-racer/id1668705222)
+- **Gráficos y estética:** estilo **pixel con toques 3D modernos**: carros retro con iluminación actual.
+- **Paleta (aprox.):** `#2b2d42`, rosa `#ef476f`, amarillo `#ffd166`, menta `#06d6a0`, azul `#118ab2`.
+- **Cámara:** persecución en autopista.
+- **Interfaz y funciones:** cientos de piezas para armar el carro, tablas de clasificación.
+- **Mecánicas:** afinar, competir y **pasear por autopistas con otros jugadores**.
+- **Para El Metro:** confirma el **híbrido pixel + 3D** del juego; mejoras visibles del bus (aire, suspensión, luces); paseo en red por la Autopista con amigos (modo Juntos).
+
+### Simulador de vuelo 3D
+**“Simulador de Vuelo 3D”, de Wildlife Studios en la Play Store** (paquete `com.fungames.flightpilot`; en inglés se conoce como *Flight Pilot Simulator 3D*) · [Play Store](https://play.google.com/store/apps/details?id=com.fungames.flightpilot)
+- **Gráficos y estética:** 3D low‑poly limpio, cielos amplios, terreno con ciudades y montañas.
+- **Paleta (aprox.):** cielo `#6fb7e8`, nubes `#f2f6fa`, montaña `#5e7d4f`, tierra `#b9a27a`, avión `#d64545`.
+- **Cámara:** externa de persecución, **cabina**, cinemática y torre.
+- **Interfaz y funciones:** acelerador deslizante, inclinación del celular, mapa de misiones.
+- **Mecánicas:** despegar, cumplir misiones de transporte o rescate y aterrizar con puntaje.
+- **Para El Metro:** vistas aéreas del valle (cable, dron en Alumbrados), **varias cámaras con una de cabina**, controles por inclinación opcionales (ya existen en Al volante).
+
+### Missiles!
+**2015 · Macaque (Polonia) · iOS, Android** · en la Play Store como **“Misiles!”** (paquete `pl.macaque.Missiles`) · [MobileSyrup](https://mobilesyrup.com/2018/03/11/missiles-reminder-simple-games-can-still-fun-game-week/)
+- **Gráficos y estética:** **minimalismo plano**: un avioncito rojo de hélice, cielo en degradé, estelas blancas.
+- **Paleta (aprox.):** cielo `#87ceeb`, nube `#ffffff`, avión `#e63946`, crema `#f1faee`, azul `#1d3557`.
+- **Cámara:** cenital fija centrada en el avión.
+- **Interfaz y funciones:** un dedo para girar; estrellas que se recogen; aviones desbloqueables.
+- **Mecánicas:** sobrevivir lo más posible mientras te persiguen misiles que puedes hacer chocar entre sí.
+- **Para El Metro:** evento de temporada **“Dron de los Alumbrados”**: volar sobre el río recogiendo estrellas de luz y esquivando **pólvora** (con mensaje de cuidado: la pólvora quema); controles de un dedo.
+
+### 1945 Air Force
+**OneSoft · iOS, Android** · [App Store](https://apps.apple.com/us/app/1945-air-force-airplane-games/id1204384567) *(enlace sin verificar)*
+- **Gráficos y estética:** shoot’em up vertical con aviones de la Segunda Guerra, mar y costas, efectos brillantes.
+- **Paleta (aprox.):** mar `#0a3d62`, `#3c6382`, explosión `#e58e26`, rojo `#b71540`, arena `#f8c291`.
+- **Cámara:** cenital con desplazamiento vertical constante.
+- **Interfaz y funciones:** mejoras de avión, tarjetas, misiones diarias.
+- **Mecánicas:** esquivar patrones, recoger potenciadores, jefes de fin de nivel.
+- **Para El Metro:** sin combate. Se toma el **desplazamiento vertical legible** para retos del Metrocable: al subir, recoger flores o estrellas y esquivar ráfagas de viento o gallinazos; también misiones diarias (ya existen).
+
+### Tiny Rails
+**2017 · Tiny Titan Studios · iOS, Android** · [Sitio](https://www.tinyrails.com) *(enlace sin verificar)*
+- **Gráficos y estética:** **pixel art lateral** de un tren que cruza paisajes del mundo, paralaje, monumentos, interiores cálidos.
+- **Paleta (aprox.):** `#f2cc8f`, `#e07a5f`, `#3d405b`, `#81b29a`, `#f4f1de`.
+- **Cámara:** lateral con paralaje; zoom al interior de los vagones.
+- **Interfaz y funciones:** pasajeros que suben con destino y propina, vagones (comedor, dormitorio), mejoras.
+- **Mecánicas:** viajar, atender pasajeros con historias y misiones encadenadas, mejorar el tren.
+- **Para El Metro:** **pasajeros con historia** en la panorámica (el abuelo que va a la feria, la estudiante de la UdeA); **ver el interior del tren** al parar (corte en vista lateral); vagones o cabinas temáticas en fiestas; monumentos reales a lo largo de la línea.
+
+### Railways
+**Infinity Games, Lda (Portugal) · iOS, Android** · Play Store: **“Railways - Simulador de tren”** · [Infinity Games en App Store](https://apps.apple.com/us/developer/-/id1088875165)
+- **Gráficos y estética:** puzle **minimalista plano**: vías, trenes y estaciones de colores sobre fondo claro.
+- **Paleta (aprox.):** fondo `#f5f1e8`, vía `#5d5d5d`, rojo `#e94f37`, azul `#3f88c5`, amarillo `#f6ae2d`, verde `#44bba4`.
+- **Cámara:** cenital fija.
+- **Interfaz y funciones:** tocar las agujas para cambiarlas.
+- **Mecánicas:** cada tren debe llegar a la estación de su color; la dificultad sube con más trenes y cruces.
+- **Para El Metro:** el **Puesto de Control** como momento de la historia (agujas por colores de línea); código de color de las líneas en todo el juego.
+
+### Traffix
+**Infinity Games · iOS, Android, Mac (también Traffix 3D)** · Play Store: **“Traffix: Simulador de Tráfico”** · [App Store](https://apps.apple.com/us/app/-/id1483904390)
+- **Gráficos y estética:** cruces de ciudades reales en estilo **minimalista**; la versión 3D tiene carros de juguete.
+- **Paleta (aprox.):** asfalto `#2d3436`, `#636e72`, verde semáforo `#00b894`, amarillo `#fdcb6e`, rojo `#d63031`, azul `#0984e3`.
+- **Cámara:** cenital fija sobre la intersección.
+- **Interfaz y funciones:** tocar semáforos y barreras.
+- **Mecánicas:** dejar pasar el tráfico sin choques; cuenta de vehículos.
+- **Para El Metro:** el autor lo ve perfecto para Metroplús. Ya existe el puzle Arcade; el siguiente paso es llevarlo **al mundo**: en hora pico, como agente de tránsito, das prioridad al articulado en cruces reales de la avenida.
+
+### Package Inc
+**Infinity Games · iOS, Android** · Play Store: **“Package Inc Juegos de gestión”**
+- **Gráficos y estética:** isométrico minimalista con bandas transportadoras y camiones.
+- **Paleta (aprox.):** `#f7f7f2`, `#4f5d75`, `#ef8354`, `#2d3142`, `#bfc0c0`.
+- **Cámara:** isométrica fija.
+- **Interfaz y funciones:** tocar desvíos.
+- **Mecánicas:** llevar cada paquete al camión de su color; las rutas se saturan.
+- **Para El Metro:** red de **encomiendas** en Ciudad Libre y despacho de alimentadores en hora pico (los buses como “paquetes” que salen al barrio correcto).
+
+### Infinity Loop
+**Infinity Games · iOS, Android** · Play Store: **“Infinity Loop: Calma y Relája”** · [App Store](https://apps.apple.com/us/app/-/id977028266)
+- **Gráficos y estética:** líneas blancas sobre fondo oscuro (o al revés), animaciones suaves, sonido ambiental.
+- **Paleta (aprox.):** `#1e1e24`, `#fbfef9`, `#92dce5`, `#f8a1d1`.
+- **Cámara:** fija.
+- **Interfaz y funciones:** tocar para girar piezas; sin tiempo ni vidas.
+- **Mecánicas:** cerrar todos los circuitos; niveles infinitos; modo oscuro alterno.
+- **Para El Metro:** calma y claridad en la interfaz; un modo de **“conectar la red”** en La Red (unir estaciones con piezas de vía y cable) como pausa relajada.
+
+### Laser
+**Infinity Games · Android, iOS** · Play Store: **“Laser: Relajante y Placentero”** (el estudio también tiene **“Laser Quest”**)
+- **Gráficos y estética:** rayos de luz neón sobre fondo oscuro, piezas limpias, animaciones suaves.
+- **Paleta (aprox.):** `#0b0f1a`, `#00f5d4`, `#f15bb5`, `#fee440`.
+- **Cámara:** fija.
+- **Mecánicas:** girar o mover espejos y piezas para que la luz llegue a su destino; sin prisa.
+- **Para El Metro:** puzle de temporada **“Enciende los Alumbrados”**: llevar la energía a las figuras de luz del río (diciembre), dentro del mundo y no como menú aparte.
+
+### Laberinto
+**Infinity Games · Android, iOS** · Play Store: **“Laberinto: Infinito y sencillo”**
+- **Gráficos y estética:** laberintos de líneas limpias con transiciones suaves.
+- **Mecánicas:** deslizar para salir; niveles infinitos y crecientes.
+- **Para El Metro:** **orientarse dentro de las estaciones** (torniquetes, escaleras, andén correcto) para niños; señalética clara.
+
+### Grand Mountain Adventure
+**2021 · Toppluva AB (Suecia) · iOS, Android, PC, Switch** (secuela *Wonderlands*, 2023) · [Sitio](https://www.toppluva.com) *(enlace sin verificar)*
+- **Gráficos y estética:** 3D low‑poly limpio con **efecto maqueta**: montañas nevadas, pinos, cabañas, decenas de esquiadores que hacen su vida.
+- **Paleta (aprox.):** nieve `#f5f9ff`, sombra `#a8c6e0`, montaña `#3d5a80`, naranja `#ee6c4d`, pino `#293241`.
+- **Cámara:** inclinada, sigue al jugador con suavidad; zoom para ver la montaña completa.
+- **Interfaz y funciones:** mapa de la estación, **telesillas y góndolas que se usan para moverse**, retos marcados.
+- **Mecánicas:** mundo abierto con **muchos retos pequeños repartidos** (carreras, saltos, eslalon, buscar objetos), NPC con sus propios retos, clima y noche.
+- **Para El Metro:** **los Metrocables como conectores** del mundo (ya se pueden abordar); retos pequeños marcados en el mapa (una parada perfecta, una postal, un pasajero perdido); NPC que te retan; vista de maqueta del valle.
+
+### Alto's Odyssey
+**2018 · Snowman (y Team Alto) · iOS, Android, PC, consolas** · [Sitio](https://altosodyssey.com) *(enlace sin verificar)*
+- **Gráficos y estética:** **siluetas 2D por capas** con perspectiva atmosférica, **degradados de cielo por hora**, clima (tormentas de arena, lluvia), luz dinámica, minimalismo elegante.
+- **Paleta (aprox.):** día `#f6bd60` `#f28482` `#84a59d` `#3d405b`, arena `#f7ede2`, noche `#1b263b`.
+- **Cámara:** lateral que se aleja en saltos largos y se acerca en trucos.
+- **Interfaz y funciones:** casi sin HUD, **metas de 3 en 3** por nivel, **modo zen** sin puntaje y **modo foto**.
+- **Mecánicas:** infinito de un toque, combos de trucos, rutas alternas.
+- **Para El Metro:** la **panorámica del metro y del cable** (ya existe, con laderas de barrios); metas de 3 en 3 por tramo; **modo zen** (viajar sin puntaje mirando la ciudad); tormentas y lluvia con transición.
+
+### Townscaper
+**2020 · Oskar Stålberg / Raw Fury · PC, consolas, móvil** · [Steam](https://store.steampowered.com/app/1291340/Townscaper/)
+- **Gráficos y estética:** 3D de juguete: casas de colores que se **ensamblan solas** (arcos, escaleras, tejados) según lo que pones; agua, gaviotas, ropa colgada.
+- **Paleta (aprox.):** `#e8d5b5`, `#f2a65a`, `#e9724c`, `#5aa9e6`, `#7fc8f8`, `#ffe45e`.
+- **Cámara:** orbital libre, acercamiento suave.
+- **Interfaz y funciones:** un clic pone o quita un bloque; selector de color.
+- **Mecánicas:** sin metas; el placer está en construir y en que todo “encaje” (colapso de función de onda).
+- **Para El Metro:** modo creativo **“Pinta tu barrio”**: casas en ladera que se adaptan a la pendiente, escaleras y terrazas que aparecen solas, colores de fachadas; la ciudad responde con vida (gente, perros, ropa al sol).
+
+### Town Brush
+*(sin verificar: proyecto visto en Instagram @townbrush, “the cozy…”; **no aparece en la Play Store** ni en otras tiendas, posiblemente aún en desarrollo)*
+- **Gráficos y estética:** según la imagen que compartió el autor: **pixel art denso en 3/4**, río con orillas suaves, árboles en masas, tejados de teja, torre, lluvia fina animada, luz difusa.
+- **Paleta (aprox., de la imagen):** río `#4f7f8f`, pasto `#5f8f4a`, árbol oscuro `#2f5a3a`, teja `#b5573b`, muro `#d9cdb5`, lluvia `#cfe3ea`.
+- **Cámara:** cenital 3/4 (se ven techos y algo de fachada).
+- **Mecánicas:** al parecer, pintar o armar un pueblo acogedor.
+- **Para El Metro:** **meta visual del mapa cenital**: densidad de árboles, orillas del río Medellín, tejados de barro de los barrios, lluvia animada (ya existe) y luz suave.
+
+### CityRT
+**cityrt.com · navegador** · [Sitio](https://cityrt.com/es/)
+- **Qué es:** constructor de ciudades en el navegador, gratis y sin instalar: **calles, barrios, escuelas, hospitales y presupuesto**, en solitario o **en línea con amigos**; tiene catálogo de edificios y “estilos”. *(Estilo visual y cámara sin verificar.)*
+- **Para El Metro:** **La Red** como gestión cooperativa (construir líneas y estaciones con presupuesto, en local con amigos); catálogo de estilos de estación.
+
+### Josh White (@joshwhite_artist)
+**Artista digital (video de Instagram que compartió el autor)**
+- **Estética:** arte 3D surreal: **túneles de neón cian** con muros de cobre oxidado, figuras etéreas sobre negro, objetos cromados; música synthwave (“Escaping the Void”, Timecop1983).
+- **Paleta (aprox.):** cian `#00e6d2`, verde abismo `#0b3d3a`, cobre `#b5532d`, café `#2a1a12`, marfil `#f3e9c6`, negro `#0a0a0a`.
+- **Cámara:** recorridos cinematográficos hacia el fondo de un túnel.
+- **Para El Metro:** atmósfera de la **pantalla de título** y de la noche (entrada a un viaducto iluminado, tránsito de estaciones como túnel de luz), música sintetizada en la radio nocturna, encuadres cinematográficos.
+
+### Holstin (reel 1)
+**Sonka · PC, PS4/PS5, Xbox, Switch** (reel de @indie.gamesdaily)
+- **Estética:** **pixel art en perspectiva isométrica con iluminación 3D** y atmósfera de pueblo polaco de los 90; terror psicológico (solo tomamos la técnica visual, no el tema).
+- **Cámara:** **isométrica para explorar**, que pasa a **cámara sobre el hombro** en momentos de acción.
+- **Para El Metro:** **interiores de estación** en isométrico pixelado con luz dinámica (torniquetes, escaleras, andenes); transición de cámara de lo general a lo cercano, como ya pasa entre la panorámica y la cabina.
+
+### Prototipo de carreras cinematográfico (reel 2)
+**@mamon.xx (Anton Mamonenko) · prototipo #cinematic #racing #gamedev** *(nombre y plataforma sin verificar)*
+- **Estética:** carreras con **cámaras de cine**: planos bajos, desenfoque, luz dramática.
+- **Para El Metro:** **repeticiones cinematográficas** al llegar a una estación o terminar una ruta (cámara baja junto a la vía, paneo del articulado entrando a la plataforma), modo foto.
+
+### Cairn (reel 3)
+**The Game Bakers · PC, PlayStation** (reel patrocinado de @elreagamingok)
+- **Estética:** ilustración estilizada de formas limpias y color plano con influencia de cómic; montaña vertical.
+- **Mecánicas:** escalada con **física realista**: cada mano y pie se apoya, con resistencia y supervivencia.
+- **Para El Metro:** la **verticalidad de las comunas** (subir a pie las escaleras de la Comuna 13 o una loma de Santo Domingo con barra de aliento, como alternativa al cable); estilo ilustrado para retratos y arte clave.
+
+### Conducción realista con gráficos simples (reel 4)
+**Publicado por @apknoo.es; el juego no se nombra** *(sin verificar)*
+- **Estética:** gráficos sencillos (buggy y carro) con **física convincente**: suspensión, peso, derrapes.
+- **Para El Metro:** priorizar **cómo se siente** el bus sobre los polígonos: inclinación de la carrocería en curvas, cabeceo al frenar, rebote en los resaltos, en sprites cenitales (desplazar y escalar la sombra) y en la cámara.
+
+### Referencias propias del autor
+- **Juega EnCicla** (juego del autor): el **mapa real** de Medellín (casillas de 20 m, OSM + relieve) y el espíritu GTA de recorrer la ciudad en bici. Es la base del mapa de El Metro.
+- **Industry Art** (juego HTML del autor): **dinamismo de sistema**: temas de color, modo daltonismo, misiones del día, logros, noticias y **fechas reales** que cambian el juego.
+- **Revista “Evolución Musical” (EMSAY):** estética **editorial** para la interfaz: papel crema, tinta azul, tipografías condensadas grandes, bloques de color, retícula limpia. No se trata de hacer una revista, sino de llevar su orden a menús y botones.
+- **Página de símbolos** (internetpasoapaso.com/simbolos): repertorio de signos tipográficos para íconos de texto (★ ▶ ● ⏩ ✓ 🎫) que se ven igual en cualquier celular.
+
+---
+
+### Síntesis transversal
+**Cámaras que funcionan juntas:** cenital con zoom según la velocidad (GTA 1/2) + inclinada que gira con el vehículo al manejar (Chinatown Wars) + lateral por capas para el viaje (Alto, Tiny Rails) + cabina en primera persona (simuladores) + cámara de cine para llegadas y fotos (Forza, reel 2). Cada módulo tiene su cámara “natural” y el cambio entre ellas es un premio visual.
+
+**Paletas:** los juegos más memorables usan **pocas familias de color con un acento**: la ciudad en tonos de tierra y concreto, y el acento en los colores de las líneas del Metro. De noche, el neón y los Alumbrados (NFS, Josh White); de día, degradados limpios (Alto) y pasteles de barrio (Townscaper, PAKO).
+
+**Sensación de velocidad sin violencia:** FOV que se abre, líneas de viento, vibración, sonido del motor y frenado suave premiado (NFS, Forza, FR Legends). En El Metro la habilidad es **manejar bien**: suave, puntual, preciso.
+
+**Mundo vivo:** NPC con rutina (Grand Mountain), pasajeros con historia (Tiny Rails), reacciones a tus acciones (GTA 2), estaciones del año y festivales (Forza), clima con transición (Alto).
+
+**Progresión:** puntos que abren zonas (GTA 1), metas de 3 en 3 (Alto), cadenas de habilidad (Forza), mejoras visibles (APEX, Super Arcade Racing), decoración y livery (FR Legends, NFS), colección de postales y vehículos.
+
+#### 10 pilares para un mundo abierto + arcade sobre Medellín
+1. **Un solo mapa real** (el valle de EnCicla) donde todo ocurre: la historia, los oficios, los eventos y los módulos de manejo.
+2. **El transporte es el control del mundo**: caminar, bici, taxi, bus, metro, cable y tranvía son formas de recorrerlo, cada una con su cámara.
+3. **Manejar bien es el puntaje**: suavidad, puntualidad, precisión en la marca y Cultura Metro, en cadenas que se rompen si fallas.
+4. **Eventos cortos y legibles** (1–3 minutos) repartidos por el mapa, al estilo PAKO y Grand Mountain, en lugar de minijuegos en menús aparte.
+5. **Fechas reales de Medellín** que transforman el mundo: Feria de las Flores, Alumbrados, Velitas, Antioqueñidad.
+6. **Personajes con historia** (Rosalba, Don Efraín, Doña Marleny, Wílmar) y pasajeros que cuentan algo.
+7. **Arte híbrido coherente**: pixel art cenital denso, panorámica de siluetas por capas, 3D low‑poly limpio; la misma paleta y la misma luz en todos.
+8. **Dos niveles de dificultad en el mismo juego**: dos botones con asistente para niños, control completo para expertos.
+9. **Calma y contemplación**: modo zen, paseo nocturno, modo foto y postales.
+10. **Hecho para celulares modestos y para jugar juntos**: liviano, sin conexión y en red local.
+
+---
+
+# 7 · Medellín y su transporte: identidad visual
+
+## 02 · Medellín y su sistema de transporte: identidad visual
+
+> Qué hace que algo “se vea Medellín”. Es la guía para dibujar o generar la ciudad, los vehículos y las estaciones.
+> **Fotos de referencia:** 71 imágenes con licencia libre, cada una con autor, licencia y enlace a su fuente:
+> - `galeria.md`: la lista con los créditos.
+> - la sección **Galería** de `index.html`: las mismas fotos en cuadrícula para el celular.
+> - `galeria.json`: los datos en bruto.
+>
+> Las fotos no se copiaron al repositorio, solo se enlazan.
+> Los colores HEX son aproximados. Las líneas del Metro usan los colores que ya tiene el juego.
+
+### 1. Geografía que se ve
+- **Un valle largo y angosto de norte a sur** (el Valle de Aburrá), con el **río Medellín** canalizado en el fondo y las **autopistas a lado y lado**. La Línea A del metro corre en paralelo al río.
+- **Laderas a oriente y occidente** cubiertas de barrios que suben hasta el monte. De día, la mitad de abajo de las montañas es ladrillo naranja y la de arriba es verde. De noche, las laderas se vuelven un **pesebre de luces**: es la imagen más reconocible de la ciudad y ya está en la panorámica.
+- **Cerros tutelares** como mojones visuales: El Volador, Nutibara (con el Pueblito Paisa), Pan de Azúcar, El Picacho, Las Tres Cruces, Quitasol (Bello).
+- **Clima de eterna primavera**: sol fuerte a mediodía (a unos 6° de latitud las sombras son cortas al mediodía), nubes que se arman en la tarde, **aguaceros de tarde**, niebla en la madrugada sobre las montañas.
+
+### 2. Arquitectura y materiales
+| Elemento | Cómo se ve | Colores aprox. |
+|---|---|---|
+| **Ladrillo a la vista** | El material de la ciudad: barrios, edificios de El Poblado, la Catedral | `#b4583a` `#9a4630` `#c8714d` junta `#d8c3a5` |
+| Casas de barrio en ladera | 2–4 pisos, terraza plana con **tanques de agua** negros o azules, varillas que esperan el siguiente piso, ropa al sol, escaleras exteriores | losa `#9e9a92`, tanque `#1d1f24`/`#2a5a92`, pintura `#e9d8a6` `#7fb3a0` `#d98a6a` |
+| Tejados tradicionales | Teja de barro en Laureles, Envigado, Belén y el Pueblito Paisa | teja `#a8452f` `#c0603d` |
+| Edificios de vidrio | Torres de El Poblado y Ciudad del Río | vidrio `#9fd3e6`, marco `#5c6670` |
+| Centro histórico | Palacio de la Cultura en damero blanco y negro, Catedral de ladrillo, edificio Coltejer con su aguja | piedra `#e8e2d4`, damero `#1b1b1b` |
+| Plazas | Plaza Botero (esculturas de bronce), Parque de los Pies Descalzos (guadua, agua, arena), Parque Berrío | bronce `#6b4a2b`, guadua `#a8b06a` |
+| Pueblito Paisa | Muros encalados, balcones de madera pintados, tejas, flores en materas | cal `#f4f0e6`, balcón `#2f6b9a` `#b23a3a` `#2f8a4a` |
+| Vegetación | Ceibas, guayacanes amarillos y rosados (florecen en temporada), palmas, guadua | guayacán `#f2c14e` `#e88cb4`, verde `#2f6b35` |
+| Río y orillas | Canal con muros de concreto, aguas color café verdoso, árboles en el separador | agua `#5f7f73`, concreto `#a9a59b` |
+| Arte urbano | Grafitis enormes en la Comuna 13, escaleras eléctricas techadas | saturados: `#e63946` `#f4a261` `#2a9d8f` `#7b2cbf` |
+
+### 3. El sistema de transporte
+> Para trenes, cabinas y buses conviene mirar las fotos de la galería (sección Metro, Metrocable, Metroplús): ahí se ven las carrocerías, franjas y estaciones reales. Aquí van las formas y reglas de dibujo; los detalles exactos de diseño de cada vehículo **están sin verificar** y deben confirmarse con las fotos.
+
+**Metro (líneas A y B)**
+- **Viaducto** de concreto gris claro sobre columnas; en el centro corre sobre el río y entre edificios; la vía tiene catenaria con postes y brazos.
+- **Estaciones elevadas** con cubierta metálica clara, andenes largos con la **línea amarilla de seguridad**, escaleras y torniquetes abajo, letreros con el nombre de la estación.
+- **Trenes** de tres carros con cabina en ambos extremos; dos generaciones a la vista (los originales de 1995 y los más nuevos de CAF). Carrocería clara con franjas de color.
+- **Colores de línea:** A `#1C5C9C`, B `#E38835`.
+
+**Metrocable (K, J, L, H, M, P)**
+- Cabinas tipo góndola pequeñas colgadas de un cable, torres metálicas sobre las casas, estaciones con estructura metálica y cubierta.
+- **Colores de línea:** K `#B8CF40`, J `#F6C538`, L `#8E612A`, H `#EB318E`, M `#743D90`, P `#EC343A`.
+- La **L (Arví)** sale de Santo Domingo hacia el bosque del Parque Arví: verde profundo, neblina y pinos.
+
+**Tranvía de Ayacucho (T‑A)**
+- Rueda sobre llantas, guiado por un riel central; dos o tres módulos articulados que suben por la calle Ayacucho hasta Oriente, entre casas de barrio, con plataformas a nivel.
+- **Color de línea:** T `#59AB42`.
+
+**Metroplús**
+- **Buses articulados de 18 m** en carril exclusivo, estaciones en el separador central de la avenida, plataformas elevadas y puertas de vidrio.
+- **Colores:** línea 1 `#0E6F76`, línea 2 `#65A9AC`.
+
+**Alimentadores, busetas y otros**
+- **Alimentadores:** buses que bajan de los barrios a las estaciones; carrocería blanca con franja y aviso de ruta *(colores exactos sin verificar)*.
+- **Busetas tradicionales** de colores con el letrero de la ruta en el parabrisas.
+- **Taxis amarillos** `#f2c400`.
+- **Chivas** (buses de escalera) pintadas a mano para paseos y fiestas.
+- **Motos** por todas partes.
+- **Bicicletas públicas** EnCicla.
+
+### 4. Luz y clima por hora (para todas las vistas)
+| Momento | Cielo | Ambiente | Detalle |
+|---|---|---|---|
+| Madrugada (4:30 a. m.) | `#0f1d3f` → `#3a3f6b` | niebla en laderas | primer tren con luces encendidas |
+| Mañana | `#4f93cf` → `#cfe6ef` | aire limpio | sombras largas al occidente |
+| Mediodía | `#3f8bd0` → `#d6ecf3` | sol vertical | sombras cortas, colores saturados |
+| Tarde lluviosa | `#7d8b99` → `#b9c3c9` | aguacero, calles brillantes | paraguas, charcos, reflejos |
+| Atardecer | `#3d2e5f` → `#f08a5d` | bruma dorada | siluetas de los cerros, gallinazos |
+| Noche | `#08122a` → `#1a2b4f` | laderas encendidas | ventanas `#ffd27a`, avisos, faros |
+| Diciembre (Alumbrados) | noche | río iluminado | `#fff1c1` `#ffc23d` `#e83e8c` `#2ec4f1` |
+
+### 5. Qué evitar
+- Logotipos, marcas e imagen institucional reales (el logo del Metro, de EPM o de empresas de buses). Usar los colores de línea y los nombres de estación (son información pública), pero con **diseño propio**.
+- Clichés de violencia o narcotráfico: el juego es para todo público y cuenta la ciudad que se transforma.
+- Ciudad genérica de película: Medellín es ladrillo, montaña, río y metro elevado.
+
+### 6. Créditos de las fotos
+La lista completa, con títulos, autores, licencias y enlaces, está en [`galeria.md`](galeria.md). Si alguna se usa más allá de referencia, hay que respetar su licencia: atribución en todas, y además “compartir igual” en las BY‑SA y uso no comercial en las NC.
+
+---
+
+# 8 · Historia del Metro y de Medellín
+
+## 03 · Historia del Metro y de Medellín
+
+> Datos para la historia del juego, los textos de estaciones y los eventos.
+> - Las fechas con fuente están verificadas.
+> - Las marcadas *(aprox.)* o *(sin verificar)* deben confirmarse antes de mostrarlas como dato oficial en el juego.
+> - El tono es para todo público: se cuenta una ciudad que se transforma, sin glorificar a nadie.
+
+### A. El Metro de Medellín: cronología
+| Fecha | Hito |
+|---|---|
+| 1921–1951 | Medellín tuvo **tranvía eléctrico** urbano; con su cierre la ciudad pasó a depender de buses. *(aprox.)* |
+| 1874–1929 | El **Ferrocarril de Antioquia** (iniciado por Francisco Javier Cisneros) conectó Medellín con el río Magdalena; el **túnel de La Quiebra** (1929) completó la línea. La plaza de Cisneros recuerda la antigua estación. *(aprox.)* |
+| 1979 | Se crea la Empresa de Transporte Masivo del Valle de Aburrá, el **Metro de Medellín**. *(aprox.)* |
+| Años 80–90 | Obra larga, con dificultades de financiación y pausas antes de terminar el primer tramo. *(sin verificar en detalle)* |
+| **30 nov 1995** | **Inauguración**: primer tramo de la **Línea A, Niquía–Poblado**. Es el día del primer tren de Rosalba en la historia del juego. |
+| **28 feb 1996** | Abre la **Línea B** (San Antonio–San Javier). |
+| 1996 en adelante | La Línea A se extiende al sur (Itagüí), y años después llega a Sabaneta y La Estrella. *(fechas exactas sin verificar)* |
+| **7 ago 2004** | **Metrocable Línea K** (Acevedo–Santo Domingo Savio): el cable aéreo empezó a funcionar como transporte masivo integrado al metro. |
+| **3 mar 2008** | **Línea J** (San Javier–La Aurora), según el sitio oficial. Otra fuente da 2012 como operación comercial plena. |
+| **feb 2010** | **Línea L, Cable Arví**: la primera línea turística, hacia el Parque Arví. |
+| **22 dic 2011** | Entra en servicio el primer corredor de **Metroplús** (buses articulados en carril exclusivo). |
+| 15 oct 2015 / **31 mar 2016** | **Tranvía de Ayacucho**: en servicio en octubre de 2015 y en operación comercial desde marzo de 2016. Va de San Antonio a Oriente y rueda sobre llantas. |
+| 2016 | **Metrocable Línea H** (Oriente–Villa Sierra), que conecta con el tranvía. |
+| **feb 2019** | **Metrocable Línea M** (Miraflores–Trece de Noviembre). |
+| **10 jun 2021** | **Metrocable Línea P** (Acevedo–El Progreso, sector Picacho). |
+| **30 nov 2025** | **30 años** del Metro. La red suma 12 líneas comerciales, seis de ellas de Metrocable. |
+| Futuro | **Metro de la 80**: tren ligero por la avenida 80, en construcción. *(Fecha de operación sin verificar.)* |
+
+**Datos útiles para la simulación** *(aprox.; confirmar antes de mostrarlos como dato oficial)*
+- La Línea A va de Niquía a La Estrella en unos 25 km, con 21 estaciones. La Línea B tiene 7 estaciones y unos 5,6 km.
+- Los trenes son de 3 coches con cabina en los extremos y llegan a unos 80 km/h en el viaducto.
+- El servicio arranca a las 4:30 a. m. en días hábiles. Domingos y festivos abre más tarde y cierra más temprano.
+- Integración tarifaria con la **tarjeta Cívica**, que es personal y recargable. La **Línea L** se paga con tarifa aparte, por ser turística. *(sin verificar)*
+
+**Cultura Metro.** Es la forma de comportarse en el sistema que se volvió parte de la identidad de la ciudad:
+- respetar la línea amarilla;
+- dejar salir antes de entrar;
+- ceder el puesto a quien lo necesite;
+- no comer ni tirar basura;
+- cuidar los trenes (que siempre lucen limpios);
+- hacer fila y ayudar a quien se pierde.
+
+Es la base del puntaje de “manejar bien” y de la historia: *“La red no es de hierro, es de la gente que la cuida”*.
+
+### B. Medellín: línea de tiempo
+| Época | Qué pasó |
+|---|---|
+| Antes del siglo XVI | El valle estaba habitado por pueblos indígenas (los aburráes). Los españoles lo recorren hacia 1541. *(aprox.)* |
+| 1616 | Se funda el poblado de **San Lorenzo de Aburrá**, en lo que hoy es El Poblado. |
+| 1675 | Real cédula que crea la **Villa de Nuestra Señora de la Candelaria de Medellín**. |
+| 1826 | Medellín pasa a ser la **capital de Antioquia**. |
+| Siglo XIX | **Arriería**: caravanas de mulas llevan oro, café y mercancías por la montaña. Nacen el carriel y el comercio paisa. |
+| Inicios del siglo XX | **Industria textil** (Coltejer, 1907; Fabricato, década de 1920), ferrocarril y tranvía: Medellín se vuelve ciudad industrial. *(fechas aprox.)* |
+| 24 jun 1935 | **Carlos Gardel** muere en un accidente de avión en el aeródromo de Las Playas (hoy Olaya Herrera). Por eso el tango tiene un lugar especial en Medellín. |
+| 1950–1980 | Gran migración del campo a la ciudad. Las **laderas se llenan de barrios** construidos por sus propios habitantes: así nacen las comunas. |
+| Años 80–90 | Años muy difíciles de violencia en la ciudad. En el juego se recuerdan con respeto, desde la memoria y la resiliencia de la gente (como hace el Museo Casa de la Memoria). |
+| 1995 | El Metro empieza a operar y se vuelve símbolo de orgullo y cuidado colectivo. |
+| 2004–2016 | **Urbanismo social**: Metrocables a las comunas, parques biblioteca (como el **Parque Biblioteca España**), **escaleras eléctricas de la Comuna 13** (2011), UVA, colegios y parques nuevos. *(años aprox.)* |
+| 2013 | Medellín gana el concurso internacional de **ciudad más innovadora**. *(aprox.)* |
+| 2016 | **Premio Lee Kuan Yew** de ciudades. *(aprox.)* |
+| Hoy | Turismo, ciencia y cultura (Parque Explora, Jardín Botánico), música urbana con proyección mundial y tradición de flores, luces y metro. |
+
+**Geografía**
+- Unos 1.495 m de altitud y temperatura media cercana a 22 °C: la “**ciudad de la eterna primavera**”.
+- El **río Medellín** (también llamado Aburrá) atraviesa el valle de sur a norte.
+- El Área Metropolitana tiene **10 municipios**: Barbosa, Girardota, Copacabana, Bello, Medellín, Itagüí, Envigado, Sabaneta, La Estrella y Caldas.
+- Cerros tutelares: El Volador, Nutibara, La Asomadera, Pan de Azúcar, El Picacho, Las Tres Cruces, El Salvador y Quitasol. *(lista aprox.)*
+
+### C. Usos en el juego
+1. **Capítulo “30 de noviembre de 1995”**: el primer viaje de Rosalba en un Medellín noventero (busetas, ropa, música de la época) que contrasta con el presente.
+2. Cada **30 de noviembre**, aniversario del Metro: trenes con decoración especial y pasajeros que cuentan su primer viaje (ya está en el calendario del juego).
+3. **Estaciones con memoria**: un dato histórico por estación, por ejemplo:
+   - Cisneros, por el ferrocarril;
+   - Parque Berrío, por el centro fundacional;
+   - Acevedo, por el primer cable;
+   - Santo Domingo, por la biblioteca;
+   - San Javier, por la Comuna 13.
+4. **Evento Gardel (24 de junio)**: ruta del tango en buseta por Manrique y el aeropuerto Olaya Herrera, con la radio de tango de fondo.
+5. Una **misión de arriería** en el Parque Arví: llevar carga por los caminos de herradura en un “modo mula”, una pausa tranquila y no un minijuego.
+6. **Tranvía antiguo** (1921–1951) como vehículo coleccionable en un evento de memoria.
+7. **Línea de tiempo** desbloqueable en La Red, con postales de cada época.
+8. **Metro de la 80** como línea futura en el mapa (ya existe como “vista al futuro”), con un evento de inauguración cuando opere.
+9. **Cultura Metro** como cadena de puntaje: dejar salir, ceder el puesto, línea amarilla, no correr en escaleras.
+10. **Urbanismo social**: misiones que llevan a la gente del barrio a la biblioteca, la UVA o el colegio usando cable y alimentador.
+11. **Comuna 13**: subir por las escaleras eléctricas y ver los grafitis con un guía del barrio (personaje).
+12. **Aguacero de tarde** (abril–mayo y octubre–noviembre): la ciudad se llena de paraguas y la gente se refugia en las estaciones.
+13. **Madrugada de 4:30 a. m.**: el primer tren sale con la ciudad a oscuras y las laderas encendidas.
+14. **Personajes de oficios reales**: conductora del metro, controlador del Puesto de Control, operador del cable, conductor de alimentador, agente de tránsito, vendedora de arepas, silletero, guía de la Comuna 13, bibliotecaria.
+15. **Pasajeros con historia**: el estudiante de la UdeA, la abuela que va a misa en la Catedral, el hincha que va al estadio, el turista en el Cable Arví.
+16. **Ciudad innovadora**: misión en el Parque Explora o en Ruta N con un reto de ciencia sencillo.
+17. **Museo Casa de la Memoria**: una visita respetuosa que explica cómo la ciudad eligió la convivencia.
+18. **La Asomadera y los cerros**: miradores con postal y dato.
+
+### Fuentes
+- [Metro de Medellín · Historia (sitio oficial)](https://www.metrodemedellin.gov.co/en/who-we-are/history)
+- [Medellín Metro (Wikipedia, inglés)](https://en.wikipedia.org/wiki/Medell%C3%ADn_Metro) · [Metrocable (Wikipedia, inglés)](https://en.wikipedia.org/wiki/Metrocable_(Medell%C3%ADn))
+- [El Colombiano · Historia del Metro y sus hitos en 25 años](https://www.elcolombiano.com/antioquia/historia-del-metro-de-medellin-y-sus-hitos-en-25-anos-de-servicio-MB14159216)
+- [Blu Radio · El Metro cumple 30 años](https://www.bluradio.com/regiones/antioquia/metro-de-medellin-cumple-30-anos-la-historia-de-un-sistema-que-conecto-barrios-y-oportunidades-rg10)
+- [El Colombiano · 10 años del Tranvía de Ayacucho](https://www.elcolombiano.com/medellin/10-anos-historia-tranvia-ayacucho-FG35111051)
+- [El Colombiano · Opera la quinta línea de Metrocable](https://www.elcolombiano.com/antioquia/en-medellin-ya-opera-la-quinta-linea-de-metrocable-MC10308747)
+- [UrbanRail.net · Medellín](https://urbanrail.net/am/mede/medellin.htm)
+- [Historia de Medellín (Wikipedia)](https://es.wikipedia.org/wiki/Historia_de_Medell%C3%ADn)
+
+---
+
+# 9 · Folclor y fiestas
+
+## 04 · Folclor y fiestas de Medellín y el Valle de Aburrá
+
+> Para que la ciudad cambie con el calendario real y tenga alma paisa. Todo es apto para niños.
+> Las fechas son las típicas: muchas fiestas cambian de día cada año. Las marcadas *(aprox.)* o *(sin verificar)* deben confirmarse.
+
+### A. Fiestas y fechas
+| Fiesta | Fechas típicas | Qué se ve y se oye |
+|---|---|---|
+| **Feria de las Flores** | Principios de agosto, unos 10 días | Flores por todas partes, tablados con música, exposiciones de orquídeas, “fondas” paisas, caravana de chivas |
+| **Desfile de Silleteros** (dentro de la Feria) | Domingo de cierre de la Feria; oficial desde **1957** | Campesinos de **Santa Elena** cargan a la espalda **silletas** enormes de flores (tradicional, emblemática, monumental, comercial); el público aplaude por la avenida |
+| Desfile de Autos Clásicos y Antiguos (Feria) | Agosto | Carros de colegio, convertibles y buses antiguos desfilando y brillando |
+| Festival Nacional de la Trova (Feria) | Agosto | Duelos de **trova paisa**: versos improvisados con tiple y guitarra |
+| **Día de la Antioqueñidad** | 11 de agosto | Banderas blancas y verdes, música de carrilera, arepas |
+| **Alumbrados navideños** | Fines de noviembre o inicios de diciembre hasta inicios de enero; de EPM desde **1967** | El **río y los parques se llenan de figuras de luz**, recorridos nocturnos por el río, paseos en familia, ventas de comida |
+| **Noche de las Velitas** | 7 de diciembre (víspera del 8) | Velas y **faroles de papel** en andenes y balcones; familias en la calle |
+| **Novena de Aguinaldos** | 16 al 24 de diciembre | Oraciones y villancicos en las casas, **natilla y buñuelos**, música parrandera |
+| Navidad y Año Nuevo | 24–25 dic y 31 dic–1 ene | Pesebres, “año viejo” (muñeco), uvas y maletas a la medianoche; campañas para **no usar pólvora** (quema, sobre todo a niños) |
+| Aniversario del Metro | 30 de noviembre | Celebración del primer viaje (1995) |
+| Festival Internacional de Tango | Alrededor del **24 de junio**, aniversario de Gardel *(aprox.)* | Milongas, bandoneón, homenajes en Manrique y el aeropuerto |
+| Festival Internacional de Poesía | Junio–julio, desde **1991** *(aprox.)* | Lecturas al aire libre en parques y comunas |
+| Colombiamoda | Finales de julio *(aprox.)* | Pasarelas, diseño, moda |
+| Altavoz | Octubre–noviembre *(aprox.)* | Rock y música alternativa juvenil |
+| Semana Santa | Marzo o abril | Procesiones, Domingo de Ramos, silencio y flores moradas |
+| Día de la Madre | Mayo | Flores, serenatas, restaurantes llenos |
+| Amor y Amistad | Septiembre | Amigo secreto, dulces |
+| Halloween o día de los niños | 31 de octubre | Disfraces infantiles, dulces por la calle y los centros comerciales |
+| Fiestas de municipios del valle *(sin verificar)* | Varias fechas | Envigado (Fiestas del Carriel), Sabaneta (Fiestas del Plátano), Itagüí (Fiestas de la Industria, el Comercio y la Cultura), Caldas (Fiestas del Aguacero), Girardota (peregrinación al Señor Caído), Barbosa (Fiestas de la Piña) |
+
+### B. Folclor paisa
+**Mitos y leyendas de Antioquia** (contados como **guardianes de la naturaleza**, sin sustos fuertes)
+- **La Madremonte:** mujer de musgo y hojas que protege el bosque y regaña a quien tala o ensucia el agua.
+- **La Patasola:** espíritu de una sola pierna que ronda la selva profunda. Para niños: “no te alejes del camino”.
+- **El Hojarasquín del Monte:** ser de hojarasca que cuida a los animales y guía a los perdidos.
+- **El Mohán:** viejo de barba larga que vive en los ríos, toca el tiple y hace travesuras a los pescadores.
+- **La Llorona:** mujer que llora en las quebradas por sus hijos.
+- **El Sombrerón:** jinete de sombrero gigante que castiga los vicios.
+- **La Mula de tres patas:** mula fantasma que trota de noche por los caminos.
+- **La Candileja:** bola de fuego que vaga por los potreros.
+- **El Duende:** travieso, esconde cosas y trenza las crines de los caballos.
+
+**Arriería y campo**
+- **Arriero:** sombrero aguadeño, **carriel** (bolso de cuero con muchos bolsillos), poncho, **mulera**, alpargatas y machete; lleva mulas cargadas por caminos de herradura.
+- **Silletero:** carga la **silleta**, una estructura de madera que se lleva a la espalda, llena de flores.
+- **Ruana:** abrigo de lana de clima frío (Santa Elena, Arví).
+
+**Música**
+- Trova paisa: duelo de versos improvisados.
+- Música parrandera: Navidad y fiestas.
+- Música de carrilera o guasca: guitarras y despecho campesino.
+- **Tango**, por Gardel y el barrio Manrique.
+- Salsa.
+- Música urbana: Medellín es una capital mundial del género.
+- Bambuco y pasillo andinos.
+
+**Comida**
+- **Bandeja paisa**: frijoles, arroz, carne molida, chicharrón, huevo, plátano maduro, chorizo, aguacate y arepa.
+- **Arepa** de maíz.
+- Mazamorra con panela.
+- **Natilla y buñuelos** en diciembre.
+- **Empanadas** con ají.
+- **Tinto** (café negro) y aguapanela.
+- Obleas con arequipe.
+- **Salpicón** y **chontaduro** con sal, de los vendedores ambulantes.
+- Parva, la panadería paisa.
+
+**Juegos tradicionales**
+- Tejo, aunque usa pólvora en las mechas; en el juego va la versión infantil, la **rana** o el sapo.
+- **Parqués**, trompo, coca (balero), golosa, “chucha cogida” y escondidijo.
+- **Cometas en agosto**, temporada de viento.
+
+**Habla paisa apta para todos** (para los diálogos)
+| Expresión | Significado |
+|---|---|
+| parce, parcero | amigo |
+| ¿qué más pues? | ¿cómo estás? |
+| ¿sí o qué? | ¿cierto? |
+| pues | muletilla final |
+| ¡eh, avemaría! | ¡qué sorpresa! |
+| bacano, chévere | genial |
+| camellar | trabajar |
+| amañarse | sentirse a gusto |
+| una vaca | reunir plata entre todos |
+| mijo, mija | trato cariñoso |
+| ¡qué pena con usted! | disculpe |
+| no dar papaya | no exponerse al peligro |
+
+**Personajes callejeros**
+- Vendedores de tinto con termo.
+- Arepas en carrito y chontaduro en carreta.
+- Lustrabotas del Parque Berrío.
+- Cuidadores de carros.
+- Músicos del metro (en estaciones autorizadas).
+- Silleteros en agosto.
+
+**Símbolos**
+- **Orquídea** *Cattleya trianae*, flor nacional.
+- Silleta, carriel, mula y café.
+- Chiva (bus escalera).
+- Banderas de Medellín y de Antioquia, ambas blancas y verdes.
+
+### C. Calendario del juego (decoración y jugabilidad)
+| Fechas | Evento | Vista cenital | Panorámica y 3D | Sonido | Gancho en el mundo abierto |
+|---|---|---|---|---|---|
+| 1–10 ago | Feria de las Flores | Pétalos en las calles, tablados en parques, chivas decoradas | Guirnaldas florales en estaciones, silletas en andenes | Trova, parrandera alegre, carrilera | “Festival‑hub” al estilo Forza: eventos en el mapa, ruta de la Feria en bus, carrera de chivas en un circuito cerrado |
+| Domingo de cierre | Desfile de Silleteros | Avenida cerrada con desfile de silletas (NPC) | Silletas sobre los viaductos | Aplausos, banda | Llevar silleteros desde Santa Elena (Cable Arví → L → K) a tiempo; repartir agua |
+| Agosto | Autos clásicos | Carros antiguos en desfile | Carros brillando bajo el sol | Motores antiguos | Colección de vehículos clásicos (buses de los 50) |
+| Agosto | Cometas | Cometas sobre las lomas | Cometas en el cielo de la panorámica | Viento | Evento de viento en el cable (ráfagas) |
+| 11 ago | Antioqueñidad | Banderas blancas y verdes | Banderas en estaciones | Carrilera | Postal especial, arepas en vendedores |
+| Fin nov–inicio ene | Alumbrados | Río y parques con figuras de luz; brillo cálido nocturno | Laderas y río iluminados; trenes decorados | Villancicos, parrandera | **Dron de los Alumbrados** (esquivar pólvora, recoger estrellas); puzle de energía para encender figuras; paseo nocturno en metro |
+| 30 nov | Aniversario del Metro | Banderines con los colores de línea | Tren conmemorativo | Fanfarria | Reto: viajar en todas las líneas en un día |
+| 7 dic | Velitas | Faroles y velas en andenes y balcones | Faroles en ventanas de laderas | Murmullo familiar | Recorrido de faroles; cuidar a los niños de la pólvora |
+| 16–24 dic | Novena | Pesebres en parques | Luces de colores | Villancicos | Repartir natilla y buñuelos a vecinos (encargos) |
+| 31 dic | Año Nuevo | Calles quietas, “años viejos” | Fuegos lejanos (sin pólvora cerca) | Campanadas | Último tren del año |
+| 24 jun | Gardel y tango | Bandoneones en Manrique | Avión antiguo de homenaje | Tango | Ruta del tango |
+| Jun–jul | Poesía | Lecturas en parques | Versos en paneles de estación | Voces | Encontrar versos escondidos (coleccionables) |
+| Semana Santa | Procesiones | Calles con flores moradas | Iglesias destacadas | Campanas | Desvíos de rutas por procesión |
+| 31 oct | Disfraces | Niños disfrazados (NPC) | Calabazas en estaciones | Música alegre | Repartir dulces en el bus |
+| Abr–may / oct–nov | Temporada de lluvias | Aguaceros de tarde, charcos | Nubes bajas | Lluvia, truenos | Pasajeros que se refugian; el bus debe frenar antes |
+
+### D. Paleta cultural (aprox.)
+- **Feria de las Flores:** orquídea `#9b3faf`, girasol `#f7c325`, clavel `#d7263d`, caléndula `#f28c28`, hoja `#3a7d44`, madera de silleta `#8a5a32`.
+- **Alumbrados:** luz cálida `#fff1c1`, oro `#ffc23d`, magenta `#e83e8c`, cian `#2ec4f1`, verde navidad `#2bb673`, noche `#0b1530`.
+- **Velitas:** llama `#ffb347`, farol rojo `#d62828`, farol verde `#2a9d8f`, farol amarillo `#f4d35e`, papel `#fff4d6`.
+- **Antioqueñidad:** blanco `#ffffff` y verde `#0e8a43`.
+- **Chiva:** amarillo `#ffd23f`, rojo `#e4002b`, azul `#0057b8`, verde `#00a651`, con filetes negros.
+- **Pueblito Paisa:** cal `#f4f0e6`, balcones `#2f6b9a` `#b23a3a` `#2f8a4a`, teja `#a8452f`.
+
+### Fuentes
+- [Alcaldía de Medellín · Historia de los silleteros](https://www.medellin.gov.co/es/sala-de-prensa/noticias/historia-de-los-silleteros-origenes-tradicion-y-evolucion/)
+- [El Colombiano · La magia de la luz (origen de los alumbrados, EPM 1967)](https://www.elcolombiano.com/antioquia/la-magia-de-la-luz-inicio-con-80000-bombillas-DC12104766)
+- [Alcaldía de Medellín · Siete cosas sobre los Alumbrados](https://www.medellin.gov.co/es/sala-de-prensa/noticias/siete-cosas-para-saber-y-disfrutar-mas-de-los-alumbrados-navidenos-de-medellin/)
+- [Feria de las Flores (Wikipedia)](https://es.wikipedia.org/wiki/Feria_de_las_Flores)
+- [Mitos y leyendas de Colombia (Wikipedia)](https://es.wikipedia.org/wiki/Anexo:Mitos_y_leyendas_de_Colombia) *(enlace sin verificar)*
+
+---
+
+# 10 · Diseño: mundo abierto + arcade
+
+## 05 · Diseño: mundo abierto + arcade sobre Medellín
+
+> Cómo se combinan todas las referencias en un solo juego preciso. Parte de lo que **ya existe** en El Metro v0.5.0 y marca lo nuevo con **[nuevo]**.
+
+### 1. Fantasía del jugador
+**“Ser parte de la red que mueve a Medellín.”** Recorres la ciudad real a pie, en bici, en taxi, en bus, en metro, en cable y en tranvía. Manejas cada vehículo del sistema, ayudas a su gente y vives sus fiestas. Ganas siendo **bueno con la ciudad**: suave, puntual, preciso y amable.
+
+### 2. Estructura del mundo
+- **Ciudad Libre es el centro de todo** (como el festival de Forza Horizon o el mapa de GTA): desde ahí se entra a la historia, los oficios, los eventos y los módulos de manejo, y a ella se vuelve siempre. Ya funciona así con la historia en la ciudad.
+- **Regiones con identidad:**
+  - **Norte:** Bello, Niquía, Madera.
+  - **Nororiente:** Acevedo, Santo Domingo, Arví.
+  - **Centro:** San Antonio, Parque Berrío, Botero, Ayacucho.
+  - **Occidente:** San Javier, Comuna 13, Estadio, Laureles.
+  - **Sur:** Poblado, Envigado, Itagüí, Sabaneta, La Estrella.
+- **Confianza por comuna** [nuevo, de GTA 2]: ayudar en un barrio (oficios, pasajeros, eventos) abre misiones y decoraciones en ese barrio.
+- **Puntos de interés:**
+  - estaciones de todas las líneas;
+  - 45 lugares con postal;
+  - miradores;
+  - vendedores;
+  - teléfonos de encargo [nuevo, de GTA 1: los puntos de atención Cívica dan misiones].
+
+### 3. Bucles de juego
+| Escala | Qué haces | Recompensa |
+|---|---|---|
+| **Segundos** | Manejar o caminar, frenar suave, parar en la marca, validar la Cívica, esquivar, saludar | Cadena de “Cultura Metro” ×1→×5 |
+| **Minutos** | Una ruta de bus, un tramo de metro, un viaje en cable, un oficio, un evento relámpago de 1–3 min | Estrellas (de 3 en 3, como Alto), pasajes 🎫, postales |
+| **Días y semanas** | Capítulos de la historia, fiestas del calendario real, colección de vehículos y decoraciones, rango de oficio, La Red | Rangos (Aprendiz → Conductora → Maestra), logros, decoraciones de temporada |
+
+### 4. Cámaras (cada módulo con la suya)
+| Momento | Cámara | Referencia | Estado |
+|---|---|---|---|
+| A pie | Cenital 3/4 cercana | GTA 1/2, Town Brush | existe |
+| Vehículo en la ciudad | Cenital con **zoom según velocidad**; opción de **girar con el rumbo** | GTA 1 / Chinatown Wars | zoom existe; giro [nuevo] |
+| Bus | Cenital de seguimiento; **HUD mínimo** opcional con direccionales y flechas en el asfalto | Idea propia (minimalismo de Alto) | seguimiento existe; HUD mínimo [nuevo] |
+| Metro y tranvía | Panorámica por capas ↔ cabina 1ª persona ↔ 3ª persona ↔ cine | Alto, Tiny Rails, simuladores | existe |
+| Metrocable | Panorámica, 3D y cabina | Grand Mountain (góndolas) | existe |
+| Llegadas y finales | **Repetición de cine** (cámara baja junto a la vía, paneo) | Forza, reel de carreras | [nuevo] |
+| Fotos | **Modo foto** con encuadre, hora y filtro | Forza, Alto | [nuevo] |
+| Interiores de estación | Isométrica pixel con luz dinámica | Holstin | [nuevo, futuro] |
+
+### 5. Controles
+- **Táctil:** joystick y botones grandes (existe); acciones táctiles de un toque con sentido físico (girar la llave, pasar la Cívica, tocar el timbre, mover una aguja), como en Chinatown Wars.
+- **Modo niños de dos botones** [nuevo, de Super Arcade Racing]: acelerar y frenar; el asistente gira solo (ya existe en el bus).
+- **Teclado** e **inclinación** opcional (ya existen).
+
+### 6. La capa arcade: manejar bien es el puntaje
+**Cadena “Cultura Metro”** [nuevo, de las cadenas de habilidad de Forza]. Suben el multiplicador:
+- frenar suave;
+- arrancar sin sacudir;
+- parar en la marca (zona de toque de FR Legends: menos de 1 m es perfecto);
+- llegar a tiempo;
+- ceder el paso;
+- esperar a que suba todo el mundo.
+
+**Rompen la cadena:**
+- un golpe;
+- un frenazo;
+- pasarse un rojo;
+- cerrar puertas con gente subiendo;
+- la bocina sin razón.
+
+**Además:**
+- **Estrellas de 3 en 3** por ruta o tramo (existen).
+- **Récords y “fantasma”** del mejor recorrido [nuevo].
+- **Sensación de velocidad sin violencia** (de NFS): campo de visión, líneas de viento, vibración leve en la cabina y sonido del motor; el placer está en la fluidez.
+
+### 7. Eventos arcade dentro del mundo (no en menús aparte)
+| Evento | Cómo se juega | De dónde sale |
+|---|---|---|
+| **Antes del aguacero** | Llevar pasajeros a la estación antes de que llegue la lluvia (2 min) | PAKO Forever, Reckless Getaway |
+| **Esquiva el trancón** | Llegar a la estación en hora pico esquivando tráfico y obstáculos con física divertida | Reckless Getaway |
+| **El tinto caliente** | Llevar el tinto sin regarlo (existe como oficio) | Industry Art / EnCicla |
+| **El último tren** | Llegar a tiempo al último tren de la noche | GTA (contrarreloj) |
+| **Agente de tránsito** | En hora pico, dar prioridad al Metroplús en cruces reales | Traffix |
+| **Puesto de Control** | Mover agujas por colores en un momento de la historia | Railways |
+| **Encomiendas** | Red de paquetes entre estaciones | Package Inc |
+| **Dron de los Alumbrados** (dic) | Volar sobre el río, recoger estrellas de luz y esquivar pólvora | Missiles!, simulador de vuelo |
+| **Viento en el cable** | Subir recogiendo flores o estrellas entre ráfagas | 1945 Air Force (lectura vertical) |
+| **Paseo nocturno** | Manejar sin metas por la Autopista o Las Palmas, con radio | #DRIVE, Alto (modo zen) |
+| **Carrera de chivas** (Feria) | Circuito cerrado en el centro con dos botones | Super Arcade Racing |
+| **Exhibición de clásicos** (Feria) | Desfile calificado por precisión y estilo (no velocidad) | FR Legends |
+| **Pinta tu barrio** | Modo creativo: pintar fachadas en ladera; las casas se acomodan solas | Townscaper |
+| **Enciende los Alumbrados** | Llevar la energía a las figuras del río | Laser, Infinity Loop |
+| **Orientar pasajeros** | Responder rutas reales (existe en la historia) | Laberinto: Infinito y sencillo |
+| **Sube la loma** | Subir a pie las escaleras de la Comuna 13 con barra de aliento | Cairn |
+
+### 8. Mundo vivo
+- **Rutinas:** horas pico de 6–8 a. m. y 5–7 p. m. (más gente y más tráfico); la madrugada del primer tren; la noche de las laderas encendidas.
+- **Pasajeros con historia** (Tiny Rails): cuentan algo al subir y vuelven a aparecer.
+- **Perros, vendedores y transporte real** con paradas (ya existen); **más NPC** [nuevo]:
+  - ciclistas de EnCicla;
+  - agentes de tránsito;
+  - silleteros (agosto);
+  - músicos.
+- **Clima:** temporadas de lluvia (abril–mayo y octubre–noviembre) y seca; aguaceros de tarde.
+- **Calendario real:** todas las fiestas de `04-folklore-y-fiestas.md` cambian la decoración, la música y los eventos.
+- **Radio** [nuevo, de GTA/Forza], emisoras generativas sin derechos de autor:
+  - *Tango 1935*;
+  - *Parrandera*;
+  - *Carrilera*;
+  - *Urbana*;
+  - *Synth nocturna* (como el video de Josh White).
+
+### 9. Progresión y economía
+- **Pasajes 🎫** como moneda del juego (existe). **Sin compras con dinero real.**
+- **Mejoras visibles** (APEX Racer, Super Arcade Racing):
+  - bus con aire acondicionado (pasajeros felices) y mejor suspensión (más confort);
+  - luces para la noche;
+  - cabina con más instrumentos.
+- **Decoraciones** (FR Legends, NFS): vinilos de fiesta para buses, trenes y cabinas de cable.
+- **Colección:**
+  - postales (existen);
+  - vehículos clásicos (busetas de los 90, el tranvía de 1921);
+  - fotos.
+- **Rangos de oficio:** conductora de metro, operadora de cable, conductora de bus, agente, guía.
+
+### 10. Historia
+- **“La última vuelta”** se juega en la ciudad (8 capítulos, existe).
+- **Sesión 2** propuesta [nuevo]:
+  - **Alumbrados:** Rosalba, ya jubilada, viaja de pasajera mientras la nieta maneja la noche más bonita del año.
+  - **Arví:** llevar silleteros con el cable L.
+  - **Comuna 13:** subir con un guía del barrio.
+  - **Metro de la 80:** inauguración en el futuro.
+
+### 11. Juntos (multijugador local)
+- Paseo en red por la Autopista (APEX Racer).
+- **La Red cooperativa** con presupuesto (CityRT).
+- **Carrera de chivas** para 2 jugadores (Super Arcade Racing).
+- Duelo de paradas perfectas en el mismo celular (existe).
+
+### 12. Accesibilidad
+- Modo daltonismo: formas además de colores en las líneas.
+- Textos grandes y voz para los diálogos (existe).
+- Modo niños de dos botones.
+- Sin destellos fuertes; los relámpagos se pueden desactivar.
+
+### 13. Dónde entra el arte nuevo en el código
+| Recurso | Reemplaza o mejora | Archivo |
+|---|---|---|
+| Atlas cenital (casillas 64 px por 20 m) | Dibujo procedural de manzanas y barrios | `src/js/10-map.js` |
+| Sprites de vehículos y gente | `Spr.veh`, `Spr.ped`, `Spr.dog` | `src/js/21-sprites.js` |
+| Capas panorámicas | Cordillera, cerros, laderas y fachadas | `src/js/23-lado.js` |
+| Vehículos de perfil | Tren, tranvía y cabina laterales | `src/js/30-conduce.js`, `52-cableviaje.js` |
+| Consola de cabina | Consola dibujada | `src/js/31-cabina.js` |
+| Retratos | Caja de diálogo | `src/js/37-trama.js` |
+| Íconos | Botones y logros | `src/style.css`, `65-menu.js` |
+| Portada y compartir | Íconos y `compartir.png` | `tools/assets.mjs` |
+
+---
+
+# 11 · Entregas e integración
+
+## 08 · Cómo entregar el arte y cómo se integra al juego
+
+### 1. Orden recomendado (de más a menos impacto)
+> Los encargos y sus prompts están en la **guía única** (`06-guia-unica-ia.md`): **G‑** para Gemini y **C‑** para ChatGPT.
+1. **Ancla de estilo** (G‑00). Sin ella, todo lo demás sale disparejo.
+2. **Personajes y retratos** (G‑01 a G‑10).
+3. **Sprites cenitales de vehículos** (C‑01, C‑02).
+4. **Capas panorámicas** de 2 zonas (centro y norte), de día y de noche (G‑70 a G‑73).
+5. **Hojas de casas y barrios** (G‑60 a G‑63) y **texturas** (C‑60).
+6. **Conceptos isométricos** (G‑90). Después, **repintado de mosaicos base** (G‑100), cuando yo los genere.
+7. **Estaciones y vehículos de perfil** (G‑20 a G‑37).
+8. **Íconos y logros** (C‑10 a C‑12).
+9. **Consola de cabina** (C‑20, C‑21).
+10. **Fiestas**: variantes (G‑53 a G‑55), decoraciones (C‑50) y ambiente (G‑80 a G‑86).
+11. **Arte clave** (C‑40, C‑41).
+
+Una entrega parcial **ya sirve**: integro lo que llegue y el resto sigue con el dibujo actual del juego.
+
+### 2. Carpetas y nombres
+```
+arte/entregas/
+  00_ancla/        ancla_estilo.png
+  personajes/      per_<nombre>_hoja.png · ret_<nombre>_<neutra|alegre>.png · spr_<nombre>_cenital.png
+  vehiculos/       spr_vehiculos_<sistema|calle>.png · veh_lado_<tipo>.png
+  estaciones/      est_lado_<estacion>.png
+  panoramicas/     pan_<zona>_<dia|tarde|noche|alumbrados>_<1lejana|2cerros|3laderas|4ciudad>.png
+  casillas/        cas_<tema>_hoja.png
+  isometrico/      concepto_iso_<region>.png · iso_<zona>_<fila>_<col>.png
+  texturas/        tex_<material>.png
+  cabinas/         cab_<consola_vertical|consola_horizontal|bus>.png
+  iconos/          ico_<modos|acciones|logros>.png
+  clave/           clave_<compartir|carga|portada>.png
+  fiestas/         fiesta_sprites.png · amb_<fiesta>.png · <archivo>_<feria|alumbrados|velitas|lluvia|noche|tarde>.png
+```
+- Todo en **minúsculas**, sin tildes ni espacios (`parque_berrio`, no `Parque Berrío`).
+- **PNG** para todo, salvo el arte clave y el de ambiente (puede ser JPG de buena calidad).
+- **Fondo transparente o magenta plano `#FF00FF`.** Nunca blanco ni con degradado.
+- Opcional, pero muy útil: un `.txt` con el mismo nombre y **el prompt que funcionó**, para repetir o corregir.
+
+### 3. Cómo me lo entregas (elige una)
+1. **Aquí mismo:** adjunta las imágenes (o un `.zip` por carpeta) en esta conversación y dime “ya está el arte de …”.
+2. **GitHub:** en el repositorio, rama `ccr-2a67f935-oat714`, entra a `arte/` → *Add file* → *Upload files* y súbelas en la carpeta `entregas/` con la estructura de arriba.
+3. **Google Drive:** crea una carpeta “El Metro · Arte” con las mismas subcarpetas y compárteme el enlace. Si el conector de Drive está activo en la sesión, la leo directamente.
+
+### 4. Qué hago yo con el arte (integración)
+1. **Inventario y revisión** con la lista de control de la biblia (vista, paleta, fondo, legibilidad, sin texto ni logos). Lo que no cumpla vuelve con una corrección concreta para la IA.
+2. **Limpieza:** quito el magenta (transparencia), recorto y alineo a la cuadrícula.
+3. **Reducción a pixel art:** escalo con vecino más cercano a la escala del juego (8 px/m en sprites, 64 px por casilla) y **cuantizo a la paleta** (máximo 32 colores) para que todo combine.
+4. **Atlas:** junto las piezas en hojas (`src/art/*.png` + `*.json` con coordenadas), comprimidas para que el HTML único siga siendo liviano. Meta: menos de 4 MB de arte en total.
+5. **Código con respaldo:** cada módulo usa el arte nuevo si existe y, si falta, sigue con el dibujo procedural actual. Así nada se rompe.
+
+   | Arte | Dónde entra |
+   |---|---|
+   | Casillas | mapa (`10-map.js`) |
+   | Sprites | `21-sprites.js` |
+   | Capas | panorámica (`23-lado.js`) |
+   | Vehículos de perfil | `30-conduce.js` y `52-cableviaje.js` |
+   | Consola | `31-cabina.js` |
+   | Retratos | diálogos (`37-trama.js`) |
+   | Íconos | menús |
+   | Arte clave | portada, íconos y `compartir.png` |
+6. **Variantes por hora y fiesta:** el juego elige la capa según la hora y la fecha reales, con fundido entre ellas.
+7. **Pruebas:** autotest, 100 partidas sin errores y capturas en Chromium en vertical y horizontal, de día y de noche.
+8. **Publicación:** nueva versión en GitHub Pages, APK y bitácora actualizada.
+
+### 5. Créditos y licencias
+- Lo que generes con Gemini o ChatGPT bajo tu cuenta es **tuyo** según los términos de cada servicio (revísalos). Lo registro en `arte/CREDITOS.md` cuando llegue.
+- Las fotos de `galeria.md` son solo **referencia**. Si alguna se usa tal cual en el juego, se cita con su licencia.
+
+---
+
+# 12 · Galería de referencia (créditos)
+
+### Galería de referencia (fotos con licencia libre)
+
+Fotos encontradas con la API abierta de [Openverse](https://openverse.org) (Wikimedia Commons y Flickr). **No se copiaron al repositorio**: se enlazan a su fuente con autor y licencia. Úsalas como referencia visual (formas, materiales, colores, luz); para subirlas a una IA como referencia, descárgalas desde su página de origen respetando la licencia. La sección Galería de `arte/index.html` las muestra en cuadrícula.
+
+#### Metro (líneas A y B): trenes y estaciones (12)
+
+- [Metro de Medellín - Tren MAN en estación San Antonio](https://commons.wikimedia.org/w/index.php?curid=149715874) — AXF02 · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Nuevos trenes del Metro de Medellín](https://www.flickr.com/photos/59505201@N07/5726674779) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Ayacucho Tram's San Antonio terminus, with 2 Translohr cars underneath metro station (2016)](https://commons.wikimedia.org/w/index.php?curid=67254775) — J Daoss · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Estación Bello Metro de Medellín (08-25)](https://commons.wikimedia.org/w/index.php?curid=174260177) — Minoh09 · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- [Estación Envigado (Metro de Medellín)](https://commons.wikimedia.org/w/index.php?curid=54053732) — Jdapenao Di · [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/)
+- [Estación Alpujarra (Metro de Medellín)](https://commons.wikimedia.org/w/index.php?curid=51651121) — Jdapenao Di · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Imaginario estación Parque Berrío Metro de Medellín](https://commons.wikimedia.org/w/index.php?curid=48420073) — Jdapenao Di · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Estación Parque Berrío - metro de Medellín](https://commons.wikimedia.org/w/index.php?curid=35826419) — Yimicorrea · [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+- [Tren CAF del Metro de Medellín en la estación Hospital](https://commons.wikimedia.org/w/index.php?curid=154001126) — Daniel Angulo Ibarbo · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Tren CAF del Metro de Medellín saliendo de la estación Exposiciones](https://commons.wikimedia.org/w/index.php?curid=154000807) — Daniel Angulo Ibarbo · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Metro de Medellín - Tren MAN Modernizado](https://commons.wikimedia.org/w/index.php?curid=141587939) — AXF02 · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- [Medellín: metro station](https://www.flickr.com/photos/27035950@N00/6432088363) — Daniel-Latorre · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+
+#### Metrocable (10)
+
+- [Metrocable Arví](https://www.flickr.com/photos/46785962@N03/7543321676) — Saluda UdeA · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Estación Metrocable Arví](https://www.flickr.com/photos/18618970@N00/4480800604) — medea_material · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Estación metrocable Arví](https://www.flickr.com/photos/18618970@N00/4480150765) — medea_material · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Metro cable Santo domingo y Metro Cable Arví](https://www.flickr.com/photos/18618970@N00/4480152131) — medea_material · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [2018 Línea H del Metrocable Medellín - estación Villa Sierra](https://commons.wikimedia.org/w/index.php?curid=69379966) — Felipe Restrepo Acosta · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Sobrevolando Arví](https://www.flickr.com/photos/18618970@N00/4480845032) — medea_material · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Metrocable Medellín](https://www.flickr.com/photos/59505201@N07/8067331943) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Metrocable Medellín](https://www.flickr.com/photos/59505201@N07/8067325861) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Metrocable - Reaching the least developed suburban areas of Medellín (5083096780)](https://commons.wikimedia.org/w/index.php?curid=31949822) — Jorge Láscar from Australia · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Línea H (Metrocable Medellín)](https://commons.wikimedia.org/w/index.php?curid=44252575) — Andinodecorazón · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+#### Tranvía de Ayacucho (4)
+
+- [Presentación de la primera unidad del Tranvía de Ayacucho](https://www.flickr.com/photos/59505201@N07/14433527190) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Presentación de la primera unidad del Tranvía de Ayacucho](https://www.flickr.com/photos/59505201@N07/14433528230) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Tranvía de Ayacucho](https://www.flickr.com/photos/63488671@N00/49850407138) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Medellin Tram](https://commons.wikimedia.org/w/index.php?curid=47852637) — FoxerMG · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+#### Metroplús, alimentadores y busetas (8)
+
+- [Metro Medellin](https://www.flickr.com/photos/11121717@N02/4148901975) — Omar Uran · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [2018 Medellín - buseta en la calle 45 con carrera 53 A](https://commons.wikimedia.org/w/index.php?curid=69393596) — Felipe Restrepo Acosta · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [2018 Medellín calle 41 con carrera 51, buseta bajo la vía del metro](https://commons.wikimedia.org/w/index.php?curid=69393616) — Felipe Restrepo Acosta · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Buseta en Medellín](https://commons.wikimedia.org/w/index.php?curid=169989884) — Xemenendura · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Alimentador Metro Medellin](https://commons.wikimedia.org/w/index.php?curid=44342629) — Petruss · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Estación Universidad de Medellín (Metroplús)](https://commons.wikimedia.org/w/index.php?curid=54158668) — Jdapenao Di · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Intervención a peatones en la Estación de Metroplús Los Alpes](https://www.flickr.com/photos/59505201@N07/27976747553) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Estación Fátima (Metroplús)](https://commons.wikimedia.org/w/index.php?curid=54508580) — Jdapenao Di · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+
+#### Ciudad: barrios, río, plazas y vistas (20)
+
+- [Medellín](https://www.flickr.com/photos/100759833@N05/52473316749) — santiagolopezpastor · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Medellin Skyline](https://www.flickr.com/photos/7942389@N04/504021074) — sergejf · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Medellin... que chimba parce!!!!](https://www.flickr.com/photos/72494726@N00/280693114) — jduquetr · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Una vista de Medellín](https://www.flickr.com/photos/44124369279@N01/10968329364) — morrissey · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [el poblado, medellin](https://www.flickr.com/photos/37083012@N00/1354729251) — willy gil · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Medellin, Comuna 13](https://www.flickr.com/photos/11121717@N02/4148916737) — Omar Uran · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Medellín](https://www.flickr.com/photos/92529460@N00/5919196715) — Hugo Quintero · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Iglesia San José (Medellín)](https://www.flickr.com/photos/92529460@N00/4842401044) — Hugo Quintero · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Graffiti in Comuna 13, Medellín 10](https://commons.wikimedia.org/w/index.php?curid=99422890) — Bernard Gagnon · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Graffiti in Comuna 13, Medellín 11](https://commons.wikimedia.org/w/index.php?curid=99422914) — Bernard Gagnon · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Gato by Fernando Botero - Plaza Botero - Medellín - Colombia 2024](https://commons.wikimedia.org/w/index.php?curid=148836121) — José Luiz · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Hombre a Caballo by Fernando Botero - Plaza Botero - Medellín - Colombia 2024](https://commons.wikimedia.org/w/index.php?curid=148835816) — José Luiz · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- [Parque de los pies descalzos](https://www.flickr.com/photos/63488671@N00/321377268) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Parque de los pies descalzos](https://www.flickr.com/photos/63488671@N00/321377264) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Pueblito Paisa](https://www.flickr.com/photos/63488671@N00/321345952) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Pueblito Paisa](https://www.flickr.com/photos/63488671@N00/321353707) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Esa noche en el Pueblito Paisa](https://www.flickr.com/photos/123844098@N03/21065460872) — dgorrz · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Río Medellín](https://www.flickr.com/photos/15072398@N00/45869123621) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Río Medellín](https://www.flickr.com/photos/15072398@N00/45705409781) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [2018 Río Medellín y estación de metro Poblado](https://commons.wikimedia.org/w/index.php?curid=69377388) — Felipe Restrepo Acosta · [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+#### Fiestas: Feria de las Flores y Alumbrados (12)
+
+- [Río Medellín en navidad 2007](https://www.flickr.com/photos/63488671@N00/2168714421) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Alumbrado en el Río Medellín](https://www.flickr.com/photos/63488671@N00/347034965) — chilangoco · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [DESFILE DE SILLETEROS - 2014](https://www.flickr.com/photos/15072398@N00/14719290768) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Desfile de Silleteros](https://www.flickr.com/photos/54818270@N05/5278143814) — Guía de Viajes Oficial de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [De Flores y Silletas.... #silleteros #medellíncity #medellín #instamedellín #ig_colombia_ #feriadelasflores #IgersColombia #orquídea #igers](https://www.flickr.com/photos/15072398@N00/20405838375) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [MEDELLÍN - FERIA DE LAS FLORES](https://www.flickr.com/photos/15072398@N00/14895383753) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Bazar de las Flores](https://www.flickr.com/photos/59505201@N07/20094775915) — Secretaría de Movilidad de Medellín · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [MEDELLÍN - NAVIDAD 2014](https://www.flickr.com/photos/15072398@N00/15356148703) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [MEDELLÍN - NAVIDAD 2014](https://www.flickr.com/photos/15072398@N00/15975111382) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [ALUMBRADOS 2010](https://www.flickr.com/photos/15072398@N00/5263449320) — *Iván Erre Jota* · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Desfile de Autos Clasicos y Antiguos(57)](https://commons.wikimedia.org/w/index.php?curid=2518840) — SajoR · [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/)
+- [Desfile de Autos Clasicos y Antiguos(56)](https://commons.wikimedia.org/w/index.php?curid=2518836) — SajoR · [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/)
+
+#### Cultura: chivas y comida (5)
+
+- [Chiva Colombiana - bus escalera - FORD 600 1965 SYJ 097](https://www.flickr.com/photos/59102567@N02/7919623836) — @ferchos04 - F04 °°II YES · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Locombia Colombia PANACA Quindío Bus Chiva](https://www.flickr.com/photos/36283871@N03/4093177918) — 15Adar2 [340 cu.in.] Mamá ha muerto · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Dodge 600 bus escalera chiva Colombiana en Piendamó](https://www.flickr.com/photos/41979499@N03/15550435167) — N Fernando Sotelo Castro@Ferchos04 - V.2.0 · [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- [Bandeja Paisa](https://www.flickr.com/photos/25834786@N03/4346303841) — secretlondon123 · [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/)
+- [Bandeja paisa 30062011](https://commons.wikimedia.org/w/index.php?curid=15705199) — Dtarazona · [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+
+---
+
+# 13 · El videojuego: cómo jugarlo y código fuente completo
+
+## Cómo jugarlo
+- En **`El-Metro-TODO.html`**: botón **▶ Jugar El Metro**. También se puede descargar ahí mismo como `el-metro.html`.
+- En la web (PWA, instalable): https://juanfeliperico369-stack.github.io/MetroZero/
+- En Android: https://juanfeliperico369-stack.github.io/MetroZero/el-metro.apk
+
+## Cómo está hecho
+Un solo `index.html` sin librerías, armado por `node tools/build.mjs`. Concatena:
+- `src/head.html`, `src/body.html` y `src/style.css`;
+- los datos de `src/data/`;
+- los módulos de `src/js/` en orden.
+
+Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos están en la skill **el-metro-desarrollo** (parte 3 de este documento).
+
+## Datos que no van como texto
+- **`src/data/valle.js`** (1060 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
+- Las fuentes tipográficas y los íconos van embebidos al compilar.
+
+## Código fuente (60 archivos, 752 KB)
+
+### `src/head.html`
+~~~~html
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0e5a6b"><meta name="color-scheme" content="light">
+<title>El Metro · La última vuelta</title>
+<meta name="description" content="El Metro: videojuego offline sobre el Metro de Medellín. Conduce trenes, tranvía y Metroplús, despacha agujas, alimenta la red y arma los metrocables sobre el mapa real del Valle de Aburrá.">
+<meta name="application-name" content="El Metro"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="El Metro"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website"><meta property="og:locale" content="es_CO"><meta property="og:site_name" content="El Metro">
+<meta property="og:title" content="El Metro · La última vuelta"><meta property="og:description" content="Un juego sobre el Metro de Medellín: trenes, tranvía, Metroplús y metrocables sobre el mapa real del Valle de Aburrá. Funciona sin internet.">
+<meta property="og:url" content="%URL%"><meta property="og:image" content="%URL%compartir.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="El Metro · La última vuelta">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="%URL%compartir.png">
+<style>
+%FONTS%
+%CSS%
+</style></head>
+~~~~
+
+### `src/body.html`
+~~~~html
+<body>
+<div id="app">
+ <section class="scr" id="cover">
+  <div class="band"><div class="bt">Metro de Medellín · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="cvClock">Servicio 4:30 – 23:00</div></div>
+  <div class="cbody">
+   <div class="srf">Trenes, tranvía, Metroplús, alimentadores y metrocables · un juego para todo público</div>
+   <h1 class="mega">El Metro</h1>
+   <canvas class="cart" id="cvArt" width="320" height="200"></canvas>
+   <div class="kick">¿Sabés a dónde vas, mijo?</div>
+   <h2 class="mega b2">La última vuelta</h2>
+   <div class="ctag">Rosalba maneja su último tren. Tú heredas la ciudad.</div>
+   <div class="cbtns">
+    <button class="btn pri" id="bPlay">▶ Jugar</button>
+    <button class="btn tin" id="bStory">Historia · La última vuelta</button>
+    <div class="row"><button class="btn sm grow" id="bGuia">Aprende a usar el Metro</button><button class="btn sm grow" id="bMulti">Juntos</button><button class="btn sm" id="bCfg">⚙</button></div>
+   </div>
+  </div>
+  <div class="cfoot"><span>La revista que se mueve</span><span class="adv">Cultura Metro<b>Todo público</b>sin internet</span></div>
+ </section>
+
+ <section class="scr" id="menu">
+  <div class="band"><button class="ib" id="mBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">El Metro · Modos</div><div class="sp"></div><div class="tag" id="mWallet">0 pasajes</div></div>
+  <div class="scroll"><div class="wrap">
+   <div class="row" style="justify-content:space-between;align-items:flex-end;margin:4px 0 12px"><div><div class="pag">Est. 01 · Elige tu oficio</div><div class="mega" style="font-size:64px">Modos</div></div><div class="kick" id="mGreet">Buenos días</div></div>
+   <div id="mVida"></div>
+   <div class="modes" id="mList"></div>
+   <div class="wave" style="margin:22px 0 10px"></div>
+   <div class="row"><button class="btn sm" id="mBot">🤖 Bot de pruebas</button><button class="btn sm" id="mExport">⤓ Exportar partidas</button><button class="btn sm" id="mImport">⤒ Importar</button><button class="btn sm" id="mCred">Créditos</button></div>
+  </div></div>
+ </section>
+
+ <section class="scr" id="levels">
+  <div class="band"><button class="ib" id="lBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt" id="lTitle">Niveles</div><div class="sp"></div><div class="tag" id="lStars">★ 0</div></div>
+  <div class="scroll"><div class="wrap" id="lBody"></div></div>
+ </section>
+
+ <section class="scr" id="game">
+  <canvas id="gcv"></canvas>
+  <div id="ghud"><div class="gt"><b id="gTitle">—</b><small id="gSub">—</small></div><div class="chips" id="gChips"></div><button class="ib" id="gPause" aria-label="Pausa">❚❚</button></div>
+  <div id="gmsg"></div>
+  <div id="gctl"></div>
+ </section>
+
+ <section class="scr" id="story">
+  <canvas id="stCv" width="320" height="180"></canvas>
+  <div class="sbox"><div class="film" id="stText"></div><div class="sbt"><button class="btn sm gh" id="stSkip" style="color:#fff;border-color:#fff">Saltar</button><button class="btn sm pri" id="stNext">Siguiente ▶</button></div></div>
+ </section>
+
+ <section class="scr" id="red">
+  <canvas id="rcv"></canvas>
+  <div class="band" style="position:absolute;left:0;right:0;top:0;z-index:5"><button class="ib" id="rBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">La Red · Valle de Aburrá</div><div class="sp"></div><div class="tag" id="rInfo">—</div></div>
+  <div class="card hide" id="rCard"></div>
+  <div class="lchips" id="rChips"></div>
+ </section>
+
+ <section class="scr" id="multi">
+  <div class="band"><button class="ib" id="nBack" aria-label="Volver" style="border-left:0;border-right:3px solid var(--negro)">←</button><div class="bt">Jugar juntos</div><div class="sp"></div><div class="tag" id="nStat">Sin conexión</div></div>
+  <div class="scroll"><div class="wrap" id="nBody"></div></div>
+ </section>
+</div>
+<div id="modal" hidden><div class="mbox" id="mBody"></div></div>
+<div id="toast"></div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+~~~~
+
+### `src/style.css`
+~~~~css
+/* EL METRO · estilo revista EMSAY evolucionado: papel crema, tinta azul, banda petróleo, rojo, mostaza, marcos gruesos y tiras de película */
+:root{--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lH:#EB318E;--lJ:#F6C538;--lK:#B8CF40;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--mp1:#0E6F76;--mp2:#65A9AC;--papel:#f1ece0;--papel2:#faf6ec;--mante:#fbe7b0;--tinta:#154a80;--petro:#1C5C9C;--teal:#0E6F76;--rojo:#EC343A;--mostaza:#F6C538;--gris:#9aa1a8;--noche:#0f2a45;--noche2:#163a5c;--naranja:#E38835;--negro:#141414;--blanco:#fdfbf5;--verde:#59AB42;
+--fd:"Titulos","Arial Narrow",Impact,sans-serif;--fb:"Cuerpo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--fm:ui-monospace,"Roboto Mono",Consolas,monospace;--fs:Georgia,"Times New Roman",serif;
+--sh:4px 4px 0 var(--negro);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--noche);color:var(--negro);font-family:var(--fb);font-size:15px;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--naranja);outline-offset:2px}
+input,textarea{font:inherit;-webkit-user-select:text;user-select:text}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--papel)}
+.scr{position:absolute;inset:0;display:none;flex-direction:column;background:var(--papel);overflow:hidden}
+.scr.on{display:flex;animation:entra .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes entra{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(18px + var(--sab))}
+.wrap{max-width:820px;margin:0 auto;width:100%}
+/* ---------- banda de revista ---------- */
+.band{flex:none;display:flex;align-items:stretch;min-height:calc(48px + var(--sat));padding-top:var(--sat);background:var(--petro);color:var(--blanco);border-bottom:3px solid var(--negro);position:relative}
+.band:after{content:'';position:absolute;left:0;right:0;bottom:-9px;height:6px;background:linear-gradient(90deg,var(--lA) 0 11%,var(--lB) 11% 22%,var(--lT) 22% 33%,var(--lK) 33% 44%,var(--lJ) 44% 55%,var(--lH) 55% 66%,var(--lM) 66% 77%,var(--lP) 77% 88%,var(--mp1) 88% 100%);z-index:2;pointer-events:none}
+.band .bt{display:flex;align-items:center;padding:0 12px;font-weight:800;letter-spacing:.34em;font-size:12px;text-transform:uppercase;white-space:nowrap;overflow:hidden}
+.band .tag{margin:6px;display:flex;align-items:center;padding:0 10px;background:var(--papel2);color:var(--petro);font-weight:700;letter-spacing:.2em;font-size:11px;text-transform:uppercase;white-space:nowrap}
+.band .sp{flex:1}
+.band .ib{width:48px;display:flex;align-items:center;justify-content:center;font-size:22px;border-left:3px solid var(--negro)}
+/* ---------- tipografía ---------- */
+.mega{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;line-height:.84;color:var(--tinta);margin:0;letter-spacing:-.01em}
+.kick{font-family:var(--fs);font-style:italic;color:var(--rojo);font-size:17px}
+.spaced{font-weight:800;letter-spacing:.42em;text-transform:uppercase}
+.outline{font-family:var(--fd);font-stretch:75%;font-weight:700;color:transparent;-webkit-text-stroke:2px var(--negro);text-transform:uppercase;line-height:.85}
+.pag{font-weight:800;font-size:11px;letter-spacing:.14em;color:#55606a;text-transform:uppercase}
+.m{font-size:13.5px;color:#3c4650;line-height:1.45}
+.w{color:var(--blanco)}.ok{color:var(--verde)}.bad{color:var(--rojo)}.gold{color:var(--mostaza)}
+h2{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;font-size:34px;line-height:.9;margin:4px 0 8px;color:var(--tinta)}
+h3{font-weight:800;letter-spacing:.3em;text-transform:uppercase;font-size:13px;margin:16px 0 8px}
+.boxed{border:4px solid var(--negro);padding:12px 14px;background:var(--papel2)}
+.film{position:relative;background:#0e0e0e;color:var(--blanco);padding:26px 16px;font-family:var(--fm);text-transform:uppercase;font-size:12.5px;line-height:1.6;letter-spacing:.06em}
+.film:before,.film:after{content:"";position:absolute;left:8px;right:8px;height:10px;background:repeating-linear-gradient(90deg,var(--mante) 0 11px,transparent 11px 24px);border-radius:2px}
+.film:before{top:7px}.film:after{bottom:7px}
+.dash{border:3px dashed var(--negro)}
+.wave{height:14px;background:radial-gradient(circle at 10px -4px,transparent 9px,var(--naranja) 10px 13px,transparent 14px) 0 0/20px 14px repeat-x}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 6px;border-radius:13px;color:#fff;font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:17px;border:2px solid var(--negro)}
+.adv{display:inline-block;border:2px solid var(--negro);font-family:var(--fd);font-stretch:75%;font-weight:700;text-align:center;line-height:.95;padding:3px 7px;font-size:11px;text-transform:uppercase;background:var(--blanco)}
+.adv b{display:block;font-size:16px;background:var(--negro);color:var(--blanco);margin:2px -7px;padding:1px 4px}
+/* ---------- botones ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:3px solid var(--negro);padding:10px 16px;font-family:var(--fd);font-stretch:80%;font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em;color:var(--negro);background:var(--blanco);box-shadow:var(--sh);min-height:48px;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro)}
+.btn.pri{background:var(--rojo);color:#fff}
+.btn.tin{background:var(--tinta);color:#fff}
+.btn.mos{background:var(--mostaza);color:#fff}
+.btn.gh{box-shadow:none;background:transparent}
+.btn.sm{font-size:16px;min-height:38px;padding:6px 11px;box-shadow:3px 3px 0 var(--negro)}
+.btn[disabled]{opacity:.38;pointer-events:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.col{display:flex;flex-direction:column;gap:10px}
+.grow{flex:1}
+/* ---------- portada ---------- */
+#cover{background:var(--papel2)}
+#cover .cbody{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 14px 0;overflow-y:auto}
+#cover .srf{font-family:var(--fs);text-transform:uppercase;font-size:clamp(12px,3.3vw,18px);letter-spacing:.04em;line-height:1.25;max-width:560px}
+#cover .mega{font-size:clamp(84px,30vw,230px);width:100%;position:relative;z-index:1}
+#cover .mega.b2{font-size:clamp(46px,16vw,118px);color:var(--teal);margin-top:-.04em}
+#cover canvas.cart{width:min(92vw,560px);aspect-ratio:16/10;margin:-34px auto -20px;position:relative;z-index:0;image-rendering:pixelated;border:4px solid var(--negro);background:var(--noche)}
+#cover .kick{position:relative;z-index:2;margin:6px 0 2px;background:var(--papel2);padding:0 6px}
+#cover .ctag{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase;font-size:clamp(30px,9vw,60px);line-height:.86;color:var(--teal);text-align:left;align-self:flex-start;margin:10px 0 4px;max-width:560px}
+.cbtns{display:flex;flex-direction:column;gap:12px;width:min(100%,380px);margin:12px 0 18px}
+.cfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px calc(8px + var(--sab));background:var(--mante);border-top:3px solid var(--negro);font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:20px;text-transform:uppercase;color:var(--tinta)}
+/* ---------- menú de modos (cada uno con la página de la revista) ---------- */
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mcard{position:relative;border:4px solid var(--negro);min-height:150px;padding:12px 14px 12px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;box-shadow:var(--sh);transition:transform .1s}
+.mcard:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro)}
+.mcard .n{position:absolute;top:8px;left:12px;font-weight:800;font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.85}
+.mcard .t{font-family:var(--fd);font-stretch:75%;font-weight:700;font-size:44px;line-height:.85;text-transform:uppercase;position:relative;z-index:1}
+.mcard .d{font-size:13px;line-height:1.3;margin-top:6px;position:relative;z-index:1;max-width:92%}
+.mcard canvas{position:absolute;right:-6px;top:-6px;width:140px;height:110px;image-rendering:pixelated;opacity:.95}
+.mcard .st{position:absolute;top:8px;right:12px;font-family:var(--fm);font-size:12px;z-index:2}
+.c-conduce{background:var(--lA);color:#fff}
+.c-volante{background:var(--mp1);color:#fff}
+.c-cableviaje{background:var(--lK);color:var(--negro)}
+.c-despacho{background:var(--lB);color:#fff}
+.c-metroplus{background:var(--lH);color:#fff}
+.c-alim{background:var(--mp2);color:var(--negro)}
+.c-cable{background:var(--lJ);color:var(--negro)}
+.c-red{background:var(--papel2);color:var(--negro);background-image:linear-gradient(90deg,var(--lA) 0 12%,var(--lB) 12% 24%,var(--lT) 24% 36%,var(--lK) 36% 48%,var(--lJ) 48% 60%,var(--lH) 60% 72%,var(--lM) 72% 84%,var(--lP) 84% 100%);background-size:100% 8px;background-repeat:no-repeat;background-position:0 100%}
+.c-red .t{color:transparent;-webkit-text-stroke:2px var(--negro)}
+.c-hist{background:var(--lP);color:#fff}
+.c-multi{background:var(--lM);color:#fff}
+/* ---------- lista de niveles ---------- */
+.lv{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.lv button{border:3px solid var(--negro);background:var(--blanco);min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;box-shadow:3px 3px 0 var(--negro)}
+.lv button b{font-family:var(--fd);font-stretch:75%;font-size:30px;line-height:.9}
+.lv button small{font-size:10.5px;line-height:1.15;margin-top:3px;text-align:center}
+.lv button.lock{opacity:.4}
+.lv button.done{background:var(--mante)}
+.stars{color:var(--mostaza);letter-spacing:.08em;font-size:13px}
+.tramos{display:flex;flex-direction:column;gap:10px}
+.tramo{display:flex;align-items:center;gap:10px;border:3px solid var(--negro);background:var(--blanco);padding:10px 12px;box-shadow:3px 3px 0 var(--negro);text-align:left}
+.tramo .tx{flex:1;min-width:0}
+.tramo b{display:block;font-family:var(--fd);font-stretch:80%;font-size:22px;line-height:1;text-transform:uppercase}
+.tramo small{color:#4a5560}
+.tramo.lock{opacity:.4}
+/* ---------- juego ---------- */
+#game{background:var(--noche)}
+#gcv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;image-rendering:pixelated}
+#ghud{position:absolute;left:0;right:0;top:0;display:flex;align-items:stretch;padding-top:var(--sat);background:rgba(16,46,80,.9);color:var(--blanco);border-bottom:3px solid var(--negro);min-height:calc(46px + var(--sat));z-index:3}
+#ghud .gt{display:flex;flex-direction:column;justify-content:center;padding:0 10px;min-width:0;flex:1}
+#ghud .gt b{font-family:var(--fd);font-stretch:75%;font-size:22px;line-height:.95;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ghud .gt small{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ghud .chips{display:flex;align-items:center;gap:6px;padding:0 6px;font-family:var(--fm);font-size:12px}
+.chip{border:2px solid var(--mante);padding:2px 7px;color:var(--mante);white-space:nowrap;background:rgba(0,0,0,.25)}
+.chip b{color:#fff}
+#ghud .ib{width:46px;font-size:20px;border-left:3px solid var(--negro);color:var(--mante)}
+#gmsg{position:absolute;left:50%;top:calc(64px + var(--sat));transform:translateX(-50%);z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(94%,520px)}
+.gm{background:var(--blanco);border:3px solid var(--negro);padding:6px 12px;font-weight:700;box-shadow:3px 3px 0 var(--negro);animation:gm 2.6s forwards;text-align:center;font-size:14px}
+.gm.r{background:var(--rojo);color:#fff}.gm.y{background:var(--mante)}.gm.g{background:var(--verde);color:#fff}.gm.b{background:var(--tinta);color:#fff}
+@keyframes gm{0%{opacity:0;transform:translateY(-10px) scale(.9)}8%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+#gctl{position:absolute;inset:0;z-index:3;pointer-events:none;padding-bottom:var(--sab)}
+#gctl>*{pointer-events:auto}
+.big{font-family:var(--fd);font-stretch:75%;font-weight:700;text-transform:uppercase}
+/* palanca (manipulador) */
+.lever{position:absolute;right:8px;bottom:calc(10px + var(--sab));width:62px;height:min(34vh,230px);border:3px solid var(--negro);background:linear-gradient(#2f9b57 0 42%,#d9d2bb 42% 50%,#c8201f 50% 100%);box-shadow:var(--sh);touch-action:none}
+.lever .kn{position:absolute;left:-8px;right:-8px;height:30px;background:var(--blanco);border:3px solid var(--negro);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-stretch:75%;font-size:16px;font-weight:700}
+.lever .lb{position:absolute;left:0;right:0;text-align:center;font-size:9px;font-weight:800;letter-spacing:.12em;color:#fff;text-shadow:0 1px 0 #000}
+.gbtns{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:flex;flex-direction:column;gap:7px}
+.gbtns .btn{min-width:96px;font-size:15px;min-height:36px;padding:4px 8px}
+.vsel{position:fixed;right:8px;top:calc(56px + var(--sat));display:flex;gap:6px;z-index:4}
+.vsel button{width:46px;height:40px;border:3px solid var(--negro);background:var(--blanco);font-weight:800;font-size:12px;box-shadow:3px 3px 0 var(--negro)}
+.vsel button.on{background:var(--mante)}
+/* ---------- modal ---------- */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(12,37,51,.72);display:flex;align-items:center;justify-content:center;padding:14px}
+#modal[hidden]{display:none}
+.mbox{background:var(--papel2);border:4px solid var(--negro);box-shadow:8px 8px 0 var(--negro);width:min(560px,100%);max-height:calc(100% - 20px);overflow-y:auto;padding:16px;animation:entra .22s}
+.mbox p{line-height:1.45}
+#toast{position:fixed;left:50%;bottom:calc(20px + var(--sab));transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+#toast div{background:var(--negro);color:var(--mante);padding:8px 14px;font-weight:700;font-size:13.5px;border:2px solid var(--mante);animation:gm 3s forwards;max-width:90vw;text-align:center}
+/* ---------- historia ---------- */
+#story{background:#0e0e0e}
+#story canvas{width:100%;flex:1;min-height:0;image-rendering:pixelated;display:block}
+#story .sbox{flex:none;padding:0 0 var(--sab)}
+#story .film{min-height:150px;font-size:13.5px}
+#story .who{display:inline-block;background:var(--rojo);color:#fff;padding:1px 8px;margin-bottom:6px;font-weight:800;letter-spacing:.2em}
+#story .sbt{display:flex;gap:8px;padding:8px 10px;background:#0e0e0e;justify-content:flex-end}
+/* ---------- red / mapa ---------- */
+#red canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.lchips{position:absolute;left:8px;right:8px;bottom:calc(8px + var(--sab));display:flex;gap:6px;overflow-x:auto;padding:4px 2px;z-index:3}
+.lchips button{flex:none;display:flex;align-items:center;gap:6px;border:3px solid var(--negro);background:var(--blanco);padding:5px 9px;font-weight:700;font-size:13px;box-shadow:3px 3px 0 var(--negro)}
+.lchips button.off{opacity:.45}
+.card{position:absolute;left:8px;right:8px;top:calc(56px + var(--sat));z-index:4;max-width:460px;background:var(--papel2);border:4px solid var(--negro);box-shadow:6px 6px 0 var(--negro);padding:12px 14px;max-height:56%;overflow-y:auto}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.kv b{font-weight:800}
+.bar{height:10px;border:2px solid var(--negro);background:var(--blanco)}
+.bar i{display:block;height:100%;background:var(--verde)}
+.qr{display:flex;justify-content:center;padding:8px;background:#fff;border:3px solid var(--negro)}
+.qr canvas{image-rendering:pixelated;width:min(70vw,260px);height:auto}
+textarea.code{width:100%;min-height:64px;border:3px solid var(--negro);background:#fff;font-family:var(--fm);font-size:11px;padding:6px}
+.tg{display:flex;gap:6px;flex-wrap:wrap}
+.tg button{border:3px solid var(--negro);background:var(--blanco);padding:6px 10px;font-weight:700;font-size:13px}
+.tg button.on{background:var(--tinta);color:#fff}
+.hide{display:none!important}
+@media (min-width:900px){#cover .cbody{padding-top:18px}.mcard .t{font-size:52px}}
+@media (orientation:landscape) and (max-height:520px){#cover canvas.cart{width:min(60vw,420px)}.lever{height:min(60vh,240px)}}
+@media (prefers-reduced-motion:reduce){.scr.on,.gm,.mbox{animation:none}}
+/* ---------- cinta de noticias (estilo Industry Art) ---------- */
+.news{overflow:hidden;border:3px solid var(--negro);background:var(--negro);color:var(--mante);white-space:nowrap;font-weight:700;font-size:13px;padding:6px 0}
+.news .tick{display:inline-block;padding-left:100%;animation:tick 60s linear infinite}
+.news .tick span{margin-right:42px}
+@keyframes tick{to{transform:translateX(-100%)}}
+#gmsg{top:calc(104px + var(--sat))}
+/* ---------- temas ---------- */
+html.t-noche{--papel:#0c2533;--papel2:#123447;--blanco:#173f55;--negro:#f4ecd0;--tinta:#f9e4a4;--mante:#f9e4a4}
+html.t-noche .m,html.t-noche .pag,html.t-noche .tramo small{color:#c9d6dc}
+html.t-noche body,html.t-noche .scr{color:#f4ecd0}
+html.t-noche .btn,html.t-noche .tramo,html.t-noche .lv button,html.t-noche .lchips button,html.t-noche .tg button{color:#f4ecd0}
+html.t-noche .btn.pri{color:#fff}
+html.t-noche .news{color:#0c2533;background:#f9e4a4}
+html.t-noche .lv button.done{background:#2c5568}
+html.t-contraste{--papel:#000;--papel2:#000;--blanco:#000;--negro:#fff;--tinta:#ffe600;--teal:#ffe600;--rojo:#ff4d4d;--mante:#ffe600;--petro:#000}
+html.t-contraste .m,html.t-contraste .pag,html.t-contraste .tramo small{color:#fff}
+html.t-contraste body,html.t-contraste .scr,html.t-contraste .btn,html.t-contraste .tramo,html.t-contraste .lv button,html.t-contraste .tg button,html.t-contraste .lchips button{color:#fff}
+html.t-contraste .mcard{background:#000!important;color:#ffe600!important}
+html.t-contraste .news{background:#ffe600;color:#000}
+@media (prefers-reduced-motion:reduce){.news .tick{animation:none;padding-left:0}}
+
+/* ---------- timón (Al volante) ---------- */
+.wheel{position:absolute;left:8px;bottom:calc(10px + var(--sab));width:132px;height:132px;border-radius:50%;border:4px solid var(--negro);background:radial-gradient(circle,#2a3a4a 0 28%,transparent 29%),conic-gradient(from 0deg,#1e2a33,#33495c,#1e2a33);box-shadow:var(--sh);touch-action:none}
+.wheel .wh-in{position:absolute;inset:8px;border-radius:50%;border:10px solid var(--mante);transition:transform .05s}
+.wheel .wh-in i{position:absolute;left:50%;top:-10px;width:8px;height:22px;margin-left:-4px;background:var(--rojo);border:2px solid var(--negro)}
+#cover .mega{color:var(--lA)}#cover .mega.b2{color:var(--lB)}#cover .ctag{color:var(--mp1)}
+.num{font-variant-numeric:tabular-nums}
+/* ---------- pedales (Al volante) ---------- */
+.pedals{position:absolute;right:8px;bottom:calc(10px + var(--sab));display:flex;flex-direction:column;gap:8px}
+.pedal{width:84px;height:min(17vh,110px);border:3px solid var(--negro);background:var(--blanco);box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:11px;letter-spacing:.08em;text-transform:uppercase;touch-action:none;-webkit-user-select:none;user-select:none}
+.pedal b{font-size:26px;line-height:1}
+.pedal.acc{background:var(--lT);color:#fff}.pedal.brk{background:var(--lP);color:#fff}
+.pedal.on{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro);filter:brightness(1.15)}
+
+/* ---------- Ciudad Libre ---------- */
+.c-libre{background:var(--negro);color:var(--mante);background-image:radial-gradient(circle at 80% 20%,rgba(246,197,56,.25),transparent 40%)}
+.c-libre .t{color:var(--mante)}
+.joyzone{position:absolute;left:0;top:30%;width:52%;bottom:0;touch-action:none}
+.joy{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;border:3px solid rgba(253,251,245,.8);background:rgba(16,46,80,.35);display:none;pointer-events:none}
+.joy.on{display:block}
+.joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--mante);border:3px solid var(--negro);box-shadow:3px 3px 0 var(--negro)}
+.lbbtns{position:absolute;right:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:64px 64px;grid-template-rows:64px 64px;gap:8px;touch-action:none}
+.abtn{border:3px solid var(--negro);background:var(--blanco);box-shadow:var(--sh);font-size:24px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;-webkit-user-select:none;user-select:none;touch-action:none}
+.abtn small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.abtn.big{grid-row:1/3;grid-column:2;background:var(--lB);color:#fff;font-size:34px}
+.abtn.big.hot{background:var(--mostaza);color:var(--negro);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{transform:scale(1.06)}}
+.abtn.acc{background:var(--lT);color:#fff}.abtn.brk{background:var(--lP);color:#fff}.abtn.hb{background:var(--lJ);color:var(--negro);grid-column:1}
+.abtn.on{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--negro);filter:brightness(1.12)}
+.jobbar{position:absolute;left:8px;right:8px;top:calc(54px + var(--sat));background:rgba(16,46,80,.92);color:#fff;border:3px solid var(--negro);border-left:8px solid var(--mostaza);padding:6px 10px;display:flex;flex-direction:column;gap:2px;z-index:3;pointer-events:none;max-width:460px}
+.jobbar b{font-family:var(--fd);font-stretch:80%;font-size:19px;line-height:1;text-transform:uppercase}
+.jobbar span{font-size:12px;opacity:.9}
+.jobbar em{font-style:normal;font-family:var(--fm);font-size:12px;color:var(--mante)}
+.jobbar.low{border-left-color:var(--lP);animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{opacity:.6}}
+#game .vsel button#lbRun.on{background:var(--mante)}
+
+.c-guia{background:var(--lT);color:#fff}
+.guia-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.guia-tabs button{border:3px solid var(--negro);background:var(--blanco);padding:5px 9px;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.guia-tabs button.on{background:var(--lA);color:#fff}
+.guia-body{border:3px solid var(--negro);background:var(--papel2);padding:12px;min-height:200px;line-height:1.45}
+.guia-body h4{font-family:var(--fd);font-stretch:75%;font-size:26px;margin:0 0 6px;text-transform:uppercase;color:var(--tinta)}
+.guia-body ol,.guia-body ul{padding-left:20px;margin:6px 0}
+.guia-body li{margin:4px 0}
+.civica{display:inline-block;width:150px;height:94px;border-radius:8px;background:linear-gradient(135deg,#1C5C9C,#59AB42);border:3px solid var(--negro);box-shadow:var(--sh);color:#fff;font-weight:800;padding:8px;position:relative;margin:6px 0}
+.civica:after{content:'CÍVICA';position:absolute;right:10px;bottom:8px;font-family:var(--fd);font-stretch:75%;font-size:22px;letter-spacing:.04em}
+.civica i{position:absolute;left:10px;top:34px;width:26px;height:20px;border-radius:4px;background:#F6C538;border:2px solid var(--negro)}
+.jobbar.stop{border-left-color:var(--lT)}
+/* botones de cabina (metro): panel oscuro con etiquetas LED */
+#game .lever{background:linear-gradient(#59AB42 0 42%,#d9d2bb 42% 50%,#EC343A 50% 100%);border-color:#0b1115;box-shadow:4px 4px 0 #0b1115,inset 0 0 0 3px #1b262e}
+#game .lever .kn{background:#243039;color:#ffd27a;border-color:#0b1115;font-family:var(--fm)}
+#game .gbtns .btn{background:#243039;color:#ffd27a;border-color:#0b1115;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-stretch:100%;font-size:13px;letter-spacing:.06em}
+#game .gbtns .btn.mos{background:#F6C538;color:#141414}
+#game .gbtns .btn[disabled]{opacity:.45}
+/* ---------- cabina del metro: botonera iluminada ---------- */
+.cabgrid{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:repeat(4,48px);grid-auto-rows:46px;gap:6px;pointer-events:auto}
+.cb{border:3px solid #0b1115;background:#243039;color:#9fb0bb;box-shadow:3px 3px 0 #0b1115;font-family:var(--fm);font-size:7.5px;font-weight:800;letter-spacing:.03em;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;text-align:center;padding:0 1px;-webkit-user-select:none;user-select:none}
+.cb b{font-size:15px;color:#ffd27a;line-height:1.1;font-family:var(--fm)}
+.cb:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b1115}
+.cb.on{background:#1f3a2a;color:#7fe0a0;box-shadow:3px 3px 0 #0b1115,inset 0 0 12px rgba(127,224,160,.55)}
+.cb.on b{color:#bfffd3}
+.cb.hot{background:#F6C538;color:#141414;animation:pulse .7s infinite alternate}
+.cb.hot b{color:#141414}
+.cb.warn{background:#7a1414;color:#fff;animation:blink .35s steps(2) infinite}
+.cb.warn b{color:#fff}
+.cb[disabled]{opacity:.45}
+.jobbar.tut{top:calc(190px + var(--sat));right:84px;border-left-color:var(--lT);background:rgba(16,46,80,.95)}
+/* historia en la ciudad: barra del capítulo y conversación con los personajes */
+.jobbar.trama{border-left-color:var(--lH);top:calc(104px + var(--sat))}
+.jobbar.trama b{font-size:16px}
+.trtalk{position:absolute;left:8px;right:8px;bottom:calc(158px + var(--sab));background:var(--papel,#f1ece0);color:var(--negro);border:3px solid var(--negro);border-left:10px solid var(--lA);box-shadow:5px 5px 0 var(--negro);padding:10px 12px 12px;z-index:6;max-width:560px;margin:0 auto;animation:trIn .18s ease-out}
+.trtalk .who{display:inline-block;font-family:var(--fd);font-stretch:80%;font-size:15px;text-transform:uppercase;background:var(--lA);color:#fff;padding:1px 8px;margin-bottom:4px}
+.trtalk p{margin:2px 0 8px;font-size:15px;line-height:1.35}
+.trtalk .opts{display:flex;flex-wrap:wrap;gap:6px}
+.trtalk .opts .btn{flex:1 1 auto;text-align:left;white-space:normal;line-height:1.2}
+.trtalk .x{position:absolute;right:6px;top:4px;border:0;background:none;font-size:18px;font-weight:900;cursor:pointer}
+.trtalk.hide{display:none}
+#game .vsel button#lbFF.on{background:var(--lT);color:#fff}
+@keyframes trIn{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+#game:has(.jobbar.trama:not(.hide)) #gmsg{top:calc(176px + var(--sat))}
+.trcap{position:absolute;left:0;right:0;top:38%;z-index:7;pointer-events:none;text-align:center;color:#fff;background:linear-gradient(90deg,transparent,rgba(12,37,51,.92) 18%,rgba(12,37,51,.92) 82%,transparent);padding:14px 10px 16px;animation:trCap 3.8s ease forwards}
+.trcap small{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mante)}
+.trcap b{display:block;font-family:var(--fd);font-stretch:80%;font-size:34px;line-height:1;text-transform:uppercase;margin-top:4px}
+@keyframes trCap{0%{opacity:0;transform:scaleY(.6)}10%{opacity:1;transform:none}82%{opacity:1}100%{opacity:0}}
+~~~~
+
+### `src/js/00-core.js`
+~~~~js
+'use strict';
+/* =====================================================================
+   EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
+   ===================================================================== */
+const EM = window.EM = { version: '0.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const TAU = Math.PI * 2;
+const dist = (ax, ay, bx, by) => Math.hypot(bx - ax, by - ay);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const fmt = n => Math.round(n).toLocaleString('es-CO');
+const pad2 = n => String(n).padStart(2, '0');
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function h2(x, y, s = 0) { let h = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 2246822519); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+function hashStr(s) { let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+class RNG {
+  constructor(seed) { this.seed = seed >>> 0; this.r = mulberry32(this.seed); }
+  f() { return this.r(); }
+  i(a, b) { return a + Math.floor(this.r() * (b - a + 1)); }
+  range(a, b) { return a + this.r() * (b - a); }
+  pick(a) { return a[Math.floor(this.r() * a.length)]; }
+  shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(this.r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+}
+const deep = o => JSON.parse(JSON.stringify(o));
+const now = () => performance.now() / 1000;
+function clockStr(d = new Date()) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), dow = d.getDay(); const a = dow === 0 ? 7 * 60 : dow === 6 ? 4 * 60 + 30 : 4 * 60 + 30; return m >= a && m < 23 * 60; }
+
+/* ---------- guardado (localStorage + exportar a archivo) ---------- */
+const KEY = 'elmetro.v1';
+function newSave() {
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'revista', dalt: 0, ciclo: 'rapido' } };
+}
+const Save = EM.save = {
+  d: null,
+  load() {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { d = null; }
+    this.d = this.sanitize(d);
+    return this.d;
+  },
+  sanitize(d) {
+    const b = newSave();
+    if (!d || typeof d !== 'object' || d.v !== 1) return b;
+    for (const k in b) if (d[k] == null || typeof d[k] !== typeof b[k]) d[k] = b[k];
+    for (const k in b.settings) if (typeof d.settings[k] !== typeof b.settings[k]) d.settings[k] = b.settings[k];
+    for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;
+    if (!isFinite(d.wallet) || d.wallet < 0) d.wallet = 0;
+    if (!Array.isArray(d.log)) d.log = []; if (!d.libre || typeof d.libre !== 'object') d.libre = b.libre; if (!d.libre.visited || typeof d.libre.visited !== 'object') d.libre.visited = {};
+    return d;
+  },
+  write() { if (EM.headless) return; try { localStorage.setItem(KEY, JSON.stringify(this.d)); } catch (e) { } },
+  stars(mode, lv) { return ((this.d.stars[mode] || {})[lv]) | 0; },
+  totalStars(mode) { const o = this.d.stars[mode] || {}; let t = 0; for (const k in o) t += o[k] | 0; return t; },
+  record(mode, lv, r) {
+    const d = this.d; d.stats.games++; if (r.win) d.stats.wins++;
+    const st = d.stars[mode] || (d.stars[mode] = {}); if ((r.stars | 0) > (st[lv] | 0)) st[lv] = r.stars | 0;
+    const be = d.best[mode] || (d.best[mode] = {}); if ((r.score | 0) > (be[lv] | 0)) be[lv] = r.score | 0;
+    const earn = Math.max(0, Math.round((r.score || 0) / 10) + (r.stars | 0) * 5) * (EM.vida ? EM.vida.bonus() : 1); d.wallet += earn;
+    d.log.unshift({ t: Date.now(), m: mode, l: lv, s: r.score | 0, e: r.stars | 0, w: !!r.win }); if (d.log.length > 60) d.log.length = 60;
+    this.write(); return earn;
+  },
+  exportFile() {
+    const d = Object.assign({ exportado: new Date().toISOString(), juego: 'El Metro ' + EM.version }, this.d), txt = JSON.stringify(d, null, 1);
+    const name = 'el-metro-partidas-' + new Date().toISOString().slice(0, 10) + '.json';
+    if (window.AndroidBridge && AndroidBridge.saveFile) { try { AndroidBridge.saveFile(name, 'application/json', txt); return; } catch (e) { } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    UI.toast('Partidas exportadas: ' + name);
+  },
+  importFile(file) {
+    const fr = new FileReader();
+    fr.onload = () => { try { const d = JSON.parse(fr.result); delete d.exportado; delete d.juego; if (d.v !== 1) throw 0; this.d = this.sanitize(d); this.write(); UI.toast('Partidas importadas ✓'); UI.refresh(); } catch (e) { UI.toast('Ese archivo no es de El Metro'); } };
+    fr.readAsText(file);
+  }
+};
+
+/* ---------- vibración ---------- */
+function vib(ms) { if (!Save.d || !Save.d.settings.vib) return; try { if (window.AndroidBridge && AndroidBridge.vibrate) AndroidBridge.vibrate(ms | 0); else if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { } }
+
+/* ---------- sonido sintetizado (sin archivos) ---------- */
+const Snd = EM.snd = {
+  ac: null, master: null, mus: null, sfxG: null,
+  init() {
+    if (this.ac || EM.headless) return; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    try { this.ac = new AC(); } catch (e) { return; }
+    this.master = this.ac.createGain(); this.master.gain.value = .8; this.master.connect(this.ac.destination);
+    this.sfxG = this.ac.createGain(); this.sfxG.connect(this.master); this.mus = this.ac.createGain(); this.mus.gain.value = .32; this.mus.connect(this.master);
+    this.apply();
+  },
+  apply() { if (!this.ac) return; const s = Save.d.settings; this.sfxG.gain.value = s.snd ? 1 : 0; this.mus.gain.value = s.mus ? .32 : 0; },
+  resume() { if (this.ac && this.ac.state === 'suspended') this.ac.resume(); },
+  tone(f, d, type = 'square', vol = .15, slide = 0, delay = 0, dest) {
+    const ac = this.ac; if (!ac) return; const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t + d);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(dest || this.sfxG); o.start(t); o.stop(t + d + .02);
+  },
+  noise(d, vol = .2, f = 1200, delay = 0, q = 1) {
+    const ac = this.ac; if (!ac) return; const t = ac.currentTime + delay, n = Math.floor(ac.sampleRate * d), b = ac.createBuffer(1, n, ac.sampleRate), ch = b.getChannelData(0);
+    for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const s = ac.createBufferSource(), fl = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = b; fl.type = 'bandpass'; fl.frequency.value = f; fl.Q.value = q; g.gain.value = vol;
+    s.connect(fl); fl.connect(g); g.connect(this.sfxG); s.start(t);
+  },
+  play(k) {
+    if (!this.ac) return; this.resume();
+    switch (k) {
+      case 'tap': this.tone(660, .05, 'square', .06); break;
+      case 'switch': this.tone(420, .04, 'square', .09); this.tone(840, .05, 'square', .06, 0, .04); this.noise(.04, .08, 3000, 0, 4); break;
+      case 'rot': this.tone(300, .05, 'triangle', .12, 200); break;
+      case 'ok': this.tone(523, .08, 'square', .1); this.tone(784, .12, 'square', .1, 0, .07); break;
+      case 'bad': this.tone(220, .18, 'sawtooth', .12, -90); break;
+      case 'crash': this.noise(.5, .5, 500, 0, .7); this.tone(90, .4, 'sawtooth', .2, -50); break;
+      case 'coin': this.tone(988, .06, 'square', .08); this.tone(1319, .14, 'square', .08, 0, .06); break;
+      case 'star': [784, 988, 1175, 1568].forEach((f, i) => this.tone(f, .14, 'triangle', .14, 0, i * .09)); break;
+      case 'win': [523, 659, 784, 1047, 784, 1047].forEach((f, i) => this.tone(f, .16, 'square', .1, 0, i * .11)); break;
+      case 'lose': [392, 330, 262, 196].forEach((f, i) => this.tone(f, .22, 'triangle', .14, 0, i * .16)); break;
+      case 'door': this.noise(.7, .12, 900, 0, .8); this.tone(160, .5, 'sine', .05, -40); break;
+      case 'bell': this.tone(1046, .25, 'sine', .14); this.tone(784, .4, 'sine', .14, 0, .28); break;   // timbre de cierre de puertas
+      case 'horn': this.tone(311, .45, 'sawtooth', .11); this.tone(370, .45, 'sawtooth', .09); break;
+      case 'beep': this.tone(1400, .07, 'square', .07); break;
+      case 'warn': this.tone(880, .1, 'square', .1); this.tone(660, .1, 'square', .1, 0, .12); break;
+      case 'whoosh': this.noise(.35, .15, 700, 0, .5); break;
+      case 'brake': this.noise(.3, .07, 2400, 0, 6); break;
+    }
+  },
+  /* anuncio por voz (voces del sistema; funcionan sin internet en la mayoría de celulares) */
+  say(txt) {
+    if (EM.headless || !Save.d.settings.voz || !window.speechSynthesis) return;
+    try { const u = new SpeechSynthesisUtterance(txt); u.lang = 'es-CO'; const v = speechSynthesis.getVoices().find(v => /^es/i.test(v.lang)); if (v) u.voice = v; u.rate = 1; u.pitch = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { }
+  }
+};
+
+/* ---------- música generativa (secuenciador con anticipación) ---------- */
+const Music = EM.music = {
+  on: null, step: 0, next: 0, timer: null,
+  SONGS: {
+    // tempo, escala (semitonos), progresión (grados), patrón de bajo, densidad de melodía, timbre
+    menu: { bpm: 96, root: 57, sc: [0, 2, 4, 5, 7, 9, 11], prog: [0, 5, 3, 4], bass: [1, 0, 0, 1, 0, 1, 0, 0], mel: .45, w: 'triangle' },      // tango-pop suave (Gardel murió en Medellín)
+    conduce: { bpm: 112, root: 52, sc: [0, 2, 3, 5, 7, 8, 10], prog: [0, 6, 5, 6], bass: [1, 0, 1, 0, 1, 0, 1, 1], mel: .3, w: 'square' },
+    puzzle: { bpm: 104, root: 60, sc: [0, 2, 4, 7, 9], prog: [0, 3, 1, 4], bass: [1, 0, 0, 0, 1, 0, 1, 0], mel: .5, w: 'triangle' },
+    tension: { bpm: 132, root: 50, sc: [0, 1, 3, 5, 7, 8, 10], prog: [0, 0, 5, 6], bass: [1, 1, 0, 1, 1, 0, 1, 0], mel: .35, w: 'sawtooth' },
+    story: { bpm: 72, root: 55, sc: [0, 2, 4, 5, 7, 9, 11], prog: [0, 4, 5, 3], bass: [1, 0, 0, 0, 0, 0, 1, 0], mel: .55, w: 'sine' }
+  },
+  play(k) {
+    if (EM.headless || !Snd.ac) { this.on = k; return; }
+    if (this.on === k && this.timer) return; this.stop(); this.on = k; const S = this.SONGS[k]; if (!S) return;
+    this.step = 0; this.next = Snd.ac.currentTime + .1; this.rng = new RNG(hashStr(k) + 7);
+    this.timer = setInterval(() => this.sched(S), 60);
+  },
+  stop() { if (this.timer) clearInterval(this.timer); this.timer = null; },
+  sched(S) {
+    const ac = Snd.ac; if (!ac) return; const dt = 60 / S.bpm / 2;
+    while (this.next < ac.currentTime + .25) {
+      const st = this.step, bar = Math.floor(st / 8) % S.prog.length, deg = S.prog[bar], sc = S.sc, t = this.next - ac.currentTime;
+      const note = (d, oct) => S.root + sc[((d % sc.length) + sc.length) % sc.length] + 12 * (oct + Math.floor(d / sc.length));
+      const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+      if (S.bass[st % 8]) Snd.tone(hz(note(deg, -1)), dt * 1.6, 'triangle', .16, 0, t, Snd.mus);
+      if (st % 8 === 0) [0, 2, 4].forEach(k => Snd.tone(hz(note(deg + k, 0)), dt * 7, 'sine', .035, 0, t, Snd.mus));
+      if (this.rng.f() < S.mel && st % 2 === 0) Snd.tone(hz(note(deg + this.rng.i(0, 6), 1)), dt * 1.4, S.w, .045, 0, t, Snd.mus);
+      if (st % 4 === 2) Snd.noise(.05, .05, 6000, t, 3);
+      this.step++; this.next += dt;
+    }
+  }
+};
+
+/* ---------- interfaz: pantallas, avisos, modales ---------- */
+const UI = EM.ui = {
+  cur: null, stack: [],
+  show(id, push = true) {
+    if (this.cur === id) return; if (push && this.cur) this.stack.push(this.cur);
+    $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); const prev = this.cur; this.cur = id;
+    if (this.onshow[id]) this.onshow[id](prev);
+  },
+  back() {
+    if (!$('#modal').hidden) { this.close(); return true; }
+    if (this.onback[this.cur] && this.onback[this.cur]() === true) return true;
+    const p = this.stack.pop(); if (!p) return false; this.show(p, false); return true;
+  },
+  onshow: {}, onback: {},
+  toast(m) { if (EM.headless) return; const d = document.createElement('div'); d.textContent = m; $('#toast').appendChild(d); setTimeout(() => d.remove(), 3000); },
+  modal(html, onClose) { if (EM.headless) return; $('#mBody').innerHTML = html; $('#modal').hidden = false; this._onClose = onClose || null; const f = $('#mBody button'); if (f) setTimeout(() => f.focus(), 30); },
+  close() { $('#modal').hidden = true; $('#mBody').innerHTML = ''; const f = this._onClose; this._onClose = null; if (f) f(); },
+  refresh() { if (this.onshow[this.cur]) this.onshow[this.cur](this.cur); },
+  gmsg(t, cls = '') { if (EM.headless) return; const d = document.createElement('div'); d.className = 'gm ' + cls; d.textContent = t; const g = $('#gmsg'); g.appendChild(d); while (g.children.length > 3) g.firstChild.remove(); setTimeout(() => d.remove(), 2700); }
+};
+EM.back = () => UI.back();
+
+/* ---------- errores capturados (los lee el bot) ---------- */
+window.addEventListener('error', e => { EM.errors.push(String(e.message || e) + (e.filename ? ' @' + e.lineno : '')); });
+window.addEventListener('unhandledrejection', e => { EM.errors.push('promesa: ' + String(e.reason && e.reason.message || e.reason)); });
+
+/* ---------- lienzo con alta densidad ---------- */
+function fitCanvas(cv, maxDpr = 2) {
+  const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, maxDpr), w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  return { w, h, dpr };
+}
+function mkCanvas(w, h) { if (typeof OffscreenCanvas !== 'undefined' && EM.headless) return new OffscreenCanvas(w, h); const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+~~~~
+
+### `src/js/01-inflate.js`
+~~~~js
+/* inflate (deflate crudo) para navegadores sin DecompressionStream · de Juega EnCicla */
+function inflateRaw(src, size) {
+  const out = new Uint8Array(size); let o = 0, p = 0, bb = 0, bc = 0;
+  const bits = n => { while (bc < n) { bb |= (src[p++] | 0) << bc; bc += 8; } const v = bb & ((1 << n) - 1); bb >>>= n; bc -= n; return v; };
+  const mk = (len, n) => { const cnt = new Int32Array(16), off = new Int32Array(16), sym = new Int32Array(n); for (let i = 0; i < n; i++) cnt[len[i]]++; cnt[0] = 0; for (let i = 1; i < 16; i++) off[i] = off[i - 1] + cnt[i - 1]; for (let i = 0; i < n; i++) if (len[i]) sym[off[len[i]]++] = i; return { cnt, sym }; };
+  const dec = h => { let code = 0, first = 0, idx = 0; for (let l = 1; l < 16; l++) { code |= bits(1); const c = h.cnt[l]; if (code - c < first) return h.sym[idx + code - first]; idx += c; first += c; first <<= 1; code <<= 1; } return 256; };
+  const LB = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258], LE = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0];
+  const DB = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577], DE = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+  let fl = null, fd = null;
+  for (let last = 0; !last && o < size;) {
+    last = bits(1); const type = bits(2);
+    if (type === 0) { bb = 0; bc = 0; const len = src[p] | src[p + 1] << 8; p += 4; out.set(src.subarray(p, p + len), o); o += len; p += len; continue; }
+    let lh, dh;
+    if (type === 1) { if (!fl) { const l = new Uint8Array(288); l.fill(8, 0, 144); l.fill(9, 144, 256); l.fill(7, 256, 280); l.fill(8, 280, 288); fl = mk(l, 288); fd = mk(new Uint8Array(30).fill(5), 30); } lh = fl; dh = fd; }
+    else {
+      const nl = bits(5) + 257, nd = bits(5) + 1, nc = bits(4) + 4, ord = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], cl = new Uint8Array(19);
+      for (let i = 0; i < nc; i++) cl[ord[i]] = bits(3);
+      const ch = mk(cl, 19), L = new Uint8Array(nl + nd);
+      for (let i = 0; i < nl + nd;) { const s = dec(ch); if (s < 16) L[i++] = s; else { let r, v = 0; if (s === 16) { v = L[i - 1]; r = 3 + bits(2); } else if (s === 17) r = 3 + bits(3); else r = 11 + bits(7); while (r--) L[i++] = v; } }
+      lh = mk(L.subarray(0, nl), nl); dh = mk(L.subarray(nl), nd);
+    }
+    for (;;) { let s = dec(lh); if (s < 256) out[o++] = s; else if (s === 256) break; else { s -= 257; const len = LB[s] + bits(LE[s]), ds = dec(dh), d = DB[ds] + bits(DE[ds]); for (let k = 0; k < len; k++, o++) out[o] = out[o - d]; } }
+  }
+  return out;
+}
+~~~~
+
+### `src/js/05-qr.js`
+~~~~js
+/* ---- QR: generador + lector (BarcodeDetector) · adaptado de Juega EnCicla ---- */
+/* ---- 72-qr.js ---- */
+/* =====================================================================
+   QR · codificador propio (modo byte UTF-8, versiones 1–40, ECC L–H)
+   y ayudante de escaneo con cámara (BarcodeDetector). Sin dependencias.
+   ===================================================================== */
+// Tablas por versión (índice 0 sin uso). Filas por nivel: L, M, Q, H
+const qrECC = [ // codewords de corrección por bloque
+  [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+  [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
+  [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+  [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]];
+const qrBLK = [ // número de bloques de corrección
+  [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+  [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
+  [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
+  [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]];
+const qrFMT = [1, 0, 3, 2]; // bits de nivel en la información de formato (L, M, Q, H)
+const qrMASK = [ // x = columna, y = fila; true = invertir módulo
+  (x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0,
+  (x, y) => ((x / 3 | 0) + (y / 2 | 0)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0,
+  (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+
+// Aritmética en GF(256) con polinomio 0x11D (tablas exp/log)
+const qrEXP = new Uint8Array(512), qrLOG = new Uint8Array(256);
+for (let i = 0, x = 1; i < 255; i++) { qrEXP[i] = x; qrLOG[x] = i; x = (x << 1) ^ (x & 0x80 ? 0x11D : 0); }
+for (let i = 255; i < 512; i++) qrEXP[i] = qrEXP[i - 255];
+const qrMul = (a, b) => a && b ? qrEXP[qrLOG[a] + qrLOG[b]] : 0;
+
+// Reed–Solomon: polinomio generador de grado `deg` (coeficientes sin el término líder)
+function qrRSDiv(deg) {
+  const r = new Uint8Array(deg); r[deg - 1] = 1;
+  for (let i = 0, root = 1; i < deg; i++, root = qrMul(root, 2))
+    for (let j = 0; j < deg; j++) { r[j] = qrMul(r[j], root); if (j + 1 < deg) r[j] ^= r[j + 1]; }
+  return r;
+}
+function qrRSRem(data, div) { // resto de data·x^deg / generador = codewords ECC
+  const n = div.length, r = new Uint8Array(n);
+  for (let k = 0; k < data.length; k++) {
+    const f = data[k] ^ r[0]; r.copyWithin(0, 1); r[n - 1] = 0;
+    if (f) for (let i = 0; i < n; i++) r[i] ^= qrMul(div[i], f);
+  }
+  return r;
+}
+
+// Módulos disponibles para datos+ECC (sin patrones de función ni formato/versión)
+function qrRaw(v) {
+  let r = (16 * v + 128) * v + 64;
+  if (v >= 2) { const n = (v / 7 | 0) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; }
+  return r;
+}
+const qrDataCW = (v, e) => (qrRaw(v) >> 3) - qrECC[e][v] * qrBLK[e][v];
+function qrAlign(v) { // centros de los patrones de alineación
+  if (v === 1) return [];
+  const n = (v / 7 | 0) + 2, step = ((v * 8 + n * 3 + 5) / (n * 4 - 4) | 0) * 2, r = [6];
+  for (let p = v * 4 + 10; r.length < n; p -= step) r.splice(1, 0, p);
+  return r;
+}
+// Divide en bloques, añade ECC a cada uno e intercala
+function qrBlocks(data, v, e) {
+  const nb = qrBLK[e][v], el = qrECC[e][v], raw = qrRaw(v) >> 3,
+    nShort = nb - raw % nb, sLen = raw / nb | 0, div = qrRSDiv(el), blk = [];
+  for (let i = 0, k = 0; i < nb; i++) {
+    const len = sLen - el + (i < nShort ? 0 : 1), d = data.subarray(k, k + len); k += len;
+    blk.push([d, qrRSRem(d, div)]);
+  }
+  const out = new Uint8Array(raw); let o = 0;
+  for (let i = 0; i <= sLen - el; i++) for (const [d] of blk) if (i < d.length) out[o++] = d[i];
+  for (let i = 0; i < el; i++) for (const [, c] of blk) out[o++] = c[i];
+  return out;
+}
+// Penalización estándar (reglas N1–N4) para elegir máscara
+function qrPenalty(m, n) {
+  let p = 0, dark = 0;
+  // N3: historial de las últimas 7 rachas para hallar 1:1:3:1:1 con 4 claros a un lado (el borde cuenta como claro)
+  const h = new Int32Array(7), add = len => { if (!h[0]) len += n; h.copyWithin(1, 0, 6); h[0] = len; },
+    fnd = () => { const u = h[1]; return u > 0 && h[2] === u && h[3] === u * 3 && h[4] === u && h[5] === u ? (h[0] >= u * 4 && h[6] >= u) + (h[6] >= u * 4 && h[0] >= u) : 0; };
+  for (let pass = 0; pass < 2; pass++) // 0: filas, 1: columnas
+    for (let a = 0; a < n; a++) {
+      let col = 0, run = 0; h.fill(0);
+      for (let b = 0; b < n; b++) {
+        const c = pass ? m[b * n + a] : m[a * n + b];
+        if (c === col) { if (++run === 5) p += 3; else if (run > 5) p++; } // N1: rachas de 5+
+        else { add(run); if (!col) p += fnd() * 40; col = c; run = 1; }
+      }
+      if (col) { add(run); run = 0; }
+      add(run + n); p += fnd() * 40;
+    }
+  for (let y = 0; y < n - 1; y++) for (let x = 0; x < n - 1; x++) {
+    const i = y * n + x, c = m[i];
+    if (c === m[i + 1] && c === m[i + n] && c === m[i + n + 1]) p += 3;
+  }
+  for (let i = 0; i < n * n; i++) dark += m[i];
+  return p + (Math.ceil(Math.abs(dark * 20 - n * n * 10) / (n * n)) - 1) * 10;
+}
+function qrCamErr(e) {
+  const n = (e && e.name) || '';
+  if (/NotAllowed|Security|PermissionDenied/.test(n)) return 'Permiso de cámara denegado. Actívalo en la configuración del navegador o escribe el código a mano.';
+  if (/NotFound|Overconstrained|DevicesNotFound/.test(n)) return 'No se encontró ninguna cámara en este dispositivo.';
+  if (/NotReadable|TrackStart|Abort/.test(n)) return 'La cámara está ocupada por otra aplicación.';
+  return 'No se pudo abrir la cámara' + (e && e.message ? ': ' + e.message : '.');
+}
+
+const QR = EM.qr = {
+  _scan: null, // estado del escaneo activo
+  // Matriz QR del texto (UTF-8, modo byte). ecl = nivel mínimo ('L' por defecto);
+  // se usa la versión más pequeña que cabe y luego se sube el nivel si sigue cabiendo.
+  matrix(text, ecl = 'L') {
+    const bytes = new TextEncoder().encode(String(text));
+    let e = Math.max(0, 'LMQH'.indexOf(ecl)), ver = 0;
+    for (let v = 1; v <= 40 && !ver; v++)
+      if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= qrDataCW(v, e) * 8) ver = v;
+    if (!ver) throw new Error('QR: texto demasiado largo (' + bytes.length + ' bytes)');
+    const cc = ver < 10 ? 8 : 16, used = 4 + cc + bytes.length * 8;
+    while (e < 3 && used <= qrDataCW(ver, e + 1) * 8) e++;
+    // Flujo de bits: modo 0100, longitud, datos, terminador, relleno
+    const nData = qrDataCW(ver, e), data = new Uint8Array(nData); let bl = 0;
+    const put = (val, n) => { for (let i = n - 1; i >= 0; i--, bl++) data[bl >> 3] |= (val >>> i & 1) << (7 - (bl & 7)); };
+    put(4, 4); put(bytes.length, cc); for (const b of bytes) put(b, 8);
+    bl += Math.min(4, nData * 8 - bl); bl = (bl + 7) & ~7; // terminador + alinear a byte
+    for (let i = bl >> 3, p = 0xEC; i < nData; i++, p ^= 0xEC ^ 0x11) data[i] = p;
+    const cw = qrBlocks(data, ver, e);
+    // Patrones de función
+    const size = ver * 4 + 17, mod = new Uint8Array(size * size), fn = new Uint8Array(size * size);
+    const set = (x, y, d) => { mod[y * size + x] = d ? 1 : 0; fn[y * size + x] = 1; };
+    for (let i = 0; i < size; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); } // temporización
+    for (const [cx, cy] of [[3, 3], [size - 4, 3], [3, size - 4]]) // localizadores + separadores
+      for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+        const x = cx + dx, y = cy + dy, d = Math.max(Math.abs(dx), Math.abs(dy));
+        if (x >= 0 && x < size && y >= 0 && y < size) set(x, y, d !== 2 && d !== 4);
+      }
+    const al = qrAlign(ver), na = al.length; // alineación (salvo las 3 esquinas de localizadores)
+    for (let i = 0; i < na; i++) for (let j = 0; j < na; j++) {
+      if ((i === 0 && (j === 0 || j === na - 1)) || (i === na - 1 && j === 0)) continue;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++)
+        set(al[i] + dx, al[j] + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+    }
+    const drawFmt = mask => { // información de formato (BCH 15,5) en ambas copias
+      const d = qrFMT[e] << 3 | mask; let r = d;
+      for (let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      const b = (d << 10 | r) ^ 0x5412, g = i => b >>> i & 1;
+      for (let i = 0; i <= 5; i++) set(8, i, g(i));
+      set(8, 7, g(6)); set(8, 8, g(7)); set(7, 8, g(8));
+      for (let i = 9; i < 15; i++) set(14 - i, 8, g(i));
+      for (let i = 0; i < 8; i++) set(size - 1 - i, 8, g(i));
+      for (let i = 8; i < 15; i++) set(8, size - 15 + i, g(i));
+      set(8, size - 8, 1); // módulo oscuro fijo
+    };
+    drawFmt(0); // reserva
+    if (ver >= 7) { // información de versión (BCH 18,6)
+      let r = ver; for (let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25);
+      const b = ver << 12 | r;
+      for (let i = 0; i < 18; i++) { const bit = b >>> i & 1, a = size - 11 + i % 3, c = i / 3 | 0; set(a, c, bit); set(c, a, bit); }
+    }
+    // Colocación en zigzag de columnas dobles, de derecha a izquierda
+    for (let right = size - 1, i = 0, nb = cw.length * 8; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      const up = ((right + 1) & 2) === 0;
+      for (let vert = 0; vert < size; vert++) for (let j = 0; j < 2; j++) {
+        const x = right - j, y = up ? size - 1 - vert : vert, k = y * size + x;
+        if (!fn[k] && i < nb) { mod[k] = cw[i >> 3] >>> (7 - (i & 7)) & 1; i++; }
+      }
+    }
+    // Probar las 8 máscaras y quedarse con la de menor penalización
+    const flip = m => { for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) { const k = y * size + x; if (!fn[k] && qrMASK[m](x, y)) mod[k] ^= 1; } };
+    let best = 0, bestP = Infinity;
+    for (let m = 0; m < 8; m++) {
+      flip(m); drawFmt(m);
+      const p = qrPenalty(mod, size); if (p < bestP) { bestP = p; best = m; }
+      flip(m);
+    }
+    flip(best); drawFmt(best);
+    return { size, mod, ver, ecl: 'LMQH'[e], mask: best };
+  },
+  // Canvas nítido: `scale` px por módulo, `margin` módulos de zona silenciosa
+  canvas(text, scale = 4, margin = 4, dark = '#0a2342', light = '#ffffff') {
+    const q = text && text.mod ? text : QR.matrix(text), { size, mod } = q;
+    scale = Math.max(1, Math.round(scale)); margin = Math.max(0, Math.round(margin));
+    const n = (size + margin * 2) * scale, cv = document.createElement('canvas'), g = cv.getContext('2d');
+    cv.width = cv.height = n; cv.style.imageRendering = 'pixelated';
+    g.fillStyle = light; g.fillRect(0, 0, n, n); g.fillStyle = dark;
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      if (!mod[y * size + x]) continue;
+      let x2 = x; while (x2 + 1 < size && mod[y * size + x2 + 1]) x2++; // agrupar tramos horizontales
+      g.fillRect((margin + x) * scale, (margin + y) * scale, (x2 - x + 1) * scale, scale); x = x2;
+    }
+    return cv;
+  },
+  // ---- Escaneo con cámara ----
+  canScan() { return typeof window !== 'undefined' && (!!(window.AndroidBridge && AndroidBridge.scanQR) || ('BarcodeDetector' in window && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia))); },
+  // Detección única sobre un <video>/<img>/<canvas>: Promise<string|null>
+  async scan(src) {
+    if (!('BarcodeDetector' in window)) return null;
+    const det = QR._det || (QR._det = new BarcodeDetector({ formats: ['qr_code'] }));
+    const c = (await det.detect(src) || []).find(c => c.rawValue);
+    return c ? c.rawValue : null;
+  },
+  // Abre la cámara trasera a pantalla completa; llama onText(texto) una sola vez y cierra.
+  // Cancelar (botón o Esc) cierra sin llamar a nada. Errores -> onError(mensaje en español).
+  startScan(onText, onError) {
+    QR.stopScan();
+    const err = msg => { QR.stopScan(); if (onError) onError(msg); };
+    if (!QR.canScan()) { err('Este navegador no puede leer códigos QR con la cámara. Escribe el código a mano.'); return false; }
+    if (!('BarcodeDetector' in window) && window.AndroidBridge && AndroidBridge.scanQR) {
+      window.EMqrResult = t => { window.EMqrResult = null; if (t) onText(t); };
+      AndroidBridge.scanQR(); return true;
+    }
+    let det;
+    try { det = new BarcodeDetector({ formats: ['qr_code'] }); }
+    catch (e) { err('Este navegador no puede leer códigos QR con la cámara. Escribe el código a mano.'); return false; }
+    const ov = document.createElement('div');
+    ov.className = 'qrScan';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0a2342;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;box-sizing:border-box;text-align:center;font:600 17px system-ui,sans-serif';
+    ov.innerHTML = '<div>Apunta la cámara al código QR</div>'
+      + '<div style="width:min(82vw,62vh,440px);aspect-ratio:1;border:3px solid #fff;border-radius:14px;overflow:hidden;background:#000">'
+      + '<video playsinline muted autoplay style="width:100%;height:100%;object-fit:cover;display:block"></video></div>'
+      + '<button class="btn gh" type="button">Cancelar</button>';
+    const video = $('video', ov);
+    video.muted = true;
+    $('button', ov).onclick = () => QR.stopScan();
+    const st = QR._scan = { ov, video, stream: null, timer: 0, busy: false };
+    st.onKey = e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); QR.stopScan(); } };
+    addEventListener('keydown', st.onKey, true);
+    document.body.appendChild(ov);
+    navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } })
+      .then(stream => {
+        if (QR._scan !== st) { stream.getTracks().forEach(t => t.stop()); return; } // cancelado mientras tanto
+        st.stream = stream; video.srcObject = stream;
+        const pl = video.play(); if (pl && pl.catch) pl.catch(() => {});
+        const tick = () => {
+          if (QR._scan !== st) return;
+          if (!st.busy && video.readyState >= 2) {
+            st.busy = true;
+            det.detect(video).then(codes => {
+              st.busy = false;
+              const c = (codes || []).find(c => c.rawValue);
+              if (c && QR._scan === st) { QR.stopScan(); onText(c.rawValue); }
+            }, () => { st.busy = false; });
+          }
+          st.timer = setTimeout(tick, 250);
+        };
+        tick();
+      }, e => { if (QR._scan === st) err(qrCamErr(e)); });
+    return true;
+  },
+  stopScan() {
+    const st = QR._scan; if (!st) return;
+    QR._scan = null; clearTimeout(st.timer);
+    removeEventListener('keydown', st.onKey, true);
+    if (st.stream) st.stream.getTracks().forEach(t => t.stop());
+    try { st.video.srcObject = null; } catch (e) { /* nada */ }
+    st.ov.remove();
+  },
+};
+~~~~
+
+### `src/js/06-net.js`
+~~~~js
+/* =====================================================================
+   RED LOCAL: salas de hasta 4 jugadores, SIN servidores externos.
+   Transportes:
+   · rtc: WebRTC con códigos QR (misma Wi‑Fi o punto de acceso del celular; sin internet, sin STUN).
+   · ws:  servidor local en un PC de la casa/colegio (tools/server.mjs, Node sin dependencias).
+   · bc:  BroadcastChannel (dos pestañas del mismo navegador; útil para probar).
+   Topología en estrella: el anfitrión (id 0) reenvía a los demás.
+   ===================================================================== */
+const b64u = {
+  enc(bytes) { let s = ''; for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec(str) { str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '='; const s = atob(str), b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; }
+};
+const Net = EM.net = {
+  kind: null, peers: [], role: null, myId: 0, status: 'off', pending: null, onmsg: null, onstatus: null, MAX: 3, ws: null, bc: null, lan: true,
+  supported() { return !!window.RTCPeerConnection; },
+  setStatus(s) { this.status = s; if (this.onstatus) this.onstatus(s); },
+  connected() { return this.kind === 'ws' ? !!(this.ws && this.ws.readyState === 1) : this.kind === 'bc' ? !!this.bc : this.openCount() > 0; },
+  openCount() { return this.peers.filter(p => p.open).length; },
+  /* ---------------- WebRTC ---------------- */
+  newPC(peer) {
+    const pc = new RTCPeerConnection({ iceServers: [] });   // sin STUN: solo red local, funciona sin internet
+    pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') { peer.open = false; this.setStatus(this.openCount() ? 'open' : pc.connectionState); } };
+    return pc;
+  },
+  wire(peer, ch) {
+    peer.ch = ch;
+    ch.onopen = () => { peer.open = true; if (this.role === 'host') this.rawSend(peer, { t: 'id', id: peer.id }); this.setStatus('open'); };
+    ch.onclose = () => { peer.open = false; this.setStatus(this.openCount() ? 'open' : 'closed'); if (this.onmsg) this.onmsg({ t: 'bye', from: this.role === 'host' ? peer.id : 0 }); };
+    ch.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (!m || typeof m !== 'object') return; this.recv(peer, m); };
+  },
+  recv(peer, m) {
+    if (m.t === 'id' && this.role === 'guest') { this.myId = m.id | 0; }
+    if (this.role === 'host') { m.from = peer.id; for (const q of this.peers) if (q !== peer && q.open) this.rawSend(q, m); }
+    if (this.onmsg) this.onmsg(m);
+  },
+  ice(pc) { return new Promise(res => { if (pc.iceGatheringState === 'complete') return res(); const t = setTimeout(res, 3500); pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); res(); } }); }); },
+  async host() {
+    if (this.role !== 'host' || this.kind !== 'rtc') { this.reset(); this.kind = 'rtc'; this.role = 'host'; this.myId = 0; }
+    if (this.peers.length >= this.MAX) throw new Error('La sala ya tiene 4 jugadores');
+    const peer = { id: this.peers.length + 1, open: false }; peer.pc = this.newPC(peer); this.peers.push(peer);
+    this.wire(peer, peer.pc.createDataChannel('em', { ordered: true }));
+    await peer.pc.setLocalDescription(await peer.pc.createOffer()); await this.ice(peer.pc);
+    this.pending = peer; this.setStatus('waiting');
+    return this.pack({ t: 'o', s: peer.pc.localDescription.sdp });
+  },
+  async accept(code) {
+    const o = await this.unpack(code); if (o.t !== 'a') throw new Error('Ese no es un código de respuesta');
+    const p = this.pending; if (!p) throw new Error('Primero crea un código de invitación');
+    await p.pc.setRemoteDescription({ type: 'answer', sdp: o.s }); this.pending = null;
+  },
+  async join(code) {
+    const o = await this.unpack(code); if (o.t !== 'o') throw new Error('Ese no es un código de sala');
+    this.reset(); this.kind = 'rtc'; this.role = 'guest'; const peer = { id: 0, open: false }; peer.pc = this.newPC(peer); this.peers = [peer];
+    peer.pc.ondatachannel = e => this.wire(peer, e.channel);
+    await peer.pc.setRemoteDescription({ type: 'offer', sdp: o.s }); await peer.pc.setLocalDescription(await peer.pc.createAnswer()); await this.ice(peer.pc); this.setStatus('waiting');
+    return this.pack({ t: 'a', s: peer.pc.localDescription.sdp });
+  },
+  rawSend(peer, m) { if (peer.ch && peer.ch.readyState === 'open') { try { peer.ch.send(JSON.stringify(m)); } catch (e) { } } },
+  async pack(o) {
+    const txt = JSON.stringify(o);
+    if (window.CompressionStream) { const cs = new Blob([txt]).stream().pipeThrough(new CompressionStream('deflate-raw')); return 'EM1' + o.t + b64u.enc(new Uint8Array(await new Response(cs).arrayBuffer())); }
+    return 'EM0' + o.t + b64u.enc(new TextEncoder().encode(txt));
+  },
+  async unpack(code) {
+    code = String(code || '').replace(/\s+/g, ''); const i = code.indexOf('EM'); if (i < 0) throw new Error('Código no válido'); code = code.slice(i);
+    const v = code.slice(0, 3), body = code.slice(4), bytes = b64u.dec(body);
+    if (v === 'EM1') { if (!window.DecompressionStream) throw new Error('Tu navegador no puede leer este código'); const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return JSON.parse(await new Response(ds).text()); }
+    if (v === 'EM0') return JSON.parse(new TextDecoder().decode(bytes));
+    throw new Error('Código no válido');
+  },
+  /* ---------------- servidor local (WebSocket) ---------------- */
+  serverURL() { if (!/^https?:$/.test(location.protocol)) return null; return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/em-ws'; },
+  async hasServer() { if (!/^https?:$/.test(location.protocol)) return false; try { const r = await fetch('em-server.json', { cache: 'no-store' }); if (!r.ok) return false; const j = await r.json(); return j && j.app === 'el-metro'; } catch (e) { return false; } },
+  wsConnect(room, asHost) {
+    return new Promise((res, rej) => {
+      this.reset(); this.kind = 'ws'; this.role = asHost ? 'host' : 'guest';
+      let ws; try { ws = this.ws = new WebSocket(this.serverURL() + '?sala=' + encodeURIComponent(room) + '&host=' + (asHost ? 1 : 0)); } catch (e) { rej(e); return; }
+      const to = setTimeout(() => rej(new Error('El servidor no responde')), 5000);
+      ws.onopen = () => { clearTimeout(to); this.setStatus('open'); res(); };
+      ws.onerror = () => { clearTimeout(to); rej(new Error('No se pudo conectar al servidor local')); };
+      ws.onclose = () => { this.setStatus('closed'); if (this.onmsg) this.onmsg({ t: 'bye', from: -1 }); };
+      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (er) { return; } if (m.t === 'id') this.myId = m.id | 0; if (this.onmsg) this.onmsg(m); };
+    });
+  },
+  /* ---------------- mismo navegador (pestañas) ---------------- */
+  bcOpen(room, asHost) {
+    this.reset(); if (!window.BroadcastChannel) throw new Error('Sin BroadcastChannel');
+    this.kind = 'bc'; this.role = asHost ? 'host' : 'guest'; this.myId = asHost ? 0 : 1 + Math.floor(Math.random() * 999);
+    this.bc = new BroadcastChannel('elmetro-' + room); this.bc.onmessage = e => { const m = e.data; if (m && m.from !== this.myId && this.onmsg) this.onmsg(m); }; this.setStatus('open');
+  },
+  /* ---------------- envío común ---------------- */
+  send(m) {
+    m.from = this.myId;
+    if (this.kind === 'ws') { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(m)); return; }
+    if (this.kind === 'bc') { if (this.bc) this.bc.postMessage(m); return; }
+    for (const p of this.peers) if (p.open) this.rawSend(p, m);
+  },
+  reset() {
+    for (const p of this.peers) { try { if (p.ch) p.ch.close(); } catch (e) { } try { if (p.pc) p.pc.close(); } catch (e) { } }
+    if (this.ws) { try { this.ws.onclose = null; this.ws.close(); } catch (e) { } } if (this.bc) { try { this.bc.close(); } catch (e) { } }
+    this.ws = null; this.bc = null; this.peers = []; this.pending = null; this.role = null; this.kind = null; this.myId = 0; this.status = 'off';
+  }
+};
+~~~~
+
+### `src/js/10-map.js`
+~~~~js
+/* =====================================================================
+   MAPA REAL DEL VALLE DE ABURRÁ (de Caldas a Barbosa) · casillas de 20 m
+   Datos de Juega EnCicla: calles, río, quebradas, parques, municipios y relieve.
+   Unidad del mundo: METROS. x = este, y = sur. Fila 0 = norte.
+   ===================================================================== */
+const VM = VALLE_META, MW = VM.W, MH = VM.H, TM = VM.tile, ES = VM.es;
+const TT = { GRASS: 0, MOUNT: 1, BRICK: 2, BLDG: 3, ROAD: 4, AVE: 5, WALK: 6, CICLO: 7, WATER: 8, CANAL: 9, PLAZA: 10, BRIDGE: 11, STATION: 12, LAND: 13, AUTO: 14, DEPOT: 15, STEPS: 16 };
+const TCOL = ['#6f9a4a', '#3d6838', '#b4583a', '#8d97a4', '#4b5059', '#3f444d', '#bdb6a5', '#3f9a50', '#3a87a8', '#4b7f8c', '#d9cdae', '#6d6f75', '#f4ecd0', '#a99a7a', '#34383f', '#5ab0d0', '#a39882'];
+const TRGB = TCOL.map(c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]);
+const geoM = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx * TM, y: (VM.latN - lat) * VM.ky * TM });
+const mGeo = (x, y) => ({ lat: VM.latN - y / TM / VM.ky, lon: VM.lon0 + x / TM / VM.kx });
+
+const MAP = EM.map = {
+  t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 16,
+  async load() {
+    const bin = atob(VALLE_BIN), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    const nT = MW * MH, nE = VM.eW * VM.eH, nM = VM.mW * VM.mH, size = nT + nE * 2 + nM * 2;
+    let raw = null;
+    if (window.DecompressionStream) { try { raw = new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); } catch (e) { raw = null; } }
+    if (!raw || raw.length < size) raw = inflateRaw(u8, size);
+    this.t = raw.slice(0, nT);
+    const ed = new Int16Array(raw.slice(nT, nT + nE * 2).buffer), E = this.E = new Int16Array(nE);
+    for (let j = 0; j < VM.eH; j++) { let a = 0; for (let i = 0; i < VM.eW; i++) { a += ed[j * VM.eW + i]; E[j * VM.eW + i] = a; } }
+    this.mu = raw.slice(nT + nE * 2, nT + nE * 2 + nM); this.co = raw.slice(nT + nE * 2 + nM, nT + nE * 2 + nM * 2);
+    this.ready = true;
+  },
+  tile(tx, ty) { tx |= 0; ty |= 0; return (tx < 0 || ty < 0 || tx >= MW || ty >= MH) ? TT.MOUNT : this.t[ty * MW + tx]; },
+  tileM(x, y) { return this.tile(Math.floor(x / TM), Math.floor(y / TM)); },
+  /* relieve: metros sobre el nivel del mar (bilineal en la grilla de 80 m) */
+  elevM(x, y) {
+    const W = VM.eW, g = TM * ES, gx = clamp(x / g, 0, W - 1.001), gy = clamp(y / g, 0, VM.eH - 1.001), i = gx | 0, j = gy | 0, fx = gx - i, fy = gy - j, E = this.E, k = j * W + i;
+    return (E[k] * (1 - fx) + E[k + 1] * fx) * (1 - fy) + (E[k + W] * (1 - fx) + E[k + W + 1] * fx) * fy;
+  },
+  muniAt(x, y) { const i = clamp(Math.floor(y / TM / 8), 0, VM.mH - 1) * VM.mW + clamp(Math.floor(x / TM / 8), 0, VM.mW - 1), v = this.mu[i]; return v ? VM.munis[v - 1] : ''; },
+  comunaAt(x, y) { const i = clamp(Math.floor(y / TM / 8), 0, VM.mH - 1) * VM.mW + clamp(Math.floor(x / TM / 8), 0, VM.mW - 1), v = this.co[i]; return v ? VM.comunas[v - 1] : ''; },
+  /* altura típica de edificios según la zona (centro y El Poblado: torres; laderas: casas de ladrillo) */
+  bHeight(x, y, seed) {
+    const c = this.comunaAt(x, y), r = h2(x | 0, y | 0, seed);
+    if (/Candelaria/.test(c)) return 18 + r * 60; if (/Poblado/.test(c)) return 20 + r * 70; if (/Laureles|América|Belén/.test(c)) return 9 + r * 22;
+    return 6 + r * 10;
+  },
+  /* ---------- vista cenital estilo pincel de pueblo: trozos de 32×32 casillas a 10 px por casilla ----------
+     Suelo con tramado, árboles frondosos con sombra, casas en 3/4 (tejado + fachada de colores), andenes y bordillos,
+     río con ondas. Las ventanas se guardan para encenderlas de noche. */
+  chunk(cx, cy) {
+    const key = cx + ',' + cy; let c = this.chunks.get(key); if (c) { this.chunks.delete(key); this.chunks.set(key, c); return c; }
+    const CH = this.CH, P = this.PX, n = CH * P; c = mkCanvas(n, n); const g = c.getContext('2d'), img = g.createImageData(n, n), d = img.data, T = (x, y) => this.tile(cx * CH + x, cy * CH + y);
+    const road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
+      const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), base = TRGB[v] || TRGB[0], e = this.elevM(X * TM, Y * TM), sh = clamp(1 + (this.elevM(X * TM - 40, Y * TM - 40) - e) * .011, .74, 1.22);
+      const nN = T(tx, ty - 1), nS = T(tx, ty + 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty);
+      // vías anchas (manchas de asfalto): sentido dominante y carriles de ~5 m
+      let wide = 0, vert = false; if ((v === TT.AVE || v === TT.AUTO) && road(nN) && road(nS) && road(nW) && road(nE)) { let rv = 0, rh = 0; for (let k = 1; k <= 4; k++) { if (road(T(tx, ty - k))) rv++; if (road(T(tx, ty + k))) rv++; if (road(T(tx - k, ty))) rh++; if (road(T(tx + k, ty))) rh++; } wide = 1; vert = rv >= rh; }
+      for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
+        let m = sh, col = base; const hh = h2(X * P + px, Y * P + py, v), chk = (px + py) % 2;
+        switch (v) {
+          case TT.GRASS: m *= chk ? .95 : 1.02; if (hh < .02) col = [[236, 232, 210], [246, 197, 56], [235, 49, 142]][(hh * 150) | 0]; break;
+          case TT.MOUNT: m *= .9 + (chk ? 0 : .05); break;
+          case TT.BRICK: case TT.BLDG: col = [96, 112, 74]; m *= chk ? .95 : 1; break;   // patio (la casa se pinta encima)
+          case TT.ROAD: case TT.AVE: case TT.AUTO: case TT.BRIDGE: {
+            m *= .97 + hh * .05; const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
+            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; }
+            else if (wide) { const a = vert ? px : py, b2 = vert ? Y * P + py : X * P + px; if (a % 4 === 0 && b2 % 8 < 4) { col = [236, 232, 214]; m = sh * .95; } else if (h2(X, Y, 90) < .08 && hh < .05) m *= .8; }
+            else if (v !== TT.ROAD && ((road(nN) || road(nS)) && px === (P >> 1) && py % 4 < 2 || (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && px % 4 < 2)) { col = [244, 236, 208]; m = sh; }
+            else if (v === TT.ROAD && (road(nN) || road(nS)) && !(road(nW) || road(nE)) && px === (P >> 1) && (Y * P + py) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
+            else if (v === TT.ROAD && (road(nW) || road(nE)) && !(road(nN) || road(nS)) && py === (P >> 1) && (X * P + px) % 10 < 5) { col = [246, 197, 56]; m = sh * .9; }
+            break; }
+          case TT.WALK: case TT.PLAZA: m *= (px % 3 === 0 || py % 3 === 0) ? .9 : 1.02; break;
+          case TT.CICLO: if (px === P >> 1 && py % 4 < 2) { col = [250, 250, 245]; m = sh; } break;
+          case TT.WATER: case TT.CANAL: { const nb = !(nN === v) || !(nS === v); m *= (py + Math.floor(X * 1.7)) % 5 === 0 && hh < .6 ? 1.18 : nb && (py < 2 || py > P - 3) ? .82 : 1; break; }
+          case TT.STEPS: m *= py % 2 ? .85 : 1.05; break;
+          default: m *= .95 + hh * .08;
+        }
+        const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    // segunda pasada: sombras, edificios por manzana (techos y fachadas), casas por lote, árboles, carros parqueados
+    const lights = [], R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+    const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICKS = ['#b85c3e', '#a9533a', '#c0654a', '#9c4a33'];
+    const AP_WALL = ['#e6dcc8', '#d8d2c4', '#c9ced4', '#efe8d8', '#b05a3c', '#a9533a', '#cfd9df', '#d9c7a6'], AP_ROOF = ['#9aa0a6', '#b9b5ad', '#a7aaa8', '#8e9499', '#c4bfb4', '#9c8f80'];
+    // manzanas de edificios: lotes de 1–3 casillas por supermanzana de 8×8
+    const lot = (X, Y) => { const sx = X >> 3, sy = Y >> 3, lw = 1 + (h2(sx, sy, 31) * 3 | 0), lh = 1 + (h2(sx, sy, 32) * 2.4 | 0), ox = h2(sx, sy, 33) * lw | 0, oy = h2(sx, sy, 34) * lh | 0; return sx * 997 + sy * 7919 + Math.floor((X + ox) / lw) * 31 + Math.floor((Y + oy) / lh) * 131071; };
+    const TW = (x, y) => this.tile(cx * CH + x, cy * CH + y), same = (x1, y1, x2, y2) => TW(x1, y1) === TT.BLDG && TW(x2, y2) === TT.BLDG && lot(cx * CH + x1, cy * CH + y1) === lot(cx * CH + x2, cy * CH + y2);
+    const fhOf = X => clamp(Math.round(X / 20 * P * .42), 4, 14);
+    // 2a · sombras proyectadas (sol de la tarde: hacia abajo a la derecha), en una capa aparte para no acumular
+    const shc = mkCanvas(n, n), sg = shc.getContext('2d'); sg.fillStyle = '#000';
+    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) { const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty); if (v !== TT.BLDG && v !== TT.BRICK) continue; const hm = v === TT.BLDG ? this.bHeight(X * TM, Y * TM, lot(X, Y)) : 7, off = clamp(hm * .22, 2, 12); sg.fillRect(tx * P + off * .8, ty * P + off * .55 + (v === TT.BLDG ? fhOf(hm) : 5), P, P); }
+    g.save(); g.globalAlpha = .26; g.drawImage(shc, 0, 0); g.restore();
+    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) {
+      const X = cx * CH + tx, Y = cy * CH + ty, v = T(tx, ty), ox = tx * P, oy = ty * P, r = h2(X, Y, 11);
+      if (v === TT.GRASS && r < .28 || v === TT.MOUNT) {
+        const nt = v === TT.MOUNT ? 2 + (r * 2 | 0) : 1;
+        for (let k = 0; k < nt; k++) { const rr = 3.5 + h2(X, Y, 20 + k) * 3.5, x = ox + 3 + h2(X, Y, 30 + k) * (P - 6), y = oy + 3 + h2(X, Y, 40 + k) * (P - 6), dk = v === TT.MOUNT ? .85 : 1;
+          g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(x + rr * .7, y + rr * .8, rr, rr * .7, 0, 0, TAU); g.fill();
+          g.fillStyle = Art.shade('#2c5a2c', dk); g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = Art.shade(['#3f7a3a', '#4b8640', '#3a7246', '#56883c'][(r * 4) | 0], dk); g.beginPath(); g.arc(x - .5, y - .6, rr * .78, 0, TAU); g.fill();
+          g.fillStyle = Art.shade('#79ac56', dk); g.fillRect(x - rr * .5, y - rr * .6, 2, 2); g.fillRect(x - rr * .1, y - rr * .75, 1.5, 1.5); g.fillRect(x + rr * .2, y - rr * .3, 1.5, 1.5); }
+      } else if (v === TT.BRICK) {
+        // casas de barrio: 2 o 3 lotes por casilla, techos de teja, eternit o plancha con tanque; fachada hacia el sur
+        const nS = T(tx, ty + 1), nN = T(tx, ty - 1), streetS = nS !== TT.BRICK && nS !== TT.BLDG, nh = 2 + (h2(X, Y, 50) < .35 ? 1 : 0), hw = P / nh;
+        for (let i = 0; i < nh; i++) {
+          const hx = ox + Math.round(i * hw), w = Math.round((i + 1) * hw) - Math.round(i * hw), rr = h2(X * 3 + i, Y, 51), typ = rr < .42 ? 'teja' : rr < .7 ? 'plancha' : 'eternit', top = oy + (nN === TT.BRICK ? 0 : 1), hh = P - (top - oy) - (streetS ? 2 : 0);
+          const roof = typ === 'teja' ? ['#b4583a', '#a24b30', '#c4683f', '#8e4128'][(rr * 97 | 0) % 4] : typ === 'plancha' ? ['#b7b2a8', '#a9a49a', '#c2bdb2'][(rr * 31 | 0) % 3] : ['#8f979c', '#9aa2a6', '#7f878c'][(rr * 13 | 0) % 3];
+          R(hx, top, w, hh, roof);
+          if (typ === 'teja') { R(hx, top + (hh >> 1), w, 1, Art.shade(roof, 1.25)); for (let yy = top + 2; yy < top + hh - 1; yy += 2) R(hx + 1, yy, w - 2, 1, Art.shade(roof, (yy - top) < (hh >> 1) ? .9 : .8)); }
+          else if (typ === 'eternit') { for (let xx = hx + 1; xx < hx + w - 1; xx += 2) R(xx, top + 1, 1, hh - 2, Art.shade(roof, .82)); }
+          else { R(hx + 1, top + 1, w - 2, 1, Art.shade(roof, 1.12)); if (rr < .55) { R(hx + 2, top + 2, 4, 4, '#141414'); R(hx + 2, top + 2, 3, 3, rr < .5 ? '#2f5f9c' : '#1d1d1d'); R(hx + 2, top + 2, 1, 1, '#9cc0e6'); } if (h2(X, i, 52) < .45) { g.fillStyle = 'rgba(30,30,30,.55)'; for (let q = 0; q < 4; q++) g.fillRect(hx + w - 3, top + 1 + q * 3, 1, 1); } if (h2(Y, i, 53) < .3) { R(hx + 1, top + hh - 4, w - 2, 1, '#d9d9d9'); for (let q = 0; q < w - 3; q += 2) R(hx + 2 + q, top + hh - 3, 1, 2, ['#EC343A', '#F6C538', '#1C5C9C', '#fff'][q & 3]); } }
+          R(hx, top, 1, hh, 'rgba(20,20,20,.55)');   // medianera
+          if (streetS) { const wall = h2(X, i, 54) < .55 ? BRICKS[(rr * 7 | 0) % 4] : WALLS[(rr * 97 | 0) % WALLS.length]; R(hx, oy + P - 2, w, 5, wall); R(hx, oy + P + 3, w, 1, 'rgba(0,0,0,.35)'); R(hx + 1 + (rr * (w - 3) | 0), oy + P - 1, 2, 4, '#3a2a20'); const wx = hx + (rr < .5 ? w - 3 : 1); R(wx, oy + P - 1, 2, 2, '#28435a'); lights.push([wx, oy + P - 1, 2]); }
+        }
+        R(ox, oy, P, 1, nN === TT.BRICK ? 'rgba(20,20,20,.25)' : '#141414');
+      } else if (v === TT.BLDG) {
+        // edificio por lote: techo continuo, borde solo hacia afuera, fachada al sur con pisos y ventanas
+        const L = lot(X, Y), hm = this.bHeight(X * TM, Y * TM, L), lr = h2(L & 65535, L >> 16, 61), roof = AP_ROOF[(lr * 61 | 0) % AP_ROOF.length], wall = AP_WALL[(lr * 37 | 0) % AP_WALL.length], fh = fhOf(hm);
+        const sN = same(tx, ty, tx, ty - 1), sS = same(tx, ty, tx, ty + 1), sW = same(tx, ty, tx - 1, ty), sE = same(tx, ty, tx + 1, ty);
+        R(ox, oy, P, P, roof);
+        if (!sN) R(ox, oy, P, 1, '#141414'); if (!sW) R(ox, oy, 1, P, '#141414'); if (!sE) R(ox + P - 1, oy, 1, P, '#141414');
+        if (!sN) R(ox + (sW ? 0 : 1), oy + 1, P - (sW ? 0 : 1) - (sE ? 0 : 1), 1, Art.shade(roof, 1.15)); if (!sW) R(ox + 1, oy + 1, 1, P - 1, Art.shade(roof, 1.1)); if (!sE) R(ox + P - 2, oy + 1, 1, P - 1, Art.shade(roof, .85));
+        const ri = h2(X, Y, 62);
+        if (ri < .32) { const tx2 = ox + 3 + (h2(X, Y, 63) * (P - 9) | 0), ty2 = oy + 3 + (h2(X, Y, 64) * (P - 9) | 0); g.fillStyle = '#141414'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 3, 0, TAU); g.fill(); g.fillStyle = ri < .16 ? '#2f5f9c' : '#2a2a2a'; g.beginPath(); g.arc(tx2 + 2.5, ty2 + 2.5, 2.2, 0, TAU); g.fill(); R(tx2 + 1, ty2 + 1, 1, 1, '#9cc0e6'); }
+        else if (ri < .5) { R(ox + 4, oy + 4, 4, 3, '#7d8792'); R(ox + 5, oy + 5, 2, 1, '#cfd5da'); R(ox + 9, oy + 9, 3, 3, '#7d8792'); }
+        else if (ri < .58 && hm > 30) { R(ox + 3, oy + 3, P - 6, P - 6, Art.shade(roof, .82)); R(ox + 5, oy + 5, P - 10, P - 10, '#4a5560'); }   // cuarto de máquinas
+        else if (ri < .63) { for (let q = 0; q < 3; q++) R(ox + 3 + q * 4, oy + 5, 3, 6, '#2e4a66'); }   // calentadores solares
+        else if (ri < .67) { R(ox + 3, oy + 3, P - 6, P - 6, '#4f7a3a'); for (let q = 0; q < 5; q++) R(ox + 4 + h2(X, q, 65) * (P - 9), oy + 4 + h2(Y, q, 66) * (P - 9), 2, 2, '#79ac56'); }   // azotea verde
+        if (hm > 45 && ri > .9) { R(ox + (P >> 1), oy + 2, 1, 4, '#141414'); R(ox + (P >> 1) - 1, oy + 1, 3, 1, '#EC343A'); lights.push([ox + (P >> 1) - 1, oy + 1, 3]); }
+        if (!sS) { const y0 = oy + P; R(ox + (sW ? 0 : 0), y0, P, fh, wall); R(ox, y0, P, 1, Art.shade(wall, .78)); if (!sW) R(ox, y0, 1, fh, '#141414'); if (!sE) R(ox + P - 1, y0, 1, fh, '#141414'); R(ox, y0 + fh, P, 1, 'rgba(0,0,0,.4)');
+          const glass = hm > 40 && lr > .6; for (let wy = y0 + 2; wy < y0 + fh - 1; wy += 3) for (let wx = ox + 2; wx < ox + P - 2; wx += 3) { R(wx, wy, 2, 2, glass ? '#3d6a8a' : '#2a4560'); lights.push([wx, wy, 2]); }
+          if (fh >= 6 && ri > .5) R(ox + 2, y0 + fh - 3, P - 4, 2, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835'][(lr * 5) | 0]); }   // toldo / local comercial
+      } else if ((v === TT.ROAD) && r < .3) {
+        // carro parqueado junto al andén
+        const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
+        if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }
+        else if (!horiz && !rd(nE2)) { const x = ox + P - 6, y = oy + 3 + (h2(X, Y, 71) * 5 | 0); R(x - 1, y - 1, 5, 9, '#141414'); R(x, y, 3, 7, col); R(x, y + 2, 3, 3, Art.shade(col, 1.15)); R(x, y + 5, 3, 1, '#1f2e3d'); }
+      } else if (v === TT.WALK && r < .4) {
+        // árbol de andén (copa pequeña sobre la acera, del lado de la calle)
+        const rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO, dx = rd(T(tx + 1, ty)) ? 4 : rd(T(tx - 1, ty)) ? -4 : 0, dy = rd(T(tx, ty + 1)) ? 4 : rd(T(tx, ty - 1)) ? -4 : 0;
+        if (dx || dy) { const x = ox + (P >> 1) + dx, y = oy + (P >> 1) + dy, rr = 3 + h2(X, Y, 72) * 2; g.fillStyle = 'rgba(18,38,22,.35)'; g.beginPath(); g.ellipse(x + 2, y + 2, rr, rr * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = h2(X, Y, 73) < .2 ? '#c96bb0' : '#4b8640'; g.beginPath(); g.arc(x - .4, y - .5, rr * .75, 0, TAU); g.fill(); }
+        else if (h2(X, Y, 74) < .25) { R(ox + 6, oy + 6, 4, 2, '#5a3a22'); R(ox + 6, oy + 5, 4, 1, '#7a5a3a'); }   // banca
+      }
+    }
+    // cebras en los cruces de vías principales
+    for (let ty = 0; ty < CH; ty++) for (let tx = 0; tx < CH; tx++) { const v = T(tx, ty); if (!road(v) || v === TT.BRIDGE) continue; const nN = road(T(tx, ty - 1)), nS = road(T(tx, ty + 1)), nW = road(T(tx - 1, ty)), nE = road(T(tx + 1, ty)); if (!((nN || nS) && (nW || nE))) continue; if (road(T(tx - 1, ty - 1)) || road(T(tx + 1, ty - 1)) || road(T(tx - 1, ty + 1)) || road(T(tx + 1, ty + 1))) continue; if (v === TT.AUTO) continue; const ox = tx * P, oy = ty * P; g.fillStyle = 'rgba(250,250,245,.85)'; if (nN) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy, 2, 3); if (nS) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + i, oy + P - 3, 2, 3); if (nW) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox, oy + i, 3, 2); if (nE) for (let i = 1; i < P - 1; i += 3) g.fillRect(ox + P - 3, oy + i, 3, 2); }
+    // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
+    const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
+    c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
+    return c;
+  },
+  /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
+  drawTop(g, W, H, mx, my, k, night = 0) {
+    const CHm = this.CH * TM, s = k * TM / this.PX;
+    const x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    g.imageSmoothingEnabled = false; this._vis = [];
+    for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
+      if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
+      const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
+      g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
+    }
+  },
+  /* luces de ventanas (después del tinte de la noche) */
+  lightsTop(g, night, t) {
+    if (night < .25 || !this._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1); g.imageSmoothingEnabled = false;
+    for (const [c, sx, sy, s] of this._vis) g.drawImage(c.lightCv, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
+    g.restore();
+  },
+  /* ---------- panorámica: mapa entero con sombreado del relieve (1 px = 2 casillas) ---------- */
+  mini() {
+    if (this._mini) return this._mini; const K = 2, w = Math.ceil(MW / K), h = Math.ceil(MH / K), c = mkCanvas(w, h), g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+    const rank = [1, 0, 2, 3, 6, 7, 5, 8, 4, 3, 2, 6, 9, 2, 8, 7, 4];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      let v = this.tile(x * K, y * K), r = rank[v];
+      for (let j = 0; j < K; j++) for (let i = 0; i < K; i++) { const u = this.tile(x * K + i, y * K + j); if (rank[u] > r) { r = rank[u]; v = u; } }
+      const X = x * K * TM, Y = y * K * TM, e = this.elevM(X, Y), sh = clamp(1 + (this.elevM(X - 60, Y - 60) - e) * .008, .62, 1.3), hz = clamp(1 - (e - 1450) / 2600, .75, 1), col = TRGB[v], o = (y * w + x) * 4;
+      d[o] = clamp(col[0] * sh * hz + (1 - hz) * 120, 0, 255); d[o + 1] = clamp(col[1] * sh * hz + (1 - hz) * 130, 0, 255); d[o + 2] = clamp(col[2] * sh * hz + (1 - hz) * 140, 0, 255); d[o + 3] = 255;
+    }
+    g.putImageData(img, 0, 0); this._mini = c; this.miniK = K * TM; return c;
+  },
+  /* camino más corto sobre la grilla (A*) para buses: pruebas y rutas nuevas */
+  roadOK(v) { return v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE; }
+};
+~~~~
+
+### `src/js/12-red.js`
+~~~~js
+/* =====================================================================
+   LA RED: Metro (A, B), Tranvía, Metrocables, Metroplús, alimentadores y proyectos.
+   Geometría: A, B y T del mapa OSM; buses por calles reales (tools/rutas.mjs → RUTAS);
+   cables en línea recta entre estaciones. Datos y datos curiosos: src/data/red.js (RED).
+   ===================================================================== */
+const KIND = {
+  metro: { label: 'Metro', vmax: 80 / 3.6, acc: 1.0, brk: 1.1, emg: 1.4, len: 66, deck: 7, plat: 110, dwell: 20, icon: '🚇' },
+  tram: { label: 'Tranvía', vmax: 50 / 3.6, acc: 1.1, brk: 1.25, emg: 1.6, len: 40, deck: 0, plat: 50, dwell: 15, icon: '🚋' },
+  cable: { label: 'Metrocable', vmax: 5, acc: .5, brk: .6, emg: 1, len: 4, deck: 0, plat: 30, dwell: 10, icon: '🚡' },
+  brt: { label: 'Metroplús', vmax: 60 / 3.6, acc: 1.0, brk: 1.4, emg: 2, len: 18, deck: 0, plat: 30, dwell: 12, icon: '🚌' },
+  feeder: { label: 'Alimentador', vmax: 50 / 3.6, acc: 1.1, brk: 1.5, emg: 2.2, len: 12, deck: 0, plat: 16, dwell: 10, icon: '🚐' },
+  escalator: { label: 'Escaleras', vmax: .6, acc: .3, brk: .3, emg: .5, len: 2, deck: 0, plat: 8, dwell: 4, icon: '↗' },
+  future: { label: 'En proyecto', vmax: 70 / 3.6, acc: 1.0, brk: 1.2, emg: 1.5, len: 40, deck: 0, plat: 60, dwell: 15, icon: '🚧' }
+};
+/* datos mínimos si src/data/red.js no está (el juego sigue funcionando) */
+const RED0 = {
+  lines: [
+    { id: 'A', name: 'Línea A', kind: 'metro', color: '#1f63ad', from: 'Niquía', to: 'La Estrella', open: '1995-11-30', km: 25.8, status: 'operativa', facts: ['Primera y única línea de metro en Colombia: abrió el 30 de noviembre de 1995.'] },
+    { id: 'B', name: 'Línea B', kind: 'metro', color: '#f08a1c', from: 'San Antonio', to: 'San Javier', open: '1996-02-28', km: 5.6, status: 'operativa', facts: [] },
+    { id: 'T', name: 'Tranvía de Ayacucho', kind: 'tram', color: '#2f9b57', from: 'San Antonio', to: 'Oriente', open: '2015-10-15', km: 4.3, status: 'operativa', facts: ['Rueda sobre llantas guiado por un riel central (tecnología Translohr).'] },
+    { id: 'K', name: 'Metrocable K', kind: 'cable', color: '#f2a900', stations: [['Acevedo', 6.3000, -75.5583], ['Andalucía', 6.2958, -75.5520], ['Popular', 6.2952, -75.5482], ['Santo Domingo Savio', 6.2942, -75.5425]], facts: ['Fue el primer teleférico del mundo integrado a un metro como transporte público (2004).'] },
+    { id: 'L', name: 'Metrocable L · Arví', kind: 'cable', color: '#7cb342', stations: [['Santo Domingo Savio', 6.2942, -75.5425], ['Parque Arví', 6.2826, -75.5030]], facts: [] },
+    { id: 'P', name: 'Metrocable P', kind: 'cable', color: '#d14b9a', stations: [['Acevedo', 6.3000, -75.5583], ['SENA', 6.3048, -75.5658], ['Doce de Octubre', 6.3072, -75.5762], ['El Progreso', 6.3090, -75.5852]], facts: [] },
+    { id: 'J', name: 'Metrocable J', kind: 'cable', color: '#e8641f', stations: [['San Javier', 6.2566, -75.6136], ['Juan XXIII', 6.2655, -75.6152], ['Vallejuelos', 6.2755, -75.6143], ['La Aurora', 6.2810, -75.6151]], facts: [] },
+    { id: 'H', name: 'Metrocable H', kind: 'cable', color: '#7a5cc4', stations: [['Oriente', 6.2350, -75.5385], ['Las Torres', 6.2318, -75.5338], ['Villa Sierra', 6.2290, -75.5290]], facts: [] },
+    { id: 'M', name: 'Metrocable M', kind: 'cable', color: '#00a3a0', stations: [['Miraflores', 6.2400, -75.5520], ['El Pinal', 6.2445, -75.5455], ['Trece de Noviembre', 6.2485, -75.5390]], facts: [] }
+  ], stationFacts: {}, trivia: []
+};
+const LINE_META = typeof RED !== 'undefined' && RED && Array.isArray(RED.lines) ? RED : RED0;
+if (!LINE_META.stationFacts) LINE_META.stationFacts = {};
+if (!Array.isArray(LINE_META.trivia)) LINE_META.trivia = [];
+
+const NET = EM.netw = {
+  lines: [], byId: {}, stations: [],
+  poly(pts) { const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + dist(pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y)); return { pts, cum, len: cum[cum.length - 1] || 0 }; },
+  at(P, s, off = 0) {
+    const c = P.cum, n = c.length; s = clamp(s, 0, P.len); let lo = 0, hi = n - 1;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (c[m] <= s) lo = m; else hi = m; }
+    const a = P.pts[lo], b = P.pts[Math.min(lo + 1, n - 1)], L = (c[lo + 1] - c[lo]) || 1, k = clamp((s - c[lo]) / L, 0, 1), ang = Math.atan2(b.y - a.y, b.x - a.x);
+    return { x: a.x + (b.x - a.x) * k - Math.sin(ang) * off, y: a.y + (b.y - a.y) * k + Math.cos(ang) * off, a: ang };
+  },
+  project(P, x, y) {
+    let bd = 1e18, bs = 0;
+    for (let i = 0; i < P.pts.length - 1; i++) { const a = P.pts[i], b = P.pts[i + 1], dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy || 1, t = clamp(((x - a.x) * dx + (y - a.y) * dy) / L2, 0, 1), px = a.x + dx * t, py = a.y + dy * t, d = (x - px) ** 2 + (y - py) ** 2; if (d < bd) { bd = d; bs = P.cum[i] + Math.sqrt(L2) * t; } }
+    return { d: Math.sqrt(bd), s: bs };
+  },
+  build() {
+    this.lines = []; this.byId = {};
+    const q = a => { const r = []; for (let i = 0; i < a.length; i += 2) r.push({ x: a[i] * TM / 4, y: a[i + 1] * TM / 4 }); return r; };
+    for (const L of LINE_META.lines) {
+      const k = KIND[L.kind] ? L.kind : 'future', line = Object.assign({ facts: [], tech: '', status: 'operativa' }, L, { kind: k, K: KIND[k] });
+      let pts = null, st = null;
+      const osm = VM.metro && VM.metro[L.id === 'TA' ? 'T' : L.id];
+      if (osm && (k === 'metro' || k === 'tram')) {
+        pts = q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
+      }
+      if (!st) st = (L.stations || []).map(([n, la, lo]) => Object.assign({ name: n }, geoM(la, lo)));
+      if (!pts && typeof RUTAS !== 'undefined' && RUTAS[L.id]) pts = q(RUTAS[L.id]);
+      if (!pts) { const via = (L.via || []).map(([la, lo]) => geoM(la, lo)); pts = via.length && k !== "cable" ? this.orderAlong(st, via) : st.map(s => ({ x: s.x, y: s.y })); }
+      if (pts.length < 2) continue;
+      line.P = this.poly(pts);
+      line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y); return { name: s.name, x: s.x, y: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
+      line.st.forEach((s, i) => s.i = i);
+      if (line.st.length < 2) continue;
+      line.km = line.km || +(line.P.len / 1000).toFixed(1);
+      this.lines.push(line); this.byId[line.id] = line;
+    }
+    // estaciones de transbordo (mismo nombre o a menos de 250 m)
+    this.stations = [];
+    for (const l of this.lines) for (const s of l.st) {
+      let hub = this.stations.find(h => h.name === s.name || dist(h.x, h.y, s.x, s.y) < 140);
+      if (!hub) { hub = { name: s.name, x: s.x, y: s.y, lines: [] }; this.stations.push(hub); }
+      if (!hub.lines.includes(l)) hub.lines.push(l); s.hub = hub;
+    }
+  },
+  /* ordena puntos intermedios a lo largo del recorrido entre estaciones */
+  orderAlong(st, via) {
+    const base = this.poly(st.map(s => ({ x: s.x, y: s.y }))), all = st.map(s => ({ x: s.x, y: s.y, s: this.project(base, s.x, s.y).s })).concat(via.map(v => ({ x: v.x, y: v.y, s: this.project(base, v.x, v.y).s })));
+    return all.sort((a, b) => a.s - b.s).map(p => ({ x: p.x, y: p.y }));
+  },
+  fact(name) { return LINE_META.stationFacts[name] || ''; },
+  trivia(rng) { const T = LINE_META.trivia; return T.length ? T[Math.floor(rng.f() * T.length)] : null; },
+  kindLines(kinds) { return this.lines.filter(l => kinds.includes(l.kind)); }
+};
+~~~~
+
+### `src/js/18-mundo.js`
+~~~~js
+/* =====================================================================
+   EL MUNDO: reloj del juego (ciclo día/noche), clima de Medellín y fechas especiales.
+   · Reloj: parte de la hora real del dispositivo; en el juego corre ×30 (1 min real = 30 min),
+     o real, o fijo de día / de noche (Ajustes).
+   · Clima: despejado, nubes, lluvia, tormenta o niebla según la temporada (lluvias de mar–may y sep–nov),
+     la hora (aguaceros por la tarde, neblina al amanecer) y una semilla del día: todos los modos ven el mismo cielo.
+   · Fechas: cumpleaños del Metro (30 nov), Alumbrados, Velitas, Navidad, Año Nuevo, Feria de las Flores,
+     20 de julio, 7 de agosto, Amor y Amistad, Halloween, Semana Santa… con adornos en los escenarios.
+   ===================================================================== */
+const Mundo = EM.mundo = {
+  t0: now(), h0: null,
+  speed() { const c = (Save.d && Save.d.settings.ciclo) || 'rapido'; return c === 'real' ? 1 : c === 'rapido' ? 30 : 0; },
+  /* hora del juego (0–24, fraccional) */
+  hour() {
+    const c = (Save.d && Save.d.settings.ciclo) || 'rapido'; if (c === 'dia') return 11.2; if (c === 'noche') return 21.3;
+    const d = new Date(); if (this.h0 == null) this.h0 = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+    if (c === 'real') return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+    return (this.h0 + (now() - this.t0) * 30 / 3600) % 24;
+  },
+  date() { return new Date(); },
+  doy(d = new Date()) { return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); },
+  /* ---------- clima ---------- */
+  weather(h = this.hour()) {
+    const d = new Date(), m = d.getMonth() + 1, wet = [3, 4, 5, 9, 10, 11].includes(m) ? 1 : m === 12 || m === 6 ? .5 : .25, blk = Math.floor(h / .75), seed = hashStr(this.dayKey() + ':' + blk);
+    const r = h2(seed, 1, 7), aft = h >= 13 && h < 19 ? 1 : h >= 19 || h < 1 ? .45 : .2, dawn = h >= 4.5 && h < 8.5 ? 1 : 0;
+    let k = 'despejado'; const pR = .1 + .45 * wet * aft, pT = .12 * wet * aft, pF = .25 * dawn + .05, pN = .3;
+    if (r < pT) k = 'tormenta'; else if (r < pT + pR) k = 'lluvia'; else if (r < pT + pR + pF) k = 'niebla'; else if (r < pT + pR + pF + pN) k = 'nubes';
+    const f = (h / .75) % 1, nk = this._wk(seed, h);  // transición suave al siguiente bloque
+    return { k, rain: k === 'lluvia' || k === 'tormenta', storm: k === 'tormenta', fog: k === 'niebla', clouds: k === 'nubes' || k === 'lluvia' || k === 'tormenta' ? 1 : .35, mix: f, icon: { despejado: h >= 6 && h < 18.3 ? '☀' : '☾', nubes: '⛅', lluvia: '🌧', tormenta: '⛈', niebla: '🌫' }[k], name: { despejado: 'Despejado', nubes: 'Nublado', lluvia: 'Lluvia', tormenta: 'Tormenta eléctrica', niebla: 'Neblina' }[k] };
+  },
+  _wk() { return null; },
+  dayKey(d = new Date()) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); },
+  /* temperatura (°C): eterna primavera, más fresco en las lomas (−6,5 °C por km de altura) */
+  temp(h = this.hour(), elev = 1495) { const w = this.weather(h); return Math.round(22 + 5.5 * Math.sin((h - 9) / 24 * TAU) - (w.rain ? 3 : 0) - (elev - 1495) * .0065); },
+  /* ---------- fechas especiales ---------- */
+  fiestas(d = new Date()) {
+    const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), wd = d.getDay(), out = [], nth = (mo, wdT, n) => { let c = 0; for (let i = 1; i <= 31; i++) { const q = new Date(y, mo - 1, i); if (q.getMonth() !== mo - 1) break; if (q.getDay() === wdT && ++c === n) return i; } return -1; };
+    const add = (k, t, deco) => out.push({ k, t, deco });
+    const aniv = new Date(y, 10, 30), faltan = Math.ceil((aniv - new Date(y, m - 1, day)) / 864e5), años = y - 1995;
+    if (faltan === 0) add('aniv', '¡Hoy el Metro cumple ' + años + ' años! Abrió el 30 de noviembre de 1995 · pasajes ×2', 'fuegos');
+    else if (faltan > 0 && faltan <= 21) add('pre', 'Faltan ' + faltan + ' días para que el Metro cumpla ' + años + ' años (30 de noviembre)', 'banderines');
+    if (m === 12 && day === 7) add('velitas', 'Noche de Velitas: faroles y velas en andenes y balcones', 'velas');
+    if (m === 12 && day >= 16 && day <= 24) add('novena', 'Novena de aguinaldos: buñuelos, natilla y villancicos en las estaciones', 'luces');
+    if (m === 12 && (day === 24 || day === 25)) add('navidad', '¡Feliz Navidad! El último tren sale más temprano en Nochebuena', 'luces');
+    if ((m === 12 && day >= 31) || (m === 1 && day === 1)) add('anonuevo', '¡Feliz año nuevo! Pólvora no, abrazos sí', 'fuegos');
+    if (m === 12 || (m === 1 && day <= 10) || (m === 11 && day >= 28)) add('alumbrados', 'Alumbrados navideños: el río y los barrios se llenan de luces', 'luces');
+    if (m === 8 && day <= 12) add('feria', 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en las estaciones', 'flores');
+    if (m === 8 && day === nth(8, 0, 2)) add('silleteros', 'Hoy es el Desfile de Silleteros', 'flores');
+    if (m === 7 && day === 20) add('julio20', '20 de julio: Día de la Independencia · banderas en las estaciones', 'banderas');
+    if (m === 8 && day === 7) add('boyaca', '7 de agosto: Batalla de Boyacá', 'banderas');
+    if (m === 8 && day === 11) add('antioquenidad', 'Día de la Antioqueñidad', 'banderas');
+    if (m === 9 && (day === nth(9, 6, 3) || day === nth(9, 6, 3) + 1)) add('amor', 'Amor y Amistad: comparte el viaje (y el tinto)', 'corazones');
+    if (m === 10 && day === 31) add('halloween', 'Día de los niños: disfraces en los vagones', 'calabazas');
+    if (m === 5 && day === nth(5, 0, 2)) add('madre', 'Día de la Madre: ¡a llamar a la mamá!', 'flores');
+    const P = pascua(y), dp = Math.round((new Date(y, m - 1, day) - P) / 864e5); if (dp >= -7 && dp <= 0) add('santa', 'Semana Santa: horario especial y muchos viajeros hacia las terminales', 'morado');
+    return out;
+  },
+  deco() { const f = this.fiestas(); return f.length ? f[0].deco : ''; },
+  has(k) { return this.fiestas().some(f => f.k === k); },
+  /* ambiente de luz para los lienzos 2D: tinte multiplicativo, luces y oscuridad */
+  light(h = this.hour()) { const s = SKY.at(h), w = this.weather(h); return { night: s.night, day: s.day, tint: s.night > .05 ? 'rgba(20,32,80,' + (s.night * .55) + ')' : null, golden: clamp(1 - Math.abs(h - 17.6) / .9, 0, 1) * .3 + clamp(1 - Math.abs(h - 6.2) / .7, 0, 1) * .25, w }; },
+  chip() { const h = this.hour(), w = this.weather(h); return w.icon + ' ' + pad2(Math.floor(h)) + ':' + pad2(Math.floor((h % 1) * 60)) + ' · ' + this.temp(h) + '°'; },
+  /* capa de clima y luz para cualquier lienzo 2D (lluvia, niebla, noche, hora dorada, grano) */
+  overlay(g, W, H, t, opts = {}) {
+    const L = this.light(), w = L.w;
+    if (L.tint && !opts.noNight) { const q = opts.soft ? .45 : 1; g.save(); g.globalCompositeOperation = 'multiply'; g.fillStyle = 'rgb(' + Math.round(255 - 170 * L.night * q) + ',' + Math.round(255 - 150 * L.night * q) + ',' + Math.round(255 - 80 * L.night * q) + ')'; g.fillRect(0, 0, W, H); g.restore(); }
+    if (L.golden > .02) { g.save(); g.globalCompositeOperation = 'soft-light'; g.fillStyle = 'rgba(255,150,60,' + L.golden + ')'; g.fillRect(0, 0, W, H); g.restore(); }
+    if (w.fog) { const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, 'rgba(225,230,235,.5)'); gr.addColorStop(1, 'rgba(225,230,235,.15)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); }
+    if (w.rain && !opts.noRain) { g.strokeStyle = 'rgba(210,228,240,.42)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 90; i++) { const x = (h2(i, 3, 3) * W + t * 80) % W, y = (h2(i, 4, 3) * H + t * 650 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 4, y + 13); } g.stroke(); if (w.storm && (t % 9) < .12) { g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(0, 0, W, H); } }
+    if (!opts.noGrain) this.grain(g, W, H);
+    this.decoOverlay(g, W, H, t, L);
+  },
+  /* grano de película y viñeta (estilo arte de concepto cinematográfico) */
+  grain(g, W, H) {
+    if (!this._gr) { const c = mkCanvas(128, 128), q = c.getContext('2d'), im = q.createImageData(128, 128); for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 14; } q.putImageData(im, 0, 0); this._gr = c; }
+    g.save(); g.fillStyle = g.createPattern(this._gr, 'repeat'); g.translate((Math.random() * 128) | 0, (Math.random() * 128) | 0); g.fillRect(-128, -128, W + 256, H + 256); g.restore();
+    const v = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .35, W / 2, H / 2, Math.max(W, H) * .75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(10,14,30,.32)'); g.fillStyle = v; g.fillRect(0, 0, W, H);
+  },
+  /* adornos de fecha en 2D: fuegos artificiales, corazones, banderines… */
+  decoOverlay(g, W, H, t, L) {
+    const d = this.deco(); if (!d) return;
+    if (d === 'fuegos' && L.night > .4) for (let i = 0; i < 3; i++) { const p = (t * .35 + i * .37) % 1, x = W * (.2 + .6 * h2(i, Math.floor(t * .35 + i * .37), 1)), y = H * (.12 + .2 * h2(i, 2, Math.floor(t * .35))), r = p * Math.min(W, H) * .12; for (let k = 0; k < 14; k++) { const a = k / 14 * TAU; g.fillStyle = ['#EC343A', '#F6C538', '#59AB42', '#1C5C9C', '#EB318E'][(i + k) % 5]; g.globalAlpha = 1 - p; g.fillRect(x + Math.cos(a) * r, y + Math.sin(a) * r, 3, 3); } g.globalAlpha = 1; }
+    if (d === 'corazones') for (let i = 0; i < 8; i++) { const x = h2(i, 1, 4) * W, y = H - ((t * 30 + h2(i, 2, 4) * H) % H); g.fillStyle = 'rgba(236,52,58,.55)'; g.font = '16px sans-serif'; g.fillText('❤', x, y); }
+    if (d === 'banderines') { const n = 18; for (let i = 0; i < n; i++) { const x = W * i / n, y = 4 + Math.sin(i * 1.3) * 3; g.fillStyle = ['#1C5C9C', '#E38835', '#59AB42', '#F6C538', '#EB318E', '#743D90', '#EC343A'][i % 7]; g.beginPath(); g.moveTo(x, y); g.lineTo(x + W / n * .8, y); g.lineTo(x + W / n * .4, y + 12); g.fill(); } }
+  }
+};
+~~~~
+
+### `src/js/20-art.js`
+~~~~js
+/* =====================================================================
+   ARTE: pixel art procedural con contornos definidos (sin imágenes externas)
+   ===================================================================== */
+const PAL = { papel: '#f1ece0', crema: '#faf6ec', mante: '#fbe7b0', tinta: '#154a80', petro: '#1C5C9C', teal: '#0E6F76', rojo: '#EC343A', mostaza: '#F6C538', gris: '#9aa1a8', noche: '#0f2a45', noche2: '#163a5c', naranja: '#E38835', negro: '#141414', blanco: '#fdfbf5', verde: '#59AB42', ladrillo: '#b4583a', ladrillo2: '#9a4630', plata: '#c9ced4', vidrio: '#9fd3e6' };
+const SKIN = ['#f1c9a5', '#d9a77f', '#b07a52', '#8a5a3b', '#5e3b26'], ROPA = ['#c8201f', '#12446c', '#2f9b57', '#c3952f', '#ff6a3d', '#7a5cc4', '#f9e4a4', '#141414', '#1b8088'];
+const Art = EM.art = {
+  px(g, x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); },
+  shade(hex, m) { const n = parseInt(hex.slice(1), 16); return 'rgb(' + clamp((n >> 16) * m, 0, 255) + ',' + clamp((n >> 8 & 255) * m, 0, 255) + ',' + clamp((n & 255) * m, 0, 255) + ')'; },
+  /* persona pequeña (6 px de alto a escala 1) */
+  person(g, x, y, s, seed, walk) {
+    const r = h2(seed, 7, 1), c = ROPA[(r * ROPA.length) | 0], k = SKIN[(h2(seed, 3, 2) * SKIN.length) | 0], leg = walk ? (Math.floor(now() * 6 + seed) % 2) : 0;
+    this.px(g, x - s, y - 6 * s, 2 * s, 2 * s, k); this.px(g, x - s, y - 4 * s, 2 * s, 2.5 * s, c);
+    this.px(g, x - s, y - 1.5 * s, s * .9, 1.5 * s + (leg ? -.5 * s : 0), PAL.negro); this.px(g, x + .1 * s, y - 1.5 * s, s * .9, 1.5 * s + (leg ? 0 : -.5 * s), PAL.negro);
+  },
+  /* tren de lado (portada y escenas): carros con franja del color de la línea */
+  trainSide(g, x, y, cars, col, s = 1, lit = false) {
+    const cw = 46 * s, ch = 13 * s;
+    for (let i = 0; i < cars; i++) {
+      const cx = x + i * (cw + 2 * s);
+      this.px(g, cx, y, cw, ch, PAL.negro); this.px(g, cx + s, y + s, cw - 2 * s, ch - 2 * s, PAL.plata);
+      this.px(g, cx + s, y + ch - 4 * s, cw - 2 * s, 2 * s, col);
+      for (let w = 0; w < 5; w++) this.px(g, cx + 4 * s + w * 8.4 * s, y + 3 * s, 6 * s, 4 * s, lit ? '#ffe9a6' : PAL.vidrio);
+      this.px(g, cx + cw / 2 - 2 * s, y + 3 * s, 4 * s, 8 * s, PAL.gris);
+      if (i === cars - 1) { this.px(g, cx + cw - 3 * s, y + 3 * s, 2 * s, 4 * s, PAL.tinta); this.px(g, cx + cw - 2 * s, y + ch - 6 * s, 2 * s, 2 * s, '#fff6c0'); }
+    }
+  },
+  /* frente/atrás de tren o bus (vista en 3a persona y escenas) */
+  vehicleBack(g, cx, by, w, col, kind, lights) {
+    const h = kind === 'metro' ? w * .95 : kind === 'tram' ? w * .9 : w * .85, x = cx - w / 2, y = by - h, s = Math.max(1, w / 40);
+    g.fillStyle = PAL.negro; g.fillRect(x - s, y - s, w + 2 * s, h + 2 * s);
+    g.fillStyle = kind === 'brt' || kind === 'feeder' ? col : PAL.plata; g.fillRect(x, y, w, h);
+    g.fillStyle = PAL.tinta; g.fillRect(x + w * .12, y + h * .12, w * .76, h * .38);           // ventana trasera
+    g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(x + w * .14, y + h * .14, w * .2, h * .1);
+    g.fillStyle = kind === 'brt' || kind === 'feeder' ? PAL.blanco : col; g.fillRect(x, y + h * .62, w, h * .1);
+    g.fillStyle = lights ? '#ff3b2f' : '#7a1d16'; g.fillRect(x + w * .06, y + h * .76, w * .14, h * .1); g.fillRect(x + w * .8, y + h * .76, w * .14, h * .1);
+    g.fillStyle = PAL.negro; g.fillRect(x + w * .3, y + h * .8, w * .4, h * .12);
+    if (kind === 'metro' || kind === 'tram') { g.fillStyle = PAL.negro; g.fillRect(cx - s, y - h * .35, 2 * s, h * .35); g.fillRect(cx - w * .25, y - h * .36, w * .5, s * 1.5); }   // pantógrafo
+  },
+  /* cabina de metrocable */
+  cabin(g, x, y, s, col) {
+    this.px(g, x - .5 * s, y - 6 * s, s, 6 * s, PAL.negro);
+    this.px(g, x - 4 * s, y, 8 * s, 7 * s, PAL.negro); this.px(g, x - 3.5 * s, y + .5 * s, 7 * s, 6 * s, col);
+    this.px(g, x - 3 * s, y + 1.5 * s, 6 * s, 2.5 * s, PAL.vidrio);
+  },
+  /* vehículo visto desde arriba (vista cenital), centrado, rotado */
+  topVehicle(g, x, y, a, len, wid, col, kind) {
+    g.save(); g.translate(x, y); g.rotate(a);
+    g.fillStyle = PAL.negro; g.fillRect(-len / 2 - 1, -wid / 2 - 1, len + 2, wid + 2);
+    g.fillStyle = kind === 'brt' || kind === 'feeder' || kind === 'car' ? col : PAL.plata; g.fillRect(-len / 2, -wid / 2, len, wid);
+    if (kind === 'metro' || kind === 'tram') { g.fillStyle = col; g.fillRect(-len / 2, -wid * .15, len, wid * .3); const n = kind === 'metro' ? 3 : 5; g.fillStyle = PAL.negro; for (let i = 1; i < n; i++) g.fillRect(-len / 2 + len * i / n - .5, -wid / 2, 1, wid); }
+    else { g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(len * .18, -wid / 2 + 1, len * .14, wid - 2); }
+    g.fillStyle = '#fff6c0'; g.fillRect(len / 2 - 2, -wid / 2 + 1, 2, 2); g.fillRect(len / 2 - 2, wid / 2 - 3, 2, 2);
+    g.restore();
+  },
+  /* edificio en vista 3D (cara frontal) con ventanas pixeladas */
+  building(g, x, y, w, h, seed, night, brick) {
+    const base = brick ? (h2(seed, 1, 9) < .5 ? PAL.ladrillo : PAL.ladrillo2) : ['#8d97a4', '#a3a9b0', '#7c8794', '#b8b0a0', '#d9cdae'][(h2(seed, 2, 9) * 5) | 0];
+    g.fillStyle = PAL.negro; g.fillRect(x - 1, y - 1, w + 2, h + 1);
+    g.fillStyle = night ? this.shade(base, .38) : base; g.fillRect(x, y, w, h);
+    if (w < 4 || h < 4) return;
+    const cw = Math.max(2, w / 6), chh = Math.max(2, h / (brick ? 4 : 9)), lit = night ? '#ffd96a' : (brick ? '#5b2b1e' : '#3a5468');
+    for (let yy = y + chh * .6; yy < y + h - chh; yy += chh * 1.6) for (let xx = x + cw * .6; xx < x + w - cw; xx += cw * 1.7) {
+      if (night && h2(xx | 0, yy | 0, seed) < .45) continue;
+      g.fillStyle = lit; g.fillRect(xx, yy, cw * .8, chh * .8);
+    }
+    if (brick) { g.fillStyle = this.shade(base, .7); g.fillRect(x, y, w, Math.max(1, h * .06)); }
+  },
+  tree(g, x, y, s, night) { this.px(g, x - s * .15, y - s * .5, s * .3, s * .5, '#4a3020'); g.fillStyle = PAL.negro; g.beginPath(); g.arc(x, y - s * .9, s * .52, 0, TAU); g.fill(); g.fillStyle = night ? '#1f3b25' : '#3b7334'; g.beginPath(); g.arc(x, y - s * .9, s * .45, 0, TAU); g.fill(); },
+  /* ---------- escena de portada: el valle al atardecer ---------- */
+  cover(g, W, H, t, night) {
+    g.imageSmoothingEnabled = false;
+    const sky = night ? ['#0c2533', '#123447', '#1b4459', '#28536a'] : ['#12446c', '#1b8088', '#e9a25f', '#f9e4a4'];
+    for (let i = 0; i < 4; i++) { g.fillStyle = sky[i]; g.fillRect(0, i * H * .14, W, H * .14 + 1); }
+    g.fillStyle = sky[3]; g.fillRect(0, H * .56, W, H * .1);
+    if (!night) { g.fillStyle = '#fbf3d0'; g.beginPath(); g.arc(W * .7, H * .5, H * .16, 0, TAU); g.fill(); }
+    else for (let i = 0; i < 40; i++) { const sx = h2(i, 1, 4) * W, sy = h2(i, 2, 4) * H * .4; if ((t * 2 + i) % 7 > .4) this.px(g, sx, sy, 1, 1, '#f9e4a4'); }
+    // montañas (dos capas) con luces de los barrios
+    const ridge = (base, amp, f, col, seed, lights) => {
+      g.fillStyle = col; g.beginPath(); g.moveTo(0, H);
+      for (let x = 0; x <= W; x += 2) { const y = base - amp * (.55 * Math.sin(x * f + seed) + .3 * Math.sin(x * f * 2.3 + seed * 2) + .15 * Math.sin(x * f * 5.1 + seed)); g.lineTo(x, Math.round(y)); }
+      g.lineTo(W, H); g.closePath(); g.fill();
+      if (lights) for (let i = 0; i < 220; i++) { const x = h2(i, seed | 0, 5) * W, yb = base - amp * (.55 * Math.sin(x * f + seed) + .3 * Math.sin(x * f * 2.3 + seed * 2) + .15 * Math.sin(x * f * 5.1 + seed)), y = yb + h2(i, 9, seed | 0) * (H * .6 - yb); if (y > H * .72) continue; const on = night ? ((t * 1.5 + i * .37) % 5 > .3) : h2(i, 3, 1) < .5; this.px(g, x, y, 1.4, 1.4, night ? (on ? '#ffd96a' : '#8a6a3a') : (h2(i, 4, 1) < .6 ? PAL.ladrillo : '#d9cdae')); }
+    };
+    ridge(H * .5, H * .16, .021, night ? '#173a4c' : '#3d6f7d', 1.3, false);
+    ridge(H * .62, H * .14, .03, night ? '#10303f' : '#2c5a52', 4.1, true);
+    // metrocable cruzando la ladera
+    const cx0 = W * .06, cy0 = H * .3, cx1 = W * .5, cy1 = H * .62;
+    g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(cx0, cy0); g.lineTo(cx1, cy1); g.stroke();
+    for (let k = 0; k < 3; k++) { const f = ((t * .05 + k / 3) % 1), x = lerp(cx0, cx1, f), y = lerp(cy0, cy1, f) + 1; this.cabin(g, x, y + 5, 1, ['#f2a900', '#7cb342', '#d14b9a'][k]); }
+    for (const f of [.33, .66]) { const x = lerp(cx0, cx1, f), y = lerp(cy0, cy1, f); this.px(g, x - 1, y, 2, H * .7 - y, PAL.negro); }
+    // ciudad baja
+    for (let i = 0; i < 26; i++) { const bw = 8 + h2(i, 1, 2) * 14, bx = h2(i, 2, 2) * W, bh = 10 + h2(i, 3, 2) * 34; this.building(g, bx, H * .78 - bh, bw, bh, i, night, h2(i, 4, 2) < .4); }
+    // viaducto y tren de la línea A
+    const vy = H * .74; this.px(g, 0, vy, W, 4, PAL.negro); this.px(g, 0, vy, W, 3, '#cfc6b0');
+    for (let x = 6; x < W; x += 26) this.px(g, x, vy + 3, 4, H * .12, '#b8ae98');
+    const tx = ((t * 34) % (W + 160)) - 150; this.trainSide(g, tx, vy - 13, 3, '#1f63ad', 1, night);
+    // río Medellín
+    g.fillStyle = night ? '#0f3a4a' : '#3a87a8'; g.fillRect(0, H * .88, W, H * .12);
+    g.fillStyle = 'rgba(255,255,255,.25)'; for (let i = 0; i < 18; i++) { const x = (h2(i, 5, 5) * W + t * 9) % W; g.fillRect(x, H * .9 + (i % 4) * 4, 6, 1); }
+    g.fillStyle = PAL.verde; g.fillRect(0, H * .86, W, 3);
+  },
+  /* ícono: frente de tren pixelado sobre petróleo (para íconos e instalador) */
+  icon(g, S, maskable) {
+    g.imageSmoothingEnabled = false; const u = S / 32, pad = maskable ? 5 * u : 2 * u;
+    g.fillStyle = PAL.petro; g.fillRect(0, 0, S, S);
+    if (!maskable) { g.fillStyle = PAL.mante; g.fillRect(u, u, S - 2 * u, S - 2 * u); g.fillStyle = PAL.petro; g.fillRect(2 * u, 2 * u, S - 4 * u, S - 4 * u); }
+    const x = pad + 4 * u, y = pad + 3 * u, w = S - 2 * pad - 8 * u, h = S - 2 * pad - 7 * u, r = (a, b, c, d, col) => { g.fillStyle = col; g.fillRect(Math.round(a), Math.round(b), Math.round(c), Math.round(d)); };
+    r(x - u, y - u, w + 2 * u, h + 2 * u, PAL.negro); r(x, y, w, h, PAL.plata);
+    r(x + w * .12, y + h * .12, w * .76, h * .36, PAL.tinta); r(x + w * .16, y + h * .15, w * .2, h * .08, '#6fb5d8');
+    r(x, y + h * .6, w, h * .1, '#1f63ad'); r(x + w * .08, y + h * .76, w * .16, h * .1, '#fff3b0'); r(x + w * .76, y + h * .76, w * .16, h * .1, '#fff3b0');
+    r(x + w * .36, y + h * .76, w * .28, h * .12, PAL.negro);
+    r(x + w / 2 - u * .6, y - 3 * u, u * 1.2, 2 * u, PAL.negro); r(x + w * .25, y - 3.2 * u, w * .5, u, PAL.negro);
+    r(x - 2 * u, y + h + u, w + 4 * u, u, PAL.rojo);
+  }
+};
+~~~~
+
+### `src/js/21-sprites.js`
+~~~~js
+/* =====================================================================
+   SPRITES CENITALES: vehículos y peatones dibujados con detalle (contorno, techo,
+   vidrios, luces, retrovisores, livery) para la vista desde arriba estilo GTA 1/2.
+   Todo se dibuja centrado en el origen mirando hacia +x; el que llama rota y escala.
+   ===================================================================== */
+const Spr = EM.spr = {
+  rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); if (g.roundRect) { g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); } else g.fillRect(x, y, w, h); },
+  /* kind: car taxi moto bus brt metro tram cable camioneta · o: {end:'front'|'back'|'both'|'mid', lights, night, doors:'left'|'right', sign}
+     L, W en píxeles */
+  veh(g, kind, L, W, col, o = {}) {
+    const dark = '#141414', glass = o.night ? '#263a4d' : '#1f2e3d', glassL = o.night ? '#355068' : '#2f4a60', R = this.rr.bind(this);
+    if (kind === 'moto') {
+      g.fillStyle = dark; g.fillRect(-L / 2, -W * .32, L * .28, W * .64); g.fillRect(L / 2 - L * .28, -W * .32, L * .28, W * .64);   // ruedas
+      g.fillStyle = col; R(g, -L * .3, -W * .36, L * .6, W * .72, W * .2);
+      g.fillStyle = o.rider || '#2b2b2b'; g.beginPath(); g.ellipse(-L * .04, 0, L * .2, W * .62, 0, 0, TAU); g.fill();            // hombros
+      g.fillStyle = o.helmet || '#e8e8e8'; g.beginPath(); g.arc(L * .08, 0, W * .36, 0, TAU); g.fill();                              // casco
+      g.fillStyle = o.lights ? '#fff6c0' : '#e8dcae'; g.fillRect(L / 2 - 2, -1, 2, 2); return;
+    }
+    if (kind === 'cable') {
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(-L / 2 + 3, -W / 2 + 4, L, W);
+      g.fillStyle = dark; R(g, -L / 2 - 1, -W / 2 - 1, L + 2, W + 2, 3); g.fillStyle = col; R(g, -L / 2, -W / 2, L, W, 2);
+      g.fillStyle = glassL; g.fillRect(-L * .34, -W * .34, L * .68, W * .68); g.fillStyle = col; g.fillRect(-L * .12, -W * .5, L * .24, W);
+      g.fillStyle = dark; g.fillRect(-1.5, -1.5, 3, 3); return;
+    }
+    const bus = kind === 'bus' || kind === 'brt' || kind === 'feeder', rail = kind === 'metro' || kind === 'tram';
+    // contorno y carrocería
+    g.fillStyle = dark; R(g, -L / 2 - 1, -W / 2 - 1, L + 2, W + 2, bus || rail ? 2 : 3);
+    const body = rail ? (kind === 'metro' ? '#e9ecef' : '#eef2ee') : col; g.fillStyle = body; R(g, -L / 2, -W / 2, L, W, bus || rail ? 1.5 : 2.5);
+    if (kind === 'brt') { // articulado: dos secciones y fuelle
+      const j = -L * .14; g.fillStyle = '#2a2a2a'; g.fillRect(j - L * .035, -W / 2 - 1, L * .07, W + 2); g.fillStyle = '#1a1a1a'; for (let x = j - L * .03; x < j + L * .035; x += 2) g.fillRect(x, -W / 2, 1, W);
+    }
+    if (bus) {
+      g.fillStyle = Art.shade(body, 1.08); g.fillRect(-L / 2 + L * .06, -W * .18, L * .88, W * .36);                     // techo
+      const stripe = kind === 'feeder' ? '#E38835' : kind === 'brt' ? '#f4f1ea' : '#59AB42'; g.fillStyle = stripe; g.fillRect(-L / 2 + 1, -W / 2 + 1, L - 2, Math.max(1, W * .1)); g.fillRect(-L / 2 + 1, W / 2 - 1 - Math.max(1, W * .1), L - 2, Math.max(1, W * .1));
+      g.fillStyle = glass; const n = Math.max(3, Math.floor(L / 7)); for (let i = 0; i < n; i++) { const x = -L / 2 + L * .1 + i * (L * .82 / n); if (kind === 'brt' && Math.abs(x + L * .14) < L * .05) continue; g.fillRect(x, -W / 2 + 1, L * .82 / n * .62, Math.max(1, W * .12)); g.fillRect(x, W / 2 - 1 - Math.max(1, W * .12), L * .82 / n * .62, Math.max(1, W * .12)); }
+      g.fillStyle = glass; g.fillRect(L / 2 - Math.max(2, L * .07), -W / 2 + 1, Math.max(2, L * .07), W - 2);                 // parabrisas
+      g.fillStyle = glassL; g.fillRect(-L / 2 + 1, -W / 2 + 1, Math.max(1.5, L * .04), W - 2);                                // vidrio trasero
+      g.fillStyle = '#9aa0a6'; g.fillRect(-L * .3, -W * .1, L * .08, W * .2); g.fillRect(L * .12, -W * .1, L * .08, W * .2);   // escotillas / aire
+      if (o.doors) { const side = o.doors === 'left' ? -1 : 1; g.fillStyle = Art.shade(body, .82); for (const f of (kind === 'brt' ? [.3, .02, -.3] : [.3, -.2])) g.fillRect(f * L - L * .03, side < 0 ? -W / 2 : W / 2 - Math.max(1, W * .1), L * .06, Math.max(1, W * .1)); }
+      if (o.sign) { g.fillStyle = '#ffb000'; g.fillRect(L / 2 - Math.max(2, L * .07) - 1, -W * .22, 1.5, W * .44); }
+    } else if (rail) {
+      g.fillStyle = col; g.fillRect(-L / 2 + 1, -W / 2 + 1, L - 2, Math.max(1, W * .14)); g.fillRect(-L / 2 + 1, W / 2 - 1 - Math.max(1, W * .14), L - 2, Math.max(1, W * .14));   // franja de la línea
+      g.fillStyle = '#c9ced4'; g.fillRect(-L / 2 + L * .08, -W * .16, L * .84, W * .32);                                 // techo central (equipos)
+      g.fillStyle = '#aeb4ba'; for (let i = 0; i < 3; i++) g.fillRect(-L * .3 + i * L * .3, -W * .1, L * .12, W * .2);
+      g.fillStyle = glass; const n = Math.max(4, Math.floor(L / 5)); for (let i = 0; i < n; i++) { const x = -L / 2 + L * .06 + i * (L * .88 / n); g.fillRect(x, -W / 2 + 1 + Math.max(1, W * .14), L * .88 / n * .55, Math.max(1, W * .1)); g.fillRect(x, W / 2 - 1 - Math.max(1, W * .14) - Math.max(1, W * .1), L * .88 / n * .55, Math.max(1, W * .1)); }
+      if (o.end === 'front' || o.end === 'both') { g.fillStyle = glass; g.fillRect(L / 2 - Math.max(2, L * .06), -W / 2 + 1, Math.max(2, L * .06), W - 2); g.fillStyle = '#fff6c0'; g.fillRect(L / 2 - 1.5, -W / 2 + 1, 1.5, Math.max(1, W * .18)); g.fillRect(L / 2 - 1.5, W / 2 - 1 - Math.max(1, W * .18), 1.5, Math.max(1, W * .18)); }
+      if (o.end === 'back' || o.end === 'both') { g.fillStyle = glass; g.fillRect(-L / 2 + 1, -W / 2 + 1, Math.max(2, L * .06), W - 2); g.fillStyle = '#ff3b2f'; g.fillRect(-L / 2 + 1, -W / 2 + 1, 1.5, Math.max(1, W * .18)); g.fillRect(-L / 2 + 1, W / 2 - 1 - Math.max(1, W * .18), 1.5, Math.max(1, W * .18)); }
+      if (kind === 'tram') { g.fillStyle = dark; g.fillRect(-L * .04, -W * .4, L * .08, W * .8); g.fillRect(-L * .02, -W * .5, L * .04, W); }   // pantógrafo
+      return;
+    } else {
+      // carro, taxi, camioneta
+      const pick = kind === 'camioneta';
+      g.fillStyle = Art.shade(body, .92); g.fillRect(L / 2 - L * .3, -W / 2 + 1, L * .3 - 1, W - 2);                      // capó
+      g.fillStyle = Art.shade(body, 1.1); R(g, -L * .32, -W * .38, L * .56, W * .76, 2);                                   // techo
+      g.fillStyle = glass; g.fillRect(L * .16, -W * .38, L * .1, W * .76);                                                 // parabrisas
+      g.fillStyle = glassL; g.fillRect(-L * .34, -W * .36, L * .06, W * .72);                                              // vidrio trasero
+      g.fillStyle = glass; g.fillRect(-L * .26, -W / 2 + 1, L * .4, Math.max(1, W * .09)); g.fillRect(-L * .26, W / 2 - 1 - Math.max(1, W * .09), L * .4, Math.max(1, W * .09));   // ventanas laterales
+      if (pick) { g.fillStyle = Art.shade(body, .7); g.fillRect(-L / 2 + 1, -W / 2 + 2, L * .22, W - 4); g.fillStyle = '#c9ced4'; g.fillRect(-L / 2 + 2, -W * .2, L * .2, W * .4); }   // platón
+      g.fillStyle = dark; g.fillRect(L * .18, -W / 2 - 1.5, 2, 1.5); g.fillRect(L * .18, W / 2, 2, 1.5);                   // retrovisores
+      g.fillStyle = o.lights ? '#fff6c0' : '#e8dcae'; g.fillRect(L / 2 - 1.5, -W / 2 + 1, 1.5, Math.max(1, W * .2)); g.fillRect(L / 2 - 1.5, W / 2 - 1 - Math.max(1, W * .2), 1.5, Math.max(1, W * .2));
+      g.fillStyle = o.lights ? '#ff3b2f' : '#8a2a22'; g.fillRect(-L / 2 + 1, -W / 2 + 1, 1.5, Math.max(1, W * .2)); g.fillRect(-L / 2 + 1, W / 2 - 1 - Math.max(1, W * .2), 1.5, Math.max(1, W * .2));
+      if (kind === 'taxi') { g.fillStyle = '#fff'; g.fillRect(-L * .08, -W * .22, L * .16, W * .44); g.fillStyle = dark; g.fillRect(-L * .03, -W * .08, L * .06, W * .16); }
+      if (o.sign) { g.fillStyle = PAL.tinta; g.fillRect(-L * .3, -W * .14, L * .18, W * .28); g.fillStyle = '#fff'; g.fillRect(-L * .27, -W * .06, L * .12, W * .12); }
+    }
+  },
+  /* peatón visto desde arriba: hombros, cabeza con pelo y cara, brazos al caminar; umb paraguas; stun tirado */
+  /* perro cenital mirando a +x: cuerpo, cabeza con orejas, patas al trote y cola que se mueve */
+  dog(g, s, p) {
+    const c = p.col || '#8a5a32', dk = Art.shade(c, .7), ph = p.ph || 0, tr = Math.sin(ph * 2) * s * .18;
+    g.fillStyle = dk; for (const [lx, ly, f] of [[.38, -.24, 1], [.38, .24, -1], [-.36, -.24, -1], [-.36, .24, 1]]) g.fillRect((lx + f * tr / s * .6) * s - s * .07, ly * s - s * .07, s * .14, s * .14);
+    g.strokeStyle = dk; g.lineWidth = Math.max(1, s * .1); g.beginPath(); g.moveTo(-s * .55, 0); g.lineTo(-s * .85, Math.sin(ph * 3) * s * .22); g.stroke();
+    g.fillStyle = '#141414'; g.beginPath(); g.ellipse(0, 0, s * .62, s * .3, 0, 0, TAU); g.fill();
+    g.fillStyle = c; g.beginPath(); g.ellipse(0, 0, s * .56, s * .25, 0, 0, TAU); g.fill();
+    if (p.seed % 3 === 0) { g.fillStyle = dk; g.beginPath(); g.ellipse(-s * .12, -s * .04, s * .18, s * .13, 0, 0, TAU); g.fill(); }
+    g.fillStyle = '#141414'; g.beginPath(); g.arc(s * .62, 0, s * .27, 0, TAU); g.fill(); g.fillStyle = c; g.beginPath(); g.arc(s * .62, 0, s * .22, 0, TAU); g.fill();
+    g.fillStyle = dk; g.fillRect(s * .5, -s * .3, s * .14, s * .12); g.fillRect(s * .5, s * .18, s * .14, s * .12); g.fillStyle = '#141414'; g.fillRect(s * .8, -s * .05, s * .08, s * .1);
+    if (p.owner) { g.fillStyle = '#EC343A'; g.fillRect(s * .4, -s * .2, s * .06, s * .4); }
+  },
+  ped(g, s, p, o = {}) {
+    const skin = p.skin || '#f1c9a5', col = p.col || '#1C5C9C', hair = p.hair || (h2(p.seed || 1, 2, 2) < .5 ? '#2a1a12' : '#5a3a22'), sw = Math.sin(p.ph || 0) * s * .55;
+    if (p.stun > 0) { g.fillStyle = col; g.fillRect(-s * 1.4, -s * .7, s * 2.8, s * 1.4); g.fillStyle = skin; g.beginPath(); g.arc(s * 1.5, 0, s * .6, 0, TAU); g.fill(); return; }
+    g.fillStyle = '#141414'; g.beginPath(); g.ellipse(0, 0, s * .95, s * 1.15, 0, 0, TAU); g.fill();
+    g.fillStyle = col; g.beginPath(); g.ellipse(0, 0, s * .8, s * 1, 0, 0, TAU); g.fill();
+    g.fillStyle = skin; g.fillRect(-s * .35 + sw, -s * 1.35, s * .55, s * .4); g.fillRect(-s * .35 - sw, s * .95, s * .55, s * .4);   // manos
+    g.fillStyle = hair; g.beginPath(); g.arc(0, 0, s * .6, 0, TAU); g.fill(); g.fillStyle = skin; g.beginPath(); g.arc(s * .16, 0, s * .4, 0, TAU); g.fill();
+    if (p.hat) { g.fillStyle = p.hat; g.beginPath(); g.arc(0, 0, s * .68, 0, TAU); g.fill(); g.fillStyle = Art.shade(p.hat, .85); g.beginPath(); g.arc(0, 0, s * .42, 0, TAU); g.fill(); }
+    if (p.umb) { const uc = p.umbCol || PED_COL[((p.seed || 1) * 7) % PED_COL.length]; g.fillStyle = '#141414'; g.beginPath(); g.arc(0, 0, s * 1.55, 0, TAU); g.fill(); g.fillStyle = uc; g.beginPath(); g.arc(0, 0, s * 1.4, 0, TAU); g.fill(); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; g.moveTo(0, 0); g.lineTo(Math.cos(a) * s * 1.4, Math.sin(a) * s * 1.4); } g.stroke(); g.fillStyle = 'rgba(255,255,255,.3)'; g.beginPath(); g.arc(-s * .4, -s * .4, s * .35, 0, TAU); g.fill(); }
+  },
+  /* vendedor ambulante con carrito (frutas, tintos, chontaduro) */
+  cart(g, s, col) { g.fillStyle = '#141414'; g.fillRect(-s * 1.6, -s * 1.1, s * 3.2, s * 2.2); g.fillStyle = col; g.fillRect(-s * 1.4, -s * .9, s * 2.8, s * 1.8); g.fillStyle = '#f4f1ea'; g.fillRect(-s * 1.2, -s * .7, s * 2.4, s * .5); for (let i = 0; i < 4; i++) { g.fillStyle = ['#F6C538', '#EC343A', '#59AB42', '#E38835'][i]; g.fillRect(-s * 1.1 + i * s * .6, -s * .1, s * .45, s * .45); } g.fillStyle = '#141414'; g.fillRect(-s * 1.7, -s * .6, s * .3, s * 1.2); g.fillRect(s * 1.4, -s * .6, s * .3, s * 1.2); }
+};
+~~~~
+
+### `src/js/22-gl.js`
+~~~~js
+/* =====================================================================
+   MUNDO 3D (WebGL 1, sin librerías): el Valle de Aburrá en low‑poly con la textura
+   pixelada del mapa real. Se dibuja a baja resolución y se escala sin suavizar
+   (píxel 3D). Ejes: X = este, Y = altura (m s. n. m.), Z = sur. Unidades: metros.
+   ===================================================================== */
+const M4 = {
+  persp(f, a, n, fa) { const t = 1 / Math.tan(f / 2), o = new Float32Array(16); o[0] = t / a; o[5] = t; o[10] = (fa + n) / (n - fa); o[11] = -1; o[14] = 2 * fa * n / (n - fa); return o; },
+  look(e, c, u = [0, 1, 0]) {
+    let zx = e[0] - c[0], zy = e[1] - c[1], zz = e[2] - c[2], l = Math.hypot(zx, zy, zz) || 1; zx /= l; zy /= l; zz /= l;
+    let xx = u[1] * zz - u[2] * zy, xy = u[2] * zx - u[0] * zz, xz = u[0] * zy - u[1] * zx; l = Math.hypot(xx, xy, xz) || 1; xx /= l; xy /= l; xz /= l;
+    const yx = zy * xz - zz * xy, yy = zz * xx - zx * xz, yz = zx * xy - zy * xx;
+    return new Float32Array([xx, yx, zx, 0, xy, yy, zy, 0, xz, yz, zz, 0, -(xx * e[0] + xy * e[1] + xz * e[2]), -(yx * e[0] + yy * e[1] + yz * e[2]), -(zx * e[0] + zy * e[1] + zz * e[2]), 1]);
+  },
+  mul(a, b) { const o = new Float32Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + j] * b[i * 4 + k]; o[i * 4 + j] = s; } return o; },
+  /* caja: escala (sx, sy, sz), giro en Y (yaw), inclinación (pitch) y balanceo (roll), posición */
+  trs(x, y, z, yaw, sx, sy, sz, pitch = 0, roll = 0) {
+    const cy = Math.cos(yaw), sy_ = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), cr = Math.cos(roll), sr = Math.sin(roll);
+    // R = Ry(yaw) · Rz(pitch) · Rx(roll); el eje largo de la caja es X
+    const r00 = cy * cp, r01 = -cy * sp * cr + sy_ * sr, r02 = cy * sp * sr + sy_ * cr, r10 = sp, r11 = cp * cr, r12 = -cp * sr, r20 = -sy_ * cp, r21 = sy_ * sp * cr + cy * sr, r22 = -sy_ * sp * sr + cy * cr;
+    return new Float32Array([r00 * sx, r10 * sx, r20 * sx, 0, r01 * sy, r11 * sy, r21 * sy, 0, r02 * sz, r12 * sz, r22 * sz, 0, x, y, z, 1]);
+  },
+  xf(m, x, y, z) { const w = m[3] * x + m[7] * y + m[11] * z + m[15]; return [(m[0] * x + m[4] * y + m[8] * z + m[12]) / w, (m[1] * x + m[5] * y + m[9] * z + m[13]) / w, (m[2] * x + m[6] * y + m[10] * z + m[14]) / w, w]; }
+};
+/* sol real de Medellín (6,25° N): casi 12 h de día todo el año */
+const SKY = {
+  sun(hour, doy) {
+    const dec = 23.44 * Math.sin(TAU * (doy - 81) / 365) * Math.PI / 180, lat = 6.25 * Math.PI / 180, H = (hour - 12.1) * 15 * Math.PI / 180;
+    const el = Math.asin(Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(H));
+    let az = Math.atan2(-Math.sin(H), Math.tan(dec) * Math.cos(lat) - Math.sin(lat) * Math.cos(H)); // desde el norte, horario
+    return { el, az, dir: [Math.cos(el) * Math.sin(az), Math.sin(el), -Math.cos(el) * Math.cos(az)] };
+  },
+  /* paleta por hora (amanecer, día, atardecer, noche), interpolada */
+  KEYS: [[0, '#08122a', '#1a2b4f', '#0e1a33'], [4.8, '#0f1d3f', '#3a3f6b', '#22284a'], [5.8, '#3b3f7a', '#f2a07a', '#c98a7a'], [7, '#4f93cf', '#cfe6ef', '#b9d4dc'], [12, '#3f8bd0', '#d6ecf3', '#c4dde4'], [16.5, '#4a86c4', '#f4d9a8', '#d8c2a0'], [17.8, '#3d2f66', '#f08a5d', '#b8706a'], [18.6, '#1d2350', '#7a4f78', '#4a3a5e'], [19.5, '#0b1530', '#25305a', '#141d3a'], [24, '#08122a', '#1a2b4f', '#0e1a33']],
+  at(hour, doy = 320) {
+    const K = this.KEYS, h = ((hour % 24) + 24) % 24; let i = 0; while (i < K.length - 2 && K[i + 1][0] <= h) i++;
+    const a = K[i], b = K[i + 1], f = (h - a[0]) / (b[0] - a[0] || 1), mix = (p, q) => { const x = parseInt(p.slice(1), 16), y = parseInt(q.slice(1), 16); return [0, 1, 2].map(k => ((x >> (16 - 8 * k) & 255) * (1 - f) + (y >> (16 - 8 * k) & 255) * f) / 255); };
+    const s = this.sun(h, doy), day = clamp(Math.sin(s.el) * 4 + .25, 0, 1), night = clamp(1 - day * 1.4, 0, 1);
+    return { top: mix(a[1], b[1]), bot: mix(a[2], b[2]), fog: mix(a[3], b[3]), sun: s, day, night, amb: [.32 + .3 * day, .34 + .3 * day, .42 + .25 * day], sunc: [.95 * day, .86 * day, .72 * day] };
+  },
+  hex(c) { return 'rgb(' + c.map(v => Math.round(v * 255)).join(',') + ')'; }
+};
+const VS = `attribute vec3 p;attribute vec3 n;attribute vec3 c;attribute float k;uniform mat4 M;uniform mat4 VP;varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;
+void main(){vec4 w=M*vec4(p,1.);wp=w.xyz;vn=mat3(M)*n;vc=c;vk=k;gl_Position=VP*w;vd=gl_Position.w;}`;
+const FS = `precision mediump float;uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;
+varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;
+float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+void main(){vec3 base=mix(vc,tint.rgb,tint.a);
+if(vk>=2.&&vk<3.){if(wp.x>hole.x&&wp.x<hole.z&&wp.z>hole.y&&wp.z<hole.w)discard;base=texture2D(T,(wp.xz-R.xy)/R.zw).rgb;}
+vec3 N=normalize(vn);float d=max(dot(N,sun),0.);vec3 col=base*(amb+sunc*d);
+if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(wp.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
+if(vk>.5&&vk<1.5){vec2 q=vec2((wp.x+wp.z)/3.4,wp.y/3.1);vec2 f=fract(q);float w=step(.22,f.x)*step(f.x,.78)*step(.28,f.y)*step(f.y,.82);float lit=step(.42,h(floor(q)+floor(wp.xz*.02)));col=mix(col,mix(col*.55,vec3(1.,.84,.48),night*lit),w*.85);}
+if(vk>3.5)col=base*(.8+.2*night);
+float fg=clamp(1.-exp(-vd*fogd),0.,1.);gl_FragColor=vec4(mix(col,fogc,fg),1.);}`;
+const SVS = `attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,.9999,1.);}`;
+const SFS = `precision mediump float;uniform vec3 top;uniform vec3 bot;uniform vec3 sc;uniform vec3 sp;varying vec2 v;void main(){vec3 c=mix(bot,top,clamp(v.y*.5+.5,0.,1.));float d=length((v-sp.xy)*vec2(sp.z,1.));c+=sc*(smoothstep(.06,.04,d)+.35*smoothstep(.45,0.,d));gl_FragColor=vec4(c,1.);}`;
+/* constructor de mallas (triángulos sin índices, sombreado plano estilo low‑poly) */
+class MB {
+  constructor() { this.parts = []; this.a = []; }
+  v(x, y, z, nx, ny, nz, c, k) { this.a.push(x, y, z, nx, ny, nz, c[0], c[1], c[2], k); if (this.a.length >= 60000 * 10) this.flush(); }
+  tri(p, q, r, c, k = 0) { const ux = q[0] - p[0], uy = q[1] - p[1], uz = q[2] - p[2], wx = r[0] - p[0], wy = r[1] - p[1], wz = r[2] - p[2]; let nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx; const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l; if (ny < -.01 && k >= 2) { nx = -nx; ny = -ny; nz = -nz; } this.v(...p, nx, ny, nz, c, k); this.v(...q, nx, ny, nz, c, k); this.v(...r, nx, ny, nz, c, k); }
+  quad(p, q, r, s, c, k = 0) { this.tri(p, q, r, c, k); this.tri(p, r, s, c, k); }
+  /* caja orientada: centro de la base (x, y, z), largo L (eje del rumbo a), ancho W, alto H */
+  box(x, y, z, a, L, W, H, c, cTop, k = 0, kTop = 0) {
+    const ca = Math.cos(a), sa = Math.sin(a), P = (u, w, h) => [x + ca * u - sa * w, y + h, z + sa * u + ca * w], l = L / 2, w = W / 2;
+    const b = [P(-l, -w, 0), P(l, -w, 0), P(l, w, 0), P(-l, w, 0)], t = [P(-l, -w, H), P(l, -w, H), P(l, w, H), P(-l, w, H)];
+    this.quad(t[0], t[3], t[2], t[1], cTop || c, kTop);
+    for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; this.quad(b[j], b[i], t[i], t[j], c, k); }
+  }
+  /* techo a dos aguas (cumbrera a lo largo de L), con alero */
+  roof(x, y, z, a, L, W, rh, c) {
+    const ca = Math.cos(a), sa = Math.sin(a), l = L / 2 + .5, w = W / 2 + .6, P = (u, v, h) => [x + ca * u - sa * v, y + h, z + sa * u + ca * v];
+    this.quad(P(-l, -w, 0), P(-l, 0, rh), P(l, 0, rh), P(l, -w, 0), c); this.quad(P(-l, 0, rh), P(-l, w, 0), P(l, w, 0), P(l, 0, rh), c.map(v => v * .86));
+    this.tri(P(-l, -w, 0), P(-l, w, 0), P(-l, 0, rh), c.map(v => v * .93)); this.tri(P(l, w, 0), P(l, -w, 0), P(l, 0, rh), c.map(v => v * .93));
+  }
+  /* árbol low‑poly: tronco + copa hexagonal (normales hacia afuera) */
+  tree(x, y, z, s, c) {
+    this.box(x, y, z, 0, .5 * s / 3, .5 * s / 3, s * .55, [.36, .25, .17], [.36, .25, .17]);
+    const top = [x, y + s * 1.75, z], bot = [x, y + s * .45, z], ring = []; for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + s; ring.push([x + Math.cos(a) * s * .62, y + s * 1.02, z + Math.sin(a) * s * .62]); }
+    const ctr = [x, y + s * 1.05, z], tri = (p, q, r, col) => { const ux = q[0] - p[0], uy = q[1] - p[1], uz = q[2] - p[2], wx = r[0] - p[0], wy = r[1] - p[1], wz = r[2] - p[2]; let nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx; const mx = (p[0] + q[0] + r[0]) / 3 - ctr[0], my = (p[1] + q[1] + r[1]) / 3 - ctr[1], mz = (p[2] + q[2] + r[2]) / 3 - ctr[2]; if (nx * mx + ny * my + nz * mz < 0) { nx = -nx; ny = -ny; nz = -nz; } const L = Math.hypot(nx, ny, nz) || 1; for (const v of [p, q, r]) this.v(v[0], v[1], v[2], nx / L, ny / L, nz / L, col, 0); };
+    for (let i = 0; i < 6; i++) { const j = (i + 1) % 6; tri(ring[i], top, ring[j], c); tri(ring[j], bot, ring[i], c.map(v => v * .8)); }
+  }
+  flush() { if (this.a.length) this.parts.push(new Float32Array(this.a)); this.a = []; }
+  done() { this.flush(); return this.parts; }
+}
+const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246'].map(rgb);
+const G3 = EM.g3 = {
+  ok: false, tried: false, gl: null, cv: null, P: null, S: null, stat: [], far: [], near: [], bld: [], win: null, texFar: null, texNear: null, cube: null, quadB: null, scale: .5,
+  init() {
+    if (this.tried) return this.ok; this.tried = true;
+    if (EM.headless || !MAP.ready) return false;
+    try {
+      const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:pixelated;z-index:0';
+      $('#game').insertBefore(cv, $('#gcv'));
+      const gl = this.gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: true, powerPreference: 'low-power', preserveDrawingBuffer: false }); if (!gl) return false;
+      const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      const pr = (v, f) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const q = gl.getActiveUniform(p, i); u[q.name] = gl.getUniformLocation(p, q.name); } return { p, u, a: { p: gl.getAttribLocation(p, 'p'), n: gl.getAttribLocation(p, 'n'), c: gl.getAttribLocation(p, 'c'), k: gl.getAttribLocation(p, 'k') } }; };
+      this.P = pr(VS, FS); this.S = pr(SVS, SFS);
+      this.quadB = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, this.quadB); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const cb = new MB(); cb.box(0, 0, 0, 0, 1, 1, 1, [1, 1, 1], [1, 1, 1]); this.cube = { b: this.buf(cb.done()[0]), n: 30 };
+      this.texFar = this.tex(MAP.mini()); this.buildFar(); this.buildNet();
+      this.ok = true;
+    } catch (e) { EM.errors.push('3D: ' + e.message); this.ok = false; }
+    return this.ok;
+  },
+  buf(arr) { const gl = this.gl, b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW); b.n = arr.length / 10; return b; },
+  tex(cv) { const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv); for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; },
+  urban(x, y, r) { let n = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = MAP.tileM(x + i * r, y + j * r); c++; if (v === TT.BRICK || v === TT.BLDG) n++; } return n / c; },
+  /* casillas del corredor de metro y tranvía (sin edificios encima de la vía) */
+  railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
+  /* malla lejana: todo el valle cada 320 m */
+  buildFar() {
+    const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => [i * S, MAP.elevM(i * S, j * S), j * S];
+    const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90));
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; mb.tri(a, d, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
+    this.far = mb.done().map(a => this.buf(a));
+  },
+  /* ventana cercana (4,8 km) con textura de 4 px por casilla y edificios en 3D */
+  buildNear(cx, cz) {
+    const gl = this.gl, half = 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
+    const cv = mkCanvas(nt * P, nt * P), g = cv.getContext('2d'), img = g.createImageData(nt * P, nt * P), d = img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
+      const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y); let base = TRGB[v] || TRGB[0]; const ht = h2(X, Y, v), nN = road(MAP.tile(X, Y - 1)), nS = road(MAP.tile(X, Y + 1)), nW = road(MAP.tile(X - 1, Y)), nE = road(MAP.tile(X + 1, Y)), vert = nN || nS, horz = nW || nE;
+      if (v === TT.BRICK || v === TT.BLDG) base = [92, 104, 72];
+      for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
+        let m = .96 + ht * .06, col = base;
+        if (road(v)) { const edge = (py === 0 && !nN) || (py === P - 1 && !nS) || (px === 0 && !nW) || (px === P - 1 && !nE); if (edge && v !== TT.BRIDGE) { col = [200, 194, 178]; m = 1; } else if (v !== TT.ROAD && ((vert && !horz && (px === 3 || px === 4) && py < 4 && (Y & 1)) || (horz && !vert && (py === 3 || py === 4) && px < 4 && (X & 1)))) { col = [244, 236, 208]; m = 1; } else m *= ((px + py) & 1) ? .985 : 1.01; }
+        else if (v === TT.WALK || v === TT.PLAZA) { m *= (px % 4 === 0 || py % 4 === 0) ? .92 : 1; if ((py === P - 1 && nS) || (py === 0 && nN) || (px === 0 && nW) || (px === P - 1 && nE)) m = 1.12; }
+        else if (v === TT.GRASS) { m *= ((px * 3 + py * 5 + (X ^ Y)) % 11 === 0) ? .84 : 1; }
+        else if (v === TT.MOUNT) { m *= ((px * 7 + py * 3 + X * 5 + Y) % 9 === 0) ? .78 : .95; }
+        else if (v === TT.WATER || v === TT.CANAL) { m *= ((py + (X * 3)) % 6 === 0 && px > 1 && px < 6) ? 1.15 : 1; }
+        else if (v === TT.CICLO) { if (px === 3 || px === 4) { col = [250, 250, 245]; m = py % 4 < 2 ? 1 : .8; } }
+        const o = ((ty * P + py) * nt * P + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    if (this.texNear) gl.deleteTexture(this.texNear); this.texNear = this.tex(cv);
+    for (const b of this.near.concat(this.bld)) gl.deleteBuffer(b);
+    const S = 40, n = 2 * half / S, mb = new MB(), E = (i, j) => [x0 + i * S, MAP.elevM(x0 + i * S, z0 + j * S), z0 + j * S];
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), dd = E(i, j + 1), u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; mb.tri(a, dd, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
+    this.near = mb.done().map(a => this.buf(a));
+    // edificios: bloques de 2×2 casillas dentro de 1,5 km (0,9 km en celulares modestos)
+    const R = Save.d.settings.q === 'low' ? 600 : 1100, bm = new MB();
+    for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
+      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R) continue;
+      const v = MAP.tileM(X + 10, Z + 10); if (v !== TT.BLDG && v !== TT.BRICK) continue; if (this.railMask().has((Z / TM | 0) * MW + (X / TM | 0))) continue;
+      const r = h2(X, Z, 5), brick = v === TT.BRICK, hgt = brick ? 4 + r * 6 : MAP.bHeight(X + 10, Z + 10, X ^ Z), w = 11 + r * 4, l = 12 + h2(X, Z, 6) * 5, y = MAP.elevM(X + 10, Z + 10) - 2, a = h2(X, Z, 9) < .5 ? 0 : Math.PI / 2;
+      // casas: ladrillo a la vista o pintadas en tonos pastel (como las laderas de Medellín); edificios: concreto y vidrio
+      const wall = brick ? (r < .55 ? (r < .3 ? [.71, .35, .23] : [.62, .3, .2]) : HOUSE_COL[(r * 97 | 0) % HOUSE_COL.length]) : [[.55, .59, .64], [.64, .66, .69], [.72, .69, .63], [.85, .8, .68], [.62, .72, .8]][(r * 5) | 0];
+      if (brick) { bm.box(X + 10, y, Z + 10, a, l, w, hgt + 2, wall, wall, 1, 0); bm.roof(X + 10, y + hgt + 2, Z + 10, a, l, w, w * .32, ROOF_COL[(r * 31 | 0) % ROOF_COL.length]); if (r < .3) bm.box(X + 10 + l * .3, y + hgt + 2 + w * .1, Z + 10, 0, 1.2, 1.2, 2.2, [.5, .3, .22], [.3, .2, .15]); }
+      else {
+        const com = MAP.comunaAt(X, Z), glass = (/Candelaria|Poblado|Laureles/.test(com) && hgt > 22 && r > .35), wc = glass ? [[.55, .68, .8], [.62, .74, .78], [.5, .6, .72]][(r * 3) | 0] : wall;
+        bm.box(X + 10, y, Z + 10, 0, l + 4, w + 4, 3.6, [.36, .33, .3], [.42, .4, .38], 0, 0);   // zócalo comercial
+        bm.box(X + 10, y + 3.6, Z + 10, 0, l + 3, w + 3, hgt - 1.6, wc, [.5, .53, .57], 1, 0);
+        bm.box(X + 10, y + hgt + 2, Z + 10, 0, l + 3.6, w + 3.6, .6, [.42, .44, .48], [.42, .44, .48]);   // remate
+        if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
+      }
+    }
+    // árboles en parques y montes cercanos
+    const RT = Save.d.settings.q === 'low' ? 350 : 750;
+    for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
+      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
+      const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .3) || (v === TT.MOUNT && r < .6))) continue;
+      const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14; bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[(r * 53 | 0) % TREE_COL.length]);
+    }
+    this.bld = bm.done().map(a => this.buf(a));
+    this.win = { cx, cz, x0, z0, s: 2 * half };
+  },
+  /* red de transporte estática: viaductos, rieles, postes, estaciones, torres de cable y carriles de bus */
+  netZ: {},
+  trackZ(line) {
+    if (this.netZ[line.id]) return this.netZ[line.id];
+    const n = Math.ceil(line.P.len / 12) + 1, z = new Float32Array(n), g = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const p = NET.at(line.P, i * 12); g[i] = MAP.elevM(p.x, p.y); }
+    const deck = line.kind === 'metro' ? 7.5 : line.kind === 'tram' || line.kind === 'future' ? .3 : .25, W = line.kind === 'metro' ? 16 : 2;
+    for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - W); j <= Math.min(n - 1, i + W); j++) { s += g[j]; c++; } z[i] = (line.kind === 'metro' ? s / c : g[i]) + deck; }
+    return (this.netZ[line.id] = { z, g, n });
+  },
+  zOn(line, s) { const T = this.trackZ(line), f = clamp(s / 12, 0, T.n - 1.001), i = f | 0, k = f - i; return T.z[i] * (1 - k) + T.z[i + 1] * k; },
+  /* geometría de cada metrocable: torres y catenaria */
+  cableGeo(line) {
+    if (line._cg) return line._cg; const pts = [];
+    for (let i = 0; i < line.st.length; i++) {
+      const a = line.st[i]; pts.push({ x: a.x, y: a.y, z: MAP.elevM(a.x, a.y) + 12, st: true, name: a.name });
+      if (i < line.st.length - 1) { const b = line.st[i + 1], L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1); for (let k = 1; k <= nt; k++) { const f = k / (nt + 1), x = lerp(a.x, b.x, f), y = lerp(a.y, b.y, f); pts.push({ x, y, z: MAP.elevM(x, y) + 24 + h2(x | 0, y | 0, 2) * 10, st: false }); } }
+    }
+    const P = NET.poly(pts.map(p => ({ x: p.x, y: p.y }))); return (line._cg = { pts, P, zAt: s => { let i = 0; while (i < P.cum.length - 2 && P.cum[i + 1] < s) i++; const L = (P.cum[i + 1] - P.cum[i]) || 1, f = clamp((s - P.cum[i]) / L, 0, 1), sag = 4 * .025 * L * f * (1 - f); return lerp(pts[i].z, pts[Math.min(i + 1, pts.length - 1)].z, f) - sag; } });
+  },
+  buildNet() {
+    const mb = new MB(), lines = [];
+    for (const l of NET.lines) {
+      const col = rgb(l.color), K = l.kind;
+      if (K === 'metro' || K === 'tram' || (K === 'future' && !/cable/i.test(l.name))) {
+        const T = this.trackZ(l), dk = K === 'metro';
+        for (let i = 0; i < T.n - 1; i++) {
+          const a = NET.at(l.P, i * 12), b = NET.at(l.P, (i + 1) * 12), za = T.z[i], zb = T.z[i + 1], sa = [-Math.sin(a.a), Math.cos(a.a)], sb = [-Math.sin(b.a), Math.cos(b.a)], hw = dk ? 4.6 : 3.2;
+          const E = (p, s, o, z) => [p.x + s[0] * o, z, p.y + s[1] * o];
+          mb.quad(E(a, sa, -hw, za), E(a, sa, hw, za), E(b, sb, hw, zb), E(b, sb, -hw, zb), dk ? [.58, .57, .55] : [.42, .44, .47]);
+          if (dk) { mb.quad(E(a, sa, hw, za), E(a, sa, hw, za - 1.4), E(b, sb, hw, zb - 1.4), E(b, sb, hw, zb), [.52, .51, .49]); mb.quad(E(a, sa, -hw, za - 1.4), E(a, sa, -hw, za), E(b, sb, -hw, zb), E(b, sb, -hw, zb - 1.4), [.52, .51, .49]);
+            // pretiles a lado y lado del tablero
+            mb.quad(E(a, sa, hw - .25, za + .95), E(a, sa, hw - .25, za), E(b, sb, hw - .25, zb), E(b, sb, hw - .25, zb + .95), [.66, .65, .62]); mb.quad(E(a, sa, -hw + .25, za), E(a, sa, -hw + .25, za + .95), E(b, sb, -hw + .25, zb + .95), E(b, sb, -hw + .25, zb), [.66, .65, .62]); }
+          // balasto bajo cada vía y rieles de acero claros
+          for (const c of [-1.7, 1.7]) mb.quad(E(a, sa, c - 1.25, za + .05), E(a, sa, c + 1.25, za + .05), E(b, sb, c + 1.25, zb + .05), E(b, sb, c - 1.25, zb + .05), dk ? [.4, .37, .34] : [.33, .32, .31]);
+          for (const o of [-2.3, -1.1, 1.1, 2.3]) mb.quad(E(a, sa, o - .09, za + .16), E(a, sa, o + .09, za + .16), E(b, sb, o + .09, zb + .16), E(b, sb, o - .09, zb + .16), [.66, .67, .7]);
+          if (dk && i % 3 === 0) mb.box(a.x, T.g[i] - 2, a.y, a.a, 1.8, 2.2, za - T.g[i] + .6, [.68, .65, .58], [.68, .65, .58]);
+          if (i % 4 === 0) { const q = E(a, sa, hw - .4, za); mb.box(q[0], za, q[2], a.a, .35, .35, 6.5, [.35, .37, .4], [.35, .37, .4]); const q2 = E(a, sa, 0, za); mb.box((q[0] + q2[0]) / 2, za + 6, (q[2] + q2[2]) / 2, a.a + Math.PI / 2, hw, .2, .25, [.35, .37, .4], [.35, .37, .4]); }
+        }
+        const K2 = KIND[K === 'future' ? 'tram' : K];
+        for (const s of l.st) { const p = NET.at(l.P, s.s), z = this.zOn(l, s.s); for (const sd of [-1, 1]) { const o = sd * (dk ? 7.5 : 5.5), x = p.x - Math.sin(p.a) * o, y = p.y + Math.cos(p.a) * o; mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]); mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col); } if (dk) mb.box(p.x, MAP.elevM(p.x, p.y) - 1, p.y, p.a, 30, 26, z - MAP.elevM(p.x, p.y) - 1.5, [.78, .75, .68], [.78, .75, .68], 1, 0); }
+      } else if (K === 'cable' || (K === 'future' && /cable/i.test(l.name))) {
+        const C = this.cableGeo(l);
+        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1, 0); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
+        const seg = []; for (let s = 0; s <= C.P.len; s += 14) { const q = NET.at(C.P, s); seg.push([q.x, C.zAt(s) + 2, q.y]); } lines.push({ pts: seg, c: [.12, .12, .14] });
+      } else if (K === 'brt' || K === 'feeder') {
+        const w = K === 'brt' ? 3.2 : 1.6, dark = col.map(v => v * .85);
+        for (let s = 0; s < l.P.len - 10; s += 10) { const a = NET.at(l.P, s), b = NET.at(l.P, s + 10), za = MAP.elevM(a.x, a.y) + .45, zb = MAP.elevM(b.x, b.y) + .45, sa = [-Math.sin(a.a), Math.cos(a.a)]; mb.quad([a.x + sa[0] * -w, za, a.y + sa[1] * -w], [a.x + sa[0] * w, za, a.y + sa[1] * w], [b.x + sa[0] * w, zb, b.y + sa[1] * w], [b.x + sa[0] * -w, zb, b.y + sa[1] * -w], dark, 4); }
+        for (const s of l.st) { const z = MAP.elevM(s.x, s.y); mb.box(s.x, z, s.y, NET.at(l.P, s.s).a, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); }
+      }
+    }
+    this.decor(mb);
+    this.stat = mb.done().map(a => this.buf(a));
+    const la = []; for (const L of lines) for (let i = 0; i < L.pts.length - 1; i++) { la.push(...L.pts[i], 0, 1, 0, ...L.c, 0, ...L.pts[i + 1], 0, 1, 0, ...L.c, 0); }
+    this.wires = la.length ? this.buf(new Float32Array(la)) : null;
+  },
+  /* adornos según la fecha: alumbrados, banderas, velitas, flores, calabazas, morado */
+  decor(mb) {
+    const d = Mundo.deco(); if (!d) return; const C = { luces: ['#EC343A', '#F6C538', '#59AB42', '#1C5C9C', '#EB318E'], banderas: ['#F6C538', '#1C5C9C', '#EC343A'], flores: ['#EB318E', '#F6C538', '#EC343A', '#ffffff'], calabazas: ['#E38835'], velas: ['#ffd36a'], morado: ['#743D90'], fuegos: ['#EC343A', '#F6C538', '#1C5C9C'], banderines: ['#1C5C9C', '#E38835', '#59AB42', '#F6C538', '#EB318E'] }[d] || ['#F6C538'];
+    for (const l of NET.lines) {
+      if (l.kind !== 'metro' && l.kind !== 'tram') continue; const dk = l.kind === 'metro';
+      if (d === 'luces' || d === 'banderines') for (let s = 0, i = 0; s < l.P.len; s += 9, i++) { const p = NET.at(l.P, s), z = this.zOn(l, s); for (const sd of [-1, 1]) { const o = sd * (dk ? 4.7 : 3.4); mb.box(p.x - Math.sin(p.a) * o, z + (dk ? .1 : 6), p.y + Math.cos(p.a) * o, p.a, .5, .5, .5, rgb(C[i % C.length]), rgb(C[i % C.length]), 4, 4); } }
+      for (const sI of l.st) { const p = NET.at(l.P, sI.s), z = this.zOn(l, sI.s), K2 = KIND[l.kind];
+        if (d === 'banderas') for (let k = 0; k < 3; k++) mb.box(p.x, z + 7 + k * .8, p.y, p.a, 3, .2, .8, rgb(C[k]), rgb(C[k]));
+        else for (let u = -K2.plat / 2; u < K2.plat / 2; u += d === 'velas' ? 3 : 5) for (const sd of [-1, 1]) { const o = sd * (dk ? 9.2 : 6.6), q = NET.at(l.P, sI.s + u); mb.box(q.x - Math.sin(q.a) * o, z - (dk ? .1 : 0), q.y + Math.cos(q.a) * o, q.a, d === 'velas' ? .25 : .7, d === 'velas' ? .25 : .7, d === 'velas' ? .5 : .8, rgb(C[(u | 0) % C.length < 0 ? 0 : (u | 0) % C.length]), rgb(C[0]), d === 'velas' ? 4 : 0, d === 'velas' ? 4 : 0); }
+      }
+    }
+  },
+  /* ---------- dibujo ---------- */
+  draw(cam, opts = {}) {
+    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .4 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : .55);
+    const w = Math.max(64, Math.round(cv.clientWidth * q)), h = Math.max(64, Math.round(cv.clientHeight * q)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    if (!this.win || dist(cam.eye[0], cam.eye[2], this.win.cx, this.win.cz) > 1000) this.buildNear(cam.eye[0], cam.eye[2]);
+    const sky = SKY.at(opts.hour != null ? opts.hour : 12), V = M4.look(cam.eye, cam.at), Pm = M4.persp(cam.fov || 1.05, w / h, 1.2, 26000), VP = M4.mul(Pm, V); this.VP = VP; this.vw = w; this.vh = h;
+    gl.viewport(0, 0, w, h); gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
+    // cielo con gradiente y sol
+    const S = this.S, sd = sky.sun.dir, sp = M4.xf(VP, cam.eye[0] + sd[0] * 2e4, cam.eye[1] + sd[1] * 2e4, cam.eye[2] + sd[2] * 2e4);
+    for (const k in this.P.a) if (this.P.a[k] >= 0) gl.disableVertexAttribArray(this.P.a[k]);
+    const sl = gl.getAttribLocation(S.p, 'p'); gl.useProgram(S.p); gl.bindBuffer(gl.ARRAY_BUFFER, this.quadB); gl.enableVertexAttribArray(sl); gl.vertexAttribPointer(sl, 2, gl.FLOAT, false, 0, 0);
+    gl.uniform3fv(S.u.top, sky.top); gl.uniform3fv(S.u.bot, sky.bot); gl.uniform3fv(S.u.sp, [sp[3] > 0 ? sp[0] : 9, sp[3] > 0 ? sp[1] : 9, w / h]); gl.uniform3fv(S.u.sc, sky.sun.el > -.05 ? [1, .85 * (.6 + .4 * sky.day), .6 * sky.day + .2] : [.5, .55, .7]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
+    gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
+    const P = this.P; gl.useProgram(P.p); const u = P.u;
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog);
+    gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
+    const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
+    const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
+    const W = this.win; gl.bindTexture(gl.TEXTURE_2D, this.texFar); gl.uniform4fv(u.R, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.hole, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]);
+    for (const b of this.far) run(b);
+    gl.bindTexture(gl.TEXTURE_2D, this.texNear); gl.uniform4fv(u.R, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.hole, [0, 0, 0, 0]);
+    for (const b of this.near) run(b);
+    for (const b of this.bld) run(b);
+    for (const b of this.stat) run(b);
+    if (this.wires) run(this.wires, gl.LINES);
+    this._run = run; this._I = I;
+    if (opts.dyn) opts.dyn(this);
+  },
+  /* caja dinámica (vehículos): color, posición, rumbo y tamaño */
+  box(x, y, z, yaw, L, W, H, col, pitch = 0, roll = 0) { const gl = this.gl, u = this.P.u; gl.uniformMatrix4fv(u.M, false, M4.trs(x, y, z, -yaw, L, H, W, pitch, roll)); gl.uniform4fv(u.tint, [col[0], col[1], col[2], 1]); this._run(this.cube.b); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniformMatrix4fv(u.M, false, this._I); },
+  /* vehículos de la red en servicio (ciudad viva) cerca de la cámara */
+  traffic(cam, t, skip) {
+    for (const l of NET.lines) {
+      if (l === skip || l.kind === 'future' || l.kind === 'escalator') continue; const c = rgb(l.color);
+      if (l.kind === 'cable') { const C = this.cableGeo(l), n = Math.max(4, Math.floor(C.P.len / 70)); for (let i = 0; i < n; i++) { const s = ((t * 5 + i * C.P.len * 2 / n) % (C.P.len * 2)), ss = s < C.P.len ? s : 2 * C.P.len - s, q = NET.at(C.P, ss); if (Math.abs(q.x - cam.eye[0]) > 2500 || Math.abs(q.y - cam.eye[2]) > 2500) continue; const z = C.zAt(ss) + 2; this.box(q.x, z - 4.6, q.y, q.a, 2.2, 2, 2.2, c); this.box(q.x, z - 2.4, q.y, q.a, .2, .2, 2.4, [.15, .15, .15]); } continue; }
+      const K = KIND[l.kind], v = K.vmax * .65, n = l.kind === 'metro' ? Math.max(2, Math.round(l.P.len / 2600)) : Math.max(1, Math.round(l.P.len / 1500));
+      for (let i = 0; i < n; i++) {
+        const L2 = l.P.len * 2, s0 = (t * v + i * L2 / n) % L2, dir = s0 < l.P.len ? 1 : -1, s = dir > 0 ? s0 : L2 - s0, p = NET.at(l.P, s, dir * (l.kind === 'metro' ? 1.7 : 1.6)); if (Math.abs(p.x - cam.eye[0]) > 3000 || Math.abs(p.y - cam.eye[2]) > 3000) continue;
+        const z = l.kind === 'metro' || l.kind === 'tram' ? this.zOn(l, s) : MAP.elevM(p.x, p.y), cars = l.kind === 'metro' ? 3 : l.kind === 'tram' ? 2 : 1, len = l.kind === 'metro' ? 22 : l.kind === 'tram' ? 19 : K.len;
+        for (let k = 0; k < cars; k++) { const q = NET.at(l.P, s - dir * k * (len + 1), dir * 1.7), zq = l.kind === 'metro' || l.kind === 'tram' ? this.zOn(l, s - dir * k * (len + 1)) : MAP.elevM(q.x, q.y); this.vehicle(q.x, zq, q.y, q.a + (dir < 0 ? Math.PI : 0), len, l.kind, c); }
+      }
+    }
+  },
+  /* gente esperando en los andenes y paradas cercanas */
+  people(cam, t) {
+    const n = Save.d.settings.q === 'low' ? 3 : 6;
+    for (const l of NET.lines) { if (l.kind === 'future') continue; for (const s of l.st) { if (Math.abs(s.x - cam.eye[0]) > 900 || Math.abs(s.y - cam.eye[2]) > 900) continue; const p = NET.at(l.P, s.s), z = l.kind === 'metro' || l.kind === 'tram' ? this.zOn(l, s.s) : MAP.elevM(s.x, s.y), K = KIND[l.kind], sx = -Math.sin(p.a), sy = Math.cos(p.a);
+      for (let i = 0; i < n; i++) { const r = h2(s.i, i, hashStr(l.id)), r2 = h2(i, s.i, 5), u = (r - .5) * K.plat * .8, sd = r2 < .5 ? -1 : 1, o = sd * (l.kind === 'metro' ? 8.4 : l.kind === 'tram' ? 6.4 : 3) + Math.sin(t * .4 + i) * .4, px = p.x + Math.cos(p.a) * u + sx * o, py = p.y + Math.sin(p.a) * u + sy * o, zz = z + (l.kind === 'metro' ? 1 : l.kind === 'tram' ? .9 : 0);
+        const col = PED_COL[(r * 97 | 0) % PED_COL.length]; this.box(px, zz, py, p.a, .55, .5, 1.1, rgb(col)); this.box(px, zz + 1.1, py, p.a, .4, .4, .4, rgb(SKIN[(r2 * 5) | 0])); } } }
+  },
+  vehicle(x, z, y, a, len, kind, c) {
+    const body = kind === 'metro' || kind === 'tram' ? [.86, .88, .9] : c, H = kind === 'metro' ? 3.7 : 3.2, W = kind === 'metro' ? 2.9 : 2.55;
+    this.box(x, z + .5, y, a, len, W, H * .55, body); this.box(x, z + .5 + H * .55, y, a, len * .98, W * .98, H * .3, [.12, .2, .28]); this.box(x, z + .5 + H * .85, y, a, len, W, H * .15, kind === 'metro' || kind === 'tram' ? c : [.95, .95, .93]);
+  },
+  /* de mundo a pantalla (para letreros 2D sobre el 3D) */
+  toScreen(x, y, z, W, H) { const q = M4.xf(this.VP, x, y, z); if (q[3] <= 0 || q[2] > 1) return null; return { x: (q[0] * .5 + .5) * W, y: (1 - (q[1] * .5 + .5)) * H, d: q[3] }; },
+  show(on) { if (this.cv) this.cv.style.display = on ? 'block' : 'none'; }
+};
+~~~~
+
+### `src/js/23-lado.js`
+~~~~js
+/* =====================================================================
+   VISTA LATERAL (estilo odisea en capas): el recorrido de perfil con el relieve real,
+   montañas en capas con perspectiva atmosférica, cielo por hora, sol/luna, nubes,
+   gallinazos, lluvia, niebla y relámpagos. Las luces de los barrios se encienden de noche.
+   ===================================================================== */
+const Lado = EM.lado = {
+  /* perfil de una polilínea: suelo bajo el recorrido + colinas (0,4–1,6 km) + cordillera (1,6–7 km) al lado más alto */
+  prof(key, P) {
+    this.cache = this.cache || {}; if (this.cache[key]) return this.cache[key];
+    const st = 20, n = Math.max(2, Math.ceil(P.len / st) + 1), near = new Float32Array(n), mid = new Float32Array(n), far = new Float32Array(n), tile = new Uint8Array(n), urb = new Uint8Array(n), URB = new Set([TT.BRICK, TT.BLDG, TT.ROAD, TT.AVE, TT.AUTO, TT.WALK, TT.PLAZA, TT.STATION, TT.BRIDGE, TT.CICLO]);
+    let up = 0; for (let i = 0; i < n; i += 8) { const p = NET.at(P, i * st), sx = -Math.sin(p.a), sy = Math.cos(p.a); up += MAP.elevM(p.x + sx * 2500, p.y + sy * 2500) - MAP.elevM(p.x - sx * 2500, p.y - sy * 2500); }
+    const sd = up >= 0 ? 1 : -1;
+    for (let i = 0; i < n; i++) {
+      const p = NET.at(P, i * st), sx = -Math.sin(p.a) * sd, sy = Math.cos(p.a) * sd; near[i] = MAP.elevM(p.x, p.y); tile[i] = MAP.tileM(p.x + sx * 30, p.y + sy * 30); urb[i] = URB.has(MAP.tileM(p.x - sx * 14, p.y - sy * 14)) || URB.has(MAP.tileM(p.x + sx * 14, p.y + sy * 14)) ? 1 : 0;
+      let m = 0, f = 0; for (const d of [400, 700, 1000, 1300, 1600]) m = Math.max(m, MAP.elevM(p.x + sx * d, p.y + sy * d)); for (const d of [2000, 3000, 4200, 5600, 7000]) f = Math.max(f, MAP.elevM(p.x + sx * d, p.y + sy * d));
+      mid[i] = m; far[i] = f;
+    }
+    // suavizado para siluetas limpias
+    const sm = (a, r) => { const o = new Float32Array(a.length); for (let i = 0; i < a.length; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - r); j <= Math.min(a.length - 1, i + r); j++) { s += a[j]; c++; } o[i] = s / c; } return o; };
+    const R = { id: key, n, st, near: sm(near, 1), mid: sm(mid, 3), far: sm(far, 6), tile, urb, side: sd };
+    // capa intermedia (cerros entre la cordillera y las laderas) para el escalonado de siluetas
+    const inter = new Float32Array(n); for (let i = 0; i < n; i++) inter[i] = R.far[i] * .6 + R.mid[i] * .4 + Math.sin(i * .045) * 40 + Math.sin(i * .013 + 1) * 60; R.inter = sm(inter, 4);
+    let lo = 1e9, hi = -1e9; for (let i = 0; i < n; i++) { lo = Math.min(lo, R.far[i], R.mid[i]); hi = Math.max(hi, R.far[i]); } R.lo = lo; R.hi = hi;
+    return (this.cache[key] = R);
+  },
+  sample(arr, R, s) { const f = clamp(s / R.st, 0, R.n - 1.001), i = f | 0, k = f - i; return arr[i] * (1 - k) + arr[i + 1] * k; },
+  mix(a, b, f) { return a.map((v, i) => v * (1 - f) + b[i] * f); },
+  css(c, a = 1) { return 'rgba(' + c.map(v => Math.round(clamp(v, 0, 1) * 255)).join(',') + ',' + a + ')'; },
+  /* laderas con barrios: casas de ladrillo que trepan desde el valle, monte arriba y luces de noche.
+     Se pinta en una tira en caché (espacio de la capa) y se vuelve a pintar solo al salir del margen o cambiar la luz. */
+  barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, id) {
+    const far = id === 'far' || id === 'inter', hw = Math.max(far ? 2 : 4, Math.round(k * (far ? 1.2 : 2.6))), rh = Math.max(2, Math.round(hw * .72)), U0 = o.s * k * par, umin = dir > 0 ? U0 - cx : U0 + cx - W;
+    const yTop = Math.floor(base - H * (far ? .44 : .26)), yBot = Math.ceil(base + H * .05), bh = yBot - yTop, nq = Math.round(sky.night * 5), dq = Math.round(sky.day * 5);
+    const key = [R.id, W, H, par, k.toFixed(3), nq, dq, R.n, R.st, col.map(v => (v * 40) | 0).join('.')].join(':'), C = (this._bc = this._bc || {})[id];
+    let c = C && C.key === key && umin >= C.u0 && umin + W <= C.u0 + C.w ? C : null;
+    if (!c) {
+      const w = Math.ceil(W * 2), u0 = Math.floor(umin - W * .5), cv = (C && C.cv && C.cv.width === w && C.cv.height === bh) ? C.cv : mkCanvas(w, bh), q = cv.getContext('2d'); q.clearRect(0, 0, w, bh);
+      // ruido de valor suave: manchas de barrio y quebradas verdes con bordes orgánicos
+      const vn = (x, y, sd) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy), a = h2(xi, yi, sd), b2 = h2(xi + 1, yi, sd), c2 = h2(xi, yi + 1, sd), d = h2(xi + 1, yi + 1, sd); return (a * (1 - sx) + b2 * sx) * (1 - sy) + (c2 * (1 - sx) + d * sx) * sy; };
+      const BR = [[.7, .34, .22], [.76, .42, .27], [.62, .3, .2], [.8, .52, .34], [.7, .34, .22], [.74, .38, .25], [.93, .9, .83], [.86, .8, .62], [.55, .7, .78], [.9, .7, .72], [.62, .78, .55]];
+      const RF = [[.52, .26, .2], [.5, .5, .52], [.62, .6, .58], [.4, .22, .16]];
+      const tint = far ? .66 : .3, night = sky.night, gdk = this.mix(this.mix(col, [.1, .26, .12], .5 * sky.day + .1), [0, 0, 0], night * .45), glt = this.mix(gdk, [.5, .66, .36], .25 * sky.day);
+      for (let cc = Math.floor(u0 / hw) - 1; cc * hw < u0 + w + hw; cc++) {
+        const u = cc * hw, s = (u + hw / 2) / (k * par), yr = yAt(s), x = u - u0;
+        for (let r = 0, yy = yBot - rh; yy > yr + rh * .4; r++, yy -= rh) {
+          const f = (yBot - yy) / Math.max(8, yBot - yr), hv = h2(cc, r, far ? 63 : 43), xo = ((r * 5) % 3) * hw / 3 - hw / 3, yo = (h2(cc, r, 47) - .5) * rh * .4;
+          const n = vn(cc / (far ? 16 : 10), r / (far ? 9 : 6), far ? 71 : 73), hf = f < .3 ? 1 : f < .62 ? 1 - (f - .3) / .32 : 0, p = clamp((n - .32) * 2.6, 0, 1) * hf * (far ? .55 : .92);
+          const X0 = x + xo, Y0 = yy - yTop + yo;
+          if (hv < p) {
+            const hc = BR[(hv * 997 | 0) % BR.length], cb = this.mix(this.mix(hc, col, tint), [0, 0, 0], night * .6), tall = h2(cc, r, 44) < .22 ? 1 + (h2(cc, r, 48) * 2 | 0) : 0, hh = rh * (1 + tall * .7);
+            if (far) { if (night > .25) { q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1, hh); } }
+            else {
+              q.fillStyle = this.css(cb); q.fillRect(X0, Y0 - (hh - rh), hw - 1.5, hh);
+              q.fillStyle = this.css(this.mix(this.mix(RF[(hv * 31 | 0) % RF.length], col, tint), [0, 0, 0], night * .6)); q.fillRect(X0 - .5, Y0 - (hh - rh) - rh * .18, hw - .5, rh * .36);
+              if (night < .3) { q.fillStyle = this.css(this.mix(cb, [0, 0, 0], .45)); q.fillRect(X0 + hw * .3, Y0 - (hh - rh) + rh * .45, Math.max(1, hw * .22), Math.max(1, rh * .3)); }
+            }
+            if (night > .15 && h2(cc, r, 45) < .55) { const lv = h2(cc, r, 46); q.fillStyle = 'rgba(255,' + (190 + (lv * 60 | 0)) + ',' + (100 + (lv * 60 | 0)) + ',' + Math.min(1, night * 1.15) + ')'; const d = Math.max(1, hw * (far ? .5 : .3)); q.fillRect(X0 + hw * .3, Y0 - (hh - rh) + rh * .35, d, d); if (tall && h2(cc, r, 49) < .6) q.fillRect(X0 + hw * .3, Y0 - (hh - rh) + rh * 1.05, d, d); }
+          } else if (!far && f > .12 && hv < p + .55 * Math.min(1, f * 2)) { const rr = hw * (.5 + h2(cc, r, 50) * .35); q.fillStyle = this.css(gdk); q.beginPath(); q.arc(X0 + hw / 2, Y0 + rh * .5, rr, 0, TAU); q.fill(); if (sky.day > .3) { q.fillStyle = this.css(glt); q.beginPath(); q.arc(X0 + hw / 2 - rr * .25, Y0 + rh * .5 - rr * .3, rr * .45, 0, TAU); q.fill(); } }
+        }
+      }
+      c = this._bc[id] = { key, u0, w, cv };
+    }
+    g.save(); if (dir > 0) g.drawImage(c.cv, cx - (U0 - c.u0), yTop); else { g.translate(cx + U0 - c.u0, yTop); g.scale(-1, 1); g.drawImage(c.cv, 0, 0); } g.restore();
+  },
+  /* o: {R, s, z, k, hour, t, rain, fog, storm, fg(g, X, Y), title} */
+  draw(g, W, H, o) {
+    const R = o.R, sky = SKY.at(o.hour), ink = [.05, .07, .12], k = o.k, dir = o.dir || 1, cx = dir > 0 ? W * .38 : W * .62, base = H * .64;
+    // cielo
+    const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, this.css(sky.top)); gr.addColorStop(.7, this.css(sky.bot)); gr.addColorStop(1, this.css(sky.fog)); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    if (sky.night > .3) for (let i = 0; i < 70; i++) { g.fillStyle = 'rgba(255,245,220,' + (sky.night * (.35 + .45 * Math.abs(Math.sin(o.t * .7 + i)))) + ')'; g.fillRect(h2(i, 3, 1) * W, h2(i, 4, 1) * H * .5, 1.6, 1.6); }
+    // sol o luna (recorre el cielo según la hora)
+    const sh = ((o.hour - 6) / 12), sx = W * (.1 + .8 * clamp(sh, 0, 1)), syy = H * (.62 - .5 * Math.sin(Math.PI * clamp(sh, 0, 1)));
+    if (sh > -.05 && sh < 1.05) { g.fillStyle = this.css([1, .93, .78], .95); g.beginPath(); g.arc(sx, syy, Math.min(W, H) * .045, 0, TAU); g.fill(); g.fillStyle = this.css([1, .85, .6], .18); g.beginPath(); g.arc(sx, syy, Math.min(W, H) * .12, 0, TAU); g.fill(); }
+    else { const mh = ((o.hour + 6) % 24 - 6) / 12, mx = W * (.1 + .8 * clamp(mh, 0, 1)), my = H * (.6 - .45 * Math.sin(Math.PI * clamp(mh, 0, 1))); g.fillStyle = 'rgba(240,240,225,.9)'; g.beginPath(); g.arc(mx, my, Math.min(W, H) * .03, 0, TAU); g.fill(); g.fillStyle = this.css(sky.top); g.beginPath(); g.arc(mx + Math.min(W, H) * .012, my - 3, Math.min(W, H) * .028, 0, TAU); g.fill(); }
+    // nubes que derivan (parallax 0,08)
+    if (!o.storm) for (let i = 0; i < 6; i++) { const x = ((h2(i, 1, 9) * W * 2 - o.s * k * .08 - o.t * 6 * (1 + i % 3)) % (W * 1.6) + W * 1.6) % (W * 1.6) - W * .3, y = H * (.08 + h2(i, 2, 9) * .25), r = 30 + h2(i, 3, 9) * 50; g.fillStyle = this.css(this.mix(sky.bot, [1, 1, 1], .5 * sky.day), .35 + .25 * sky.day); for (let q = 0; q < 4; q++) { g.beginPath(); g.ellipse(x + q * r * .55, y + (q % 2) * r * .12, r * .55, r * .28, 0, 0, TAU); g.fill(); } }
+    // capas de montañas: cordillera y colinas (escala vertical comprimida), con perspectiva atmosférica
+    const span = Math.max(300, R.hi - R.lo), layer = (arr, par, vs, off, col, opt = {}) => {
+      const yAt = s => base - off - (this.sample(arr, R, s) - R.lo) / span * vs, pts = []; let top = H;
+      for (let x = 0; x <= W + 4; x += 4) { const y = yAt(o.s + (x - cx) / (k * par) * dir); pts.push([x, y]); if (y < top) top = y; }
+      // relleno con bruma hacia el valle (perspectiva atmosférica) y filo iluminado por el cielo
+      const gf = g.createLinearGradient(0, top, 0, base + 30); gf.addColorStop(0, this.css(col)); gf.addColorStop(1, this.css(this.mix(col, sky.fog, opt.haze || .3)));
+      g.fillStyle = gf; g.beginPath(); g.moveTo(0, H); for (const [x, y] of pts) g.lineTo(x, y); g.lineTo(W, H); g.closePath(); g.fill();
+      g.strokeStyle = this.css(this.mix(col, [1, .96, .88], .16 * sky.day + .05), .85); g.lineWidth = Math.max(1, k * .45); g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y + .5) : g.moveTo(x, y + .5)); g.stroke();
+      if (opt.barrio) this.barrio(g, W, H, o, R, arr, par, yAt, col, sky, base, cx, k, dir, opt.barrio);
+      return pts;
+    };
+    // paleta por capas: de día cordillera azul de bruma, laderas verdes saturadas y suelo verde oscuro (estilo ilustración);
+    // de noche se apagan hacia la tinta; al atardecer la luz cálida del cielo tiñe la bruma
+    const D = sky.day, warm = clamp((sky.bot[0] - sky.bot[2]) * 2.2, 0, 1) * (1 - sky.night);
+    const oFar = this.mix(this.mix(this.mix(sky.bot, sky.top, .45), [.3, .42, .5], .25 * D), ink, .26 + .22 * sky.night), oMid = this.mix(this.mix(oFar, [.2, .4, .24], .55 * D), ink, .3), oNear = this.mix(this.mix(oMid, [.36, .52, .32], .4 * D), ink, .22 + .3 * sky.night);
+    const dFar = this.mix(this.mix(sky.top, [.5, .62, .76], .5), sky.bot, .18), dMid = this.mix([.25, .5, .3], dFar, .2), dNear = [.21, .4, .23], dd = clamp((D - .55) / .35, 0, 1) * (1 - warm * .8);
+    let cFar = this.mix(oFar, dFar, dd), cMid = this.mix(oMid, dMid, dd), cNear = this.mix(oNear, dNear, dd);
+    if (o.rain) { cFar = this.mix(cFar, sky.fog, .3); cMid = this.mix(cMid, [.4, .45, .45], .15); }
+    layer(R.far, .18, H * .36, H * .06, cFar, { haze: .45, barrio: o.barrio === false ? 0 : 'far' });
+    if (R.inter) layer(R.inter, .3, H * .3, H * .025, this.mix(cFar, cMid, .42), { haze: .38, barrio: o.barrio === false ? 0 : 'inter' });
+    if (o.fog || sky.day < .6) { const fg = g.createLinearGradient(0, base - H * .3, 0, base); fg.addColorStop(0, this.css(sky.fog, 0)); fg.addColorStop(1, this.css(sky.fog, o.fog ? .7 : .35)); g.fillStyle = fg; g.fillRect(0, base - H * .3, W, H * .3); }
+    layer(R.mid, .45, H * .26, -H * .02, cMid, { haze: .22, barrio: o.barrio === false ? 0 : 'mid' });
+    // gallinazos planeando
+    for (let i = 0; i < 4; i++) { const bx = ((h2(i, 7, 1) * W + o.t * (14 + i * 3) - o.s * k * .3) % (W + 80) + W + 80) % (W + 80) - 40, by = H * (.15 + .12 * h2(i, 8, 1)) + Math.sin(o.t * .8 + i) * 8, wv = Math.sin(o.t * 3 + i) * 3; g.strokeStyle = this.css(ink, .7); g.lineWidth = 1.6; g.beginPath(); g.moveTo(bx - 7, by - 2 + wv); g.lineTo(bx, by); g.lineTo(bx + 7, by - 2 + wv); g.stroke(); }
+    // suelo cercano (perfil real bajo el recorrido) con casas de ladrillo y árboles
+    const Y = e => base - (e - o.z) * k, X = s => cx + (s - o.s) * k * dir;
+    g.fillStyle = this.css(cNear); g.beginPath(); g.moveTo(0, H);
+    const s0 = Math.min(o.s - cx / k * dir, o.s + (W - cx) / k * dir), s1 = Math.max(o.s - cx / k * dir, o.s + (W - cx) / k * dir);
+    for (let x = 0; x <= W + 4; x += 3) { const s = o.s + (x - cx) / k * dir; g.lineTo(x, Y(this.sample(R.near, R, s))); } g.lineTo(W, H); g.closePath(); g.fill();
+    const step = Math.max(6, 14 / Math.max(.2, k));
+    for (let s = Math.floor(s0 / step) * step; s < s1; s += step) {
+      const i = clamp(Math.round(s / R.st), 0, R.n - 1), tv = R.tile[i], e = this.sample(R.near, R, s), x = X(s), y = Y(e), hv = h2(s | 0, 7, 3);
+      if (tv === TT.BRICK || tv === TT.BLDG) { const bw = (5 + hv * 6) * k, bh = (tv === TT.BLDG ? 12 + hv * 30 : 5 + hv * 6) * k; g.fillStyle = this.css(this.mix(cNear, tv === TT.BRICK ? [.62, .3, .2] : [.55, .58, .62], .45 * sky.day + .15)); g.fillRect(x - bw / 2, y - bh, bw, bh + 2); if (sky.night > .2 && bh > 4) { g.fillStyle = 'rgba(255,214,120,' + sky.night * .8 + ')'; for (let q = 0; q < 3; q++) if (h2(s | 0, q, 5) < .55) g.fillRect(x - bw / 4 + (q % 2) * bw / 3, y - bh * (.3 + q * .2), Math.max(1.5, bw * .14), Math.max(1.5, bw * .14)); } }
+      else if ((tv === TT.GRASS || tv === TT.MOUNT) && hv < .6) { const r = (3 + hv * 4) * k; g.fillStyle = this.css(this.mix(cNear, [.15, .3, .18], .4 * sky.day)); g.beginPath(); g.arc(x, y - r * .9, r, 0, TAU); g.fill(); g.fillRect(x - r * .12, y - r * .3, r * .24, r * .4); }
+      else if (tv === TT.WATER && hv < .5) { g.fillStyle = this.css([.6, .8, .9], .35 * sky.day + .1); g.fillRect(x - 6 * k, y - 1, 12 * k, 2); }
+    }
+    // calle de primer plano bajo el recorrido (en zonas urbanas): asfalto, andén, carros y peatones
+    const asph = this.css(this.mix(cNear, [.26, .28, .31], .75)), walk = this.css(this.mix(cNear, [.78, .74, .64], .7)), st0 = Math.floor(s0 / R.st) * R.st;
+    for (let s = st0; s < s1; s += R.st) { const i = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[i]) continue; const x = X(s), x2 = X(s + R.st), y = Y(this.sample(R.near, R, s)); g.fillStyle = asph; g.fillRect(Math.min(x, x2), y + 1.5 * k, Math.abs(x2 - x) + 1, 9 * k); g.fillStyle = walk; g.fillRect(Math.min(x, x2), y, Math.abs(x2 - x) + 1, 1.6 * k); g.fillStyle = 'rgba(255,240,200,.45)'; if (((s / R.st) | 0) % 2 === 0) g.fillRect(Math.min(x, x2) + 2, y + 6 * k, Math.abs(x2 - x) * .5, Math.max(1, .25 * k)); }
+    // primer plano urbano: explanada y fachadas cercanas (paralaje 1.25) que enmarcan la escena
+    const fgc = this.css(this.mix(cNear, [.2, .21, .24], .7)), fgb = this.mix(cNear, ink, .55);
+    { const fp = 1.25, fw = Math.max(24, Math.round(16 * k)), Uf = o.s * k * fp, um = dir > 0 ? Uf - cx : Uf + cx - W, tall = H > W * 1.2 ? (H - base) * .5 : 0;
+      for (let cc = Math.floor(um / fw) - 1; cc * fw < um + W + fw; cc++) {
+        const u = cc * fw, s = (u + fw / 2) / (k * fp), idx = clamp(Math.round(s / R.st), 0, R.n - 1);
+        if (!R.urb[idx]) { // monte en primer plano: arbustos y árboles oscuros que dan profundidad sin tapar el tren
+          const xa = cx + (u - Uf) * dir, x = (dir > 0 ? xa : xa - fw) + fw / 2, yg = Y(this.sample(R.near, R, s)) + 13 * k + tall * .25, hv = h2(cc, 9, 23), gc = this.mix(this.mix(cNear, [.12, .3, .14], .5 * sky.day), ink, .35 + .3 * sky.night);
+          g.fillStyle = this.css(gc); g.fillRect(x - fw / 2 - 1, yg, fw + 2, H - yg);
+          if (hv < .7) { const r = (4 + hv * 6) * k; g.fillStyle = this.css(this.mix(gc, [0, 0, 0], .2)); g.fillRect(x - .6 * k, yg - r, 1.2 * k, r); for (let q = 0; q < 3; q++) { g.beginPath(); g.arc(x + (q - 1) * r * .55, yg - r * (1.05 + (q % 2) * .3), r * (.62 + .1 * q), 0, TAU); g.fill(); } if (sky.day > .3) { g.fillStyle = this.css(this.mix(gc, [.45, .62, .3], .22 * sky.day)); g.beginPath(); g.arc(x - r * .3, yg - r * 1.45, r * .35, 0, TAU); g.fill(); } }
+          continue; }
+        const xa = cx + (u - Uf) * dir, x = dir > 0 ? xa : xa - fw, yTop = Y(this.sample(R.near, R, s)) + 11 * k; g.fillStyle = fgc; g.fillRect(x - 1, yTop, fw + 2, H - yTop);
+        g.fillStyle = this.css(this.mix(cNear, [.62, .6, .55], .45)); g.fillRect(x - 1, yTop, fw + 2, 2.2 * k);
+        const hv = h2(cc, 3, 17), bh = (14 + hv * 22) * k + tall * (.6 + .4 * h2(cc, 4, 17)), bw = fw - 4, top = H - bh;
+        if (hv < .75) {
+          const brick = hv < .35, fc = this.mix(fgb, brick ? [.72, .36, .24] : [.8, .78, .7], brick ? .4 : .18); g.fillStyle = this.css(fc); g.fillRect(x + 2, top, bw, bh);
+          g.fillStyle = this.css(this.mix(fgb, [0, 0, 0], .3)); g.fillRect(x + 1, top, bw + 2, 2 * k);
+          if (h2(cc, 5, 17) < .5) { g.fillStyle = this.css(this.mix(fgb, [.6, .66, .72], .3)); g.fillRect(x + bw * .2, top - 3.5 * k, bw * .22, 3.5 * k); }
+          const ww = Math.max(3, bw * .16), wh = Math.max(3, 3.2 * k), rows = Math.min(14, Math.floor((bh - 8 * k) / (7 * k)));
+          for (let rr = 0; rr < rows; rr++) for (let q = 0; q < 3; q++) { const lit = sky.night > .3 && h2(cc * 7 + q, rr, 5) < .45; g.fillStyle = lit ? 'rgba(255,214,120,' + (sky.night * .85) + ')' : 'rgba(20,30,40,.38)'; g.fillRect(x + 2 + bw * (.14 + q * .3), top + 5 * k + rr * 7 * k, ww, wh); }
+          if (h2(cc, 6, 17) < .6) { const aw = ['#c43a26', '#1C5C9C', '#59AB42', '#E38835', '#743D90'][(hv * 50 | 0) % 5]; g.fillStyle = aw; g.globalAlpha = .55 + .35 * sky.day; g.fillRect(x + 2, H - 9 * k, bw, 1.6 * k); g.globalAlpha = 1; }
+        } else if (hv < .9) { g.fillStyle = this.css(this.mix(fgb, [.2, .4, .22], .5)); g.beginPath(); g.arc(x + fw / 2, H - 8 * k - tall * .3, 9 * k, 0, TAU); g.fill(); g.fillRect(x + fw / 2 - k, H - 8 * k - tall * .3, 2 * k, 8 * k + tall * .3); }
+      } }
+    const carS = (g, x, y, L, c, dir, lit) => { g.fillStyle = '#141414'; g.fillRect(x - L / 2 - 1, y - L * .42 - 1, L + 2, L * .42 + 1); g.fillStyle = c; g.fillRect(x - L / 2, y - L * .4, L, L * .4); g.fillStyle = Art.shade(c, 1.15); g.fillRect(x - L * .3, y - L * .62, L * .55, L * .24); g.fillStyle = lit ? '#ffe7a0' : '#8fc4dc'; g.fillRect(x - L * .26 + (dir > 0 ? L * .3 : 0), y - L * .58, L * .22, L * .16); g.fillStyle = '#141414'; g.beginPath(); g.arc(x - L * .3, y, L * .12, 0, TAU); g.arc(x + L * .3, y, L * .12, 0, TAU); g.fill(); if (lit) { g.fillStyle = '#fff6c0'; g.fillRect(dir > 0 ? x + L / 2 - 2 : x - L / 2, y - L * .2, 2, 2); } };
+    for (const lane of [1, -1]) for (let i = 0; i < 14; i++) { const spd = 9 + (i % 3) * 2, pos = ((o.t * spd + i * 97 + (lane > 0 ? 0 : 48)) % (R.n * R.st + 300)) - 150, s = lane > 0 ? pos : R.n * R.st - pos; if (s < s0 - 10 || s > s1 + 10) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; carS(g, X(s), Y(this.sample(R.near, R, s)) + (lane > 0 ? 5 * k : 8.6 * k), (i % 4 === 0 ? 7 : 4.4) * k, i % 5 === 0 ? '#f2c400' : ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#3d6b3a', '#d98a3a'][i % 7], lane * (dir || 1), sky.night > .4); }
+    for (let i = 0; i < 10; i++) { const pos = ((o.t * 1.3 + i * 61) % (R.n * R.st + 100)) - 50, s = i % 2 ? pos : R.n * R.st - pos; if (s < s0 || s > s1) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; Art.person(g, X(s), Y(this.sample(R.near, R, s)) + .2 * k, Math.max(1, k * .3), i * 13, true); }
+    if (o.fg) o.fg(g, X, Y, cNear, sky);
+    // título de estación (tipografía grande y translúcida)
+    if (o.title) { g.save(); g.globalAlpha = o.title.a; g.fillStyle = sky.night > .5 ? '#f9e4a4' : PAL.negro; g.font = '700 ' + Math.round(Math.min(W, H) * .1) + 'px Titulos, sans-serif'; g.textAlign = 'center'; const ty = H * (W > H * 1.2 ? .36 : .2); g.fillText(o.title.t.toUpperCase(), W / 2, ty); g.font = '800 ' + Math.round(Math.min(W, H) * .028) + 'px Cuerpo, sans-serif'; g.fillText(o.title.sub || '', W / 2, ty + Math.min(W, H) * .05); g.restore(); }
+    // clima
+    if (o.rain) { g.strokeStyle = 'rgba(220,235,245,.4)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 110; i++) { const x = (h2(i, 3, 3) * W + o.t * 90) % W, y = (h2(i, 4, 3) * H + o.t * 700 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 4, y + 13); } g.stroke(); }
+    if (o.storm && (o.t % 7) < .12) { g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(0, 0, W, H); }
+    return { X, Y };
+  }
+};
+~~~~
+
+### `src/js/25-game.js`
+~~~~js
+/* =====================================================================
+   MOTOR DE PARTIDA: bucle, vistas (1 o 2 jugadores en pantalla), pausa y resultados
+   Un modo implementa: create(lv, opts) → estado (JSON), step(st, dt), draw(g, st, vp),
+   pointer(st, tipo, x, y, vp) → acción | null, act(st, acción), result(st), ai(st) → acción | null,
+   levels() → [{id, name, sub}], y opcional mount(st, el) / key(st, k, down) / hud(st).
+   ===================================================================== */
+const Game = EM.game = {
+  mode: null, st: null, st2: null, lv: null, opts: null, raf: 0, last: 0, paused: false, vps: [], duel: false, ended: false, net: null, hudT: 0,
+  start(modeId, lv, opts = {}) {
+    const M = EM.modes[modeId]; if (!M) return;
+    this.stop(); this.mode = M; this.lv = lv; this.opts = opts; this.duel = !!opts.duel; this.ended = false; this.paused = false;
+    const seed = opts.seed != null ? opts.seed : (Date.now() & 0x7fffffff);
+    this.st = M.create(lv, Object.assign({ seed }, opts)); this.st2 = this.duel ? M.create(lv, Object.assign({ seed }, opts, { p2: true })) : null;
+    if (EM.headless) return;
+    UI.show('game'); $('#gctl').innerHTML = ''; $('#gmsg').innerHTML = '';
+    const L = (M.levels().find(l => l.id === lv) || {}); $('#gTitle').textContent = M.name + (L.name ? ' · ' + L.name : ''); $('#gSub').textContent = this.duel ? 'Duelo de mesa · 2 jugadores' : (L.sub || M.sub || '');
+    if (M.mount && !this.duel) M.mount(this.st, $('#gctl'));
+    Music.play(M.music || 'puzzle');
+    this.last = now(); const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); }; this._loop = loop; this.raf = requestAnimationFrame(loop);
+  },
+  /* congela el bucle (capturas y pruebas) */
+  freeze(on) { if (on) { cancelAnimationFrame(this.raf); this.raf = 0; } else if (!this.raf && this._loop && this.mode) { this.last = now(); this.raf = requestAnimationFrame(this._loop); } },
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; this._loop = null; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
+  frame() {
+    const t = now(); let dt = Math.min(.05, t - this.last); this.last = t; if (this.paused) dt = 0;
+    const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
+    const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
+    this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
+    try {
+      if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
+      g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
+      for (const vp of this.vps) { g.save(); g.translate(vp.x, vp.y); if (vp.flip) { g.translate(vp.w, vp.h); g.rotate(Math.PI); } g.beginPath(); g.rect(0, 0, vp.w, vp.h); g.clip(); this.mode.draw(g, vp.st, vp); g.restore(); }
+      if (this.duel) { g.fillStyle = PAL.negro; g.fillRect(0, this.vps[0].y - 3, w, 6); }
+    } catch (e) { EM.errors.push('frame ' + this.mode.id + ': ' + e.message); console.error(e); }
+    if ((this.hudT -= dt) <= 0) { this.hudT = .2; this.hud(); }
+    if (this.net && this.net.tick) this.net.tick(dt);
+    if (!this.ended && !(this.net && this.net.guest) && !this.mode.endless) { const r1 = this.mode.result(this.st), r2 = this.st2 ? this.mode.result(this.st2) : null; if (r1.done || (r2 && r2.done)) this.end(r1, r2); }
+  },
+  hud() {
+    const M = this.mode, ch = $('#gChips'); if (!ch) return;
+    const items = this.duel ? [['J1', M.result(this.st).score | 0], ['J2', M.result(this.st2).score | 0]] : (M.hud ? M.hud(this.st) : []); if (this.net && this.net.chips) items.push(...this.net.chips()); if (!this.duel && EM.mundo) items.push(['', EM.mundo.chip()]);
+    ch.innerHTML = items.map(([k, v]) => `<span class="chip">${esc(k)} <b>${esc(v)}</b></span>`).join('');
+  },
+  toLocal(vp, x, y) { let lx = x - vp.x, ly = y - vp.y; if (vp.flip) { lx = vp.w - lx; ly = vp.h - ly; } return { x: lx, y: ly }; },
+  pointer(type, ev) {
+    if (this.paused || !this.mode || !this.mode.pointer) return; const cv = $('#gcv'), r = cv.getBoundingClientRect(), k = cv.width / r.width, x = (ev.clientX - r.left) * k, y = (ev.clientY - r.top) * k;
+    const vp = this.vps.find(v => x >= v.x && x < v.x + v.w && y >= v.y && y < v.y + v.h); if (!vp) return;
+    const p = this.toLocal(vp, x, y), a = this.mode.pointer(vp.st, type, p.x, p.y, vp);
+    if (a) { if (this.net && this.net.guest && vp.st === this.st) this.net.sendAct(a); else this.mode.act(vp.st, a); }
+  },
+  pause(on = !this.paused) {
+    if (this.ended) return; this.paused = on;
+    if (on) UI.modal(`<div class="pag">Pausa</div><h2>${esc(this.mode.name)}</h2><p class="m">${esc(this.mode.tip || '')}</p><div class="col"><button class="btn pri" id="pzC">▶ Continuar</button><button class="btn sm" id="pzR">↻ Reiniciar</button><button class="btn sm gh" id="pzX">Salir</button></div>`, () => { this.paused = false; });
+    if (on && !EM.headless) { $('#pzC').onclick = () => UI.close(); $('#pzR').onclick = () => { UI.close(); this.start(this.mode.id, this.lv, Object.assign({}, this.opts, { seed: undefined })); }; $('#pzX').onclick = () => { UI.close(); this.exit(); }; }
+  },
+  exit() { this.stop(); if (this.net && this.net.leave) this.net.leave(); this.net = null; Music.play('menu'); const back = this.opts && this.opts.back; UI.stack = UI.stack.filter(s => s !== 'game'); UI.show(back || 'levels', false); },
+  end(r1, r2) {
+    this.ended = true; const M = this.mode;
+    try { if (!EM.headless) Vida.onGame(M.id, this.st, r1); } catch (e) { EM.errors.push('vida: ' + e.message); }
+    if (this.opts.onEnd) { this.opts.onEnd(r1, r2); return; }
+    if (this.duel) {
+      const a = r1.score | 0, b = r2.score | 0, w = a === b ? 'Empate' : a > b ? 'Gana Jugador 1' : 'Gana Jugador 2'; Snd.play('win');
+      UI.modal(`<div class="pag">Duelo de mesa</div><h2>${w}</h2><div class="kv"><b>Jugador 1</b><span>${fmt(a)} puntos</span><b>Jugador 2</b><span>${fmt(b)} puntos</span></div><div class="row" style="margin-top:14px"><button class="btn pri" id="rsR">↻ Revancha</button><button class="btn sm gh" id="rsX">Salir</button></div>`);
+      $('#rsR').onclick = () => { UI.close(); this.start(M.id, this.lv, this.opts); }; $('#rsX').onclick = () => { UI.close(); this.exit(); }; return;
+    }
+    if (this.net && this.net.onEnd) this.net.onEnd(r1);
+    const earn = Save.record(M.id, this.lv, r1); Snd.play(r1.win ? 'win' : 'lose'); vib(r1.win ? 40 : 120);
+    const lvls = M.levels(), i = lvls.findIndex(l => l.id === this.lv), nx = lvls[i + 1];
+    const stars = '★'.repeat(r1.stars | 0) + '☆'.repeat(3 - (r1.stars | 0));
+    UI.modal(`<div class="pag">${r1.win ? 'Misión cumplida' : 'Fin de la partida'}</div><h2>${r1.win ? '¡Bien hecho!' : 'Casi…'}</h2><div style="font-size:34px;color:var(--mostaza);letter-spacing:.1em">${stars}</div>
+      <div class="kv" style="margin:10px 0">${(r1.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Puntaje</b><span>${fmt(r1.score)}</span><b>Pasajes</b><span>+${earn} 🎫</span></div>
+      ${r1.fact ? `<div class="film" style="margin:10px 0">Dato · ${esc(r1.fact)}</div>` : ''}
+      <div class="row"><button class="btn pri" id="rsN" ${nx && r1.win ? '' : 'hidden'}>Siguiente ▶</button><button class="btn sm" id="rsR">↻ Otra vez</button><button class="btn sm gh" id="rsX">Salir</button></div>`);
+    if (EM.headless) return;
+    $('#rsN').onclick = () => { UI.close(); this.start(M.id, nx.id, Object.assign({}, this.opts, { seed: undefined })); };
+    $('#rsR').onclick = () => { UI.close(); this.start(M.id, this.lv, Object.assign({}, this.opts, { seed: undefined })); };
+    $('#rsX').onclick = () => { UI.close(); this.exit(); };
+  },
+  bind() {
+    const cv = $('#gcv');
+    cv.addEventListener('pointerdown', e => { Snd.init(); Snd.resume(); cv.setPointerCapture && cv.setPointerCapture(e.pointerId); this.pointer('down', e); });
+    cv.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') this.pointer('move', e); });
+    cv.addEventListener('pointerup', e => this.pointer('up', e));
+    $('#gPause').onclick = () => this.pause(true);
+    addEventListener('keydown', e => { if (UI.cur !== 'game' || !this.mode) return; if (e.key === 'Escape' || e.key === 'p') { this.pause(); return; } if (this.mode.key && !this.paused) this.mode.key(this.st, e.key, true); });
+    addEventListener('keyup', e => { if (UI.cur === 'game' && this.mode && this.mode.key) this.mode.key(this.st, e.key, false); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && UI.cur === 'game' && !this.ended && !this.net) this.pause(true); });
+    UI.onback.game = () => { if (!$('#modal').hidden) return false; this.pause(true); return true; };
+  }
+};
+/* reglas de estrellas comunes */
+function starsOf(frac) { return frac >= .8 ? 3 : frac >= .55 ? 2 : frac >= .25 ? 1 : 0; }
+~~~~
+
+### `src/js/30-conduce.js`
+~~~~js
+/* =====================================================================
+   MODO CONDUCE: maneja el tren, el tranvía o el bus por la vía real.
+   Vistas: cabina (1a persona), persecución (3a persona), cenital y panorámica.
+   Física: a = palanca·a_max − pendiente·g − resistencia. ATP: curvas y frenado a la estación.
+   Puntaje por parada: precisión (m) + puntualidad (s); al final: confort y energía.
+   ===================================================================== */
+const SEG = 8, DRAW_D = 900;
+const TRACKS = new Map();
+function trackOf(line) {
+  if (TRACKS.has(line.id)) return TRACKS.get(line.id);
+  const P = line.P, K = line.K, n = Math.max(2, Math.ceil(P.len / SEG) + 1), x = new Float32Array(n), y = new Float32Array(n), an = new Float32Array(n), zt = new Float32Array(n), z = new Float32Array(n), lim = new Float32Array(n), gb = new Uint8Array(n * 6);
+  for (let i = 0; i < n; i++) { const p = NET.at(P, i * SEG); x[i] = p.x; y[i] = p.y; an[i] = p.a; zt[i] = MAP.ready ? MAP.elevM(p.x, p.y) : 1480; }
+  const W = K.deck ? 25 : 3;   // viaducto: perfil suave; calle: sigue el terreno
+  for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - W); j <= Math.min(n - 1, i + W); j++) { s += zt[j]; c++; } z[i] = s / c + K.deck; }
+  for (let i = 0; i < n; i++) {
+    let da = 0; const j0 = Math.max(0, i - 5), j1 = Math.min(n - 1, i + 5); for (let j = j0; j < j1; j++) { let d = an[j + 1] - an[j]; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; da += Math.abs(d); }
+    const R = da > 1e-4 ? ((j1 - j0) * SEG) / da : 1e5; lim[i] = Math.min(K.vmax, Math.floor(Math.sqrt(1.1 * R) * 3.6 / 5) * 5 / 3.6);
+    if (lim[i] < 15 / 3.6) lim[i] = 15 / 3.6;
+    const OFF = [-46, -26, -12, 12, 26, 46]; for (let k = 0; k < 6; k++) { const o = OFF[k], sx = x[i] - Math.sin(an[i]) * o, sy = y[i] + Math.cos(an[i]) * o; gb[i * 6 + k] = MAP.ready ? MAP.tileM(sx, sy) : 0; }
+  }
+  // paisaje: edificios y árboles reales a los lados (según el mapa)
+  const sc = [];
+  for (let s = 0; s < P.len; s += 16) {
+    const i = Math.min(n - 1, Math.round(s / SEG));
+    for (const side of [-1, 1]) for (const o0 of [16, 30, 46, 64]) {
+      const o = side * (o0 + h2(s | 0, o0, 3) * 6), px = x[i] - Math.sin(an[i]) * o, py = y[i] + Math.cos(an[i]) * o, v = MAP.ready ? MAP.tileM(px, py) : TT.BRICK, r = h2(s | 0, o | 0, 11);
+      if ((v === TT.BLDG || v === TT.BRICK) && r < .6) sc.push({ s, o, w: 9 + r * 10, h: MAP.ready ? MAP.bHeight(px, py, s | 0) : 10, b: v === TT.BRICK, seed: (s * 7 + o) | 0, k: 0, zg: zt[i] });
+      else if ((v === TT.GRASS || v === TT.MOUNT) && r < .35) sc.push({ s, o, w: 5, h: 7 + r * 8, k: 1, zg: zt[i] });
+    }
+  }
+  const T = { n, x, y, an, zt, z, lim, gb, sc, len: P.len };
+  TRACKS.set(line.id, T); return T;
+}
+const Conduce = EM.modes.conduce = {
+  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
+  _lv: null,
+  levels() {
+    if (this._lv) return this._lv; const L = [];
+    for (const line of NET.lines.filter(l => ['metro', 'tram'].includes(l.kind) || (l.kind === 'future' && !/cable/i.test(l.name + ' ' + (l.tech || ''))))) {
+      const n = line.st.length; let k = 0;
+      for (let a = 0; a < n - 1; a += 2) { const b = Math.min(n - 1, a + 2); L.push({ id: line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name + (line.kind === 'future' ? ' · vista al futuro (' + line.status + ')' : ''), k: k++ }); }
+      if (n > 3) L.push({ id: line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Recorrido completo', sub: line.name + ' · ' + line.st[0].name + ' → ' + line.st[n - 1].name, k: k++, full: true });
+      const r = line.st; if (n > 2) L.push({ id: line.id + ':r' + (n - 1) + '-' + Math.max(0, n - 3), line: line.id, a: n - 1, b: Math.max(0, n - 3), name: r[n - 1].name + ' → ' + r[Math.max(0, n - 3)].name, sub: line.name + ' · sentido contrario', k: k++ });
+    }
+    return (this._lv = L);
+  },
+  create(lv, opts) {
+    const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], kd = line.kind === 'future' ? 'tram' : line.kind, K = KIND[kd], T = trackOf(line), rng = new RNG(opts.seed | 0);
+    const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
+    const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
+    const hr = opts.hour != null ? opts.hour : new Date().getHours() + new Date().getMinutes() / 60, tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
+    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
+      rain: opts.hour != null ? rng.f() < .25 : Mundo.weather().rain, tod, hour: hr, fixH: opts.hour, paseo: !!opts.paseo, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
+    st.tgt = stops.map(tgt);
+    // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
+    for (let k = 1; k < stops.length; k++) { if (rng.f() < .35) { const a = st.tgt[k - 1], b = st.tgt[k]; st.sig.push({ s: lerp(a, b, rng.range(.35, .65)), k, on: false, t: rng.range(6, 12), seen: false, done: false }); } }
+    if (stops.length > 2 && rng.f() < .5) st.holdDoor = rng.i(1, stops.length - 2);
+    st.trivK = rng.i(1, Math.max(1, stops.length - 1));
+    if (K.deck === 0 && line.kind !== 'cable') { // semáforos en la calle (tranvía y buses)
+      const a = Math.min(st.tgt[0], st.tgt[stops.length - 1]), b = Math.max(st.tgt[0], st.tgt[stops.length - 1]);
+      for (let s = a + 160; s < b - 60; s += rng.range(260, 480)) { if (st.tgt.some(t => Math.abs(t - s) < 90)) continue; st.lights.push({ s, off: rng.range(0, 30), per: 30, g: 15 }); }
+    }
+    // horario ideal (simulado con el piloto automático) + 8 % de margen
+    const sim = this.simulate(line, st); let acc = 0; st.sched = [0]; for (let k = 1; k < stops.length; k++) { acc += sim[k - 1] * 1.08 + (k > 1 ? K.dwell : 0); st.sched.push(acc); }
+    st.ideal = sim;
+    return st;
+  },
+  /* tiempo ideal de cada tramo con el piloto (sin eventos) */
+  simulate(line, st0) {
+    const res = []; for (let k = 1; k < st0.stops.length; k++) {
+      const st = { kind: st0.kind, line: st0.line, dir: st0.dir, s: st0.tgt[k - 1], v: 0, a: 0, lev: 0, eb: 0, tgt: st0.tgt, ni: k, sig: [], lights: [], rain: false, t: 0 };
+      let t = 0; for (let i = 0; i < 20000; i++) { const a = this.pilot(st); st.lev = a; this.physics(st, .1); t += .1; if ((st.tgt[k] - st.s) * st.dir < .5 && st.v < .05) break; }
+      res.push(t);
+    }
+    return res;
+  },
+  /* límite de velocidad en s (curvas) */
+  limAt(st, s) { const T = TRACKS.get(st.line); return T.lim[clamp(Math.round(s / SEG), 0, T.n - 1)]; },
+  zAt(st, s) { const T = TRACKS.get(st.line), f = clamp(s / SEG, 0, T.n - 1.001), i = f | 0, k = f - i; return T.z[i] * (1 - k) + T.z[i + 1] * k; },
+  lightState(L, t) { const p = ((t + L.off) % L.per + L.per) % L.per; return p < L.g ? 'g' : p < L.g + 3 ? 'y' : 'r'; },
+  /* distancia (sentido de marcha) al próximo punto de detención obligatorio */
+  nextStop(st) {
+    let d = (st.tgt[st.ni] - st.s) * st.dir, why = 'est';
+    for (const g of st.sig) if (g.on && !g.done) { const dd = (g.s - st.s) * st.dir - 6; if (dd > -2 && dd < d) { d = dd; why = 'sig'; } }
+    for (const L of st.lights) { const dd = (L.s - st.s) * st.dir - 4; if (dd > -1 && dd < d && this.lightState(L, st.t) !== 'g' && dd > st.v * st.v / (2 * 1.2) * .5) { d = dd; why = 'luz'; } }
+    return { d, why };
+  },
+  pilot(st) {
+    const K = KIND[st.kind], ns = this.nextStop(st), brk = K.brk * (st.rain ? .82 : 1) * .82;
+    let target = Math.min(this.limAt(st, st.s), this.limAt(st, st.s + st.dir * 60), Math.sqrt(2 * brk * Math.max(0, ns.d)));
+    if (ns.d < 30) { if (ns.d <= .15) return -1; const bm = K.brk * (st.rain ? .82 : 1), need = st.v * st.v / (2 * ns.d); if (need > bm * .45) return -clamp(need / bm, 0, 1); if (st.v < Math.min(3, Math.sqrt(ns.d) * 1.1)) return .3; return 0; }
+    const e = target - st.v; return e > .8 ? clamp(e / 2, .3, 1) : e < -.3 ? clamp(e / 2, -1, -.15) : 0;
+  },
+  physics(st, dt) {
+    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .8 : .35);
+    let a;
+    if (st.eb > 0) { a = -K.emg; st.eb = st.v > .05 ? st.eb : 0; }
+    else if (st.lev > 0) a = st.lev * K.acc * (1 - .35 * st.v / K.vmax);
+    else a = st.lev * K.brk * (st.rain ? .82 : 1);
+    if (st.v > .01 || a > 0) a += -9.81 * gr - .015 - .0003 * st.v * st.v;
+    if (st.v <= .01 && a < 0) a = 0;
+    st.v = Math.max(0, st.v + a * dt); st.s += st.dir * st.v * dt; st.s = clamp(st.s, 0, T.len); st.a = a;
+    if (st.lev > 0) st.energy += st.lev * K.acc * st.v * dt / 3600 * 120;      // kWh aproximados
+    else if (st.lev < 0) st.energy -= -st.lev * K.brk * st.v * dt / 3600 * 120 * .3;  // freno regenerativo
+  },
+  step(st, dt) {
+    if (st.done) return;
+    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 3 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
+    for (let k = 0; k < sub; k++) this.tick(st, dt, K, line);
+    st.cam += (st.v - st.cam) * Math.min(1, dt * 3);
+  },
+  tick(st, dt, K, line) {
+    st.t += dt; if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; const h = Mundo.hour(), w = Mundo.weather(h); st.rain = w.rain; st.tod = h >= 6 && h < 17 ? 'dia' : h >= 17 && h < 19 ? 'tarde' : 'noche'; }
+    if (st.auto) { if (st.ph === 'run' || st.ph === 'ready') st.lev = this.pilot(st); }
+    else if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.2, -1, 1);
+    if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; st.ni = 1; this.say(st, 'Próxima estación: ' + line.st[st.stops[1]].name); } else return; }
+    if (st.ph === 'dwell') {
+      st.v = 0; st.dwell += dt;
+      if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bellDone) { st.bellDone = true; Snd.play('bell'); this.msg(st, 'Abordaje completo · cierra puertas', 'y'); } }
+      if (st.auto) { if (st.doors === 0 && st.dwell > .5 && !st.opened) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2 && st.dwell > .3) { st.lev = .6; } if (st.trivia) this.answer(st, 0); }
+      if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
+      return;
+    }
+    // señales en rojo: aparecen al acercarse y se despejan con el tiempo
+    for (const g of st.sig) if (!g.done && g.k === st.ni) { const dd = (g.s - st.s) * st.dir; if (!g.seen && dd < 700) { g.seen = true; g.on = true; this.msg(st, 'Señal en rojo adelante: tren en la vía', 'r'); Snd.play('warn'); } if (g.on) { if (st.v < .3 || dd > 0) g.t -= dt; if (g.t <= 0) { g.on = false; g.done = true; this.msg(st, 'Vía libre: señal en verde', 'g'); } if (dd < -1 && g.on) { g.on = false; g.done = true; st.eb = 1; st.score -= 300; this.msg(st, '¡Pasaste una señal en rojo! Freno de emergencia', 'r'); Snd.play('crash'); vib(200); } } }
+    for (const L of st.lights) { const prev = (L.s - (st.s - st.dir * st.v * dt)) * st.dir, dd = (L.s - st.s) * st.dir; if (prev > 0 && dd <= 0 && this.lightState(L, st.t) === 'r') { st.score -= 150; this.msg(st, '¡Semáforo en rojo! −150', 'r'); Snd.play('bad'); } }
+    const lim = this.limAt(st, st.s), ns = this.nextStop(st), atp = Math.sqrt(2 * K.brk * .95 * Math.max(0, (st.tgt[st.ni] - st.s) * st.dir + 3));
+    const vmaxNow = Math.min(lim, atp + 1.2);
+    if (st.v > vmaxNow + 2 / 3.6) { st.over += dt; if (!st._warn) { st._warn = 1; Snd.play('warn'); this.msg(st, 'ATP: exceso de velocidad', 'y'); } st.score -= 12 * dt; if (st.v > vmaxNow + 9 / 3.6 && !st.eb) { st.eb = 1; st.score -= 200; this.msg(st, 'ATP: freno de emergencia −200', 'r'); Snd.play('crash'); vib(160); } } else st._warn = 0;
+    this.physics(st, dt);
+    const j = Math.abs(st.a - st.lastA) / dt; st.lastA = st.a; if (j > 3.2 && st.v > 1) { st.jerkT += dt; st.comfort = Math.max(0, st.comfort - dt * 18); }
+    // llegada a la estación
+    const d = (st.tgt[st.ni] - st.s) * st.dir;
+    if (st.v < .05 && st.eb === 0 && Math.abs(d) <= 12 && st.lev <= 0) {
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d);
+      const late = st.t - st.sched[st.ni], pP = d === 0 ? 300 : st.err < .5 ? 300 : st.err < 1 ? 250 : st.err < 2 ? 200 : st.err < 4 ? 120 : st.err < 7 ? 60 : 20, pT = Math.abs(late) <= 6 ? 200 : Math.abs(late) <= 15 ? 120 : Math.abs(late) <= 30 ? 60 : 0;
+      st.score += pP + pT; st.arr.push({ err: st.err, late, pP, pT }); Snd.play(pP >= 250 ? 'star' : 'ok');
+      this.msg(st, (st.err < .5 ? '¡Perfecto! ' : st.err < 2 ? '¡Muy bien! ' : '') + st.err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 200 ? 'g' : 'y');
+      if (st.ni === st.trivK && !st.auto) { const q = NET.trivia(new RNG(st.seed + st.ni)); if (q) { const o = q.a.map((t, i) => ({ t, ok: i === 0 })); new RNG(st.seed * 3 + st.ni).shuffle(o); st.trivia = { q: q.q, o, x: q.x }; } }
+      return;
+    }
+    if (d < -12 && st.v < .3) { // se pasó: la parada se pierde
+      st.skipped++; st.score -= 200; this.msg(st, 'Te pasaste de la estación −200', 'r'); Snd.play('bad'); st.arr.push({ err: 99, late: 0, pP: 0, pT: 0 });
+      if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st);
+    }
+    if (st.s <= 0 || st.s >= TRACKS.get(st.line).len) this.finish(st);
+  },
+  doors(st) {
+    if (st.ph !== 'dwell') return;
+    if (st.doors === 0) {
+      st.doors = 1; st.opened = true; Snd.play('door'); vib(20); const line = NET.byId[st.line], name = line.st[st.stops[st.ni]].name;
+      const alight = Math.round(st.pax * (st.ni === st.stops.length - 1 ? 1 : .3)), board = st.ni === st.stops.length - 1 ? 0 : 15 + (hashStr(name) % 40);
+      st.pax = st.pax - alight + board; st.bTime = 5 + (alight + board) / 10; st.board = 0; EM.save.d.stats.pax += board;
+      if (st.ni === st.stops.length - 1) { st.bTime = 3; }
+      const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); EM.save.d.facts[name] = 1; }
+    } else if (st.doors === 1) {
+      if (st.ni === st.holdDoor && !st.held) { st.held = true; Snd.play('warn'); this.msg(st, '“Por favor, libere las puertas” · inténtalo de nuevo', 'y'); st.board = Math.max(0, st.board - .3); st.bellDone = false; return; }
+      if (st.board < 1) { st.score -= 50; this.msg(st, 'Cerraste antes de tiempo −50', 'r'); }
+      st.doors = 2; Snd.play('door');
+      if (st.ni === st.stops.length - 1) { this.finish(st); return; }
+      st.ni++;
+    }
+  },
+  answer(st, i) { const q = st.trivia; if (!q) return; st.trivia = null; const ok = q.o[i] && q.o[i].ok; if (ok) { st.score += 100; Snd.play('coin'); this.msg(st, '¡Correcto! +100 · ' + (q.x || ''), 'g'); } else { Snd.play('bad'); this.msg(st, 'Era: ' + q.o.find(o => o.ok).t, 'y'); } if (!EM.headless) this.renderTrivia(st); },
+  finish(st) {
+    if (st.done) return; st.done = true; st.ph = 'end';
+    st.score += Math.round(st.comfort * 2); const kwh = Math.max(0, st.energy), eff = clamp(1 - kwh / (st.stops.length * 8), 0, 1); st.score += Math.round(eff * 100);
+    st.score = Math.max(0, Math.round(st.score)); EM.save.d.stats.km += Math.abs(st.s - st.s0) / 1000;
+  },
+  result(st) {
+    const n = st.stops.length - 1, max = n * 500 + 300, frac = st.score / max, line = NET.byId[st.line];
+    const errs = st.arr.filter(a => a.err < 99), avg = errs.length ? errs.reduce((a, b) => a + b.err, 0) / errs.length : 0;
+    return { done: st.done, win: st.done && st.skipped === 0, score: st.score, stars: st.done && st.skipped === 0 ? starsOf(frac) : 0, fact: line && (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)],
+      lines: [['Paradas', (n - st.skipped) + ' / ' + n], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort (tinto)', Math.round(st.comfort) + ' %'], ['Energía', Math.max(0, st.energy).toFixed(1) + ' kWh']] };
+  },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
+  hud(st) {
+    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    this.updCtl(st);
+    return [['', Math.round(st.v * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'dwell' ? 'Andén' : Math.max(0, d) < 1000 ? Math.round(Math.max(0, d)) + ' m' : (d / 1000).toFixed(1) + ' km'], ['★', fmt(st.score)]];
+  },
+  /* ---------- controles (palanca, puertas, vistas) ---------- */
+  mount(st, el) {
+    el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
+      <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
+      <div class="vsel" id="cView"><button data-v="lado">↔</button><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
+    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
+    lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
+    lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
+    $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
+    $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
+    $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v !== 'paseo') { Save.d.settings.vistaMetro = b.dataset.v; Save.write(); } if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
+    this.updCtl(st); this._kn = kn;
+  },
+  updCtl(st) {
+    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'), lev = $('#cLev'); if (!kn) return;
+    const f = st.lev > 0 ? .42 * (1 - st.lev) : st.lev < 0 ? .5 + .5 * -st.lev : .46; kn.style.top = 'calc(' + (f * 100) + '% - 15px)'; kn.textContent = st.eb ? 'EMG' : st.lev > 0 ? 'T' + Math.round(st.lev * 10) : st.lev < 0 ? 'F' + Math.round(-st.lev * 10) : 'N';
+    const d = $('#cDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
+    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 500; if (near && st.ff) st.ff = false; ff.disabled = near || st.ph !== 'run'; ff.style.background = st.ff ? 'var(--mante)' : '';
+    $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
+    if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'cab' })) ? ['cine', 'tps', 'cab', 'lado', 'cine', 'pan'] : ['lado', 'cab', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+    if (st.trivia && !$('#cTriv').innerHTML) this.renderTrivia(st);
+  },
+  renderTrivia(st) {
+    const el = $('#cTriv'); if (!el) return; const q = st.trivia;
+    el.innerHTML = q ? `<div class="card" style="top:auto;bottom:calc(120px + var(--sab));left:50%;transform:translateX(-50%);width:min(92%,420px)"><div class="pag">Pregunta de la estación · +100</div><p style="font-weight:700;margin:6px 0 10px">${esc(q.q)}</p><div class="col">${q.o.map((o, i) => `<button class="btn sm" data-i="${i}">${esc(o.t)}</button>`).join('')}</div></div>` : '';
+    $$('#cTriv button').forEach(b => b.onclick = () => this.answer(st, +b.dataset.i));
+  },
+  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
+  /* ======================= DIBUJO ======================= */
+  gl(st) { return (st.view === 'cab' || st.view === 'tps' || st.view === 'cine') && Save.d.settings.q !== 'low' && G3.init(); },
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h;
+    if (st.view === 'top' || st.view === 'pan') this.drawTop(g, st, W, H, st.view === 'pan');
+    else if (st.view === 'lado') this.drawLado(g, st, W, H);
+    else if (this.gl(st)) this.drawGL(g, st, W, H, st.view === 'tps');
+    else this.draw3D(g, st, W, H, st.view !== 'cab');
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noNight: st.view !== 'top', noRain: true, noGrain: this.gl(st) }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    this.drawStrip(g, st, W, H);
+  },
+  /* diagrama de la línea: estaciones del tramo y posición del tren */
+  drawStrip(g, st, W, H) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 118 : 104) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
+    g.fillStyle = 'rgba(16,46,80,.82)'; g.fillRect(8 * dpr, y - 16 * dpr, W - 16 * dpr, 30 * dpr); g.strokeStyle = line.color; g.lineWidth = 4 * dpr; g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
+    for (let i = 0; i < n; i++) { const f = n > 1 ? i / (n - 1) : 0, x = x0 + (x1 - x0) * f, done = i < st.ni || (i === st.ni && st.ph === 'dwell'); g.fillStyle = done ? '#fff' : 'rgba(255,255,255,.35)'; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, TAU); g.fill(); g.stroke(); if (n <= 8 || i === 0 || i === n - 1 || i === st.ni) { g.fillStyle = i === st.ni ? PAL.mante : '#fff'; g.font = (i === st.ni ? '800 ' : '600 ') + (8.5 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = i === 0 ? 'left' : i === n - 1 ? 'right' : 'center'; g.fillText(line.st[st.stops[i]].name, x, y - 7 * dpr); } }
+    const f = clamp((st.s - a) / ((b - a) || 1), 0, 1), tx = x0 + (x1 - x0) * f; g.fillStyle = PAL.mante; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(tx, y + 3 * dpr); g.lineTo(tx - 6 * dpr, y + 12 * dpr); g.lineTo(tx + 6 * dpr, y + 12 * dpr); g.closePath(); g.fill(); g.stroke(); g.textAlign = 'left';
+  },
+  hourOf(st) { return st.fixH != null ? st.fixH + st.t / 3600 : Mundo.hour(); },
+  zLine(line, s) { return line.kind === 'metro' || line.kind === 'tram' || line.kind === 'future' ? G3.zOn(line, s) : MAP.elevM(NET.at(line.P, s).x, NET.at(line.P, s).y) + .3; },
+  drawGL(g, st, W, H, tps) {
+    G3.show(true); const line = NET.byId[st.line], K = KIND[st.kind], dir = st.dir, p = NET.at(line.P, st.s), a = p.a + (dir < 0 ? Math.PI : 0), z = this.zLine(line, st.s), col = rgb(line.color);
+    let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 1.7 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
+    else if (tps) { const sb = st.s - dir * (K.len + 30), q = NET.at(line.P, sb, dir * 6); cam = { eye: [q.x, this.zLine(line, sb) + 12, q.y], at: [p.x + Math.cos(a) * 16, z + 2.5, p.y + Math.sin(a) * 16], fov: .95 }; }
+    else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
+    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
+      G3.traffic(cam, st.t + 1000, line); G3.people(cam, st.t);
+      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
+      if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s); G3.vehicle(q.x, this.zLine(line, s), q.y, q.a + (dir < 0 ? Math.PI : 0), carL, st.kind, col); }
+      for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const q = NET.at(line.P, sg.s, dir * 3.6), zq = this.zLine(line, sg.s); G.box(q.x, zq, q.y, 0, .35, .35, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .8, .8, 1.6, sg.on ? [1, .23, .18] : [.22, .9, .48]); }
+      for (const L of st.lights) { const q = NET.at(line.P, L.s, dir * 6), zq = this.zLine(line, L.s), ls = this.lightState(L, st.t); G.box(q.x, zq, q.y, 0, .3, .3, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .7, .7, 1.4, ls === 'g' ? [.22, .9, .48] : ls === 'y' ? [1, .76, .23] : [1, .23, .18]); }
+      const m = NET.at(line.P, st.tgt[st.ni], dir * 3); if (st.ph !== 'dwell') G.box(m.x, this.zLine(line, st.tgt[st.ni]), m.y, 0, .4, .4, 2.6 + .3 * Math.sin(st.t * 6), [.98, .88, .4]);
+    } });
+    g.textAlign = 'center'; for (const sI of line.st) { if (Math.abs(sI.s - st.s) > 900) continue; const q0 = NET.at(line.P, sI.s), q = G3.toScreen(q0.x, this.zLine(line, sI.s) + 8, q0.y, W, H); if (!q) continue; const fs = clamp(2400 / q.d, 10, 22) * (W / ($('#gcv').clientWidth || W)); g.font = '700 ' + fs + 'px Titulos, sans-serif'; const tw = g.measureText(sI.name).width; g.fillStyle = 'rgba(20,20,20,.85)'; g.fillRect(q.x - tw / 2 - 6, q.y - fs, tw + 12, fs * 1.3); g.fillStyle = line.color; g.fillRect(q.x - tw / 2 - 6, q.y - fs, 4, fs * 1.3); g.fillStyle = '#fff'; g.fillText(sI.name, q.x, q.y); }
+    g.textAlign = 'left';
+    if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.4)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 80; i++) { const x = (h2(i, 3, 3) * W + st.t * 90) % W, y = (h2(i, 4, 3) * H + st.t * 800 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
+    if (st.view === 'cab') this.drawCab(g, st, W, H, K, line, st.tod === 'noche'); else this.drawMiniHud(g, st, W, H, K);
+  },
+  /* tren de perfil: carrocería con livery del Metro, ventanas, puertas, cabina, pantógrafo */
+  sideTrain(g, st, line, K, X, Y, k, s, dir, carL, n, col, sky, alpha, me) {
+    g.save(); g.globalAlpha = alpha;
+    for (let i = 0; i < n; i++) { const s1 = s - dir * i * (carL + 1), s2 = s1 - dir * carL, xa = X(s1), xb = X(s2), ya = Y(this.zLine(line, s1)), yb = Y(this.zLine(line, s2)), L = Math.hypot(xa - xb, ya - yb), an = Math.atan2(ya - yb, xa - xb), hh = (st.kind === 'metro' ? 3.7 : 3.3) * k, win = sky.night > .5 ? '#ffe7a0' : '#8fc4dc';
+      g.save(); g.translate(xb, yb); g.rotate(an);
+      g.fillStyle = '#141414'; g.fillRect(-1.2 * k, -hh * .35, L + 2.4 * k, hh * .35);   // bogies y bajos
+      for (const bx of [L * .18, L * .82]) { g.fillStyle = '#2a2d31'; g.fillRect(bx - 1.6 * k, -hh * .3, 3.2 * k, hh * .3); g.fillStyle = '#4a4f55'; g.beginPath(); g.arc(bx - .9 * k, 0, .45 * k, 0, TAU); g.arc(bx + .9 * k, 0, .45 * k, 0, TAU); g.fill(); }
+      g.fillStyle = '#141414'; g.fillRect(-1, -hh - 1, L + 2, hh * .72 + 1); g.fillStyle = st.kind === 'metro' ? '#eef1f3' : '#f3f5f1'; g.fillRect(0, -hh, L, hh * .72);
+      g.fillStyle = col; g.fillRect(0, -hh * .62, L, hh * .16); g.fillStyle = Art.shade(col, .75); g.fillRect(0, -hh * .46, L, hh * .05);   // franja de la línea
+      g.fillStyle = '#d4d8dc'; g.fillRect(0, -hh, L, hh * .08);   // techo
+      const nw = st.kind === 'metro' ? 6 : 5, ww = L / nw; for (let w = 0; w < nw; w++) { const x = ww * w; if (w % 2 === 1) { g.fillStyle = '#b9bfc5'; g.fillRect(x + ww * .3, -hh * .92, ww * .4, hh * .64); g.fillStyle = '#141414'; g.fillRect(x + ww * .5 - .6, -hh * .92, 1.2, hh * .64); g.fillStyle = win; g.fillRect(x + ww * .34, -hh * .88, ww * .32, hh * .28); } else { g.fillStyle = win; g.fillRect(x + ww * .2, -hh * .88, ww * .6, hh * .3); } }
+      const front = (dir > 0 && i === 0) || (dir < 0 && i === n - 1), back = (dir > 0 && i === n - 1) || (dir < 0 && i === 0), fx = dir > 0 ? L : 0;
+      if (front || back) { const cx = (front ? (dir > 0 ? L : 0) : (dir > 0 ? 0 : L)); g.fillStyle = '#1f2e3d'; g.fillRect(cx - (cx ? 1.9 * k : 0), -hh * .9, 1.9 * k, hh * .32); g.fillStyle = front ? '#fff6c0' : '#ff3b2f'; g.fillRect(cx - (cx ? 1.2 * k : 0), -hh * .5, 1.2 * k, hh * .08); }
+      if (st.kind === 'metro' || st.kind === 'tram') { g.fillStyle = '#141414'; g.fillRect(L * .45, -hh - 2.4 * k, .3 * k, 2.4 * k); g.fillRect(L * .33, -hh - 2.5 * k, L * .28, .25 * k); if (me && st.v > 3 && h2(st.t * 30 | 0, i, 1) < .12) { g.fillStyle = '#bfefff'; g.fillRect(L * .45 - 2, -hh - 2.9 * k, 4, 3); } }
+      g.restore(); }
+    g.restore();
+  },
+  /* vista lateral en capas: el tren de perfil sobre el viaducto real */
+  drawLado(g, st, W, H) {
+    if (G3.cv) G3.show(false); const line = NET.byId[st.line], K = KIND[st.kind], R = Lado.prof('line:' + line.id, line.P), dir = st.dir, k = Math.max(W, H * .7) / 230, col = line.color;
+    const zc = this.zLine(line, st.s); st._lz = st._lz == null ? zc : st._lz + (zc - st._lz) * .06; const near = st.stops.map(i => line.st[i]).find(sI => Math.abs(sI.s - st.s) < 160);
+    Lado.draw(g, W, H, { R, s: st.s - dir * K.len / 2, z: st._lz - 4, k, dir, hour: this.hourOf(st), t: st.t, rain: st.rain, fog: false, title: near ? { t: near.name, sub: line.name.toUpperCase(), a: clamp(1 - Math.abs(near.s - st.s) / 160, 0, 1) } : null, fg: (g, X, Y, cN, sky) => {
+      const sA = st.s - W / k * 1.2, sB = st.s + W / k * 1.2, deck = st.kind === 'metro';
+      // viaducto / vía
+      g.fillStyle = Lado.css(Lado.mix(cN, [.82, .78, .7], .5 * sky.day + .15)); g.beginPath(); let f = true; for (let s = Math.max(0, sA); s <= Math.min(line.P.len, sB); s += 8) { const x = X(s), y = Y(this.zLine(line, s)); if (f) { g.moveTo(x, y); f = false; } else g.lineTo(x, y); } for (let s = Math.min(line.P.len, sB); s >= Math.max(0, sA); s -= 8) g.lineTo(X(s), Y(this.zLine(line, s)) + (deck ? 1.6 : .6) * k); g.closePath(); g.fill();
+      for (let s = Math.ceil(Math.max(0, sA) / 36) * 36; deck && s <= Math.min(line.P.len, sB); s += 36) { const x = X(s), y = Y(this.zLine(line, s)) + 1.6 * k, yg = Y(Lado.sample(R.near, R, s)); g.fillRect(x - .9 * k, y, 1.8 * k, Math.max(0, yg - y)); }
+      for (let s = Math.ceil(Math.max(0, sA) / 48) * 48; (st.kind === 'metro' || st.kind === 'tram') && s <= Math.min(line.P.len, sB); s += 48) { const x = X(s), y = Y(this.zLine(line, s)); g.fillStyle = Lado.css(Lado.mix(cN, [0, 0, 0], .3)); g.fillRect(x - .2 * k, y - 6.4 * k, .4 * k, 6.4 * k); }
+      // estaciones
+      for (const sI of line.st) { if (sI.s < sA - 100 || sI.s > sB + 100) continue; const x0 = Math.min(X(sI.s - K.plat / 2), X(sI.s + K.plat / 2)), pw = Math.abs(X(sI.s + K.plat / 2) - X(sI.s - K.plat / 2)), y = Y(this.zLine(line, sI.s)), wall = Lado.css(Lado.mix(cN, [.92, .88, .8], .65)), dark = Lado.css(Lado.mix(cN, [0, 0, 0], .35));
+        g.fillStyle = dark; g.fillRect(x0 - .5 * k, y - 6.6 * k, pw + 1 * k, 7 * k * 0 + .5 * k); g.fillStyle = wall; g.fillRect(x0, y - 1.1 * k, pw, 1.3 * k); g.fillStyle = PAL.mante; g.fillRect(x0, y - 1.3 * k, pw, .3 * k);   // andén y línea amarilla
+        for (let q = 0; q <= 6; q++) { const cx = x0 + pw * q / 6; g.fillStyle = dark; g.fillRect(cx - .25 * k, y - 6 * k, .5 * k, 5 * k); }
+        g.fillStyle = Lado.css(Lado.mix(cN, [.85, .82, .76], .6)); g.beginPath(); g.moveTo(x0 - .8 * k, y - 6 * k); g.lineTo(x0 + pw * .5, y - 7.6 * k); g.lineTo(x0 + pw + .8 * k, y - 6 * k); g.lineTo(x0 + pw + .8 * k, y - 5.5 * k); g.lineTo(x0 + pw * .5, y - 7.1 * k); g.lineTo(x0 - .8 * k, y - 5.5 * k); g.fill();   // techo a dos aguas
+        g.fillStyle = col; g.fillRect(x0 + pw * .5 - 7 * k, y - 9.6 * k, 14 * k, 1.8 * k); g.fillStyle = '#fff'; g.font = '700 ' + Math.max(8, 1.3 * k) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText(sI.name.toUpperCase(), x0 + pw * .5, y - 8.3 * k); g.textAlign = 'left';
+        for (let q = 0; q < 9; q++) if (h2(q, sI.i, 3) < .65) Art.person(g, x0 + pw * (q + .4) / 9, y - 1.2 * k, Math.max(1, k * .32), q + sI.i * 9, h2(q, sI.i, 8) < .3); }
+      // otros trenes de la línea (ciudad viva)
+      const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1, L2 = line.P.len * 2;
+      for (let q = 0; q < 4; q++) { const s0 = (st.t * K.vmax * .7 + q * L2 / 4 + 500) % L2, od = s0 < line.P.len ? 1 : -1, os = od > 0 ? s0 : L2 - s0; if (Math.abs(os - st.s) < 90 || os < sA - 80 || os > sB + 80) continue; this.sideTrain(g, st, line, K, X, Y, k, os, od, carL, n, col, sky, .85); }
+      this.sideTrain(g, st, line, K, X, Y, k, st.s, dir, carL, n, col, sky, 1, true);
+    } });
+    this.drawMiniHud(g, st, W, H, K);
+  },
+  sky(st) { return st.tod === 'noche' ? ['#0b1e2b', '#12344a', '#1d4a5e'] : st.tod === 'tarde' ? ['#12446c', '#c8664a', '#f3c27a'] : ['#2f7fb0', '#7fbcd6', '#d7ecf0']; },
+  /* silueta de montañas real (relieve del valle) por rayos desde la cámara */
+  ridge(cx, cy, cz, th, W, focal, hor) {
+    const key = (cx / 30 | 0) + ',' + (cy / 30 | 0) + ',' + (th * 40 | 0) + ',' + W; if (this._rk === key) return this._rd;
+    const N = 72, near = new Float32Array(N + 1), far = new Float32Array(N + 1);
+    for (let c = 0; c <= N; c++) {
+      const sx = (c / N) * W - W / 2, ang = th + Math.atan2(sx, focal), dx = Math.cos(ang), dy = Math.sin(ang), cosf = Math.cos(ang - th); let mn = 1e9, mf = 1e9;
+      for (let d = 120; d < 22000; d *= 1.09) { const e = MAP.elevM(cx + dx * d, cy + dy * d), y = hor - (e - cz) / (d * cosf) * focal; if (d < 2500) { if (y < mn) mn = y; } else if (y < mf) mf = y; }
+      near[c] = mn; far[c] = Math.min(mf, mn);
+    }
+    this._rk = key; this._rd = { near, far, N }; return this._rd;
+  },
+  draw3D(g, st, W, H, tps) {
+    const T = TRACKS.get(st.line), line = NET.byId[st.line], K = KIND[st.kind], night = st.tod === 'noche', dir = st.dir;
+    const back = tps ? K.len + 16 : -1.5, sc = clamp(st.s - dir * back, 0, T.len), ci = clamp(sc / SEG, 0, T.n - 1.001), i0 = ci | 0, fk = ci - i0;
+    const cx = lerp(T.x[i0], T.x[i0 + 1], fk), cy = lerp(T.y[i0], T.y[i0 + 1], fk);
+    let th = Math.atan2(T.y[Math.min(T.n - 1, i0 + 3 * (dir > 0 ? 1 : 0))] - T.y[Math.max(0, i0 - 3 * (dir < 0 ? 1 : 0))], T.x[Math.min(T.n - 1, i0 + 3 * (dir > 0 ? 1 : 0))] - T.x[Math.max(0, i0 - 3 * (dir < 0 ? 1 : 0))]); if (dir < 0) th += Math.PI;
+    const cz = this.zAt(st, sc) + (tps ? 6 : 2.6), hor = Math.round(H * (tps ? .42 : .44)), focal = W * .85 / Math.max(1, W / H * .62), cos = Math.cos(th), sin = Math.sin(th);
+    const P = (x, y, z) => { const dx = x - cx, dy = y - cy, r = -dx * sin + dy * cos; let f = dx * cos + dy * sin; if (f < -20) return null; if (f < .8) f = .8; return { x: W / 2 + r / f * focal, y: hor - (z - cz) / f * focal, f, k: focal / f }; };
+    // cielo
+    const sk = this.sky(st), gr = g.createLinearGradient(0, 0, 0, hor); gr.addColorStop(0, sk[0]); gr.addColorStop(.7, sk[1]); gr.addColorStop(1, sk[2]); g.fillStyle = gr; g.fillRect(0, 0, W, hor + 2);
+    if (night) for (let i = 0; i < 50; i++) { g.fillStyle = 'rgba(249,228,164,' + (.4 + .4 * Math.sin(st.t + i)) + ')'; g.fillRect(h2(i, 1, 2) * W, h2(i, 2, 2) * hor * .7, 2, 2); }
+    // montañas: dos capas + luces de los barrios en la noche
+    const R = MAP.ready ? this.ridge(cx, cy, cz, th, W, focal, hor) : null;
+    if (R) {
+      const lay = (arr, col) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, hor + 1); for (let c = 0; c <= R.N; c++) g.lineTo(c / R.N * W, Math.min(hor + 1, arr[c])); g.lineTo(W, hor + 1); g.closePath(); g.fill(); };
+      lay(R.far, night ? '#173a4c' : st.tod === 'tarde' ? '#7b6a7a' : '#7da3ad'); lay(R.near, night ? '#10303f' : st.tod === 'tarde' ? '#4f5a5e' : '#4f7f6a');
+      const step = Math.max(3, W / 160);
+      for (let x = 0; x < W; x += step) { const c = Math.round(x / W * R.N), top = R.near[c]; if (top >= hor) continue; for (let y = top + 3; y < hor; y += step) { const h = h2(x | 0, y | 0, 77); if (h < (night ? .32 : .16)) { g.fillStyle = night ? ((st.t * 2 + h * 50) % 6 > .5 ? '#ffd27a' : '#c98a3a') : (h < .08 ? PAL.ladrillo : '#d9cdae'); g.fillRect(x, y, night ? 2 : 3, night ? 2 : 2); } } }
+    }
+    g.fillStyle = night ? '#16232a' : '#6f8a5a'; g.fillRect(0, hor, W, H - hor);
+    // muestras de vía delante (lejos → cerca)
+    const nS = Math.round(DRAW_D / SEG), pts = [];
+    for (let k = nS; k >= 0; k--) { const i = Math.round(ci) + dir * k; if (i < 0 || i >= T.n) continue; pts.push(i); }
+    const proj = new Map(); const pr = (i, o, dz) => { const key = i + '|' + o + '|' + dz; let p = proj.get(key); if (p !== undefined) return p; const a = T.an[i], x = T.x[i] - Math.sin(a) * o, y = T.y[i] + Math.cos(a) * o; p = P(x, y, (dz === 'g' ? T.zt[i] : T.z[i]) + (typeof dz === 'number' ? dz : 0)); proj.set(key, p); return p; };
+    const quad = (a, b, c, d, col) => { if (!a || !b || !c || !d) return; g.fillStyle = col; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(c.x, c.y); g.lineTo(d.x, d.y); g.closePath(); g.fill(); };
+    const GOFF = [-70, -46, -26, -12, 12, 26, 46, 70], dim = night ? .42 : st.tod === 'tarde' ? .8 : 1;
+    // suelo por bandas laterales (tipo de casilla real a cada lado)
+    for (let q = 0; q < pts.length - 1; q++) {
+      const i = pts[q], j = pts[q + 1];
+      for (let b = 0; b < 7; b++) { const t = b < 3 ? T.gb[i * 6 + b] : b > 3 ? T.gb[i * 6 + b - 1] : (K.deck ? T.gb[i * 6 + 2] : TT.ROAD); const o1 = GOFF[b], o2 = GOFF[b + 1]; let col = TRGB[t] || TRGB[0]; const sh = dim * ((i >> 1) % 2 ? 1 : .94); quad(pr(i, o1, 'g'), pr(i, o2, 'g'), pr(j, o2, 'g'), pr(j, o1, 'g'), 'rgb(' + (col[0] * sh | 0) + ',' + (col[1] * sh | 0) + ',' + (col[2] * sh | 0) + ')'); }
+    }
+    // objetos ordenados por profundidad
+    const items = [];
+    const sMin = Math.min(sc, sc + dir * DRAW_D), sMax = Math.max(sc, sc + dir * DRAW_D), scn = T.sc;
+    let lo = 0, hi = scn.length; while (lo < hi) { const m = (lo + hi) >> 1; if (scn[m].s < sMin) lo = m + 1; else hi = m; }
+    for (let k = lo; k < scn.length && scn[k].s <= sMax; k++) { const o = scn[k], i = clamp(Math.round(o.s / SEG), 0, T.n - 1), a = T.an[i], p = P(T.x[i] - Math.sin(a) * o.o, T.y[i] + Math.cos(a) * o.o, o.zg); if (p) items.push({ f: p.f, d: 0, o, p }); }
+    for (const sI of line.st) { if (sI.s < sMin - 80 || sI.s > sMax + 80) continue; const i = clamp(Math.round(sI.s / SEG), 0, T.n - 1), p = P(T.x[i], T.y[i], T.z[i]); if (p) items.push({ f: p.f, d: 1, st: sI, i }); }
+    for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const i = clamp(Math.round(sg.s / SEG), 0, T.n - 1), a = T.an[i], o = 3.6 * dir, p = P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, T.z[i]); if (p) items.push({ f: p.f, d: 2, p, red: sg.on }); }
+    for (const L of st.lights) { const i = clamp(Math.round(L.s / SEG), 0, T.n - 1), a = T.an[i], o = 6 * dir, p = P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, T.z[i]); if (p) items.push({ f: p.f, d: 2, p, red: this.lightState(L, st.t) !== 'g', yel: this.lightState(L, st.t) === 'y' }); }
+    // vía / viaducto / carril (lejos → cerca)
+    const deckCol = night ? '#4a4c52' : '#bdb4a0', bal = night ? '#2b2b2e' : '#6c6a66', rail = night ? '#9aa0a6' : '#e8e8e8';
+    for (let q = 0; q < pts.length - 1; q++) {
+      const i = pts[q], j = pts[q + 1], hw = K.deck ? 3.4 : (st.kind === 'tram' ? 3 : 3.6);
+      if (K.deck && i % 4 === 0) { const a = pr(i, 0), b = pr(i, 0, 'g'); if (a && b) { g.fillStyle = night ? '#3a3c40' : '#a99f8a'; const w = Math.max(1, 1.6 * a.k); g.fillRect(a.x - w / 2, a.y, w, b.y - a.y); } }
+      if (K.deck) quad(pr(i, -hw * dir, -1.2), pr(i, hw * dir, -1.2), pr(j, hw * dir, -1.2), pr(j, -hw * dir, -1.2), night ? '#2e3034' : '#8f8676');
+      quad(pr(i, -hw * dir), pr(i, hw * dir), pr(j, hw * dir), pr(j, -hw * dir), K.deck ? deckCol : (st.kind === 'tram' ? '#59606a' : '#3f444d'));
+      if (st.kind === 'metro' || st.kind === 'tram') {
+        quad(pr(i, -1.5), pr(i, 1.5), pr(j, 1.5), pr(j, -1.5), bal);
+        if (i % 2 === 0) quad(pr(i, -1.3, .05), pr(i, 1.3, .05), pr(j, 1.3, .05), pr(j, -1.3, .05), night ? '#3b2f25' : '#5a4636');
+        for (const o of [-.75, .75]) quad(pr(i, o - .06, .15), pr(i, o + .06, .15), pr(j, o + .06, .15), pr(j, o - .06, .15), rail);
+        if (st.kind === 'tram') quad(pr(i, -.05, .12), pr(i, .05, .12), pr(j, .05, .12), pr(j, -.05, .12), rail);
+      } else if (i % 6 < 3) quad(pr(i, -.12, .02), pr(i, .12, .02), pr(j, .12, .02), pr(j, -.12, .02), st.kind === 'brt' ? '#f2f2f2' : PAL.mante);
+      // catenaria: postes cada 48 m
+      if ((st.kind === 'metro' || st.kind === 'tram') && i % 6 === 0) { const a = pr(i, hw * dir), b = pr(i, hw * dir, 6.2); if (a && b) { g.fillStyle = night ? '#55595e' : '#5b6168'; const w = Math.max(1, .25 * a.k); g.fillRect(a.x - w / 2, b.y, w, a.y - b.y); const c = pr(i, 0, 5.6); if (c) g.fillRect(Math.min(b.x, c.x), b.y, Math.abs(c.x - b.x), Math.max(1, .1 * a.k)); if (night && st.fest === 'alumbrados') for (let q = 0; q < 5; q++) { g.fillStyle = ROPA[(i + q + (st.t * 3 | 0)) % ROPA.length]; const r = Math.max(1.5, .35 * a.k); g.fillRect(b.x + (a.x - b.x) * 0 - r / 2, b.y + (a.y - b.y) * q / 5, r, r); } } }
+      // marca de parada (tablero) en el andén siguiente
+    }
+    // cable de contacto
+    if (st.kind === 'metro' || st.kind === 'tram') { g.strokeStyle = night ? '#6d6f73' : '#333'; g.lineWidth = 1; g.beginPath(); let f = true; for (const i of pts) { const p = pr(i, 0, 5.6); if (!p) continue; if (f) { g.moveTo(p.x, p.y); f = false; } else g.lineTo(p.x, p.y); } g.stroke(); }
+    items.sort((a, b) => b.f - a.f);
+    for (const it of items) {
+      if (it.d === 0) { const o = it.o, p = it.p, w = o.w * p.k, h = o.h * p.k; if (w < .6) continue; if (o.k === 0) Art.building(g, p.x - w / 2, p.y - h, w, h, o.seed, night, o.b); else Art.tree(g, p.x, p.y, h * .9, night); }
+      else if (it.d === 1) this.drawStation(g, st, T, it.st, P, night, line, K);
+      else if (it.d === 2) { const p = it.p, h = 5 * p.k, w = Math.max(2, .5 * p.k); g.fillStyle = PAL.negro; g.fillRect(p.x - w / 2, p.y - h, w, h); g.fillRect(p.x - w * 1.4, p.y - h - w * 3.4, w * 2.8, w * 3.6); g.fillStyle = it.yel ? '#ffc23a' : it.red ? '#ff3b2f' : '#38e07b'; g.beginPath(); g.arc(p.x, p.y - h - w * (it.red && !it.yel ? 2.6 : .8), w * .9, 0, TAU); g.fill(); }
+    }
+    // tren propio en 3a persona
+    if (tps) this.drawVehicle3D(g, st, T, P, line, K, night);
+    if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.45)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 90; i++) { const x = (h2(i, 3, 3) * W + st.t * 140) % W, y = (h2(i, 4, 3) * H + st.t * 900 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
+    if (!tps) this.drawCab(g, st, W, H, K, line, night);
+    else this.drawMiniHud(g, st, W, H, K);
+  },
+  drawStation(g, st, T, sI, P, night, line, K) {
+    const half = K.plat / 2, dir = st.dir, pw = K.deck ? 4 : 3, side = [1, -1];
+    for (const sd of side) {
+      const o1 = sd * (K.deck ? 3.6 : 4), o2 = sd * (K.deck ? 3.6 + pw : 4 + pw);
+      let prev = null;
+      for (let s = sI.s - half; s <= sI.s + half + .1; s += 8) {
+        const i = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[i], z = T.z[i] + .9, mk = o => P(T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o, z), cur = [mk(o1), mk(o2), P(T.x[i] - Math.sin(a) * o2, T.y[i] + Math.cos(a) * o2, z + 3.6)];
+        if (prev && cur[0] && cur[1] && prev[0] && prev[1]) { g.fillStyle = night ? '#6b6457' : '#d9cdae'; g.beginPath(); g.moveTo(prev[0].x, prev[0].y); g.lineTo(cur[0].x, cur[0].y); g.lineTo(cur[1].x, cur[1].y); g.lineTo(prev[1].x, prev[1].y); g.fill(); g.fillStyle = PAL.mante; g.fillRect(Math.min(prev[0].x, cur[0].x), Math.min(prev[0].y, cur[0].y), Math.abs(cur[0].x - prev[0].x) + 1, Math.max(1, cur[0].k * .15)); }
+        if (cur[2] && cur[1] && (Math.round(s) % 16 === 0)) { g.fillStyle = night ? '#2c3a44' : line.color; const w = Math.max(1, .3 * cur[1].k); g.fillRect(cur[1].x - w / 2, cur[2].y, w, cur[1].y - cur[2].y); }
+        if (st.fest === 'feria' && cur[0] && h2(s | 0, sd, 9) < .5) { const p = cur[0], r = Math.max(1.5, p.k * .35); g.fillStyle = ROPA[(s | 0) % 5]; g.fillRect(p.x - r, p.y - r * 2, r * 2, r * 2); g.fillStyle = '#2f9b57'; g.fillRect(p.x - r / 3, p.y - r, r / 1.5, r); }
+        if (cur[1] && h2(s | 0, sd, sI.i) < .55) { const p = cur[1], sz = Math.max(1, p.k * .3); for (let q = 0; q < 2; q++) Art.person(g, p.x + (q - .5) * sz * 4 * -sd, p.y, sz, (s | 0) + q + sI.i * 31, false); }
+        prev = cur;
+      }
+      // techo
+      const ra = P(...this.off(T, sI.s - half, o2 * .9), T.z[clamp(Math.round(sI.s / SEG), 0, T.n - 1)] + 5), rb = P(...this.off(T, sI.s + half, o2 * .9), T.z[clamp(Math.round(sI.s / SEG), 0, T.n - 1)] + 5);
+      if (ra && rb) { g.fillStyle = night ? '#1f2e38' : '#e9e2cf'; g.fillRect(Math.min(ra.x, rb.x), Math.min(ra.y, rb.y) - Math.max(2, ra.k * .6), Math.abs(rb.x - ra.x) + 1, Math.max(2, Math.min(ra.k, rb.k) * .6)); }
+    }
+    // letrero con el nombre
+    const i = clamp(Math.round(sI.s / SEG), 0, T.n - 1), p = P(T.x[i] - Math.sin(T.an[i]) * 5 * dir, T.y[i] + Math.cos(T.an[i]) * 5 * dir, T.z[i] + 4.2);
+    if (p && p.k > 1.2) { const fs = clamp(p.k * 1.1, 6, 40); g.font = '700 ' + fs + 'px ' + 'Titulos, Arial Narrow, sans-serif'; const tw = g.measureText(sI.name).width; g.fillStyle = PAL.negro; g.fillRect(p.x - tw / 2 - fs * .4, p.y - fs, tw + fs * .8, fs * 1.25); g.fillStyle = line.color; g.fillRect(p.x - tw / 2 - fs * .4, p.y - fs, fs * .25, fs * 1.25); g.fillStyle = '#fff'; g.textAlign = 'center'; g.fillText(sI.name, p.x, p.y); g.textAlign = 'left'; }
+    // marca de parada (para el frente del tren)
+    if (sI.i === st.stops[Math.min(st.ni, st.stops.length - 1)] && st.ph !== 'dwell') { const s = st.tgt[st.ni], j = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[j], m = P(T.x[j] - Math.sin(a) * 2.6 * dir, T.y[j] + Math.cos(a) * 2.6 * dir, T.z[j] + 1.8); if (m) { const w = Math.max(3, m.k * .9); g.fillStyle = PAL.negro; g.fillRect(m.x - w / 2 - 1, m.y - w - 1, w + 2, w * 1.6 + 2); g.fillStyle = PAL.mante; g.fillRect(m.x - w / 2, m.y - w, w, w * 1.6); g.fillStyle = PAL.rojo; g.fillRect(m.x - w / 2, m.y - w * .3, w, w * .3); } }
+  },
+  off(T, s, o) { const i = clamp(Math.round(s / SEG), 0, T.n - 1), a = T.an[i]; return [T.x[i] - Math.sin(a) * o, T.y[i] + Math.cos(a) * o]; },
+  drawVehicle3D(g, st, T, P, line, K, night) {
+    const dir = st.dir, len = K.len, w = st.kind === 'metro' ? 1.5 : 1.3, hgt = st.kind === 'metro' ? 3.8 : 3.4, segs = [];
+    for (let d = 0; d <= len; d += 4) { const s = st.s - dir * d, i = clamp(s / SEG, 0, T.n - 1.001), i0 = i | 0, f = i - i0, x = lerp(T.x[i0], T.x[i0 + 1], f), y = lerp(T.y[i0], T.y[i0 + 1], f), a = T.an[i0], z = lerp(T.z[i0], T.z[i0 + 1], f) + .4, sx = -Math.sin(a), sy = Math.cos(a);
+      segs.push([P(x + sx * w, y + sy * w, z), P(x - sx * w, y - sy * w, z), P(x + sx * w, y + sy * w, z + hgt), P(x - sx * w, y - sy * w, z + hgt)]); }
+    const body = st.kind === 'brt' || st.kind === 'feeder' ? line.color : PAL.plata;
+    for (let k = 0; k < segs.length - 1; k++) {
+      const a = segs[k], b = segs[k + 1]; if (a.some(p => !p) || b.some(p => !p)) continue;
+      const q = (p1, p2, p3, p4, c) => { g.fillStyle = c; g.beginPath(); g.moveTo(p1.x, p1.y); g.lineTo(p2.x, p2.y); g.lineTo(p3.x, p3.y); g.lineTo(p4.x, p4.y); g.fill(); };
+      q(a[2], a[3], b[3], b[2], night ? '#7d8288' : '#dfe3e6');
+      q(a[0], a[2], b[2], b[0], night ? '#5d6166' : Art.shade(body, .85)); q(a[1], a[3], b[3], b[1], night ? '#5d6166' : Art.shade(body, .78));
+    }
+    const r = segs[segs.length - 1]; if (r.every(p => p)) { const wpx = Math.abs(r[0].x - r[1].x), by = (r[0].y + r[1].y) / 2; Art.vehicleBack(g, (r[0].x + r[1].x) / 2, by, wpx, line.color, st.kind, st.lev < 0 || st.v < .1); }
+  },
+  /* cabina (1a persona): marco, tablero, velocímetro y el tinto que no debe regarse */
+  drawCab(g, st, W, H, K, line, night) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), db = H - Math.min(H * .26, 150 * dpr), vmax = K.vmax * 3.6, lim = this.limAt(st, st.s) * 3.6, d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    // marco de la cabina: pilares, techo con pantalla, parabrisas con limpiaparabrisas si llueve
+    g.fillStyle = '#121a21'; g.fillRect(0, 0, W, 8 * dpr); g.fillRect(0, 0, 10 * dpr, H); g.fillRect(W - 10 * dpr, 0, 10 * dpr, H);
+    if (st.rain) { const a = Math.sin(st.t * 3.2) * .95; g.strokeStyle = '#141414'; g.lineWidth = 3 * dpr; g.beginPath(); g.moveTo(W * .32, db); g.lineTo(W * .32 + Math.sin(a) * H * .34, db - Math.cos(a) * H * .34); g.stroke(); }
+    // consola
+    g.fillStyle = '#1b262e'; g.beginPath(); g.moveTo(0, db + 16 * dpr); g.lineTo(W * .16, db); g.lineTo(W * .84, db); g.lineTo(W, db + 16 * dpr); g.lineTo(W, H); g.lineTo(0, H); g.fill();
+    g.fillStyle = '#243039'; g.fillRect(W * .16, db + 4 * dpr, W * .68, 3 * dpr); g.fillStyle = line.color; g.fillRect(W * .16, db, W * .68, 3 * dpr);
+    // panel LED: próxima estación / estado de puertas
+    const zl = 136 * dpr, zr = W - 78 * dpr, px = (zl + zr) / 2, pw = Math.min(zr - zl - 8 * dpr, 300 * dpr), py = db + 12 * dpr, ph = 30 * dpr; g.fillStyle = '#060a0c'; g.fillRect(px - pw / 2, py, pw, ph); g.strokeStyle = '#3a4a55'; g.lineWidth = 1.5; g.strokeRect(px - pw / 2, py, pw, ph);
+    const nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]]; g.textAlign = 'center'; g.fillStyle = '#ff9a2e'; g.font = '700 ' + (11 * dpr) + 'px ' + 'ui-monospace, Consolas, monospace';
+    g.fillText(st.ph === 'dwell' ? (st.doors === 1 ? '▶ PUERTAS ABIERTAS · ' + Math.round(st.board * 100) + '% ◀' : st.doors === 2 ? 'PUERTAS CERRADAS · TRACCIÓN' : 'EN ANDÉN: ' + nx.name.toUpperCase()) : 'PRÓXIMA: ' + nx.name.toUpperCase() + '  ' + (Math.abs(d) < 100 ? d.toFixed(0) : Math.round(d)) + ' m', px, py + 13 * dpr);
+    g.fillStyle = late > 15 ? '#ff6a3d' : '#7fe0a0'; g.font = '700 ' + (9 * dpr) + 'px ui-monospace, Consolas, monospace'; g.fillText((late >= 0 ? 'RETRASO +' : 'ADELANTO ') + Math.abs(Math.round(late)) + ' s   ·   ' + Mundo.chip() + (st.rain ? '   ·   LLUVIA' : ''), px, py + 25 * dpr);
+    // velocímetro con arco ATP (verde permitido, rojo prohibido)
+    const cx = px, R = Math.min((zr - zl) * .3, 60 * dpr), cy = H - 8 * dpr;
+    g.fillStyle = '#0b1115'; g.beginPath(); g.arc(cx, cy, R + 4 * dpr, Math.PI, TAU); g.fill(); g.strokeStyle = '#3a4a55'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(cx, cy, R + 3 * dpr, Math.PI, TAU); g.stroke();
+    const al = Math.PI + Math.PI * clamp(lim / vmax, 0, 1); g.lineWidth = 5 * dpr; g.strokeStyle = '#2f9b57'; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, Math.PI, al); g.stroke(); g.strokeStyle = PAL.rojo; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, al, TAU); g.stroke();
+    g.fillStyle = '#c9d6dc'; g.font = '700 ' + (7 * dpr) + 'px Cuerpo, sans-serif'; for (let v = 0; v <= vmax; v += 20) { const a = Math.PI + Math.PI * v / vmax; g.fillRect(cx + Math.cos(a) * (R - 10 * dpr) - 1, cy + Math.sin(a) * (R - 10 * dpr) - 1, 2, 2); g.fillText(String(v), cx + Math.cos(a) * (R - 18 * dpr), cy + Math.sin(a) * (R - 18 * dpr) + 3); }
+    const an = Math.PI + Math.PI * clamp(st.v * 3.6 / vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * (R - 6 * dpr), cy + Math.sin(an) * (R - 6 * dpr)); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, 4 * dpr, 0, TAU); g.fill();
+    g.fillStyle = '#fff'; g.font = '700 ' + (R * .34) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6), cx, cy - R * .36); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .13) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · LÍMITE ' + Math.round(lim), cx, cy - R * .2);
+    // lámparas: ATP, puertas izq/der, tracción/freno, tinto
+    const lamp = (x, y, on, col, t) => { g.fillStyle = '#0b1115'; g.fillRect(x - 11 * dpr, y - 8 * dpr, 22 * dpr, 16 * dpr); g.fillStyle = on ? col : '#2a3238'; g.beginPath(); g.arc(x, y - 1 * dpr, 4.5 * dpr, 0, TAU); g.fill(); if (on) { g.fillStyle = col + '55'; g.beginPath(); g.arc(x, y - 1 * dpr, 8 * dpr, 0, TAU); g.fill(); } g.fillStyle = '#9fb0bb'; g.font = '700 ' + (6 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(t, x, y + 6 * dpr); };
+    const lx = px - R - 22 * dpr, ly = H - 40 * dpr; lamp(lx, ly, st.v > lim / 3.6 + .5, '#ff3b2f', 'ATP'); lamp(lx, ly - 24 * dpr, st.eb > 0, '#ff3b2f', 'EMERG'); lamp(lx, ly - 48 * dpr, st.lev > 0, '#38e07b', 'TRACC');
+    const rx = px + R + 22 * dpr; lamp(rx, ly, st.doors === 1, '#ffc23a', 'PUERTAS'); lamp(rx, ly - 24 * dpr, st.ph === 'dwell' && st.board >= 1, '#38e07b', 'TIMBRE'); lamp(rx, ly - 48 * dpr, st.lev < 0, '#ff9a2e', 'FRENO');
+    // tinto en la consola (confort)
+    const tx = px + R + 22 * dpr, ty = db + 48 * dpr, sl = clamp(st.a * 4, -6, 6) * dpr; g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 12 * dpr); g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 3 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 3 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 11 * dpr); g.lineTo(tx - 6 * dpr, ty + 11 * dpr); g.fill(); g.fillStyle = '#9fb0bb'; g.font = '700 ' + (6 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('TINTO ' + Math.round(st.comfort) + '%', tx, ty + 20 * dpr);
+    g.textAlign = 'left';
+    if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.22 + .18 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
+  },
+  drawMiniHud(g, st, W, H, K) { const u = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W); g.fillStyle = 'rgba(16,46,80,.85)'; g.fillRect(8 * u, 58 * u, 104 * u, 30 * u); g.fillStyle = '#fff'; g.font = '700 ' + (17 * u) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6) + ' km/h', 16 * u, 80 * u); },
+  /* vista cenital (mapa pixelado) y panorámica (toda la línea) */
+  drawTop(g, st, W, H, pan) {
+    const T = TRACKS.get(st.line), line = NET.byId[st.line], K = KIND[st.kind], p = NET.at(line.P, st.s);
+    let k = pan ? Math.min(W, H) / (Math.max(2000, Math.abs(st.tgt[st.tgt.length - 1] - st.tgt[0]) * 1.3)) : Math.min(W, H) / 420;
+    let mx = p.x, my = p.y;
+    if (pan) { const a = NET.at(line.P, st.tgt[0]), b = NET.at(line.P, st.tgt[st.tgt.length - 1]); mx = (a.x + b.x) / 2; my = (a.y + b.y) / 2; k = Math.min(W / (Math.abs(b.x - a.x) + 1500), H / (Math.abs(b.y - a.y) + 1500)); }
+    if (MAP.ready) { if (pan) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    const S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H / 2 + (y - my) * k });
+    for (const l of NET.lines) { if (!pan && l !== line) continue; g.strokeStyle = PAL.negro; g.lineWidth = Math.max(3, (pan ? 5 : 7) * Math.min(1, k * 2)); g.beginPath(); l.P.pts.forEach((q, i) => { const s = S(q.x, q.y); i ? g.lineTo(s.x, s.y) : g.moveTo(s.x, s.y); }); g.stroke(); g.strokeStyle = l.color; g.lineWidth = Math.max(2, (pan ? 3 : 4.5) * Math.min(1, k * 2)); g.stroke(); }
+    for (const s of line.st) { const q = S(s.x, s.y); g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, pan ? 4 : 7, 0, TAU); g.fill(); g.stroke(); if (pan || k > .4) { g.fillStyle = PAL.negro; g.font = '700 ' + (pan ? 11 : 13) + 'px Cuerpo, sans-serif'; g.fillText(s.name, q.x + 9, q.y - 6); } }
+    for (const L of st.lights) { const q = NET.at(line.P, L.s), s = S(q.x, q.y); g.fillStyle = this.lightState(L, st.t) === 'g' ? '#38e07b' : '#ff3b2f'; g.fillRect(s.x - 3, s.y - 3, 6, 6); }
+    const len = Math.max(pan ? 10 : 8, K.len * k), c = NET.at(line.P, st.s - st.dir * K.len / 2), sp = S(c.x, c.y);
+    Art.topVehicle(g, sp.x, sp.y, c.a + (st.dir < 0 ? Math.PI : 0), len, Math.max(5, 3.2 * k), line.color, st.kind);
+    if (pan) { g.strokeStyle = PAL.rojo; g.lineWidth = 2; g.beginPath(); g.arc(sp.x, sp.y, 12 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); }
+    this.drawMiniHud(g, st, W, H, K);
+  },
+  ai(st) { return null; }
+};
+~~~~
+
+### `src/js/31-cabina.js`
+~~~~js
+/* =====================================================================
+   CABINA DEL METRO: procedimiento real de conducción y escuela paso a paso.
+   · Llave: activa la cabina (solo detenido).        · Sentido: NEUTRO / ADELANTE / ATRÁS.
+   · Puertas por lado: el andén puede estar a la izquierda (central) o a la derecha (laterales);
+     abrir del lado sin andén está prohibido.          · Señal de salida: verde unos segundos después de cerrar.
+   · Vigilante (hombre muerto): cada 25–40 s suena; tócalo (o mueve la palanca) en 6 s o frena de emergencia.
+   · Anuncio: “Próxima estación…” por los parlantes (Cultura Metro, +30).
+   La escuela se activa la primera vez en la Línea A o desde “Escuela de conducción”.
+   ===================================================================== */
+(function () {
+  const C = Conduce, base = { create: C.create, tick: C.tick, doors: C.doors, mount: C.mount, updCtl: C.updCtl, key: C.key, drawCab: C.drawCab, drawMiniHud: C.drawMiniHud, levels: C.levels };
+  const TUT = [
+    ['Gira la LLAVE 🔑 para activar la cabina', st => st.key],
+    ['Pon el SENTIDO en ADELANTE', st => st.sel === 1],
+    ['Espera la señal verde y sube la palanca a TRACCIÓN', st => st.ph === 'run'],
+    ['Respeta el arco verde del velocímetro y frena para detener el frente en la marca amarilla', st => st.ph === 'dwell'],
+    ['Abre las puertas del lado del ANDÉN (mira el panel: IZQ o DER)', st => st.doors === 1],
+    ['Espera el TIMBRE de abordaje completo y cierra las puertas', st => st.doors === 2],
+    ['Cuando la SEÑAL esté en verde, arranca de nuevo', st => st.ph === 'run' && st.ni > 1],
+    ['Haz el ANUNCIO 🎙 de la próxima estación', st => Object.keys(st.annDone).length > 0],
+    ['Cuando suene el VIGILANTE, tócalo antes de 6 s', st => st.vigAcks > 0]
+  ];
+  C.sideOf = function (st, i) { const name = NET.byId[st.line].st[st.stops[i]].name; return h2(hashStr(name), 3, 19) < .3 ? 'izq' : 'der'; };
+  C.levels = function () {
+    if (this._lv2) return this._lv2; const L = base.levels.call(this).slice(), A = NET.byId.A;
+    if (A) L.unshift({ id: 'A:0-2#escuela', line: 'A', a: 0, b: 2, name: 'Escuela de conducción', sub: 'Línea A · aprende la cabina paso a paso', k: -1, escuela: true });
+    return (this._lv2 = L);
+  };
+  C.create = function (lv, opts) {
+    const esc_ = String(lv).endsWith('#escuela'), st = base.create.call(this, esc_ ? String(lv).replace('#escuela', '') : lv, opts); if (esc_) st.lvId = lv;
+    Object.assign(st, { key: !!opts.auto, sel: opts.auto ? 1 : 0, sigOK: false, sigT: 0, vigNext: 28 + (st.seed % 12), vigAlarm: false, vigT: 0, vigAcks: 0, lastLev: 0, annDone: {}, wrongDoor: 0, tut: !opts.auto && !EM.headless && (esc_ || (!Save.d.tutMetro && st.line === 'A')) ? 0 : -1 });
+    return st;
+  };
+  C.vigAck = function (st) { if (!st.vigAlarm) return; st.vigAlarm = false; st.vigT = 0; st.vigNext = 25 + h2(st.t | 0, 7, 1) * 15; st.vigAcks++; this.sfx2(st, 'tap'); };
+  C.sfx2 = function (st, k) { if (!EM.headless && Game.st === st) Snd.play(k); };
+  C.tick = function (st, dt, K, line) {
+    if (st.auto) { st.key = true; st.sel = 1; if (st.vigAlarm && st.vigT > .8) this.vigAck(st); }
+    // sin cabina activa o sin sentido no hay tracción
+    if ((!st.key || st.sel !== 1) && st.lev > 0) { st.lev = 0; if (!st._hintK || st.t - st._hintK > 4) { st._hintK = st.t; this.msg(st, !st.key ? 'Primero gira la llave 🔑' : 'Pon el sentido en ADELANTE', 'y'); } }
+    // salida: la señal se pone verde 1,5 s (inicio) o 2,5 s (estación) después de quedar listo
+    const ready = st.ph === 'ready' || (st.ph === 'dwell' && st.doors === 2);
+    if (ready && st.key && st.sel === 1 && !st.sigOK) { st.sigT += dt; if (st.sigT > (st.ph === 'ready' ? 1.5 : 2.5)) { st.sigOK = true; this.sfx2(st, 'beep'); this.msg(st, 'Señal de salida en verde ●', 'g'); } }
+    if (ready && !st.sigOK) { if (st.lev > .05 && !st.auto && (!st._hintS || st.t - st._hintS > 3)) { st._hintS = st.t; this.msg(st, 'Espera la señal de salida en verde', 'y'); } st.t += dt; if (st.ph === 'dwell') st.dwell += dt; st.lev = Math.min(st.lev, 0); return; }
+    const was = st.ph;
+    // vigilante (solo en marcha)
+    if (st.ph === 'run') {
+      if (Math.abs(st.lev - st.lastLev) > .1) { if (st.vigAlarm) this.vigAck(st); else st.vigNext = Math.max(st.vigNext, 12); }
+      st.lastLev = st.lev;
+      if (!st.vigAlarm) { st.vigNext -= dt; if (st.vigNext <= 0 && st.v > 1) { st.vigAlarm = true; st.vigT = 0; this.sfx2(st, 'warn'); this.msg(st, '⚠ VIGILANTE: tócalo para confirmar que estás atento', 'r'); } }
+      else { st.vigT += dt; if ((st.vigT * 2 | 0) !== ((st.vigT - dt) * 2 | 0)) this.sfx2(st, 'beep'); if (st.vigT > 6) { st.vigAlarm = false; st.vigNext = 25; st.eb = 1; st.score -= 100; this.msg(st, 'Vigilante sin respuesta: freno de emergencia −100', 'r'); this.sfx2(st, 'crash'); vib(200); } }
+    }
+    base.tick.call(this, st, dt, K, line);
+    if (was !== 'run' && st.ph === 'run') { st.sigOK = false; st.sigT = 0; }   // la próxima salida necesita su señal
+  };
+  C.doors = function (st, side) {
+    if (st.ph !== 'dwell') { this.msg(st, 'Las puertas solo abren detenido en el andén', 'y'); return; }
+    if (st.doors === 0) { const ok = this.sideOf(st, st.ni); if (side && side !== ok) { st.score -= 120; st.wrongDoor++; this.msg(st, '¡Ese lado no tiene andén! Abre las de la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' −120', 'r'); this.sfx2(st, 'bad'); vib(120); return; } }
+    base.doors.call(this, st);
+  };
+  C.announce = function (st) {
+    if (st.ph !== 'run') { this.msg(st, 'El anuncio se hace en marcha, antes de llegar', 'y'); return; } if (st.annDone[st.ni]) { this.msg(st, 'Ya anunciaste esta estación', 'y'); return; }
+    st.annDone[st.ni] = 1; st.score += 30; const nx = NET.byId[st.line].st[st.stops[st.ni]].name, side = this.sideOf(st, st.ni) === 'izq' ? 'izquierdo' : 'derecho';
+    if (!EM.headless && Game.st === st) Snd.say('Próxima estación: ' + nx + '. Puertas por el lado ' + side + '. Recuerde dejar salir antes de entrar.'); this.msg(st, '🎙 Anuncio hecho · +30', 'g');
+  };
+  C.mount = function (st, el) {
+    base.mount.call(this, st, el);
+    const gb = el.querySelector('.gbtns'); gb.className = 'cabgrid';
+    gb.innerHTML = `<button class="cb" id="cbKey"><b>🔑</b>LLAVE</button><button class="cb" id="cbSel"><b>N</b>SENTIDO</button><button class="cb" id="cbVig"><b>◉</b>VIGILANTE</button><button class="cb" id="cbAnn"><b>🎙</b>ANUNCIO</button>
+      <button class="cb" id="cbDL"><b>◧</b>PUERTAS IZQ</button><button class="cb" id="cbDR"><b>◨</b>PUERTAS DER</button><button class="cb" id="cFF"><b>⏩</b>CRUCERO</button><button class="cb" id="cHorn"><b>📯</b>PITO</button><button id="cDoor" hidden></button>`;
+    const tut = document.createElement('div'); tut.id = 'cTut'; tut.className = 'jobbar tut hide'; el.appendChild(tut);
+    $('#cbKey').onclick = () => { if (st.v > .1) { this.msg(st, 'Detén el tren para mover la llave', 'y'); return; } st.key = !st.key; if (!st.key) st.sel = 0; this.sfx2(st, 'switch'); vib(15); };
+    $('#cbSel').onclick = () => { if (!st.key) { this.msg(st, 'Primero gira la llave', 'y'); return; } if (st.v > .1) { this.msg(st, 'El sentido solo cambia detenido', 'y'); return; } st.sel = st.sel === 0 ? 1 : st.sel === 1 ? -1 : 0; this.sfx2(st, 'switch'); if (st.sel === -1) this.msg(st, 'ATRÁS: solo para maniobras (el juego no permite retroceder en servicio)', 'y'); };
+    $('#cbVig').onclick = () => { if (st.vigAlarm) this.vigAck(st); else this.sfx2(st, 'tap'); };
+    $('#cbAnn').onclick = () => this.announce(st);
+    $('#cbDL').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'izq'); };
+    $('#cbDR').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'der'); };
+    $('#cFF').onclick = () => { st.ff = !st.ff; }; $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
+  };
+  C.updCtl = function (st) {
+    base.updCtl.call(this, st); if (EM.headless || Game.st !== st) return; const k = $('#cbKey'); if (!k) return;
+    k.classList.toggle('on', st.key); const sl = $('#cbSel'); sl.querySelector('b').textContent = st.sel === 1 ? 'ADEL' : st.sel === -1 ? 'ATRÁS' : 'N'; sl.classList.toggle('on', st.sel === 1);
+    $('#cbVig').classList.toggle('warn', st.vigAlarm); $('#cbAnn').classList.toggle('on', !!st.annDone[st.ni]);
+    const side = st.ph === 'dwell' || (st.tgt[st.ni] - st.s) * st.dir < 400 ? this.sideOf(st, st.ni) : null, open = st.doors === 1;
+    $('#cbDL').classList.toggle('hot', side === 'izq' && st.ph === 'dwell' && st.doors === 0); $('#cbDR').classList.toggle('hot', side === 'der' && st.ph === 'dwell' && st.doors === 0);
+    $('#cbDL').classList.toggle('on', open && side === 'izq'); $('#cbDR').classList.toggle('on', open && side === 'der');
+    $('#cFF').classList.toggle('on', st.ff); $('#cFF').disabled = st.ph !== 'run';
+    // escuela paso a paso
+    const tb = $('#cTut'); if (st.tut >= 0) { while (st.tut < TUT.length && TUT[st.tut][1](st)) { st.tut++; this.sfx2(st, 'coin'); } if (st.tut >= TUT.length) { st.tut = -1; Save.d.tutMetro = 1; Save.write(); this.msg(st, '🎓 ¡Ya sabes manejar el metro! Escuela completa', 'g'); tb.classList.add('hide'); } else { tb.classList.remove('hide'); tb.innerHTML = `<b>Escuela · paso ${st.tut + 1} de ${TUT.length}</b><span>${esc(TUT[st.tut][0])}</span>`; } } else tb.classList.add('hide');
+    if (st.ph === 'ready' && !st._rt2) { st._rt2 = 1; if (st.tut < 0 && !st.key) this.msg(st, 'Gira la llave, pon ADELANTE y espera la señal verde', 'b'); }
+  };
+  C.key = function (st, k, down) {
+    if (down && (k === 'q' || k === 'Q')) { if (st.doors === 1) this.doors(st); else this.doors(st, 'izq'); return; }
+    if (down && (k === 'e' || k === 'E')) { if (st.doors === 1) this.doors(st); else this.doors(st, 'der'); return; }
+    if (down && (k === 'k' || k === 'K')) { $('#cbKey') ? $('#cbKey').click() : (st.key = !st.key); return; }
+    if (down && (k === 'r' || k === 'R')) { $('#cbSel') ? $('#cbSel').click() : (st.sel = st.sel === 1 ? 0 : 1); return; }
+    if (down && (k === 'g' || k === 'G')) { this.vigAck(st); return; }
+    if (down && (k === 'a' || k === 'A')) { this.announce(st); return; }
+    if (down && (k === ' ' || k === 'd') && st.doors !== 1) { this.doors(st, this.sideOf(st, st.ni)); return; }
+    base.key.call(this, st, k, down);
+  };
+  /* consola: panel LED, velocímetro con arco ATP y lámparas de señal/timbre/freno/vigilante */
+  C.drawCab = function (st, ...a) { return this._drawCab2(...arguments); };
+  C._drawCab2 = function (g, st, W, H, K, line, night) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), zl = 222 * dpr, zr = W - 76 * dpr, db = H - Math.min(H * .32, 186 * dpr), vmax = K.vmax * 3.6, lim = this.limAt(st, st.s) * 3.6, d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    g.fillStyle = '#121a21'; g.fillRect(0, 0, W, 8 * dpr); g.fillRect(0, 0, 10 * dpr, H); g.fillRect(W - 10 * dpr, 0, 10 * dpr, H);
+    if (st.rain) { const an = Math.sin(st.t * 3.2) * .95; g.strokeStyle = '#141414'; g.lineWidth = 3 * dpr; g.beginPath(); g.moveTo(W * .32, db); g.lineTo(W * .32 + Math.sin(an) * H * .34, db - Math.cos(an) * H * .34); g.stroke(); }
+    g.fillStyle = '#1b262e'; g.beginPath(); g.moveTo(0, db + 16 * dpr); g.lineTo(W * .14, db); g.lineTo(W * .86, db); g.lineTo(W, db + 16 * dpr); g.lineTo(W, H); g.lineTo(0, H); g.fill();
+    g.fillStyle = line.color; g.fillRect(W * .14, db, W * .72, 3 * dpr);
+    // panel LED a lo ancho
+    const px0 = 14 * dpr, pw = zr - px0 - 6 * dpr, py = db + 10 * dpr, ph = 32 * dpr, cxp = px0 + pw / 2, nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], side = this.sideOf(st, st.ni);
+    g.fillStyle = '#060a0c'; g.fillRect(px0, py, pw, ph); g.strokeStyle = '#3a4a55'; g.lineWidth = 1.5; g.strokeRect(px0, py, pw, ph);
+    g.textAlign = 'center'; g.fillStyle = '#ff9a2e'; g.font = '700 ' + (10.5 * dpr) + 'px ui-monospace, Consolas, monospace';
+    const L1 = !st.key ? 'CABINA INACTIVA · GIRA LA LLAVE' : st.sel !== 1 ? 'SENTIDO EN ' + (st.sel ? 'ATRÁS' : 'NEUTRO') : st.ph === 'dwell' ? (st.doors === 1 ? 'PUERTAS ' + (side === 'izq' ? 'IZQ' : 'DER') + ' ABIERTAS · ' + Math.round(st.board * 100) + '%' : st.doors === 2 ? (st.sigOK ? 'SEÑAL VERDE · TRACCIÓN' : 'ESPERE SEÑAL DE SALIDA') : nx.name.toUpperCase() + ' · ANDÉN ' + (side === 'izq' ? '◀ IZQUIERDA' : 'DERECHA ▶')) : st.ph === 'ready' ? (st.sigOK ? 'SEÑAL VERDE · PUEDE SALIR' : 'ESPERE SEÑAL DE SALIDA') : 'PRÓXIMA: ' + nx.name.toUpperCase() + ' · ' + (Math.abs(d) < 100 ? d.toFixed(0) : Math.round(d)) + ' m';
+    g.fillText(L1, cxp, py + 13 * dpr);
+    g.fillStyle = late > 15 ? '#ff6a3d' : '#7fe0a0'; g.font = '700 ' + (8.5 * dpr) + 'px ui-monospace, Consolas, monospace'; g.fillText((late >= 0 ? 'RETRASO +' : 'ADELANTO ') + Math.abs(Math.round(late)) + ' s · ANDÉN ' + (side === 'izq' ? 'IZQ' : 'DER') + ' · ' + Mundo.chip(), cxp, py + 26 * dpr);
+    // lámparas
+    const lamp = (x, y, on, col, t) => { g.fillStyle = on ? col : '#2a3238'; g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, TAU); g.fill(); if (on) { g.fillStyle = col + '55'; g.beginPath(); g.arc(x, y, 8 * dpr, 0, TAU); g.fill(); } g.fillStyle = '#9fb0bb'; g.font = '700 ' + (6 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(t, x, y + 12 * dpr); };
+    const ly = py + ph + 16 * dpr, lw = (zr - zl) / 4, l0 = zl + lw / 2;
+    lamp(l0, ly, (st.ph === 'ready' || (st.ph === 'dwell' && st.doors === 2)) && st.sigOK, '#38e07b', 'SEÑAL'); lamp(l0 + lw, ly, st.ph === 'dwell' && st.board >= 1 && st.doors === 1, '#ffc23a', 'TIMBRE'); lamp(l0 + lw * 2, ly, st.vigAlarm && (st.t * 4 | 0) % 2 === 0, '#ff3b2f', 'VIGIL.'); lamp(l0 + lw * 3, ly, st.v > lim / 3.6 + .5 || st.eb > 0, '#ff3b2f', 'ATP');
+    // velocímetro
+    const cx = (zl + zr) / 2, R = Math.min((zr - zl) * .46, 58 * dpr), cy = H - 8 * dpr;
+    g.fillStyle = '#0b1115'; g.beginPath(); g.arc(cx, cy, R + 4 * dpr, Math.PI, TAU); g.fill(); g.strokeStyle = '#3a4a55'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(cx, cy, R + 3 * dpr, Math.PI, TAU); g.stroke();
+    const al = Math.PI + Math.PI * clamp(lim / vmax, 0, 1); g.lineWidth = 5 * dpr; g.strokeStyle = '#2f9b57'; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, Math.PI, al); g.stroke(); g.strokeStyle = PAL.rojo; g.beginPath(); g.arc(cx, cy, R - 3 * dpr, al, TAU); g.stroke();
+    g.fillStyle = '#c9d6dc'; g.font = '700 ' + (6.5 * dpr) + 'px Cuerpo, sans-serif'; for (let v = 0; v <= vmax; v += 20) { const an = Math.PI + Math.PI * v / vmax; g.fillText(String(v), cx + Math.cos(an) * (R - 15 * dpr), cy + Math.sin(an) * (R - 15 * dpr) + 3); }
+    const an = Math.PI + Math.PI * clamp(st.v * 3.6 / vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * (R - 6 * dpr), cy + Math.sin(an) * (R - 6 * dpr)); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(cx, cy, 4 * dpr, 0, TAU); g.fill();
+    g.fillStyle = '#fff'; g.font = '700 ' + (R * .36) + 'px Titulos, sans-serif'; g.fillText(Math.round(st.v * 3.6), cx, cy - R * .38); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .14) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · LÍM ' + Math.round(lim), cx, cy - R * .2);
+    g.textAlign = 'left';
+    // tinto (confort) arriba a la izquierda
+    const tx = 26 * dpr, ty = 150 * dpr, sl = clamp(st.a * 4, -6, 6) * dpr; g.fillStyle = 'rgba(13,20,24,.7)'; g.fillRect(tx - 18 * dpr, ty - 6 * dpr, 36 * dpr, 40 * dpr); g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 14 * dpr); g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 4 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 4 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 13 * dpr); g.lineTo(tx - 6 * dpr, ty + 13 * dpr); g.fill(); g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText(Math.round(st.comfort) + '%', tx, ty + 27 * dpr); g.textAlign = 'left';
+    if (st.eb) { g.fillStyle = 'rgba(200,32,31,' + (.22 + .18 * Math.sin(st.t * 12)) + ')'; g.fillRect(0, 0, W, H); }
+  };
+  /* mini panel en las otras vistas: velocidad, señal, andén y vigilante */
+  C.drawMiniHud = function (g, st, W, H, K) {
+    const u = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), side = this.sideOf(st, st.ni), lines = [Math.round(st.v * 3.6) + ' km/h'];
+    g.fillStyle = 'rgba(6,10,12,.88)'; g.fillRect(8 * u, 136 * u, 150 * u, 46 * u); g.strokeStyle = '#3a4a55'; g.lineWidth = 1.5; g.strokeRect(8 * u, 136 * u, 150 * u, 46 * u);
+    g.fillStyle = '#fff'; g.font = '700 ' + (17 * u) + 'px Titulos, sans-serif'; g.fillText(lines[0], 16 * u, 156 * u);
+    g.fillStyle = '#ff9a2e'; g.font = '700 ' + (8.5 * u) + 'px ui-monospace, Consolas, monospace'; g.fillText(!st.key ? 'GIRA LA LLAVE' : st.sel !== 1 ? 'SENTIDO: ADELANTE' : 'ANDÉN ' + (side === 'izq' ? '◀ IZQ' : 'DER ▶'), 16 * u, 172 * u);
+    const sig = (st.ph === 'ready' || (st.ph === 'dwell' && st.doors === 2)); g.fillStyle = sig ? (st.sigOK ? '#38e07b' : '#ff3b2f') : '#2a3238'; g.beginPath(); g.arc(138 * u, 150 * u, 5 * u, 0, TAU); g.fill(); g.fillStyle = st.vigAlarm && (st.t * 4 | 0) % 2 === 0 ? '#ff3b2f' : '#2a3238'; g.beginPath(); g.arc(138 * u, 168 * u, 5 * u, 0, TAU); g.fill();
+  };
+})();
+~~~~
+
+### `src/js/32-volante.js`
+~~~~js
+/* =====================================================================
+   AL VOLANTE: maneja el bus de Metroplús o el alimentador por las calles reales.
+   Física de bicicleta (dirección) + remolque articulado, pendientes reales del valle,
+   tráfico en carriles reales con semáforos (ciclo de 32 s), paradas con pasajeros,
+   GPS sobre la ruta y asistente de carril (para jugar en familia).
+   ===================================================================== */
+const BUSES = {
+  brt: { name: 'Articulado Metroplús', len1: 11.2, len2: 6.8, w: 2.55, wb: 5.7, hitch: 1.7, wb2: 5.3, vmax: 60 / 3.6, acc: 1.0, brk: 2.6, emg: 5.5, smax: .62, srate: 1.15 },
+  feeder: { name: 'Bus alimentador', len1: 12, len2: 0, w: 2.5, wb: 6.1, hitch: 0, wb2: 0, vmax: 50 / 3.6, acc: 1.2, brk: 3, emg: 6, smax: .6, srate: 1.25 }
+};
+const DRIVE_OK = new Set([TT.ROAD, TT.AVE, TT.AUTO, TT.BRIDGE, TT.DEPOT, TT.STATION]), SOLIDB = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]);
+/* carriles de carros y semáforos reales (OSM) en metros */
+const TRAF = {
+  lanes: null, grid: null, lights: null,
+  build() {
+    if (this.lanes) return; this.lanes = []; this.grid = new Map(); this.lights = VM.lights.map(([a, b], i) => ({ i, x: a * TM / 4, y: b * TM / 4, off: h2(a, b, 7) * 32 }));
+    const SPD = { t: 50 / 3.6, p: 40 / 3.6, s: 30 / 3.6 };
+    for (const l of VM.lanes) {
+      const pts = []; for (let i = 0; i < l.p.length; i += 2) pts.push({ x: l.p[i] * TM / 4, y: l.p[i + 1] * TM / 4 }); const P = NET.poly(pts); if (P.len < 40) continue;
+      const dirs = l.o ? [1] : [1, -1];
+      for (const d of dirs) { const L = { P, d, off: l.o ? 0 : 1.9 * d, spd: SPD[l.c] || 30 / 3.6, name: l.n, lights: [] }; this.lanes.push(L); const seen = new Set(); for (const p of pts) { const k = Math.floor(p.x / 400) + ',' + Math.floor(p.y / 400); if (seen.has(k)) continue; seen.add(k); (this.grid.get(k) || this.grid.set(k, []).get(k)).push(L); } }
+    }
+    // semáforos sobre cada carril (posición a lo largo y eje)
+    const lg = new Map(); for (const g of this.lights) { const k = Math.floor(g.x / 400) + ',' + Math.floor(g.y / 400); (lg.get(k) || lg.set(k, []).get(k)).push(g); }
+    for (const L of this.lanes) { const cand = new Set(); for (const p of L.P.pts) { const a = lg.get(Math.floor(p.x / 400) + ',' + Math.floor(p.y / 400)); if (a) a.forEach(g => cand.add(g)); } for (const g of cand) { const pr = NET.project(L.P, g.x, g.y); if (pr.d < 16) { const q = NET.at(L.P, pr.s); L.lights.push({ s: pr.s, g, ax: Math.abs(Math.cos(q.a)) > Math.abs(Math.sin(q.a)) ? 0 : 1 }); } } L.lights.sort((a, b) => a.s - b.s); }
+  },
+  near(x, y) { const r = []; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const a = this.grid.get((Math.floor(x / 400) + i) + ',' + (Math.floor(y / 400) + j)); if (a) r.push(...a); } return r; },
+  /* ciclo de 32 s: [este‑oeste, norte‑sur]  g verde · y amarillo · r rojo */
+  state(g, t) { const p = ((t + g.off) % 32 + 32) % 32; return p < 13 ? 'gr' : p < 16 ? 'yr' : p < 29 ? 'rg' : 'ry'; }
+};
+const Volante = EM.modes.volante = {
+  id: 'volante', name: 'Al volante', sub: 'Metroplús y alimentadores', music: 'conduce', fullCanvas: true,
+  tip: 'Palanca: acelerar/frenar. Con el asistente de carril el bus gira solo; apágalo para manejar con el timón (×1,25 puntos). Para en cada parada, abre puertas y respeta los semáforos.',
+  levels() {
+    if (this._lv) return this._lv; const L = [];
+    for (const line of NET.lines.filter(l => l.kind === 'brt' || l.kind === 'feeder')) {
+      const n = line.st.length;
+      if (line.kind === 'brt') { for (let a = 0; a < n - 1; a += 4) { const b = Math.min(n - 1, a + 4); L.push({ id: 'vo:' + line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name }); } L.push({ id: 'vo:' + line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Recorrido completo', sub: line.name, full: true }); }
+      else L.push({ id: 'vo:' + line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: line.name.replace(/^Alimentador\s*/, ''), sub: 'Alimentador · ' + n + ' paradas' });
+    }
+    return (this._lv = L);
+  },
+  route(line) {
+    if (line._vr) return line._vr; const P = line.P, n = Math.ceil(P.len / 8) + 1, lim = new Float32Array(n), an = new Float32Array(n);
+    for (let i = 0; i < n; i++) an[i] = NET.at(P, i * 8).a;
+    for (let i = 0; i < n; i++) { let da = 0; for (let j = Math.max(0, i - 3); j < Math.min(n - 1, i + 3); j++) { let d = an[j + 1] - an[j]; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; da += Math.abs(d); } const R = da > 1e-3 ? 48 / da : 1e5; lim[i] = clamp(Math.sqrt(1.7 * R), 4, 99); }
+    return (line._vr = { lim, n });
+  },
+  create(lv, opts) {
+    TRAF.build(); const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], B = BUSES[line.kind === 'brt' ? 'brt' : 'feeder'], rng = new RNG(opts.seed | 0);
+    const stops = []; for (let i = L.a; i <= L.b; i++) stops.push(i);
+    const p0 = NET.at(line.P, line.st[L.a].s), hr = new Date().getHours() + new Date().getMinutes() / 60;
+    const st = { lvId: L.id, line: line.id, kind: line.kind === 'brt' ? 'brt' : 'feeder', stops, ni: 1, x: p0.x - Math.cos(p0.a) * 4, y: p0.y - Math.sin(p0.a) * 4, h: p0.a, h2: p0.a, v: 0, steer: 0, sin: 0, lev: 0, rev: false, revT: 0,
+      sR: line.st[L.a].s, off: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, fixH: opts.hour, paseo: !!opts.paseo, tilt: false, rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, assist: opts.assist != null ? opts.assist : true, auto: !!opts.auto, view: opts.view || 'tps',
+      ph: 'ready', doors: 0, board: 0, dwell: 0, pax: 10 + rng.i(0, 20), score: 0, comfort: 100, damage: 0, crashes: 0, reds: 0, offT: 0, arr: [], sched: [0], cars: [], spawnT: 0, redSeen: {}, fx: [], keys: {}, seed: opts.seed | 0, done: false, lastA: 0, shake: 0, stopTgt: [] };
+    st.stopTgt = stops.map(i => line.st[i].s);
+    let acc = 0; for (let k = 1; k < stops.length; k++) { const d = st.stopTgt[k] - st.stopTgt[k - 1]; acc += d / (line.kind === 'brt' ? 6.2 : 5.2) + (k > 1 ? 14 : 0); st.sched.push(acc); }
+    return st;
+  },
+  elev(x, y) { return MAP.ready ? MAP.elevM(x, y) : 1500; },
+  /* piloto: velocidad objetivo por curvas, parada, semáforos y carro de adelante */
+  pilot(st, line, B) {
+    const R = this.route(line), i = clamp(Math.round(st.sR / 8), 0, R.n - 1), j = clamp(Math.round((st.sR + 20 + st.v * 2) / 8), 0, R.n - 1);
+    let tgt = Math.min(B.vmax * .92, R.lim[i], R.lim[j]); const dS = st.stopTgt[st.ni] - st.sR, bm = B.brk * (st.rain ? .75 : 1) * .7;
+    tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, dS - 1)));
+    const red = this.redAhead(st); if (red != null) tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, red - 6)));
+    const car = this.carAhead(st); if (car != null) tgt = Math.min(tgt, Math.max(0, (car - 9) * .9));
+    if (dS < 12) { if (dS < .4) return -1; const need = st.v * st.v / (2 * Math.max(.3, dS)); if (need > bm * .5) return -clamp(need / (B.brk * .8), 0, 1); return st.v < 2 ? .35 : 0; }
+    const e = tgt - st.v; return e > .6 ? clamp(e / 3, .25, 1) : e < -.4 ? clamp(e / 3, -1, -.15) : 0;
+  },
+  redAhead(st) {
+    let best = null; for (const g of this._lightsNear(st)) { const dx = g.x - st.x, dy = g.y - st.y, along = dx * Math.cos(st.h) + dy * Math.sin(st.h), lat = Math.abs(-dx * Math.sin(st.h) + dy * Math.cos(st.h)); if (along < 4 || along > 60 || lat > 12) continue; const ax = Math.abs(Math.cos(st.h)) > Math.abs(Math.sin(st.h)) ? 0 : 1, s = TRAF.state(g, st.t)[ax]; if (s !== 'g' && (best == null || along < best)) best = along; } return best;
+  },
+  carAhead(st) { let best = null; for (const c of st.cars) { const dx = c.x - st.x, dy = c.y - st.y, along = dx * Math.cos(st.h) + dy * Math.sin(st.h), lat = Math.abs(-dx * Math.sin(st.h) + dy * Math.cos(st.h)); if (along > 0 && along < 40 && lat < 3) best = best == null ? along : Math.min(best, along); } return best; },
+  _lightsNear(st) { if (!st._lt || st.t - st._ltT > 1) { st._lt = TRAF.lights.filter(g => Math.abs(g.x - st.x) < 120 && Math.abs(g.y - st.y) < 120); st._ltT = st.t; } return st._lt; },
+  pts(st, B) { // puntos del eje del bus: frente, eje delantero, eje trasero, cola (y remolque)
+    const c = Math.cos(st.h), s = Math.sin(st.h), fx = st.x + c * (B.wb + 2.2), fy = st.y + s * (B.wb + 2.2), out = [[fx, fy], [st.x + c * B.wb * .5, st.y + s * B.wb * .5], [st.x - c * 2.5, st.y - s * 2.5]];
+    if (B.len2) { const hx = st.x - c * B.hitch, hy = st.y - s * B.hitch, c2 = Math.cos(st.h2), s2 = Math.sin(st.h2); out.push([hx - c2 * B.len2 * .5, hy - s2 * B.len2 * .5], [hx - c2 * (B.len2 - .5), hy - s2 * (B.len2 - .5)]); }
+    return out;
+  },
+  step(st, dt) { if (st.done) return; const n = dt > .04 ? 2 : 1; for (let i = 0; i < n; i++) this.tick(st, dt / n); },
+  tick(st, dt) {
+    const line = NET.byId[st.line], B = BUSES[st.kind]; st.t += dt; st.hourNow = st.fixH != null ? st.fixH + st.t * 6 / 3600 : Mundo.hour(); if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; st.rain = Mundo.weather().rain; }
+    if (st.auto && (st.ph === 'run' || st.ph === 'ready')) st.lev = this.pilot(st, line, B);
+    else if (!st.auto) { if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 2.6, -1, 1); else st.lev *= Math.pow(.0004, dt); }
+    if (st.keys.left || st.keys.right) st.sin = clamp(st.sin + (st.keys.right ? 1 : -1) * dt * 2.2, -1, 1); else if (st.keys._kb) st.sin *= Math.pow(.02, dt);
+    if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; this.say(st, 'Próxima parada: ' + line.st[st.stops[1]].name); } else return; }
+    if (st.ph === 'dwell') { this.dwellTick(st, dt, line); return; }
+    // dirección: asistente (persecución pura) o timón
+    let want;
+    if (st.assist || st.auto) { const Ld = 7 + st.v * .9, q = NET.at(line.P, Math.min(line.P.len, st.sR + Ld)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al)); want = Math.atan(2 * B.wb * Math.sin(a) / Math.max(4, Math.hypot(dx, dy))); }
+    else want = st.sin * B.smax;
+    want = clamp(want, -B.smax, B.smax); st.steer += clamp(want - st.steer, -B.srate * dt, B.srate * dt);
+    // tracción, freno, pendiente real y reversa
+    const c = Math.cos(st.h), s = Math.sin(st.h), gr = clamp((this.elev(st.x + c * 6, st.y + s * 6) - this.elev(st.x - c * 6, st.y - s * 6)) / 12, -.25, .25), wet = st.rain ? .75 : 1;
+    if (!st.rev && st.v <= .05 && st.lev < -.5) { st.revT += dt; if (st.revT > .8) { st.rev = true; Snd.play && this.sfx(st, 'beep'); } } else if (st.lev >= 0) st.revT = 0;
+    let a;
+    if (st.rev) { a = st.lev < 0 ? -st.lev * .8 : -st.lev * B.brk; if (st.lev > .05 && st.v >= -.05) { st.rev = false; st.v = 0; } }
+    else { const tr = st.lev > 0 ? st.lev * B.acc * clamp(2.6 - 2.2 * st.v / B.vmax, .4, 2.6) : 0, br = st.lev < 0 ? -st.lev * B.brk * wet : 0; a = tr - br - 9.81 * gr * .95 - .02 - .0004 * st.v * st.v; if (st.v <= .02 && a < 0 && st.lev <= 0) a = 0; }
+    if (st.rev) { st.v = clamp(st.v - a * dt, -2.5, 0); if (st.lev >= 0 && st.v > -.05) st.v = 0; } else st.v = Math.max(0, st.v + a * dt);
+    // movimiento (modelo de bicicleta) + remolque
+    const ox = st.x, oy = st.y, oh = st.h, oh2 = st.h2;
+    st.h += st.v / B.wb * Math.tan(st.steer) * dt; st.x += st.v * Math.cos(st.h) * dt; st.y += st.v * Math.sin(st.h) * dt;
+    if (B.len2) { let d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); st.h2 += st.v / B.wb2 * Math.sin(d) * dt; d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); if (Math.abs(d) > 1) st.h2 = st.h - Math.sign(d) * 1; }
+    // choques con edificios, montaña y agua (por el eje del bus)
+    let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = MAP.tileM(px, py); if (SOLIDB.has(v)) hit = true; else if (!DRIVE_OK.has(v)) soft++; }
+    if (hit) { st.x = ox; st.y = oy; st.h = oh; st.h2 = oh2; const imp = Math.abs(st.v); if (imp > 1.5) { st.damage += imp * 2; st.score -= Math.round(20 * imp); st.crashes++; st.comfort = Math.max(0, st.comfort - imp * 3); st.shake = .4; this.sfx(st, 'crash'); this.msg(st, '¡Golpe! −' + Math.round(20 * imp), 'r'); vib(120); } st.v = -st.v * .2; }
+    // ruta: proyección local sobre la polilínea
+    const pr = this.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
+    if (soft && st.off > 14 && st.v > 1) { st.offT += dt; st.score -= 6 * dt; if (!st._offMsg) { st._offMsg = 1; this.msg(st, '¡Por el andén no! Vuelve a la calle', 'y'); } } else st._offMsg = 0;
+    if (soft && st.off > 14) st.v = Math.min(st.v, 4);
+    if (st.off > 70 && !st._lost) { st._lost = 1; this.msg(st, 'Te saliste de la ruta: sigue la flecha', 'y'); } else if (st.off < 30) st._lost = 0;
+    // confort: aceleración longitudinal y lateral (v²·curvatura)
+    const lat = st.v * st.v * Math.abs(Math.tan(st.steer)) / B.wb, jerk = Math.abs(a - st.lastA) / dt; st.lastA = a;
+    if ((lat > 2.2 || jerk > 4) && st.v > 1) st.comfort = Math.max(0, st.comfort - dt * (lat > 2.2 ? (lat - 2.2) * 14 : 10));
+    // semáforos en rojo
+    for (const g of this._lightsNear(st)) { if (st.redSeen[g.i]) continue; const d = dist(g.x, g.y, st.x + c * B.wb, st.y + s * B.wb); if (d < 7 && st.v > 2) { const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; st.redSeen[g.i] = 1; if (ls === 'r') { st.reds++; st.score -= 120; this.msg(st, '¡Semáforo en rojo! −120', 'r'); this.sfx(st, 'bad'); } } }
+    this.trafficTick(st, dt, B);
+    // llegada a la parada
+    const dS = st.stopTgt[st.ni] - st.sR;
+    if (Math.abs(st.v) < .3 && Math.abs(dS) <= 15 && st.off < 14 && st.lev <= 0) {
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.v = 0; const err = Math.abs(dS), late = st.t - st.sched[st.ni];
+      const pP = err < 1 ? 300 : err < 3 ? 220 : err < 6 ? 140 : err < 10 ? 70 : 25, pT = Math.abs(late) <= 10 ? 200 : Math.abs(late) <= 25 ? 120 : Math.abs(late) <= 45 ? 50 : 0;
+      st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 220 ? 'g' : 'y');
+    } else if (dS < -40 && st.ni < st.stops.length) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st); }
+    if (st.shake > 0) st.shake -= dt;
+  },
+  projLocal(P, x, y, s0) {
+    let bd = 1e18, bs = s0; const a = Math.max(0, s0 - 120), b = Math.min(P.len, s0 + 220);
+    let lo = 0, hi = P.cum.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (P.cum[m] <= a) lo = m; else hi = m; }
+    for (let i = lo; i < P.pts.length - 1 && P.cum[i] <= b; i++) { const p = P.pts[i], q = P.pts[i + 1], dx = q.x - p.x, dy = q.y - p.y, L2 = dx * dx + dy * dy || 1, t = clamp(((x - p.x) * dx + (y - p.y) * dy) / L2, 0, 1), px = p.x + dx * t, py = p.y + dy * t, d = (x - px) ** 2 + (y - py) ** 2; if (d < bd) { bd = d; bs = P.cum[i] + Math.sqrt(L2) * t; } }
+    return { s: bs, d: Math.sqrt(bd) };
+  },
+  dwellTick(st, dt, line) {
+    st.dwell += dt; st.v = 0;
+    if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra puertas', 'y'); } }
+    if (st.auto) { if (st.doors === 0 && st.dwell > .4) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2) st.lev = .6; }
+    if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.bell = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); }
+  },
+  doors(st) {
+    if (st.ph !== 'dwell') return; const line = NET.byId[st.line], last = st.ni === st.stops.length - 1;
+    if (st.doors === 0) { st.doors = 1; this.sfx(st, 'door'); const name = line.st[st.stops[st.ni]].name, al = last ? st.pax : Math.round(st.pax * .35), bo = last ? 0 : 4 + hashStr(name) % 18; st.pax += bo - al; st.bTime = 3 + (al + bo) / 6; st.board = 0; Save.d.stats.pax += bo; const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); Save.d.facts[name] = 1; } }
+    else if (st.doors === 1) { if (st.board < 1) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); } st.doors = 2; this.sfx(st, 'door'); if (last) { this.finish(st); return; } st.ni++; }
+  },
+  /* tráfico: carros en carriles reales alrededor del bus */
+  trafficTick(st, dt, B) {
+    const want = Save.d.settings.q === 'low' ? 9 : 16; st.spawnT -= dt;
+    if (st.spawnT <= 0 && st.cars.length < want) {
+      st.spawnT = .25; const near = TRAF.near(st.x, st.y); if (near.length) { const L = near[(h2(st.t * 100 | 0, st.cars.length, 3) * near.length) | 0], p = h2(st.t * 37 | 0, 5, 1) * L.P.len, q = NET.at(L.P, p, L.off); const d = dist(q.x, q.y, st.x, st.y); if (d > 70 && d < 380) { const r = h2(st.t * 13 | 0, 9, 2); st.cars.push({ L, p, v: L.spd * .7, spd: L.spd * (.8 + r * .35), kind: r < .18 ? 'moto' : r < .4 ? 'taxi' : r < .47 ? 'bus' : 'car', col: r < .4 && r >= .18 ? '#f2c400' : CARCOL[(r * 97 | 0) % CARCOL.length], x: q.x, y: q.y, a: q.a, stop: 0 }); } }
+    }
+    for (const c of st.cars) {
+      let v = c.spd * (st.rain ? .85 : 1); const len = c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.5;
+      for (const o of st.cars) { if (o === c || o.L !== c.L) continue; const ahead = (o.p - c.p) * c.L.d; if (ahead > 0 && ahead < len + 7) v = Math.min(v, o.v * .9, Math.max(0, ahead - len - 2)); }
+      const front = c.p + c.L.d * len / 2; for (const q of c.L.lights) { const d = (q.s - front) * c.L.d; if (d < 0 || d > 35) continue; const s = TRAF.state(q.g, st.t)[q.ax]; if (s === 'r' || (s === 'y' && d > 8 && c.kind !== 'moto')) v = Math.min(v, Math.max(0, (d - 3) * 1.2)); break; }
+      const fx = Math.cos(c.a), fy = Math.sin(c.a), dx = st.x - c.x, dy = st.y - c.y, along = dx * fx + dy * fy, lat = Math.abs(-dx * fy + dy * fx); if (along > 0 && along < 26 && lat < 4) v = along < 12 ? 0 : Math.min(v, 3);
+      if (c.stop > 0) { c.stop -= dt; v = 0; }
+      c.v += clamp(v - c.v, -6 * dt, 3 * dt); c.p += c.v * c.L.d * dt; const q = NET.at(c.L.P, c.p, c.L.off); c.x = q.x; c.y = q.y; c.a = c.L.d > 0 ? q.a : q.a + Math.PI;
+      // choque con el bus (círculos a lo largo del eje)
+      if (!(c.ghost > 0)) { for (const [px, py] of this.pts(st, B)) { if (dist(px, py, c.x, c.y) < (c.kind === 'bus' ? 3.6 : 2.4)) { c.ghost = 4; c.stop = 3; if (Math.abs(st.v) > .8) { st.crashes++; st.score -= 150; st.comfort = Math.max(0, st.comfort - 15); st.shake = .4; st.v *= .3; this.sfx(st, 'crash'); this.msg(st, '¡Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : 'carro') + '! −150', 'r'); vib(140); } break; } } } else c.ghost -= dt;
+    }
+    st.cars = st.cars.filter(c => c.p > -10 && c.p < c.L.P.len + 10 && dist(c.x, c.y, st.x, st.y) < 520);
+  },
+  finish(st) { if (st.done) return; st.done = true; st.ph = 'end'; st.score += Math.round(st.comfort * 2) - Math.round(st.damage * 3); if (!st.assist && !st.auto) st.score = Math.round(st.score * 1.25); st.score = Math.max(0, Math.round(st.score)); Save.d.stats.km += st.sR / 1000; },
+  result(st) {
+    const n = st.stops.length - 1, ok = st.arr.filter(a => a.err < 99), skipped = st.arr.length - ok.length, avg = ok.length ? ok.reduce((a, b) => a + b.err, 0) / ok.length : 0, max = n * 500 + 200, line = NET.byId[st.line];
+    return { done: st.done, win: st.done && skipped === 0, score: st.score, stars: st.done && skipped === 0 ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '',
+      lines: [['Paradas', (n - skipped) + ' / ' + n], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort (tinto)', Math.round(st.comfort) + ' %'], ['Choques / rojos', st.crashes + ' / ' + st.reds], ['Asistente', st.assist ? 'encendido' : 'apagado (×1,25)']] };
+  },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
+  sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
+  hud(st) { const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = st.stopTgt[st.ni] - st.sR; this.updCtl(st); return [['', Math.round(Math.abs(st.v) * 3.6) + ' km/h' + (st.rev ? ' R' : '')], ['→', nx.name], ['', st.ph === 'dwell' ? 'Parada' : Math.round(Math.max(0, d)) + ' m'], ['★', fmt(st.score)]]; },
+  /* ---------- controles: timón, palanca, botones ---------- */
+  mount(st, el) {
+    el.innerHTML = `<div class="pedals"><button class="pedal acc" id="vAcc"><b>▲</b>Acelerar</button><button class="pedal brk" id="vBrk"><b>▼</b>Frenar · R</button></div>
+      <div class="wheel" id="vWh"><div class="wh-in" id="vWi"><i></i></div></div>
+      <div class="gbtns" style="bottom:calc(150px + var(--sab))"><button class="btn sm mos" id="vDoor">⇆ Puertas</button><button class="btn sm" id="vAs">🛞 Asistente</button><button class="btn sm" id="vTilt">📱 Inclinar</button><button class="btn sm" id="vHorn">📯 Pito</button></div>
+      <div class="vsel" id="vView"><button data-v="tps">3ª</button><button data-v="cab">1ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div>`;
+    const pedal = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); vib(8); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    pedal('#vAcc', 'up'); pedal('#vBrk', 'down');
+    $('#vTilt').onclick = () => this.tiltToggle(st);
+    const wh = $('#vWh'), ws = e => { const r = wh.getBoundingClientRect(); st.sin = clamp((e.clientX - (r.left + r.width / 2)) / (r.width * .42), -1, 1); st.keys._kb = false; };
+    wh.addEventListener('pointerdown', e => { wh.setPointerCapture(e.pointerId); if (st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú (×1,25)', 'b'); } ws(e); });
+    wh.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') ws(e); }); wh.addEventListener('pointerup', () => { st.keys._kb = true; });
+    $('#vDoor').onclick = () => this.doors(st); $('#vHorn').onclick = () => { Snd.play('horn'); vib(30); for (const c of st.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); };
+    $('#vAs').onclick = () => { st.assist = !st.assist; this.msg(st, st.assist ? 'Asistente de carril encendido' : 'Asistente apagado: usa el timón (×1,25)', 'b'); };
+    $$('#vView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; if (st.paseo) st.assist = true; this.msg(st, st.paseo ? 'Modo paseo: el bus va solo y la cámara cambia de plano' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; });
+  },
+  /* dirección inclinando el celular (giroscopio) */
+  tiltToggle(st) {
+    const on = () => { st.tilt = true; st.assist = false; st.keys._kb = false; this._tl = e => { const land = Math.abs(window.orientation || (screen.orientation && screen.orientation.angle) || 0) === 90, v = land ? (e.beta || 0) * (((window.orientation || (screen.orientation && screen.orientation.angle)) === -90 || (screen.orientation && screen.orientation.angle === 270)) ? -1 : 1) : (e.gamma || 0); if (st.tilt) st.sin = clamp(v / 28, -1, 1); }; addEventListener('deviceorientation', this._tl); this.msg(st, 'Inclina el celular para girar (×1,25)', 'b'); };
+    if (st.tilt) { st.tilt = false; removeEventListener('deviceorientation', this._tl); this.msg(st, 'Inclinar apagado', 'b'); return; }
+    if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') on(); else this.msg(st, 'Sin permiso para el giroscopio', 'y'); }).catch(() => this.msg(st, 'Sin permiso para el giroscopio', 'y')); else if (window.DeviceOrientationEvent) on(); else this.msg(st, 'Este equipo no tiene giroscopio', 'y');
+  },
+  unmount(st) { if (this._tl) removeEventListener('deviceorientation', this._tl); },
+  updCtl(st) {
+    if (EM.headless || Game.st !== st) return; const pb = $('#vBrk'); if (!pb) return;
+    pb.querySelector('b').textContent = st.rev ? 'R' : '▼'; $('#vTilt').style.background = st.tilt ? 'var(--mante)' : '';
+    const d = $('#vDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
+    $('#vAs').style.background = st.assist ? 'var(--mante)' : ''; $('#vWi').style.transform = 'rotate(' + (st.steer / BUSES[st.kind].smax * 120) + 'deg)';
+    $$('#vView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
+    if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['cine', 'tps', 'cab', 'cine', 'pan'] : ['top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Mantén ACELERAR para arrancar desde ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+  },
+  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if (m === 'left' || m === 'right') { st.keys._kb = true; if (down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú', 'b'); } } return; } if (!down) return; if (k === ' ') this.doors(st); if (k === 'h') Snd.play('horn'); if (k === 'v') { const V = ['tps', 'cab', 'cine', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'g') st.assist = !st.assist; },
+  gl(st) { return (st.view === 'tps' || st.view === 'cab' || st.view === 'cine') && G3.init() && Save.d.settings.q !== 'low'; },
+  /* ---------- dibujo ---------- */
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h, line = NET.byId[st.line], B = BUSES[st.kind];
+    if (this.gl(st)) { G3.show(true); this.draw3D(g, st, W, H, line, B); }
+    else { if (G3.cv) G3.show(false); this.drawTop(g, st, W, H, line, B, st.view === 'pan'); }
+    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view === 'pan', noRain: gl, noGrain: gl }); if (!gl && st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    this.overlay(g, st, W, H, line, B);
+  },
+  draw3D(g, st, W, H, line, B) {
+    const c = Math.cos(st.h), s = Math.sin(st.h), z = this.elev(st.x, st.y), sh = st.shake > 0 ? (Math.random() - .5) * st.shake * 2 : 0; let cam;
+    if (st.view === 'cine') { if (!st._cine || st._cine.s - st.sR < -25) { const sa = Math.min(line.P.len, st.sR + 110 + h2(st.t | 0, 1, 2) * 60), sd = h2(st.t | 0, 2, 2) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * 13); st._cine = { s: sa, x: q.x, y: q.y, z: this.elev(q.x, q.y) + 1.6 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x + c * 6, z + 2, st.y + s * 6], fov: .95 }; }
+    else if (st.view === 'cab') cam = { eye: [st.x + c * (B.wb + 1.6), z + 2.9 + sh, st.y + s * (B.wb + 1.6)], at: [st.x + c * 60, z + 1.5 + (this.elev(st.x + c * 60, st.y + s * 60) - z) * .6, st.y + s * 60], fov: 1.15 };
+    else { const bk = B.len2 ? 30 : 25, ex = st.x - c * bk, ey = st.y - s * bk, ez = Math.max(z, this.elev(ex, ey)) + 12; if (!st._cam) st._cam = { x: ex, y: ey, z: ez }; st._cam.x += (ex - st._cam.x) * .18; st._cam.y += (ey - st._cam.y) * .18; st._cam.z += (ez - st._cam.z) * .18; cam = { eye: [st._cam.x, st._cam.z + sh, st._cam.y], at: [st.x + c * 14, z + 2.5, st.y + s * 14], fov: .95 }; }
+    G3.draw(cam, { hour: st.hourNow, rain: st.rain, dyn: G => {
+      G3.traffic(cam, st.t + 3000, line); G3.people(cam, st.t);
+      // bus del jugador
+      const col = rgb(line.color), zf = this.elev(st.x + c * B.wb * .5, st.y + s * B.wb * .5);
+      const fcx = st.x + c * (B.wb + 2.2 - B.len1 / 2), fcy = st.y + s * (B.wb + 2.2 - B.len1 / 2), pitch = Math.atan2(this.elev(st.x + c * 6, st.y + s * 6) - this.elev(st.x - c * 6, st.y - s * 6), 12);
+      if (st.view !== 'cab') { G.box(fcx, zf + .4, fcy, st.h, B.len1, B.w, 1.9, col, pitch); G.box(fcx, zf + 2.3, fcy, st.h, B.len1 * .98, B.w * .98, .9, [.12, .2, .28], pitch); G.box(fcx, zf + 3.2, fcy, st.h, B.len1, B.w, .25, [.95, .95, .93], pitch); }
+      if (B.len2) { const hx = st.x - c * B.hitch, hy = st.y - s * B.hitch, c2 = Math.cos(st.h2), s2 = Math.sin(st.h2), tx = hx - c2 * B.len2 / 2, ty = hy - s2 * B.len2 / 2, zt = this.elev(tx, ty); G.box(tx, zt + .4, ty, st.h2, B.len2, B.w, 1.9, col); G.box(tx, zt + 2.3, ty, st.h2, B.len2 * .98, B.w * .98, .9, [.12, .2, .28]); G.box(tx, zt + 3.2, ty, st.h2, B.len2, B.w, .25, [.95, .95, .93]); G.box(hx, zt + .5, hy, st.h, 1.2, B.w * .9, 2.6, [.15, .15, .15]); }
+      for (const k of st.cars) { const zc = this.elev(k.x, k.y), L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : 1.9, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45; G.box(k.x, zc + .3, k.y, k.a, L, Wd, Hh * .62, rgb(k.col)); G.box(k.x, zc + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
+      for (const gl of this._lightsNear(st)) { const zl = this.elev(gl.x, gl.y), ss = TRAF.state(gl, st.t), ax = Math.abs(c) > Math.abs(s) ? 0 : 1, sc = ss[ax]; G.box(gl.x, zl, gl.y, 0, .3, .3, 5, [.2, .2, .22]); G.box(gl.x, zl + 5, gl.y, 0, .7, .7, 1.4, sc === 'g' ? [.22, .9, .48] : sc === 'y' ? [1, .76, .23] : [1, .23, .18]); }
+      // parada siguiente: poste alto del color de la línea
+      const nx = NET.at(line.P, st.stopTgt[st.ni]), zn = this.elev(nx.x, nx.y); G.box(nx.x, zn, nx.y, 0, .6, .6, 9 + Math.sin(st.t * 4), col); G.box(nx.x, zn + 9, nx.y, st.t, 2.2, 2.2, 2.2, [1, .9, .4]);
+    } });
+    // lluvia y limpiaparabrisas
+    if (st.rain) { g.strokeStyle = 'rgba(220,235,245,.4)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 80; i++) { const x = (h2(i, 3, 3) * W + st.t * 90) % W, y = (h2(i, 4, 3) * H + st.t * 800 * (1 + h2(i, 5, 3))) % H; g.moveTo(x, y); g.lineTo(x - 3, y + 12); } g.stroke(); }
+    if (st.view === 'cab') { const u = Math.min(W, H) / 220; g.fillStyle = '#141414'; g.fillRect(0, 0, W, 8 * u); g.fillRect(0, 0, 9 * u, H); g.fillRect(W - 9 * u, 0, 9 * u, H); g.fillStyle = '#1e2a33'; g.fillRect(0, H - 30 * u, W, 30 * u); if (st.rain) { const a = Math.sin(st.t * 3) * .9; g.strokeStyle = '#141414'; g.lineWidth = 3 * u; g.beginPath(); g.moveTo(W * .3, H - 30 * u); g.lineTo(W * .3 + Math.sin(a) * H * .35, H - 30 * u - Math.cos(a) * H * .35); g.stroke(); } }
+    // letreros de paradas proyectados
+    g.textAlign = 'center'; for (let k = st.ni; k < Math.min(st.stops.length, st.ni + 2); k++) { const sI = line.st[st.stops[k]], p = NET.at(line.P, sI.s), q = G3.toScreen(p.x, this.elev(p.x, p.y) + 12, p.y, W, H); if (!q || q.d > 900) continue; const fs = clamp(2600 / q.d, 11, 22) * (W / ($('#gcv').clientWidth || W)); g.font = '700 ' + fs + 'px Titulos, sans-serif'; const tw = g.measureText(sI.name).width; g.fillStyle = 'rgba(20,20,20,.85)'; g.fillRect(q.x - tw / 2 - 6, q.y - fs, tw + 12, fs * 1.3); g.fillStyle = line.color; g.fillRect(q.x - tw / 2 - 6, q.y - fs, 4, fs * 1.3); g.fillStyle = '#fff'; g.fillText(sI.name, q.x, q.y); }
+    g.textAlign = 'left';
+  },
+  drawTop(g, st, W, H, line, B, pan) {
+    const k = pan ? Math.min(W, H) / 1400 : Math.min(W, H) / 150, mx = st.x + (pan ? 0 : Math.cos(st.h) * 25), my = st.y + (pan ? 0 : Math.sin(st.h) * 25);
+    g.fillStyle = PAL.noche; g.fillRect(0, 0, W, H); if (MAP.ready) { if (pan) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    const S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H / 2 + (y - my) * k });
+    g.strokeStyle = line.color + 'aa'; g.lineWidth = Math.max(3, 7 * k); g.lineJoin = 'round'; g.beginPath(); line.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke();
+    for (let i = 0; i < st.stops.length; i++) { const sI = line.st[st.stops[i]], p = NET.at(line.P, sI.s), q = S(p.x, p.y), cur = i === st.ni; g.fillStyle = cur ? PAL.mante : '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, cur ? 9 + 3 * Math.sin(st.t * 5) : 6, 0, TAU); g.fill(); g.stroke(); if (!pan || cur) { g.fillStyle = PAL.negro; g.font = '700 12px Cuerpo, sans-serif'; g.fillText(sI.name, q.x + 11, q.y - 8); } if (!pan) for (let j = 0; j < 4; j++) Art.person(g, q.x - 14 + j * 5, q.y + 16, 2, i * 7 + j, false); }
+    for (const gl of this._lightsNear(st)) { const q = S(gl.x, gl.y), ss = TRAF.state(gl, st.t); g.fillStyle = PAL.negro; g.fillRect(q.x - 5, q.y - 5, 10, 10); g.fillStyle = ss[0] === 'g' ? '#38e07b' : ss[0] === 'y' ? '#ffc23a' : '#ff3b2f'; g.fillRect(q.x - 4, q.y - 4, 4, 8); g.fillStyle = ss[1] === 'g' ? '#38e07b' : ss[1] === 'y' ? '#ffc23a' : '#ff3b2f'; g.fillRect(q.x, q.y - 4, 4, 8); }
+    for (const c of st.cars) { const q = S(c.x, c.y), L = c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4; Art.topVehicle(g, q.x, q.y, c.a, Math.max(4, L * k), Math.max(2.5, (c.kind === 'moto' ? .9 : 1.9) * k), c.col, 'car'); }
+    const c = Math.cos(st.h), s = Math.sin(st.h), f = S(st.x + c * (B.wb + 2.2 - B.len1 / 2), st.y + s * (B.wb + 2.2 - B.len1 / 2)); Art.topVehicle(g, f.x, f.y, st.h, Math.max(10, B.len1 * k), Math.max(5, B.w * k), line.color, 'brt');
+    if (B.len2) { const hx = st.x - c * B.hitch, hy = st.y - s * B.hitch, q = S(hx - Math.cos(st.h2) * B.len2 / 2, hy - Math.sin(st.h2) * B.len2 / 2); Art.topVehicle(g, q.x, q.y, st.h2, Math.max(6, B.len2 * k), Math.max(5, B.w * k), line.color, 'brt'); }
+  },
+  /* tablero: velocímetro, flecha GPS, tinto, clima */
+  overlay(g, st, W, H, line, B) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), cx = W / 2, R = Math.min(W * .12, 46 * dpr), cy = H - 8 * dpr;
+    g.fillStyle = 'rgba(13,20,24,.85)'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * dpr; g.stroke();
+    const an = Math.PI + Math.PI * clamp(Math.abs(st.v) / B.vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * R * .82, cy + Math.sin(an) * R * .82); g.stroke();
+    g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .36) + 'px Titulos, sans-serif'; g.fillText(Math.round(Math.abs(st.v) * 3.6), cx, cy - R * .2); g.font = '700 ' + (R * .16) + 'px Cuerpo, sans-serif'; g.fillStyle = PAL.mante; g.fillText(st.rev ? 'REVERSA' : 'KM/H', cx, cy - R * .02);
+    // flecha GPS hacia la ruta (punto 40 m adelante)
+    const q = NET.at(line.P, Math.min(line.P.len, st.sR + 40)), br = Math.atan2(q.y - st.y, q.x - st.x) - st.h, ay = 92 * dpr, ar = 18 * dpr;
+    g.save(); g.translate(cx, ay); g.rotate(br); g.fillStyle = st.off > 30 ? PAL.naranja : 'rgba(249,228,164,.9)'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.moveTo(ar, 0); g.lineTo(-ar * .6, -ar * .6); g.lineTo(-ar * .25, 0); g.lineTo(-ar * .6, ar * .6); g.closePath(); g.fill(); g.stroke(); g.restore();
+    const d = st.stopTgt[st.ni] - st.sR, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    g.fillStyle = 'rgba(13,20,24,.82)'; g.fillRect(cx - 90 * dpr, ay + 24 * dpr, 180 * dpr, 34 * dpr); g.fillStyle = line.color; g.fillRect(cx - 90 * dpr, ay + 24 * dpr, 4 * dpr, 34 * dpr);
+    g.fillStyle = '#fff'; g.font = '700 ' + (15 * dpr) + 'px Titulos, sans-serif'; g.fillText(st.ph === 'dwell' ? (st.doors === 1 ? 'ABORDANDO ' + Math.round(st.board * 100) + '%' : 'EN LA PARADA') : Math.round(Math.max(0, d)) + ' m a la parada', cx, ay + 41 * dpr);
+    g.font = '600 ' + (9.5 * dpr) + 'px Cuerpo, sans-serif'; g.fillStyle = late > 20 ? PAL.naranja : PAL.mante; g.fillText('HORARIO ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s · ' + clockStr(new Date(0, 0, 0, Math.floor(st.hourNow % 24), Math.floor((st.hourNow % 1) * 60))) + (st.rain ? ' · LLUVIA' : ''), cx, ay + 53 * dpr);
+    // tinto
+    const tx = 26 * dpr, ty = 62 * dpr; g.fillStyle = 'rgba(13,20,24,.7)'; g.fillRect(tx - 18 * dpr, ty - 6 * dpr, 36 * dpr, 40 * dpr); g.fillStyle = '#f3efe6'; g.fillRect(tx - 7 * dpr, ty, 14 * dpr, 14 * dpr); const sl = clamp(st.lastA * 3 + st.steer * st.v * .3, -6, 6) * dpr; g.fillStyle = '#5a3417'; g.beginPath(); g.moveTo(tx - 6 * dpr, ty + 4 * dpr - sl); g.lineTo(tx + 6 * dpr, ty + 4 * dpr + sl); g.lineTo(tx + 6 * dpr, ty + 13 * dpr); g.lineTo(tx - 6 * dpr, ty + 13 * dpr); g.fill(); g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText(Math.round(st.comfort) + '%', tx, ty + 27 * dpr);
+    g.textAlign = 'left';
+  },
+  ai(st) { return null; }
+};
+~~~~
+
+### `src/js/35-ciudad.js`
+~~~~js
+/* =====================================================================
+   CIUDAD VIVA (vista cenital): la simulación compartida del Valle de Aburrá.
+   · Transporte público real en movimiento y abordable: trenes (A, B), tranvía, cabinas de los
+     metrocables, articulados de Metroplús y buses alimentadores, cada uno con sus paradas.
+   · Peatones con rumbo (van a la estación, al parque, a la casa), paraguas cuando llueve,
+     se asustan con los carros y conversan si te les acercas.
+   · Tráfico en los carriles reales con semáforos de 32 s (TRAF).
+   · Luces: ventanas, postes en las avenidas, faros de los carros y sombras según el sol.
+   · Lugares reales (LUGARES) dibujados sobre el mapa con su nombre.
+   ===================================================================== */
+const WALK_OK = new Set([TT.WALK, TT.PLAZA, TT.GRASS, TT.CICLO, TT.STATION, TT.BRIDGE, TT.DEPOT, TT.STEPS, TT.ROAD]);
+const PED_FRASES = ['¡Qué pena!', '¿Pa’ dónde va el alimentador?', 'Vea pues…', 'Hágale, mijo', '¿Ya pasó el tren?', '¡Buenas!', 'Con permiso', 'Qué calor, ¿no?', '¿Esta es la estación?', 'Voy tarde pa’l trabajo', '¡Uy, cuidado!', 'Gracias, muy amable', '¿Me regala la hora?', 'Hoy no hay pico y placa', 'Está lloviendo, vea'];
+const DOG_COL = ['#8a5a32', '#2a2420', '#d8c8a8', '#b07a3a', '#efe8d8', '#5a4636', '#c9a46a'];
+const PED_COL = ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538', '#E38835', '#743D90', '#fbe7b0', '#141414', '#0E6F76', '#EB318E', '#ffffff', '#8a5a3b'];
+const Ciudad = EM.ciudad = {
+  transit: [], peds: [], cars: [], bubbles: [], marks: [], parts: [], vendors: [], t: 0, spawnT: 0, carT: 0, focus: { x: 0, y: 0 }, ready: false, lm: null,
+  PRODUCTOS: [['Mango biche', '#59AB42'], ['Tintico', '#5a3417'], ['Chontaduro', '#E38835'], ['Minutos', '#1C5C9C'], ['Arepa de queso', '#F6C538'], ['Jugo de naranja', '#ff9f1c'], ['Chicles y cigarrillos', '#EC343A']],
+  init(seed = 1) {
+    this.t = 0; this.peds = []; this.cars = []; this.bubbles = []; this.marks = []; this.parts = []; this.transit = []; TRAF.build(); this.rng = new RNG(seed);
+    for (const line of NET.lines) {
+      if (line.kind === 'future' || line.kind === 'escalator' || line.P.len < 200) continue; const K = KIND[line.kind];
+      const n = Math.max(2, Math.round(line.P.len / (line.kind === 'metro' ? 1500 : line.kind === 'cable' ? 180 : line.kind === 'tram' ? 900 : 1300))), L2 = line.P.len * 2;
+      for (let i = 0; i < n; i++) { const q = (i * L2 / n) % L2, dir = q < line.P.len ? 1 : -1, s = dir > 0 ? q : L2 - q; const ni = this.nextStop(line, s, dir); this.transit.push({ line, s, dir, ph: 'run', dw: 0, ni, spd: K.vmax * (line.kind === 'cable' ? 1 : .72), st: null, id: line.id + i }); }
+    }
+    this.vendors = []; for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const r = h2(h.x | 0, h.y | 0, 21); if (r > .75) continue; const P = this.PRODUCTOS[(r * 97 | 0) % this.PRODUCTOS.length]; let x = h.x + 26, y = h.y + 18; for (let k = 0; k < 12; k++) { const a = r * TAU + k * .9, tx = h.x + Math.cos(a) * (22 + k * 2), ty = h.y + Math.sin(a) * (22 + k * 2), v = MAP.tileM(tx, ty); if (v === TT.WALK || v === TT.PLAZA) { x = tx; y = ty; break; } } this.vendors.push({ x, y, a: r * TAU, name: P[0], col: P[1], seed: (r * 1e6) | 0, skin: SKIN[(r * 5) | 0], said: 0 }); }
+    if (!this.lm) this.lm = (typeof LUGARES !== 'undefined' ? LUGARES : []).map(([id, name, muni, lat, lon, w, h, k, fact, secret]) => Object.assign({ id, name, muni, w: w * TM, h: h * TM, k, fact, secret: !!secret }, geoM(lat, lon)));
+    this.ready = true;
+  },
+  nextStop(line, s, dir) { const st = line.st; if (dir > 0) { for (let i = 0; i < st.length; i++) if (st[i].s > s + 1) return i; return st.length - 1; } for (let i = st.length - 1; i >= 0; i--) if (st[i].s < s - 1) return i; return 0; },
+  tpos(v) { return NET.at(v.line.P, v.s, v.dir * (v.line.kind === 'metro' ? 2 : v.line.kind === 'cable' ? 0 : 2.2)); },
+  /* ---------- transporte ---------- */
+  transitTick(dt) {
+    const fx = this.focus.x, fy = this.focus.y;
+    for (const v of this.transit) {
+      const K = KIND[v.line.kind]; if (v.line._far == null || (this.t % 2) < dt) { const s0 = v.line.st[0], s1 = v.line.st[v.line.st.length - 1]; v.line._far = Math.min(dist(fx, fy, s0.x, s0.y), dist(fx, fy, s1.x, s1.y), dist(fx, fy, v.line.st[v.line.st.length >> 1].x, v.line.st[v.line.st.length >> 1].y)) > 6000; }
+      if (v.line._far) { v.s = clamp(v.s + v.dir * v.spd * dt * .8, 0, v.line.P.len); if (v.s <= 0 || v.s >= v.line.P.len) { v.dir *= -1; v.ni = this.nextStop(v.line, v.s, v.dir); } continue; }
+      if (v.ph === 'dwell') { v.dw += dt; if (v.dw >= K.dwell * (v.line.kind === 'cable' ? .6 : 1)) { v.ph = 'run'; v.st = null; if ((v.dir > 0 && v.ni >= v.line.st.length - 1) || (v.dir < 0 && v.ni <= 0)) v.dir *= -1; v.ni = this.nextStop(v.line, v.s, v.dir); } continue; }
+      const tgt = v.line.st[v.ni].s, d = (tgt - v.s) * v.dir, vmax = Math.min(v.spd, Math.sqrt(2 * K.brk * .8 * Math.max(0, d)) + .3); v.v = Math.min(vmax, (v.v || 0) + K.acc * dt); v.s += v.dir * v.v * dt;
+      if ((tgt - v.s) * v.dir <= 0) { v.s = tgt; v.ph = 'dwell'; v.dw = 0; v.v = 0; v.st = v.line.st[v.ni]; }
+    }
+  },
+  /* vehículo del transporte detenido en el andén de una estación (para subirse) */
+  atHub(hub, x, y, pref) { let best = null, bd = 1e9; for (const v of this.transit) { if (v.ph !== 'dwell' || !v.st || v.st.hub !== hub) continue; const p = this.tpos(v), d = dist(x, y, p.x, p.y) - (pref && v.line.id === pref ? 60 : 0); if (d < bd) { bd = d; best = v; } } return best && bd < 70 ? best : null; },
+  /* ---------- peatones ---------- */
+  pedTick(dt, player) {
+    const L = Mundo.light(), w = L.w, want = Math.round((Save.d.settings.q === 'low' ? 28 : 56) * (1 - .6 * L.night) * (w.rain ? .6 : 1)), fx = this.focus.x, fy = this.focus.y;
+    this.spawnT -= dt;
+    if (this.spawnT <= 0 && this.peds.length < want) {
+      this.spawnT = .12; const rng = this.rng;
+      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200, x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r, v = MAP.tileM(x, y); if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
+        if (rng.f() < .08) { o.dog = 1; o.umb = false; o.v = 1.4 + rng.f(); o.col = rng.pick(DOG_COL); } else if (rng.f() < .1) this.peds.push({ x: x - 1.2, y, a: o.a, v: o.v, seed: rng.i(1, 1e6), tgt: null, wait: 0, col: rng.pick(DOG_COL), stun: 0, ph: 0, scared: 0, dog: 1, owner: o }); break; }
+    }
+    for (const p of this.peds) {
+      p.ph += dt * p.v * 2.4; if (p.stun > 0) { p.stun -= dt; continue; }
+      if (p.owner) { const o = p.owner; if (o.gone || o.board || o.waitStop != null || dist(p.x, p.y, o.x, o.y) > 25) p.owner = null; else { const tx = o.x - Math.cos(o.a) * 1.7 + Math.sin(this.t * .8 + p.seed) * .5, ty = o.y - Math.sin(o.a) * 1.7 + Math.cos(this.t * .7 + p.seed) * .5, d = dist(p.x, p.y, tx, ty); if (d > .25) { p.a = Math.atan2(ty - p.y, tx - p.x); const st = Math.min(d, (o.v + 1.4) * dt); p.x += Math.cos(p.a) * st; p.y += Math.sin(p.a) * st; p.ph += dt * 5; } if (p.scared > 0) p.scared -= dt; continue; } }
+      if (p.board) { const d = dist(p.x, p.y, p.board.x, p.board.y); if (d < 1.2) { p.gone = true; continue; } p.a = Math.atan2(p.board.y - p.y, p.board.x - p.x); p.x += Math.cos(p.a) * 1.7 * dt; p.y += Math.sin(p.a) * 1.7 * dt; continue; }
+      if (p.waitStop != null) { p.ph = Math.sin(this.t * .6 + p.seed) * .3; continue; }
+      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
+      if (p.wait > 0) { p.wait -= dt; continue; }
+      if (!p.tgt || dist(p.x, p.y, p.tgt.x, p.tgt.y) < 4) { if (p.tgt) p.wait = .5 + this.rng.f() * 3; p.tgt = this.pedTarget(p); continue; }
+      const ta = Math.atan2(p.tgt.y - p.y, p.tgt.x - p.x); let moved = false;
+      for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4]) { const a = ta + off, st = p.v * dt, nx = p.x + Math.cos(a) * st, ny = p.y + Math.sin(a) * st, v = MAP.tileM(nx, ny); if (WALK_OK.has(v) && (v !== TT.ROAD || off === 0)) { p.a += Math.atan2(Math.sin(a - p.a), Math.cos(a - p.a)) * Math.min(1, dt * 6); p.x = nx; p.y = ny; moved = true; break; } }
+      if (!moved) { p.tgt = null; p.wait = .3; }
+      // miedo a los vehículos rápidos
+      if (player && player.veh && Math.abs(player.vf) > 3) { const dx = p.x - player.x, dy = p.y - player.y, d = Math.hypot(dx, dy); if (d < 9) { p.scared = .8; p.a = Math.atan2(dy, dx); if (d < 2.2 && Math.abs(player.vf) > 1.5 && !p.hit) { p.hit = 1; p.stun = 2.5; player.onPed && player.onPed(p); } } }
+    }
+    this.peds = this.peds.filter(p => !p.gone && (p.waitStop != null || dist(p.x, p.y, fx, fy) < 420));
+  },
+  /* gente esperando en una parada (para el simulador de bus) */
+  spawnWaiting(stopIdx, x, y, n) {
+    const rng = this.rng, out = [];
+    for (let i = 0; i < n; i++) { let px = x, py = y; for (let k = 0; k < 10; k++) { const a = rng.f() * TAU, r = 2 + rng.f() * 7, tx = x + Math.cos(a) * r, ty = y + Math.sin(a) * r, v = MAP.tileM(tx, ty); if (v === TT.WALK || v === TT.PLAZA || v === TT.STATION) { px = tx; py = ty; break; } } const p = { x: px, y: py, a: rng.f() * TAU, v: 1.2, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: Mundo.weather().rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0, waitStop: stopIdx }; this.peds.push(p); out.push(p); }
+    return out;
+  },
+  vendorsDraw(g, S, k, sh, x0, y0, x1, y1) {
+    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
+  },
+  pedTarget(p) {
+    const rng = this.rng; if (rng.f() < .35) { let best = null, bd = 1e9; for (const h of NET.stations) { const d = dist(h.x, h.y, p.x, p.y); if (d < bd && d > 25) { bd = d; best = h; } } if (best && bd < 260) return { x: best.x + (rng.f() - .5) * 20, y: best.y + (rng.f() - .5) * 20 }; }
+    for (let k = 0; k < 8; k++) { const a = rng.f() * TAU, r = 40 + rng.f() * 120, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r, v = MAP.tileM(x, y); if (v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS) return { x, y }; }
+    return { x: p.x + (rng.f() - .5) * 30, y: p.y + (rng.f() - .5) * 30 };
+  },
+  say(p, txt) { this.bubbles.push({ x: p.x, y: p.y, t: 2.4, txt: txt || this.rng.pick(PED_FRASES), p }); },
+  /* ---------- carros ---------- */
+  carTick(dt, player) {
+    const want = Save.d.settings.q === 'low' ? 10 : 20, fx = this.focus.x, fy = this.focus.y, L = Mundo.light(); this.carT -= dt;
+    if (this.carT <= 0 && this.cars.length < want * (1 - .4 * L.night)) {
+      this.carT = .22; const near = TRAF.near(fx, fy); if (near.length) { const rng = this.rng, Ln = rng.pick(near), p = rng.f() * Ln.P.len, q = NET.at(Ln.P, p, Ln.off), d = dist(q.x, q.y, fx, fy); if (d > 60 && d < 330 && !(player && dist(q.x, q.y, player.x, player.y) < 30)) { const r = rng.f(); this.cars.push({ L: Ln, p, v: Ln.spd * .7, spd: Ln.spd * (.8 + r * .35), kind: r < .16 ? 'moto' : r < .4 ? 'taxi' : r < .47 ? 'bus' : 'car', col: r >= .16 && r < .4 ? '#f2c400' : CARCOL[(r * 97 | 0) % CARCOL.length], x: q.x, y: q.y, a: q.a, stop: 0, honk: 0 }); } }
+    }
+    for (const c of this.cars) {
+      let v = c.spd * (L.w.rain ? .85 : 1); const len = c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.5;
+      for (const o of this.cars) { if (o === c || o.L !== c.L) continue; const ahead = (o.p - c.p) * c.L.d; if (ahead > 0 && ahead < len + 7) v = Math.min(v, o.v * .9, Math.max(0, ahead - len - 2)); }
+      const front = c.p + c.L.d * len / 2; for (const q of c.L.lights) { const d = (q.s - front) * c.L.d; if (d < 0 || d > 35) continue; const s = TRAF.state(q.g, this.t)[q.ax]; if (s === 'r' || (s === 'y' && d > 8 && c.kind !== 'moto')) v = Math.min(v, Math.max(0, (d - 3) * 1.2)); break; }
+      if (player) { const fxv = Math.cos(c.a), fyv = Math.sin(c.a), dx = player.x - c.x, dy = player.y - c.y, along = dx * fxv + dy * fyv, lat = Math.abs(-dx * fyv + dy * fxv); if (along > 0 && along < 24 && lat < 3.5) { v = along < 10 ? 0 : Math.min(v, 2.5); if (c.honk <= 0 && player.veh && Math.abs(player.vf) < 1) { c.honk = 4; if (dist(c.x, c.y, fx, fy) < 120) Snd.play('horn'); } } }
+      for (const p of this.peds) { const dx = p.x - c.x, dy = p.y - c.y, along = dx * Math.cos(c.a) + dy * Math.sin(c.a), lat = Math.abs(-dx * Math.sin(c.a) + dy * Math.cos(c.a)); if (along > 0 && along < 9 && lat < 2) v = 0; }
+      if (c.stop > 0) { c.stop -= dt; v = 0; } c.honk -= dt;
+      c.v += clamp(v - c.v, -6 * dt, 3 * dt); c.p += c.v * c.L.d * dt; const q = NET.at(c.L.P, c.p, c.L.off); c.x = q.x; c.y = q.y; c.a = c.L.d > 0 ? q.a : q.a + Math.PI;
+      if (player && player.veh && !(c.ghost > 0)) { const dx = c.x - player.x, dy = c.y - player.y, along = dx * Math.cos(player.h) + dy * Math.sin(player.h), lat = -dx * Math.sin(player.h) + dy * Math.cos(player.h); if (Math.abs(along) < player.veh.len / 2 + len / 2 && Math.abs(lat) < player.veh.wid / 2 + 1) { c.ghost = 3; c.stop = 2.5; player.onCar && player.onCar(c); } } else if (c.ghost > 0) c.ghost -= dt;
+    }
+    this.cars = this.cars.filter(c => c.p > -10 && c.p < c.L.P.len + 10 && dist(c.x, c.y, fx, fy) < 480);
+  },
+  tick(dt, player) {
+    this.t += dt; this.focus.x = player ? player.x : this.focus.x; this.focus.y = player ? player.y : this.focus.y;
+    this.transitTick(dt); this.pedTick(dt, player); this.carTick(dt, player);
+    for (const b of this.bubbles) { b.t -= dt; if (b.p) { b.x = b.p.x; b.y = b.p.y; } } this.bubbles = this.bubbles.filter(b => b.t > 0);
+    for (const m of this.marks) m.t -= dt * .08; this.marks = this.marks.filter(m => m.t > 0); if (this.marks.length > 500) this.marks.splice(0, this.marks.length - 500);
+    for (const p of this.parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; } this.parts = this.parts.filter(p => p.t > 0);
+  },
+  /* ---------- dibujo ---------- */
+  shadowDir() { const s = SKY.at(Mundo.hour()).sun, el = Math.max(.2, s.el); return { dx: -Math.sin(s.az) * Math.min(3, 1 / Math.tan(el)), dy: Math.cos(s.az) * Math.min(3, 1 / Math.tan(el)), a: clamp(.18 + .25 * Math.sin(el), .08, .4) }; },
+  landmarks(g, S, k, x0, y0, x1, y1) {
+    for (const L of this.lm) {
+      if (L.x + L.w < x0 || L.x - L.w > x1 || L.y + L.h < y0 || L.y - L.h > y1) continue; const p = S(L.x - L.w / 2, L.y - L.h / 2), w = L.w * k, h = L.h * k;
+      const col = { iglesia: '#e9d9b7', terminal: '#c9ced4', volador: null, campus: '#d6e6d2', moravia: '#f2cfae', botanico: null, explora: '#EC343A', estadio: '#9aa0a6', botero: '#e9c9c9', coltejer: '#8d97a4', teatro: '#b9b5ad', lleras: null, pies: '#d9cdae', luces: '#d9cdae', depot: '#bfe1d9', cerro: null, mamm: '#b4583a', aeropuerto: '#9aa1a8', comuna13: null, bibespana: '#2b2b2b', palacio: '#f4ecd0', catedral: '#b4583a', parquenorte: null, deporte: '#cfe0ea', memoria: '#8d97a4', cruces: null }[L.k];
+      if (col) { g.fillStyle = 'rgba(20,20,20,.35)'; g.fillRect(p.x + 2, p.y + 3, w, h); g.fillStyle = col; g.fillRect(p.x, p.y, w, h); g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1, k * .5); g.strokeRect(p.x, p.y, w, h);
+        if (L.k === 'iglesia' || L.k === 'catedral') { g.fillStyle = Art.shade(col, .8); g.fillRect(p.x + w * .42, p.y + h * .1, w * .16, h * .5); g.fillStyle = PAL.negro; g.fillRect(p.x + w * .49, p.y + h * .02, Math.max(1, k * .3), h * .18); g.fillRect(p.x + w * .45, p.y + h * .07, w * .1, Math.max(1, k * .3)); }
+        if (L.k === 'estadio') { g.fillStyle = '#59AB42'; g.beginPath(); g.ellipse(p.x + w / 2, p.y + h / 2, w * .3, h * .36, 0, 0, TAU); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); }
+        if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); }
+        if (L.k === 'campus' || L.k === 'deporte') { g.fillStyle = Art.shade(col, .85); for (let i = 0; i < 4; i++) g.fillRect(p.x + w * (.1 + (i % 2) * .5), p.y + h * (.1 + (i >> 1) * .5), w * .3, h * .3); }
+        if (L.k === 'bibespana') { g.fillStyle = '#3a3a3a'; for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(p.x + w * (.1 + i * .3), p.y + h * .9); g.lineTo(p.x + w * (.25 + i * .3), p.y + h * .15); g.lineTo(p.x + w * (.4 + i * .3), p.y + h * .9); g.fill(); } }
+      } else { const n = Math.max(3, Math.round(w * h / Math.max(60, k * k * 400))); for (let i = 0; i < Math.min(n, 60); i++) { const tx = p.x + h2(i, 1, L.id.length) * w, ty = p.y + h2(i, 2, L.id.length) * h, r = (1.5 + h2(i, 3, 1) * 2) * k; g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(tx + r * .4, ty + r * .5, r, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#2f6b3c'][i % 3]; g.beginPath(); g.arc(tx, ty, r, 0, TAU); g.fill(); } }
+      if (k > .9) { g.font = '700 ' + Math.max(10, Math.min(16, k * 5)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.9)'; g.strokeText(L.name, p.x + w / 2, p.y + h + 12); g.fillStyle = PAL.negro; g.fillText(L.name, p.x + w / 2, p.y + h + 12); g.textAlign = 'left'; }
+    }
+  },
+  /* peatón visto desde arriba: sombra, cuerpo, cabeza, brazos al caminar, paraguas */
+  ped(g, p, S, k, sh) {
+    const q = S(p.x, p.y), s = Math.max(2, k * 1.6), sw = Math.sin(p.ph) * s * .8;
+    if (p.dog) { const ds = s * .62; if (p.owner) { const o = S(p.owner.x, p.owner.y); g.strokeStyle = 'rgba(30,30,30,.75)'; g.lineWidth = Math.max(1, k * .12); g.beginPath(); g.moveTo(q.x, q.y); g.quadraticCurveTo((q.x + o.x) / 2, (q.y + o.y) / 2 + s * .4, o.x, o.y); g.stroke(); }
+      g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.beginPath(); g.ellipse(q.x + sh.dx * ds, q.y + sh.dy * ds, ds * .9, ds * .5, p.a, 0, TAU); g.fill(); g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.dog(g, ds, p); g.restore(); return; }
+    g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.beginPath(); g.ellipse(q.x + sh.dx * s, q.y + sh.dy * s, s * 1.1, s * .7, 0, 0, TAU); g.fill();
+    g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.ped(g, s * .8, p); g.restore();
+  },
+  /* vehículo cenital con sombra, techo, ventanas, luces (faros de noche) */
+  car(g, x, y, a, len, wid, col, kind, S, k, sh, night, lights, o) {
+    const vs = k < 2.5 ? 1.25 : 1, q = S(x, y), L = Math.max(6, len * k * vs), W = Math.max(3.5, wid * k * vs);
+    g.save(); g.translate(q.x + sh.dx * k * .8, q.y + sh.dy * k * .8); g.rotate(a); g.fillStyle = 'rgba(0,0,0,' + sh.a + ')'; g.fillRect(-L / 2, -W / 2, L, W); g.restore();
+    g.save(); g.translate(q.x, q.y); g.rotate(a); Spr.veh(g, kind, L, W, col, Object.assign({ lights, night: night > .3, doors: kind === 'brt' ? 'left' : kind === 'feeder' || kind === 'bus' ? 'right' : null }, o || {})); g.restore();
+    if (night > .3 && lights && kind !== 'cable') { g.save(); g.translate(q.x, q.y); g.rotate(a); g.globalCompositeOperation = 'lighter'; const gr = g.createLinearGradient(L / 2, 0, L / 2 + 26 * k, 0); gr.addColorStop(0, 'rgba(255,240,180,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,180,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(L / 2, -W / 2); g.lineTo(L / 2 + 26 * k, -W * 1.6); g.lineTo(L / 2 + 26 * k, W * 1.6); g.lineTo(L / 2, W / 2); g.fill(); g.restore(); }
+  },
+  transitDraw(g, S, k, sh, night, x0, y0, x1, y1) {
+    for (const v of this.transit) {
+      const p = this.tpos(v); if (p.x < x0 - 100 || p.x > x1 + 100 || p.y < y0 - 100 || p.y > y1 + 100) continue; const K = KIND[v.line.kind], kind = v.line.kind, col = v.line.color;
+      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, S, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
+      else if (kind === 'cable') { const q = NET.at(v.line.P, v.s); this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', S, k, sh, night, false); }
+      else { const q = NET.at(v.line.P, v.s - v.dir * K.len / 2, v.dir * 2.2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), K.len, 2.5, col, kind, S, k, sh, night, true); }
+    }
+  },
+  /* luces de la ciudad de noche: postes en avenidas y plazas (aditivo) */
+  streetLights(g, S, k, night, x0, y0, x1, y1, W, H) {
+    if (night < .25) return; g.save(); g.globalCompositeOperation = 'lighter';
+    const step = TM * 3, R = Math.max(8, 14 * k);
+    for (let y = Math.floor(y0 / step) * step; y < y1; y += step) for (let x = Math.floor(x0 / step) * step; x < x1; x += step) {
+      const v = MAP.tileM(x + 10, y + 10); if (!(v === TT.AVE || v === TT.AUTO || v === TT.PLAZA || v === TT.STATION || (v === TT.ROAD && h2(x, y, 4) < .25))) continue; if (h2(x, y, 5) > .8) continue;
+      const q = S(x + 10, y + 10); if (q.x < -R || q.y < -R || q.x > W + R || q.y > H + R) continue; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, R); gr.addColorStop(0, 'rgba(255,214,140,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,214,140,0)'); g.fillStyle = gr; g.fillRect(q.x - R, q.y - R, R * 2, R * 2);
+    }
+    for (const h of NET.stations) { const q = S(h.x, h.y); if (q.x < -60 || q.y < -60 || q.x > W + 60 || q.y > H + 60) continue; const r = Math.max(16, 40 * k), gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, r); gr.addColorStop(0, 'rgba(200,230,255,' + (.35 * night) + ')'); gr.addColorStop(1, 'rgba(200,230,255,0)'); g.fillStyle = gr; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); }
+    g.restore();
+  },
+  /* estaciones y paradas sobre el mapa */
+  stations(g, S, k, x0, y0, x1, y1) {
+    const path = (l, pad) => { g.beginPath(); let on = false; for (const p of l.P.pts) { if (p.x < x0 - pad || p.x > x1 + pad || p.y < y0 - pad || p.y > y1 + pad) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } };
+    g.lineJoin = 'round'; g.lineCap = 'butt';
+    for (const l of NET.lines) {
+      if (l.kind === 'future' || l.kind === 'cable') continue;
+      if (l.kind === 'metro') { // viaducto: sombra, bordes, tablero, rieles
+        path(l, 300); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 10.5 * k; g.save(); g.translate(1.5 * k, 2.5 * k); g.stroke(); g.restore();
+        g.strokeStyle = '#4f4b45'; g.lineWidth = 10 * k; g.stroke(); g.strokeStyle = '#9a9185'; g.lineWidth = 8.6 * k; g.stroke(); g.strokeStyle = '#6f685e'; g.lineWidth = .5 * k; g.stroke();
+        for (const o of [-2.4, -1.2, 1.2, 2.4]) { g.beginPath(); let on = false; for (let s = Math.max(0, NET.project(l.P, x0, y0).s - 400); s < l.P.len; s += 14) { const q0 = NET.at(l.P, s, o); if (q0.x < x0 - 60 || q0.x > x1 + 60 || q0.y < y0 - 60 || q0.y > y1 + 60) { on = false; if (s > NET.project(l.P, x1, y1).s + 400) break; continue; } const q = S(q0.x, q0.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.strokeStyle = '#2b2a28'; g.lineWidth = Math.max(.8, .22 * k); g.stroke(); }
+      } else if (l.kind === 'tram') { path(l, 200); g.strokeStyle = 'rgba(30,30,30,.55)'; g.lineWidth = 6.2 * k; g.stroke(); g.strokeStyle = '#5d6168'; g.lineWidth = 6 * k; g.stroke(); g.strokeStyle = '#d8d8d8'; g.lineWidth = Math.max(.8, .25 * k); g.stroke(); }
+      else { path(l, 200); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
+      for (const s of l.st) { if (s.x < x0 - 80 || s.x > x1 + 80 || s.y < y0 - 80 || s.y > y1 + 80) continue; const q = S(s.x, s.y), K = KIND[l.kind], pl = K.plat * k, a = NET.at(l.P, s.s).a;
+        g.save(); g.translate(q.x, q.y); g.rotate(a);
+        if (l.kind === 'metro') { const off = 5 * k, w = 4 * k; g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-pl / 2 + 1.5 * k, -off - w + 2.5 * k, pl, w); g.fillRect(-pl / 2 + 1.5 * k, off + 2.5 * k, pl, w); g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); g.fillRect(-pl / 2, off, pl, w); g.fillStyle = PAL.mante; g.fillRect(-pl / 2, -off - .5 * k, pl, .5 * k); g.fillRect(-pl / 2, off, pl, .5 * k); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .9 * k, pl, .9 * k); g.fillRect(-pl / 2, off + w, pl, .9 * k); g.fillStyle = 'rgba(0,0,0,.12)'; for (let x = -pl / 2 + 2 * k; x < pl / 2; x += 6 * k) { g.fillRect(x, -off - w - .8 * k, .6 * k, w + .8 * k); g.fillRect(x, off, .6 * k, w + .8 * k); } }
+        else if (l.kind === 'tram' || l.kind === 'brt') { const off = (l.kind === 'tram' ? 3.4 : 2) * k, w = 2.6 * k; g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); if (l.kind === 'tram') g.fillRect(-pl / 2, off, pl, w); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .6 * k, pl, .7 * k); if (l.kind === 'brt') { g.fillStyle = '#141414'; g.fillRect(-pl / 2, -off - w, pl, .4 * k); } }
+        else { g.fillStyle = l.color; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, Math.max(3, 2.2 * k), 0, TAU); g.fill(); g.stroke(); }
+        g.restore(); }
+    }
+    // metrocables: cable doble, torres cada ~260 m y estaciones
+    for (const l of NET.lines) { if (l.kind !== 'cable') continue; for (let i = 0; i < l.st.length - 1; i++) { const a = l.st[i], b = l.st[i + 1]; if (Math.max(a.x, b.x) < x0 - 100 || Math.min(a.x, b.x) > x1 + 100 || Math.max(a.y, b.y) < y0 - 100 || Math.min(a.y, b.y) > y1 + 100) continue; const qa = S(a.x, a.y), qb = S(b.x, b.y), L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1), ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang) * 1.5 * k, oy = Math.cos(ang) * 1.5 * k; g.strokeStyle = 'rgba(20,20,20,.8)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(qa.x + ox, qa.y + oy); g.lineTo(qb.x + ox, qb.y + oy); g.moveTo(qa.x - ox, qa.y - oy); g.lineTo(qb.x - ox, qb.y - oy); g.stroke(); for (let t = 1; t <= nt; t++) { const f = t / (nt + 1), tx = lerp(a.x, b.x, f), ty = lerp(a.y, b.y, f), q = S(tx, ty); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 1.5 * k + 2 * k, q.y - 1.5 * k + 3 * k, 3 * k, 3 * k); g.fillStyle = '#8f949a'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1; g.strokeRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); } }
+      for (const s of l.st) { if (s.x < x0 - 60 || s.x > x1 + 60 || s.y < y0 - 60 || s.y > y1 + 60) continue; const q = S(s.x, s.y); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 12 * k + 2.5 * k, q.y - 8 * k + 3.5 * k, 24 * k, 16 * k); g.fillStyle = '#d9d2c3'; g.fillRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); g.fillStyle = l.color; g.fillRect(q.x - 12 * k, q.y - 9 * k, 24 * k, 1.6 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.strokeRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); } }
+    g.setLineDash([]);
+    for (const h of NET.stations) { if (h.x < x0 || h.x > x1 || h.y < y0 || h.y > y1 || !h.lines.some(l => l.kind !== 'future')) continue; const q = S(h.x, h.y), big = h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!big && k < 1.4) continue; g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, big ? Math.max(5, 3 * k) : 3, 0, TAU); g.fill(); g.stroke(); if (k > .7 || big) { g.font = '700 ' + Math.max(10, Math.min(15, k * 5)) + 'px Cuerpo, sans-serif'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.92)'; g.strokeText(h.name, q.x + 7, q.y - 6); g.fillStyle = PAL.negro; g.fillText(h.name, q.x + 7, q.y - 6); } }
+  },
+  bubblesDraw(g, S, k) { for (const b of this.bubbles) { const q = S(b.x, b.y); g.font = '700 11px Cuerpo, sans-serif'; const w = g.measureText(b.txt).width + 10; g.globalAlpha = clamp(b.t, 0, 1); g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.fillRect(q.x - w / 2, q.y - 26 - 8 * k, w, 16); g.strokeRect(q.x - w / 2, q.y - 26 - 8 * k, w, 16); g.fillStyle = PAL.negro; g.textAlign = 'center'; g.fillText(b.txt, q.x, q.y - 14 - 8 * k); g.textAlign = 'left'; g.globalAlpha = 1; } },
+  marksDraw(g, S, k) { g.lineCap = 'round'; for (const m of this.marks) { const a = S(m.x1, m.y1), b = S(m.x2, m.y2); g.strokeStyle = 'rgba(20,20,20,' + (.35 * clamp(m.t, 0, 1)) + ')'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } },
+  partsDraw(g, S, k) { for (const p of this.parts) { const q = S(p.x, p.y); g.fillStyle = p.c; g.globalAlpha = clamp(p.t / p.t0, 0, 1) * .8; g.fillRect(q.x - p.r * k, q.y - p.r * k, p.r * 2 * k, p.r * 2 * k); } g.globalAlpha = 1; }
+};
+~~~~
+
+### `src/js/36-libre.js`
+~~~~js
+/* =====================================================================
+   CIUDAD LIBRE · recorre el Valle de Aburrá a tu aire (vista cenital, de Caldas a Barbosa)
+   A pie, en bici, moto, taxi, camioneta del Metro, alimentador o articulado; y de pasajero en
+   el metro, el tranvía, los cables y los buses. Física arcade con derrape (freno de mano),
+   tráfico y peatones vivos, día y noche, clima, y oficios que llegan por la radio.
+   ===================================================================== */
+const VEH = {
+  taxi: { n: 'Taxi', len: 4.4, wid: 1.8, wb: 2.6, vmax: 100 / 3.6, acc: 3.4, brk: 7, smax: .62, srate: 2.4, grip: 6, col: '#f2c400', icon: '🚕', soft: 1 },
+  moto: { n: 'Moto', len: 2.1, wid: .8, wb: 1.4, vmax: 115 / 3.6, acc: 4.2, brk: 7, smax: .7, srate: 3.2, grip: 7, col: '#EC343A', icon: '🏍', soft: 1, ciclo: 1 },
+  camioneta: { n: 'Camioneta del Metro', len: 5.3, wid: 1.95, wb: 3.1, vmax: 95 / 3.6, acc: 2.9, brk: 6.5, smax: .58, srate: 2.1, grip: 5.5, col: '#1C5C9C', icon: '🛻', soft: 1, campo: 1 },
+  bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, col: '#59AB42', icon: '🚲', soft: 1, ciclo: 1, walk: 1 },
+  alimentador: { n: 'Bus alimentador', len: 12, wid: 2.5, wb: 6, vmax: 55 / 3.6, acc: 1.2, brk: 3, smax: .55, srate: 1.3, grip: 5, col: '#f4f1ea', icon: '🚐', soft: 0 },
+  metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, col: '#0E6F76', icon: '🚌', soft: 0 }
+};
+const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]), SOLID_W = new Set([TT.BRICK, TT.BLDG, TT.LAND, TT.WATER, TT.CANAL]);
+Music.SONGS.ciudad = { bpm: 100, root: 55, sc: [0, 2, 3, 5, 7, 9, 10], prog: [0, 3, 4, 3], bass: [1, 0, 0, 1, 0, 0, 1, 0], mel: .4, w: 'triangle' };
+const Libre = EM.modes.libre = {
+  id: 'libre', name: 'Ciudad Libre', sub: 'Recorre el valle', music: 'ciudad', fullCanvas: true, endless: true,
+  tip: 'Joystick a la izquierda para moverte. ● sirve para subirte a un vehículo o al metro, hablar o entregar. En carro: ▲ acelera, ▼ frena, ✋ freno de mano para derrapar. Los oficios llegan por la radio.',
+  STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
+  levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
+  hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
+  /* casilla transitable más cercana para parquear o aparecer */
+  nearTile(x, y, ok, maxR = 8) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); for (let r = 0; r <= maxR; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; if (ok(MAP.tile(tx + dx, ty + dy))) return { x: (tx + dx + .5) * TM, y: (ty + dy + .5) * TM }; } return { x, y }; },
+  create(lv, opts) {
+    Ciudad.init((opts.seed | 0) || 1); const rng = new RNG((opts.seed | 0) + 3), sv = Save.d.libre || {};
+    const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
+    let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.nearTile(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
+    const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
+    // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
+    const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
+    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
+    const bello = this.hub('Bello'); park('camioneta', bello.x + 60, bello.y + 40); park('camioneta', bello.x - 50, bello.y + 70); const sa = this.hub('San Antonio'); park('camioneta', sa.x + 60, sa.y - 50);
+    for (const l of NET.lines) { if (l.kind === 'feeder') park('alimentador', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); if (l.kind === 'brt') { park('metroplus', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); park('metroplus', l.st[l.st.length - 1].x, l.st[l.st.length - 1].y, NET.at(l.P, l.P.len - 5).a + Math.PI); } }
+    if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
+    if (trama) Trama.init(st);
+    return st;
+  },
+  V(st) { return st.veh ? VEH[st.veh.kind] : null; },
+  /* ---------- oficios ---------- */
+  offer(st) {
+    const rng = Ciudad.rng, V = this.V(st), hubs = NET.stations.filter(h => h.lines.some(l => l.kind !== 'future')), pick = (mn, mx) => { const c = hubs.filter(h => { const d = dist(h.x, h.y, st.x, st.y); return d > mn && d < mx; }); return c.length ? rng.pick(c) : null; };
+    let J = null;
+    if (st.mode === 'veh' && st.veh.kind === 'taxi') { const c = Ciudad.peds.find(p => !p.client && !p.dog && dist(p.x, p.y, st.x, st.y) < 140 && dist(p.x, p.y, st.x, st.y) > 20); const d = pick(700, 3500); if (c && d) { c.client = true; c.tgt = null; c.wait = 99; Ciudad.say(c, '¡Taxi! ¡Taxi!'); J = { k: 'taxi', title: 'Un pasajero pide taxi', hint: 'Para junto a la persona que te llama y presiona ●', client: c, dest: d, stage: 0, pay: 0 }; } }
+    else if (st.mode === 'veh' && st.veh.kind === 'camioneta') { const lines = NET.lines.filter(l => l.kind !== 'future' && l.kind !== 'escalator'), l = rng.pick(lines), s = rng.f() * l.P.len, p = NET.at(l.P, s), near = dist(p.x, p.y, st.x, st.y); if (near < 2600 && near > 200) J = { k: 'reparacion', title: 'Falla en ' + l.name, hint: 'Llega al punto marcado y mantén ● 3 s para repararla', x: p.x, y: p.y, name: l.name, limit: near / 7 + 70, pay: 120, stage: 0, hold: 0 }; }
+    else if (st.mode === 'veh' && (st.veh.kind === 'alimentador' || st.veh.kind === 'metroplus')) { const line = NET.lines.find(l => (st.veh.kind === 'alimentador' ? l.kind === 'feeder' : l.kind === 'brt') && dist(l.st[0].x, l.st[0].y, st.x, st.y) < 120) || null; if (line) { J = { k: 'ruta', title: 'Ruta ' + line.name.replace(/^Alimentador\s*/, ''), hint: 'Para en cada parada (●) y lleva la gente a la estación', line, ni: 1, stops: line.st.length, pay: 0, stage: 0, limit: line.P.len / 5 + 60 * line.st.length }; } }
+    if (!J && st.mode !== 'ride') { const r = rng.f(), d = pick(600, 2600);
+      if (r < .3 && d) J = { k: 'encomienda', title: 'Encomienda para ' + d.name, hint: 'Lleva el paquete a la estación ' + d.name, x: d.x, y: d.y, name: d.name, limit: dist(d.x, d.y, st.x, st.y) / 7 + 80, pay: 40 + Math.round(dist(d.x, d.y, st.x, st.y) / 50), stage: 0 };
+      else if (r < .55) { const far = pick(2200, 9000); if (far) J = { k: 'pasajero', title: 'Cita en ' + far.name, hint: 'Llega usando el metro, los cables o los buses (sin manejar)', x: far.x, y: far.y, name: far.name, limit: dist(far.x, far.y, st.x, st.y) / 6 + 150, pay: 60 + Math.round(dist(far.x, far.y, st.x, st.y) / 40), stage: 0 }; }
+      else if (r < .8) { const L = Ciudad.lm.filter(l => !l.secret && dist(l.x, l.y, st.x, st.y) < 2400 && dist(l.x, l.y, st.x, st.y) > 150); if (L.length) { const l = rng.pick(L); J = { k: 'postal', title: 'Postal: ' + l.name, hint: 'Acércate y toma la foto con 📷', x: l.x, y: l.y, name: l.name, lm: l, limit: 240, pay: 60, stage: 0 }; } }
+      else { const c = pick(300, 1300); if (c) J = { k: 'tinto', title: 'Un tinto para el conductor', hint: 'Llévalo caliente a la estación ' + c.name + ' (sin regarlo)', x: c.x, y: c.y, name: c.name, limit: dist(c.x, c.y, st.x, st.y) / 3 + 60, pay: 35, stage: 0 }; }
+    }
+    if (!J) return; J.t = 0; st.job = J; this.msg(st, '📻 ' + J.title + ' · ' + (J.pay ? '+' + J.pay + ' 🎫' : ''), 'b'); this.sfx(st, 'beep');
+  },
+  jobTick(st, dt) {
+    const J = st.job; if (!J) { if (st.trama && Trama.active()) return; st.jobT -= dt; if (st.jobT <= 0) { st.jobT = 16 + Ciudad.rng.f() * 14; this.offer(st); } return; }
+    J.t += dt; if (J.limit && J.t > J.limit) { this.fail(st, 'Se acabó el tiempo'); return; }
+    if (J.k === 'taxi') { if (J.stage === 0) { if (!Ciudad.peds.includes(J.client)) { this.fail(st, 'El pasajero se fue'); return; } J.x = J.client.x; J.y = J.client.y; } else { J.x = J.dest.x; J.y = J.dest.y; if (dist(st.x, st.y, J.x, J.y) < 18 && Math.abs(st.vf) < .5) this.complete(st); } }
+    else if (J.k === 'encomienda' || J.k === 'tinto') { if (dist(st.x, st.y, J.x, J.y) < 16 && Math.abs(st.vf) < 1) this.complete(st); }
+    else if (J.k === 'pasajero') { if (dist(st.x, st.y, J.x, J.y) < 30 && st.mode !== 'veh') this.complete(st); }
+    else if (J.k === 'reparacion') { if (dist(st.x, st.y, J.x, J.y) < 14 && Math.abs(st.vf) < .5 && st.act) { J.hold += dt; if (J.hold >= 3) this.complete(st); } else J.hold = Math.max(0, J.hold - dt); }
+    else if (J.k === 'ruta') { const s = J.line.st[J.ni]; J.x = s.x; J.y = s.y; J.name = s.name; if (dist(st.x, st.y, s.x, s.y) < 16 && Math.abs(st.vf) < .5) { J.pay += 25; st.pay += 25; Save.d.wallet += 25; this.msg(st, 'Parada ' + s.name + ' +25 🎫', 'g'); this.sfx(st, 'coin'); for (let k = 0; k < 3; k++) Ciudad.parts.push({ x: st.x + (Math.random() - .5) * 6, y: st.y + (Math.random() - .5) * 6, vx: 0, vy: -2, t: 1, t0: 1, c: '#fff', r: .4 }); J.ni++; if (J.ni >= J.stops) this.complete(st); } }
+  },
+  complete(st) { const J = st.job; let pay = J.pay; if (J.k === 'taxi') { const d = dist(J.client.x0 || J.x, J.client.y0 || J.y, J.x, J.y); pay = 50 + Math.round(J.dist / 35) + (st.crashesJ ? 0 : 40); if (J.client) { J.client.client = false; J.client.wait = 1; J.client.x = st.x + 3; J.client.y = st.y + 3; Ciudad.peds.push(J.client); Ciudad.say(J.client, st.crashesJ ? 'Uy, qué susto' : '¡Gracias, muy amable!'); } }
+    if (J.k === 'postal') { st.photos.push(J.name); const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(J.name)) F.push(J.name); }
+    if (J.k === 'ruta') pay = 60;
+    st.jobs++; st.pay += pay; Save.d.wallet += pay; Save.d.libre.jobs = (Save.d.libre.jobs || 0) + 1; Save.write(); this.msg(st, '✓ ' + J.title + ' · +' + pay + ' 🎫', 'g'); this.sfx(st, 'star'); vib(40); st.job = null; st.jobT = 10; st.crashesJ = 0;
+  },
+  fail(st, why) { const J = st.job; if (J.k === 'taxi' && J.client) { J.client.client = false; J.client.wait = 1; if (J.stage === 1) { J.client.x = st.x + 3; J.client.y = st.y + 3; Ciudad.peds.push(J.client); } } this.msg(st, '✗ ' + J.title + ': ' + why, 'r'); this.sfx(st, 'bad'); st.job = null; st.jobT = 12; },
+  /* ---------- acción (●) ---------- */
+  action(st) {
+    if (st.mode === 'ride') { const v = st.ride; if (v.ph === 'dwell' && v.st) { st.mode = 'walk'; st.ride = null; const t = this.nearTile(v.st.x + 8, v.st.y + 8, q => q === TT.WALK || q === TT.PLAZA || q === TT.STATION, 6); st.x = t.x; st.y = t.y; st.vf = 0; this.msg(st, 'Bajas en ' + v.st.name, 'b'); this.sfx(st, 'door'); } else this.msg(st, 'Espera a que pare en la estación', 'y'); return; }
+    if (st.mode === 'veh') {
+      const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
+      if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
+      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.nearTile(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
+    }
+    // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
+    if (st.trama && Trama.onAction(st)) return;
+    let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
+      if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
+      st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
+    const p = Ciudad.peds.find(p => dist(p.x, p.y, st.x, st.y) < 3); if (p) { p.wait = 2; if (p.dog) { Ciudad.say(p, '¡Guau! 🐾'); p.owner = p.owner || null; return; } Ciudad.say(p); if (st.job && st.job.hint && Ciudad.rng.f() < .4) setTimeout(() => Ciudad.say(p, st.job.hint.slice(0, 40)), 1200); return; }
+    this.msg(st, 'Nada por aquí: busca una estación, un taxi o una bici', 'y');
+  },
+  nearHub(st, r) { let best = null, bd = r; for (const h of NET.stations) { const d = dist(h.x, h.y, st.x, st.y); if (d < bd) { bd = d; best = h; } } return best; },
+  /* ---------- física ---------- */
+  step(st, dt) {
+    if (st.done) return; st.t += dt; const J = st.job;
+    if (st.auto) { st.joy = { x: Math.sin(st.t * .3), y: -.8, m: 1 }; if (Math.floor(st.t) % 7 === 0 && !st._a) { st._a = 1; this.action(st); } else if (Math.floor(st.t) % 7) st._a = 0; }
+    if (st.trama && st.trama.talk) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; }
+    const ffOn = st.ff && (st.mode === 'ride' || !!this.nearHub(st, 70)); if (st.ff && !ffOn) st.ff = 0; const wdt = ffOn ? dt * 5 : dt;
+    if (st.mode === 'ride') { const p = Ciudad.tpos(st.ride); st.x = p.x; st.y = p.y; st.h = p.a + (st.ride.dir < 0 ? Math.PI : 0); st.vf = st.ride.v || 0; const v = st.ride; if (v.ph === 'dwell' && v.st && st._lastSt !== v.st) { st._lastSt = v.st; st.visited[v.st.name] = 1; this.msg(st, '🚉 ' + v.st.name + ' · ● para bajarte', 'b'); if (NET.fact(v.st.name) && Ciudad.rng.f() < .5) this.msg(st, NET.fact(v.st.name), 'y'); } }
+    else if (st.mode === 'veh') this.drive(st, dt);
+    else this.walk(st, dt);
+    Ciudad.tick(wdt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
+    this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
+    if (st.shake > 0) st.shake -= dt;
+    // cámara: sigue al jugador con adelanto y zoom según la velocidad
+    const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
+    st.cam.k += (kT - st.cam.k) * Math.min(1, dt * 2); const lead = st.mode === 'walk' ? 6 : 1.1 * st.vf; st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 4); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 4);
+    if ((st._sv = (st._sv || 0) + dt) > 5) { st._sv = 0; this.persist(st); }
+  },
+  walk(st, dt) {
+    const j = st.joy, m = j.m > .15 ? 1 : 0; st.vf = 0;
+    if (!m) return; const a = Math.atan2(j.y, j.x), tile = MAP.tileM(st.x, st.y), spd = (st.run ? 3.6 : 1.6) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1);
+    st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 10);
+    const nx = st.x + Math.cos(a) * spd * dt, ny = st.y + Math.sin(a) * spd * dt; st.vf = spd;
+    if (!SOLID_W.has(MAP.tileM(nx, ny))) { st.x = nx; st.y = ny; } else if (!SOLID_W.has(MAP.tileM(nx, st.y))) st.x = nx; else if (!SOLID_W.has(MAP.tileM(st.x, ny))) st.y = ny;
+    st.km += spd * dt / 1000;
+  },
+  drive(st, dt) {
+    const V = this.V(st), j = st.joy, k = st.keys, thr = k.up ? 1 : j.y < -.2 ? -j.y : 0, br = k.down ? 1 : j.y > .25 ? j.y : 0, sIn = k.left ? -1 : k.right ? 1 : Math.abs(j.x) > .12 ? j.x : 0;
+    const spdF = clamp(Math.abs(st.vf) / V.vmax, 0, 1), target = sIn * V.smax * (1 - .55 * spdF); st.steer += clamp(target - st.steer, -V.srate * dt, V.srate * dt);
+    const tile = MAP.tileM(st.x, st.y), soft = !(tile === TT.ROAD || tile === TT.AVE || tile === TT.AUTO || tile === TT.BRIDGE || tile === TT.DEPOT) && !(V.ciclo && tile === TT.CICLO), wet = Mundo.weather().rain;
+    const c = Math.cos(st.h), s = Math.sin(st.h), gr = clamp((MAP.elevM(st.x + c * 8, st.y + s * 8) - MAP.elevM(st.x - c * 8, st.y - s * 8)) / 16, -.2, .2);
+    if (thr > 0) { if (st.vf < -.3) st.vf = Math.min(0, st.vf + V.brk * dt); else st.vf += thr * V.acc * (1 - .55 * spdF) * dt * (soft && !V.campo ? .5 : 1); }
+    if (br > 0) { if (st.vf > .3) st.vf = Math.max(0, st.vf - V.brk * br * dt); else st.vf = Math.max(-5, st.vf - V.acc * .6 * dt); }
+    if (!thr && !br) st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), (.4 + .003 * st.vf * st.vf + (soft ? 2.5 : 0)) * dt);
+    st.vf -= 9.81 * gr * (V.walk ? .5 : .22) * dt; if (soft && !V.campo && Math.abs(st.vf) > 6) st.vf = Math.sign(st.vf) * 6; if (Math.abs(st.vf) > V.vmax * 1.05) st.vf = Math.sign(st.vf) * V.vmax * 1.05;
+    // giro (modelo bicicleta) y derrape: la velocidad lateral se apaga según el agarre
+    const hb = st.hb && !V.walk, rot = st.vf / V.wb * Math.tan(st.steer) * (hb ? 1.4 : 1) * dt, oh = st.h; st.h += rot;
+    const vx = st.vf * Math.cos(oh) - st.vs * Math.sin(oh), vy = st.vf * Math.sin(oh) + st.vs * Math.cos(oh), c2 = Math.cos(st.h), s2 = Math.sin(st.h); st.vf = vx * c2 + vy * s2; st.vs = -vx * s2 + vy * c2;
+    const grip = (hb ? 1.1 : V.grip) * (wet ? .6 : 1) * (soft ? .7 : 1); st.vs *= Math.exp(-grip * dt); if (hb) st.vf *= Math.exp(-.9 * dt);
+    const drifting = Math.abs(st.vs) > 2.2 && Math.abs(st.vf) > 2; if (drifting || (hb && Math.abs(st.vf) > 3)) { for (const o of [-1, 1]) { const rx = st.x - c2 * V.len * .38 - s2 * o * V.wid * .42, ry = st.y - s2 * V.len * .38 + c2 * o * V.wid * .42; Ciudad.marks.push({ x1: rx, y1: ry, x2: rx - (vx * dt), y2: ry - (vy * dt), t: 1 }); } if (Ciudad.rng.f() < .5) Ciudad.parts.push({ x: st.x - c2 * V.len * .4, y: st.y - s2 * V.len * .4, vx: (Ciudad.rng.f() - .5) * 3, vy: (Ciudad.rng.f() - .5) * 3, t: .6, t0: .6, c: wet ? 'rgba(200,220,235,.8)' : 'rgba(190,180,160,.8)', r: .35 + Ciudad.rng.f() * .4 }); if (!st._drT) { st._drT = 1; this.sfx(st, 'brake'); } } else st._drT = 0;
+    if (wet && Math.abs(st.vf) > 8 && Ciudad.rng.f() < .4) Ciudad.parts.push({ x: st.x - c2 * V.len * .3 + (Ciudad.rng.f() - .5) * V.wid, y: st.y - s2 * V.len * .3, vx: -vx * .1, vy: -vy * .1 - 1, t: .4, t0: .4, c: 'rgba(210,230,245,.9)', r: .2 });
+    // movimiento y choques con lo sólido (esquinas del vehículo); desliza por paredes
+    const nx = st.x + vx * dt, ny = st.y + vy * dt, hit = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y));
+    if (!hit(nx, ny)) { st.x = nx; st.y = ny; } else if (!hit(nx, st.y)) { st.x = nx; st.vs *= .5; } else if (!hit(st.x, ny)) { st.y = ny; st.vs *= .5; } else { const imp = Math.abs(st.vf); st.vf *= -.2; st.vs *= .3; if (imp > 2) { st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = .3; this.sfx(st, 'crash'); vib(80); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r'); for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: nx, y: ny, vx: (Ciudad.rng.f() - .5) * 8, vy: (Ciudad.rng.f() - .5) * 8, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); } }
+    st.km += Math.abs(st.vf) * dt / 1000; st.engine = thr;
+  },
+  hitV(x, y, h, V) { const c = Math.cos(h), s = Math.sin(h), l = V.len / 2, w = V.wid / 2; for (const [u, v] of [[l, w], [l, -w], [-l, w], [-l, -w], [0, 0]]) { const t = MAP.tileM(x + c * u - s * v, y + s * u + c * v); if (SOLID_V.has(t) && !(V.campo && t === TT.MOUNT)) return true; } return false; },
+  persist(st) { const L = Save.d.libre || (Save.d.libre = {}); L.x = st.x; L.y = st.y; L.h = st.h; L.veh = st.mode === 'veh' ? st.veh.kind : null; L.visited = st.visited; L.km = (L.km || 0) + st.km; st.km = 0; Save.write(); },
+  unmount(st) { this.persist(st); if (this._eng) { try { this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .05); this._eng.o.stop(Snd.ac.currentTime + .2); } catch (e) { } this._eng = null; } },
+  result(st) { return { done: false, win: false, score: st.pay, stars: 0, lines: [] }; },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
+  hud(st) { this.updCtl(st); return [['🎫', fmt(Save.d.wallet)], ['', st.mode === 'veh' ? Math.round(Math.abs(st.vf) * 3.6) + ' km/h' : st.mode === 'ride' ? st.ride.line.id + ' · ' + Math.round(st.vf * 3.6) + ' km/h' : (MAP.ready ? (MAP.comunaAt(st.x, st.y) || MAP.muniAt(st.x, st.y)).replace(/^Comuna \d+ - /, '') : '')]]; },
+  /* ---------- controles ---------- */
+  mount(st, el) {
+    el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
+      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp">▲</button><button class="abtn brk" id="lbDown">▼</button><button class="abtn hb" id="lbHb">✋</button></div>
+      <div class="vsel" id="lbView"><button id="lbFoto">📷</button><button id="lbZoom">🔎</button><button id="lbRun">🏃</button><button id="lbFF" title="Adelantar el viaje">⏩</button></div><div id="lbJob" class="jobbar hide"></div><div id="trTalk" class="trtalk hide"></div>`;
+    const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
+    jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
+    jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
+    const jend = e => { if (e.pointerId !== jid) return; jid = null; st.joy = { x: 0, y: 0, m: 0 }; joy.classList.remove('on'); joy.firstChild.style.transform = ''; }; jz.addEventListener('pointerup', jend); jz.addEventListener('pointercancel', jend);
+    const hold = (id, key, down, up) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); if (down) down(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); if (up) up(); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    hold('#lbUp', 'up', () => { st.run = true; }, () => { st.run = false; }); hold('#lbDown', 'down'); hold('#lbHb', 'hb', () => { st.hb = true; }, () => { st.hb = false; });
+    hold('#lbAct', 'act', () => { st.act = 1; this.action(st); }, () => { st.act = 0; });
+    $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { st.ff = st.ff ? 0 : 1; this.msg(st, st.ff ? '⏩ Adelantando el viaje (×5)' : '▶ Tiempo normal', 'b'); };
+    this.updCtl(st);
+  },
+  updCtl(st) {
+    if (EM.headless || Game.st !== st) return; const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
+    if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
+    const ff = $('#lbFF'); if (ff) { ff.style.display = st.mode === 'ride' || this.nearHub(st, 70) ? '' : 'none'; ff.classList.toggle('on', !!st.ff); }
+    if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal) jb.classList.add('hide');
+    const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; $('#lbHb').style.visibility = veh && !this.V(st).walk ? '' : 'hidden';
+    const a = $('#lbAct'); let lbl = 'acción'; if (st.mode === 'ride') lbl = st.ride.ph === 'dwell' ? 'bajar' : 'viajando'; else if (veh) lbl = (st.job && st.job.k === 'taxi' && st.job.stage === 0 && dist(st.x, st.y, st.job.client.x, st.job.client.y) < 9) ? 'recoger' : 'bajarse'; else { const p = st.parked.find(p => dist(p.x, p.y, st.x, st.y) < 4.5 + VEH[p.kind].len / 2); if (p) lbl = VEH[p.kind].icon + ' subir'; else if (this.nearHub(st, 34)) lbl = 'abordar'; else if (Ciudad.peds.some(p => dist(p.x, p.y, st.x, st.y) < 3)) lbl = 'hablar'; }
+    a.querySelector('small').textContent = lbl; a.classList.toggle('hot', lbl !== 'acción' && lbl !== 'viajando' && lbl !== 'bajarse');
+    // motor (zumbido según la velocidad)
+    if (Snd.ac && Save.d.settings.snd) { if (veh && !this.V(st).walk) { if (!this._eng) { const o = Snd.ac.createOscillator(), g = Snd.ac.createGain(); o.type = 'sawtooth'; g.gain.value = 0; o.connect(g); g.connect(Snd.sfxG); o.start(); this._eng = { o, g }; } const f = 40 + Math.abs(st.vf) * 7 + st.engine * 25; this._eng.o.frequency.setTargetAtTime(f, Snd.ac.currentTime, .08); this._eng.g.gain.setTargetAtTime(.025 + .02 * st.engine, Snd.ac.currentTime, .1); } else if (this._eng) this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .1); }
+  },
+  photo(st) { if (st.trama && Trama.onPhoto(st)) return; const J = st.job; if (J && J.k === 'postal' && dist(st.x, st.y, J.x, J.y) < 70) { st.flash = .4; this.complete(st); return; } const L = Ciudad.lm.find(l => dist(l.x, l.y, st.x, st.y) < 70); st.flash = .4; this.sfx(st, 'ok'); if (L) { const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(L.name)) { F.push(L.name); Save.d.wallet += 20; this.msg(st, '📷 ' + L.name + ' · nueva postal +20 🎫', 'g'); this.msg(st, L.fact, 'y'); Save.write(); } else this.msg(st, '📷 ' + L.name, 'b'); } else this.msg(st, '📷 Foto del valle', 'b'); },
+  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
+  /* ---------- dibujo ---------- */
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir();
+    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1); Ciudad.marksDraw(g, S, k);
+    // vehículos parqueados
+    for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (p.kind === 'bici') { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.5 * k, 2.2 * k, 1 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.3 * k, 1.8 * k, .6 * k); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, false); }
+    Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1);
+    for (const c of Ciudad.cars) Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, S, k, sh, night, true);
+    for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) { Ciudad.ped(g, p, S, k, sh); if (p.client) { const q = S(p.x, p.y); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y - 12 * Math.max(.6, k * .4) - 6, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = PAL.negro; g.font = '700 11px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('!', q.x, q.y - 12 * Math.max(.6, k * .4) - 2); g.textAlign = 'left'; } }
+    if (st.trama) Trama.draw(g, st, S, k, sh);
+    // jugador
+    if (st.mode === 'veh') { const V = this.V(st); if (st.veh.kind === 'bici') { const q = S(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, { x: st.x, y: st.y, a: st.h, ph: st.t * 8, col: '#1C5C9C', skin: SKIN[1], seed: 7, stun: 0 }, S, k, sh); } else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'metroplus' ? 'brt' : st.veh.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, true); }
+    if (st.mode !== 'ride') { const q = S(st.x, st.y); g.strokeStyle = 'rgba(251,231,176,.9)'; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (st.mode === 'veh' ? this.V(st).len * .7 : 2.2) * k, 0, TAU); g.stroke(); }
+    if (st.mode === 'walk') Ciudad.ped(g, { x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.joy.m > .15 ? 1 : 0), col: '#1C5C9C', skin: SKIN[1], seed: 7, stun: 0, umb: L.w.rain }, S, k, sh);
+    Ciudad.partsDraw(g, S, k); Ciudad.bubblesDraw(g, S, k);
+    // noche, luces y clima
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noRain: false, noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); if (night > .3 && st.mode === 'veh') { const q = S(st.x, st.y); g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, 30 * k); gr.addColorStop(0, 'rgba(255,240,200,' + (.18 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.fillRect(q.x - 30 * k, q.y - 30 * k, 60 * k, 60 * k); g.restore(); } Mundo.grain(g, W, H); }
+    // objetivo: flecha al borde y marcador (la historia tiene prioridad sobre los oficios)
+    const J = st.goal || st.job; if (J && J.x != null) { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.strokeStyle = PAL.mostaza; g.lineWidth = 3; g.beginPath(); g.arc(q.x, q.y, 10 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 26); g.lineTo(q.x - 7, q.y - 38); g.lineTo(q.x + 7, q.y - 38); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4, ax = cx + Math.cos(a) * r, ay = cy + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
+    if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
+    this.minimap(g, st, W, H);
+  },
+  minimap(g, st, W, H) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), R = 58 * dpr, cx = R + 12 * dpr, cy = H - R - 12 * dpr, km = st.far ? 1 / 90 : 1 / 45;
+    g.save(); g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.clip(); g.fillStyle = PAL.noche; g.fillRect(cx - R, cy - R, R * 2, R * 2);
+    if (MAP.ready) { const m = MAP.mini(), s = km * MAP.miniK * dpr; g.imageSmoothingEnabled = true; g.drawImage(m, cx - st.x * km * dpr, cy - st.y * km * dpr, m.width * s, m.height * s); }
+    const S = (x, y) => ({ x: cx + (x - st.x) * km * dpr, y: cy + (y - st.y) * km * dpr });
+    for (const l of NET.lines) { if (l.kind === 'future' || l.kind === 'feeder') continue; g.strokeStyle = l.color; g.lineWidth = (l.kind === 'metro' ? 3 : 1.5) * dpr; g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); }
+    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const q = S(h.x, h.y); if (Math.hypot(q.x - cx, q.y - cy) > R) continue; g.fillStyle = st.visited[h.name] ? '#fff' : 'rgba(255,255,255,.45)'; g.fillRect(q.x - 1.5 * dpr, q.y - 1.5 * dpr, 3 * dpr, 3 * dpr); }
+    const GJ = st.goal || st.job; if (GJ && GJ.x != null) { const q = S(GJ.x, GJ.y), d = Math.hypot(q.x - cx, q.y - cy), f = d > R - 6 ? (R - 6) / d : 1; g.fillStyle = PAL.mostaza; g.beginPath(); g.arc(cx + (q.x - cx) * f, cy + (q.y - cy) * f, 4 * dpr, 0, TAU); g.fill(); }
+    g.save(); g.translate(cx, cy); g.rotate(st.h); g.fillStyle = PAL.naranja; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(7 * dpr, 0); g.lineTo(-5 * dpr, -5 * dpr); g.lineTo(-5 * dpr, 5 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore();
+    g.restore(); g.strokeStyle = PAL.negro; g.lineWidth = 3 * dpr; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke(); g.strokeStyle = PAL.mante; g.lineWidth = 1.5 * dpr; g.stroke();
+    g.fillStyle = PAL.mante; g.font = '800 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('N', cx, cy - R + 11 * dpr); g.textAlign = 'left';
+  },
+  ai(st) { return null; }
+};
+~~~~
+
+### `src/js/37-trama.js`
+~~~~js
+/* =====================================================================
+   HISTORIA EN LA CIUDAD · "La última vuelta" jugada sobre el mapa real.
+   Pasos: hablar con personajes, ir a un lugar, abordar una línea, bajarse en una estación,
+   tomar una postal, orientar pasajeros y pasar a manejar (metro, cable, bus, tranvía).
+   Al terminar cada módulo se vuelve a la ciudad en la estación de llegada.
+   Progreso: Save.d.trama = { c: capítulo, s: paso, fin }.
+   ===================================================================== */
+const TRAMA_WHO = {
+  'Rosalba': { col: '#12446c', hair: '#dcd8d0', skin: '#f1c9a5' },
+  'Don Efraín': { col: '#5a6470', hair: '#e6e6e6', skin: '#d9a77f' },
+  'Doña Marleny': { col: '#c8201f', hair: '#2a1a12', skin: '#b07a52' },
+  'Wílmar': { col: '#f4f1ea', hat: '#1C5C9C', skin: '#8a5a3b' },
+  'Agente de tránsito': { col: '#c7e000', hat: '#f4f1ea', skin: '#d9a77f' },
+  'Pasajero': { col: '#7a5cc4', skin: '#d9a77f' }
+};
+const TRAMA = [
+  { t: 'Niquía, 4:30 a. m.', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Niquía', txt: 'Rosalba te espera en la estación Niquía', lines: [
+      ['Rosalba', 'Mija, despierte. El primer tren sale a las cuatro y media y la ciudad no espera a nadie.'],
+      ['Rosalba', 'Hace treinta años me senté en una cabina por primera vez. Medellín estrenaba metro y yo estrenaba miedo.'],
+      ['Rosalba', 'Esta es mi última semana. Y quiero que la manejemos juntas: usted adelante y yo al lado, con mi tinto.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'Niquía', m: 'conduce', lv: 'A:0-2#escuela', fin: 'Madera', finLine: 'A', txt: 'Sube a la cabina con Rosalba: Escuela de conducción de Niquía a Madera', lines: [
+      ['Rosalba', 'Primero la llave, después el sentido, y espere la señal. Suba la palanca despacito… y frene en la marca, que la gente se cansa de caminar.']],
+      ok: 'Ese frenazo suave es lo que la gente recuerda. Nadie aplaude al conductor, pero todos llegan.' }
+  ] },
+  { t: 'Santo Domingo mira al cielo', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Madera', line: 'A', txt: 'Habla con Rosalba en Madera', lines: [
+      ['Rosalba', 'Ahora va a conocer el cable. En 2004 subió aquí el primer metrocable del mundo hecho para transporte público de verdad.'],
+      ['Rosalba', 'Tome el metro hacia el sur hasta Acevedo. Allá, sin salir de la estación, se pasa al Metrocable K. Yo me voy en el que sigue.']] },
+    { k: 'abordar', line: 'A', at: 'Madera', txt: 'Sube al metro en Madera (hacia La Estrella)' },
+    { k: 'bajar', line: 'A', at: 'Acevedo', txt: 'Bájate en Acevedo' },
+    { k: 'abordar', line: 'K', at: 'Acevedo', txt: 'Sube al Metrocable K en Acevedo' },
+    { k: 'bajar', line: 'K', at: 'Santo Domingo Savio', txt: 'Bájate arriba, en Santo Domingo Savio' },
+    { k: 'hablar', who: 'Doña Marleny', at: 'Santo Domingo Savio', line: 'K', txt: 'Doña Marleny vende arepas junto a la estación', lines: [
+      ['Doña Marleny', '¡Usted es la nieta de Rosalba! Antes yo bajaba hora y media a pie con el mercado. Ahora en minutos estoy arriba viendo toda la ciudad.'],
+      ['Doña Marleny', 'Vaya y tómele una foto a la biblioteca, la de las tres rocas negras. Desde allá se ve el valle completico.']] },
+    { k: 'foto', lugar: 'bibespana', txt: 'Toma la postal del Parque Biblioteca España con 📷' },
+    { k: 'modulo', who: 'Doña Marleny', at: 'Santo Domingo Savio', line: 'K', m: 'cableviaje', lv: 'cv:K', fin: 'Santo Domingo Savio', finLine: 'K', txt: 'Vuelve con Doña Marleny: hoy operas la línea K', lines: [
+      ['Doña Marleny', 'Rosalba dice que hoy usted opera la línea. Si el viento sopla duro, baje la velocidad; si truena, se detiene todo. Y no se olvide de las fotos.']],
+      ok: 'Desde la cabina, el valle se ve como un pesebre encendido.' }
+  ] },
+  { t: 'Los que alimentan la red', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Santo Domingo Savio', line: 'K', txt: 'Rosalba llegó en el cable de atrás: habla con ella', lines: [
+      ['Rosalba', 'El metro no llega a cada esquina. Por eso existen los alimentadores: buses que bajan de los barrios hasta las estaciones.'],
+      ['Rosalba', 'Baje en el cable hasta Acevedo y súbase al alimentador de Santa Rita. Allá la espera Wílmar, que se sabe las lomas de memoria.']] },
+    { k: 'abordar', line: 'K', at: 'Santo Domingo Savio', txt: 'Baja en el Metrocable K hacia Acevedo' },
+    { k: 'bajar', line: 'K', at: 'Acevedo', txt: 'Bájate en Acevedo' },
+    { k: 'abordar', line: 'AL-C6-001', at: 'Acevedo', txt: 'Sube al alimentador C6-001 hacia Santa Rita' },
+    { k: 'bajar', line: 'AL-C6-001', at: 'Santa Rita', txt: 'Bájate en Santa Rita, al final de la ruta' },
+    { k: 'hablar', who: 'Wílmar', at: 'Santa Rita', line: 'AL-C6-001', txt: 'Wílmar te espera en la cabecera', lines: [
+      ['Wílmar', '¡Llegó la aprendiz! Venga, súbase: hoy maneja usted, de Santa Rita a la estación Acevedo.'],
+      ['Wílmar', 'En subida, palanca a fondo; en bajada, freno suave. Y pare donde está la gente, no diez metros después.']] },
+    { k: 'modulo', who: 'Wílmar', at: 'Santa Rita', line: 'AL-C6-001', m: 'bus', lv: 'bus:AL-C6-001:0-3', fin: 'Acevedo', finLine: 'A', txt: 'Maneja el alimentador de Santa Rita a Acevedo', lines: [
+      ['Wílmar', 'Si quiere, deje el asistente de carril. Cuando se sienta segura, apáguelo y maneje con el timón.']],
+      ok: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' }
+  ] },
+  { t: 'El articulado', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'Acevedo', line: 'A', txt: 'Rosalba te espera en Acevedo', lines: [
+      ['Rosalba', '¡Así se hace! Ahora el Metroplús: buses articulados de dieciocho metros con su propio carril.'],
+      ['Rosalba', 'Tome el metro hasta Hospital y allá el Metroplús hacia Parque Aranjuez. El agente de tránsito la espera.']] },
+    { k: 'abordar', line: 'A', at: 'Acevedo', txt: 'Sube al metro hacia el sur (andén a La Estrella)' },
+    { k: 'bajar', line: 'A', at: 'Hospital', txt: 'Bájate en Hospital' },
+    { k: 'abordar', line: 'MP1', at: 'Hospital', txt: 'Sube al Metroplús Línea 1 hacia Parque Aranjuez' },
+    { k: 'bajar', line: 'MP1', at: 'Parque Aranjuez', txt: 'Bájate en Parque Aranjuez' },
+    { k: 'hablar', who: 'Agente de tránsito', at: 'Parque Aranjuez', line: 'MP1', txt: 'Habla con el agente de tránsito', lines: [
+      ['Agente de tránsito', 'El carril es exclusivo, pero los semáforos son para todos. Rojo es rojo.'],
+      ['Agente de tránsito', 'Y ojo con las motos: esas se cuelan hasta por el ojo de una aguja.']] },
+    { k: 'modulo', who: 'Agente de tránsito', at: 'Parque Aranjuez', line: 'MP1', m: 'bus', lv: 'bus:MP1:0-4', fin: 'Gardel', finLine: 'MP1', txt: 'Maneja el articulado de Parque Aranjuez a Gardel', lines: [
+      ['Agente de tránsito', 'Dieciocho metros con una bisagra en la mitad: en las curvas, la cola va por dentro. Pare justo frente a la puerta del andén.']],
+      ok: 'Al llegar a Gardel, el bus quedó justo frente a la puerta del andén. Perfecto.' }
+  ] },
+  { t: 'Ayacucho sobre llantas', steps: [
+    { k: 'ir', at: 'San Antonio', line: 'T', r: 35, txt: 'Ve al tranvía en San Antonio (Metroplús 2 hasta San José y tranvía, o como quieras)' },
+    { k: 'hablar', who: 'Rosalba', at: 'San Antonio', line: 'T', txt: 'Rosalba está en el andén del tranvía', lines: [
+      ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
+      ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'San Antonio', line: 'T', m: 'conduce', lv: 'T:0-2', fin: 'Pabellón del Agua', finLine: 'T', txt: 'Maneja el tranvía de San Antonio a Pabellón del Agua', lines: [
+      ['Rosalba', 'Vamos, que la loma no se sube sola.']],
+      ok: 'Una señora le dijo adiós desde un balcón con una ruana en la mano.' }
+  ] },
+  { t: 'La hora pico', steps: [
+    { k: 'ir', at: 'San Antonio', line: 'A', r: 40, txt: 'Vuelve a la estación San Antonio: Don Efraín necesita ayuda' },
+    { k: 'hablar', who: 'Don Efraín', at: 'San Antonio', line: 'A', txt: 'Habla con Don Efraín', lines: [
+      ['Don Efraín', '¡Rosalbita me contó de usted! Llegó la hora pico: las cinco y media, cuando todo el valle quiere volver a casa.'],
+      ['Don Efraín', 'En San Antonio se cruzan la línea A, la B y el tranvía, y la gente se enreda. Ayúdeme a orientar a tres pasajeros.']] },
+    { k: 'orientar', at: 'San Antonio', line: 'A', n: 3, txt: 'Orienta a los pasajeros con ❓' },
+    { k: 'hablar', who: 'Don Efraín', at: 'San Antonio', line: 'A', txt: 'Vuelve con Don Efraín', lines: [
+      ['Don Efraín', 'Usted tiene mano. Lo difícil no es mover los trenes: es no perder la calma.'],
+      ['Don Efraín', 'Rosalba la espera en Niquía para la última vuelta. Súbase al metro hacia el norte.']] }
+  ] },
+  { t: 'La última vuelta', steps: [
+    { k: 'abordar', line: 'A', at: 'San Antonio', txt: 'Sube al metro hacia el norte (andén a Niquía)' },
+    { k: 'bajar', line: 'A', at: 'Niquía', txt: 'Bájate en Niquía' },
+    { k: 'hablar', who: 'Rosalba', at: 'Niquía', txt: 'Rosalba te espera con dos tintos', lines: [
+      ['Rosalba', 'Mañana ya no vengo. Hoy maneja usted, de Niquía a La Estrella, todo el valle de punta a punta.'],
+      ['Tú', '¿Y usted qué va a hacer?'],
+      ['Rosalba', 'Montarme de pasajera. Sentarme en la ventana, mirar el río y saber que el tren está en buenas manos.']] },
+    { k: 'modulo', who: 'Rosalba', at: 'Niquía', m: 'conduce', lv: 'A:0-20', fin: 'La Estrella', finLine: 'A', txt: 'La última vuelta: maneja de Niquía a La Estrella', lines: [
+      ['Rosalba', 'Vamos, mija. Sin afán y sin regar el tinto.']],
+      ok: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' }
+  ] },
+  { t: 'Epílogo', steps: [
+    { k: 'hablar', who: 'Rosalba', at: 'La Estrella', line: 'A', txt: 'Despídete de Rosalba en La Estrella', lines: [
+      ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
+      ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],
+      ['', 'FIN DE LA HISTORIA · La ciudad sigue abierta: oficios, postales y todas las líneas.']] }
+  ] }
+];
+/* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
+const TRAMA_PREG = [
+  ['¿Cómo llego a Santo Domingo Savio?', ['Línea A al norte hasta Acevedo y ahí el Metrocable K', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'Santo Domingo Savio'],
+  ['Voy para La Aurora, arriba de San Javier.', ['Línea B hasta San Javier y el Metrocable J', 'Línea A hasta Acevedo y el cable P', 'Tranvía hasta Miraflores y el cable M'], 'La Aurora'],
+  ['¿Cómo subo a Villa Sierra?', ['Tranvía de Ayacucho hasta Oriente y el Metrocable H', 'Línea A hasta Acevedo y el cable K', 'Línea B hasta San Javier y el cable J'], 'Villa Sierra'],
+  ['Quiero ir a caminar al Parque Arví.', ['Línea A a Acevedo, cable K a Santo Domingo y luego el cable L', 'Tranvía a Oriente y cable H', 'Línea B a San Javier y cable J'], 'Arví'],
+  ['Necesito llegar al Trece de Noviembre.', ['Tranvía hasta Miraflores y el Metrocable M', 'Línea A hasta Acevedo y el cable P', 'Línea B hasta Estadio y caminar'], 'Trece de Noviembre'],
+  ['¿Cómo llego a El Progreso, en el Doce de Octubre?', ['Línea A al norte hasta Acevedo y el Metrocable P', 'Línea B hasta San Javier y el cable J', 'Tranvía hasta Oriente y el cable H'], 'El Progreso'],
+  ['Voy para el parque de Envigado.', ['Línea A hacia el sur hasta la estación Envigado', 'Línea B hacia San Javier', 'Tranvía hacia Oriente'], 'Envigado'],
+  ['Tengo partido en el Atanasio Girardot.', ['Línea B hasta la estación Estadio', 'Línea A hasta Industriales', 'Tranvía hasta Bicentenario'], 'Estadio']
+];
+const Trama = EM.trama = {
+  save() { const d = Save.d; return d.trama || (d.trama = { c: 0, s: 0, fin: 0 }); },
+  cap() { return TRAMA[this.save().c] || null; },
+  step() { const C = this.cap(); return C ? C.steps[this.save().s] || null : null; },
+  active() { const T = this.save(); return !T.fin && !!this.step(); },
+  /* posición de una estación (de una línea concreta si se indica), de un centro o de un lugar */
+  stPos(name, line) {
+    const l = line && NET.byId[line], s = l ? l.st.find(q => q.name === name) : null; if (s) return { x: s.x, y: s.y, name };
+    const h = NET.stations.find(q => q.name === name); if (h) return { x: h.x, y: h.y, name };
+    const L = (Ciudad.lm || []).find(q => q.id === name || q.name === name); if (L) return { x: L.x, y: L.y, name: L.name };
+    return null;
+  },
+  walkable(q) { return q === TT.WALK || q === TT.PLAZA || q === TT.STATION || q === TT.STEPS || q === TT.GRASS; },
+  npcPos(S, i = 0) {
+    const p = this.stPos(S.at, S.line); if (!p) return null; const a = h2(hashStr((S.who || 'p') + i), 3, 11) * TAU, r = 12 + i * 7;
+    const t = Libre.nearTile(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
+  },
+  /* ---------- ciclo de vida ---------- */
+  init(st) { st.trama = { npcs: [], talk: null, key: '', talked: 0, warned: 0, rode: 0, ok: 0 }; this.enter(st); },
+  enter(st) {
+    const T = this.save(), C = this.cap(), S = this.step(), tr = st.trama; tr.key = T.c + ':' + T.s; tr.npcs = []; tr.talk = null; tr.talked = 0; tr.warned = 0; tr.rode = st.mode === 'ride' ? 1 : 0; tr.ok = 0;
+    if (!S) { st.goal = null; return; }
+    if (S.k === 'hablar' || S.k === 'modulo') { const p = this.npcPos(S); if (p) tr.npcs.push(Object.assign({ who: S.who, mark: S.k === 'modulo' ? '▶' : '!' }, p)); }
+    if (S.k === 'orientar') { const rng = new RNG(T.c * 31 + (T.preg || 0) + 7), pool = TRAMA_PREG.slice(); for (let i = 0; i < S.n && pool.length; i++) { const q = pool.splice(rng.i(0, pool.length - 1), 1)[0], p = this.npcPos({ at: S.at, line: S.line, who: 'Pasajero' }, i + 1); if (p) tr.npcs.push(Object.assign({ who: 'Pasajero', mark: '?', q, ord: rng.shuffle([0, 1, 2]), col: ROPA[(i * 3 + 1) % ROPA.length] }, p)); } }
+    const g = S.k === 'foto' ? this.stPos(S.lugar) : (tr.npcs[0] || this.stPos(S.at, S.line));
+    st.goal = g ? { x: g.x, y: g.y, title: 'Cap. ' + (T.c + 1) + ' · ' + C.t, hint: S.txt, k: S.k } : null;
+    if (T.s === 0) { Libre.msg(st, '📖 Capítulo ' + (T.c + 1) + ' · ' + C.t, 'b'); this.card(st, T.c, C.t); }
+    Libre.msg(st, '📖 ' + S.txt, 'y');
+  },
+  card(st, c, t) {
+    if (EM.headless || Game.st !== st) return; const host = $('#gctl'); if (!host) return; const el = document.createElement('div'); el.className = 'trcap';
+    el.innerHTML = `<small>La última vuelta · Capítulo ${c + 1} de ${TRAMA.length}</small><b>${esc(t)}</b>`; host.appendChild(el); setTimeout(() => el.remove(), 3800);
+  },
+  advance() { const T = this.save(); T.s++; let newCap = false; if (T.s >= TRAMA[T.c].steps.length) { T.c++; T.s = 0; newCap = true; Save.d.wallet += 30; if (T.c >= TRAMA.length) { T.fin = 1; const L = Save.d.logros || (Save.d.logros = {}); if (!L.historia) { L.historia = Date.now(); if (!EM.headless) UI.toast('🏅 Logro: La última vuelta'); } } } Save.write(); return newCap; },
+  next(st) {
+    const T = this.save(), c0 = T.c, newCap = this.advance();
+    if (newCap) { Libre.msg(st, '✓ Capítulo ' + (c0 + 1) + ' completo · +30 🎫', 'g'); Libre.sfx(st, 'win'); } else Libre.sfx(st, 'star');
+    if (T.fin) { st.goal = null; st.trama.npcs = []; Libre.msg(st, 'FIN · La ciudad sigue abierta: oficios, postales y todas las líneas', 'g'); return; }
+    this.enter(st);
+  },
+  wantLine(st) { const S = this.step(); return S && S.k === 'abordar' ? S.line : null; },
+  tick(st, dt) {
+    const S = this.step(), tr = st.trama; if (!S || this.save().fin) return; if (tr.key !== this.save().c + ':' + this.save().s) this.enter(st);
+    if (tr.talk) { if (st.mode !== 'walk' || !tr.talk.n || dist(st.x, st.y, tr.talk.n.x, tr.talk.n.y) > 9) this.close(st); return; }
+    if (S.k === 'hablar' || S.k === 'modulo' || S.k === 'orientar') {
+      if (st.mode === 'walk') { const n = tr.npcs.find(q => !q.done && dist(q.x, q.y, st.x, st.y) < 4); if (n && !tr.talked) this.talk(st, n); else if (!n && tr.talked && !tr.npcs.some(q => !q.done && dist(q.x, q.y, st.x, st.y) < 8)) tr.talked = 0; }
+      if (S.k === 'orientar') { const left = tr.npcs.filter(q => !q.done); if (left.length && st.goal) { let b = left[0], bd = 1e9; for (const q of left) { const d = dist(q.x, q.y, st.x, st.y); if (d < bd) { bd = d; b = q; } } st.goal.x = b.x; st.goal.y = b.y; st.goal.hint = S.txt + ' (' + (S.n - left.length) + '/' + S.n + ')'; } }
+      if (st.auto) { const n = tr.npcs.find(q => !q.done); if (n) { st.x = n.x; st.y = n.y; } }
+    } else if (S.k === 'ir') { if (st.goal && dist(st.x, st.y, st.goal.x, st.goal.y) < (S.r || 30) && st.mode !== 'ride') this.next(st); }
+    else if (S.k === 'abordar') {
+      if (st.mode === 'ride') { if (st.ride.line.id === S.line) { tr.rode = 1; this.next(st); } else if (!tr.warned) { tr.warned = 1; Libre.msg(st, 'Esa es la ' + st.ride.line.name + '. Necesitas la ' + NET.byId[S.line].name, 'y'); } }
+      else tr.warned = 0;
+    } else if (S.k === 'bajar') {
+      const g = st.goal, d = g ? dist(st.x, st.y, g.x, g.y) : 1e9;
+      if (st.mode === 'ride') { tr.rode = 1; const v = st.ride; if (v.ph === 'dwell' && v.st && v.st.name === S.at && !tr.warned) { tr.warned = 1; Libre.msg(st, '🚉 ¡Es aquí! Bájate en ' + S.at + ' con ●', 'g'); Libre.sfx(st, 'beep'); } else if (v.ph !== 'dwell') tr.warned = 0; if (st.auto && v.ph === 'dwell' && v.st && v.st.name === S.at) Libre.action(st); }
+      else if (d < 90) this.next(st);
+      else if (tr.rode && !tr.warned2) { tr.warned2 = 1; Libre.msg(st, 'Te bajaste antes de tiempo: vuelve a subir y bájate en ' + S.at, 'y'); }
+    }
+  },
+  /* ---------- conversación ---------- */
+  talk(st, n) {
+    const S = this.step(), tr = st.trama; tr.talked = 1; if (!S) return;
+    tr.talk = { n, i: 0, lines: n.q ? null : (S.lines || []) };
+    if (EM.headless || st.auto || Game.st !== st) { // el bot responde solo
+      if (n.q) this.answer(st, 0); else { tr.talk = null; if (S.k === 'modulo') this.launch(st, S); else this.next(st); } return;
+    }
+    Snd.play('tap'); this.render(st);
+  },
+  render(st) {
+    const el = $('#trTalk'), tr = st.trama, T = tr.talk; if (!el) return; if (!T) { el.className = 'trtalk hide'; el.innerHTML = ''; return; }
+    const S = this.step(), n = T.n; el.className = 'trtalk';
+    if (n.q) {
+      const [q, opts] = n.q; el.innerHTML = `<b class="who">Pasajero</b><p>${esc(T.msg || q)}</p><div class="opts">${n.ord.map(i => `<button class="btn sm" data-o="${i}">${esc(opts[i])}</button>`).join('')}</div><button class="x" data-x>✕</button>`;
+      el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => this.answer(st, +b.dataset.o)); el.querySelector('[data-x]').onclick = () => this.close(st); return;
+    }
+    const L = T.lines[T.i] || ['', '']; const last = T.i >= T.lines.length - 1;
+    if (T.said !== T.i) { T.said = T.i; if (L[1]) Snd.say(L[1]); }
+    el.innerHTML = `${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
+    const nb = el.querySelector('[data-n]'); if (nb) nb.onclick = () => { Snd.play('tap'); if (T.i < T.lines.length - 1) { T.i++; this.render(st); } else { tr.talk = null; this.render(st); this.next(st); } };
+    const go = el.querySelector('[data-go]'); if (go) go.onclick = () => { tr.talk = null; this.render(st); this.launch(st, S); };
+    const lt = el.querySelector('[data-later]'); if (lt) lt.onclick = () => this.close(st);
+  },
+  close(st) { st.trama.talk = null; this.render(st); },
+  answer(st, o) {
+    const tr = st.trama, T = tr.talk, n = T && T.n; if (!n) return; const ok = o === 0, dest = n.q[2];
+    if (ok) { n.done = 1; tr.ok++; Save.d.wallet += 5; Libre.msg(st, '✓ «¡Mil gracias!» · +5 🎫', 'g'); Libre.sfx(st, 'coin'); Ciudad.say(n, '¡Gracias, mija!'); tr.talk = null; this.render(st); if (tr.npcs.every(q => q.done)) { const T2 = this.save(); T2.preg = (T2.preg || 0) + 1; this.next(st); } }
+    else { T.msg = 'Mmm… creo que por ahí no llego a ' + dest + '. Mira dónde se cruza esa línea con el metro.'; Libre.sfx(st, 'bad'); this.render(st); }
+  },
+  onAction(st) {
+    if (st.mode !== 'walk' || !this.active()) return false; const tr = st.trama;
+    const n = tr.npcs.find(q => !q.done && dist(q.x, q.y, st.x, st.y) < 5); if (n) { this.talk(st, n); return true; } return false;
+  },
+  onPhoto(st) {
+    const S = this.step(); if (!S || S.k !== 'foto' || !st.goal || !this.active()) return false;
+    if (dist(st.x, st.y, st.goal.x, st.goal.y) < 90) { st.flash = .4; const L = this.stPos(S.lugar), F = Save.d.fotos || (Save.d.fotos = []); if (L && !F.includes(L.name)) F.push(L.name); Libre.msg(st, '📷 ' + (L ? L.name : 'Postal') + ' · guardada en tu libreta', 'g'); this.next(st); return true; }
+    return false;
+  },
+  /* ---------- módulos: manejar y volver a la ciudad ---------- */
+  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.nearTile(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
+  launch(st, S) {
+    if (EM.headless || st.auto) { this.next(st); return; }
+    const T = this.save(), C = this.cap(), M = EM.modes[S.m], lvl = M.levels().find(l => l.id === S.lv) || M.levels()[0];
+    Game.start(S.m, lvl.id, { back: 'menu', trama: 1, onEnd: r => {
+      const ok = r.win || r.stars > 0, earn = Save.record(S.m, lvl.id, r);
+      if (ok && this.step() === S) { this.place(S.fin, S.finLine); this.advance(); }
+      UI.modal(`<div class="pag">Capítulo ${T.c + 1} · ${esc(C.t)}</div><h2>${ok ? '¡Lo lograste!' : 'Casi'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="film" style="margin:10px 0">${esc(ok ? S.ok : 'Rosalba: “Tranquila, mija. Nadie nace aprendido. Otra vez.”')}</div><p class="m">+${earn} 🎫</p><div class="row">${ok ? '' : '<button class="btn" id="trAgain">↻ Otra vez</button>'}<button class="btn pri" id="trCity">🏙️ Volver a la ciudad</button></div>`);
+      $('#trCity').onclick = () => { UI.close(); Game.stop(); Game.start('libre', 'lb:trama', {}); };
+      const a = $('#trAgain'); if (a) a.onclick = () => { UI.close(); Game.stop(); this.launch({}, S); };
+    } });
+  },
+  /* ---------- dibujo de personajes ---------- */
+  draw(g, st, S, k, sh) {
+    const tr = st.trama; if (!tr || !tr.npcs.length) return; const t = st.t;
+    for (const n of tr.npcs) {
+      if (n.done) continue; const W = TRAMA_WHO[n.who] || TRAMA_WHO.Pasajero, q = S(n.x, n.y); if (q.x < -60 || q.y < -60 || q.x > g.canvas.width + 60 || q.y > g.canvas.height + 60) continue;
+      Ciudad.ped(g, { x: n.x, y: n.y, a: n.a, ph: Math.sin(t * 2 + n.x) * .3, col: n.col || W.col, skin: W.skin, hair: W.hair, hat: W.hat, seed: 3, stun: 0 }, S, k, sh);
+      const s = Math.max(.6, k * .4), y = q.y - 12 * s - 12, bob = Math.sin(t * 4 + n.x) * 3;
+      g.font = '800 ' + Math.round(10 * Math.max(1, k / 2.4)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; const label = n.who === 'Pasajero' ? 'Pasajero' : n.who, w = g.measureText(label).width + 10, fh = Math.round(14 * Math.max(1, k / 2.4));
+      g.fillStyle = 'rgba(12,37,51,.88)'; g.fillRect(q.x - w / 2, y - fh, w, fh); g.fillStyle = PAL.mostaza; g.fillText(label, q.x, y - fh * .28);
+      g.fillStyle = n.mark === '?' ? '#7ab648' : PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, y - fh - 12 + bob, 9, 0, TAU); g.fill(); g.stroke();
+      g.fillStyle = PAL.negro; g.font = '900 12px Cuerpo, sans-serif'; g.fillText(n.mark, q.x, y - fh - 8 + bob); g.textAlign = 'left';
+    }
+  },
+  /* ---------- validación de datos (autotest) ---------- */
+  check(E) {
+    TRAMA.forEach((C, ci) => C.steps.forEach((S, si) => {
+      const id = 'trama ' + (ci + 1) + '.' + (si + 1);
+      if (S.line && !NET.byId[S.line]) E(id + ': línea ' + S.line + ' no existe');
+      if (S.at && !this.stPos(S.at, S.line)) E(id + ': lugar ' + S.at + ' no existe');
+      if (S.line && S.at && NET.byId[S.line] && !NET.byId[S.line].st.some(q => q.name === S.at)) E(id + ': ' + S.at + ' no está en la línea ' + S.line);
+      if (S.k === 'foto' && !(typeof LUGARES !== 'undefined' && LUGARES.some(l => l[0] === S.lugar))) E(id + ': postal ' + S.lugar + ' no existe');
+      if (S.k === 'modulo') { const M = EM.modes[S.m]; if (!M) E(id + ': módulo ' + S.m); else if (!M.levels().some(l => l.id === S.lv)) E(id + ': nivel ' + S.lv); if (!this.stPos(S.fin, S.finLine)) E(id + ': llegada ' + S.fin); }
+      if ((S.k === 'hablar' || S.k === 'modulo') && !TRAMA_WHO[S.who]) E(id + ': personaje ' + S.who);
+    }));
+    for (const q of TRAMA_PREG) { if (q[1].length !== 3) E('pregunta con opciones raras: ' + q[0]); if (!NET.stations.some(h => h.name === q[2])) E('pregunta: destino ' + q[2] + ' no existe'); }
+    return TRAMA.length;
+  }
+};
+~~~~
+
+### `src/js/38-bus.js`
+~~~~js
+/* =====================================================================
+   SIMULADOR DE BUS (vista cenital): Metroplús y alimentadores de estación a estación
+   sobre las calles reales, con tráfico, semáforos, pasajeros que esperan y suben,
+   horario, precisión en la parada y confort. El asistente de carril sigue la ruta solo
+   (tú manejas la velocidad); apágalo para girar con el joystick.
+   ===================================================================== */
+const Bus = EM.modes.bus = {
+  id: 'bus', name: 'Bus', sub: 'Metroplús y alimentadores', music: 'ciudad', fullCanvas: true, endless: false,
+  tip: '▲ acelera, ▼ frena. Para en cada parada (dentro de la zona), abre las puertas con ● para que suba la gente, ciérralas y sigue. Respeta los semáforos y no te pases de velocidad.',
+  levels() {
+    if (this._lv) return this._lv; const L = [];
+    for (const line of NET.lines.filter(l => l.kind === 'brt')) { const n = line.st.length; for (let a = 0; a < n - 1; a += 4) { const b = Math.min(n - 1, a + 4); L.push({ id: 'bus:' + line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name }); } L.push({ id: 'bus:' + line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Ruta completa', sub: line.name + ' · ' + n + ' estaciones', full: true }); L.push({ id: 'bus:' + line.id + ':' + (n - 1) + '-0', line: line.id, a: n - 1, b: 0, name: 'Ruta completa · regreso', sub: line.name, full: true }); }
+    for (const line of NET.lines.filter(l => l.kind === 'feeder')) { const n = line.st.length; L.push({ id: 'bus:' + line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: line.name.replace(/^Alimentador\s*/, ''), sub: 'Alimentador · ' + n + ' paradas · ' + line.km + ' km' }); }
+    return (this._lv = L);
+  },
+  create(lv, opts) {
+    Ciudad.init((opts.seed | 0) || 1); const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], kind = line.kind === 'brt' ? 'metroplus' : 'alimentador', V = VEH[kind], rng = new RNG((opts.seed | 0) + 11);
+    const dir = L.b >= L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
+    const p0 = NET.at(line.P, line.st[L.a].s + dir * 2), h = p0.a + (dir < 0 ? Math.PI : 0);
+    const st = { lvId: L.id, line: line.id, kind, veh: { kind, col: V.col }, mode: 'veh', dir, stops, ni: 1, x: p0.x, y: p0.y, h, vf: 0, vs: 0, steer: 0, hb: false, assist: opts.assist != null ? opts.assist : true, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, sR: line.st[L.a].s, off: 0,
+      ph: 'ready', doors: 0, dwell: 0, pax: 4 + rng.i(0, 8), cap: kind === 'metroplus' ? 160 : 60, score: 0, comfort: 100, crashes: 0, reds: 0, peds: 0, arr: [], sched: [0], seed: opts.seed | 0, cam: { x: p0.x, y: p0.y, k: 1.6 }, far: false, shake: 0, done: false, win: false, auto: !!opts.auto, lastA: 0, redSeen: {}, waiting: {}, boarding: [], alight: 0, visited: {}, job: null, lastHub: null, flash: 0, over: 0 };
+    st.stopS = stops.map(i => line.st[i].s);
+    let acc = 0; for (let k = 1; k < stops.length; k++) { acc += Math.abs(st.stopS[k] - st.stopS[k - 1]) / (kind === 'metroplus' ? 6.5 : 5.2) + 18; st.sched.push(acc); }
+    this.spawnStops(st, line, rng); return st;
+  },
+  V(st) { return VEH[st.veh.kind]; },
+  stopPos(line, s, dir, kind) { const p = NET.at(line.P, s); const side = kind === 'metroplus' ? -1 : 1; return { x: p.x - Math.sin(p.a) * side * dir * 5.5, y: p.y + Math.cos(p.a) * side * dir * 5.5, a: p.a }; },
+  spawnStops(st, line, rng) { for (let k = Math.max(1, st.ni); k < Math.min(st.stops.length, st.ni + 3); k++) { if (st.waiting[k]) continue; const q = this.stopPos(line, st.stopS[k], st.dir, st.kind), last = k === st.stops.length - 1; st.waiting[k] = Ciudad.spawnWaiting(k, q.x, q.y, last ? 0 : 2 + rng.i(0, st.kind === 'metroplus' ? 6 : 4)); } },
+  /* piloto: sigue la ruta y regula la velocidad (asistente y bot) */
+  pilot(st, dt) {
+    const line = NET.byId[st.line], V = this.V(st), R = Volante.route(line), i = clamp(Math.round(st.sR / 8), 0, R.n - 1), j = clamp(Math.round((st.sR + st.dir * (18 + Math.abs(st.vf) * 2)) / 8), 0, R.n - 1);
+    const Ld = 7 + Math.abs(st.vf) * .9, q = NET.at(line.P, clamp(st.sR + st.dir * Ld, 0, line.P.len)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al));
+    st.steerWant = clamp(Math.atan(2 * V.wb * Math.sin(a) / Math.max(4, Math.hypot(dx, dy))) / V.smax, -1, 1);
+    if (!st.auto) return;
+    let tgt = Math.min(V.vmax * .9, R.lim[i] * 1.1, R.lim[j] * 1.1); const dS = (st.stopS[st.ni] - st.sR) * st.dir, bm = V.brk * .5; tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, dS - 2)));
+    const red = this.redAhead(st); if (red != null) tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, red - 5)));
+    const car = this.carAhead(st); if (car != null) tgt = Math.min(tgt, Math.max(0, (car - 9) * .9));
+    st.keys.up = st.vf < tgt - .4; st.keys.down = st.vf > tgt + .4 || (dS < 3 && st.vf > .2);
+  },
+  redAhead(st) { let best = null; const c = Math.cos(st.h), s = Math.sin(st.h); for (const g of TRAF.lights) { const dx = g.x - st.x, dy = g.y - st.y; if (Math.abs(dx) > 70 || Math.abs(dy) > 70) continue; const along = dx * c + dy * s, lat = Math.abs(-dx * s + dy * c); if (along < 4 || along > 60 || lat > 12) continue; const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; if (ls !== 'g' && (best == null || along < best)) best = along; } return best; },
+  carAhead(st) { let best = null; const c = Math.cos(st.h), s = Math.sin(st.h); for (const k of Ciudad.cars) { const dx = k.x - st.x, dy = k.y - st.y, along = dx * c + dy * s, lat = Math.abs(-dx * s + dy * c); if (along > 0 && along < 40 && lat < 3) best = best == null ? along : Math.min(best, along); } return best; },
+  step(st, dt) {
+    if (st.done) return; st.t += dt; const line = NET.byId[st.line], V = this.V(st);
+    this.pilot(st, dt);
+    if (st.ph === 'ready' && (st.keys.up || st.joy.y < -.3)) { st.ph = 'run'; this.say(st, 'Próxima parada: ' + line.st[st.stops[1]].name); }
+    if (st.ph === 'stop') { this.stopTick(st, dt, line); }
+    else if (st.ph !== 'ready') {
+      // asistente de carril: convierte el rumbo deseado en entrada de joystick
+      if (st.assist) st.joy = { x: st.steerWant, y: st.joy.y, m: 1 };
+      // el corredor de la ruta es transitable aunque la casilla de 20 m marque esquina de manzana (los buses largos no se traban al girar)
+      if (!st.lane) st.lane = (x, y) => Volante.projLocal(line.P, x, y, st.sR).d < 7;
+      const kd = st.keys.down; Libre.drive(st, dt); st.keys.down = kd;
+      const pr = Volante.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
+      if (st.off > 25 && !st._lost) { st._lost = 1; this.msg(st, 'Te saliste de la ruta: sigue la línea ' + (st.kind === 'metroplus' ? 'del carril exclusivo' : 'de la ruta'), 'y'); } else if (st.off < 12) st._lost = 0;
+      // exceso de velocidad (60 km/h Metroplús, 50 alimentador) y semáforos
+      if (Math.abs(st.vf) > V.vmax * .93) { st.over += dt; st.score -= 8 * dt; if (!st._ov) { st._ov = 1; this.msg(st, 'Exceso de velocidad', 'y'); this.sfx(st, 'warn'); } } else st._ov = 0;
+      const c = Math.cos(st.h), s = Math.sin(st.h); for (const g of TRAF.lights) { if (st.redSeen[g.i] || Math.abs(g.x - st.x) > 60 || Math.abs(g.y - st.y) > 60) continue; const d = dist(g.x, g.y, st.x + c * V.wb, st.y + s * V.wb); if (d < 7 && st.vf > 2) { const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; st.redSeen[g.i] = 1; if (ls === 'r') { st.reds++; st.score -= 120; this.msg(st, '¡Semáforo en rojo! −120', 'r'); this.sfx(st, 'bad'); } } }
+      // confort: aceleraciones bruscas y curvas rápidas
+      const lat = st.vf * st.vf * Math.abs(Math.tan(st.steer)) / V.wb, a = (st.vf - (st._pv || st.vf)) / dt; st._pv = st.vf; if ((lat > 2.2 || Math.abs(a) > 2.8) && Math.abs(st.vf) > 1) st.comfort = Math.max(0, st.comfort - dt * 9);
+      // llegada a la parada / parada perdida
+      const dS = (st.stopS[st.ni] - st.sR) * st.dir;
+      if (Math.abs(st.vf) < .3 && Math.abs(dS) <= 15 && st.off < 12) { st.ph = 'stop'; st.dwell = 0; st.doors = 0; st.vf = 0; st.keys.up = false; const err = Math.abs(dS), late = st.t - st.sched[st.ni], pP = err < 1.5 ? 300 : err < 4 ? 220 : err < 8 ? 140 : 60, pT = Math.abs(late) <= 12 ? 200 : Math.abs(late) <= 30 ? 120 : Math.abs(late) <= 60 ? 50 : 0; st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, line.st[st.stops[st.ni]].name + ' · ' + err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s' + (pP >= 220 ? ' ¡Bien!' : ''), pP >= 220 ? 'g' : 'y'); const f = NET.fact(line.st[st.stops[st.ni]].name); if (f) { this.msg(st, f, 'b'); Save.d.facts[line.st[st.stops[st.ni]].name] = 1; } }
+      else if (dS < -45) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); for (const p of st.waiting[st.ni] || []) { p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Oiga! ¡Se pasó!'); } if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); } else this.finish(st); }
+    }
+    Ciudad.tick(dt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: V, onPed: p => { st.peds++; st.score -= 150; st.comfort = Math.max(0, st.comfort - 20); st.vf *= .4; this.msg(st, '¡Casi atropellas a alguien! −150', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.score -= 120; st.comfort = Math.max(0, st.comfort - 12); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : 'carro') + ' −120', 'r'); vib(100); } });
+    if (st.shake > 0) st.shake -= dt;
+    const kT = st.far ? .45 : st.ph === 'stop' ? 1.8 : lerp(1.75, 1.1, clamp(Math.abs(st.vf) / V.vmax, 0, 1)); st.cam.k += (kT - st.cam.k) * Math.min(1, dt * 2); const lead = 1.2 * st.vf + 6; st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 4); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 4);
+    st.job = { x: NET.at(line.P, st.stopS[Math.min(st.ni, st.stops.length - 1)]).x, y: NET.at(line.P, st.stopS[Math.min(st.ni, st.stops.length - 1)]).y };
+  },
+  doorPos(st) { const V = this.V(st), side = st.kind === 'metroplus' ? -1 : 1, c = Math.cos(st.h), s = Math.sin(st.h); return { x: st.x + c * V.len * .15 - Math.sin(st.h) * side * (V.wid / 2 + .6), y: st.y + s * V.len * .15 + Math.cos(st.h) * side * (V.wid / 2 + .6) }; },
+  stopTick(st, dt, line) {
+    st.dwell += dt; st.vf = 0; const W = st.waiting[st.ni] || [];
+    if (st.doors === 1) {
+      st.doorT += dt; const d = this.doorPos(st);
+      if (st.alight > 0 && st.doorT > .6) { st.alight--; st.doorT = .15; st.pax--; const p = Ciudad.spawnWaiting(null, d.x, d.y, 1)[0]; p.waitStop = null; p.x = d.x; p.y = d.y; p.wait = 0; p.tgt = null; }
+      else if (st.alight <= 0) { for (const p of W) if (!p.board && !p.gone) { if (st.doorT > .5) { if (!p.recarga && h2(st.ni, W.indexOf(p), st.seed + 7) < .07) { p.recarga = 1; st.doorT = -1.4; this.msg(st, 'Cívica sin saldo: el pasajero recarga…', 'y'); Ciudad.say(p, '¡Ay, sin saldo!'); this.sfx(st, 'bad'); } else { p.board = { x: d.x, y: d.y }; st.doorT = 0; } } break; } }
+      const left = W.filter(p => !p.gone).length; st.pax = Math.min(st.cap, st.pax0 + (W.length - left));
+      const nb = W.length - left; if (nb > (st.nb || 0)) { st.fares = (st.fares || 0) + nb - (st.nb || 0); st.nb = nb; this.sfx(st, 'beep'); }
+      if (!left && st.alight <= 0 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra las puertas', 'y'); }
+      if (st.auto && !left && st.alight <= 0) this.doors(st);
+    } else if (st.doors === 0 && st.auto && st.dwell > .5) this.doors(st);
+    if (st.doors === 2 && (st.keys.up || st.joy.y < -.3 || st.auto)) { st.ph = 'run'; st.doors = 0; st.bell = 0; st.nb = 0; if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); } }
+  },
+  doors(st) {
+    if (st.ph !== 'stop') { this.msg(st, 'Las puertas solo abren en la parada', 'y'); return; } const line = NET.byId[st.line], last = st.ni === st.stops.length - 1;
+    if (st.doors === 0) { st.doors = 1; st.doorT = 0; st.pax0 = st.pax; st.alight = last ? st.pax : Math.min(st.pax, 1 + ((hashStr(line.st[st.stops[st.ni]].name) + st.ni) % 4)); this.sfx(st, 'door'); vib(20); }
+    else if (st.doors === 1) { const W = (st.waiting[st.ni] || []).filter(p => !p.gone && !p.board); if (W.length || st.alight > 0) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); for (const p of W) { p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Espere!'); } } st.doors = 2; this.sfx(st, 'door'); if (last) this.finish(st); }
+  },
+  finish(st) { if (st.done) return; st.done = true; st.win = st.arr.filter(a => a.err >= 99).length === 0; st.score += Math.round(st.comfort * 2); st.score = Math.max(0, Math.round(st.score)); Save.d.stats.km += st.sR / 1000; const B = Save.d.bus || (Save.d.bus = { done: {} }); if (st.win) B.done[st.line] = (B.done[st.line] || 0) + 1; },
+  result(st) { const n = st.stops.length - 1, miss = st.arr.filter(a => a.err >= 99).length, ok = st.arr.filter(a => a.err < 99), avg = ok.length ? ok.reduce((a, b) => a + b.err, 0) / ok.length : 0, max = n * 500 + 200, line = NET.byId[st.line]; return { done: st.done, win: st.win, score: st.score, stars: st.done && st.win ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '', lines: [['Paradas', (n - miss) + ' / ' + n], ['Pasajeros', st.pax + ' a bordo al final'], ['Pasajes Cívica', (st.fares || 0) + ' validados'], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort', Math.round(st.comfort) + ' %'], ['Choques / rojos', st.crashes + ' / ' + st.reds], ['Asistente', st.assist ? 'encendido' : 'apagado (×1,25)']] }; },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
+  sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
+  hud(st) { this.updCtl(st); const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.stopS[st.ni] - st.sR) * st.dir; return [['', Math.round(Math.abs(st.vf) * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'stop' ? 'En la parada' : Math.round(Math.max(0, d)) + ' m'], ['👥', st.pax + (st.fares ? ' · 💳' + st.fares : '')], ['★', fmt(Math.max(0, st.score))]]; },
+  mount(st, el) {
+    el.innerHTML = `<div class="joyzone" id="bsJz"><div class="joy" id="bsJoy"><i></i></div></div>
+      <div class="lbbtns"><button class="abtn big" id="bsDoor">⇆<small>puertas</small></button><button class="abtn acc" id="bsUp">▲</button><button class="abtn brk" id="bsDown">▼</button><button class="abtn hb" id="bsHorn">📯</button></div>
+      <div class="vsel" id="bsView"><button id="bsAs">🛞</button><button id="bsZoom">🔎</button></div><div id="bsJob" class="jobbar"></div>`;
+    const jz = $('#bsJz'), joy = $('#bsJoy'); let jid = null, jx = 0, jy = 0;
+    jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); if (st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: giras con el joystick (×1,25)', 'b'); } });
+    jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
+    const jend = e => { if (e.pointerId !== jid) return; jid = null; st.joy = { x: 0, y: 0, m: 0 }; joy.classList.remove('on'); joy.firstChild.style.transform = ''; }; jz.addEventListener('pointerup', jend); jz.addEventListener('pointercancel', jend);
+    const hold = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    hold('#bsUp', 'up'); hold('#bsDown', 'down');
+    $('#bsDoor').onclick = () => this.doors(st); $('#bsHorn').onclick = () => { Snd.play('horn'); vib(30); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); };
+    $('#bsAs').onclick = () => { st.assist = !st.assist; this.msg(st, st.assist ? 'Asistente de carril encendido' : 'Asistente apagado: giras con el joystick (×1,25)', 'b'); }; $('#bsZoom').onclick = () => { st.far = !st.far; };
+    this.updCtl(st);
+  },
+  updCtl(st) {
+    if (EM.headless || Game.st !== st) return; const jb = $('#bsJob'); if (!jb) return; const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.stopS[st.ni] - st.sR) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)], W = (st.waiting[st.ni] || []).filter(p => !p.gone).length;
+    jb.innerHTML = `<b>${st.ph === 'stop' ? (st.doors === 1 ? 'Puertas abiertas · suben ' + W : st.doors === 2 ? 'Puertas cerradas · ▲ para seguir' : 'En la parada · ● abre las puertas') : (st.ph === 'ready' ? '▲ para arrancar' : 'Próxima: ' + esc(nx.name))}</b><span>${st.ph === 'ready' ? esc(line.name) : (Math.round(Math.max(0, d)) + ' m · horario ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s · ' + (st.ni) + '/' + (st.stops.length - 1))}</span><em>👥 ${st.pax}/${st.cap} · ☕ ${Math.round(st.comfort)} % · ${Mundo.chip()}</em>`;
+    jb.className = 'jobbar' + (st.ph === 'stop' ? ' stop' : ''); $('#bsAs').classList.toggle('on', st.assist); const db = $('#bsDoor'); db.classList.toggle('hot', st.ph === 'stop' && st.doors !== 2); db.querySelector('small').textContent = st.doors === 1 ? 'cerrar' : 'puertas';
+  },
+  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if ((m === 'left' || m === 'right') && down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado', 'b'); } if (!st.assist) st.joy = { x: (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), y: 0, m: 1 }; return; } if (!down) return; if (k === ' ' || k === 'e') this.doors(st); if (k === 'g') st.assist = !st.assist; if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') Snd.play('horn'); },
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st);
+    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    // ruta: carril exclusivo o recorrido del alimentador
+    g.strokeStyle = st.kind === 'metroplus' ? 'rgba(14,111,118,.45)' : line.color + '66'; g.lineWidth = (st.kind === 'metroplus' ? 7 : 5) * k; g.lineJoin = 'round'; g.beginPath(); let on = false; for (const p of line.P.pts) { if (p.x < x0 - 200 || p.x > x1 + 200 || p.y < y0 - 200 || p.y > y1 + 200) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.stroke();
+    if (st.kind === 'metroplus') { g.setLineDash([3 * k, 3 * k]); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, .3 * k); g.stroke(); g.setLineDash([]); }
+    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1); Ciudad.marksDraw(g, S, k);
+    // paradas de esta ruta: zona de parada, caseta y nombre
+    for (let i = 0; i < st.stops.length; i++) { const s = st.stopS[i], q0 = this.stopPos(line, s, st.dir, st.kind), q = S(q0.x, q0.y); if (q.x < -80 || q.y < -80 || q.x > W + 80 || q.y > H + 80) continue; const cur = i === st.ni; g.save(); g.translate(q.x, q.y); g.rotate(q0.a); g.fillStyle = cur ? 'rgba(246,197,56,.35)' : 'rgba(255,255,255,.12)'; g.fillRect(-15 * k, -(st.kind === 'metroplus' ? 2 : 1) * k - 4.5 * k, 30 * k, 4 * k); g.fillStyle = PAL.negro; g.fillRect(-3 * k, -2.2 * k, 6 * k, 2.2 * k); g.fillStyle = cur ? PAL.mostaza : line.color; g.fillRect(-2.7 * k, -2 * k, 5.4 * k, 1.6 * k); g.restore(); const nm = line.st[st.stops[i]].name; g.font = '700 ' + Math.max(10, Math.min(15, k * 7)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.92)'; g.strokeText(nm, q.x, q.y - 9 * k); g.fillStyle = cur ? '#8a5d00' : PAL.negro; g.fillText(nm, q.x, q.y - 9 * k); g.textAlign = 'left'; }
+    Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1); Ciudad.vendorsDraw(g, S, k, sh, x0, y0, x1, y1);
+    for (const c of Ciudad.cars) Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, S, k, sh, night, true);
+    for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) Ciudad.ped(g, p, S, k, sh);
+    // el bus del jugador (articulado: dos secciones)
+    if (st.kind === 'metroplus') { Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'brt', S, k, sh, night, true, { doors: 'left', sign: 1 }); }
+    else Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'feeder', S, k, sh, night, true, { doors: 'right', sign: 1 });
+    if (st.doors === 1) { const d = this.doorPos(st), q = S(d.x, d.y); g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); }
+    Ciudad.partsDraw(g, S, k); Ciudad.bubblesDraw(g, S, k);
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); Mundo.grain(g, W, H); }
+    // flecha hacia la próxima parada
+    const J = st.job; if (J && st.ph !== 'stop') { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 22 * Math.max(.6, k * .5)); g.lineTo(q.x - 7, q.y - 34 * Math.max(.6, k * .5)); g.lineTo(q.x + 7, q.y - 34 * Math.max(.6, k * .5)); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4; g.save(); g.translate(cx + Math.cos(a) * r, cy + Math.sin(a) * r); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
+    Libre.minimap(g, st, W, H);
+    // velocímetro
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), R = 44 * dpr, cx = W * .5 - 16 * dpr, cy = H - 10 * dpr; g.fillStyle = 'rgba(16,46,80,.9)'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * dpr; g.stroke(); const an = Math.PI + Math.PI * clamp(Math.abs(st.vf) / V.vmax, 0, 1); g.strokeStyle = Math.abs(st.vf) > V.vmax * .93 ? PAL.rojo : '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * R * .8, cy + Math.sin(an) * R * .8); g.stroke(); g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .4) + 'px Titulos, sans-serif'; g.fillText(Math.round(Math.abs(st.vf) * 3.6), cx, cy - R * .18); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .16) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · MÁX ' + Math.round(V.vmax * 3.6 * .93), cx, cy - R * .02); g.textAlign = 'left';
+  },
+  ai(st) { return null; }
+};
+~~~~
+
+### `src/js/40-rieles.js`
+~~~~js
+/* =====================================================================
+   MOTOR DE AGUJAS (rejilla): DESPACHO y ALIMENTADORES
+   · Despacho (Puesto de Control): trenes por colores, toca las agujas para llevarlos a su andén. Choque = −1 vida.
+   · Alimentadores: buses de los barrios a las estaciones; cada estación pide un color que cambia al llenarse.
+   Celdas con conexiones N=1 E=2 S=4 O=8. Los cruces de 3 vías se clasifican solos (desvío o unión) por BFS.
+   El estado es JSON puro: sirve para el cooperativo en red y para el bot.
+   ===================================================================== */
+const DN = 1, DE = 2, DS = 4, DW = 8, DIRS = [DN, DE, DS, DW], DXY = { 1: [0, -1], 2: [1, 0], 4: [0, 1], 8: [-1, 0] }, OPP = { 1: 4, 2: 8, 4: 1, 8: 2 };
+const bitsOf = m => DIRS.filter(d => m & d);
+const DALT = ['#0072B2', '#E69F00', '#009E73', '#F0E442', '#CC79A7', '#56B4E9', '#D55E00', '#000000'];
+const LCOL = () => { if (Save.d && Save.d.settings.dalt) return DALT.map((c, i) => ({ c, l: ['A', 'B', 'T', 'K', 'P', 'H', 'J', 'M'][i] })); const ids = ['A', 'B', 'T', 'K', 'P', 'H', 'J', 'M']; return ids.map((id, i) => { const l = NET.byId[id]; return { c: l ? l.color : ['#1f63ad', '#f08a1c', '#2f9b57', '#f2a900', '#d14b9a', '#7a5cc4', '#e8641f', '#00a3a0'][i], l: id }; }); };
+const Rail = {
+  /* genera una red ramificada: troncos verticales desde arriba, desvíos, cruces y uniones */
+  gen(p, seed) {
+    const rng = new RNG(seed), W = p.W, H = p.H, occ = new Int8Array(W * H), mask = new Uint8Array(W * H), kind = new Uint8Array(W * H), I = (x, y) => y * W + x;
+    const link = (a, b, d) => { mask[a] |= d; mask[b] |= OPP[d]; };
+    const spawns = [], exits = [], sw = {};
+    const xs = []; for (let s = 0; s < p.sp; s++) xs.push(clamp(Math.round((s + 1) * W / (p.sp + 1)) + rng.i(-1, 0), 0, W - 1));
+    for (let s = 0; s < xs.length; s++) { if (xs.indexOf(xs[s]) !== s) xs[s] = clamp(xs[s] + 1, 0, W - 1); }
+    for (const x of [...new Set(xs)]) {
+      for (let y = 0; y < H - 1; y++) { link(I(x, y), I(x, y + 1), DS); occ[I(x, y)] = 1; }
+      occ[I(x, 0)] = 5; occ[I(x, H - 1)] = 5; kind[I(x, 0)] = 2; kind[I(x, H - 1)] = 3; spawns.push(I(x, 0)); exits.push(I(x, H - 1));
+    }
+    let br = 0, mg = 0;
+    for (let tries = 0; tries < 400 && br < p.br; tries++) {
+      const x = rng.i(0, W - 1), r = rng.i(1, H - 3), i = I(x, r);
+      if (occ[i] !== 1 || occ[I(x, r - 1)] === 3 || occ[I(x, r + 1)] === 3 || mask[i] !== (DN | DS)) continue;
+      const d = rng.f() < .5 ? -1 : 1, wantMerge = p.mg && mg < p.mg && rng.f() < .45;
+      let ok = false, x2 = x + d, cross = [];
+      for (; x2 >= 0 && x2 < W; x2 += d) {
+        const j = I(x2, r);
+        if (wantMerge && occ[j] === 1 && mask[j] === (DN | DS) && Math.abs(x2 - x) > 1 && occ[I(x2, r - 1)] !== 3 && occ[I(x2, r + 1)] !== 3) { ok = 'm'; break; }
+        if (occ[j] === 0) { let free = true; for (let y = r; y < H; y++) if (occ[I(x2, y)] !== 0) { free = false; break; } if (free && !(exits.some(e => Math.abs(e % W - x2) < 1))) { ok = 'b'; break; } continue; }
+        if (p.cross && occ[j] === 1 && mask[j] === (DN | DS) && occ[I(x2, r - 1)] !== 3 && occ[I(x2, r + 1)] !== 3 && occ[I(x2, r - 1)] !== 4 && occ[I(x2, r + 1)] !== 4) { cross.push(j); continue; }
+        break;
+      }
+      if (!ok) continue;
+      // trazar
+      for (let xx = x; xx !== x2; xx += d) link(I(xx, r), I(xx + d, r), d > 0 ? DE : DW);
+      for (let xx = x + d; xx !== x2; xx += d) { const j = I(xx, r); occ[j] = cross.includes(j) ? 4 : 2; }
+      occ[i] = 3; sw[i] = { trunk: DN, merge: false, opts: [DS, d > 0 ? DE : DW], s: 0 };
+      if (ok === 'm') { occ[I(x2, r)] = 3; sw[I(x2, r)] = { trunk: DS, merge: true, opts: [], s: 0 }; mg++; }
+      else { for (let y = r; y < H - 1; y++) { link(I(x2, y), I(x2, y + 1), DS); occ[I(x2, y)] = y === r ? 2 : 1; } occ[I(x2, H - 1)] = 5; kind[I(x2, H - 1)] = 3; exits.push(I(x2, H - 1)); br++; }
+    }
+    for (let k = 0; k < W * H; k++) if (mask[k] && !kind[k]) kind[k] = 1;
+    return { W, H, mask: Array.from(mask), kind: Array.from(kind), spawns, exits, sw };
+  },
+  next(st, i, d) { const [dx, dy] = DXY[d], x = i % st.W + dx, y = (i / st.W | 0) + dy; return x < 0 || y < 0 || x >= st.W || y >= st.H ? -1 : y * st.W + x; },
+  /* clasifica cada celda de 3 vías: desvío (una entrada) o unión (dos entradas) */
+  classify(st) {
+    if (st.sw && Object.keys(st.sw).length) { st.swl = Object.keys(st.sw).map(Number).filter(i => !st.sw[i].merge); return; }
+    const seen = new Set(), inflow = {}, q = [];
+    for (const s of st.spawns) { const out = bitsOf(st.mask[s])[0]; q.push([s, OPP[out]]); }
+    while (q.length) {
+      const [i, from] = q.shift(), key = i * 16 + from; if (seen.has(key)) continue; seen.add(key);
+      const m = st.mask[i], b = bitsOf(m); let outs;
+      if (b.length === 3) { (inflow[i] || (inflow[i] = new Set())).add(from); outs = b.filter(d => d !== from); }
+      else if (b.length === 4) outs = [OPP[from]];
+      else outs = b.filter(d => d !== from);
+      if (st.kind[i] === 3 && i !== st.spawns.find(s => s === i)) continue;
+      for (const d of outs) { const j = this.next(st, i, d); if (j >= 0 && (st.mask[j] & OPP[d])) q.push([j, OPP[d]]); }
+    }
+    st.sw = {}; st.swl = [];
+    for (let i = 0; i < st.mask.length; i++) {
+      const b = bitsOf(st.mask[i]); if (b.length !== 3) continue; const inf = inflow[i] ? [...inflow[i]] : [b[0]];
+      if (inf.length >= 2) { const out = b.find(d => !inf.includes(d)) || b[0]; st.sw[i] = { trunk: out, merge: true, opts: [], s: 0 }; }
+      else { const tr = inf[0], o = b.filter(d => d !== tr); st.sw[i] = { trunk: tr, merge: false, opts: o, s: 0 }; st.swl.push(i); }
+    }
+  },
+  route(st, i, from) {
+    const m = st.mask[i], b = bitsOf(m);
+    if (b.length === 2) return b[0] === from ? b[1] : b[0];
+    if (b.length === 4) return OPP[from];
+    if (b.length === 3) { const w = st.sw[i]; if (!w) return b.find(d => d !== from); if (w.merge) return from === w.trunk ? b.find(d => d !== from) : w.trunk; return from === w.trunk ? w.opts[w.s] : w.trunk; }
+    return b[0] || -1;
+  },
+  /* colores alcanzables desde una celda en una dirección (BFS por todas las ramas) */
+  reach(st, i, from) {
+    const out = new Set(), seen = new Set(), q = [[i, from]];
+    while (q.length) {
+      const [c, f] = q.shift(), key = c * 16 + f; if (seen.has(key)) continue; seen.add(key);
+      if (st.kind[c] === 3) { out.add(c); continue; }
+      const b = bitsOf(st.mask[c]); let outs;
+      if (b.length === 3) { const w = st.sw[c]; outs = w && !w.merge && f === w.trunk ? w.opts : w ? [w.merge ? (f === w.trunk ? b.find(d => d !== f) : w.trunk) : w.trunk] : b.filter(d => d !== f); }
+      else if (b.length === 4) outs = [OPP[f]]; else outs = b.filter(d => d !== f);
+      for (const d of outs) { const j = this.next(st, c, d); if (j >= 0 && (st.mask[j] & OPP[d])) q.push([j, OPP[d]]); }
+    }
+    return out;
+  },
+  pos(st, e) {
+    const x = e.i % st.W, y = e.i / st.W | 0, mid = d => d === DN ? [x + .5, y] : d === DE ? [x + 1, y + .5] : d === DS ? [x + .5, y + 1] : [x, y + .5];
+    const a = mid(e.from), c = [x + .5, y + .5], b = e.to > 0 ? mid(e.to) : c, t = e.p, u = 1 - t;
+    const px = u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], py = u * u * a[1] + 2 * u * t * c[1] + t * t * b[1];
+    const tx = 2 * u * (c[0] - a[0]) + 2 * t * (b[0] - c[0]), ty = 2 * u * (c[1] - a[1]) + 2 * t * (b[1] - c[1]);
+    return { x: px, y: py, a: Math.atan2(ty, tx) };
+  }
+};
+function railMode(cfg) {
+  return {
+    id: cfg.id, name: cfg.name, sub: cfg.sub, music: cfg.music, tip: cfg.tip, LV: cfg.LV,
+    levels() { return this.LV.map((l, i) => ({ id: cfg.id + i, name: l.n, sub: l.s || '', i })); },
+    create(lv, opts) {
+      const idx = clamp(parseInt(String(lv).replace(cfg.id, ''), 10) || 0, 0, this.LV.length - 1), P = this.LV[idx], seed = P.seed || (hashStr(cfg.id + idx) & 0xffff);
+      let g = Rail.gen(P, seed), tries = 0; while ((g.exits.length < P.ex || g.spawns.length < 1) && tries++ < 30) g = Rail.gen(P, seed + tries * 101);
+      const C = LCOL(), st = Object.assign(g, { mode: cfg.id, idx, t: 0, ents: [], nid: 1, delivered: 0, goal: P.goal, lives: P.lives || 3, crashes: 0, wrong: 0, score: 0, combo: 0, done: false, win: false, speed: P.v, rate: P.r, rmin: P.rmin || P.r * .5, fx: [], seed: opts.seed | 0, infinite: !!P.inf });
+      Rail.classify(st);
+      const nc = Math.min(C.length, P.cols || st.exits.length);
+      st.ex = st.exits.map((i, k) => ({ i, col: k % nc, got: 0, cap: P.cap || 0 }));
+      st.pal = C.slice(0, nc).map(c => c.c); st.lab = C.slice(0, nc).map(c => c.l);
+      st.sp = st.spawns.map((i, k) => ({ i, next: 1 + k * (P.r / st.spawns.length), q: [] }));
+      st.rng = (opts.seed | 0) || 1;
+      if (cfg.alim) for (const e of st.ex) e.col = this.rnd(st) % nc;
+      return st;
+    },
+    rnd(st) { st.rng = (Math.imul(st.rng ^ (st.rng >>> 15), 2246822507) + 12345) >>> 0; return st.rng; },
+    reachCols(st, sp) { const set = new Set(); const all = this.reachEx(st, sp.i); for (const ei of all) { const e = st.ex.find(x => x.i === ei); if (e) set.add(e.col); } return [...set]; },
+    reachEx(st, i) {
+      // todas las salidas alcanzables desde la celda de aparición sin importar las agujas
+      const seen = new Set(), out = new Set(), q = [[i, OPP[bitsOf(st.mask[i])[0]]]];
+      while (q.length) { const [c, f] = q.shift(), key = c * 16 + f; if (seen.has(key)) continue; seen.add(key); if (st.kind[c] === 3) { out.add(c); continue; } const b = bitsOf(st.mask[c]); const w = st.sw[c]; let outs = b.length === 4 ? [OPP[f]] : b.length === 3 ? (w && !w.merge && f === w.trunk ? w.opts : [Rail.route(st, c, f)]) : b.filter(d => d !== f); for (const d of outs) { const j = Rail.next(st, c, d); if (j >= 0 && (st.mask[j] & OPP[d])) q.push([j, OPP[d]]); } }
+      return out;
+    },
+    step(st, dt) {
+      if (st.done) return; st.t += dt;
+      // aparición
+      for (const sp of st.sp) {
+        if (st.t < sp.next) continue;
+        const busy = st.ents.some(e => e.i === sp.i || Rail.next(st, sp.i, bitsOf(st.mask[sp.i])[0]) === e.i && e.p < .4); if (busy) { sp.next = st.t + .3; continue; }
+        let cols;
+        if (cfg.alim) { const ex = [...this.reachEx(st, sp.i)].map(i => st.ex.find(e => e.i === i)).filter(Boolean); cols = ex.map(e => e.col); }
+        else cols = this.reachCols(st, sp);
+        if (!cols.length) { sp.next = st.t + 2; continue; }
+        const col = cols[this.rnd(st) % cols.length], out = bitsOf(st.mask[sp.i])[0];
+        st.ents.push({ id: st.nid++, i: sp.i, from: OPP[out], to: out, p: .5, col, w: 0 });
+        const elapsed = st.t / 60; sp.next = st.t + Math.max(st.rmin, st.rate * (1 - .35 * Math.min(1, elapsed + st.delivered / Math.max(8, st.goal)))) * (cfg.alim ? .8 + (this.rnd(st) % 40) / 100 : 1);
+      }
+      // movimiento
+      const v = st.speed * dt;
+      for (const e of st.ents) {
+        if (cfg.alim) { // cola: se detiene si hay otro bus justo delante
+          const me = Rail.pos(st, e); let block = false;
+          for (const o of st.ents) { if (o === e) continue; const q = Rail.pos(st, o), dx = q.x - me.x, dy = q.y - me.y, d2 = dx * dx + dy * dy; if (d2 < .5 && (dx * Math.cos(me.a) + dy * Math.sin(me.a)) > .05) { block = true; break; } }
+          if (block) { e.w += dt; if (e.w < 2.5) continue; } else e.w = 0;
+        }
+        e.p += v;
+        if (e.p < .35) e.to = Rail.route(st, e.i, e.from);
+        while (e.p >= 1 && !e.gone) {
+          const j = Rail.next(st, e.i, e.to);
+          if (j < 0 || !(st.mask[j] & OPP[e.to])) { e.gone = true; this.crash(st, e, null); break; }
+          e.i = j; e.from = OPP[e.to]; e.p -= 1;
+          if (st.kind[j] === 3) { e.gone = true; this.arrive(st, e, j); break; }
+          e.to = Rail.route(st, j, e.from);
+        }
+      }
+      // choques (solo despacho)
+      if (!cfg.alim) {
+        const P = st.ents.filter(e => !e.gone).map(e => [e, Rail.pos(st, e)]);
+        for (let a = 0; a < P.length; a++) for (let b = a + 1; b < P.length; b++) { const p = P[a][1], q = P[b][1]; if ((p.x - q.x) ** 2 + (p.y - q.y) ** 2 < .3 && !P[a][0].gone && !P[b][0].gone) { P[a][0].gone = P[b][0].gone = true; this.crash(st, P[a][0], P[b][0]); } }
+      }
+      st.ents = st.ents.filter(e => !e.gone);
+      for (const f of st.fx) f.t -= dt; st.fx = st.fx.filter(f => f.t > 0);
+      if (!st.infinite && st.delivered >= st.goal) { st.done = true; st.win = true; st.score += st.lives * 150; }
+      if (st.lives <= 0) { st.done = true; st.win = st.infinite && st.delivered >= st.goal; }
+    },
+    arrive(st, e, j) {
+      const ex = st.ex.find(x => x.i === j), p = Rail.pos(st, e), ok = ex && ex.col === e.col;
+      if (ok) {
+        st.delivered++; st.combo++; const pts = 100 + Math.min(10, st.combo) * 10; st.score += pts; st.fx.push({ k: 'pts', x: p.x, y: p.y, t: 1, s: '+' + pts }); this.sfx(st, 'coin');
+        if (cfg.alim) { ex.got++; if (ex.got >= ex.cap) { ex.got = 0; st.score += 150; st.fx.push({ k: 'pts', x: p.x, y: p.y - .6, t: 1.4, s: '¡Tren lleno! +150' }); const n = st.pal.length; let c = this.rnd(st) % n; if (c === ex.col) c = (c + 1) % n; ex.col = c; this.sfx(st, 'star'); } }
+      } else { st.wrong++; st.combo = 0; const fair = !cfg.alim || st.ex.some(x => x.col === e.col); if (fair) st.lives--; st.fx.push({ k: 'bad', x: p.x, y: p.y, t: 1.2, s: fair ? (cfg.alim ? 'Estación equivocada' : 'Andén equivocado') : 'Sin destino' }); this.sfx(st, 'bad'); }
+    },
+    crash(st, a, b) { const p = Rail.pos(st, a); st.crashes++; st.lives--; st.combo = 0; st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1 }); this.sfx(st, 'crash'); if (Game.st === st && !EM.headless) vib(150); },
+    sfx(st, k) { if (!EM.headless && (Game.st === st || Game.st2 === st)) Snd.play(k); },
+    act(st, a) { if (!a || a.k !== 'sw') return; const w = st.sw[a.i]; if (!w || w.merge) return; w.s = 1 - w.s; this.sfx(st, 'switch'); },
+    result(st) { const frac = st.lives / (this.LV[st.idx].lives || 3); return { done: st.done, win: st.win, score: st.score, stars: st.win ? starsOf(frac * .9 + .1) : 0, lines: [[cfg.unit, st.delivered + ' / ' + st.goal], ['Vidas', '♥'.repeat(Math.max(0, st.lives))], ['Choques', st.crashes], ['Errores', st.wrong]], fact: this.LV[st.idx].f || '' }; },
+    hud(st) { return [[cfg.icon, st.delivered + '/' + st.goal], ['♥', Math.max(0, st.lives)], ['★', fmt(st.score)]]; },
+    /* ---------- vista ---------- */
+    geo(st, vp) { const m = Math.min(vp.w, vp.h) * .05, cs = Math.min((vp.w - 2 * m) / st.W, (vp.h - 2 * m - vp.h * .06) / st.H); return { cs, ox: (vp.w - cs * st.W) / 2, oy: (vp.h - cs * st.H) / 2 + vp.h * .03 }; },
+    pointer(st, type, x, y, vp) {
+      if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs; let best = null, bd = .95;
+      for (const i of st.swl) { const cx = i % st.W + .5, cy = (i / st.W | 0) + .5, d = Math.hypot(cx - gx, cy - gy); if (d < bd) { bd = d; best = i; } }
+      return best == null ? null : { k: 'sw', i: best };
+    },
+    draw(g, st, vp) {
+      const G = this.geo(st, vp), cs = G.cs, T = cfg.theme, X = x => G.ox + x * cs, Y = y => G.oy + y * cs;
+      g.fillStyle = T.bg; g.fillRect(0, 0, vp.w, vp.h);
+      // retícula de papel / planos
+      g.strokeStyle = T.grid; g.lineWidth = 1; g.beginPath(); for (let x = 0; x <= st.W; x++) { g.moveTo(X(x), Y(0)); g.lineTo(X(x), Y(st.H)); } for (let y = 0; y <= st.H; y++) { g.moveTo(X(0), Y(y)); g.lineTo(X(st.W), Y(y)); } g.stroke();
+      if (cfg.alim) for (let i = 0; i < st.mask.length; i++) if (!st.mask[i] && h2(i, st.idx, 5) < .5) { const x = i % st.W, y = i / st.W | 0; for (let k = 0; k < 3; k++) Art.building(g, X(x) + cs * (.1 + k * .3), Y(y) + cs * (.75 - h2(i, k, 2) * .45), cs * .25, cs * (.2 + h2(i, k, 2) * .45), i * 3 + k, false, h2(i, k, 7) < .6); }
+      const mid = (x, y, d) => d === DN ? [X(x + .5), Y(y)] : d === DE ? [X(x + 1), Y(y + .5)] : d === DS ? [X(x + .5), Y(y + 1)] : [X(x), Y(y + .5)];
+      const seg = (x, y, a, b, w, col) => { const p = mid(x, y, a), q = mid(x, y, b), c = [X(x + .5), Y(y + .5)]; g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(p[0], p[1]); if (OPP[a] === b) g.lineTo(q[0], q[1]); else g.quadraticCurveTo(c[0], c[1], q[0], q[1]); g.stroke(); };
+      g.lineCap = 'round';
+      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < st.mask.length; i++) {
+        const m = st.mask[i]; if (!m) continue; const x = i % st.W, y = i / st.W | 0, b = bitsOf(m), w = pass ? cs * .1 : cs * .3, col = pass ? T.rail2 : T.rail;
+        if (st.kind[i] === 2 || st.kind[i] === 3) { const d = b[0], p = mid(x, y, d); g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(X(x + .5), Y(y + .5)); g.lineTo(p[0], p[1]); g.stroke(); continue; }
+        if (b.length === 2) seg(x, y, b[0], b[1], w, col);
+        else if (b.length === 4) { seg(x, y, DN, DS, w, col); seg(x, y, DE, DW, w, col); }
+        else { const sw = st.sw[i]; if (sw && !sw.merge) { for (const o of sw.opts) seg(x, y, sw.trunk, o, w, pass && o !== sw.opts[sw.s] ? T.off : col); } else { const tr = sw ? sw.trunk : b[0]; for (const o of b) if (o !== tr) seg(x, y, o, tr, w, col); } }
+      }
+      // agujas (círculo con flecha hacia la rama activa)
+      for (const i of st.swl) {
+        const sw = st.sw[i], x = i % st.W, y = i / st.W | 0, c = [X(x + .5), Y(y + .5)], d = sw.opts[sw.s], [dx, dy] = DXY[d], r = cs * .27;
+        const soon = st.ents.some(e => { const p = Rail.pos(st, e); return Math.hypot(p.x - x - .5, p.y - y - .5) < 1.6; });
+        g.fillStyle = soon ? T.hot : T.sw; g.strokeStyle = PAL.negro; g.lineWidth = Math.max(2, cs * .05); g.beginPath(); g.arc(c[0], c[1], r * (soon ? 1 + .08 * Math.sin(st.t * 12) : 1), 0, TAU); g.fill(); g.stroke();
+        g.strokeStyle = PAL.negro; g.lineWidth = Math.max(2, cs * .07); g.beginPath(); g.moveTo(c[0] - dx * r * .5, c[1] - dy * r * .5); g.lineTo(c[0] + dx * r * .8, c[1] + dy * r * .8); g.stroke();
+        g.beginPath(); g.moveTo(c[0] + dx * r * .8 + dy * r * .4, c[1] + dy * r * .8 - dx * r * .4); g.lineTo(c[0] + dx * r * .8, c[1] + dy * r * .8); g.lineTo(c[0] + dx * r * .8 - dy * r * .4, c[1] + dy * r * .8 + dx * r * .4); g.stroke();
+      }
+      // salidas (andenes / estaciones) y entradas (túneles / barrios)
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const ex of st.ex) { const x = ex.i % st.W, y = ex.i / st.W | 0, c = st.pal[ex.col]; g.fillStyle = PAL.negro; g.fillRect(X(x + .08), Y(y + .12), cs * .84, cs * .8); g.fillStyle = c; g.fillRect(X(x + .14), Y(y + .18), cs * .72, cs * .68); g.fillStyle = '#fff'; g.font = '700 ' + (cs * .4) + 'px Titulos, sans-serif'; g.fillText(st.lab[ex.col], X(x + .5), Y(y + .5)); if (cfg.alim) { for (let k = 0; k < ex.cap; k++) { g.fillStyle = k < ex.got ? '#fff' : 'rgba(0,0,0,.35)'; g.fillRect(X(x + .2 + k * .22), Y(y + .74), cs * .16, cs * .08); } } }
+      for (const sp of st.sp) { const x = sp.i % st.W, y = sp.i / st.W | 0; g.fillStyle = PAL.negro; g.beginPath(); g.arc(X(x + .5), Y(y + .62), cs * .4, Math.PI, TAU); g.lineTo(X(x + .9), Y(y + .9)); g.lineTo(X(x + .1), Y(y + .9)); g.fill(); g.fillStyle = T.portal; g.beginPath(); g.arc(X(x + .5), Y(y + .66), cs * .28, Math.PI, TAU); g.lineTo(X(x + .78), Y(y + .9)); g.lineTo(X(x + .22), Y(y + .9)); g.fill(); }
+      // vehículos
+      for (const e of st.ents) { const p = Rail.pos(st, e), c = st.pal[e.col]; g.save(); g.translate(X(p.x), Y(p.y)); g.rotate(p.a); const L = cs * (cfg.alim ? .52 : .7), Wd = cs * (cfg.alim ? .34 : .36); g.fillStyle = PAL.negro; g.fillRect(-L / 2 - 2, -Wd / 2 - 2, L + 4, Wd + 4); g.fillStyle = cfg.alim ? '#f4f1ea' : c; g.fillRect(-L / 2, -Wd / 2, L, Wd); if (cfg.alim) { g.fillStyle = c; g.fillRect(-L / 2, -Wd * .18, L, Wd * .36); } else { g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(L * .22, -Wd * .3, L * .16, Wd * .6); } g.restore(); g.fillStyle = cfg.alim ? PAL.negro : '#fff'; g.font = '700 ' + (cs * .24) + 'px Titulos, sans-serif'; g.fillText(st.lab[e.col], X(p.x), Y(p.y)); }
+      // efectos
+      for (const f of st.fx) { const a = clamp(f.t, 0, 1); if (f.k === 'boom') { g.fillStyle = 'rgba(255,106,61,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (1.2 - a * .6), 0, TAU); g.fill(); g.fillStyle = 'rgba(255,230,120,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (.7 - a * .4), 0, TAU); g.fill(); } else { g.fillStyle = f.k === 'bad' ? PAL.rojo : T.txt; g.font = '700 ' + (cs * .32) + 'px Titulos, sans-serif'; g.fillText(f.s, X(f.x), Y(f.y - (1 - a) * .8)); } }
+      g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+      if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
+      g.fillStyle = T.txt; g.font = '700 ' + Math.max(11, vp.h * .022) + 'px Cuerpo, sans-serif'; g.fillText(this.LV[st.idx].n.toUpperCase() + ' · ' + st.delivered + '/' + st.goal + '  ' + '♥'.repeat(Math.max(0, st.lives)), 10, Math.max(16, vp.h * .035));
+    },
+    /* bot: orienta cada aguja hacia el color del vehículo que se acerca */
+    ai(st) {
+      for (const i of st.swl) {
+        const sw = st.sw[i]; let best = null, bd = 9;
+        for (const e of st.ents) { const p = Rail.pos(st, e), d = Math.hypot(p.x - (i % st.W + .5), p.y - ((i / st.W | 0) + .5)); if (d < bd && d < 2.2) { const ahead = e.i === i ? e.p < .35 : Rail.next(st, e.i, e.to) === i; if (ahead) { bd = d; best = e; } } }
+        if (!best) continue;
+        const want = cfg.alim ? st.ex.filter(x => x.col === best.col).map(x => x.i) : st.ex.filter(x => x.col === best.col).map(x => x.i);
+        const j = Rail.next(st, i, sw.opts[sw.s]), r = j >= 0 ? Rail.reach(st, j, OPP[sw.opts[sw.s]]) : new Set();
+        if (![...r].some(x => want.includes(x))) { const j2 = Rail.next(st, i, sw.opts[1 - sw.s]), r2 = j2 >= 0 ? Rail.reach(st, j2, OPP[sw.opts[1 - sw.s]]) : new Set(); if ([...r2].some(x => want.includes(x))) return { k: 'sw', i }; }
+      }
+      return null;
+    }
+  };
+}
+EM.modes.despacho = railMode({
+  id: 'despacho', name: 'Despacho', sub: 'Puesto de Control · agujas', music: 'tension', icon: '🚆', unit: 'Trenes',
+  tip: 'Toca las agujas (círculos) para mandar cada tren al andén de su color y letra. Ojo con los cruces: dos trenes juntos chocan.',
+  theme: { bg: '#fbe2c2', grid: 'rgba(20,20,20,.08)', rail: '#141414', rail2: '#fbe2c2', off: 'rgba(20,20,20,.25)', sw: '#fdfbf5', hot: '#E38835', portal: '#1C5C9C', txt: '#141414' },
+  LV: [
+    { n: 'Patio Bello', s: 'Taller de trenes', W: 5, H: 6, sp: 1, br: 1, ex: 2, goal: 6, v: 1.1, r: 3.4, f: 'Los trenes duermen en los talleres de Bello: allá los lavan, revisan y alistan antes de las 4:30 a. m.' },
+    { n: 'Niquía', s: 'Cabecera norte', W: 6, H: 7, sp: 1, br: 2, ex: 3, goal: 8, v: 1.15, r: 3.1 },
+    { n: 'Madera', W: 7, H: 8, sp: 1, br: 3, ex: 4, goal: 10, v: 1.2, r: 3 },
+    { n: 'Acevedo', s: 'Metrocables K y P', W: 7, H: 8, sp: 2, br: 2, cross: 1, ex: 4, goal: 10, v: 1.2, r: 3.4 },
+    { n: 'Caribe', W: 8, H: 9, sp: 2, br: 3, cross: 1, ex: 5, goal: 12, v: 1.25, r: 3.2 },
+    { n: 'San Antonio', s: 'Transbordo A · B · T', W: 8, H: 10, sp: 2, br: 3, cross: 1, mg: 1, ex: 4, goal: 14, v: 1.25, r: 3.1 },
+    { n: 'Cisneros', W: 9, H: 10, sp: 2, br: 4, cross: 1, mg: 1, ex: 5, goal: 16, v: 1.3, r: 3 },
+    { n: 'Exposiciones', W: 9, H: 11, sp: 3, br: 3, cross: 1, ex: 5, goal: 16, v: 1.3, r: 3.6 },
+    { n: 'Industriales', s: 'Conexión Metroplús', W: 9, H: 11, sp: 3, br: 4, cross: 1, mg: 1, ex: 6, goal: 18, v: 1.35, r: 3.4 },
+    { n: 'Poblado', W: 10, H: 12, sp: 3, br: 5, cross: 1, mg: 1, ex: 6, goal: 20, v: 1.4, r: 3.3 },
+    { n: 'Itagüí', W: 10, H: 12, sp: 3, br: 5, cross: 1, mg: 2, ex: 6, goal: 22, v: 1.45, r: 3.2 },
+    { n: 'La Estrella · Infinito', s: 'Sin final: ¿cuántos despachas?', W: 10, H: 12, sp: 3, br: 5, cross: 1, mg: 2, ex: 6, goal: 30, v: 1.45, r: 3.2, rmin: 1.2, inf: 1 }
+  ]
+});
+EM.modes.alim = railMode({
+  id: 'alim', name: 'Alimentadores', sub: 'Barrios → Metro', music: 'puzzle', icon: '🚐', unit: 'Buses', alim: true,
+  tip: 'Cada estación pide un color. Desvía los buses de los barrios para llenarla: al completar 3, sale el tren y pide otro color.',
+  theme: { bg: '#0d4f55', grid: 'rgba(255,255,255,.05)', rail: '#082f33', rail2: '#65A9AC', off: 'rgba(101,169,172,.25)', sw: '#fbe7b0', hot: '#E38835', portal: '#b4583a', txt: '#fbe7b0' },
+  LV: [
+    { n: 'Santo Domingo', s: 'De la loma al cable', W: 5, H: 7, sp: 1, br: 1, ex: 2, goal: 8, v: .9, r: 2.2, cap: 3, cols: 2, lives: 4 },
+    { n: 'Manrique', W: 6, H: 7, sp: 1, br: 2, ex: 3, goal: 12, v: .9, r: 2, cap: 3, cols: 3, lives: 4 },
+    { n: 'Robledo', W: 7, H: 8, sp: 2, br: 2, ex: 3, goal: 15, v: .95, r: 2.4, cap: 3, cols: 3, lives: 4 },
+    { n: 'Belén', W: 7, H: 9, sp: 2, br: 3, mg: 1, ex: 4, goal: 18, v: .95, r: 2.2, cap: 3, cols: 3, lives: 4 },
+    { n: 'Envigado', W: 8, H: 9, sp: 2, br: 3, cross: 1, mg: 1, ex: 4, goal: 20, v: 1, r: 2.1, cap: 3, cols: 4, lives: 4 },
+    { n: 'Itagüí', W: 8, H: 10, sp: 3, br: 3, cross: 1, mg: 1, ex: 5, goal: 24, v: 1, r: 2.3, cap: 3, cols: 4, lives: 4 },
+    { n: 'Bello', W: 9, H: 10, sp: 3, br: 4, cross: 1, mg: 2, ex: 5, goal: 28, v: 1.05, r: 2.2, cap: 3, cols: 4, lives: 5 },
+    { n: 'Sabaneta', W: 9, H: 11, sp: 3, br: 4, cross: 1, mg: 2, ex: 6, goal: 32, v: 1.05, r: 2.1, cap: 4, cols: 5, lives: 5 },
+    { n: 'Valle · Infinito', s: 'Sin final', W: 10, H: 12, sp: 4, br: 4, cross: 1, mg: 2, ex: 6, goal: 40, v: 1.1, r: 2, rmin: .9, cap: 4, cols: 5, lives: 5, inf: 1 }
+  ]
+});
+~~~~
+
+### `src/js/45-metroplus.js`
+~~~~js
+/* =====================================================================
+   MODO METROPLÚS (cruces con semáforos): toca cada cruce para dar el verde
+   a la calle o a la avenida. Lleva los buses de Metroplús por su carril exclusivo
+   sin choques ni trancones. Motos que se cuelan en amarillo, taxis amarillos, buses alimentadores.
+   Unidad = ancho de un carril. Se conduce por la derecha.
+   ===================================================================== */
+const VTYPE = {
+  car: { len: 1.5, wid: .78, v: 4.2, a: 3.2, p: 10 },
+  taxi: { len: 1.4, wid: .76, v: 4.4, a: 3.4, p: 10 },
+  moto: { len: .8, wid: .4, v: 5.2, a: 5, p: 8, sneak: .45 },
+  feeder: { len: 2.3, wid: .9, v: 3.4, a: 2.2, p: 25 },
+  mp: { len: 3.6, wid: .92, v: 3.9, a: 2, p: 100 }
+};
+const CARCOL = ['#c8201f', '#12446c', '#f4f1ea', '#5a6470', '#2f9b57', '#c3952f', '#1b8088', '#7a5cc4', '#141414', '#9aa0a6'];
+const MPlus = EM.modes.metroplus = {
+  id: 'metroplus', name: 'Metroplús', sub: 'Cruces y carril exclusivo', music: 'tension',
+  tip: 'Toca un cruce para cambiar el verde entre la avenida y la calle. Los buses de Metroplús valen 100. Evita choques y trancones.',
+  LV: [
+    { n: 'Calle 30 · Belén', mp: 'h', hv: 1, vv: 1, goal: 6, rate: 2.6, mpr: 7, f: 'La Línea 1 de Metroplús va de la Universidad de Medellín (Belén) al Parque Aranjuez.' },
+    { n: 'Parque Belén', mp: 'h', hv: 1, vv: 2, goal: 8, rate: 2.4, mpr: 6.5 },
+    { n: 'Avenida Oriental', mp: 'v', hv: 2, vv: 1, goal: 8, rate: 2.3, mpr: 6, f: 'La Línea 2 de Metroplús recorre la Avenida Oriental por el centro de Medellín.' },
+    { n: 'Carrera 45 · Manrique', mp: 'v', hv: 3, vv: 1, goal: 10, rate: 2.3, mpr: 6, f: 'En Manrique hay una estación de Metroplús llamada Gardel: Carlos Gardel murió en Medellín en 1935.' },
+    { n: 'Avenida San Juan', mp: 'h', hv: 2, vv: 2, goal: 10, rate: 2.2, mpr: 6 },
+    { n: 'La 80 · Línea O', mp: 'v', hv: 3, vv: 2, goal: 12, rate: 2.1, mpr: 5.5, f: 'La Línea O de buses eléctricos recorre la Avenida 80 entre Caribe y La Palma.' },
+    { n: 'Industriales', mp: 'h', hv: 2, vv: 3, goal: 14, rate: 2, mpr: 5.5 },
+    { n: 'Hora pico · Infinito', mp: 'v', hv: 3, vv: 2, goal: 25, rate: 1.7, mpr: 5, inf: 1 }
+  ],
+  levels() { return this.LV.map((l, i) => ({ id: 'mp' + i, name: l.n, sub: l.inf ? 'Sin final' : 'Lleva ' + l.goal + ' buses', i })); },
+  create(lv, opts) {
+    const idx = clamp(parseInt(String(lv).slice(2), 10) || 0, 0, this.LV.length - 1), P = this.LV[idx];
+    // geometría: avenidas horizontales (filas) y calles verticales (columnas)
+    const W = 6 + P.vv * 5, H = 9 + P.hv * 5, roads = [];
+    const hy = [], vx = []; for (let k = 0; k < P.hv; k++) hy.push(Math.round((k + 1) * H / (P.hv + 1))); for (let k = 0; k < P.vv; k++) vx.push(Math.round((k + 1) * W / (P.vv + 1)));
+    const mpH = P.mp === 'h' ? 0 : -1, mpV = P.mp === 'v' ? 0 : -1;
+    // carriles: {ax:'h'|'v', d:+1|-1, c: coordenada transversal, bus: exclusivo}
+    const lanes = [];
+    hy.forEach((y, k) => { const mp = k === mpH; if (mp) { lanes.push({ ax: 'h', d: 1, c: y + .5, bus: 1 }, { ax: 'h', d: -1, c: y - .5, bus: 1 }, { ax: 'h', d: 1, c: y + 1.5 }, { ax: 'h', d: -1, c: y - 1.5 }); } else lanes.push({ ax: 'h', d: 1, c: y + .5 }, { ax: 'h', d: -1, c: y - .5 }); roads.push({ ax: 'h', c: y, hw: mp ? 2 : 1, mp }); });
+    vx.forEach((x, k) => { const mp = k === mpV; if (mp) { lanes.push({ ax: 'v', d: 1, c: x - .5, bus: 1 }, { ax: 'v', d: -1, c: x + .5, bus: 1 }, { ax: 'v', d: 1, c: x - 1.5 }, { ax: 'v', d: -1, c: x + 1.5 }); } else lanes.push({ ax: 'v', d: 1, c: x - .5 }, { ax: 'v', d: -1, c: x + .5 }); roads.push({ ax: 'v', c: x, hw: mp ? 2 : 1, mp }); });
+    lanes.forEach((l, i) => { l.i = i; l.len = l.ax === 'h' ? W : H; l.next = (opts.seed % 997 + i * 1.3) % 3; l.block = 0; });
+    const X = []; for (const r1 of roads.filter(r => r.ax === 'h')) for (const r2 of roads.filter(r => r.ax === 'v')) X.push({ x: r2.c, y: r1.c, hw: r2.hw, hh: r1.hw, g: r1.mp ? 'h' : 'v', y0: 0, sw: 0 });
+    // estaciones de Metroplús en el separador central (entre cruces)
+    const stops = []; const mpRoad = roads.find(r => r.mp); if (mpRoad) { const cs = mpRoad.ax === 'h' ? vx : hy, L = mpRoad.ax === 'h' ? W : H, pts = [0, ...cs, L]; for (let k = 0; k < pts.length - 1; k++) if (pts[k + 1] - pts[k] > 4 && stops.length < 2) stops.push((pts[k] + pts[k + 1]) / 2); }
+    return { idx, W, H, lanes, X, roads, stops, mpAx: P.mp, veh: [], nid: 1, t: 0, buses: 0, goal: P.goal, lives: 3, crashes: 0, jams: 0, score: 0, rate: P.rate, mpr: P.mpr, done: false, win: false, fx: [], rng: (opts.seed | 0) || 7, inf: !!P.inf };
+  },
+  rnd(st) { st.rng = (Math.imul(st.rng ^ (st.rng >>> 15), 2246822507) + 12345) >>> 0; return st.rng / 4294967296; },
+  /* posición del vehículo en el tablero */
+  vpos(st, v) { const L = st.lanes[v.l], s = L.d > 0 ? v.s : L.len - v.s; return L.ax === 'h' ? { x: s, y: L.c, a: L.d > 0 ? 0 : Math.PI } : { x: L.c, y: s, a: L.d > 0 ? Math.PI / 2 : -Math.PI / 2 }; },
+  /* cruces en el carril: [inicio, fin] en coordenada s del carril */
+  xOnLane(st, L) {
+    if (L._x) return L._x;
+    const out = []; for (const X of st.X) { const c = L.ax === 'h' ? X.x : X.y, hw = L.ax === 'h' ? X.hw : X.hh, onRoad = L.ax === 'h' ? Math.abs(L.c - X.y) < X.hh + .01 : Math.abs(L.c - X.x) < X.hw + .01; if (!onRoad) continue; const a = c - hw, b = c + hw; out.push(L.d > 0 ? { X, a, b } : { X, a: L.len - b, b: L.len - a }); }
+    out.sort((p, q) => p.a - q.a); return (L._x = out);
+  },
+  green(X, ax) { return X.g === ax && X.y0 <= 0; },
+  step(st, dt) {
+    if (st.done) return; st.t += dt;
+    for (const X of st.X) if (X.y0 > 0) { X.y0 -= dt; if (X.y0 <= 0) X.g = X.pend; }
+    // aparición por carril
+    for (const L of st.lanes) {
+      L.next -= dt; if (L.next > 0) continue;
+      const first = st.veh.filter(v => v.l === L.i).reduce((m, v) => Math.min(m, v.s - VTYPE[v.ty].len / 2), 99);
+      if (first < 2.2) { L.block += dt; L.next = .25; if (L.block > 7) { L.block = 0; st.jams++; st.lives--; st.fx.push(Object.assign({ k: 'bad', t: 1.6, s: '¡Trancón!' }, this.edge(st, L))); this.sfx(st, 'bad'); st.veh = st.veh.filter(v => !(v.l === L.i && v.s < 6)); } continue; }
+      L.block = 0;
+      let ty; if (L.bus) ty = 'mp'; else { const r = this.rnd(st); ty = r < .5 ? 'car' : r < .66 ? 'taxi' : r < .88 ? 'moto' : 'feeder'; }
+      st.veh.push({ id: st.nid++, l: L.i, s: -VTYPE[ty].len / 2, v: VTYPE[ty].v * .8, ty, col: ty === 'taxi' ? '#f2c400' : CARCOL[(this.rnd(st) * CARCOL.length) | 0], w: 0, dw: 0, sn: this.rnd(st) < (VTYPE[ty].sneak || 0) });
+      const tl = st.t / 90; L.next = (L.bus ? st.mpr : st.rate) * (1 - .3 * Math.min(1, tl)) * (.7 + this.rnd(st) * .6) * (L.bus ? 1 : 1 + .25 * (st.lanes.filter(q => !q.bus).length / 4 - 1));
+    }
+    // movimiento
+    const byLane = {}; for (const v of st.veh) (byLane[v.l] || (byLane[v.l] = [])).push(v);
+    for (const k in byLane) byLane[k].sort((a, b) => b.s - a.s);
+    for (const k in byLane) {
+      const arr = byLane[k], L = st.lanes[k], xs = this.xOnLane(st, L);
+      for (let i = 0; i < arr.length; i++) {
+        const v = arr[i], T = VTYPE[v.ty], front = v.s + T.len / 2; let vmax = T.v;
+        if (i > 0) { const ld = arr[i - 1], gap = (ld.s - VTYPE[ld.ty].len / 2) - front - .35; vmax = Math.min(vmax, Math.max(0, gap * 2.2)); }
+        for (const x of xs) {
+          if (front > x.a - .05) continue; const d = x.a - .25 - front;
+          if (!this.green(x.X, L.ax)) { const stopD = v.v * v.v / (2 * T.a * 1.6); if (d > stopD - .15 || v.v < .3) { if (!(v.sn && x.X.y0 > 0)) vmax = Math.min(vmax, Math.max(0, Math.sqrt(Math.max(0, 2 * T.a * 1.4 * d)))); } }
+          break;
+        }
+        // parada de Metroplús
+        if (v.ty === 'mp') for (const sp of st.stops) { const ss = L.d > 0 ? sp : L.len - sp, d = ss - v.s; if (!v.done || !v.done.includes(sp)) { if (d > 0 && d < 3) vmax = Math.min(vmax, Math.sqrt(2 * T.a * d)); if (Math.abs(d) < .15) { v.dw += dt; vmax = 0; if (v.dw > 1.4) { (v.done || (v.done = [])).push(sp); v.dw = 0; st.score += 20; } } } }
+        v.v = v.v < vmax ? Math.min(vmax, v.v + T.a * dt) : Math.max(vmax, v.v - T.a * 2.4 * dt);
+        v.s += v.v * dt; v.w = v.v < .1 ? v.w + dt : Math.max(0, v.w - dt * 2);
+        if (v.w > 12 && !v.honk) { v.honk = 1; st.fx.push(Object.assign({ k: 'honk', t: 1.2, s: '¡Piii!' }, this.vpos(st, v))); this.sfx(st, 'horn'); }
+        if (v.s - T.len / 2 > L.len) { v.out = true; st.score += T.p; if (v.ty === 'mp') { st.buses++; st.fx.push(Object.assign({ k: 'pts', t: 1.2, s: '+100' }, this.vpos(st, v))); this.sfx(st, 'coin'); } }
+      }
+    }
+    // choques dentro de los cruces (ejes distintos)
+    for (const X of st.X) {
+      const inX = st.veh.filter(v => { if (v.out || v.dead) return false; const p = this.vpos(st, v), T = VTYPE[v.ty], hx = (st.lanes[v.l].ax === 'h' ? T.len : T.wid) / 2, hy = (st.lanes[v.l].ax === 'h' ? T.wid : T.len) / 2; v._b = [p.x - hx, p.y - hy, p.x + hx, p.y + hy]; return v._b[2] > X.x - X.hw && v._b[0] < X.x + X.hw && v._b[3] > X.y - X.hh && v._b[1] < X.y + X.hh; });
+      for (let a = 0; a < inX.length; a++) for (let b = a + 1; b < inX.length; b++) {
+        const A = inX[a], B = inX[b]; if (st.lanes[A.l].ax === st.lanes[B.l].ax) continue;
+        if (A._b[0] < B._b[2] && A._b[2] > B._b[0] && A._b[1] < B._b[3] && A._b[3] > B._b[1]) { A.dead = B.dead = true; st.crashes++; st.lives--; const p = this.vpos(st, A); st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1.2 }); this.sfx(st, 'crash'); if (Game.st === st) vib(160); }
+      }
+    }
+    st.veh = st.veh.filter(v => !v.out && !v.dead);
+    for (const f of st.fx) f.t -= dt; st.fx = st.fx.filter(f => f.t > 0);
+    if (!st.inf && st.buses >= st.goal) { st.done = true; st.win = true; st.score += st.lives * 150; }
+    if (st.lives <= 0) { st.done = true; st.win = st.inf && st.buses >= st.goal; }
+  },
+  edge(st, L) { return L.ax === 'h' ? { x: L.d > 0 ? 1 : st.W - 1, y: L.c } : { x: L.c, y: L.d > 0 ? 1 : st.H - 1 }; },
+  sfx(st, k) { if (!EM.headless && (Game.st === st || Game.st2 === st)) Snd.play(k); },
+  act(st, a) { if (!a || a.k !== 'x') return; const X = st.X[a.i]; if (!X || X.y0 > 0) return; X.pend = X.g === 'h' ? 'v' : 'h'; X.g = 'y'; X.y0 = .7; this.sfx(st, 'switch'); },
+  result(st) { return { done: st.done, win: st.win, score: st.score, stars: st.win ? starsOf(st.lives / 3 * .9 + .1) : 0, lines: [['Buses Metroplús', st.buses + ' / ' + st.goal], ['Choques', st.crashes], ['Trancones', st.jams]], fact: this.LV[st.idx].f || '' }; },
+  hud(st) { return [['🚌', st.buses + '/' + st.goal], ['♥', Math.max(0, st.lives)], ['★', fmt(st.score)]]; },
+  geo(st, vp) { const cs = Math.min(vp.w / st.W, vp.h / st.H); return { cs, ox: (vp.w - cs * st.W) / 2, oy: (vp.h - cs * st.H) / 2 }; },
+  pointer(st, type, x, y, vp) { if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs; let best = -1, bd = 4; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } }); return best < 0 ? null : { k: 'x', i: best }; },
+  draw(g, st, vp) {
+    const G = this.geo(st, vp), cs = G.cs, X = x => G.ox + x * cs, Y = y => G.oy + y * cs, mpc = (NET.byId.MP1 || NET.byId.MP2 || {}).color || '#7ab648';
+    g.fillStyle = '#EB318E'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#d9cdae'; g.fillRect(X(0), Y(0), cs * st.W, cs * st.H);
+    // manzanas con techos
+    for (let by = 0; by < st.H; by += 1) for (let bx = 0; bx < st.W; bx += 1) { const onRoad = st.roads.some(r => r.ax === 'h' ? Math.abs(by + .5 - r.c) < r.hw + .6 : Math.abs(bx + .5 - r.c) < r.hw + .6); if (onRoad) continue; const h = h2(bx, by, st.idx); if (h < .7) { g.fillStyle = PAL.negro; g.fillRect(X(bx) + 1, Y(by) + 1, cs - 2, cs - 2); g.fillStyle = h < .4 ? PAL.ladrillo : h < .55 ? '#8d97a4' : '#b8b0a0'; g.fillRect(X(bx) + 2, Y(by) + 2, cs - 4, cs - 4); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(X(bx) + 2, Y(by) + cs * .55, cs - 4, cs * .45 - 2); } else { Art.tree(g, X(bx + .5), Y(by + .9), cs * .8, false); } }
+    // vías
+    for (const r of st.roads) {
+      g.fillStyle = '#3f444d'; if (r.ax === 'h') g.fillRect(X(0), Y(r.c - r.hw), cs * st.W, cs * r.hw * 2); else g.fillRect(X(r.c - r.hw), Y(0), cs * r.hw * 2, cs * st.H);
+      if (r.mp) { g.fillStyle = mpc + '55'; if (r.ax === 'h') g.fillRect(X(0), Y(r.c - 1), cs * st.W, cs * 2); else g.fillRect(X(r.c - 1), Y(0), cs * 2, cs * st.H); }
+      g.fillStyle = PAL.mante; const L = r.ax === 'h' ? st.W : st.H;
+      for (let s = 0; s < L; s += 1) { if (r.ax === 'h') { g.fillRect(X(s), Y(r.c) - 1, cs * .5, 2); if (r.mp) { g.fillStyle = '#fff'; g.fillRect(X(s), Y(r.c - 1) - 1, cs * .5, 2); g.fillRect(X(s), Y(r.c + 1) - 1, cs * .5, 2); g.fillStyle = PAL.mante; } } else { g.fillRect(X(r.c) - 1, Y(s), 2, cs * .5); if (r.mp) { g.fillStyle = '#fff'; g.fillRect(X(r.c - 1) - 1, Y(s), 2, cs * .5); g.fillRect(X(r.c + 1) - 1, Y(s), 2, cs * .5); g.fillStyle = PAL.mante; } } }
+    }
+    // estaciones de Metroplús (separador central)
+    const mpRoad = st.roads.find(r => r.mp); if (mpRoad) for (const sp of st.stops) { g.fillStyle = PAL.negro; if (mpRoad.ax === 'h') { g.fillRect(X(sp - 1.6), Y(mpRoad.c) - cs * .22, cs * 3.2, cs * .44); g.fillStyle = mpc; g.fillRect(X(sp - 1.5), Y(mpRoad.c) - cs * .16, cs * 3, cs * .32); } else { g.fillRect(X(mpRoad.c) - cs * .22, Y(sp - 1.6), cs * .44, cs * 3.2); g.fillStyle = mpc; g.fillRect(X(mpRoad.c) - cs * .16, Y(sp - 1.5), cs * .32, cs * 3); } }
+    // cruces: cebras y semáforo central tocable
+    for (const [i, Xx] of st.X.entries()) {
+      g.fillStyle = '#4a4f58'; g.fillRect(X(Xx.x - Xx.hw), Y(Xx.y - Xx.hh), cs * Xx.hw * 2, cs * Xx.hh * 2);
+      g.fillStyle = 'rgba(255,255,255,.75)'; for (let k = -Xx.hw; k < Xx.hw; k += .5) { g.fillRect(X(Xx.x + k + .1), Y(Xx.y - Xx.hh - .55), cs * .25, cs * .45); g.fillRect(X(Xx.x + k + .1), Y(Xx.y + Xx.hh + .1), cs * .25, cs * .45); } for (let k = -Xx.hh; k < Xx.hh; k += .5) { g.fillRect(X(Xx.x - Xx.hw - .55), Y(Xx.y + k + .1), cs * .45, cs * .25); g.fillRect(X(Xx.x + Xx.hw + .1), Y(Xx.y + k + .1), cs * .45, cs * .25); }
+      const r = cs * .62, cx = X(Xx.x), cy = Y(Xx.y);
+      g.fillStyle = PAL.negro; g.beginPath(); g.arc(cx, cy, r + 3, 0, TAU); g.fill();
+      g.fillStyle = Xx.g === 'y' ? '#ffc23a' : PAL.blanco; g.beginPath(); g.arc(cx, cy, r, 0, TAU); g.fill();
+      g.strokeStyle = Xx.g === 'y' ? PAL.negro : '#2f9b57'; g.lineWidth = Math.max(3, cs * .14); g.lineCap = 'round'; g.beginPath(); if (Xx.g === 'h') { g.moveTo(cx - r * .6, cy); g.lineTo(cx + r * .6, cy); } else if (Xx.g === 'v') { g.moveTo(cx, cy - r * .6); g.lineTo(cx, cy + r * .6); } g.stroke();
+      // luces pequeñas en las esquinas
+      const lc = ax => Xx.g === ax ? '#38e07b' : Xx.g === 'y' ? '#ffc23a' : '#ff3b2f';
+      for (const [dx, dy, ax] of [[-1, -1, 'v'], [1, 1, 'v'], [1, -1, 'h'], [-1, 1, 'h']]) { const lx = X(Xx.x + dx * (Xx.hw + .35)), ly = Y(Xx.y + dy * (Xx.hh + .35)); g.fillStyle = PAL.negro; g.fillRect(lx - cs * .14, ly - cs * .14, cs * .28, cs * .28); g.fillStyle = lc(ax); g.fillRect(lx - cs * .09, ly - cs * .09, cs * .18, cs * .18); }
+    }
+    // vehículos
+    for (const v of st.veh) {
+      const p = this.vpos(st, v), T = VTYPE[v.ty]; g.save(); g.translate(X(p.x), Y(p.y)); g.rotate(p.a); const L = T.len * cs, Wd = T.wid * cs;
+      g.fillStyle = PAL.negro; g.fillRect(-L / 2 - 1.5, -Wd / 2 - 1.5, L + 3, Wd + 3);
+      if (v.ty === 'mp') { g.fillStyle = mpc; g.fillRect(-L / 2, -Wd / 2, L * .48, Wd); g.fillRect(-L / 2 + L * .52, -Wd / 2, L * .48, Wd); g.fillStyle = '#f4f1ea'; g.fillRect(-L / 2 + 2, -Wd * .25, L * .44, Wd * .5); g.fillRect(-L / 2 + L * .54, -Wd * .25, L * .44, Wd * .5); g.fillStyle = PAL.negro; g.fillRect(-1, -Wd / 2, 2, Wd); }
+      else if (v.ty === 'moto') { g.fillStyle = '#222'; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.col; g.beginPath(); g.arc(0, 0, Wd * .55, 0, TAU); g.fill(); }
+      else { g.fillStyle = v.ty === 'feeder' ? '#f4f1ea' : v.col; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.ty === 'feeder' ? PAL.naranja : 'rgba(20,30,40,.55)'; g.fillRect(L * .12, -Wd / 2 + 2, L * .2, Wd - 4); if (v.ty === 'feeder') g.fillRect(-L / 2, -Wd * .12, L, Wd * .24); }
+      g.fillStyle = '#fff6c0'; g.fillRect(L / 2 - 2, -Wd / 2 + 1, 2, 2); g.fillRect(L / 2 - 2, Wd / 2 - 3, 2, 2);
+      g.restore();
+    }
+    if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
+    // efectos
+    g.textAlign = 'center';
+    for (const f of st.fx) { const a = clamp(f.t, 0, 1); if (f.k === 'boom') { g.fillStyle = 'rgba(255,106,61,' + a + ')'; g.beginPath(); g.arc(X(f.x), Y(f.y), cs * (1.6 - a * .8), 0, TAU); g.fill(); } else { g.font = '700 ' + (cs * .7) + 'px Titulos, sans-serif'; g.fillStyle = PAL.negro; g.fillText(f.s, X(f.x) + 1, Y(f.y - (1.2 - a) * 1.5) + 1); g.fillStyle = f.k === 'bad' ? PAL.rojo : f.k === 'honk' ? PAL.mante : '#fff'; g.fillText(f.s, X(f.x), Y(f.y - (1.2 - a) * 1.5)); } }
+    g.textAlign = 'left';
+  },
+  /* bot: da el verde al eje con más espera, con prioridad para Metroplús y sin cambiar si un vehículo está dentro */
+  ai(st) {
+    for (const [i, X] of st.X.entries()) {
+      if (X.y0 > 0) continue; let wH = 0, wV = 0, busy = false;
+      for (const v of st.veh) { const L = st.lanes[v.l], p = this.vpos(st, v), d = Math.hypot(p.x - X.x, p.y - X.y); if (d < Math.max(X.hw, X.hh) + .8 && v.v > .2) busy = true; if (d < 6) { const w = (v.w + .5) * (v.ty === 'mp' ? 3 : 1); if (L.ax === 'h') wH += w; else wV += w; } }
+      if (busy) continue; const want = wH > wV * 1.4 ? 'h' : wV > wH * 1.4 ? 'v' : X.g; if (want !== X.g) return { k: 'x', i };
+    }
+    return null;
+  }
+};
+~~~~
+
+### `src/js/50-cable.js`
+~~~~js
+/* =====================================================================
+   MODO METROCABLE: arma la línea en la ladera girando las piezas
+   (estaciones, cable, poleas y torres) hasta que todo quede conectado.
+   Al cerrar la red, las cabinas empiezan a rodar. Puzles generados y siempre con solución.
+   ===================================================================== */
+const rotM = m => ((m << 1) | (m >> 3)) & 15;
+const Cable = EM.modes.cable = {
+  id: 'cable', name: 'Metrocable', sub: 'Arma la línea en la loma', music: 'puzzle',
+  tip: 'Toca una pieza para girarla. Conecta todas las estaciones, cables y torres sin dejar puntas sueltas.',
+  SIZES: [[4, 5, .8], [5, 6, .78], [5, 7, .8], [6, 8, .8], [7, 9, .82]],
+  levels() {
+    if (this._lv) return this._lv; const L = [];
+    for (const line of NET.lines.filter(l => l.kind === 'cable')) for (let k = 0; k < this.SIZES.length; k++) { const a = line.st[Math.min(k, line.st.length - 2)], b = line.st[Math.min(k + 1, line.st.length - 1)]; L.push({ id: 'cb:' + line.id + ':' + k, line: line.id, k, name: line.name.replace('Metrocable ', '') + ' · ' + (k + 1), sub: a.name + ' → ' + b.name }); }
+    if (!L.length) for (let k = 0; k < 5; k++) L.push({ id: 'cb:X:' + k, line: 'X', k, name: 'Cable ' + (k + 1), sub: '' });
+    return (this._lv = L);
+  },
+  create(lv, opts) {
+    const L = this.levels().find(l => l.id === lv) || this.levels()[0], [W, H, dens] = this.SIZES[L.k], rng = new RNG(hashStr(L.id) + 17);
+    const n = W * H, inT = new Uint8Array(n), mask = new Uint8Array(n), I = (x, y) => y * W + x, front = [];
+    const start = I(rng.i(0, W - 1), rng.i(0, H - 1)); inT[start] = 1; let count = 1;
+    const addF = i => { const x = i % W, y = i / W | 0; for (const d of DIRS) { const [dx, dy] = DXY[d], nx = x + dx, ny = y + dy; if (nx >= 0 && ny >= 0 && nx < W && ny < H && !inT[I(nx, ny)]) front.push([i, I(nx, ny), d]); } };
+    addF(start);
+    while (front.length && count < n * dens) { const k = rng.i(0, front.length - 1), [a, b, d] = front.splice(k, 1)[0]; if (inT[b]) continue; inT[b] = 1; count++; mask[a] |= d; mask[b] |= OPP[d]; addF(b); }
+    // algunos lazos extra (más torres)
+    for (let i = 0; i < n; i++) { if (!inT[i]) continue; const x = i % W, y = i / W | 0; for (const d of [DE, DS]) { const [dx, dy] = DXY[d], j = I(x + dx, y + dy); if (x + dx < W && y + dy < H && inT[j] && !(mask[i] & d) && rng.f() < .08 + L.k * .02) { mask[i] |= d; mask[j] |= OPP[d]; } } }
+    const sol = Array.from(mask), m = sol.slice(); let par = 0;
+    for (let i = 0; i < n; i++) { if (!m[i] || m[i] === 15) continue; const r = rng.i(0, 3); for (let k = 0; k < r; k++) m[i] = rotM(m[i]); let q = m[i], c = 0; while (q !== sol[i] && c < 4) { q = rotM(q); c++; } par += c; }
+    if (par === 0) { const i = sol.findIndex(v => v && v !== 15 && v !== 5 && v !== 10); if (i >= 0) { m[i] = rotM(m[i]); par = 3; } }
+    return { lvId: L.id, line: L.line, k: L.k, W, H, m, sol, ra: new Array(n).fill(0), moves: 0, par, t: 0, done: false, win: false, solvedT: 0, fx: [] };
+  },
+  solved(st) { const { W, H, m } = st; for (let i = 0; i < m.length; i++) { const v = m[i]; if (!v) continue; const x = i % W, y = i / W | 0; for (const d of DIRS) if (v & d) { const [dx, dy] = DXY[d], nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) return false; if (!(m[ny * W + nx] & OPP[d])) return false; } } return true; },
+  step(st, dt) {
+    st.t += dt; for (let i = 0; i < st.ra.length; i++) if (st.ra[i]) { st.ra[i] *= Math.pow(.0005, dt); if (Math.abs(st.ra[i]) < .01) st.ra[i] = 0; }
+    if (st.win && !st.done) { st.solvedT += dt; if (st.solvedT > 2.2) st.done = true; }
+    for (const f of st.fx) f.t -= dt; st.fx = st.fx.filter(f => f.t > 0);
+  },
+  act(st, a) {
+    if (!a || a.k !== 'rot' || st.win) return; const v = st.m[a.i]; if (!v || v === 15) return;
+    st.m[a.i] = rotM(v); st.ra[a.i] = -Math.PI / 2; st.moves++; if (!EM.headless && (Game.st === st || Game.st2 === st)) Snd.play('rot');
+    if (this.solved(st)) { st.win = true; st.solvedT = 0; if (!EM.headless && (Game.st === st || Game.st2 === st)) { Snd.play('win'); vib(60); } for (let k = 0; k < 40; k++) st.fx.push({ x: Math.random() * st.W, y: Math.random() * st.H * .5, vx: (Math.random() - .5) * 2, vy: Math.random() * 2 + 1, c: ROPA[k % ROPA.length], t: 2 }); }
+  },
+  result(st) {
+    const line = NET.byId[st.line], score = st.win ? Math.max(100, 1000 - Math.max(0, st.moves - st.par) * 25) : 0, frac = st.par / Math.max(st.par, st.moves);
+    const stn = line && line.st[Math.min(st.k + 1, line.st.length - 1)];
+    return { done: st.done, win: st.win, score, stars: st.win ? (st.moves <= st.par * 1.25 + 1 ? 3 : st.moves <= st.par * 2 + 2 ? 2 : 1) : 0, lines: [['Giros', st.moves + ' (ideal ' + st.par + ')']], fact: stn ? (NET.fact(stn.name) || (line.facts || [])[st.k % Math.max(1, (line.facts || []).length)] || '') : '' };
+  },
+  hud(st) { return [['↻', st.moves], ['ideal', st.par]]; },
+  geo(st, vp) { const m = Math.min(vp.w, vp.h) * .06, cs = Math.min((vp.w - 2 * m) / st.W, (vp.h - 2 * m - vp.h * .08) / st.H); return { cs, ox: (vp.w - cs * st.W) / 2, oy: (vp.h - cs * st.H) / 2 + vp.h * .04 }; },
+  pointer(st, type, x, y, vp) { if (type !== 'down' || st.win) return null; const G = this.geo(st, vp), gx = Math.floor((x - G.ox) / G.cs), gy = Math.floor((y - G.oy) / G.cs); if (gx < 0 || gy < 0 || gx >= st.W || gy >= st.H) return null; const i = gy * st.W + gx; return st.m[i] ? { k: 'rot', i } : null; },
+  draw(g, st, vp) {
+    const G = this.geo(st, vp), cs = G.cs, line = NET.byId[st.line], col = line ? line.color : '#f2a900';
+    // ladera: fondo mostaza, montaña, casas de ladrillo
+    g.fillStyle = '#F6C538'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#d9a52a'; g.beginPath(); g.moveTo(0, vp.h); for (let x = 0; x <= vp.w; x += 8) g.lineTo(x, vp.h * .25 + Math.sin(x * .01 + st.k) * vp.h * .06 + Math.sin(x * .031) * vp.h * .02); g.lineTo(vp.w, vp.h); g.fill();
+    for (let y = 0; y < st.H; y++) for (let x = 0; x < st.W; x++) { const i = y * st.W + x, X0 = G.ox + x * cs, Y0 = G.oy + y * cs; if (!st.m[i]) { for (let k = 0; k < 4; k++) { const hh = h2(x * 4 + k, y, st.k); Art.building(g, X0 + cs * (.05 + (k % 2) * .48), Y0 + cs * (k < 2 ? .1 : .55), cs * .42, cs * (.25 + hh * .15), i * 4 + k, false, hh < .75); } } else { g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(X0 + 1, Y0 + 1, cs - 2, cs - 2); } }
+    const conn = this.solved(st) || st.win;
+    for (let i = 0; i < st.m.length; i++) {
+      const v = st.m[i]; if (!v) continue; const x = i % st.W, y = i / st.W | 0, cx = G.ox + (x + .5) * cs, cy = G.oy + (y + .5) * cs, b = bitsOf(v);
+      g.save(); g.translate(cx, cy); g.rotate(st.ra[i]);
+      const cab = st.win ? col : PAL.negro, w = Math.max(2, cs * .06);
+      // cable (doble línea) hacia cada lado conectado
+      for (const d of b) { const [dx, dy] = DXY[d]; g.strokeStyle = cab; g.lineWidth = w; g.beginPath(); g.moveTo(-dy * cs * .07, dx * cs * .07); g.lineTo(dx * cs * .5 - dy * cs * .07, dy * cs * .5 + dx * cs * .07); g.moveTo(dy * cs * .07, -dx * cs * .07); g.lineTo(dx * cs * .5 + dy * cs * .07, dy * cs * .5 - dx * cs * .07); g.stroke(); }
+      if (b.length === 1) { // estación
+        g.fillStyle = PAL.negro; g.fillRect(-cs * .3, -cs * .26, cs * .6, cs * .52); g.fillStyle = PAL.blanco; g.fillRect(-cs * .26, -cs * .22, cs * .52, cs * .44); g.fillStyle = col; g.fillRect(-cs * .3, -cs * .3, cs * .6, cs * .12); g.fillStyle = PAL.vidrio; g.fillRect(-cs * .18, -cs * .1, cs * .36, cs * .14);
+      } else if (b.length >= 3) { // torre
+        g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1.5, cs * .04); g.strokeRect(-cs * .14, -cs * .14, cs * .28, cs * .28); g.beginPath(); g.moveTo(-cs * .14, -cs * .14); g.lineTo(cs * .14, cs * .14); g.moveTo(cs * .14, -cs * .14); g.lineTo(-cs * .14, cs * .14); g.stroke();
+      } else if (b[0] !== OPP[b[1]]) { // polea en las curvas
+        g.fillStyle = PAL.negro; g.beginPath(); g.arc(0, 0, cs * .14, 0, TAU); g.fill(); g.fillStyle = PAL.gris; g.beginPath(); g.arc(0, 0, cs * .08, 0, TAU); g.fill();
+      }
+      g.restore();
+    }
+    // cabinas rodando cuando la línea está completa
+    if (st.win) for (let i = 0; i < st.m.length; i++) { const v = st.m[i]; if (!(v & DE) && !(v & DS)) continue; for (const d of [DE, DS]) { if (!(v & d)) continue; const x = i % st.W, y = i / st.W | 0, [dx, dy] = DXY[d], f = (st.t * .8 + h2(i, d, 1)) % 1; Art.cabin(g, G.ox + (x + .5 + dx * f) * cs, G.oy + (y + .5 + dy * f) * cs + cs * .1, Math.max(1, cs / 26), col); } }
+    if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
+    for (const f of st.fx) { g.fillStyle = f.c; g.fillRect(G.ox + (f.x + f.vx * (2 - f.t)) * cs, G.oy + (f.y + f.vy * (2 - f.t) * 2) * cs, cs * .12, cs * .2); }
+    g.fillStyle = PAL.blanco; g.font = '700 ' + Math.max(18, vp.h * .05) + 'px Titulos, sans-serif'; g.fillText((line ? line.name : 'Metrocable').toUpperCase(), 12, Math.max(24, vp.h * .06));
+    if (st.win) { g.fillStyle = PAL.negro; g.font = '700 ' + Math.max(26, vp.h * .08) + 'px Titulos, sans-serif'; g.textAlign = 'center'; g.fillText('¡LÍNEA EN SERVICIO!', vp.w / 2 + 2, vp.h * .5 + 2); g.fillStyle = PAL.blanco; g.fillText('¡LÍNEA EN SERVICIO!', vp.w / 2, vp.h * .5); g.textAlign = 'left'; }
+  },
+  ai(st) { if (st.win) return null; for (let i = 0; i < st.m.length; i++) if (st.m[i] && st.m[i] !== st.sol[i] && st.m[i] !== 15) return { k: 'rot', i }; return null; }
+};
+~~~~
+
+### `src/js/52-cableviaje.js`
+~~~~js
+/* =====================================================================
+   METROCABLE · VIAJE: opera la línea y viaja en la cabina sobre la loma real.
+   Velocidad de línea 0–5 m/s (como los metrocables reales), viento con ráfagas,
+   balanceo de la cabina como péndulo (θ'' = −g/L·sen θ − c·θ' + (F_viento − a_línea)·cos θ / L),
+   tormentas con relámpagos (hay que detener la línea) y fotos de los miradores.
+   Vista lateral en capas (por defecto), 3D, cabina y cenital. El tiempo corre ×3.
+   ===================================================================== */
+const MIRADORES = { 'Santo Domingo Savio': 'Biblioteca España sobre la loma', 'Parque Arví': 'El bosque de Arví entre la niebla', 'La Aurora': 'El occidente y la Comuna 13', 'El Progreso': 'El cerro El Picacho', 'Villa Sierra': 'El centro desde la Comuna 8', 'Trece de Noviembre': 'Los techos de ladrillo de la 8', 'Andalucía': 'Las casas de colores del nororiente', 'Popular': 'El río y el valle al norte', 'Juan XXIII': 'San Javier desde el aire', 'Vallejuelos': 'La ladera occidental', 'Las Torres': 'El oriente de la ciudad', 'El Pinal': 'Las quebradas del oriente', 'SENA': 'El Doce de Octubre', 'Doce de Octubre': 'El noroccidente encendido' };
+const CableViaje = EM.modes.cableviaje = {
+  id: 'cableviaje', name: 'Metrocable · Viaje', sub: 'Opera la línea y viaja sobre la loma', music: 'story', fullCanvas: true,
+  tip: 'Controla la velocidad de la línea (hasta 5 m/s). Con ráfagas fuertes baja la velocidad para que la cabina no se balancee; con tormenta, detén la línea. Toma fotos en los miradores 📷.',
+  levels() { if (this._lv) return this._lv; return (this._lv = NET.lines.filter(l => l.kind === 'cable').map(l => ({ id: 'cv:' + l.id, line: l.id, name: l.name, sub: l.st[0].name + ' → ' + l.st[l.st.length - 1].name }))); },
+  create(lv, opts) {
+    const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], C = G3.cableGeo(line), rng = new RNG(opts.seed | 0), hr = new Date().getHours() + new Date().getMinutes() / 60;
+    const stS = C.pts.map((p, i) => p.st ? C.P.cum[i] : null).filter(v => v != null), alto = Math.max(...C.pts.map(p => p.z));
+    const st = { lvId: L.id, line: line.id, s: stS[0] + 2, v: 0, vt: 0, th: 0, om: 0, wind: 0, gust: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, stS, ni: 1, ph: 'ride', dwell: 0, pax: 0, moved: 0, comfort: 100, score: 0, photos: [], view: opts.view || 'lado', auto: !!opts.auto, done: false, seed: opts.seed | 0,
+      fixH: opts.hour, paseo: !!opts.paseo, fog: alto > 2200 || (opts.hour != null ? rng.f() < .15 : Mundo.weather().fog), rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, storm: null, stormT: rng.range(40, 140), stormed: false, stopPen: 0, safety: 0, lastV: 0, titleT: 3, title: line.st[0].name, base: 1.5 + rng.f() * 2.5 + (alto > 2100 ? 2 : 0) };
+    st.mir = line.st.slice(1).map(s => ({ name: s.name, txt: MIRADORES[s.name] || 'Mirador de ' + s.name, s: stS[line.st.indexOf(s)] - 140, done: false }));
+    return st;
+  },
+  step(st, dt) { if (st.done) return; const n = 3; for (let i = 0; i < n; i++) this.tick(st, dt); },   // el tiempo corre ×3
+  tick(st, dt) {
+    const line = NET.byId[st.line], C = G3.cableGeo(line); st.t += dt; st.hourNow = st.fixH != null ? st.fixH + st.t * 10 / 3600 : Mundo.hour(); if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 3) { st._wt = 0; const w = Mundo.weather(); st.rain = w.rain; if (w.storm && !st.storm) { st.storm = { t: 0, len: 30 }; this.msg(st, '⚡ Tormenta eléctrica en el valle: detén la línea', 'r'); } }
+    // viento: base + ráfagas suaves + ráfagas fuertes ocasionales; tormenta con relámpagos
+    if (!st.storm && !st.stormed && st.t > st.stormT) { st.storm = { t: 0, len: 35 + (st.seed % 20) }; st.stormed = true; this.msg(st, '⚡ Tormenta eléctrica: detén la línea hasta que pase', 'r'); this.sfx(st, 'warn'); }
+    if (st.storm) { st.storm.t += dt; if (st.storm.t > st.storm.len) { st.storm = null; this.msg(st, 'Pasó la tormenta: puedes reanudar', 'g'); } }
+    const gustOn = Math.sin(st.t * .07 + st.seed) > .75;
+    st.wind = st.base + 3 * Math.sin(st.t * .13) + 2.2 * Math.sin(st.t * .41 + 1) + (gustOn ? 6 * Math.max(0, Math.sin(st.t * 1.3)) : 0) + (st.storm ? 9 + 3 * Math.sin(st.t * 2.1) : 0);
+    // piloto (bot) o mando del jugador
+    if (st.auto) st.vt = st.storm ? 0 : st.wind > 12 ? 2 : st.wind > 9 ? 3.5 : 5;
+    const lineA = clamp(st.vt - st.v, -.35 * dt, .3 * dt) / dt; st.v = clamp(st.v + lineA * dt, 0, 5);
+    if (st.safety > 0) { st.safety -= dt; st.v = Math.max(0, st.v - 1.2 * dt); }
+    // péndulo (hanger de 3 m)
+    const Lh = 3, Fw = .022 * st.wind * Math.abs(st.wind) * (st.ph === 'station' ? .2 : 1), acc = st.ph === 'station' ? 0 : lineA;
+    st.om += (-(9.81 / Lh) * Math.sin(st.th) - .55 * st.om + (Fw - acc) * Math.cos(st.th) / Lh) * dt; st.th += st.om * dt;
+    const ang = Math.abs(st.th);
+    if (ang > .1 && st.v > .3) st.comfort = Math.max(0, st.comfort - (ang - .1) * 40 * dt);
+    if (ang > .36 && st.safety <= 0) { st.safety = 6; st.score -= 150; this.msg(st, 'Parada de seguridad: balanceo de ' + Math.round(ang * 57) + '° −150', 'r'); this.sfx(st, 'crash'); }
+    if (st.storm && st.v > 1) { st.stopPen += dt; if (st.stopPen > 8) { st.stopPen = -1e9; st.score -= 200; this.msg(st, 'No se puede operar con tormenta eléctrica −200', 'r'); this.sfx(st, 'bad'); } }
+    // avance y estaciones (la cabina se desacopla, abre puertas y vuelve a salir)
+    if (st.ph === 'station') { st.dwell += dt; if (st.dwell > 7) { st.ph = 'ride'; this.sfx(st, 'whoosh'); } }
+    else {
+      st.s += st.v * dt; const tgt = st.stS[st.ni];
+      for (const m of st.mir) if (!m.done && !m.seen && st.s > m.s && st.s < m.s + 160) { m.seen = true; this.msg(st, '📷 Mirador: ' + m.txt, 'b'); if (st.auto) this.photo(st); }
+      if (st.s >= tgt - 1) {
+        st.s = tgt; st.ph = 'station'; st.dwell = 0; const name = line.st[st.ni].name, bo = 6 + hashStr(name) % 5; st.moved += bo; st.score += 100 + Math.round(st.comfort); st.title = name; st.titleT = 3.5; this.sfx(st, 'bell'); this.say(st, 'Estación ' + name);
+        Save.d.stats.pax += bo; const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); Save.d.facts[name] = 1; }
+        if (st.ni >= st.stS.length - 1) { this.finish(st); return; } st.ni++;
+      }
+    }
+    if (st.titleT > 0) st.titleT -= dt;
+  },
+  photo(st) {
+    const m = st.mir.find(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); if (!m) { this.msg(st, 'Aquí no hay mirador: espera el 📷', 'y'); return; }
+    m.done = true; const ok = Math.abs(st.th) < .12; st.score += ok ? 120 : 50; st.photos.push(m.txt); const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(m.txt)) F.push(m.txt);
+    this.msg(st, ok ? '📷 ¡Foto nítida! +120' : '📷 Salió movida (balanceo) +50', ok ? 'g' : 'y'); this.sfx(st, ok ? 'star' : 'ok'); st.flash = .3;
+  },
+  finish(st) { if (st.done) return; st.done = true; st.score += Math.round(st.comfort * 3); st.score = Math.max(0, Math.round(st.score)); },
+  result(st) { const n = st.stS.length - 1, max = n * 200 + st.mir.length * 120 + 300, line = NET.byId[st.line]; return { done: st.done, win: st.done, score: st.score, stars: st.done ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '', lines: [['Pasajeros movidos', st.moved], ['Fotos', st.photos.length + ' / ' + st.mir.length], ['Confort', Math.round(st.comfort) + ' %']] }; },
+  msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
+  say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
+  sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
+  hud(st) { this.updCtl(st); const line = NET.byId[st.line]; return [['', st.v.toFixed(1) + ' m/s'], ['💨', Math.round(st.wind * 3.6) + ' km/h'], ['→', line.st[Math.min(st.ni, line.st.length - 1)].name], ['★', fmt(st.score)]]; },
+  mount(st, el) {
+    el.innerHTML = `<div class="lever" id="cvLev" style="background:linear-gradient(#2f9b57,#f9e4a4 70%,#c8201f)"><div class="lb" style="top:6px">5 m/s</div><div class="lb" style="bottom:6px">PARAR</div><div class="kn" id="cvKn">0</div></div>
+      <div class="gbtns"><button class="btn sm mos" id="cvFoto">📷 Foto</button><button class="btn sm" id="cvStop">■ Detener</button></div>
+      <div class="vsel" id="cvView"><button data-v="lado">↔</button><button data-v="tps">3ª</button><button data-v="cab">1ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="paseo">🎬</button></div>`;
+    const lev = $('#cvLev'), set = e => { const r = lev.getBoundingClientRect(); st.vt = Math.round(clamp(1 - (e.clientY - r.top) / r.height, 0, 1) * 10) / 2; Snd.init(); };
+    lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); }); lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
+    $('#cvFoto').onclick = () => this.photo(st); $('#cvStop').onclick = () => { st.vt = 0; };
+    $$('#cvView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: la línea se opera sola' : 'Vuelves a operar tú', 'b'); } else st.view = b.dataset.v; });
+  },
+  updCtl(st) { if (EM.headless || Game.st !== st) return; const kn = $('#cvKn'); if (!kn) return; kn.style.top = 'calc(' + ((1 - st.vt / 5) * 100) + '% - 15px)'; kn.textContent = st.vt.toFixed(1); $$('#cvView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo))); if (st.paseo && (st._pv = (st._pv || 0) + .2) > 9) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['lado', 'cine', 'tps', 'cab'] : ['lado', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } const f = $('#cvFoto'); const can = st.mir.some(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); f.style.background = can ? 'var(--naranja)' : ''; },
+  key(st, k, down) { if (!down) return; if (k === 'ArrowUp' || k === 'w') st.vt = Math.min(5, st.vt + .5); if (k === 'ArrowDown' || k === 's') st.vt = Math.max(0, st.vt - .5); if (k === ' ' || k === 'f') this.photo(st); if (k === 'x') st.vt = 0; if (k === 'v') { const V = ['lado', 'tps', 'cab', 'cine', 'top']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } },
+  gl(st) { return (st.view === 'tps' || st.view === 'cab' || st.view === 'cine') && G3.init() && Save.d.settings.q !== 'low'; },
+  cabin(st) { const line = NET.byId[st.line], C = G3.cableGeo(line), p = NET.at(C.P, st.s); return { x: p.x, y: p.y, a: p.a, z: C.zAt(st.s) + 2 }; },
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h, line = NET.byId[st.line], C = G3.cableGeo(line), col = line.color;
+    if (this.gl(st)) {
+      G3.show(true); const c = this.cabin(st), ca = Math.cos(c.a), sa = Math.sin(c.a), sx = -sa, sy = ca;
+      if (st.view === 'cine' && (!st._cine || st._cine.s - st.s < -30)) { const sa = Math.min(C.P.len, st.s + 90 + h2(st.t | 0, 1, 3) * 60), q = NET.at(C.P, sa, (h2(st.t | 0, 2, 3) < .5 ? -1 : 1) * 24); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 2 }; }
+      const cam = st.view === 'cine' ? { eye: [st._cine.x, st._cine.z, st._cine.y], at: [c.x, c.z - 4, c.y], fov: .95 } : st.view === 'cab' ? { eye: [c.x + ca * 1, c.z - 3.4, c.y + sa * 1], at: [c.x + ca * 60, c.z - 18, c.y + sa * 60], fov: 1.2 } : { eye: [c.x - ca * 24 + sx * 14, c.z + 7, c.y - sa * 24 + sy * 14], at: [c.x + ca * 6, c.z - 6, c.y + sa * 6], fov: 1.05 };
+      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
+      if (st.storm && (st.t % 7) < .15) { g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(0, 0, W, H); }
+      if (st.view === 'cab') { g.strokeStyle = '#141414'; g.lineWidth = Math.min(W, H) * .05; g.strokeRect(0, 0, W, H); g.fillStyle = 'rgba(20,20,20,.9)'; g.fillRect(0, H * .82, W, H * .18); }
+    } else if (st.view === 'top') {
+      if (G3.cv) G3.show(false); const c = this.cabin(st), k = Math.min(W, H) / 380; g.fillStyle = PAL.noche; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, c.x, c.y, k);
+      const S = (x, y) => ({ x: W / 2 + (x - c.x) * k, y: H / 2 + (y - c.y) * k }); g.strokeStyle = PAL.negro; g.lineWidth = 3; g.beginPath(); C.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke();
+      for (const p of C.pts) { const q = S(p.x, p.y); g.fillStyle = p.st ? col : '#9aa0a6'; g.fillRect(q.x - (p.st ? 9 : 4), q.y - (p.st ? 6 : 4), p.st ? 18 : 8, p.st ? 12 : 8); }
+      Art.cabin(g, W / 2, H / 2, 3, col);
+    } else {
+      if (G3.cv) G3.show(false); const R = Lado.prof('cable:' + line.id, C.P), c = this.cabin(st), k = Math.max(W, H * .7) / 300, ex = 1.7;
+      st._cz = st._cz == null ? c.z : st._cz + (c.z - 12 - st._cz) * .05;
+      Lado.draw(g, W, H, { R, s: st.s, z: st._cz, k, hour: st.hourNow, t: st.t, rain: st.rain || !!st.storm, fog: st.fog, storm: !!st.storm, title: st.titleT > 0 ? { t: st.title, sub: line.name.toUpperCase(), a: clamp(st.titleT / 1.5, 0, 1) } : null, fg: (g, X, Y, cN, sky) => {
+        const gz = s => Lado.sample(R.near, R, s), Yc = (s, z) => Y(gz(s)) - (z - gz(s)) * k * ex;
+        // torres y estaciones
+        for (let i = 0; i < C.pts.length; i++) { const p = C.pts[i], s = C.P.cum[i], x = X(s); if (x < -80 || x > W + 80) continue; const yb = Y(gz(s)), yt = Yc(s, p.z); if (p.st) { g.fillStyle = Lado.css(Lado.mix(cN, [.9, .88, .84], .55)); g.fillRect(x - 22 * k, yt - 6 * k, 44 * k, yb - yt + 6 * k); g.fillStyle = col; g.fillRect(x - 26 * k, yt - 10 * k, 52 * k, 5 * k); } else { g.strokeStyle = Lado.css(Lado.mix(cN, [.7, .72, .76], .4)); g.lineWidth = Math.max(1.5, 1.2 * k); g.beginPath(); g.moveTo(x - 3 * k, yb); g.lineTo(x, yt); g.lineTo(x + 3 * k, yb); g.moveTo(x - 2 * k, (yb + yt) / 2); g.lineTo(x + 2 * k, (yb + yt) / 2); g.stroke(); g.fillRect(x - 5 * k, yt - 1, 10 * k, 2); } }
+        // cable
+        g.strokeStyle = sky.night > .5 ? 'rgba(220,220,230,.6)' : 'rgba(20,20,24,.85)'; g.lineWidth = Math.max(1, .5 * k); g.beginPath(); const sA = st.s - W / k, sB = st.s + W / k; for (let s = Math.max(0, sA); s <= Math.min(C.P.len, sB); s += 6) { const x = X(s), y = Yc(s, C.zAt(s)); s === Math.max(0, sA) ? g.moveTo(x, y) : g.lineTo(x, y); } g.stroke();
+        // otras cabinas (separadas ~70 m, ida y vuelta)
+        const n = Math.max(4, Math.floor(C.P.len / 70)); for (let i = 0; i < n; i++) { const s = ((st.t * 5 * .6 + i * C.P.len / n) % C.P.len), x = X(s); if (x < -20 || x > W + 20 || Math.abs(s - st.s) < 20) continue; this.drawCab(g, x, Yc(s, C.zAt(s)), k * 2.2, col, Math.sin(st.t + i) * .05, sky); }
+        // cabina del jugador (con balanceo)
+        this.drawCab(g, X(st.s), Yc(st.s, C.zAt(st.s)), k * 2.6, col, st.th, sky, true);
+        // viento: hojas y partículas
+        g.fillStyle = Lado.css(Lado.mix(cN, [1, 1, 1], .5), .5); for (let i = 0; i < 24; i++) { const x = ((h2(i, 2, 2) * W + st.t * st.wind * 12) % W), y = (h2(i, 3, 2) * H * .8 + Math.sin(st.t * 3 + i) * 10); g.fillRect(x, y, 3, 1.5); }
+      } });
+      if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
+    }
+    if (!EM.headless) { const gl = this.gl(st); Mundo.overlay(g, W, H, st.t, { noNight: gl || st.view !== 'top', noRain: true, noGrain: gl }); if (st.view === 'top') MAP.lightsTop(g, Mundo.light().night, st.t); }
+    this.gauges(g, st, W, H);
+  },
+  drawCab(g, x, y, s, col, th, sky, me) {
+    g.save(); g.translate(x, y); g.rotate(th); g.fillStyle = '#141414'; g.fillRect(-.3 * s, 0, .6 * s, 3 * s); g.fillRect(-2.4 * s, -.6 * s, 4.8 * s, 1.1 * s);
+    g.translate(0, 3 * s); g.fillStyle = '#141414'; g.fillRect(-2.2 * s, 0, 4.4 * s, 4 * s); g.fillStyle = col; g.fillRect(-2 * s, .2 * s, 4 * s, 3.6 * s);
+    g.fillStyle = sky.night > .5 ? '#ffe7a0' : '#bfe3f0'; g.fillRect(-1.7 * s, .7 * s, 3.4 * s, 1.5 * s); if (me) { g.fillStyle = '#141414'; g.fillRect(-1 * s, 1 * s, .5 * s, 1.1 * s); g.fillRect(.3 * s, 1.1 * s, .5 * s, 1 * s); }
+    g.restore();
+  },
+  gauges(g, st, W, H) {
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), x = 12 * dpr, y = 58 * dpr, w = 120 * dpr;
+    g.fillStyle = 'rgba(13,20,24,.82)'; g.fillRect(x, y, w, 58 * dpr); g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('VIENTO ' + Math.round(st.wind * 3.6) + ' km/h', x + 8 * dpr, y + 14 * dpr);
+    const wf = clamp(st.wind / 20, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 19 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = wf > .7 ? '#ff3b2f' : wf > .45 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 19 * dpr, (w - 16 * dpr) * wf, 7 * dpr);
+    g.fillStyle = PAL.mante; g.fillText('BALANCEO ' + Math.round(Math.abs(st.th) * 57.3) + '°', x + 8 * dpr, y + 40 * dpr); const bf = clamp(Math.abs(st.th) / .36, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 45 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = bf > .7 ? '#ff3b2f' : bf > .3 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 45 * dpr, (w - 16 * dpr) * bf, 7 * dpr);
+    if (st.storm) { g.fillStyle = PAL.rojo; g.fillRect(x, y + 62 * dpr, w, 18 * dpr); g.fillStyle = '#fff'; g.fillText('⚡ TORMENTA: DETÉN LA LÍNEA', x + 6 * dpr, y + 75 * dpr); }
+  },
+  ai(st) { return null; }
+};
+~~~~
+
+### `src/js/60-mapa.js`
+~~~~js
+/* =====================================================================
+   LA RED (vista panorámica y general): todo el Valle de Aburrá con las líneas,
+   vehículos en servicio, datos de cada estación y la gestión de la flota (estilo idle).
+   ===================================================================== */
+const KW = { metro: 14, tram: 6, cable: 4, brt: 7, feeder: 3, escalator: 1, future: 0 };
+const GROUPS = [['metro', 'Metro'], ['tram', 'Tranvía'], ['cable', 'Cables'], ['brt', 'Metroplús'], ['feeder', 'Alimentadores'], ['future', 'Futuro']];
+const RedView = EM.red = {
+  cam: { x: 0, y: 0, k: .05 }, on: { metro: 1, tram: 1, cable: 1, brt: 1, feeder: 1, future: 1, escalator: 1 }, ptr: new Map(), raf: 0, t: 0, sel: null, moved: 0,
+  flota(id) { const r = Save.d.red.lines[id]; return r ? r.f : 1; },
+  income() { let h = 0; for (const l of NET.lines) h += (KW[l.kind] || 0) * this.flota(l.id) * 6; return h; },   // pasajes por hora
+  collect() {
+    const d = Save.d.red, hrs = clamp((Date.now() - (d.last || Date.now())) / 3600000, 0, 8), earn = Math.floor(this.income() * hrs);
+    d.last = Date.now(); if (earn > 0) { Save.d.wallet += earn; d.pax += earn * 37; Save.write(); UI.toast('Mientras no estabas la red movió ' + fmt(earn * 37) + ' pasajeros: +' + fmt(earn) + ' 🎫'); }
+  },
+  open() {
+    UI.show('red'); this.collect(); const cv = $('#rcv'); fitCanvas(cv);
+    if (!this.cam.init) { const A = NET.byId.A; const p = A ? NET.at(A.P, A.P.len / 2) : { x: MW * TM / 2, y: MH * TM / 2 }; this.cam = { x: p.x, y: p.y, k: Math.min(cv.width / 16000, cv.height / 26000), init: 1 }; }
+    $('#rChips').innerHTML = GROUPS.filter(([k]) => NET.lines.some(l => l.kind === k)).map(([k, n]) => `<button data-k="${k}" class="${this.on[k] ? '' : 'off'}"><span class="badge" style="background:${(NET.lines.find(l => l.kind === k) || {}).color}">${KIND[k].icon}</span>${n}</button>`).join('') + '<button data-k="_flota">🎫 Flota</button>';
+    $$('#rChips button').forEach(b => b.onclick = () => { const k = b.dataset.k; if (k === '_flota') { this.flotaCard(); return; } this.on[k] = !this.on[k]; b.classList.toggle('off', !this.on[k]); });
+    this.info(); cancelAnimationFrame(this.raf); const loop = () => { if (UI.cur !== 'red') return; this.raf = requestAnimationFrame(loop); this.draw(); }; loop();
+  },
+  info() { $('#rInfo').textContent = fmt(Save.d.wallet) + ' 🎫 · ' + fmt(this.income()) + '/h'; },
+  S(x, y) { const cv = $('#rcv'); return { x: cv.width / 2 + (x - this.cam.x) * this.cam.k, y: cv.height / 2 + (y - this.cam.y) * this.cam.k }; },
+  W(sx, sy) { const cv = $('#rcv'); return { x: this.cam.x + (sx - cv.width / 2) / this.cam.k, y: this.cam.y + (sy - cv.height / 2) / this.cam.k }; },
+  draw() {
+    const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), k = this.cam.k; this.t = now();
+    g.fillStyle = PAL.gris; g.fillRect(0, 0, w, h);
+    if (MAP.ready) { if (k > .55) MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
+    const lw = clamp(k * 60, 2.5, 9) * dpr / 1.5;
+    for (const l of NET.lines) {
+      if (!this.on[l.kind]) continue; g.setLineDash(l.status && l.status !== 'operativa' ? [lw * 2, lw * 1.5] : []);
+      g.strokeStyle = PAL.negro; g.lineWidth = lw + 3 * dpr; g.lineJoin = 'round'; g.beginPath(); l.P.pts.forEach((p, i) => { const s = this.S(p.x, p.y); i ? g.lineTo(s.x, s.y) : g.moveTo(s.x, s.y); }); g.stroke();
+      g.strokeStyle = l.color; g.lineWidth = lw; g.stroke();
+    }
+    g.setLineDash([]);
+    // vehículos en servicio (ida y vuelta)
+    for (const l of NET.lines) {
+      if (!this.on[l.kind] || l.kind === 'future') continue; const n = 1 + this.flota(l.id), v = l.kind === 'cable' ? 60 : 160;
+      for (let i = 0; i < n; i++) { const L2 = 2 * l.P.len, q = ((this.t * v + i * L2 / n) % L2), s = q < l.P.len ? q : L2 - q, p = NET.at(l.P, s), sp = this.S(p.x, p.y); if (l.kind === 'cable') Art.cabin(g, sp.x, sp.y + 2, Math.max(1, dpr * .9), l.color); else Art.topVehicle(g, sp.x, sp.y, p.a, Math.max(8, KIND[l.kind].len * k) * dpr * .6 + 6, 6 * dpr, l.color, l.kind); }
+    }
+    // estaciones
+    const showLbl = k > .12;
+    for (const s of NET.stations) {
+      if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), r = (s.lines.length > 1 ? 5.5 : 4) * dpr * clamp(k * 8, .7, 1.4);
+      if (p.x < -40 || p.y < -40 || p.x > w + 40 || p.y > h + 40) continue;
+      g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(p.x, p.y, r, 0, TAU); g.fill(); g.stroke();
+      if (showLbl || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, p.x + r + 3, p.y + 4 * dpr); g.fillStyle = PAL.negro; g.fillText(s.name, p.x + r + 3, p.y + 4 * dpr); }
+    }
+    g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA', 8 * dpr, h - 64 * dpr);
+  },
+  pick(sx, sy) { let best = null, bd = 24 * (window.devicePixelRatio || 1); for (const s of NET.stations) { if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), d = Math.hypot(p.x - sx, p.y - sy); if (d < bd) { bd = d; best = s; } } return best; },
+  card(s) {
+    this.sel = s; const el = $('#rCard'); if (!s) { el.classList.add('hide'); return; }
+    const fact = NET.fact(s.name), muni = MAP.ready ? MAP.muniAt(s.x, s.y) : '', com = MAP.ready ? MAP.comunaAt(s.x, s.y) : '';
+    const drive = s.lines.filter(l => ['metro', 'tram', 'brt', 'feeder'].includes(l.kind));
+    el.innerHTML = `<div class="row" style="justify-content:space-between"><div class="pag">${esc(muni)}${com ? ' · ' + esc(com) : ''}</div><button class="btn sm gh" id="rcX">✕</button></div>
+      <h2>${esc(s.name)}</h2><div class="row" style="gap:6px;margin-bottom:8px">${s.lines.map(l => `<span class="badge" style="background:${l.color}">${esc(l.id)}</span><small>${esc(l.name)}</small>`).join(' ')}</div>
+      ${fact ? `<p class="m"><b>¿Sabías que…?</b> ${esc(fact)}</p>` : ''}${MAP.ready ? `<p class="m">Altura: ${Math.round(MAP.elevM(s.x, s.y))} m sobre el nivel del mar</p>` : ''}
+      <div class="row">${drive.map(l => `<button class="btn sm tin" data-l="${l.id}">▶ Conducir ${esc(l.id)}</button>`).join('')}${s.lines.some(l => l.kind === 'cable') ? '<button class="btn sm mos" id="rcC">Armar cable</button>' : ''}</div>`;
+    el.classList.remove('hide'); Save.d.facts[s.name] = 1;
+    $('#rcX').onclick = () => this.card(null);
+    $$('#rCard [data-l]').forEach(b => b.onclick = () => { const l = NET.byId[b.dataset.l], i = l.st.findIndex(q => q.hub === s), lv = Conduce.levels().filter(v => v.line === l.id && !v.full && v.a < v.b), pickLv = lv.find(v => v.a <= i && v.b >= i) || lv[0]; if (pickLv) Game.start('conduce', pickLv.id, { back: 'red' }); });
+    const cb = $('#rcC'); if (cb) cb.onclick = () => { const l = s.lines.find(q => q.kind === 'cable'), lv = Cable.levels().find(v => v.line === l.id); if (lv) Game.start('cable', lv.id, { back: 'red' }); };
+  },
+  flotaCard() {
+    const el = $('#rCard'); this.sel = null;
+    const rows = NET.lines.filter(l => l.kind !== 'future').map(l => { const f = this.flota(l.id), cost = 40 * f * f; return `<div class="row" style="justify-content:space-between;border-bottom:2px solid var(--negro);padding:6px 0"><span><span class="badge" style="background:${l.color}">${esc(l.id)}</span> <b>${esc(l.name)}</b><br><small>Flota ${'▮'.repeat(f)}${'▯'.repeat(5 - f)} · ${(KW[l.kind] || 0) * f * 6} 🎫/h</small></span>${f < 5 ? `<button class="btn sm" data-u="${l.id}" ${Save.d.wallet < cost ? 'disabled' : ''}>+1 · ${cost} 🎫</button>` : '<b class="gold">MÁX</b>'}</div>`; }).join('');
+    el.innerHTML = `<div class="row" style="justify-content:space-between"><div class="pag">Gerencia de la red</div><button class="btn sm gh" id="rcX">✕</button></div><h2>Flota</h2><p class="m">Más vehículos = más pasajeros. La red sigue trabajando mientras no juegas (hasta 8 horas). Tienes <b>${fmt(Save.d.wallet)} 🎫</b>.</p>${rows}`;
+    el.classList.remove('hide'); $('#rcX').onclick = () => this.card(null);
+    $$('#rCard [data-u]').forEach(b => b.onclick = () => { const id = b.dataset.u, f = this.flota(id), cost = 40 * f * f; if (Save.d.wallet < cost || f >= 5) return; Save.d.wallet -= cost; Save.d.red.lines[id] = { f: f + 1 }; Save.write(); Snd.play('coin'); this.info(); this.flotaCard(); });
+  },
+  bind() {
+    const cv = $('#rcv'), dpr = () => window.devicePixelRatio || 1;
+    cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); this.ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); this.moved = 0; });
+    cv.addEventListener('pointermove', e => {
+      const p = this.ptr.get(e.pointerId); if (!p) return; const r = dpr();
+      if (this.ptr.size === 1) { this.cam.x -= (e.clientX - p.x) * r / this.cam.k; this.cam.y -= (e.clientY - p.y) * r / this.cam.k; this.moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); }
+      else if (this.ptr.size === 2) { const o = [...this.ptr.entries()].find(([id]) => id !== e.pointerId)[1], d0 = Math.hypot(p.x - o.x, p.y - o.y), d1 = Math.hypot(e.clientX - o.x, e.clientY - o.y); if (d0 > 0) this.zoom(d1 / d0, (e.clientX + o.x) / 2 * r, (e.clientY + o.y) / 2 * r); this.moved += 99; }
+      p.x = e.clientX; p.y = e.clientY;
+    });
+    const up = e => { if (this.ptr.size === 1 && this.moved < 8) { const r = dpr(), rc = cv.getBoundingClientRect(), s = this.pick((e.clientX - rc.left) * r, (e.clientY - rc.top) * r); this.card(s); if (s) Snd.play('tap'); } this.ptr.delete(e.pointerId); };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => this.ptr.delete(e.pointerId));
+    cv.addEventListener('wheel', e => { e.preventDefault(); const r = dpr(), rc = cv.getBoundingClientRect(); this.zoom(Math.exp(-e.deltaY * .0015), (e.clientX - rc.left) * r, (e.clientY - rc.top) * r); }, { passive: false });
+    $('#rBack').onclick = () => UI.back();
+  },
+  zoom(f, sx, sy) { const a = this.W(sx, sy); this.cam.k = clamp(this.cam.k * f, .015, 3); const b = this.W(sx, sy); this.cam.x += a.x - b.x; this.cam.y += a.y - b.y; }
+};
+~~~~
+
+### `src/js/65-menu.js`
+~~~~js
+/* =====================================================================
+   MENÚS: portada, modos (páginas de revista), niveles, ajustes y créditos
+   ===================================================================== */
+const MODECARDS = [
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.', n: 'Mundo abierto' },
+  { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.', n: 'Simulador · cenital' },
+  { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.', n: 'Panorámica · cabina' },
+  { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.', n: 'Vista lateral' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.', n: 'Historia' },
+  { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.', n: 'Guía' },
+  { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.', n: 'Mapa · Gerencia' },
+  { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.', n: 'Multijugador' },
+  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.', n: 'Extras' }
+];
+const Menu = EM.menu = {
+  mode: null,
+  cover() {
+    UI.show('cover', false); Music.play('menu'); const cv = $('#cvArt'), g = cv.getContext('2d');
+    const loop = () => { if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); Art.cover(g, 320, 200, now(), h < 6 || h >= 19); $('#cvClock').textContent = (serviceOpen() ? 'En servicio · ' : 'Cerrado · ') + clockStr(); };
+    loop();
+  },
+  modes() {
+    UI.show('menu'); $('#mWallet').textContent = fmt(Save.d.wallet) + ' pasajes';
+    const h = new Date().getHours(); $('#mGreet').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + Save.d.name;
+    $('#mVida').innerHTML = Vida.panel(); Vida.bindPanel();
+    $('#mList').innerHTML = MODECARDS.map((c, i) => { const st = EM.modes[c.id] ? Save.totalStars(c.id) : null; return `<button class="mcard ${c.cls}" data-m="${c.id}"><span class="n">Est. ${pad2(i + 1)} · ${esc(c.n)}</span>${st != null ? `<span class="st">★ ${st}</span>` : c.id === 'historia' ? `<span class="st">Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}</span>` : ''}<canvas width="70" height="55" data-a="${c.id}"></canvas><span class="t">${esc(c.t)}</span><span class="d">${esc(c.d)}</span></button>`; }).join('');
+    $$('#mList canvas').forEach(cv => this.miniArt(cv.getContext('2d'), cv.dataset.a));
+    $$('#mList .mcard').forEach(b => b.onclick = () => { Snd.init(); Snd.play('tap'); this.go(b.dataset.m); });
+  },
+  go(id) {
+    if (id === 'historia') { this.storyList(); return; }
+    if (id === 'guia') { Guia.open(); return; }
+    if (id === 'arcade') { this.arcade(); return; }
+    if (id === 'red') { RedView.open(); return; }
+    if (id === 'multi') { Multi.open(); return; }
+    this.levels(id);
+  },
+  arcade() {
+    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa.</p><div class="col">${[['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
+    $$('#mBody [data-a]').forEach(b => b.onclick = () => { UI.close(); this.levels(b.dataset.a); }); $('#arX').onclick = () => UI.close();
+  },
+  miniArt(g, id) {
+    g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
+    if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
+    else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
+    else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
+    else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }
+    else if (id === 'libre') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 16); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 29, 5, 1.5); Art.topVehicle(g, 24, 30, 0, 14, 7, '#f2c400', 'car'); Art.topVehicle(g, 52, 30, Math.PI, 12, 6, '#1C5C9C', 'car'); Art.person(g, 12, 50, 2, 3, true); Art.person(g, 60, 12, 2, 5, true); }
+    else if (id === 'cableviaje') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 10); g.lineTo(70, 30); g.stroke(); Art.cabin(g, 38, 21, 3, '#B8CF40'); }
+    else if (id === 'despacho') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = '#f08a1c'; g.fillRect(31, 4, 8, 14); }
+    else if (id === 'metroplus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 20); g.fillStyle = '#7ab648'; g.fillRect(6, 24, 28, 12); g.fillRect(36, 24, 28, 12); g.fillStyle = '#f4f1ea'; g.fillRect(9, 27, 22, 5); g.fillRect(39, 27, 22, 5); }
+    else if (id === 'alim') { for (let i = 0; i < 4; i++) Art.building(g, 4 + i * 16, 8 + (i % 2) * 6, 13, 18, i, false, true); g.fillStyle = '#f4f1ea'; g.fillRect(14, 38, 30, 12); g.fillStyle = PAL.naranja; g.fillRect(14, 42, 30, 3); }
+    else if (id === 'cable') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 6); g.lineTo(70, 40); g.stroke(); Art.cabin(g, 30, 26, 2, '#f2a900'); }
+    else if (id === 'red') { g.strokeStyle = '#1f63ad'; g.lineWidth = 5; g.beginPath(); g.moveTo(40, 0); g.lineTo(36, 30); g.lineTo(44, 55); g.stroke(); g.strokeStyle = '#f08a1c'; g.beginPath(); g.moveTo(36, 30); g.lineTo(6, 26); g.stroke(); g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(36, 30, 5, 0, TAU); g.fill(); g.stroke(); }
+    else if (id === 'historia') { g.fillStyle = PAL.negro; g.fillRect(25, 8, 22, 46); g.fillStyle = '#12446c'; g.fillRect(26, 18, 20, 34); g.fillStyle = '#f1c9a5'; g.fillRect(29, 8, 14, 11); g.fillStyle = '#e8e8e8'; g.fillRect(28, 5, 16, 5); }
+    else if (id === 'multi') { Art.person(g, 22, 52, 5, 2, false); Art.person(g, 48, 52, 5, 5, false); }
+  },
+  storyList() {
+    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'Historia · La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
+    const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
+    $('#lBody').innerHTML = `<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
+      CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
+    $$('#lBody [data-c]').forEach(b => b.onclick = () => { const i = +b.dataset.c; if (i > Save.d.story.ch) { UI.toast('Termina el capítulo anterior'); return; } Story.open(i); });
+    $('#stCity').onclick = () => { Snd.init(); Game.start('libre', 'lb:trama', {}); };
+    const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
+  },
+  levels(id) {
+    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name + ' · ' + (M.sub || ''); $('#lStars').textContent = '★ ' + Save.totalStars(id);
+    const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id), B = Save.d.bus && Save.d.bus.done || {};
+    let h = `<div class="row" style="justify-content:space-between;align-items:flex-end;margin-bottom:10px"><div><div class="pag">${esc(M.sub || '')}</div><div class="mega" style="font-size:54px">${esc(M.name)}</div></div>${duel ? '<label class="tg"><button id="lDuel">👥 Duelo de mesa</button></label>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
+    if (id === 'conduce' || id === 'volante' || id === 'bus') {
+      const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
+      for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
+    } else {
+      h += '<div class="lv">' + L.map((l, i) => { const open = i === 0 || Save.stars(id, L[i - 1].id) > 0 || Save.stars(id, l.id) > 0, s = Save.stars(id, l.id); return `<button class="${open ? '' : 'lock'} ${s ? 'done' : ''}" data-l="${esc(l.id)}"><b>${i + 1}</b><small>${esc(l.name)}</small><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }).join('') + '</div>';
+    }
+    $('#lBody').innerHTML = h; let duelOn = false;
+    const db = $('#lDuel'); if (db) db.onclick = () => { duelOn = !duelOn; db.classList.toggle('on', duelOn); UI.toast(duelOn ? 'Duelo: pongan el celular en la mesa, uno frente al otro' : 'Un jugador'); };
+    $$('#lBody [data-l]').forEach(b => b.onclick = () => { if (b.classList.contains('lock')) { UI.toast('Consigue al menos una ★ en el nivel anterior'); return; } Snd.init(); Game.start(id, b.dataset.l, { duel: duelOn, back: 'levels' }); });
+  },
+  settings() {
+    const s = Save.d.settings, tg = (k, a, b) => `<div class="tg" data-k="${k}"><button data-v="1" class="${s[k] ? 'on' : ''}">${a}</button><button data-v="0" class="${s[k] ? '' : 'on'}">${b}</button></div>`;
+    UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" maxlength="16" value="${esc(Save.d.name)}" style="border:3px solid var(--negro);padding:8px;font-size:16px">
+      <div class="pag">Sonido</div>${tg('snd', 'Sí', 'No')}<div class="pag">Música</div>${tg('mus', 'Sí', 'No')}<div class="pag">Vibración</div>${tg('vib', 'Sí', 'No')}<div class="pag">Voz de anuncios (“Próxima estación…”)</div>${tg('voz', 'Sí', 'No')}
+      <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn pri" id="sOk">Listo</button><button class="btn sm gh" id="sReset">Borrar progreso</button></div></div>`);
+    $$('#mBody .tg[data-k] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.k; s[k] = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Snd.apply(); if (k === 'mus') { if (s.mus) Music.play('menu'); } Save.write(); });
+    $$('#mBody .tg[data-c] button').forEach(b => b.onclick = () => { s.ciclo = b.dataset.v; Mundo.h0 = null; Mundo.t0 = now(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $$('#mBody .tg[data-q] button').forEach(b => b.onclick = () => { s.q = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $('#sOk').onclick = () => { Save.d.name = ($('#sName').value || 'Aprendiz').trim().slice(0, 16); Save.write(); UI.close(); UI.refresh(); };
+    $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };
+  },
+  credits() {
+    UI.modal(`<div class="pag">Créditos</div><h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
+      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
+      <p class="m">Versión ${EM.version} · Funciona sin internet · Tus partidas se guardan en este dispositivo (exporta para respaldarlas).</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
+  },
+  bot() {
+    UI.modal(`<div class="pag">Bot de pruebas</div><h2>Inspector de la red</h2><p class="m">Revisa los datos, verifica que cada nivel tenga solución y juega partidas automáticas buscando errores.</p><div id="bRes" class="film">Ejecutando…</div><div class="row" style="margin-top:10px"><button class="btn sm" id="bMore">▶ 100 partidas</button><button class="btn sm gh" id="bOk">Cerrar</button></div>`);
+    const run = n => { $('#bRes').textContent = 'Ejecutando…'; setTimeout(() => { const t0 = performance.now(), a = EM.test.selfTest(), b = EM.test.monkey(n, Date.now() & 0xffff); const errs = [...a.errors, ...b.errors, ...EM.errors.slice(-5)]; $('#bRes').innerHTML = `Validación: ${a.errors.length ? '<span class="bad">' + a.errors.length + ' errores</span>' : '<span class="ok">0 errores</span>'} · ${a.warnings.length} avisos<br>${esc(a.stats)}<br>Partidas simuladas: ${b.games} · pasos ${fmt(b.steps)} · <span class="${b.errors.length ? 'bad' : 'ok'}">${b.errors.length} errores</span><br>Victorias del bot: ${b.wins}<br>Tiempo: ${Math.round(performance.now() - t0)} ms` + errs.slice(0, 10).map(x => '<br><span class="bad">• ' + esc(x) + '</span>').join(''); }, 40); };
+    $('#bOk').onclick = () => UI.close(); $('#bMore').onclick = () => run(100); run(20);
+  },
+  bind() {
+    $('#bPlay').onclick = () => { Snd.init(); Snd.play('tap'); this.modes(); };
+    $('#bGuia').onclick = () => { Snd.init(); Guia.open(); };
+    $('#bStory').onclick = () => { Snd.init(); Story.open(); };
+    $('#bMulti').onclick = () => { Snd.init(); Multi.open(); };
+    $('#bCfg').onclick = () => { Snd.init(); this.settings(); };
+    $('#mBack').onclick = $('#lBack').onclick = () => UI.back();
+    $('#mBot').onclick = () => this.bot(); $('#mExport').onclick = () => Save.exportFile(); $('#mImport').onclick = () => $('#fileIn').click(); $('#mCred').onclick = () => this.credits();
+    $('#fileIn').onchange = e => { const f = e.target.files[0]; if (f) Save.importFile(f); e.target.value = ''; };
+    $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal' && !Game.raf) UI.close(); });
+    UI.onshow.menu = () => this.modes(); UI.onshow.cover = () => this.cover();
+    UI.onshow.levels = () => { if (this.mode === '__story') this.storyList(); else if (this.mode && EM.modes[this.mode]) this.levels(this.mode); };
+    addEventListener('keydown', e => { if (e.key === 'Escape' && UI.cur !== 'game') UI.back(); });
+    addEventListener('popstate', () => { if (UI.back()) history.pushState(null, ''); });
+  }
+};
+~~~~
+
+### `src/js/66-vida.js`
+~~~~js
+/* =====================================================================
+   VIDA DE LA RED (dinamismo estilo Industry Art): misiones del día, racha,
+   logros, noticias con el calendario real de Medellín, temas y modo daltónico.
+   ===================================================================== */
+const MISIONES = [
+  { k: 'trenes', m: 'despacho', t: n => 'Despacha ' + n + ' trenes', n: [8, 14, 20] },
+  { k: 'buses', m: 'alim', t: n => 'Lleva ' + n + ' alimentadores', n: [10, 16, 24] },
+  { k: 'mp', m: 'metroplus', t: n => 'Cruza ' + n + ' buses de Metroplús', n: [6, 10, 14] },
+  { k: 'cables', m: 'cable', t: n => 'Arma ' + n + ' metrocables', n: [2, 3, 4] },
+  { k: 'precision', m: 'conduce', t: n => 'Frena a menos de 1 m en ' + n + ' estaciones', n: [2, 4, 6] },
+  { k: 'estrellas', m: null, t: n => 'Gana ' + n + ' estrellas', n: [4, 6, 9] }
+];
+const LOGROS = [
+  ['primer', 'Primer viaje', 'Termina tu primera partida'], ['perfecto', 'Al centímetro', 'Frena a menos de 50 cm de la marca'], ['diez', 'Mano firme', '10 paradas a menos de 1 m'],
+  ['lineaA', 'De punta a punta', 'Recorre la Línea A completa'], ['despacho100', 'Puesto de Control', 'Despacha 100 trenes en total'], ['mp50', 'Carril exclusivo', 'Cruza 50 buses de Metroplús'],
+  ['cables6', 'Ciudad colgante', 'Arma un metrocable de cada línea'], ['tres10', 'Diez de diez', 'Consigue 3 ★ en 10 niveles'], ['flota', 'Gerente', 'Lleva una flota al máximo'],
+  ['historia', 'La última vuelta', 'Termina la historia de Rosalba'], ['datos25', 'Enciclopedia paisa', 'Descubre 25 datos de estaciones'], ['noche', 'Turno de la noche', 'Juega después de las 7 p. m.'],
+  ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
+  ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %']
+];
+/* Domingo de Pascua (algoritmo anónimo gregoriano) */
+function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
+const Vida = EM.vida = {
+  today() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); },
+  /* fiestas y fechas del Metro según el calendario real */
+  fiestas(d = new Date()) {
+    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
+  },
+  fiestasViejas(d = new Date()) {
+    const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), out = [], doy = x => Math.floor((x - new Date(x.getFullYear(), 0, 0)) / 864e5), dd = doy(d);
+    const aniv = new Date(y, 10, 30), faltan = Math.ceil((aniv - new Date(y, m - 1, day)) / 864e5), años = y - 1995;
+    if (faltan === 0) out.push({ k: 'aniv', t: '¡Hoy el Metro cumple ' + años + ' años! Abrió el 30 de noviembre de 1995 · pasajes ×2' });
+    else if (faltan > 0 && faltan <= 21) out.push({ k: 'pre', t: 'Faltan ' + faltan + ' días para que el Metro cumpla ' + años + ' años (30 de noviembre)' });
+    if ((m === 12) || (m === 1 && day <= 10)) out.push({ k: 'alumbrados', t: 'Temporada de Alumbrados: el río y los barrios se llenan de luces · paseos nocturnos con luces en la vía' });
+    if (m === 8 && day <= 12) out.push({ k: 'feria', t: 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en los andenes' });
+    if (m === 12 && day === 24) out.push({ k: 'navidad', t: 'Nochebuena: el último tren sale más temprano. ¡Feliz Navidad!' });
+    const P = pascua(y), dp = Math.round((new Date(y, m - 1, day) - P) / 864e5); if (dp >= -7 && dp <= 0) out.push({ k: 'santa', t: 'Semana Santa: horario especial y muchos viajeros hacia las terminales' });
+    const h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' });
+    else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' });
+    return out;
+  },
+  has(k) { return this.fiestas().some(f => f.k === k); },
+  bonus() { return this.has('aniv') ? 2 : 1; },
+  daily() {
+    const d = Save.d, t = this.today();
+    if (!d.daily || d.daily.date !== t) {
+      const r = new RNG(hashStr(t)), pool = r.shuffle(MISIONES.slice()).slice(0, 3), prev = d.daily;
+      d.streak = prev && prev.allDone && this.dayDiff(prev.date, t) === 1 ? (d.streak || 0) : 0; d.daily = { date: t, list: pool.map(M => ({ k: M.k, n: M.n[r.i(0, 2)], p: 0, done: false })), allDone: false };
+      Save.write();
+    }
+    return d.daily;
+  },
+  dayDiff(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); },
+  /* se llama al terminar cada partida */
+  onGame(mode, st, r) {
+    const d = Save.d, D = this.daily(), inc = { trenes: mode === 'despacho' ? st.delivered | 0 : 0, buses: mode === 'alim' ? st.delivered | 0 : 0, mp: mode === 'metroplus' ? st.buses | 0 : 0, cables: mode === 'cable' && r.win ? 1 : 0, precision: mode === 'conduce' ? (st.arr || []).filter(a => a.err < 1).length : 0, estrellas: r.stars | 0 };
+    const tot = d.tot || (d.tot = {}); for (const k in inc) tot[k] = (tot[k] || 0) + inc[k];
+    let earned = 0;
+    for (const m of D.list) { if (m.done) continue; m.p = Math.min(m.n, m.p + (inc[m.k] || 0)); if (m.p >= m.n) { m.done = true; earned += 40; UI.toast('Misión cumplida: ' + MISIONES.find(x => x.k === m.k).t(m.n) + ' · +40 🎫'); } }
+    if (!D.allDone && D.list.every(m => m.done)) { D.allDone = true; d.streak = (d.streak || 0) + 1; earned += 60 + 10 * d.streak; UI.toast('¡Misiones del día completas! Racha 🔥 ' + d.streak + ' días'); }
+    d.wallet += earned;
+    // logros
+    const L = d.logros || (d.logros = {}), get = k => { if (!L[k]) { L[k] = Date.now(); Snd.play('star'); UI.toast('🏅 Logro: ' + LOGROS.find(x => x[0] === k)[1]); } };
+    get('primer'); const h = new Date().getHours(); if (h >= 19 || h < 5) get('noche'); if (!serviceOpen()) get('madrugada');
+    if (mode === 'conduce') { if ((st.arr || []).some(a => a.err < .5)) get('perfecto'); if (tot.precision >= 10) get('diez'); if (st.line === 'A' && st.stops.length >= 21 && st.done) get('lineaA'); if (st.done && st.comfort >= 99.9 && st.stops.length > 2) get('tinto'); }
+    if (tot.trenes >= 100) get('despacho100'); if (tot.mp >= 50) get('mp50');
+    if (mode === 'cable') { const lines = new Set(Object.keys(d.stars.cable || {}).filter(k => d.stars.cable[k] > 0).map(k => k.split(':')[1])); if (lines.size >= 6) get('cables6'); }
+    let n3 = 0; for (const m in d.stars) for (const l in d.stars[m]) if (d.stars[m][l] >= 3) n3++; if (n3 >= 10) get('tres10');
+    if (Game.duel) get('duelo'); if (Game.net) get('red'); if ((d.streak || 0) >= 3) get('racha3'); if (d.wallet >= 1000) get('mil');
+    if (Object.keys(d.facts).length >= 25) get('datos25'); if (d.story.ch >= CAPS.length - 1) get('historia');
+    if (Object.values(d.red.lines).some(x => x.f >= 5)) get('flota');
+    Save.write();
+  },
+  /* noticias para la cinta del menú */
+  news() {
+    const d = Save.d, out = this.fiestas().map(f => f.t), r = new RNG(Date.now() / 600000 | 0), facts = Object.entries(LINE_META.stationFacts);
+    for (let i = 0; i < 3 && facts.length; i++) { const [k, v] = facts[r.i(0, facts.length - 1)]; out.push(k + ': ' + v); }
+    if (d.red.pax) out.push('Tu red ya movió ' + fmt(d.red.pax) + ' pasajeros');
+    out.push('Cultura Metro: deja salir antes de entrar · cede la silla · no comas en los vagones');
+    if ((d.streak || 0) > 0) out.push('Racha de misiones: 🔥 ' + d.streak + ' días');
+    return out;
+  },
+  /* panel de misiones + logros en el menú */
+  panel() {
+    const D = this.daily(), d = Save.d, nl = Object.keys(d.logros || {}).length;
+    return `<div class="news"><div class="tick">${this.news().map(t => '<span>✦ ' + esc(t) + '</span>').join('')}</div></div>
+      <div class="boxed" style="margin:12px 0"><div class="row" style="justify-content:space-between"><div class="spaced" style="font-size:12px">Misiones de hoy</div><span class="pag">🔥 racha ${d.streak || 0} · 🏅 ${nl}/${LOGROS.length}</span></div>
+      ${D.list.map(m => { const M = MISIONES.find(x => x.k === m.k); return `<div class="row" style="margin-top:8px;gap:8px"><span style="flex:1;min-width:0;font-size:14px;${m.done ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(M.t(m.n))}</span><span class="bar" style="width:90px"><i style="width:${Math.round(m.p / m.n * 100)}%"></i></span><b style="font-size:12px;width:44px;text-align:right">${m.p}/${m.n}</b></div>`; }).join('')}
+      <div class="row" style="margin-top:10px"><button class="btn sm" id="vLog">🏅 Logros</button><button class="btn sm" id="vTema">🎨 Tema</button></div></div>`;
+  },
+  bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
+  logros() {
+    const L = Save.d.logros || {};
+    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}"><span style="font-size:22px">${L[k] ? '🏅' : '○'}</span><span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
+    $('#lgOk').onclick = () => UI.close();
+  },
+  temas() {
+    const s = Save.d.settings;
+    UI.modal(`<div class="pag">Apariencia</div><h2>Tema</h2><div class="tg" id="tmT">${[['revista', 'Revista'], ['noche', 'Noche'], ['contraste', 'Alto contraste']].map(([k, n]) => `<button data-t="${k}" class="${(s.tema || 'revista') === k ? 'on' : ''}">${n}</button>`).join('')}</div><div class="pag" style="margin-top:10px">Colores</div><div class="tg" id="tmD"><button data-d="0" class="${s.dalt ? '' : 'on'}">Normales</button><button data-d="1" class="${s.dalt ? 'on' : ''}">Modo daltónico</button></div><p class="m">El modo daltónico cambia los colores de los vehículos y andenes en los modos de agujas (las letras siempre se muestran).</p><button class="btn pri" id="tmOk">Listo</button>`);
+    $$('#tmT button').forEach(b => b.onclick = () => { s.tema = b.dataset.t; this.apply(); Save.write(); $$('#tmT button').forEach(x => x.classList.toggle('on', x === b)); });
+    $$('#tmD button').forEach(b => b.onclick = () => { s.dalt = +b.dataset.d; Save.write(); $$('#tmD button').forEach(x => x.classList.toggle('on', x === b)); });
+    $('#tmOk').onclick = () => UI.close();
+  },
+  apply() { const t = Save.d.settings.tema || 'revista'; document.documentElement.className = 't-' + t; const m = $('meta[name=theme-color]'); if (m) m.content = t === 'contraste' ? '#000000' : t === 'noche' ? '#0c2533' : '#0e5a6b'; }
+};
+~~~~
+
+### `src/js/67-guia.js`
+~~~~js
+/* =====================================================================
+   GUÍA · Aprende a usar el Metro de Medellín (contenido educativo, todo público)
+   ===================================================================== */
+const Guia = EM.guia = {
+  TABS: [
+    ['civica', 'Cívica', () => `<h4>La tarjeta Cívica</h4><div class="civica"><i></i>Metro de Medellín</div><p>Es la tarjeta sin contacto con la que se paga en <b>todo el sistema</b>: metro, tranvía, metrocables, Metroplús y buses integrados. Se acerca al lector del torniquete o del bus y listo.</p><ul><li><b>Cívica personal:</b> gratuita; se tramita con la cédula en los puntos de atención del Metro (por ejemplo en San Antonio, Niquía o Itagüí). Tiene tarifa <b>frecuente</b>, más barata.</li><li><b>Cívica eventual o de turista:</b> se compra en taquillas, para quien viaja pocas veces.</li><li><b>Recarga:</b> en taquillas, puntos de recarga y por WhatsApp o apps de bancos.</li><li><b>Tarifa:</b> cambia cada año en enero (en 2026 el pasaje frecuente quedó cerca de $3.800). Consulta la vigente en metrodemedellin.gov.co.</li></ul><p class="m">En el juego, los 🎫 pasajes que ganas son tu saldo de Cívica.</p>`],
+    ['viajar', 'Cómo viajar', () => `<h4>Paso a paso</h4><ol><li>Entra a la estación y acerca la Cívica al <b>torniquete</b>.</li><li>Busca el andén según el sentido: en la Línea A, <b>Niquía</b> (norte) o <b>La Estrella</b> (sur); en la B, <b>San Antonio</b> o <b>San Javier</b>.</li><li>Espera <b>detrás de la línea amarilla</b>. Cuando llegue el tren, <b>deja salir antes de entrar</b>.</li><li>Dentro, sujétate; no te recuestes en las puertas. Escucha «Próxima estación…».</li><li>Al bajar, sal por los torniquetes de salida. Si vas a un cable o a Metroplús, sigue las señales de <b>transbordo</b> sin salir: no pagas de nuevo.</li></ol><p class="m">Horario habitual: lunes a sábado desde las 4:30 a. m. hasta las 11:00 p. m.; domingos y festivos desde las 5:00 a. m. hasta las 10:00 p. m. Confírmalo en la app o en las estaciones.</p>`],
+    ['red', 'Líneas', () => `<h4>La red</h4><div class="col">${NET.lines.filter(l => l.kind !== 'feeder').map(l => `<div class="row" style="gap:8px"><span class="badge" style="background:${l.color}">${esc(l.id.replace(/^F-/, '').slice(0, 3))}</span><span><b>${esc(l.name)}</b> · ${esc(KIND[l.kind].label)}<br><small>${esc(l.st[0].name)} → ${esc(l.st[l.st.length - 1].name)} · ${l.st.length} estaciones · ${l.km} km${l.status && l.status !== 'operativa' ? ' · ' + esc(l.status) : ''}</small></span></div>`).join('')}</div><p class="m">Los <b>alimentadores</b> son buses que suben a los barrios desde las estaciones; en el juego hay ${NET.lines.filter(l => l.kind === 'feeder').length} rutas reales.</p>`],
+    ['cultura', 'Cultura Metro', () => `<h4>Cultura Metro</h4><p>Desde 1995 el Metro cuida su sistema con una idea sencilla: <b>el Metro es de todos</b>.</p><ul><li>Cede la silla a quien la necesite (azul: prioridad).</li><li>No comas ni bebas en trenes y estaciones; no botes basura.</li><li>Deja salir antes de entrar; no corras ni empujes.</li><li>Música solo con audífonos; mochila al frente en hora pico.</li><li>No te sientes en el piso ni apoyes los pies en las sillas.</li><li>Las escaleras eléctricas: quieto a la derecha, camina por la izquierda.</li><li>Si ves algo raro, avisa al personal del Metro.</li></ul><p class="m">En el juego, respetar al peatón, no pasarte en rojo y frenar suave da puntos; el tinto del conductor mide el confort.</p>`],
+    ['datos', '¿Sabías?', () => { const F = Object.entries(LINE_META.stationFacts || {}), r = new RNG(Date.now() / 60000 | 0); return `<h4>Datos de las estaciones</h4><ul>${r.shuffle(F.slice()).slice(0, 8).map(([k, v]) => `<li><b>${esc(k)}:</b> ${esc(v)}</li>`).join('')}</ul><p class="m">Has descubierto ${Object.keys(Save.d.facts).length} datos jugando.</p>`; }]
+  ],
+  open(tab = 'civica') {
+    const T = this.TABS;
+    UI.modal(`<div class="pag">Guía del viajero</div><h2>Aprende a usar el Metro</h2><div class="guia-tabs">${T.map(([k, n]) => `<button data-t="${k}" class="${k === tab ? 'on' : ''}">${n}</button>`).join('')}</div><div class="guia-body" id="guiaBody"></div><button class="btn pri" id="guiaX" style="margin-top:12px">Listo</button>`);
+    const show = k => { const t = T.find(x => x[0] === k); $('#guiaBody').innerHTML = t[2](); $$('.guia-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === k)); Save.d.guia = Object.assign(Save.d.guia || {}, { [k]: 1 }); };
+    show(tab); $$('.guia-tabs button').forEach(b => b.onclick = () => show(b.dataset.t)); $('#guiaX').onclick = () => { Save.write(); UI.close(); };
+  }
+};
+~~~~
+
+### `src/js/70-historia.js`
+~~~~js
+/* =====================================================================
+   HISTORIA · "La última vuelta"
+   Rosalba manejó el primer tren de Medellín en 1995. Esta es su última semana.
+   Su nieta (tú) aprende cada oficio de la red. Cada capítulo termina en una misión.
+   ===================================================================== */
+const CAPS = [
+  { t: 'Niquía, 4:30 a. m.', scene: 'anden', lines: [
+    ['Rosalba', 'Mija, despierte. El primer tren sale a las cuatro y media y la ciudad no espera a nadie.'],
+    ['Rosalba', 'Hace treinta años me senté en esta cabina por primera vez. Medellín estrenaba metro y yo estrenaba miedo.'],
+    ['Rosalba', 'Primero lo primero: la tarjeta Cívica, el torniquete, la línea amarilla del andén y dejar salir antes de entrar. Eso es Cultura Metro.'],
+    ['Tú', '¿Y ahora, abuela?'],
+    ['Rosalba', 'Ahora es mi última semana. Y quiero que la manejes conmigo. Suba la palanca despacito… y frene en la marca, que la gente se cansa de caminar.']
+  ], go: ['conduce', 'A:0-2'], fin: 'Ese frenazo suave es lo que la gente recuerda. Nadie aplaude al conductor, pero todos llegan.' },
+  { t: 'El Puesto de Control', scene: 'control', lines: [
+    ['Don Efraín', '¡Rosalbita! ¿Esta es la nieta? Venga, mija, que aquí se ve toda la línea en una pared.'],
+    ['Rosalba', 'Efraín lleva veinte años moviendo agujas. Él dice que los trenes son como los nietos: hay que mandarlos para donde es.'],
+    ['Don Efraín', 'Toque las agujas a tiempo. Cada tren a su andén, y que nunca se encuentren dos en el mismo cruce.']
+  ], go: ['despacho', 'despacho0'], fin: 'Don Efraín le guiñó el ojo: “Usted tiene mano”.' },
+  { t: 'Santo Domingo mira al cielo', scene: 'cable', lines: [
+    ['Rosalba', 'En 2004 subió el primer metrocable del mundo hecho para transporte público de verdad, aquí, a Santo Domingo.'],
+    ['Doña Marleny', 'Antes yo bajaba hora y media a pie con el mercado. Ahora en minutos estoy arriba viendo toda la ciudad.'],
+    ['Rosalba', 'Hoy usted opera la línea. Si el viento sopla duro, baje la velocidad; si truena, se detiene todo. Y no se olvide de las fotos desde los miradores.']
+  ], go: ['cableviaje', 'cv:K'], fin: 'Desde la cabina, el valle se ve como un pesebre encendido.' },
+  { t: 'Los que alimentan la red', scene: 'barrio', lines: [
+    ['Rosalba', 'El metro no llega a cada esquina. Por eso existen los alimentadores: buses que bajan de los barrios hasta las estaciones.'],
+    ['Wílmar (conductor)', 'Yo me sé las lomas de memoria. Usted dígame pa’ dónde va cada bus y yo lo llevo.'],
+    ['Rosalba', 'Cada estación pide su color. Cuando se llena, sale el tren. ¡Pilas!']
+  ], go: ['alim', 'alim0'], fin: 'Wílmar pitó dos veces al despedirse, como se saludan los conductores.' },
+  { t: 'Wílmar presta el timón', scene: 'barrio', lines: [
+    ['Wílmar (conductor)', 'Venga, súbase. Hoy maneja usted el alimentador: de Santa Rita a la estación Acevedo.'],
+    ['Wílmar (conductor)', 'En las lomas de Medellín el bus pesa: en subida, palanca a fondo; en bajada, freno suave. Y pare donde está la gente, no diez metros después.'],
+    ['Rosalba', 'Si quiere, deje el asistente de carril. Cuando se sienta segura, apáguelo y maneje con el timón.']
+  ], go: ['bus', 'bus:AL-C6-001:0-3'], fin: 'Una señora se bajó en Acevedo y le dijo: “Usted maneja suavecito, mija. Así sí da gusto”.' },
+  { t: 'Belén – Aranjuez', scene: 'metroplus', lines: [
+    ['Rosalba', 'El Metroplús tiene su propio carril, pero tiene que cruzar las calles como todo el mundo.'],
+    ['Agente de tránsito', 'Usted maneja los semáforos. Los buses grandes valen oro, pero no deje a nadie esperando para siempre.'],
+    ['Rosalba', 'Y ojo con las motos, mija. Esas se cuelan hasta por el ojo de una aguja.']
+  ], go: ['metroplus', 'mp0'], fin: 'La avenida respiró. Hasta las motos hicieron fila… un ratico.' },
+  { t: 'El articulado', scene: 'metroplus', lines: [
+    ['Rosalba', 'Ahora súbase al articulado. Dieciocho metros de bus con una bisagra en la mitad: en las curvas, la cola va por dentro.'],
+    ['Agente de tránsito', 'El carril es exclusivo, pero los semáforos son para todos. Rojo es rojo.']
+  ], go: ['bus', 'bus:MP1:0-4'], fin: 'Al llegar a la estación, el bus quedó justo frente a la puerta del andén. Perfecto.' },
+  { t: 'Ayacucho sobre llantas', scene: 'tranvia', lines: [
+    ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
+    ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']
+  ], go: ['conduce', 'T:0-2'], fin: 'Una señora le dijo adiós desde un balcón con una ruana en la mano.' },
+  { t: 'La hora pico', scene: 'control', lines: [
+    ['Don Efraín', 'Llegó la hora pico. Las cinco y media de la tarde, cuando todo el valle quiere volver a casa.'],
+    ['Rosalba', 'Respire. Ya sabe hacerlo. Lo difícil no es mover los trenes: es no perder la calma.']
+  ], go: ['despacho', 'despacho5'], fin: 'Sobrevivir a la hora pico es el diploma no oficial de todo el que trabaja en el metro.' },
+  { t: 'La última vuelta', scene: 'atardecer', lines: [
+    ['Rosalba', 'Mañana ya no vengo. Hoy maneja usted, de Niquía a La Estrella, todo el valle de punta a punta.'],
+    ['Tú', '¿Y usted qué va a hacer?'],
+    ['Rosalba', 'Montarme de pasajera. Sentarme en la ventana, mirar el río y saber que el tren está en buenas manos.']
+  ], go: ['conduce', 'A:0-20'], fin: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' },
+  { t: 'Epílogo', scene: 'noche', lines: [
+    ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
+    ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],
+    ['', 'FIN DE LA HISTORIA · La Red queda abierta: mejora la flota y sigue jugando todos los modos.']
+  ], go: null }
+];
+const Story = EM.story = {
+  ch: 0, line: 0, cv: null, t0: 0, raf: 0,
+  open(ch) { this.ch = clamp(ch == null ? Save.d.story.ch : ch, 0, CAPS.length - 1); this.line = -1; UI.show('story'); Music.play('story'); this.next(); cancelAnimationFrame(this.raf); const loop = () => { if (UI.cur !== 'story') return; this.raf = requestAnimationFrame(loop); this.draw(); }; loop(); },
+  next() {
+    const C = CAPS[this.ch]; this.line++;
+    if (this.line === 0) { $('#stText').innerHTML = `<span class="who">Capítulo ${this.ch + 1}</span><br><b style="font-size:20px">${esc(C.t)}</b>`; return; }
+    const L = C.lines[this.line - 1];
+    if (!L) { this.mission(); return; }
+    $('#stText').innerHTML = (L[0] ? `<span class="who">${esc(L[0])}</span><br>` : '') + esc(L[1]); Snd.play('tap');
+  },
+  mission() {
+    const C = CAPS[this.ch];
+    if (!C.go) { Save.d.story.ch = CAPS.length - 1; Save.write(); UI.back(); return; }
+    const [m, lv] = C.go, mode = EM.modes[m], lvl = mode.levels().find(l => l.id === lv) || mode.levels()[0];
+    Game.start(m, lvl.id, { back: 'menu', story: this.ch, onEnd: r => {
+      const ok = r.win || r.stars > 0, earn = Save.record(m, lvl.id, r);
+      if (ok && Save.d.story.ch <= this.ch) { Save.d.story.ch = this.ch + 1; Save.write(); }
+      UI.modal(`<div class="pag">Capítulo ${this.ch + 1} · ${ok ? 'cumplido' : 'casi'}</div><h2>${esc(C.t)}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="film" style="margin:10px 0">${esc(ok ? C.fin : 'Rosalba: “Tranquila, mija. Nadie nace aprendido. Otra vez.”')}</div><p class="m">+${earn} 🎫</p><div class="row"><button class="btn pri" id="sgN">${ok ? 'Siguiente capítulo ▶' : '↻ Reintentar'}</button><button class="btn sm gh" id="sgX">Menú</button></div>`);
+      $('#sgN').onclick = () => { UI.close(); Game.stop(); if (ok) this.open(this.ch + 1); else this.mission(); };
+      $('#sgX').onclick = () => { UI.close(); Game.exit(); };
+    } });
+  },
+  /* escenas pixeladas (320×180) */
+  draw() {
+    const cv = $('#stCv'), g = cv.getContext('2d'), W = 320, H = 180, t = now(), sc = CAPS[this.ch].scene; g.imageSmoothingEnabled = false;
+    const night = sc === 'noche' || sc === 'anden';
+    if (sc === 'control') {
+      g.fillStyle = '#1c2b36'; g.fillRect(0, 0, W, H); g.fillStyle = '#0c1820'; g.fillRect(10, 14, W - 20, 90);
+      g.strokeStyle = '#f9e4a4'; g.lineWidth = 2; g.beginPath(); g.moveTo(20, 60); g.lineTo(300, 60); g.moveTo(120, 60); g.lineTo(150, 36); g.lineTo(260, 36); g.moveTo(180, 60); g.lineTo(210, 84); g.lineTo(290, 84); g.stroke();
+      for (let i = 0; i < 4; i++) { const x = ((t * 30 + i * 80) % 300) + 10; g.fillStyle = ['#1f63ad', '#f08a1c', '#2f9b57', '#f2a900'][i]; g.fillRect(x, 57, 10, 6); }
+      for (let i = 0; i < 12; i++) { g.fillStyle = (t * 2 + i) % 3 > 1 ? '#38e07b' : '#ff3b2f'; g.fillRect(24 + i * 24, 24, 4, 4); }
+      g.fillStyle = '#2a3a46'; g.fillRect(0, 120, W, 60); for (let i = 0; i < 3; i++) { Art.person(g, 70 + i * 90, 160, 4, i + 3, false); }
+    } else if (sc === 'cable' || sc === 'barrio') {
+      Art.cover(g, W, H, t, false);
+    } else if (sc === 'metroplus') {
+      g.fillStyle = '#d9cdae'; g.fillRect(0, 0, W, H); g.fillStyle = '#3f444d'; g.fillRect(0, 70, W, 60); g.fillStyle = '#7ab64855'; g.fillRect(0, 88, W, 24); g.fillStyle = PAL.mante; for (let x = 0; x < W; x += 16) g.fillRect(x, 99, 8, 2);
+      const bx = ((t * 40) % (W + 120)) - 100; g.fillStyle = PAL.negro; g.fillRect(bx - 1, 89, 92, 22); g.fillStyle = '#7ab648'; g.fillRect(bx, 90, 44, 20); g.fillRect(bx + 46, 90, 44, 20); g.fillStyle = '#f4f1ea'; g.fillRect(bx + 4, 94, 36, 8); g.fillRect(bx + 50, 94, 36, 8);
+      for (let i = 0; i < 10; i++) Art.building(g, i * 34, 20 + h2(i, 1, 1) * 20, 30, 48 - h2(i, 1, 1) * 20, i, false, i % 2 === 0);
+      for (let i = 0; i < 9; i++) Art.building(g, i * 38, 136, 34, 44, i + 20, false, true);
+    } else if (sc === 'tranvia') {
+      Art.cover(g, W, H, t, false); g.fillStyle = 'rgba(12,37,51,.25)'; g.fillRect(0, 0, W, H); Art.trainSide(g, ((t * 22) % (W + 140)) - 140, 150, 3, '#2f9b57', .8, false);
+    } else { Art.cover(g, W, H, t, night || sc === 'atardecer' && (t % 20) > 10); }
+    // Rosalba (abuela con uniforme del metro y su tinto)
+    if (sc !== 'control' && sc !== 'metroplus') { const x = 268, y = 176; g.fillStyle = PAL.negro; g.fillRect(x - 11, y - 50, 22, 50); g.fillStyle = '#12446c'; g.fillRect(x - 10, y - 40, 20, 34); g.fillStyle = '#f1c9a5'; g.fillRect(x - 7, y - 50, 14, 11); g.fillStyle = '#e8e8e8'; g.fillRect(x - 8, y - 53, 16, 5); g.fillStyle = PAL.mante; g.fillRect(x - 10, y - 34, 20, 3); g.fillStyle = '#f3efe6'; g.fillRect(x + 8, y - 26, 6, 6); g.fillStyle = '#5a3417'; g.fillRect(x + 9, y - 25, 4, 2); g.fillStyle = '#333'; g.fillRect(x - 8, y - 6, 6, 6); g.fillRect(x + 2, y - 6, 6, 6); }
+    g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, 0, W, 14); g.fillStyle = PAL.mante; g.font = '700 10px Cuerpo, sans-serif'; g.fillText('LA ÚLTIMA VUELTA · CAP. ' + (this.ch + 1) + ' · ' + CAPS[this.ch].t.toUpperCase(), 6, 10);
+  },
+  bind() { $('#stNext').onclick = () => { Snd.init(); this.next(); }; $('#stSkip').onclick = () => this.mission(); $('#stCv').onclick = () => this.next(); }
+};
+~~~~
+
+### `src/js/80-multi.js`
+~~~~js
+/* =====================================================================
+   JUGAR JUNTOS: duelo de mesa (mismo celular), Wi‑Fi sin internet (QR) y servidor local.
+   Cooperativo: el anfitrión simula y envía el estado 8 veces por segundo; los invitados mandan toques.
+   Duelo en red: misma semilla para todos, cada uno juega su tablero y se comparten los puntajes.
+   ===================================================================== */
+const NETMODES = ['despacho', 'alim', 'metroplus', 'cable'];
+const Multi = EM.multi = {
+  players: {}, sel: { mode: 'despacho', lv: 'despacho0', kind: 'coop' },
+  open() { UI.show('multi'); this.home(); },
+  stat() { const n = Object.keys(this.players).length; $('#nStat').textContent = Net.connected() ? (Net.role === 'host' ? 'Anfitrión · ' : 'Invitado · ') + (n + 1) + ' jugadores' : 'Sin conexión'; },
+  home() {
+    this.stat();
+    $('#nBody').innerHTML = `<div class="pag">Est. 08 · Multijugador</div><div class="mega" style="font-size:56px;margin-bottom:12px">Juntos</div>
+      <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">1 · En este celular</div><p class="m">Pongan el celular en la mesa, uno frente al otro. Mismo tablero para los dos: gana quien haga más puntos.</p><div class="row">${NETMODES.map(m => `<button class="btn sm" data-d="${m}">${esc(EM.modes[m].name)}</button>`).join('')}</div></div>
+      <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">2 · Wi‑Fi sin internet</div><p class="m">Conecten los celulares a la misma red Wi‑Fi o al punto de acceso de uno de ellos (no gasta datos). Se enlazan con un código QR: hasta 4 jugadores.</p>${Net.supported() ? '<div class="row"><button class="btn sm tin" id="nHost">Crear sala</button><button class="btn sm" id="nJoin">Unirme con código</button></div>' : '<p class="bad">Este navegador no soporta WebRTC.</p>'}</div>
+      <div class="boxed" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">3 · Servidor local (PC)</div><p class="m" id="nSrv">Buscando servidor…</p></div>
+      <div class="boxed dash" style="margin-bottom:12px"><div class="spaced" style="font-size:12px">4 · Bluetooth</div><p class="m">Los navegadores no permiten jugar por Bluetooth entre celulares. En la app Android llegará un modo “Cerca” (Bluetooth + Wi‑Fi directo, sin internet). Mientras tanto usa el punto de acceso del celular: funciona igual y sin datos.</p></div>
+      <details><summary class="pag">Avanzado · probar en dos pestañas</summary><div class="row" style="margin-top:8px"><button class="btn sm" id="nBcH">Pestaña anfitriona</button><button class="btn sm" id="nBcJ">Pestaña invitada</button></div></details>
+      ${Net.connected() ? '<div style="margin-top:14px"><button class="btn pri" id="nLobby">Volver a la sala ▶</button></div>' : ''}`;
+    $$('#nBody [data-d]').forEach(b => b.onclick = () => { Menu.levels(b.dataset.d); setTimeout(() => { const d = $('#lDuel'); if (d) d.click(); }, 30); });
+    const h = $('#nHost'); if (h) h.onclick = () => this.hostFlow();
+    const j = $('#nJoin'); if (j) j.onclick = () => this.joinFlow();
+    $('#nBcH').onclick = () => { this.wire(); Net.bcOpen('prueba', true); this.lobby(); };
+    $('#nBcJ').onclick = () => { this.wire(); Net.bcOpen('prueba', false); this.hello(); this.lobby(); };
+    const lb = $('#nLobby'); if (lb) lb.onclick = () => this.lobby();
+    Net.hasServer().then(ok => { const el = $('#nSrv'); if (!el) return; if (ok) { el.innerHTML = '¡Hay un servidor de El Metro en esta red! <div class="row" style="margin-top:8px"><input id="nRoom" value="sala1" maxlength="12" style="border:3px solid var(--negro);padding:6px;width:110px"><button class="btn sm tin" id="nSH">Crear</button><button class="btn sm" id="nSJ">Entrar</button></div>'; const go = host => { this.wire(); Net.wsConnect(($('#nRoom').value || 'sala1').trim(), host).then(() => { if (!host) this.hello(); this.lobby(); }, e => UI.toast(e.message)); }; $('#nSH').onclick = () => go(true); $('#nSJ').onclick = () => go(false); } else el.innerHTML = 'Para jugar con un PC como servidor (casa, colegio, biblioteca): en el PC ejecuta <b>node server.mjs</b> (viene con el juego) y abre en cada celular la dirección que muestra, por ejemplo <b>http://192.168.1.10:8080</b>. Todo queda dentro de la red local.'; });
+  },
+  wire() { Net.onmsg = m => this.onmsg(m); Net.onstatus = s => { this.stat(); if (s === 'open' && UI.cur === 'multi' && this._wait) { this._wait = false; UI.close(); if (Net.role === 'guest') this.hello(); this.lobby(); } }; },
+  async hostFlow() {
+    this.wire();
+    try {
+      const code = await Net.host(); this._wait = true;
+      this.showCode('Paso 1 · El invitado escanea este código', code, 'Paso 2 · Escanea o pega la respuesta del invitado', async ans => { await Net.accept(ans); UI.toast('Conectando…'); });
+    } catch (e) { UI.toast(e.message); }
+  },
+  joinFlow() {
+    this.wire();
+    this.askCode('Escanea o pega el código del anfitrión', async c => { try { const ans = await Net.join(c); this._wait = true; this.showCode('Muestra esta respuesta al anfitrión', ans, null, null); } catch (e) { UI.toast(e.message); } });
+  },
+  showCode(title, code, nextTitle, onAns) {
+    let qr = ''; try { qr = QR.canvas(code, 3, 3, '#141414', '#ffffff').toDataURL(); } catch (e) { qr = ''; }
+    UI.modal(`<div class="pag">Sala local</div><h2>${esc(title)}</h2>${qr ? `<div class="qr"><img src="${qr}" alt="código QR" style="width:min(70vw,260px);image-rendering:pixelated"></div>` : ''}<textarea class="code" readonly>${esc(code)}</textarea>
+      <div class="row" style="margin:8px 0"><button class="btn sm" id="qCopy">Copiar</button>${(window.AndroidBridge && AndroidBridge.share) || navigator.share ? '<button class="btn sm" id="qShare">Compartir</button>' : ''}</div>
+      ${nextTitle ? `<div class="pag">${esc(nextTitle)}</div><div class="row" style="margin-top:6px"><button class="btn sm tin" id="qScan">📷 Escanear</button><button class="btn sm" id="qPaste">Pegar</button></div><textarea class="code" id="qIn" placeholder="Respuesta EM…"></textarea><button class="btn sm pri" id="qOk" style="margin-top:6px">Conectar</button>` : '<p class="m">Esperando a que el anfitrión lea tu respuesta…</p>'}<button class="btn sm gh" id="qX" style="margin-top:8px">Cancelar</button>`);
+    $('#qCopy').onclick = () => { try { navigator.clipboard.writeText(code); UI.toast('Copiado'); } catch (e) { } };
+    const sh = $('#qShare'); if (sh) sh.onclick = () => { if (window.AndroidBridge && AndroidBridge.share) AndroidBridge.share(code); else navigator.share({ text: code }).catch(() => { }); };
+    $('#qX').onclick = () => { this._wait = false; UI.close(); };
+    if (nextTitle) {
+      const done = async t => { try { await onAns(t.trim()); } catch (e) { UI.toast(e.message); } };
+      $('#qScan').onclick = () => QR.startScan(t => { $('#qIn').value = t; done(t); }, msg => UI.toast(msg));
+      $('#qPaste').onclick = async () => { try { $('#qIn').value = await navigator.clipboard.readText(); } catch (e) { UI.toast('Pega el código en el cuadro'); } };
+      $('#qOk').onclick = () => done($('#qIn').value);
+    }
+  },
+  askCode(title, cb) {
+    UI.modal(`<div class="pag">Unirme</div><h2>${esc(title)}</h2><div class="row"><button class="btn sm tin" id="aScan">📷 Escanear</button><button class="btn sm" id="aPaste">Pegar</button></div><textarea class="code" id="aIn" placeholder="Código EM…"></textarea><div class="row" style="margin-top:8px"><button class="btn pri" id="aOk">Continuar</button><button class="btn sm gh" id="aX">Cancelar</button></div>`);
+    $('#aScan').onclick = () => QR.startScan(t => { $('#aIn').value = t; cb(t); }, m => UI.toast(m));
+    $('#aPaste').onclick = async () => { try { $('#aIn').value = await navigator.clipboard.readText(); } catch (e) { UI.toast('Pega el código en el cuadro'); } };
+    $('#aOk').onclick = () => cb($('#aIn').value); $('#aX').onclick = () => UI.close();
+  },
+  hello() { Net.send({ t: 'hello', name: Save.d.name }); },
+  lobby() {
+    this.stat(); const host = Net.role === 'host', S = this.sel, M = EM.modes[S.mode];
+    $('#nBody').innerHTML = `<div class="pag">Sala</div><div class="mega" style="font-size:52px">${host ? 'Tu sala' : 'En la sala'}</div>
+      <div class="boxed" style="margin:10px 0"><b>${esc(Save.d.name)}</b> (tú)${Object.values(this.players).map(p => '<br>' + esc(p.name)).join('')}</div>
+      ${host ? `<div class="pag">Modo</div><div class="tg" id="lMode">${NETMODES.map(m => `<button data-m="${m}" class="${S.mode === m ? 'on' : ''}">${esc(EM.modes[m].name)}</button>`).join('')}</div>
+      <div class="pag" style="margin-top:8px">Nivel</div><select id="lLv" style="border:3px solid var(--negro);padding:6px;font-size:15px;max-width:100%">${M.levels().map(l => `<option value="${esc(l.id)}" ${l.id === S.lv ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select>
+      <div class="pag" style="margin-top:8px">Forma de jugar</div><div class="tg" id="lKind"><button data-k="coop" class="${S.kind === 'coop' ? 'on' : ''}">Cooperativo (mismo tablero)</button><button data-k="duelo" class="${S.kind === 'duelo' ? 'on' : ''}">Duelo (misma partida, cada uno la suya)</button></div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="lGo">▶ Empezar</button>${Net.kind === 'rtc' ? '<button class="btn sm" id="lMore">+ Invitar otro</button>' : ''}<button class="btn sm gh" id="lOut">Salir de la sala</button></div>` : '<p class="m">Esperando a que el anfitrión elija el juego…</p><button class="btn sm gh" id="lOut">Salir de la sala</button>'}`;
+    if (host) {
+      $$('#lMode button').forEach(b => b.onclick = () => { S.mode = b.dataset.m; S.lv = EM.modes[S.mode].levels()[0].id; this.lobby(); });
+      $('#lLv').onchange = e => S.lv = e.target.value;
+      $$('#lKind button').forEach(b => b.onclick = () => { S.kind = b.dataset.k; this.lobby(); });
+      $('#lGo').onclick = () => { const seed = (Math.random() * 1e9) | 0; Net.send({ t: 'start', mode: S.mode, lv: S.lv, kind: S.kind, seed }); this.begin(S.mode, S.lv, S.kind, seed, true); };
+      const mo = $('#lMore'); if (mo) mo.onclick = () => this.hostFlow();
+    }
+    $('#lOut').onclick = () => { Net.reset(); this.players = {}; this.home(); };
+  },
+  begin(mode, lv, kind, seed, host) {
+    const guest = kind === 'coop' && !host, rival = {};
+    Game.start(mode, lv, { seed, back: 'multi', onEnd: kind === 'duelo' ? r => this.duelEnd(r, rival) : null });
+    const M = EM.modes[mode]; let acc = 0;
+    Game.net = {
+      guest, kind,
+      sendAct: a => Net.send({ t: 'act', a }),
+      tick: dt => { acc += dt; if (kind === 'coop' && host && acc > .125) { acc = 0; Net.send({ t: 'st', s: JSON.parse(JSON.stringify(Game.st, (k, v) => k[0] === '_' ? undefined : v)) }); } if (kind === 'duelo' && acc > 1) { acc = 0; const r = M.result(Game.st); Net.send({ t: 'sc', score: r.score, done: r.done, name: Save.d.name }); } },
+      chips: () => kind === 'duelo' ? Object.values(rival).map(p => [p.name.slice(0, 8), (p.score | 0) + (p.done ? '✓' : '')]) : [['👥', Object.keys(this.players).length + 1]],
+      onEnd: r => { if (kind === 'coop' && host) Net.send({ t: 'end', r: { score: r.score, stars: r.stars, win: r.win } }); },
+      leave: () => { },
+      rival
+    };
+  },
+  duelEnd(r, rival) {
+    Net.send({ t: 'sc', score: r.score, done: true, name: Save.d.name }); const earn = Save.record(Game.mode.id, Game.lv, r);
+    const all = [[Save.d.name + ' (tú)', r.score | 0], ...Object.values(rival).map(p => [p.name, p.score | 0])].sort((a, b) => b[1] - a[1]);
+    UI.modal(`<div class="pag">Duelo en red</div><h2>${all[0][0].includes('(tú)') ? '¡Ganaste!' : 'Gana ' + esc(all[0][0])}</h2><div class="kv">${all.map(([n, s]) => `<b>${esc(n)}</b><span>${fmt(s)}</span>`).join('')}</div><p class="m">+${earn} 🎫 · los puntajes de los demás se actualizan cuando terminan.</p><button class="btn pri" id="dOk">Volver a la sala</button>`);
+    $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
+  },
+  onmsg(m) {
+    const from = m.from;
+    switch (m.t) {
+      case 'hello': this.players[from] = { name: String(m.name || 'Jugador').slice(0, 16) }; if (Net.role === 'host') Net.send({ t: 'roster', p: this.players, host: Save.d.name }); this.stat(); if (UI.cur === 'multi') this.lobby(); UI.toast((m.name || 'Alguien') + ' entró a la sala'); break;
+      case 'roster': if (Net.role !== 'host') { this.players = {}; this.players[0] = { name: m.host }; for (const k in m.p) if (+k !== Net.myId) this.players[k] = m.p[k]; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
+      case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
+      case 'start': if (Net.role !== 'host') this.begin(m.mode, m.lv, m.kind, m.seed, false); break;
+      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode) Game.mode.act(Game.st, m.a); break;
+      case 'st': if (Game.net && Game.net.guest && m.s) { Game.st = m.s; } break;
+      case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: String(m.name || 'Rival'), score: m.score | 0, done: !!m.done }; break;
+      case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const r = Object.assign(Game.mode.result(Game.st), m.r || {}); Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
+    }
+  },
+  bind() { $('#nBack').onclick = () => UI.back(); UI.onshow.multi = () => { if (Net.connected()) this.lobby(); else this.home(); }; }
+};
+~~~~
+
+### `src/js/90-bot.js`
+~~~~js
+/* =====================================================================
+   BOT DE PRUEBAS (dentro del juego)
+   selfTest(): valida datos de la red, que cada nivel tenga solución y que el horario sea sensato.
+   monkey(n): n partidas automáticas (piloto/IA + toques al azar) buscando errores e invariantes rotas.
+   Uso: menú → 🤖 Bot de pruebas · consola: EM.test.monkey(100) · node tools/test.mjs
+   ===================================================================== */
+const BotT = EM.test = {
+  selfTest() {
+    const errors = [], warnings = [], E = m => errors.push(m), Wn = m => warnings.push(m), fin = v => typeof v === 'number' && isFinite(v);
+    const t0 = performance.now(), mx = MW * TM, my = MH * TM;
+    // red
+    const ids = new Set(); for (const L of LINE_META.lines) { if (ids.has(L.id)) E('línea repetida ' + L.id); ids.add(L.id); if (!/^#[0-9a-f]{6}$/i.test(L.color || '')) Wn('color raro en ' + L.id); }
+    for (const l of NET.lines) {
+      if (l.st.length < 2) E(l.id + ': menos de 2 estaciones'); if (!(l.P.len > 50)) E(l.id + ': recorrido muy corto');
+      for (const s of l.st) { if (!fin(s.x) || !fin(s.y) || s.x < 0 || s.y < 0 || s.x > mx || s.y > my) E(l.id + ': estación fuera del mapa ' + s.name); if (!fin(s.s)) E(l.id + ': posición inválida ' + s.name); }
+      for (let i = 1; i < l.st.length; i++) { const d = l.st[i].s - l.st[i - 1].s; if (d < 30 && l.kind !== 'escalator') Wn(l.id + ': estaciones muy juntas ' + l.st[i - 1].name + '–' + l.st[i].name + ' (' + d.toFixed(0) + ' m)'); if (d > 6000 && l.kind !== 'cable' && l.kind !== 'future') Wn(l.id + ': tramo largo ' + (d / 1000).toFixed(1) + ' km'); }
+    }
+    if (!NET.byId.A) E('falta la Línea A');
+    for (const q of LINE_META.trivia) if (!q.q || !Array.isArray(q.a) || q.a.length < 2) E('trivia mal formada: ' + (q.q || '?'));
+    // conduce: cada nivel crea, su horario es finito y el piloto llega
+    let nC = 0; for (const lv of Conduce.levels()) { try { const st = Conduce.create(lv.id, { seed: 1, auto: true }); nC++; if (!st.sched.every(fin)) E('horario inválido ' + lv.id); if (st.ideal.some(t => t >= 1999)) E('el piloto no llega en ' + lv.id); } catch (e) { E('conduce ' + lv.id + ': ' + e.message); } }
+    // agujas: toda aparición llega a alguna salida y toda salida es alcanzable
+    let nR = 0; for (const id of ['despacho', 'alim']) { const M = EM.modes[id]; for (const lv of M.levels()) { try { const st = M.create(lv.id, { seed: 1 }); nR++; const reach = new Set(); for (const sp of st.sp) { const r = M.reachEx(st, sp.i); if (!r.size) E(lv.id + ': entrada sin salida'); r.forEach(x => reach.add(x)); } for (const ex of st.ex) if (!reach.has(ex.i)) E(lv.id + ': salida inalcanzable'); if (!st.swl.length) Wn(lv.id + ': sin agujas'); if (st.ex.length < 2) Wn(lv.id + ': una sola salida'); } catch (e) { E(id + ' ' + lv.id + ': ' + e.message); } } }
+    // simulador de bus: todas las rutas crean y tienen horario
+    let nB = 0; for (const lv of Bus.levels()) { try { const st = Bus.create(lv.id, { seed: 1 }); nB++; if (!st.sched.every(fin) || !isFinite(st.x)) E('bus ' + lv.id + ': horario/posición'); } catch (e) { E('bus ' + lv.id + ': ' + e.message); } }
+    // ciudad libre: aparece, hay vehículos parqueados y se generan oficios
+    try { const st = Libre.create('lb:San Antonio', { seed: 1 }); if (!st.parked.length) E('libre: sin vehículos'); if (!isFinite(st.x)) E('libre: posición'); for (let i = 0; i < 40; i++) Libre.offer(st); if (!st.job) Wn('libre: no se generó ningún oficio'); if (!Ciudad.transit.length) E('libre: sin transporte en movimiento'); } catch (e) { E('libre: ' + e.message); }
+    // al volante y viaje en cable
+    let nV = 0; for (const lv of Volante.levels()) { try { const st = Volante.create(lv.id, { seed: 1, auto: true }); nV++; if (!st.sched.every(fin) || !isFinite(st.x)) E('volante horario/posición inválida ' + lv.id); const R = Volante.route(NET.byId[st.line]); if (!R.lim.every(fin)) E('volante límites ' + lv.id); } catch (e) { E('volante ' + lv.id + ': ' + e.message); } }
+    for (const lv of CableViaje.levels()) { try { const st = CableViaje.create(lv.id, { seed: 1 }); if (st.stS.length < 2 || !st.stS.every(fin)) E('cable viaje sin estaciones ' + lv.id); } catch (e) { E('cableviaje ' + lv.id + ': ' + e.message); } }
+    // metroplús
+    for (const lv of MPlus.levels()) { try { const st = MPlus.create(lv.id, { seed: 1 }); if (!st.X.length || !st.lanes.some(l => l.bus)) E(lv.id + ': sin cruces o sin carril de bus'); } catch (e) { E('metroplus ' + lv.id + ': ' + e.message); } }
+    // metrocable: la solución guardada es válida y el tablero inicial no está resuelto
+    let nK = 0; for (const lv of Cable.levels()) { try { const st = Cable.create(lv.id, {}); nK++; const s2 = Object.assign({}, st, { m: st.sol }); if (!Cable.solved(s2)) E(lv.id + ': la solución no conecta'); if (Cable.solved(st)) E(lv.id + ': empieza resuelto'); } catch (e) { E('cable ' + lv.id + ': ' + e.message); } }
+    // historia
+    for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
+    let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    return { errors, warnings, stats };
+  },
+  monkey(n = 20, seed = 7) {
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    let games = 0, steps = 0, wins = 0;
+    for (let k = 0; k < n; k++) {
+      const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
+      let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
+      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : 4800;
+      try {
+        for (let i = 0; i < max; i++) {
+          M.step(st, dt); steps++;
+          if (id === 'libre') { if (i % 25 === 0) st.joy = { x: rng.f() * 2 - 1, y: rng.f() * 2 - 1, m: rng.f() }; if (i % 90 === 0) { st.keys.up = rng.f() < .7; st.hb = rng.f() < .2; M.action(st); } if (i % 300 === 0) { M.offer(st); M.photo(st); } if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('jugador inválido'); }
+          else if (id === 'bus') { if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('bus inválido'); }
+          else if (id === 'volante' || id === 'cableviaje') { if (id === 'cableviaje' && i % 200 === 0) M.photo(st); if (id === 'volante' && (!isFinite(st.x) || !isFinite(st.v))) throw new Error('bus inválido'); }
+          else if (id !== 'conduce') { if (i % 5 === 0) { const a = M.ai(st); if (a) M.act(st, a); } if (rng.f() < .01) { const a = this.randomAct(id, st, rng); if (a) M.act(st, a); } }
+          else if (st.ph === 'dwell' && st.trivia) M.answer(st, 0);
+          if (i % 400 === 0 && g) { g.setTransform(1, 0, 0, 1, 0, 0); if (id === 'conduce') st.view = ['cab', 'tps', 'lado', 'top', 'pan'][(i / 400) % 5 | 0]; if (id === 'volante') st.view = ['top', 'pan'][(i / 400) % 2 | 0]; if (id === 'cableviaje') st.view = ['lado', 'top'][(i / 400) % 2 | 0]; if (id === 'libre' || id === 'bus') st.far = (i / 400) % 2 === 1; M.draw(g, st, { x: 0, y: 0, w: 360, h: 640 }); }
+          const r = M.result(st); if (!isFinite(r.score)) throw new Error('puntaje no numérico');
+          if (id === 'conduce' && (!isFinite(st.v) || !isFinite(st.s) || st.v < 0)) throw new Error('física inválida v=' + st.v + ' s=' + st.s);
+          if (st.ents && st.ents.length > 300) throw new Error('demasiados vehículos');
+          if (st.veh && st.veh.length > 400) throw new Error('demasiados carros');
+          if (r.done) { if (r.win) wins++; break; }
+        }
+      } catch (e) { errors.push(id + ' ' + lv.id + ': ' + e.message); }
+    }
+    return { games, steps, wins, errors };
+  },
+  randomAct(id, st, rng) {
+    if (id === 'despacho' || id === 'alim') return st.swl.length ? { k: 'sw', i: rng.pick(st.swl) } : null;
+    if (id === 'metroplus') return { k: 'x', i: rng.i(0, st.X.length - 1) };
+    if (id === 'cable') return { k: 'rot', i: rng.i(0, st.m.length - 1) };
+    return null;
+  }
+};
+~~~~
+
+### `src/js/99-boot.js`
+~~~~js
+/* =====================================================================
+   ARRANQUE
+   ===================================================================== */
+async function boot() {
+  Save.load(); Vida.apply();
+  const play = $('#bPlay'); play.disabled = true; play.textContent = 'Cargando el valle…';
+  Game.bind(); Menu.bind(); RedView.bind(); Story.bind(); Multi.bind();
+  $('#gPause').onclick = () => Game.pause(true);
+  Menu.cover();
+  try { await MAP.load(); } catch (e) { EM.errors.push('mapa: ' + e.message); }
+  try { NET.build(); } catch (e) { EM.errors.push('red: ' + e.message); console.error(e); }
+  play.disabled = false; play.textContent = '▶ Jugar';
+  history.pushState(null, '');
+  document.addEventListener('pointerdown', () => { Snd.init(); Snd.resume(); }, { once: true });
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !window.AndroidBridge) navigator.serviceWorker.register('sw.js').catch(() => { });
+  EM.ready = true;
+}
+boot();
+~~~~
+
+### `src/data/red.js`
+~~~~js
+/* El Metro: red de transporte del Valle de Aburrá (datos 2026-11; fuentes en docs/FUENTES.md). */
+const RED = {"version":"2026-11","lines":[
+{"id":"A","name":"Línea A","kind":"metro","color":"#1C5C9C","from":"Niquía","to":"La Estrella","open":"1995-11-30","km":25.8,"status":"operativa","tech":"Trenes eléctricos de 3 coches, catenaria 1500 V CC, hasta 80 km/h","stations":[["Niquía",6.33791,-75.54394],["Bello",6.33031,-75.55356],["Madera",6.31593,-75.55537],["Acevedo",6.30024,-75.5584],["Tricentenario",6.29034,-75.56463],["Caribe",6.27736,-75.56969],["Universidad",6.26954,-75.56612],["Hospital",6.26343,-75.56355],["Prado",6.25688,-75.56612],["Parque Berrío",6.25028,-75.56834],["San Antonio",6.24707,-75.56978],["Alpujarra",6.24259,-75.57154],["Exposiciones",6.23852,-75.57317],["Industriales",6.23033,-75.57557],["Poblado",6.21256,-75.57801],["Aguacatala",6.19348,-75.58194],["Ayurá",6.18643,-75.58573],["Envigado",6.17444,-75.5973],["Itagüí",6.163,-75.60674],["Sabaneta",6.15731,-75.61686],["La Estrella",6.15306,-75.62581]],"facts":["El 30 de noviembre de 1995 empezó a operar: fue el primer metro de Colombia.","Corre de norte a sur por el Valle de Aburrá, casi siempre junto al río Medellín.","Sabaneta y La Estrella se sumaron en septiembre de 2012, alargando la línea hacia el sur.","Sus primeros trenes fueron de MAN y Siemens; después llegaron trenes CAF, y 13 trenes nuevos se fabrican en México."]},
+{"id":"B","name":"Línea B","kind":"metro","color":"#E38835","from":"San Antonio","to":"San Javier","open":"1996-02-29","km":5.5,"status":"operativa","tech":"Trenes eléctricos de 3 coches, catenaria 1500 V CC, hasta 80 km/h","stations":[["San Antonio",6.24707,-75.56978],["Cisneros",6.24896,-75.5748],["Suramericana",6.2529,-75.58257],["Estadio",6.25331,-75.58822],["Floresta",6.25869,-75.59775],["Santa Lucía",6.25643,-75.60611],["San Javier",6.25665,-75.61356]],"facts":["Une el centro (San Antonio) con San Javier, puerta de la Comuna 13, en unos 5,5 km.","Pasa junto al estadio Atanasio Girardot, en la estación Estadio.","En San Javier conecta con el Metrocable J, que sube hasta La Aurora."]},
+{"id":"T","name":"Tranvía de Ayacucho (T-A)","kind":"tram","color":"#59AB42","from":"San Antonio","to":"Oriente","open":"2016-03-31","km":4.2,"status":"operativa","tech":"Tranvía Translohr sobre neumáticos, guiado por un riel central, con catenaria; 12 vehículos","stations":[["San Antonio",6.24698,-75.56924],["San José",6.24743,-75.56563],["Pabellón del Agua",6.24571,-75.56224],["Bicentenario",6.24399,-75.55885],["Buenos Aires",6.24214,-75.55537],["Miraflores",6.24051,-75.55207],["Loyola",6.24019,-75.54701],["Alejandro Echavarría",6.23572,-75.54195],["Oriente",6.23318,-75.54014]],"facts":["Se inauguró en octubre de 2015 y empezó su operación comercial el 31 de marzo de 2016.","Usa tecnología Translohr: ruedas de caucho guiadas por un riel central, ideal para subir pendientes.","Medellín ya tuvo tranvía eléctrico entre 1921 y 1951, y una de sus rutas subía por Ayacucho.","Conecta con dos Metrocables: la Línea M en Miraflores y la Línea H en Oriente."]},
+{"id":"H","name":"Línea H","kind":"cable","color":"#EB318E","from":"Oriente","to":"Villa Sierra","open":"2016-12-17","km":1.4,"status":"operativa","tech":"Telecabina monocable desembragable, 3 estaciones","stations":[["Oriente",6.23334,-75.53997],["Las Torres",6.23667,-75.5364],["Villa Sierra",6.23489,-75.52874]],"facts":["Parte de la estación Oriente, donde termina el tranvía de Ayacucho.","Sube a Villa Sierra, en la comuna 8 (Villa Hermosa), en solo 1,4 km de recorrido.","Se diseñó para una demanda de unos 1.800 pasajeros por hora."]},
+{"id":"J","name":"Línea J","kind":"cable","color":"#F6C538","from":"San Javier","to":"La Aurora","open":"2008-03-03","km":2.7,"status":"operativa","tech":"Telecabina monocable desembragable, 4 estaciones","stations":[["San Javier",6.25675,-75.61342],["Juan XXIII",6.26565,-75.61364],["Vallejuelos",6.27534,-75.61397],["La Aurora",6.28113,-75.61418]],"facts":["Abrió en 2008, impulsada por el éxito de la Línea K.","Sube casi en línea recta hacia el norte desde San Javier hasta La Aurora, en Robledo.","Juan XXIII, su segunda estación, lleva el nombre del barrio, que honra a ese papa."]},
+{"id":"K","name":"Línea K","kind":"cable","color":"#B8CF40","from":"Acevedo","to":"Santo Domingo Savio","open":"2004-08-07","km":2.07,"status":"operativa","tech":"Telecabina monocable desembragable (Poma), cabinas de 10 pasajeros","stations":[["Acevedo",6.30032,-75.55841],["Andalucía",6.29633,-75.55182],["Popular",6.29515,-75.5481],["Santo Domingo Savio",6.29313,-75.54162]],"facts":["En 2004 fue pionera mundial: el primer cable aéreo integrado a un metro como transporte público.","Mueve cerca de 30.000 personas al día entre Acevedo y Santo Domingo Savio.","Su éxito inspiró cables urbanos en ciudades como Caracas, Río de Janeiro y La Paz."]},
+{"id":"L","name":"Línea L (Cable Arví)","kind":"cable","color":"#8E612A","from":"Santo Domingo Savio","to":"Arví","open":"2010-02-09","km":4.5,"status":"operativa","tech":"Telecabina monocable desembragable, línea turística sin estaciones intermedias","stations":[["Santo Domingo Savio",6.29313,-75.54162],["Arví",6.2815,-75.50296]],"facts":["Es una línea turística que lleva al Parque Arví, con bosques y caminos prehispánicos.","La subida desde Santo Domingo hasta Arví toma unos 15 minutos sobre las montañas.","Tiene tarifa especial, distinta a la del resto del sistema."]},
+{"id":"M","name":"Línea M","kind":"cable","color":"#743D90","from":"Miraflores","to":"Trece de Noviembre","open":"2019-02-28","km":1.05,"status":"operativa","tech":"Telecabina monocable desembragable, 3 estaciones","stations":[["Miraflores",6.24172,-75.54906],["El Pinal",6.24531,-75.54448],["Trece de Noviembre",6.2476,-75.54145]],"facts":["Con unos 1,05 km es la línea de Metrocable más corta del sistema.","Arranca en Miraflores, donde conecta con el tranvía de Ayacucho.","Puede mover hasta 2.500 pasajeros por hora en cada sentido."]},
+{"id":"P","name":"Línea P (Cable Picacho)","kind":"cable","color":"#EC343A","from":"Acevedo","to":"El Progreso","open":"2021-06-10","km":2.7,"status":"operativa","tech":"Telecabina monocable desembragable, cabinas de hasta 12 pasajeros","stations":[["Acevedo",6.30032,-75.55841],["SENA",6.30184,-75.5674],["Doce de Octubre",6.30424,-75.57601],["El Progreso",6.30592,-75.58209]],"facts":["Conocida como Cable Picacho, abrió el 10 de junio de 2021.","Sus cabinas llevan hasta 12 pasajeros, más que las de las primeras líneas.","Sirve a las comunas 5 (Castilla) y 6 (Doce de Octubre), cerca del cerro El Picacho."]},
+{"id":"MP1","name":"Metroplús Línea 1","kind":"brt","color":"#0E6F76","from":"Parque Aranjuez","to":"U. de M.","open":"2011-12-22","km":12.5,"status":"operativa","tech":"Buses articulados a gas natural y eléctricos por carril exclusivo","stations":[["Parque Aranjuez",6.28518,-75.55663],["Berlín",6.28288,-75.55291],["Las Esmeraldas",6.27837,-75.55314],["Manrique",6.27324,-75.55405],["Gardel",6.26761,-75.55502],["Palos Verdes",6.26205,-75.55589],["Hospital",6.26391,-75.56317],["Ruta N - U. de A.",6.26362,-75.56768],["Chagualo",6.26073,-75.56915],["Minorista",6.25613,-75.57317],["Cisneros",6.25086,-75.57506],["Plaza Mayor",6.24367,-75.57535],["Industriales",6.23033,-75.57655],["Nutibara",6.23178,-75.58206],["Fátima",6.23166,-75.58656],["Rosales",6.23157,-75.59096],["Parque Belén",6.23137,-75.59674],["La Palma",6.23114,-75.60102],["Los Alpes",6.23106,-75.60516],["U. de M.",6.23064,-75.60915]],"via":[[6.28455,-75.55656],[6.28409,-75.55291],[6.2815,-75.55261],[6.26281,-75.55565],[6.26162,-75.55631],[6.263,-75.5575],[6.2645,-75.5675],[6.25908,-75.57005],[6.258,-75.57191],[6.25458,-75.5747],[6.23994,-75.57549],[6.23485,-75.57731],[6.23418,-75.57638],[6.22963,-75.57655],[6.23164,-75.5766],[6.23194,-75.57769],[6.23103,-75.60956]],"facts":["Empezó a operar el 22 de diciembre de 2011 y cruza la ciudad de nororiente a occidente.","En 2019 empezó a rodar en esta línea un bus articulado eléctrico BYD.","Su estación Industriales, conectada con la Línea A, abrió en octubre de 2014."]},
+{"id":"MP2","name":"Metroplús Línea 2","kind":"brt","color":"#65A9AC","from":"Parque Aranjuez","to":"U. de M.","open":"2013-04-26","km":13.5,"status":"operativa","tech":"Buses eléctricos con carril exclusivo en la Avenida Oriental","stations":[["Parque Aranjuez",6.28518,-75.55663],["Berlín",6.28288,-75.55291],["Las Esmeraldas",6.27837,-75.55314],["Manrique",6.27324,-75.55405],["Gardel",6.26761,-75.55502],["Palos Verdes",6.26205,-75.55589],["Prado (Av. Oriental)",6.25901,-75.56044],["Catedral",6.25289,-75.56256],["La Playa",6.24956,-75.56449],["San José",6.24711,-75.56614],["Barrio Colón",6.24061,-75.56985],["Perpetuo Socorro",6.23399,-75.5701],["Barrio Colombia",6.22872,-75.56982],["Industriales",6.23034,-75.57671],["Nutibara",6.23178,-75.58206],["Fátima",6.23166,-75.58656],["Rosales",6.23157,-75.59096],["Parque Belén",6.23137,-75.59674],["La Palma",6.23114,-75.60102],["Los Alpes",6.23106,-75.60516],["U. de M.",6.23064,-75.60915]],"via":[[6.28455,-75.55656],[6.28409,-75.55291],[6.2815,-75.55261],[6.26315,-75.55554],[6.26327,-75.55657],[6.26261,-75.55698],[6.26227,-75.55824],[6.26158,-75.55874],[6.25501,-75.56288],[6.25385,-75.56226],[6.24275,-75.56903],[6.23873,-75.57044],[6.22818,-75.56988],[6.23082,-75.57386],[6.23196,-75.57723],[6.23182,-75.58092],[6.23163,-75.57665],[6.22959,-75.57662],[6.23164,-75.5766],[6.23194,-75.57769],[6.23103,-75.60956]],"facts":["Comparte extremos con la Línea 1, pero cruza el centro por la Avenida Oriental.","Desde julio de 2021 tiene 4,1 km de carril exclusivo y cinco ecoestaciones en la Oriental.","Su flota es 100 % eléctrica, parte de la estrategia por un aire más limpio."]},
+{"id":"MPO","name":"Metroplús Línea O","kind":"brt","color":"#00A99D","from":"Caribe","to":"La Palma","open":"2019-12-02","km":9.2,"status":"operativa","tech":"Buses 100 % eléctricos en carril preferencial por la Avenida 80","stations":[["Caribe",6.27797,-75.57027],["Universal",6.2761,-75.57365],["Córdoba",6.27423,-75.57816],["Pilarica",6.27364,-75.58257],["Ciudadela Universitaria",6.27312,-75.58737],["Facultad de Minas",6.27283,-75.5935],["Los Colores",6.26999,-75.59513],["Calasanz",6.2645,-75.59637],["Floresta",6.25861,-75.59779],["Los Pinos",6.255,-75.59861],["Laureles",6.2461,-75.60259],["Santa Gema",6.2396,-75.60295],["Villa de Aburrá",6.23515,-75.60225],["La Palma",6.23284,-75.60225]],"via":[[6.27637,-75.57281],[6.27352,-75.57941],[6.27239,-75.59097],[6.27302,-75.59233],[6.27216,-75.59368],[6.27094,-75.59499],[6.26285,-75.59689],[6.2543,-75.59897],[6.25371,-75.59956],[6.25281,-75.60109],[6.2524,-75.60155],[6.25127,-75.60218],[6.25055,-75.60231],[6.24345,-75.60286],[6.2368,-75.6029],[6.23603,-75.60236]],"facts":["Empezó su operación comercial el 2 de diciembre de 2019 con buses eléctricos.","Integra la Línea A en Caribe, la Línea B en Floresta y Metroplús en La Palma.","Recorre el mismo corredor de la Avenida 80 donde se construye el Metro de la 80."]},
+{"id":"ESC13","name":"Escaleras eléctricas Comuna 13","kind":"escalator","color":"#5D6D7E","from":"Las Independencias I (base)","to":"Las Independencias I (parte alta)","open":"2011-12-26","km":0.38,"status":"operativa","tech":"Seis tramos dobles de escaleras eléctricas al aire libre (Fujitec)","stations":[["Las Independencias I (base)",6.24872,-75.62172],["Las Independencias I (parte alta)",6.24797,-75.62212]],"facts":["Se inauguraron en diciembre de 2011 en el barrio Las Independencias I, en la ladera de la Comuna 13.","Sus seis tramos dobles suman unos 384 m y reemplazan una subida de más de 350 escalones.","Hoy son un gran atractivo turístico, rodeado de grafitis, miradores y arte urbano."]},
+{"id":"AL-C6-001","name":"Alimentador C6-001 Santa Rita – Estación Acevedo","kind":"feeder","color":"#7F8C8D","from":"Santa Rita","to":"Acevedo","open":"sin dato","km":2.5,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Santa Rita",6.30815,-75.54541],["Cl. 20E con Cra. 42C",6.30809,-75.55228],["Cra. 52 con Cl. 117",6.30284,-75.55619],["Acevedo",6.29918,-75.55769]],"via":[[6.30847,-75.5466],[6.3091,-75.54641],[6.3093,-75.54689],[6.30938,-75.54896],[6.30888,-75.54948],[6.30887,-75.5503],[6.30811,-75.55073],[6.30802,-75.5517],[6.30919,-75.55511],[6.30196,-75.55634]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Lleva a la estación Acevedo, donde se cruzan la Línea A y los Metrocables K y P.","Según el mapa del sistema integrado, su recorrido mide unos 2,5 km y tiene 11 paradas."]},
+{"id":"AL-C6-002A","name":"Alimentador C6-002A Versalles – Estación Hospital","kind":"feeder","color":"#A0522D","from":"Versalles","to":"Hospital","open":"sin dato","km":5.4,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Versalles",6.26633,-75.54299],["Cra. 36 con Cl. 70",6.26492,-75.54794],["Cra. 36 con Cl. 66D",6.25905,-75.54903],["Cra. 40 con Cl. 65",6.25706,-75.55369],["Cra. 45C con Cl. 65",6.26072,-75.55724],["Hospital",6.26486,-75.56281]],"via":[[6.26689,-75.54294],[6.26681,-75.54242],[6.26582,-75.5421],[6.26211,-75.54285],[6.26265,-75.54481],[6.26673,-75.54448],[6.26629,-75.54483],[6.26668,-75.54779],[6.26301,-75.54881],[6.2622,-75.54816],[6.26024,-75.54808],[6.25735,-75.55026],[6.2588,-75.55239],[6.25965,-75.55756],[6.2614,-75.55713],[6.26152,-75.55595],[6.26255,-75.5557],[6.26396,-75.56252],[6.26439,-75.56298]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Baja desde Versalles hasta la estación Hospital, con integración al Metro y a Metroplús.","Según el mapa del sistema integrado, su recorrido mide unos 5,4 km y tiene 20 paradas."]},
+{"id":"AL-C6-003","name":"Alimentador C6-003 Campo Valdés – Estación Hospital","kind":"feeder","color":"#6B8E23","from":"Campo Valdés","to":"Hospital","open":"sin dato","km":4.1,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Campo Valdés",6.28193,-75.5604],["Cra. 49 con Cl. 83",6.27645,-75.55749],["Cra. 49 con Cl. 77",6.27115,-75.55843],["Cra. 50 con Cl. 68",6.2648,-75.56029],["Hospital",6.26298,-75.56358]],"via":[[6.28208,-75.55742],[6.28107,-75.55742],[6.28095,-75.55688],[6.27971,-75.55689],[6.27528,-75.5577],[6.27528,-75.5583],[6.2737,-75.55861],[6.27343,-75.55804],[6.26801,-75.55899],[6.26745,-75.55982],[6.26366,-75.56049],[6.2644,-75.56336],[6.26059,-75.56466],[6.26077,-75.56597],[6.26167,-75.56579],[6.26144,-75.56418]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Recorre la Carrera 49 y la Carrera 50, por Campo Valdés y Aranjuez, hasta Hospital.","Según el mapa del sistema integrado, su recorrido mide unos 4,1 km y tiene 12 paradas."]},
+{"id":"AL-C6-004","name":"Alimentador C6-004 Reserva del Seminario – Exposiciones","kind":"feeder","color":"#B8860B","from":"Reserva del Seminario","to":"Exposiciones","open":"sin dato","km":6.6,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Reserva del Seminario",6.22699,-75.54721],["Cl. 42 con Cra. 27",6.23528,-75.55375],["Cra. 32 con Cl. 34",6.23213,-75.55945],["Cra. 33 con Cl. 28",6.22629,-75.56137],["Cra. 38 con Cl. 26",6.22917,-75.56651],["San Diego",6.23679,-75.56914],["Exposiciones",6.23869,-75.57296]],"via":[[6.22791,-75.54869],[6.22894,-75.54792],[6.2294,-75.54864],[6.2313,-75.5489],[6.2315,-75.55118],[6.23226,-75.55274],[6.23291,-75.55226],[6.23377,-75.5524],[6.23491,-75.55307],[6.23355,-75.55493],[6.23295,-75.55664],[6.23323,-75.55722],[6.23226,-75.55846],[6.23198,-75.5598],[6.23049,-75.56026],[6.22994,-75.56115],[6.22861,-75.55995],[6.22816,-75.56062],[6.22708,-75.55986],[6.22488,-75.56026],[6.22501,-75.561],[6.22703,-75.5622],[6.22942,-75.5634],[6.22862,-75.56494],[6.22791,-75.56496],[6.2273,-75.56402],[6.22647,-75.56422],[6.22649,-75.56478],[6.22835,-75.56655],[6.22981,-75.56641],[6.2313,-75.5656],[6.23406,-75.56767],[6.23633,-75.56855],[6.23781,-75.57025],[6.23759,-75.57103]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Atraviesa Buenos Aires y Barrio Colombia antes de llegar a la estación Exposiciones.","Según el mapa del sistema integrado, su recorrido mide unos 6,6 km y tiene 23 paradas."]},
+{"id":"AL-C6-005","name":"Alimentador C6-005 Vergel – Parque San Antonio","kind":"feeder","color":"#5F9EA0","from":"El Vergel","to":"San Antonio","open":"sin dato","km":5.2,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["El Vergel",6.22516,-75.54217],["Cl. 45 con Cra. 13",6.23017,-75.54171],["Cl. 46 con Cra. 16E",6.23492,-75.54645],["Cl. 49 con Cra. 26",6.23946,-75.55005],["Cl. 47 con Cra. 36",6.24147,-75.55854],["San Antonio",6.24562,-75.56715]],"via":[[6.22554,-75.54277],[6.226,-75.54237],[6.22674,-75.54268],[6.22751,-75.54215],[6.22721,-75.54166],[6.22769,-75.54084],[6.22844,-75.54125],[6.22988,-75.54117],[6.23037,-75.54214],[6.2323,-75.54258],[6.23263,-75.54403],[6.23644,-75.54784],[6.23825,-75.54769],[6.24006,-75.55118],[6.24077,-75.55103],[6.24148,-75.55242],[6.23919,-75.55388],[6.2422,-75.55996],[6.24299,-75.55932],[6.2459,-75.56481],[6.2446,-75.56643],[6.24491,-75.56762]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Termina junto al Parque San Antonio, donde se cruzan la Línea A, la Línea B y el tranvía.","Según el mapa del sistema integrado, su recorrido mide unos 5,2 km y tiene 18 paradas."]},
+{"id":"AL-C6-008","name":"Alimentador C6-008 La Libertad – Estación Prado","kind":"feeder","color":"#8B4513","from":"La Libertad","to":"Prado","open":"sin dato","km":3.8,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["La Libertad",6.24028,-75.54285],["Cra. 25B con Cl. 56A",6.2455,-75.54566],["Cl. 58 con Cra. 29",6.24948,-75.54943],["Cl. 58 con Cra. 36A",6.2497,-75.5548],["Cl. 58 con Cra. 43",6.25259,-75.55968],["Cl. 58 con Cra. 49",6.25571,-75.56368],["Prado",6.2569,-75.56665]],"via":[[6.24252,-75.54478],[6.2435,-75.54458],[6.24494,-75.54578],[6.2469,-75.54602],[6.24772,-75.54767],[6.24947,-75.54809],[6.24964,-75.54902],[6.24897,-75.55225],[6.25011,-75.55681],[6.25474,-75.56218],[6.2571,-75.56589],[6.2577,-75.56594],[6.25775,-75.56649]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Recorre buena parte de la Calle 58 y cruza el puente de Villanueva rumbo a Prado.","Según el mapa del sistema integrado, su recorrido mide unos 3,8 km y tiene 16 paradas."]},
+{"id":"AL-C6-010","name":"Alimentador C6-010 Villatina – Estación Parque Berrío","kind":"feeder","color":"#708090","from":"Villatina","to":"Parque Berrío","open":"sin dato","km":5.9,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Villatina",6.24384,-75.54033],["Cra. 16 con Cl. 55",6.23777,-75.53967],["Cl. 52 entre Cra. 21 y Cra. 20B",6.23978,-75.54483],["Cl. 52 con Cra. 27",6.24277,-75.54958],["Cra. 36A con Cl. 51",6.24506,-75.55685],["Parque Berrío",6.25148,-75.56751]],"via":[[6.24343,-75.53995],[6.24208,-75.5401],[6.24163,-75.53893],[6.24105,-75.53908],[6.2407,-75.53853],[6.23791,-75.54031],[6.23734,-75.54053],[6.23696,-75.53977],[6.23657,-75.54006],[6.236,-75.53965],[6.23594,-75.53898],[6.23461,-75.53982],[6.23514,-75.54052],[6.23627,-75.54094],[6.2373,-75.54379],[6.24049,-75.54527],[6.24065,-75.54616],[6.24313,-75.55355],[6.24519,-75.55494],[6.24585,-75.55481],[6.24628,-75.5555],[6.24441,-75.55765],[6.24547,-75.55955],[6.24742,-75.55849],[6.24774,-75.55872],[6.24798,-75.5595],[6.24752,-75.56043],[6.24915,-75.56493],[6.25038,-75.56704]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Baja desde Villatina, en la ladera centro-oriental, hasta el corazón del centro.","Según el mapa del sistema integrado, su recorrido mide unos 5,9 km y tiene 17 paradas."]},
+{"id":"AL-C6-013","name":"Alimentador C6-013 Popular No 1 – Tricentenario","kind":"feeder","color":"#9ACD32","from":"Popular No. 1","to":"Tricentenario","open":"sin dato","km":4.0,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Popular No. 1",6.30138,-75.54599],["Cra. 42C con Cl. 107D",6.29631,-75.54807],["Cra. 48 con Cl. 104",6.2941,-75.55371],["Cl. 98 con Cra. 49B",6.29026,-75.55716],["Tricentenario",6.29098,-75.56273]],"via":[[6.29683,-75.54756],[6.29597,-75.5483],[6.29464,-75.54795],[6.29444,-75.54984],[6.29355,-75.55031],[6.29406,-75.55058],[6.29356,-75.55146],[6.29448,-75.55182],[6.29387,-75.55283],[6.29496,-75.55277],[6.29511,-75.55315],[6.29349,-75.55421],[6.29557,-75.55421],[6.29575,-75.5546],[6.2951,-75.5551],[6.29416,-75.55507],[6.29107,-75.55618],[6.28965,-75.55621],[6.29037,-75.55885],[6.29173,-75.56011],[6.29152,-75.5622]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Conecta el barrio Popular, en la comuna 1, con la estación Tricentenario de la Línea A.","Según el mapa del sistema integrado, su recorrido mide unos 4,0 km y tiene 18 paradas."]},
+{"id":"AL-C6-019","name":"Alimentador C6-019 El Raizal – Gardel","kind":"feeder","color":"#CD853F","from":"El Raizal","to":"Gardel","open":"sin dato","km":2.2,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["El Raizal",6.26943,-75.54355],["Cra. 40 con Cl. 78",6.27079,-75.54943],["Gardel",6.26807,-75.55535]],"via":[[6.26906,-75.54497],[6.27115,-75.54527],[6.27145,-75.5469],[6.27086,-75.5478],[6.27025,-75.54964],[6.27072,-75.55236],[6.26931,-75.55267],[6.26825,-75.55355],[6.26919,-75.5545],[6.26837,-75.55495],[6.26867,-75.55592],[6.26802,-75.55607]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Lleva desde El Raizal hasta Metroplús en Gardel, en el tanguero barrio Manrique.","Según el mapa del sistema integrado, su recorrido mide unos 2,2 km y tiene 9 paradas."]},
+{"id":"AL-C6-020","name":"Alimentador C6-020 San José La Cima – Estación Universidad","kind":"feeder","color":"#4682B4","from":"San José La Cima","to":"Universidad","open":"sin dato","km":4.4,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["San José La Cima",6.28486,-75.54284],["Cl. 89 con Cra. 36A",6.28132,-75.54643],["Cra. 41 con Cl. 85",6.27692,-75.54916],["Cl. 80 con Cra. 45",6.27277,-75.55394],["Cl. 80 con Cra. 50",6.27375,-75.55946],["Universidad",6.27036,-75.56618]],"via":[[6.28426,-75.54288],[6.28451,-75.54315],[6.28421,-75.54347],[6.28222,-75.544],[6.28266,-75.54445],[6.28229,-75.5452],[6.28105,-75.54577],[6.28159,-75.5474],[6.28092,-75.54944],[6.2784,-75.54851],[6.27796,-75.54901],[6.27211,-75.55006],[6.27465,-75.56448],[6.27237,-75.56499],[6.27225,-75.56563]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Termina en la estación Universidad, cerca del Jardín Botánico y del Parque Explora.","Según el mapa del sistema integrado, su recorrido mide unos 4,4 km y tiene 17 paradas."]},
+{"id":"AL-C6-022","name":"Alimentador C6-022 La Cruz – Estación Prado","kind":"feeder","color":"#BC8F8F","from":"La Cruz","to":"Prado","open":"sin dato","km":6.4,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["La Cruz",6.27261,-75.53817],["Cra. 30 con Cl. 76",6.26904,-75.54306],["Cra. 35 con Cl. 75A",6.26939,-75.5483],["Cra. 43 con Cl. 67",6.26274,-75.55391],["Cl. 67 con Cra. 50",6.26367,-75.56085],["Prado",6.2569,-75.56665]],"via":[[6.2716,-75.53806],[6.27035,-75.53638],[6.2694,-75.53618],[6.26953,-75.53759],[6.26889,-75.5379],[6.26877,-75.53926],[6.27013,-75.54103],[6.26959,-75.54112],[6.26954,-75.54152],[6.27034,-75.54165],[6.27135,-75.54255],[6.26828,-75.54247],[6.26929,-75.54342],[6.26906,-75.54481],[6.26832,-75.54481],[6.26884,-75.54549],[6.26808,-75.54638],[6.26677,-75.54838],[6.2669,-75.55046],[6.26603,-75.55118],[6.26462,-75.55146],[6.26415,-75.55243],[6.26275,-75.55349],[6.26258,-75.55444],[6.26105,-75.55573],[6.26132,-75.55614],[6.26257,-75.55573],[6.2644,-75.56336],[6.25961,-75.56506],[6.25786,-75.56587],[6.25773,-75.5665]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","La Cruz, su punto de partida, es candidata a un futuro Metrocable, en estudios de factibilidad.","Según el mapa del sistema integrado, su recorrido mide unos 6,4 km y tiene 19 paradas."]},
+{"id":"AL-C6-025","name":"Alimentador C6-025 La Espadera – 8 de marzo – Estación Oriente","kind":"feeder","color":"#2F4F4F","from":"La Espadera","to":"Oriente","open":"sin dato","km":3.1,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["La Espadera",6.22737,-75.52245],["Ocho de Marzo",6.22795,-75.52866],["Cl. 46 con Cra. 2",6.22929,-75.53412],["Oriente",6.23296,-75.54033]],"via":[[6.22649,-75.52334],[6.22771,-75.52424],[6.22843,-75.527],[6.2274,-75.52792],[6.2273,-75.5294],[6.22805,-75.53026],[6.22731,-75.53106],[6.22708,-75.53217],[6.22804,-75.53233],[6.22841,-75.5337],[6.22865,-75.53292],[6.22897,-75.53297],[6.23009,-75.53683],[6.23044,-75.53685],[6.23054,-75.53619],[6.23089,-75.53632],[6.23121,-75.53942],[6.23179,-75.54029]],"facts":["Ruta integrada de la cuenca 6, que agrupa rutas del nororiente y centro-oriente de Medellín.","Lleva pasajeros al tranvía de Ayacucho y al Metrocable H en la estación Oriente.","Según el mapa del sistema integrado, su recorrido mide unos 3,1 km y tiene 9 paradas."]},
+{"id":"AL-C3-001","name":"Alimentador C3-001 Santa Gema – Aguacatala","kind":"feeder","color":"#DAA520","from":"Santa Gema","to":"Aguacatala","open":"sin dato","km":7.0,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Santa Gema",6.23795,-75.60302],["Av. 80 con Cl. 25",6.22733,-75.60194],["Diagonal 79 con Cl. 9",6.22124,-75.59943],["Clínica Las Américas",6.21371,-75.59652],["Cl. 2 Sur con Cra. 65",6.20809,-75.59138],["Cl. 6 Sur con Cra. 51",6.20325,-75.58541],["Aguacatala",6.19417,-75.58129]],"via":[[6.23875,-75.60272],[6.23903,-75.60302],[6.23874,-75.60331],[6.23724,-75.60311],[6.23549,-75.60229],[6.23105,-75.60239],[6.22479,-75.59952],[6.21892,-75.59918],[6.20859,-75.59352],[6.20785,-75.5898],[6.20511,-75.58861],[6.20262,-75.58437],[6.19669,-75.58533],[6.19611,-75.58482],[6.19465,-75.58005],[6.19408,-75.57978],[6.19255,-75.58016],[6.19318,-75.58162]],"facts":["Ruta integrada de la cuenca 3, que agrupa rutas de Belén y el suroccidente de Medellín.","Recorre la Avenida 80 hacia el sur, el mismo corredor del futuro Metro de la 80.","Según el mapa del sistema integrado, su recorrido mide unos 7,0 km y tiene 21 paradas."]},
+{"id":"AL-C3-005","name":"Alimentador C3-005 Belén Aguas Frías – Universidad de Medellín","kind":"feeder","color":"#8FBC8F","from":"Aguas Frías","to":"U. de M.","open":"sin dato","km":5.1,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["Aguas Frías",6.23328,-75.64015],["La Soberana",6.23209,-75.63256],["Cl. 31AA con Cra. 106",6.23428,-75.62469],["Cl. 31B con Cra. 100",6.2358,-75.61882],["Altos del Castillo",6.23505,-75.61134],["U. de M.",6.23165,-75.60933]],"via":[[6.23054,-75.64081],[6.23167,-75.63934],[6.23206,-75.63734],[6.23177,-75.6341],[6.23163,-75.63101],[6.23309,-75.62909],[6.23368,-75.62611],[6.23559,-75.62344],[6.23594,-75.62175],[6.23502,-75.61734],[6.23404,-75.61334],[6.23442,-75.61323],[6.23517,-75.61065],[6.23432,-75.6088],[6.23539,-75.60842],[6.23523,-75.60744],[6.23182,-75.60759]],"facts":["Ruta integrada de la cuenca 3, que agrupa rutas de Belén y el suroccidente de Medellín.","Baja desde la parte alta de Belén hasta Metroplús en la Universidad de Medellín.","Según el mapa del sistema integrado, su recorrido mide unos 5,1 km y tiene 15 paradas."]},
+{"id":"AL-C3-008","name":"Alimentador C3-008 La Serranía – Rosales","kind":"feeder","color":"#D2691E","from":"La Serranía","to":"Rosales","open":"sin dato","km":4.0,"status":"operativa","tech":"Bus alimentador integrado al Metro y Metroplús, pago con tarjeta Cívica","stations":[["La Serranía",6.21532,-75.60419],["Cl. 1 con Cra. 75D",6.21112,-75.59957],["Cl. 9 con Cra. 72",6.21664,-75.59505],["Cra. 70 con Cl. 10",6.22159,-75.59214],["Cra. 70 con Cl. 25",6.2273,-75.59123],["Rosales",6.23106,-75.59142]],"via":[[6.21485,-75.60422],[6.21529,-75.60311],[6.21463,-75.60208],[6.21361,-75.60204],[6.21255,-75.60267],[6.21157,-75.60161],[6.21069,-75.60148],[6.21073,-75.60035],[6.2123,-75.5999],[6.21324,-75.59948],[6.21352,-75.5988],[6.21473,-75.5987],[6.21664,-75.5972],[6.21623,-75.59322],[6.22643,-75.59125]],"facts":["Ruta integrada de la cuenca 3, que agrupa rutas de Belén y el suroccidente de Medellín.","Sube por la Carrera 70, cerca del aeropuerto Olaya Herrera, hasta Metroplús en Rosales.","Según el mapa del sistema integrado, su recorrido mide unos 4,0 km y tiene 14 paradas."]},
+{"id":"F-80","name":"Línea E – Metro de la 80","kind":"future","color":"#00B5E2","from":"Caribe","to":"Aguacatala","open":"2028?","km":13.25,"status":"en obra","tech":"Tren ligero eléctrico a nivel con catenaria; 22 trenes del consorcio CRRC–Mota-Engil","stations":[["Caribe",6.2777,-75.5705],["Córdoba",6.27423,-75.57816],["Ciudadela Educativa",6.2732,-75.5874],["San Germán",6.273,-75.592],["Colombia",6.2635,-75.59665],["Floresta",6.2586,-75.59778],["Los Pinos",6.255,-75.59862],["San Juan",6.2506,-75.60225],["Villa de Aburrá",6.2354,-75.60225],["La Palma",6.232,-75.60212],["San Bernardo",6.2256,-75.59995],["Loma de los Bernal",6.219,-75.59905],["La Mota",6.2125,-75.59575],["Cristo Rey",6.2074,-75.5892],["Apolo",6.2042,-75.5864],["Guayabal",6.2015,-75.5842],["Aguacatala",6.1944,-75.583]],"via":[[6.27637,-75.57281],[6.27352,-75.57941],[6.27365,-75.58212],[6.27239,-75.59097],[6.27216,-75.59368],[6.27094,-75.59499],[6.25371,-75.59956],[6.2524,-75.60155],[6.25127,-75.60218],[6.24345,-75.60286],[6.2368,-75.6029],[6.23603,-75.60236],[6.22721,-75.60182],[6.22468,-75.59938],[6.22201,-75.59938],[6.21048,-75.59472],[6.20863,-75.59337],[6.20827,-75.59242],[6.20813,-75.59021],[6.20524,-75.58853],[6.20298,-75.58451],[6.20248,-75.58415],[6.19723,-75.58524],[6.19629,-75.58456],[6.19515,-75.5809]],"facts":["Será la Línea E: 13,25 km por la Avenida 80, con 3 estaciones y 14 paradas entre Caribe y Aguacatala.","San Germán será la primera estación subterránea de un sistema férreo en Colombia.","A mediados de 2026 la obra superaba el 52 % de avance; se espera terminarla hacia 2028.","Los nombres y la ubicación exacta de varias paradas de este mapa son aproximados."]},
+{"id":"F-TREN","name":"Tren del Río (fase 1)","kind":"future","color":"#6E4B3A","from":"Bello","to":"Barbosa","open":"por definir","km":29.8,"status":"proyecto","tech":"Tren multipropósito en vía sencilla por el corredor del antiguo Ferrocarril de Antioquia","stations":[["Bello",6.33031,-75.55356],["Copacabana",6.34976,-75.50949],["Girardota",6.37978,-75.45195],["Hatillo",6.41183,-75.38837],["Barbosa",6.43944,-75.33516]],"via":[[6.33841,-75.52356],[6.346,-75.51877],[6.35324,-75.50092],[6.36255,-75.4922],[6.37173,-75.48913],[6.37607,-75.48276],[6.38584,-75.45244],[6.38643,-75.44178],[6.39249,-75.44029],[6.40126,-75.42868],[6.40054,-75.42068],[6.40461,-75.42185],[6.40936,-75.41535],[6.4099,-75.40672],[6.41437,-75.40383],[6.41144,-75.39004],[6.41627,-75.36921],[6.42165,-75.35665],[6.43423,-75.34414],[6.43278,-75.33957],[6.4411,-75.33406]],"facts":["La primera fase tendría 29,8 km y seis estaciones entre Bello y Barbosa, junto al río.","La Asamblea de Antioquia aprobó vigencias futuras para financiar esta primera fase.","La estación Bello del Metro se adaptará para recibir también el Tren del Río.","Los nombres oficiales de las estaciones aún no se han publicado: las de este mapa son indicativas."]},
+{"id":"F-SAP","name":"Metrocable San Antonio de Prado","kind":"future","color":"#7FB3D5","from":"La Estrella","to":"San Antonio de Prado","open":"2030?","km":5.0,"status":"proyecto","tech":"Telecabina de unos 5 km, 6 estaciones y 38 pilonas; hasta 2.700 pasajeros por hora y sentido","stations":[["La Estrella",6.15306,-75.62581],["San Antonio de Prado",6.18513,-75.65639]],"facts":["Sería el séptimo Metrocable y el primero en pasar por tres municipios: La Estrella, Itagüí y Medellín.","El viaje entre el parque de San Antonio de Prado y la estación La Estrella tomaría unos 22 minutos.","En 2026 estaba en estudios de factibilidad; sus 4 estaciones intermedias aún no tienen nombre."]}
+],
+"stationFacts":{
+"Niquía": "Terminal norte de la Línea A, en Bello, el segundo municipio más poblado del Valle de Aburrá.",
+"Bello": "El municipio honra al humanista Andrés Bello; allí nació el presidente Marco Fidel Suárez.",
+"Acevedo": "Es la estación donde la Línea A se encuentra con dos Metrocables: la Línea K y la Línea P.",
+"Tricentenario": "El barrio se construyó para los Juegos Centroamericanos y del Caribe de 1978 y su nombre celebra los 300 años de Medellín.",
+"Caribe": "Junto a ella está la Terminal del Norte, y de aquí parte la Línea O de Metroplús por la Avenida 80.",
+"Universidad": "Cerca están el Jardín Botánico, el Parque Explora, el Planetario y la Ciudad Universitaria de la U. de A.",
+"Hospital": "Debe su nombre al cercano Hospital San Vicente Fundación, uno de los grandes hospitales del país.",
+"Prado": "El barrio Prado conserva casonas de los años 1920 y 1930, como el curioso Palacio Egipcio.",
+"Parque Berrío": "El parque honra a Pedro Justo Berrío, gobernador de Antioquia; a pasos está la Plaza Botero.",
+"San Antonio": "Es la única estación donde se cruzan las Líneas A y B; además, aquí empieza el tranvía de Ayacucho.",
+"Alpujarra": "Sirve al Centro Administrativo La Alpujarra, sede de la Alcaldía de Medellín y de la Gobernación.",
+"Exposiciones": "Junto a ella están el centro de convenciones Plaza Mayor y el Teatro Metropolitano.",
+"Industriales": "Desde octubre de 2014 conecta con la estación Industriales de Metroplús.",
+"Poblado": "En El Poblado se fundó en 1616 el poblado de San Lorenzo de Aburrá, semilla de Medellín.",
+"Aguacatala": "Será la terminal sur de la futura Línea E, el Metro de la 80.",
+"Ayurá": "Comparte nombre con la quebrada La Ayurá, que atraviesa Envigado hasta el río Medellín.",
+"Envigado": "Envigado es la tierra del escritor Fernando González; su casa, Otraparte, hoy es museo.",
+"Itagüí": "A Itagüí se le conoce como la 'ciudad industrial de Colombia' por sus muchas fábricas.",
+"Sabaneta": "Sabaneta, con unos 15 km², es el municipio más pequeño de Colombia en extensión.",
+"La Estrella": "Es terminal sur de la Línea A desde 2012; de aquí saldría el futuro Metrocable a San Antonio de Prado.",
+"Cisneros": "Honra a Francisco Javier Cisneros, ingeniero del Ferrocarril de Antioquia; cerca está el Parque de las Luces.",
+"Suramericana": "Está en la comuna Laureles-Estadio, a pocas cuadras de la Unidad Deportiva Atanasio Girardot.",
+"Estadio": "Está junto al estadio Atanasio Girardot, casa de Atlético Nacional y del Independiente Medellín.",
+"Floresta": "Aquí se integran la Línea B y la Línea O; también será parada del futuro Metro de la 80.",
+"San Javier": "Puerta de la Comuna 13: aquí empieza el Metrocable J y muy cerca están las escaleras eléctricas.",
+"Santo Domingo Savio": "Junto a la estación se levanta el Parque Biblioteca España, diseñado por Giancarlo Mazzanti.",
+"Arví": "Llega al Parque Arví, una enorme reserva de bosques con caminos prehispánicos.",
+"Popular": "El barrio Popular fue de los primeros del mundo en tener un cable aéreo como transporte público, en 2004.",
+"Juan XXIII": "El barrio y la estación llevan el nombre del papa Juan XXIII.",
+"La Aurora": "Es la estación más alta de la Línea J, en la comuna 7 (Robledo).",
+"Oriente": "Terminal del tranvía de Ayacucho y punto de partida del Metrocable H hacia Villa Sierra.",
+"Miraflores": "Aquí el tranvía se conecta con el Metrocable M, que sube hasta Trece de Noviembre.",
+"Alejandro Echavarría": "Su nombre recuerda al industrial Alejandro Echavarría Isaza, fundador de la textilera Coltejer.",
+"Bicentenario": "El Parque Bicentenario se creó para celebrar los 200 años de la independencia (1810-2010).",
+"Buenos Aires": "Por la calle Ayacucho, camino a Buenos Aires, ya circulaba el antiguo tranvía de Medellín.",
+"El Progreso": "Terminal del Cable Picacho, cerca del cerro El Picacho, uno de los cerros tutelares de Medellín.",
+"SENA": "Toma su nombre de una sede cercana del SENA, el Servicio Nacional de Aprendizaje.",
+"Doce de Octubre": "El barrio Doce de Octubre le da nombre a toda la comuna 6 de Medellín.",
+"Villa Sierra": "Es la estación más alta de la Línea H, en la comuna 8 (Villa Hermosa).",
+"Gardel": "Recuerda al cantante Carlos Gardel: Manrique es el barrio tanguero y allí está la Casa Gardeliana.",
+"Parque Aranjuez": "En Aranjuez está la Casa Museo Pedro Nel Gómez, dedicada al gran pintor y muralista antioqueño.",
+"Minorista": "Sirve a la Plaza Minorista José María Villa, uno de los grandes mercados de frutas de la ciudad.",
+"Ruta N - U. de A.": "Junto a ella está Ruta N, el centro de innovación y negocios de Medellín.",
+"Plaza Mayor": "Sirve al centro de convenciones y exposiciones Plaza Mayor Medellín.",
+"Nutibara": "Evoca al cacique Nutibara; en el cerro que lleva su nombre está el Pueblito Paisa.",
+"Parque Belén": "El Parque de Belén es el centro de la comuna 16, una de las más pobladas de Medellín.",
+"U. de M.": "La Universidad de Medellín, fundada en 1950, queda junto a esta estación terminal.",
+"La Palma": "Punto de encuentro de las Líneas 1, 2 y O de Metroplús, sobre la Avenida 80.",
+"Catedral": "Queda cerca de la Catedral Metropolitana, uno de los templos de ladrillo más grandes del mundo.",
+"La Playa": "La avenida La Playa se construyó sobre la quebrada Santa Elena, que corre canalizada bajo ella.",
+"Laureles": "El barrio Laureles fue trazado por Pedro Nel Gómez con calles circulares, algo único en la ciudad.",
+"Facultad de Minas": "La Facultad de Minas de la Universidad Nacional nació como Escuela de Minas en 1887.",
+"Pilarica": "Cerca está el cerro El Volador, cerro tutelar con vestigios arqueológicos indígenas.",
+"San Germán": "Será la primera estación subterránea de un sistema férreo en Colombia (Metro de la 80).",
+"Las Independencias I (base)": "Aquí empiezan las escaleras eléctricas al aire libre de la Comuna 13, inauguradas en 2011.",
+"Barbosa": "Barbosa es el municipio más al norte del Valle de Aburrá; allí terminaría la primera fase del Tren del Río.",
+"San Antonio de Prado": "Corregimiento de Medellín; el Metrocable proyectado lo uniría con La Estrella en unos 22 minutos.",
+"Trece de Noviembre": "Es la estación más alta de la Línea M, la línea de cable más corta del sistema."
+}
+,
+"trivia":[
+{"q":"¿En qué año empezó a operar comercialmente el Metro de Medellín?","a":["1995","1985","2004"],"x":"La Línea A arrancó el 30 de noviembre de 1995: fue el primer metro de Colombia."},
+{"q":"¿Cuál fue la primera línea de Metrocable de Medellín?","a":["Línea K","Línea J","Línea L"],"x":"La Línea K, de Acevedo a Santo Domingo Savio, abrió en agosto de 2004."},
+{"q":"¿Qué tecnología usa el tranvía de Ayacucho?","a":["Translohr, sobre neumáticos","Monorriel elevado","Levitación magnética"],"x":"Sus vehículos ruedan sobre caucho y se guían con un riel central."},
+{"q":"¿Cómo se llama la forma de convivencia y respeto que promueve el Metro?","a":["Cultura Metro","Modo Metro","Ruta Cívica"],"x":"La Cultura Metro invita a cuidar el sistema y a respetar a los demás."},
+{"q":"¿Con qué tarjeta se paga el viaje en el sistema Metro?","a":["Cívica","TuLlave","Metrocard"],"x":"La tarjeta Cívica sirve en Metro, tranvía, cables, Metroplús y rutas integradas."},
+{"q":"¿En qué estación se cruzan las Líneas A y B?","a":["San Antonio","Parque Berrío","Cisneros"],"x":"San Antonio es la única estación de transferencia entre A y B."},
+{"q":"¿Qué línea de cable lleva al Parque Arví?","a":["Línea L","Línea K","Línea H"],"x":"La Línea L sale de Santo Domingo Savio y sube unos 15 minutos hasta Arví."},
+{"q":"¿Cuántas estaciones tiene la Línea A?","a":["21","17","27"],"x":"Va de Niquía, en Bello, a La Estrella, con 21 estaciones."},
+{"q":"¿Cuántos municipios forman el Valle de Aburrá?","a":["10","7","15"],"x":"Barbosa, Girardota, Copacabana, Bello, Medellín, Itagüí, Envigado, Sabaneta, La Estrella y Caldas."},
+{"q":"¿Qué artista donó las esculturas de la plaza vecina a Parque Berrío?","a":["Fernando Botero","Pedro Nel Gómez","Débora Arango"],"x":"La Plaza Botero exhibe 23 esculturas donadas por el maestro Botero."},
+{"q":"¿Cuál es el municipio más pequeño de Colombia en extensión, con estación de Metro?","a":["Sabaneta","La Estrella","Itagüí"],"x":"Sabaneta mide unos 15 km² y tiene estación en la Línea A desde 2012."},
+{"q":"¿Qué línea de Metroplús recorre la Avenida Oriental con buses eléctricos?","a":["Línea 2","Línea 1","Línea O"],"x":"La Línea 2 tiene carril exclusivo y ecoestaciones en la Oriental desde 2021."},
+{"q":"¿Qué letra tendrá la línea del Metro de la 80?","a":["E","C","Z"],"x":"El Metro de la 80 será la Línea E, entre Caribe y Aguacatala."},
+{"q":"¿Cuál será la primera estación subterránea de un sistema férreo en Colombia?","a":["San Germán","Floresta","Caribe"],"x":"San Germán, del Metro de la 80, empezó obras en 2026."},
+{"q":"¿Qué apodo tiene Medellín por su clima?","a":["Ciudad de la eterna primavera","La Arenosa","La Ciudad Blanca"],"x":"La Arenosa es Barranquilla y la Ciudad Blanca es Popayán."},
+{"q":"¿Qué fiesta de Medellín tiene el famoso desfile de silleteros?","a":["Feria de las Flores","Carnaval de Barranquilla","Feria de Cali"],"x":"Los silleteros de Santa Elena cargan sus silletas de flores cada agosto."},
+{"q":"¿En qué barrio están las escaleras eléctricas de la Comuna 13?","a":["Las Independencias I","Prado","Laureles"],"x":"Se inauguraron en diciembre de 2011 en la ladera de la Comuna 13."},
+{"q":"¿Qué Metrocable tiene cabinas de hasta 12 pasajeros?","a":["Línea P (Cable Picacho)","Línea K","Línea J"],"x":"El Cable Picacho, de 2021, usa cabinas más grandes que las primeras líneas."},
+{"q":"¿Cuál es la línea de Metrocable más corta?","a":["Línea M","Línea L","Línea J"],"x":"La Línea M mide unos 1,05 km, de Miraflores a Trece de Noviembre."},
+{"q":"¿Qué biblioteca de formas de roca negra está junto a Santo Domingo Savio?","a":["Parque Biblioteca España","Biblioteca Pública Piloto","Biblioteca EPM"],"x":"Es obra del arquitecto Giancarlo Mazzanti."},
+{"q":"¿Quién fue Francisco Javier Cisneros, que da nombre a una estación?","a":["Ingeniero del Ferrocarril de Antioquia","Alcalde de Medellín","Pintor muralista"],"x":"Este ingeniero cubano impulsó el ferrocarril en el siglo XIX."},
+{"q":"¿Qué cantante da nombre a una estación de Metroplús en Manrique?","a":["Carlos Gardel","Juanes","Celia Cruz"],"x":"Manrique es el barrio tanguero de Medellín."},
+{"q":"¿En qué cerro está el Pueblito Paisa?","a":["Nutibara","El Volador","Pan de Azúcar"],"x":"El cerro Nutibara está cerca de la estación Industriales y de Metroplús Nutibara."},
+{"q":"¿En qué año abrió la Línea M de Metrocable?","a":["2019","2004","2010"],"x":"Abrió en febrero de 2019 y conecta con el tranvía en Miraflores."},
+{"q":"¿Qué ancho de vía usan los trenes del Metro de Medellín?","a":["1.435 mm (estándar)","1.000 mm (métrico)","914 mm"],"x":"Es el ancho de vía internacional estándar."},
+{"q":"¿Cuál es la velocidad máxima de los trenes del metro?","a":["80 km/h","120 km/h","40 km/h"],"x":"Los trenes de las Líneas A y B alcanzan hasta 80 km/h."},
+{"q":"¿Cuántos coches tiene cada tren de la Línea A?","a":["3","6","10"],"x":"Cada tren de las Líneas A y B está formado por tres coches."},
+{"q":"¿Entre qué años funcionó el antiguo tranvía eléctrico de Medellín?","a":["1921 y 1951","1880 y 1890","1960 y 1980"],"x":"El tranvía eléctrico llegó en 1921 y su última ruta cerró en 1951."},
+{"q":"¿Qué proyecto ferroviario uniría Bello con Barbosa?","a":["Tren del Río","Metro de la 80","Tren de la Sabana"],"x":"Su primera fase tendría 29,8 km y seis estaciones; el Tren de la Sabana es de Bogotá."},
+{"q":"¿Cuánto medirá aproximadamente el Metro de la 80?","a":["13 km","3 km","40 km"],"x":"Tendrá 13,25 km por la Avenida 80."},
+{"q":"¿Qué museo de ciencia queda cerca de la estación Universidad?","a":["Parque Explora","Maloka","Parque del Café"],"x":"Maloka está en Bogotá y el Parque del Café en el Quindío."},
+{"q":"¿Qué poblado se fundó en 1616 en El Poblado, origen de Medellín?","a":["San Lorenzo de Aburrá","Santa Fe de Antioquia","Rionegro"],"x":"Lo fundó Francisco de Herrera Campuzano en la zona del actual parque de El Poblado."},
+{"q":"¿Qué servicio del Metro presta libros a sus usuarios?","a":["Bibliometro","Metrolibro","Lee en Ruta"],"x":"Bibliometro presta libros en puntos ubicados en estaciones del Metro."},
+{"q":"¿Qué Metrocable une el tranvía con Villa Sierra?","a":["Línea H","Línea M","Línea P"],"x":"La Línea H sale de Oriente, la terminal del tranvía de Ayacucho."},
+{"q":"¿Qué corregimiento uniría con La Estrella el séptimo Metrocable proyectado?","a":["San Antonio de Prado","Santa Elena","San Cristóbal"],"x":"Tendría unos 5 km y 6 estaciones; en 2026 estaba en estudios de factibilidad."},
+{"q":"¿Dónde se debe esperar el tren en el andén, según la Cultura Metro?","a":["Detrás de la línea amarilla","Sobre la línea amarilla","Sentado en el borde"],"x":"Esperar detrás de la línea amarilla es una de las normas básicas de seguridad."},
+{"q":"¿Qué municipio es la terminal norte de la Línea A?","a":["Bello","Copacabana","Girardota"],"x":"La estación Niquía está en Bello."},
+{"q":"¿Qué integra la Línea O de Metroplús en la estación Floresta?","a":["La Línea B del Metro","La Línea A del Metro","El tranvía"],"x":"La Línea O conecta con la A en Caribe, la B en Floresta y Metroplús en La Palma."}
+]};
+~~~~
+
+### `src/data/lugares.js`
+~~~~js
+/* Lugares reales del Valle de Aburrá con postal y dato (de Juega EnCicla): [id, nombre, municipio, lat, lon, ancho, alto (casillas de 20 m), dibujo, dato, secreto] */
+const LUGARES = [
+  ['bello', 'Parque de Bello', 'Bello', 6.3376, -75.5583, 10, 9, 'iglesia', 'Bello, al norte del valle, es la tierra natal del presidente Marco Fidel Suárez.'],
+  ['terminalN', 'Terminal del Norte', 'Medellín', 6.2786, -75.5710, 10, 7, 'terminal', 'Desde aquí salen buses hacia el norte y la costa. En su parqueadero duermen los camiones de Balance.'],
+  ['volador', 'Cerro El Volador', 'Medellín', 6.2668, -75.5795, 14, 14, 'volador', 'Parque natural en medio de la ciudad y sitio arqueológico de los antiguos pobladores del valle.'],
+  ['unal', 'Universidad Nacional', 'Medellín', 6.2610, -75.5770, 11, 8, 'campus', 'La sede Medellín de la Nacional queda al pie del Cerro El Volador.'],
+  ['moravia', 'Moravia', 'Medellín', 6.2770, -75.5640, 10, 7, 'moravia', 'Antiguo basurero que la comunidad convirtió en jardines, huertas y cultura.'],
+  ['botanico', 'Jardín Botánico', 'Medellín', 6.2712, -75.5640, 12, 9, 'botanico', 'Su Orquideorama es un gran techo de madera con forma de flores gigantes.'],
+  ['udea', 'Ciudad Universitaria UdeA', 'Medellín', 6.2668, -75.5690, 12, 11, 'campus', 'La Universidad de Antioquia, fundada en 1803, es una de las más antiguas del país.'],
+  ['explora', 'Parque Explora', 'Medellín', 6.2702, -75.5662, 9, 7, 'explora', 'Museo interactivo de ciencia con acuario; al lado está el Planetario.'],
+  ['estadio', 'Estadio Atanasio Girardot', 'Medellín', 6.2566, -75.5903, 14, 12, 'estadio', 'Casa del fútbol paisa, rodeado por la Unidad Deportiva Atanasio Girardot.'],
+  ['botero', 'Plaza Botero', 'Medellín', 6.2524, -75.5688, 8, 7, 'botero', '23 esculturas gigantes de Fernando Botero frente al Museo de Antioquia.'],
+  ['coltejer', 'Edificio Coltejer', 'Medellín', 6.2489, -75.5672, 4, 6, 'coltejer', 'Su punta recuerda una aguja de máquina de coser: homenaje a la industria textil.'],
+  ['teatro', 'Teatro Metropolitano', 'Medellín', 6.2425, -75.5752, 8, 6, 'teatro', 'Hogar de la Orquesta Filarmónica de Medellín, junto a Plaza Mayor.'],
+  ['laureles', 'Primer Parque de Laureles', 'Medellín', 6.2465, -75.5923, 8, 7, 'lleras', 'Laureles tiene calles circulares y muchos árboles: ¡ideal para pedalear!'],
+  ['pies', 'Parque de los Pies Descalzos', 'Medellín', 6.2447, -75.5785, 9, 7, 'pies', 'Quítate los zapatos y camina sobre arena, agua y piedras.'],
+  ['luces', 'Parque de las Luces', 'Medellín', 6.2457, -75.5716, 8, 7, 'luces', 'Cientos de postes de luz que de noche iluminan la plaza.'],
+  ['depot', 'Casa EnCicla', 'Medellín', 6.2314, -75.5995, 10, 7, 'depot', 'Junto al Parque de Malibú, en Belén: aquí se arman las tulas, se cargan los celulares y arranca el día.'],
+  ['cerro', 'Cerro Nutibara · Pueblito Paisa', 'Medellín', 6.2372, -75.5800, 14, 14, 'cerro', 'En su cima está el Pueblito Paisa, réplica de un pueblo antioqueño.'],
+  ['mamm', 'MAMM · Ciudad del Río', 'Medellín', 6.2232, -75.5735, 9, 7, 'mamm', 'El Museo de Arte Moderno ocupa una antigua siderúrgica.'],
+  ['poblado', 'Parque del Poblado', 'Medellín', 6.2102, -75.5707, 9, 8, 'iglesia', 'Aquí, según la historia, comenzó el poblamiento de Medellín en 1616.'],
+  ['aeropuerto', 'Aeropuerto Olaya Herrera', 'Medellín', 6.2198, -75.5905, 11, 34, 'aeropuerto', 'Aeropuerto en plena ciudad, con vuelos regionales desde 1932.'],
+  ['lleras', 'Parque Lleras', 'Medellín', 6.2088, -75.5671, 7, 6, 'lleras', 'Corazón de la Zona Rosa de El Poblado.'],
+  ['terminalS', 'Terminal del Sur', 'Medellín', 6.2160, -75.5862, 8, 6, 'terminal', 'Buses hacia el sur y el occidente, junto al Olaya Herrera.'],
+  ['eafit', 'Universidad EAFIT', 'Medellín', 6.2003, -75.5786, 12, 10, 'campus', 'EnCicla nació en 2011 como piloto que conectaba universidades y el metro.'],
+  ['envigado', 'Parque de Envigado', 'Envigado', 6.1712, -75.5869, 10, 9, 'iglesia', 'Envigado tiene su propio parque principal y estaciones EnCicla.'],
+  ['itagui', 'Parque de Itagüí', 'Itagüí', 6.1719, -75.6120, 10, 9, 'iglesia', 'Itagüí es una ciudad industrial y comercial del sur del valle.'],
+  ['sabaneta', 'Parque de Sabaneta', 'Sabaneta', 6.1515, -75.6164, 9, 8, 'iglesia', 'Sabaneta es el municipio más pequeño de Colombia en extensión.'],
+  ['estrella', 'Parque de La Estrella', 'La Estrella', 6.1577, -75.6434, 9, 8, 'iglesia', 'La Estrella mira al valle desde el suroccidente.'],
+  ['barbosa', 'Parque de Barbosa', 'Barbosa', 6.4387, -75.3330, 10, 9, 'iglesia', 'Barbosa es el municipio más al norte del Valle de Aburrá: allí llega EnCicla.'],
+  ['girardota', 'Parque de Girardota', 'Girardota', 6.3778, -75.4459, 10, 9, 'iglesia', 'Girardota es famosa por la catedral del Señor Caído, destino de peregrinos.'],
+  ['copacabana', 'Parque de Copacabana', 'Copacabana', 6.3487, -75.5093, 10, 9, 'iglesia', 'Copacabana, al norte del valle, es uno de los municipios más antiguos de Antioquia.'],
+  ['quitasol', 'Cerro Quitasol', 'Bello', 6.3650, -75.5790, 14, 14, 'volador', 'El cerro tutelar de Bello: su silueta se ve desde casi todo el norte del valle.'],
+  ['fabricato', 'Fabricato', 'Bello', 6.3262, -75.5560, 11, 8, 'mamm', 'Fábrica textil histórica de Bello: el valle fue la cuna de la industria textil del país.'],
+  ['hospbello', 'Hospital Marco Fidel Suárez', 'Bello', 6.3418, -75.5630, 9, 7, 'campus', 'Edificio histórico de Bello, con patios y corredores de estilo republicano.'],
+  ['otraparte', 'Casa Museo Otraparte', 'Envigado', 6.1702, -75.5812, 8, 6, 'lleras', 'Casa del escritor Fernando González, "el filósofo de Otraparte", hoy museo y café.'],
+  ['ditaires', 'Parque Ditaires', 'Itagüí', 6.1803, -75.6235, 12, 9, 'botanico', 'Gran parque de Itagüí con zonas verdes, piscinas y lago.'],
+  ['caldas', 'Parque de Caldas', 'Caldas', 6.0911, -75.6357, 10, 9, 'iglesia', 'Caldas es el municipio más al sur del Valle de Aburrá.'],
+  ['nacimiento', 'Alto de San Miguel', 'Caldas', 6.0418, -75.6302, 14, 14, 'volador', 'Aquí, en Caldas, nace el río Medellín, que recorre todo el valle hacia el norte hasta Barbosa.'],
+  ['comuna13', 'Comuna 13 · Escaleras eléctricas', 'Medellín', 6.2563, -75.6187, 11, 9, 'comuna13', 'Escaleras eléctricas al aire libre y murales de grafiti convirtieron la Comuna 13 en símbolo de transformación.'],
+  ['bibespana', 'Parque Biblioteca España', 'Medellín', 6.2944, -75.5440, 11, 9, 'bibespana', 'Tres grandes "rocas" oscuras en Santo Domingo, junto al Metrocable: una biblioteca en la montaña.'],
+  ['palacio', 'Palacio de la Cultura', 'Medellín', 6.2519, -75.5702, 7, 6, 'palacio', 'Edificio de estilo gótico con fachada ajedrezada en blanco y negro, junto a la Plaza Botero.'],
+  ['catedral', 'Catedral Metropolitana', 'Medellín', 6.2541, -75.5636, 9, 8, 'catedral', 'Frente al Parque de Bolívar: es una de las iglesias de ladrillo más grandes del mundo.'],
+  ['parquenorte', 'Parque Norte', 'Medellín', 6.2735, -75.5676, 10, 8, 'parquenorte', 'Parque de diversiones tradicional de la ciudad, con rueda de Chicago y montaña rusa.'],
+  ['unidadbelen', 'Unidad Deportiva de Belén', 'Medellín', 6.2297, -75.6035, 11, 8, 'deporte', 'Canchas, coliseo y piscinas para hacer deporte en el suroccidente de Medellín.'],
+  ['memoria', 'Museo Casa de la Memoria', 'Medellín', 6.2466, -75.5576, 8, 6, 'memoria', 'Museo dedicado a la memoria y la reconciliación, en el Parque Bicentenario.'],
+  ['trescruces', 'Cerro de las Tres Cruces', 'Medellín', 6.2368, -75.6155, 11, 11, 'cruces', '¡Postal secreta! Desde sus tres cruces se ve todo el valle. Muchos suben a pie a hacer ejercicio.', 1]
+];
+~~~~
+
+### `src/data/rutas.js`
+~~~~js
+/* Recorridos por calles reales (A* sobre el mapa OSM), generados por tools/rutas.mjs */
+const RUTAS = {"MP1":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3188,4376,3192,4372,3188,4364,3160,4364,3148,4356,3096,4352,3084,4344,2936,4328,2928,4340,2928,4352,2920,4368,2904,4388,2904,4396,2860,4452,2860,4464,2832,4492,2808,4508,2772,4548,2772,4600,2764,4620,2760,4888,2748,4904,2748,4960,2740,4968,2740,5072,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MP2":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3180,4388,3144,4392,3128,4408,3116,4408,3092,4432,3088,4448,3068,4480,3072,4504,3052,4532,3048,4568,3040,4576,3040,4588,3032,4604,3008,4628,3000,4652,2980,4672,2964,4708,2924,4752,2920,4768,2900,4804,2900,4816,2880,4848,2880,4860,2872,4876,2876,5108,2880,5116,2872,5124,2860,5124,2788,5072,2780,5076,2740,5076,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MPO":[2872,4020,2876,4024,2876,4036,2848,4060,2812,4060,2796,4068,2780,4084,2736,4096,2700,4112,2692,4108,2680,4120,2572,4120,2532,4140,2508,4140,2496,4132,2448,4132,2420,4144,2396,4144,2376,4132,2368,4132,2356,4140,2356,4148,2324,4184,2316,4224,2312,4228,2312,4244,2304,4260,2304,4280,2296,4300,2296,4316,2292,4320,2292,4348,2284,4356,2284,4368,2276,4380,2276,4404,2264,4440,2264,4460,2260,4464,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2160,4620,2160,4716,2156,4720,2152,4848,2148,4852,2148,4916,2144,4920,2144,4932,2164,4968,2164,5024],"AL-C6-001":[3420,3360,3412,3360,3388,3348,3368,3348,3364,3352,3336,3348,3332,3352,3308,3352,3296,3360,3272,3360,3264,3356,3264,3360,3248,3372,3208,3380,3196,3392,3188,3416,3180,3496,3168,3512,3148,3556],"AL-C6-002A":[3472,4288,3448,4284,3428,4300,3396,4300,3392,4296,3380,4304,3380,4316,3376,4320,3364,4316,3364,4356,3372,4372,3372,4384,3368,4388,3368,4408,3344,4432,3344,4440,3320,4464,3308,4456,3296,4468,3280,4460,3264,4472,3256,4464,3248,4476,3232,4488,3208,4468,3208,4452,3176,4424,3168,4412,3160,4416,3156,4412,3156,4392,3160,4388,3140,4368,3136,4356,3112,4352,3092,4340,3052,4340,3040,4328,3036,4316],"AL-C6-003":[3088,3936,3100,3952,3100,3968,3120,3980,3124,3992,3136,4000,3136,4008,3144,4020,3144,4036,3152,4044,3148,4096,3140,4116,3140,4144,3132,4160,3132,4188,3124,4204,3124,4240,3112,4252,3100,4256,3088,4336,3084,4340,3040,4340,3028,4344,3020,4356],"AL-C6-004":[3376,5148,3348,5128,3364,5108,3348,5096,3348,5088,3340,5080,3340,5056,3336,5052,3300,5052,3292,5032,3284,5024,3272,5024,3268,5020,3264,4996,3252,4984,3252,4976,3232,4964,3216,4960,3204,4972,3188,4972,3168,4996,3152,5000,3148,5012,3128,5036,3108,5036,3100,5044,3100,5056,3092,5064,3092,5072,3072,5088,3072,5108,3064,5116,3064,5124,3052,5132,3052,5148,3068,5168,3056,5152,3040,5156,3028,5148,3012,5152,2996,5164,2952,5116,2956,5108,2960,5048,2944,5020,2924,5000,2924,4980,2916,4960,2896,4936,2864,4932,2840,4908,2812,4896],"AL-C6-005":[3492,5192,3480,5188,3476,5180,3484,5172,3484,5164,3468,5152,3468,5144,3484,5120,3484,5100,3504,5084,3504,5076,3492,5068,3488,5044,3476,5028,3452,5028,3440,5012,3424,5004,3384,4968,3380,4960,3384,4940,3372,4928,3372,4912,3356,4896,3344,4896,3324,4876,3308,4876,3276,4856,3264,4868,3252,4868,3248,4864,3228,4868,3216,4860,3192,4864,3172,4852,3164,4852,3156,4844,3148,4844,3136,4832,3120,4832,3116,4836,3088,4808,3060,4796,3040,4780,3024,4780,3016,4772,2980,4776,2940,4740],"AL-C6-008":[3480,4860,3476,4848,3464,4840,3432,4804,3436,4784,3416,4764,3416,4752,3412,4748,3416,4744,3404,4708,3396,4696,3376,4684,3360,4664,3340,4664,3332,4656,3260,4664,3228,4652,3212,4652,3196,4644,3172,4644,3132,4604,3104,4588,3036,4524,3020,4516,3004,4516,2964,4492,2952,4492],"AL-C6-010":[3532,4780,3540,4788,3540,4820,3548,4824,3552,4836,3560,4844,3568,4844,3572,4852,3564,4860,3560,4888,3548,4904,3548,4916,3532,4912,3520,4920,3516,4908,3492,4884,3468,4872,3460,4872,3452,4864,3432,4868,3424,4852,3412,4852,3400,4844,3392,4844,3360,4812,3332,4808,3328,4804,3252,4800,3232,4788,3220,4788,3208,4776,3200,4776,3184,4760,3168,4752,3152,4764,3144,4764,3132,4752,3088,4732,3080,4724,3032,4708,3008,4684,2996,4664,2988,4664,2960,4648,2940,4628,2932,4612],"AL-C6-013":[3408,3508,3400,3520,3400,3528,3392,3536,3392,3548,3380,3560,3372,3608,3364,3616,3336,3628,3316,3620,3296,3632,3284,3628,3276,3636,3260,3636,3244,3648,3232,3680,3220,3684,3208,3684,3204,3680,3188,3700,3176,3704,3168,3720,3168,3732,3156,3744,3160,3752,3140,3748,3136,3752,3096,3756,3084,3744,3056,3744,3048,3736,3040,3736],"AL-C6-019":[3464,4216,3456,4212,3444,4220,3416,4216,3408,4224,3396,4224,3372,4204,3360,4208,3352,4200,3336,4200,3332,4196,3332,4184,3324,4192,3300,4192,3292,4188,3280,4208,3220,4200,3212,4212,3212,4228,3200,4244],"AL-C6-020":[3476,3868,3476,3876,3460,3888,3448,3884,3440,3888,3440,3908,3428,3928,3408,3948,3396,3948,3396,3960,3388,3976,3368,3996,3368,4004,3340,4028,3336,4056,3324,4060,3320,4072,3292,4096,3292,4104,3276,4112,3276,4124,3268,4128,3256,4144,3108,4116,3060,4148,3028,4144,3008,4136,2988,4140,2972,4156,2972,4168,2960,4192],"AL-C6-022":[3580,4144,3580,4148,3568,4148,3564,4152,3564,4164,3544,4176,3520,4180,3512,4204,3508,4204,3488,4180,3484,4184,3484,4216,3476,4228,3472,4224,3468,4228,3432,4228,3428,4224,3412,4228,3408,4224,3396,4224,3372,4204,3360,4208,3356,4212,3356,4240,3352,4244,3344,4240,3332,4244,3288,4292,3288,4312,3232,4364,3224,4364,3212,4352,3092,4348,3084,4340,3040,4340,3028,4344,3012,4360,2996,4392,2992,4404,2992,4436,2984,4444,2972,4476,2952,4492],"AL-C6-025":[3928,5144,3908,5160,3888,5136,3864,5124,3844,5128,3824,5120,3804,5140,3796,5132,3784,5132,3776,5140,3768,5140,3756,5128,3748,5128,3736,5140,3724,5140,3716,5148,3708,5140,3708,5132,3680,5104,3668,5104,3656,5092,3644,5088,3624,5088,3616,5084,3600,5064,3564,5064,3552,5060,3532,5040,3532,5020],"AL-C3-001":[2148,4912,2144,4936,2164,4964,2168,5136,2172,5140,2172,5152,2220,5200,2224,5304,2260,5380,2268,5388,2268,5416,2292,5444,2292,5460,2316,5488,2316,5504,2348,5536,2364,5560,2392,5564,2400,5572,2432,5572,2456,5596,2464,5628,2488,5652,2512,5656,2556,5696,2556,5752,2548,5772,2548,5784,2560,5796,2556,5816,2600,5860,2624,5876],"AL-C3-005":[1320,5008,1320,5024,1308,5064,1312,5072,1340,5048,1356,5048,1376,5040,1452,5040,1456,5044,1468,5044,1472,5040,1484,5040,1488,5036,1492,5040,1500,5036,1516,5048,1524,5048,1536,5036,1544,5036,1560,5024,1568,5024,1576,5012,1596,5016,1616,5004,1636,5004,1648,4992,1672,4988,1692,4964,1708,4964,1728,4952,1740,4952,1744,4956,1780,4956,1788,4952,1796,4960,1808,4956,1828,4972,1864,4984,1892,4984,1896,4988,1928,4988,1940,4980,1952,4980,1960,4972,1964,4980,1976,4988,1976,5008,1996,5016,1996,5044,2008,5048],"AL-C3-008":[2120,5412,2132,5420,2132,5436,2144,5440,2156,5452,2156,5468,2176,5488,2176,5500,2184,5508,2216,5508,2220,5504,2220,5492,2212,5480,2220,5468,2220,5460,2236,5452,2236,5440,2252,5424,2260,5424,2268,5416,2288,5416,2312,5384,2332,5372,2340,5372,2344,5360,2368,5344,2372,5304,2380,5292,2380,5284,2388,5276,2388,5220,2396,5196,2396,5176,2408,5156,2404,5064],"F-80":[2868,4032,2864,4028,2836,4028,2816,4048,2808,4048,2776,4088,2760,4088,2700,4112,2692,4108,2680,4120,2580,4120,2532,4140,2504,4140,2496,4132,2448,4132,2420,4144,2408,4144,2396,4136,2368,4132,2324,4184,2320,4208,2312,4216,2312,4244,2304,4264,2304,4280,2296,4300,2296,4316,2292,4320,2292,4336,2288,4340,2280,4384,2272,4400,2272,4420,2268,4424,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2172,4604,2164,4628,2160,4716,2156,4720,2156,4748,2152,4752,2152,4848,2148,4852,2148,4916,2144,4920,2144,4936,2164,4964,2164,5036,2168,5040,2172,5144,2216,5184,2216,5196,2220,5200,2220,5280,2224,5284,2228,5316,2236,5324,2236,5344,2260,5372,2260,5384,2292,5436,2292,5452,2308,5468,2308,5488,2340,5520,2340,5528,2356,5552,2376,5564,2424,5564,2452,5588,2452,5612,2456,5620,2472,5636,2500,5648,2508,5656,2516,5656,2560,5700,2564,5720,2560,5724,2540,5816,2556,5832,2564,5832,2588,5856,2592,5864,2588,5872]};
+~~~~
+
+### `tools/apk.sh`
+~~~~bash
+#!/usr/bin/env bash
+# Construye el APK Android de "El Metro" a partir de dist/ y lo copia a dist/el-metro.apk.
+#
+#   tools/apk.sh                                  # build release firmado (clave DEV)
+#   tools/apk.sh -Pelmetro.versionName=0.2.0 -Pelmetro.versionCode=2
+#
+# Instala (si faltan) las command-line tools del SDK de Android, la plataforma y las
+# build-tools en $ANDROID_HOME (por defecto /opt/android-sdk), acepta las licencias,
+# sincroniza dist/ -> assets/www, regenera los iconos y compila con Gradle.
+# Idempotente y no interactivo. Los argumentos extra se pasan a Gradle.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ANDROID_DIR="$ROOT/android"
+DIST="$ROOT/dist"
+OUT_APK="$DIST/el-metro.apk"
+CMDLINE_TOOLS_BUILD="${CMDLINE_TOOLS_BUILD:-13114758}" # cmdline-tools 19.0
+
+log() { printf '\033[1;36m[apk]\033[0m %s\n' "$*" >&2; }
+die() { printf '\033[1;31m[apk] ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+
+gprop() { # lee una propiedad de android/gradle.properties
+  sed -n "s/^$1=//p" "$ANDROID_DIR/gradle.properties" | tail -n1 | tr -d '[:space:]'
+}
+
+[ -f "$DIST/index.html" ] || die "Falta $DIST/index.html: construye primero el juego."
+command -v java >/dev/null || die "Se necesita Java 17+ (JDK) en el PATH."
+
+# --- Proxy: si HTTPS_PROXY está definido pero la JVM no lo conoce, pasárselo. ------------
+SDK_PROXY_ARGS=()
+if [ -n "${HTTPS_PROXY:-${https_proxy:-}}" ]; then
+  p="${HTTPS_PROXY:-$https_proxy}"; p="${p#*://}"; p="${p#*@}"; p="${p%%/*}"
+  PROXY_HOST="${p%:*}"; PROXY_PORT="${p##*:}"
+  [ "$PROXY_PORT" = "$p" ] && PROXY_PORT=443
+  SDK_PROXY_ARGS=(--proxy=http "--proxy_host=$PROXY_HOST" "--proxy_port=$PROXY_PORT")
+  if [[ "${JAVA_TOOL_OPTIONS:-} ${GRADLE_OPTS:-}" != *https.proxyHost* ]]; then
+    export GRADLE_OPTS="${GRADLE_OPTS:-} -Dhttps.proxyHost=$PROXY_HOST -Dhttps.proxyPort=$PROXY_PORT"
+  fi
+fi
+
+# --- Android SDK -----------------------------------------------------------------------
+export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/opt/android-sdk}}"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+COMPILE_SDK="$(gprop elmetro.compileSdk)"; COMPILE_SDK="${COMPILE_SDK:-36}"
+BUILD_TOOLS="$(gprop elmetro.buildTools)"; BUILD_TOOLS="${BUILD_TOOLS:-35.0.0}"
+
+SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+if [ ! -x "$SDKMANAGER" ]; then
+  case "$(uname -s)" in
+    Linux) os=linux ;; Darwin) os=mac ;; *) die "SO no soportado: $(uname -s)" ;;
+  esac
+  url="https://dl.google.com/android/repository/commandlinetools-${os}-${CMDLINE_TOOLS_BUILD}_latest.zip"
+  log "Instalando Android command-line tools en $ANDROID_HOME"
+  mkdir -p "$ANDROID_HOME" || die "No se puede crear $ANDROID_HOME (¿permisos?)"
+  tmp="$(mktemp -d)"
+  curl -fsSL --retry 3 -o "$tmp/cmdline-tools.zip" "$url"
+  unzip -q "$tmp/cmdline-tools.zip" -d "$tmp"
+  rm -rf "$ANDROID_HOME/cmdline-tools/latest"
+  mkdir -p "$ANDROID_HOME/cmdline-tools"
+  mv "$tmp/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+  rm -rf "$tmp"
+fi
+
+sdk() { "$SDKMANAGER" --sdk_root="$ANDROID_HOME" ${SDK_PROXY_ARGS[@]+"${SDK_PROXY_ARGS[@]}"} "$@"; }
+need=()
+[ -f "$ANDROID_HOME/platforms/android-$COMPILE_SDK/android.jar" ] || need+=("platforms;android-$COMPILE_SDK")
+[ -x "$ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner" ] || need+=("build-tools;$BUILD_TOOLS")
+[ -d "$ANDROID_HOME/platform-tools" ] || need+=("platform-tools") # AGP la exige
+if [ ${#need[@]} -gt 0 ]; then
+  log "Aceptando licencias e instalando: ${need[*]}"
+  { yes 2>/dev/null || true; } | sdk --licenses >/dev/null
+  sdk --install "${need[@]}" >/dev/null
+fi
+[ -f "$ANDROID_HOME/platforms/android-$COMPILE_SDK/android.jar" ] || die "No se instaló platforms;android-$COMPILE_SDK"
+BT="$ANDROID_HOME/build-tools/$BUILD_TOOLS"
+
+# local.properties sólo si no existe (Android Studio la crea/gestiona).
+[ -f "$ANDROID_DIR/local.properties" ] || printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$ANDROID_DIR/local.properties"
+
+# --- Gradle ----------------------------------------------------------------------------
+# $GRADLE > gradle 8.13+/8.x ya instalado (evita descargas) > wrapper (descarga 8.14.3).
+gradle_ok() { "$1" --version 2>/dev/null | grep -Eq '^Gradle 8\.(1[3-9]|[2-9][0-9])'; }
+if [ -n "${GRADLE:-}" ]; then
+  GRADLE_CMD="$GRADLE"
+elif command -v gradle >/dev/null && gradle_ok gradle; then
+  GRADLE_CMD=gradle
+elif [ -x /opt/gradle/bin/gradle ] && gradle_ok /opt/gradle/bin/gradle; then
+  GRADLE_CMD=/opt/gradle/bin/gradle
+else
+  GRADLE_CMD="$ANDROID_DIR/gradlew"
+fi
+log "Gradle: $GRADLE_CMD — sincronizando dist/ -> assets/www, iconos y assembleRelease"
+"$GRADLE_CMD" -p "$ANDROID_DIR" --console=plain -q :app:assembleRelease "$@"
+
+APK="$ANDROID_DIR/app/build/outputs/apk/release/app-release.apk"
+[ -f "$APK" ] || die "No se generó $APK"
+cp -f "$APK" "$OUT_APK"
+
+# --- Verificación ----------------------------------------------------------------------
+"$BT/apksigner" verify "$OUT_APK" || die "Firma del APK inválida"
+badging="$("$BT/aapt2" dump badging "$OUT_APK" 2>/dev/null | head -n1 || true)"
+size="$(du -h "$OUT_APK" | cut -f1)"
+log "OK: $OUT_APK ($size)"
+[ -n "$badging" ] && log "$badging"
+exit 0
+~~~~
+
+### `tools/arte.mjs`
+~~~~js
+// Genera arte/index.html: la carpeta de arte en una sola página (documentos, prompts con botón Copiar, muestras de color y galería).
+// Uso: node tools/arte.mjs
+import fs from 'node:fs';
+import path from 'node:path';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dir = path.join(root, 'arte');
+const DOCS = [
+  ['inicio', 'Inicio', 'README.md'], ['protocolo', '⚠ Protocolo IA', 'PROTOCOLO-IA.md'], ['guia', '★ Guía única para IA', '06-guia-unica-ia.md'], ['biblia', 'Biblia de estilo', '00-biblia-de-estilo.md'], ['juegos', 'Referencias', '01-referencias-videojuegos.md'],
+  ['medellin', 'Medellín visual', '02-medellin-visual.md'], ['historia', 'Historia', '03-historia-metro-y-medellin.md'], ['fiestas', 'Folclor y fiestas', '04-folklore-y-fiestas.md'],
+  ['diseno', 'Diseño del juego', '05-diseno-mundo-abierto-arcade.md'],
+  ['entregas', 'Entregas', '08-entregas-e-integracion.md']];
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const slug = s => s.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
+const fileTo = Object.fromEntries(DOCS.map(([id, , f]) => [f, id]));
+function inline(t) {
+  const codes = [];
+  let s = t.replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+  s = esc(s);
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, href) => {
+    const local = href.match(/^([\w-]+\.md)(#.*)?$/);
+    if (local && fileTo[local[1]]) return `<a href="#${fileTo[local[1]]}">${txt}</a>`;
+    if (/^index\.html/.test(href)) return `<a href="#${href.split('#')[1] || 'inicio'}">${txt}</a>`;
+    if (href.startsWith('#')) return `<a href="${href}">${txt}</a>`;
+    return `<a href="${href}" target="_blank" rel="noopener">${txt}</a>`;
+  });
+  s = s.replace(/(^|[\s(,;])(#[0-9a-fA-F]{6})\b/g, (m, p, c) => `${p}<i class="sw" style="background:${c}"></i>${c}`);
+  s = s.replace(/\u0000(\d+)\u0000/g, (m, k) => { const c = codes[+k], hex = /^#[0-9a-fA-F]{6}$/.test(c) ? `<i class="sw" style="background:${c}"></i>` : ''; return `${hex}<code>${esc(c)}</code>`; });
+  return s;
+}
+function md(src) {
+  const L = src.replace(/\r/g, '').split('\n'), out = []; let i = 0, n = 0;
+  while (i < L.length) {
+    const l = L[i];
+    if (/^```/.test(l)) { const buf = []; i++; while (i < L.length && !/^```/.test(L[i])) buf.push(L[i++]); i++; out.push(`<div class="pre"><button class="cp">Copiar</button><pre>${esc(buf.join('\n'))}</pre></div>`); continue; }
+    if (/^#{1,4} /.test(l)) { const h = l.match(/^#+/)[0].length, t = l.slice(h + 1); out.push(`<h${h} id="${slug(t)}">${inline(t)}</h${h}>`); i++; continue; }
+    if (/^---\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
+    if (/^\|/.test(l)) { const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]); const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim()); let h = '<div class="tw"><table><thead><tr>' + cells(rows[0]).map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'; for (const r of rows.slice(2)) h += '<tr>' + cells(r).map(c => `<td>${inline(c)}</td>`).join('') + '</tr>'; out.push(h + '</tbody></table></div>'); continue; }
+    if (/^>\s?/.test(l)) { const buf = []; while (i < L.length && /^>\s?/.test(L[i])) buf.push(L[i++].replace(/^>\s?/, '')); out.push(`<blockquote>${buf.map(inline).join('<br>')}</blockquote>`); continue; }
+    if (/^\s*([-*]|\d+\.)\s/.test(l)) { const ord = /^\s*\d+\./.test(l), items = []; while (i < L.length && /^\s*([-*]|\d+\.)\s/.test(L[i])) { const ind = L[i].match(/^\s*/)[0].length, txt = L[i].replace(/^\s*([-*]|\d+\.)\s/, ''); if (ind >= 2 && items.length) items[items.length - 1].sub.push(txt); else items.push({ txt, sub: [] }); i++; } out.push(`<${ord ? 'ol' : 'ul'}>${items.map(it => `<li>${inline(it.txt)}${it.sub.length ? '<ul>' + it.sub.map(x => `<li>${inline(x)}</li>`).join('') + '</ul>' : ''}</li>`).join('')}</${ord ? 'ol' : 'ul'}>`); continue; }
+    if (!l.trim()) { i++; continue; }
+    const buf = []; while (i < L.length && L[i].trim() && !/^(#{1,4} |```|\||>|\s*([-*]|\d+\.)\s|---\s*$)/.test(L[i])) buf.push(L[i++]); out.push(`<p>${inline(buf.join(' '))}</p>`); n++;
+  }
+  return out.join('\n');
+}
+// bitácora → anexo de la guía única (sincronizada) y CONTEXTO-IA.md (contexto + bitácora en un solo archivo para Gems y Proyectos)
+{
+  const gp = path.join(dir, '06-guia-unica-ia.md'), bit = fs.readFileSync(path.join(root, 'docs', 'BITACORA.md'), 'utf8').trim().replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 2)) + ' ');
+  let g = fs.readFileSync(gp, 'utf8');
+  g = g.replace(/<!-- BITACORA:INICIO -->[\s\S]*?<!-- BITACORA:FIN -->/, `<!-- BITACORA:INICIO -->\n${bit}\n<!-- BITACORA:FIN -->`);
+  const proto = fs.readFileSync(path.join(dir, 'PROTOCOLO-IA.md'), 'utf8').trim();
+  g = g.replace(/<!-- PROTOCOLO:INICIO -->[\s\S]*?<!-- PROTOCOLO:FIN -->/, `<!-- PROTOCOLO:INICIO -->\n${proto.replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 1)) + ' ')}\n<!-- PROTOCOLO:FIN -->`);
+  fs.writeFileSync(gp, g);
+  const i = g.indexOf('## BLOQUE 1'), a = g.indexOf('```', i), b = g.indexOf('```', a + 3), ctx = g.slice(g.indexOf('\n', a) + 1, b).trim();
+  const out = `# CONTEXTO PARA IA · El Metro\n\n> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT. Contiene el **protocolo**, el contexto completo del proyecto (Bloque 1 de la guía única) y la bitácora del juego. El **rol** de cada IA y sus **encargos** están en \`06-guia-unica-ia.md\` (o en el documento único \`EL-METRO-TODO.md\`).\n\n${proto.replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 1)) + ' ')}\n\n---\n\n${ctx}\n\n---\n\n# ANEXO A · BITÁCORA DEL JUEGO\n\n${bit}\n`;
+  fs.writeFileSync(path.join(dir, 'CONTEXTO-IA.md'), out);
+}
+const gal = JSON.parse(fs.readFileSync(path.join(dir, 'galeria.json'), 'utf8'));
+const CAT = { metro: 'Metro (A y B)', cable: 'Metrocable', tranvia: 'Tranvía de Ayacucho', bus: 'Metroplús, alimentadores y busetas', ciudad: 'Ciudad', fiesta: 'Fiestas', cultura: 'Cultura' };
+let galHtml = '<p class="nota">Fotos con licencia libre encontradas con Openverse (Wikimedia Commons y Flickr). Se cargan desde su sitio original; toca una para ver la fuente, el autor y la licencia.</p>';
+for (const c of Object.keys(CAT)) { const L = gal.filter(g => g.cat === c); if (!L.length) continue; galHtml += `<h2>${CAT[c]} <small>(${L.length})</small></h2><div class="grid">` + L.map(g => `<a class="ph" href="${g.fuente}" target="_blank" rel="noopener"><img loading="lazy" referrerpolicy="no-referrer" src="${g.miniatura}" alt="${esc(g.titulo || '')}"><span>${esc(g.titulo || '')}<br><small>${esc(g.autor || 'autor sin nombre')} · ${esc(g.licencia)}</small></span></a>`).join('') + '</div>'; }
+const sections = DOCS.map(([id, t, f]) => `<section id="${id}" class="doc">${id === 'guia' ? '<p class="dl"><a href="CONTEXTO-IA.md" download>⬇ CONTEXTO-IA.md</a> (contexto + bitácora) · <a href="SKILLS-IA.md" download>⬇ SKILLS-IA.md</a> (skills del proyecto) · súbelos a un Gem de Gemini o a un Proyecto de ChatGPT</p>' : ''}${md(fs.readFileSync(path.join(dir, f), 'utf8').replace(/<!--[\s\S]*?-->/g, ''))}</section>`).join('\n') + `<section id="galeria" class="doc"><h1>Galería de referencia</h1>${galHtml}</section>`;
+const nav = DOCS.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('') + '<a href="#galeria">Galería</a>';
+const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>El Metro · Carpeta de arte</title><meta name="robots" content="noindex">
+<style>
+:root{--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lK:#B8CF40;--lJ:#F6C538;--lH:#EB318E;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--papel:#f1ece0;--crema:#faf6ec;--tinta:#154a80;--negro:#141414;--mante:#fbe7b0}
+*{box-sizing:border-box}body{margin:0;background:var(--papel);color:var(--negro);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--tinta);color:#fff;border-bottom:4px solid var(--negro)}
+header h1{margin:0;padding:10px 14px 4px;font:900 22px/1.1 "Arial Narrow",Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.band{height:6px;background:linear-gradient(90deg,var(--lA) 0 11%,var(--lB) 0 22%,var(--lT) 0 33%,var(--lK) 0 44%,var(--lJ) 0 55%,var(--lH) 0 66%,var(--lL) 0 77%,var(--lM) 0 88%,var(--lP) 0)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;white-space:nowrap;scrollbar-width:none}nav a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:5px 10px;border:2px solid rgba(255,255,255,.5);border-radius:99px}nav a.on{background:var(--mante);color:var(--negro);border-color:var(--mante)}
+section,h1,h2,h3,h4{scroll-margin-top:118px}main{max-width:920px;margin:0 auto;padding:12px 14px 80px}.doc{display:none}.doc.on{display:block}
+h1,h2,h3{font-family:"Arial Narrow",Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;line-height:1.1}h1{font-size:30px;border-bottom:4px solid var(--negro);padding-bottom:6px}h2{font-size:22px;margin-top:28px;border-left:8px solid var(--lA);padding-left:8px}h3{font-size:18px;margin-top:22px}h4{margin:16px 0 4px}
+a{color:var(--tinta)}code{background:var(--crema);border:1px solid #d8d0bd;padding:0 4px;border-radius:3px;font-size:.9em}
+blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6px solid var(--lJ)}
+.tw{overflow-x:auto;margin:10px 0}table{border-collapse:collapse;min-width:100%;background:var(--crema);font-size:14px}th,td{border:2px solid var(--negro);padding:5px 7px;vertical-align:top;text-align:left}th{background:var(--negro);color:#fff}
+.pre{position:relative;margin:12px 0}pre{background:#0f2a45;color:#f1ece0;padding:12px;padding-top:34px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);white-space:pre-wrap;word-break:break-word;font-size:13px}
+.cp{position:absolute;right:8px;top:6px;border:2px solid var(--negro);background:var(--mante);font-weight:800;font-size:12px;padding:3px 10px;cursor:pointer}.cp.ok{background:var(--lT);color:#fff}
+.sw{display:inline-block;width:.9em;height:.9em;border:1px solid var(--negro);vertical-align:-1px;margin-right:3px;border-radius:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.ph{display:block;background:var(--crema);border:2px solid var(--negro);text-decoration:none;color:var(--negro);box-shadow:3px 3px 0 var(--negro)}.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}.ph span{display:block;padding:5px 7px;font-size:12px;line-height:1.3}.ph small{opacity:.7}.dl{background:var(--lT);color:#fff;padding:8px 10px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);font-size:14px}.dl a{color:#fff;font-weight:800}.nota{font-size:14px;background:var(--crema);padding:8px;border:2px dashed var(--negro)}
+</style></head><body><header><h1>El Metro · Carpeta de arte</h1><div class="band"></div><nav>${nav}</nav></header><main>${sections}</main>
+<script>
+const show=()=>{const id=decodeURIComponent((location.hash||'#inicio').slice(1)),sec=document.getElementById(id)||document.querySelector(id?'[id="'+id+'"]':'#inicio');let doc=sec&&sec.closest('.doc');if(!doc)doc=document.getElementById('inicio');document.querySelectorAll('.doc').forEach(d=>d.classList.toggle('on',d===doc));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+doc.id));setTimeout(()=>{if(sec&&sec!==doc)sec.scrollIntoView();else scrollTo(0,0);const a=document.querySelector('nav a.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'});},0);};
+addEventListener('hashchange',show);show();
+document.querySelectorAll('.cp').forEach(b=>b.onclick=async()=>{const t=b.nextElementSibling.textContent;try{await navigator.clipboard.writeText(t);}catch(e){const r=document.createRange();r.selectNodeContents(b.nextElementSibling);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');}b.textContent='¡Copiado!';b.classList.add('ok');setTimeout(()=>{b.textContent='Copiar';b.classList.remove('ok');},1500);});
+</script></body></html>`;
+fs.writeFileSync(path.join(dir, 'index.html'), html);
+console.log('arte/index.html', Math.round(html.length / 1024), 'KB ·', DOCS.length, 'documentos ·', gal.length, 'fotos');
+~~~~
+
+### `tools/assets.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Genera íconos (192, 512, maskable 512, apple-touch 180 sin transparencia, favicon 32 + svg)
+   y la imagen para compartir (compartir.png 1200×630) dibujándolos con el propio arte del juego. */
+import { createRequire } from 'node:module'; import fs from 'node:fs'; import path from 'node:path';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), dist = path.join(root, 'dist');
+const b = await chromium.launch(), p = await b.newPage();
+await p.goto('file://' + path.join(dist, 'index.html')); await p.waitForFunction(() => window.EM && EM.ready); await p.evaluate(() => document.fonts.ready);
+const out = await p.evaluate(() => {
+  const A = EM.art, mk = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); f(g, w, h); return c.toDataURL('image/png'); };
+  const icon = (S, mask) => mk(S, S, g => A.icon(g, S, mask));
+  const share = mk(1200, 630, (g, W, H) => {
+    g.fillStyle = '#f8f1dc'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#0e5a6b'; g.fillRect(0, 0, W, 64); g.fillStyle = '#141414'; g.fillRect(0, 64, W, 6);
+    g.fillStyle = '#fbf8ee'; g.font = '800 22px Cuerpo, sans-serif'; g.fillText('M E T R O   D E   M E D E L L Í N   ·   V A L L E   D E   A B U R R Á', 28, 42);
+    const art = document.createElement('canvas'); art.width = 320; art.height = 200; const ag = art.getContext('2d'); A.cover(ag, 320, 200, 7.3, false);
+    g.imageSmoothingEnabled = false; g.fillStyle = '#141414'; g.fillRect(586, 110, 588, 380); g.drawImage(art, 594, 118, 572, 357.5);
+    g.fillStyle = '#12446c'; g.font = '700 220px Titulos, Impact, sans-serif'; g.fontStretch = 'condensed'; g.fillText('EL', 30, 290); g.fillText('METRO', 30, 480);
+    g.fillStyle = '#c8201f'; g.font = 'italic 34px Georgia, serif'; g.fillText('¿Sabés a dónde vas?', 36, 545);
+    g.fillStyle = '#1b8088'; g.font = '700 54px Titulos, Impact, sans-serif'; g.fillText('LA ÚLTIMA VUELTA', 600, 560);
+    g.fillStyle = '#f9e4a4'; g.fillRect(0, H - 40, W, 40); g.fillStyle = '#141414'; g.fillRect(0, H - 43, W, 3); g.fillStyle = '#12446c'; g.font = '700 24px Cuerpo, sans-serif'; g.fillText('Trenes · Tranvía · Metroplús · Alimentadores · Metrocables  —  juega sin internet', 28, H - 12);
+  });
+  return { i192: icon(192), i512: icon(512), m512: icon(512, true), apple: icon(180, true), fav: icon(32), share };
+});
+const save = (n, d) => fs.writeFileSync(path.join(dist, n), Buffer.from(d.split(',')[1], 'base64'));
+save('icon-192.png', out.i192); save('icon-512.png', out.i512); save('icon-maskable-512.png', out.m512); save('apple-touch-icon.png', out.apple); save('favicon-32.png', out.fav); save('compartir.png', out.share);
+fs.writeFileSync(path.join(dist, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#0e5a6b"/><rect x="5" y="6" width="22" height="20" fill="#141414"/><rect x="6" y="7" width="20" height="18" fill="#c9ced4"/><rect x="8" y="9" width="16" height="7" fill="#12446c"/><rect x="6" y="18" width="20" height="2" fill="#1f63ad"/><rect x="7" y="21" width="3" height="2" fill="#fff3b0"/><rect x="22" y="21" width="3" height="2" fill="#fff3b0"/><rect x="4" y="27" width="24" height="2" fill="#c8201f"/></svg>`);
+await b.close(); console.log('íconos y compartir.png listos en dist/');
+~~~~
+
+### `tools/build.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Construye dist/: index.html (un solo archivo, sin internet), manifest, service worker y .nojekyll.
+   Uso: node tools/build.mjs [--url https://usuario.github.io/Repo/]
+   Íconos e imagen para compartir: node tools/assets.mjs (usa el Chromium instalado). */
+import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import { execFileSync } from 'node:child_process';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), src = p => path.join(root, 'src', p), dist = path.join(root, 'dist');
+const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
+const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/');
+const read = p => fs.readFileSync(p, 'utf8');
+const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
+fs.mkdirSync(dist, { recursive: true });
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
+const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
+const js = mods.join('\n');
+// verificación de sintaxis (el bot interno revisa la lógica)
+const tmp = path.join(dist, '.check.js'); fs.writeFileSync(tmp, data.join('\n') + '\n' + js);
+try { execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { console.error(String(e.stderr || e)); process.exit(1); } finally { fs.unlinkSync(tmp); }
+const head = read(src('head.html')).replace('%FONTS%', read(src('fonts.css'))).replace('%CSS%', read(src('style.css'))).replaceAll('%URL%', URL_);
+const html = head + read(src('body.html')) + data.map(d => '<script>' + d + '</script>\n').join('') + '<script>\n' + js + '\n</script>\n</body></html>\n';
+fs.writeFileSync(path.join(dist, 'index.html'), html);
+const hash = crypto.createHash('sha1').update(html).digest('hex').slice(0, 8);
+const manifest = { name: 'El Metro · La última vuelta', short_name: 'El Metro', description: 'Juego offline sobre el Metro de Medellín: trenes, tranvía, Metroplús, alimentadores y metrocables.', lang: 'es-CO', start_url: './', scope: './', id: './', display: 'standalone', orientation: 'any', background_color: '#efe7cf', theme_color: '#0e5a6b', categories: ['games', 'education'],
+  icons: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' }, { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }] };
+fs.writeFileSync(path.join(dist, 'manifest.webmanifest'), JSON.stringify(manifest, null, 1));
+const files = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png', 'favicon.svg'];
+fs.writeFileSync(path.join(dist, 'sw.js'), `/* El Metro · service worker: guarda el juego para abrir sin internet */
+const CACHE = 'el-metro-v${version}-${hash}', FILES = ${JSON.stringify(files)};
+self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('el-metro-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', e => {
+  const r = e.request; if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  e.respondWith(caches.match(r, { ignoreSearch: true }).then(hit => hit || fetch(r).then(res => { if (res.ok && res.type === 'basic') { const cp = res.clone(); caches.open(CACHE).then(c => c.put(r, cp)); } return res; }).catch(() => r.mode === 'navigate' ? caches.match('index.html') : undefined)));
+});
+`);
+fs.writeFileSync(path.join(dist, '.nojekyll'), '');
+fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.mjs'));
+console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);
+~~~~
+
+### `tools/rutas.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Traza por calles reales (A* sobre el mapa de casillas de 20 m) los recorridos de Metroplús,
+   alimentadores y proyectos viales. Escribe src/data/rutas.js → const RUTAS = { id: [x4, y4, ...] } (casillas ×4). */
+import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const load = (f, name) => new Function(fs.readFileSync(path.join(root, 'src/data', f), 'utf8') + ';return ' + name)();
+const VM = load('valle.js', 'VALLE_META'), BIN = load('valle.js', 'VALLE_BIN'), RED = load('red.js', 'RED');
+const MW = VM.W, MH = VM.H, raw = zlib.inflateRawSync(Buffer.from(BIN, 'base64')), T = raw.subarray(0, MW * MH);
+const geo = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx, y: (VM.latN - lat) * VM.ky });
+// costo por tipo de casilla (Infinity = no transitable)
+const COST = new Float32Array(17).fill(Infinity); COST[5] = 1; COST[14] = 1; COST[11] = 1; COST[4] = 1.25; COST[6] = 5; COST[10] = 5; COST[7] = 4; COST[16] = 9;
+function nearest(x, y) { x = Math.round(x); y = Math.round(y); for (let r = 0; r < 25; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= MW || Y >= MH) continue; const c = COST[T[Y * MW + X]]; if (c <= 1.25) return [X, Y]; } return [x, y]; }
+function astar(a, b) {
+  const [sx, sy] = a, [tx, ty] = b, pad = 120, x0 = Math.max(0, Math.min(sx, tx) - pad), y0 = Math.max(0, Math.min(sy, ty) - pad), x1 = Math.min(MW - 1, Math.max(sx, tx) + pad), y1 = Math.min(MH - 1, Math.max(sy, ty) + pad);
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, g = new Float32Array(w * h).fill(Infinity), par = new Int32Array(w * h).fill(-1), done = new Uint8Array(w * h);
+  const heap = [], push = (f, i) => { heap.push([f, i]); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (;;) { const l = 2 * k + 1, r = l + 1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+  const L = (x, y) => (y - y0) * w + (x - x0), si = L(sx, sy), ti = L(tx, ty); g[si] = 0; push(0, si); let n = 0;
+  while (heap.length && n++ < 900000) {
+    const [, i] = pop(); if (done[i]) continue; done[i] = 1; if (i === ti) break;
+    const x = i % w + x0, y = (i / w | 0) + y0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (!dx && !dy) continue; const X = x + dx, Y = y + dy; if (X < x0 || Y < y0 || X > x1 || Y > y1) continue;
+      const c = COST[T[Y * MW + X]]; if (c === Infinity && !(X === tx && Y === ty)) continue;
+      const j = L(X, Y), ng = g[i] + (dx && dy ? 1.414 : 1) * (c === Infinity ? 1 : c); if (ng < g[j]) { g[j] = ng; par[j] = i; push(ng + Math.hypot(tx - X, ty - Y), j); }
+    }
+  }
+  if (par[ti] < 0) return null; const out = []; for (let i = ti; i >= 0; i = par[i]) { out.push([i % w + x0, (i / w | 0) + y0]); if (i === si) break; } return out.reverse();
+}
+function simplify(pts, eps) { if (pts.length < 3) return pts; let dm = 0, k = 0; const [a, b] = [pts[0], pts[pts.length - 1]], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; for (let i = 1; i < pts.length - 1; i++) { const d = Math.abs((b[1] - a[1]) * pts[i][0] - (b[0] - a[0]) * pts[i][1] + b[0] * a[1] - b[1] * a[0]) / L; if (d > dm) { dm = d; k = i; } } return dm > eps ? simplify(pts.slice(0, k + 1), eps).slice(0, -1).concat(simplify(pts.slice(k), eps)) : [a, b]; }
+const RUTAS = {}; let ok = 0, bad = 0;
+for (const L of RED.lines) {
+  const road = L.kind === 'brt' || L.kind === 'feeder' || (L.kind === 'future' && /80|bus|brt|metroplús/i.test(L.id + ' ' + (L.name || '') + ' ' + (L.tech || '')));
+  if (!road || !L.stations || L.stations.length < 2) continue;
+  const pts = L.stations.map(([, la, lo]) => geo(la, lo)); let path = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = nearest(pts[i].x, pts[i].y), b = nearest(pts[i + 1].x, pts[i + 1].y), seg = astar(a, b);
+    if (seg) { path = path.concat(path.length ? seg.slice(1) : seg); ok++; } else { path.push([pts[i].x, pts[i].y], [pts[i + 1].x, pts[i + 1].y]); bad++; }
+  }
+  const s = simplify(path, .7); RUTAS[L.id] = s.flatMap(([x, y]) => [Math.round(x * 4), Math.round(y * 4)]);
+  console.log(L.id.padEnd(10), (L.name || '').slice(0, 36).padEnd(36), L.stations.length + ' est.', s.length + ' pts');
+}
+fs.writeFileSync(path.join(root, 'src/data/rutas.js'), '/* Recorridos por calles reales (A* sobre el mapa OSM), generados por tools/rutas.mjs */\nconst RUTAS = ' + JSON.stringify(RUTAS) + ';\n');
+console.log(`tramos: ${ok} por calles, ${bad} en línea recta`);
+~~~~
+
+### `tools/server.mjs`
+~~~~js
+#!/usr/bin/env node
+/* =====================================================================
+   EL METRO · servidor local para jugar en grupo SIN internet (casa, colegio, biblioteca).
+   Requisitos: Node.js 18+ (sin dependencias). Uso: node server.mjs [puerto]
+   1) Ponlo en la misma carpeta del juego (index.html). 2) Ejecuta: node server.mjs
+   3) En cada celular, conectado a la misma Wi‑Fi, abre la dirección que aparece (http://IP:8080).
+   Sirve los archivos del juego y retransmite los mensajes de cada sala (WebSocket en /em-ws).
+   ===================================================================== */
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import os from 'node:os';
+const PORT = +process.argv[2] || 8080, here = path.dirname(new URL(import.meta.url).pathname);
+const dir = fs.existsSync(path.join(here, 'index.html')) ? here : path.join(here, '..', 'dist');
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.apk': 'application/vnd.android.package-archive' };
+const rooms = new Map(); // sala -> {host, peers: Map(id -> socket), next}
+const server = http.createServer((req, res) => {
+  const u = new URL(req.url, 'http://x'); let p = decodeURIComponent(u.pathname);
+  if (p.endsWith('/em-server.json')) { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify({ app: 'el-metro', rooms: [...rooms.keys()] })); return; }
+  if (p === '/' || p.endsWith('/')) p += 'index.html';
+  const f = path.join(dir, path.normalize(p).replace(/^(\.\.[/\\])+/, ''));
+  if (!f.startsWith(dir) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end('No encontrado'); return; }
+  res.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(res);
+});
+/* --- WebSocket mínimo (RFC 6455, solo texto) --- */
+function frame(txt) { const b = Buffer.from(txt), n = b.length, h = n < 126 ? Buffer.from([0x81, n]) : n < 65536 ? Buffer.from([0x81, 126, n >> 8, n & 255]) : Buffer.concat([Buffer.from([0x81, 127, 0, 0, 0, 0]), Buffer.from([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255])]); return Buffer.concat([h, b]); }
+server.on('upgrade', (req, sock) => {
+  const u = new URL(req.url, 'http://x'); if (!u.pathname.endsWith('/em-ws')) { sock.destroy(); return; }
+  const key = req.headers['sec-websocket-key']; if (!key) { sock.destroy(); return; }
+  const acc = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
+  sock.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + acc + '\r\n\r\n');
+  const name = (u.searchParams.get('sala') || 'sala1').slice(0, 24), wantHost = u.searchParams.get('host') === '1';
+  let R = rooms.get(name); if (!R) { R = { peers: new Map(), next: 1 }; rooms.set(name, R); }
+  const id = wantHost && !R.peers.has(0) ? 0 : R.next++; R.peers.set(id, sock);
+  const send = (s, o) => { try { s.write(frame(JSON.stringify(o))); } catch (e) { } };
+  send(sock, { t: 'id', id }); console.log(`[${name}] entra jugador ${id} (${R.peers.size} en la sala)`);
+  let buf = Buffer.alloc(0);
+  sock.on('data', d => {
+    buf = Buffer.concat([buf, d]);
+    while (buf.length >= 2) {
+      const op = buf[0] & 15, masked = buf[1] & 128; let len = buf[1] & 127, o = 2;
+      if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); o = 4; } else if (len === 127) { if (buf.length < 10) return; len = Number(buf.readBigUInt64BE(2)); o = 10; }
+      const mk = masked ? buf.slice(o, o + 4) : null; o += masked ? 4 : 0; if (buf.length < o + len) return;
+      let pl = buf.slice(o, o + len); if (mk) { pl = Buffer.from(pl); for (let i = 0; i < pl.length; i++) pl[i] ^= mk[i & 3]; } buf = buf.slice(o + len);
+      if (op === 8) { sock.end(); return; } if (op === 9) { sock.write(Buffer.from([0x8a, 0])); continue; } if (op !== 1) continue;
+      let m; try { m = JSON.parse(pl.toString()); } catch (e) { continue; } m.from = id;
+      for (const [pid, s] of R.peers) if (pid !== id) send(s, m);   // retransmite a todos los demás
+    }
+  });
+  const bye = () => { if (R.peers.get(id) !== sock) return; R.peers.delete(id); for (const s of R.peers.values()) send(s, { t: 'bye', from: id }); console.log(`[${name}] sale jugador ${id}`); if (!R.peers.size) rooms.delete(name); };
+  sock.on('close', bye); sock.on('error', bye);
+});
+server.listen(PORT, '0.0.0.0', () => {
+  console.log('\n  EL METRO · servidor local listo (sin internet)\n  Abre en los celulares conectados a esta misma red:');
+  for (const l of Object.values(os.networkInterfaces()).flat()) if (l && l.family === 'IPv4' && !l.internal) console.log('   → http://' + l.address + ':' + PORT);
+  console.log('   (en este PC: http://localhost:' + PORT + ')\n  Ctrl+C para cerrar.\n');
+});
+~~~~
+
+### `tools/skills.mjs`
+~~~~js
+// Sincroniza las skills del proyecto (formato Agent Skills, SKILL.md):
+//  - .agents/skills/  →  .claude/skills/   (Claude Code lee esta carpeta; Codex y Antigravity leen .agents/skills)
+//  - arma arte/SKILLS-IA.md con el índice y las skills propias, para subirlo a un Gem de Gemini o a un Proyecto de ChatGPT.
+// Uso: node tools/skills.mjs
+import fs from 'node:fs';
+import path from 'node:path';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const src = path.join(root, '.agents', 'skills'), dst = path.join(root, '.claude', 'skills');
+const PROPIAS = ['el-metro-desarrollo', 'el-metro-arte', 'medellin-fiel'];
+fs.mkdirSync(dst, { recursive: true });
+let n = 0;
+for (const name of fs.readdirSync(src)) {
+  const from = path.join(src, name), to = path.join(dst, name);
+  if (fs.statSync(from).isDirectory()) { fs.rmSync(to, { recursive: true, force: true }); fs.cpSync(from, to, { recursive: true }); n++; }
+  else fs.copyFileSync(from, to);
+}
+const idx = fs.readFileSync(path.join(src, 'README.md'), 'utf8').replace(/^# /, '## ');
+let out = `# SKILLS PARA IA · El Metro\n\n> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT (junto con \`CONTEXTO-IA.md\`). Reúne el índice de skills y las **skills propias del proyecto**. Los agentes de código (Claude Code, Codex, Antigravity) las leen directo del repositorio en \`.agents/skills/\` y \`.claude/skills/\`.\n\n${idx}\n`;
+for (const p of PROPIAS) {
+  const body = fs.readFileSync(path.join(src, p, 'SKILL.md'), 'utf8').replace(/^---[\s\S]*?---\n/, m => '```yaml\n' + m.replace(/^---\n|---\n$/g, '') + '```\n').replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 1)) + ' ');
+  out += `\n---\n\n# Skill · ${p}\n\n${body}\n`;
+}
+fs.writeFileSync(path.join(root, 'arte', 'SKILLS-IA.md'), out);
+console.log(`.claude/skills ← ${n} skills · arte/SKILLS-IA.md ${Math.round(out.length / 1024)} KB`);
+~~~~
+
+### `tools/test.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Pruebas automáticas en Chromium (Playwright): carga el juego, ejecuta el bot interno
+   (selfTest + N partidas), recorre la interfaz y cada modo, y reporta errores de consola.
+   Uso: node tools/test.mjs [partidas=100] [--shots carpeta] [--url http://...] */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
+import { spawn } from 'node:child_process'; import path from 'node:path'; import fs from 'node:fs';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const N = +process.argv[2] || 100, shots = process.argv.includes('--shots') ? process.argv[process.argv.indexOf('--shots') + 1] : null;
+const ext = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : null;
+let srv = null, url = ext;
+if (!url) { srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), '8765'], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600)); url = 'http://localhost:8765/'; }
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] }), ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true });
+const page = await ctx.newPage(), cons = [];
+page.on('console', m => { if (m.type() === 'error') cons.push(m.text()); }); page.on('pageerror', e => cons.push('pageerror: ' + e.message));
+const t0 = Date.now(); await page.goto(url); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 30000 });
+console.log('carga:', Date.now() - t0, 'ms');
+const self = await page.evaluate(() => EM.test.selfTest());
+console.log('selfTest:', self.stats); console.log('  errores:', self.errors.length, self.errors.slice(0, 15)); console.log('  avisos:', self.warnings.length, self.warnings.slice(0, 8));
+const t1 = Date.now(); const mk = await page.evaluate(n => EM.test.monkey(n, 1234), N);
+console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victorias, ${mk.errors.length} errores (${Date.now() - t1} ms)`, mk.errors.slice(0, 15));
+// recorrido de interfaz
+if (shots) fs.mkdirSync(shots, { recursive: true });
+const shot = async n => { if (!shots) return; await page.evaluate(() => EM.game.freeze(true)); await page.waitForTimeout(150); try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 20000 }); } catch (e) { try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 60000 }); } catch (e2) { console.log('captura falló:', n); } } await page.evaluate(() => EM.game.freeze(false)); };
+await shot('01-portada');
+await page.click('#bPlay'); await page.waitForTimeout(300); await shot('02-modos');
+for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
+  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) }); }, [m, lv, extra]);
+  await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) ? 3500 : 4000);
+  if (!['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
+  await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
+  await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
+}
+await page.evaluate(() => EM.game.start('despacho', 'despacho2', { seed: 3, duel: true })); await page.waitForTimeout(1500); await shot('04-duelo'); await page.evaluate(() => EM.game.stop());
+await page.evaluate(() => EM.red.open()); await page.waitForTimeout(1200); await shot('05-red');
+await page.evaluate(() => EM.story.open(0)); await page.waitForTimeout(600); await page.click('#stNext'); await page.waitForTimeout(300); await shot('06-historia');
+await page.evaluate(() => EM.multi.open()); await page.waitForTimeout(800); await shot('07-multi');
+const errs = await page.evaluate(() => EM.errors);
+console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
+console.log('errores de consola:', cons.length, cons.slice(0, 10));
+await browser.close(); if (srv) srv.kill();
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length;
+console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);
+~~~~
+
+### `tools/todo-plantilla.html`
+~~~~html
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Metro · Todo en un archivo (%%VERSION%%)</title><meta name="robots" content="noindex">
+<style>
+:root{--lA:#1C5C9C;--lB:#E38835;--lT:#59AB42;--lK:#B8CF40;--lJ:#F6C538;--lH:#EB318E;--lL:#8E612A;--lM:#743D90;--lP:#EC343A;--papel:#f1ece0;--crema:#faf6ec;--tinta:#154a80;--negro:#141414;--mante:#fbe7b0}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--papel);color:var(--negro);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--tinta);color:#fff;border-bottom:4px solid var(--negro)}
+header h1{margin:0;padding:10px 14px 4px;font:900 21px/1.1 "Arial Narrow",Impact,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+header h1 small{font:700 11px system-ui;opacity:.8;letter-spacing:0;text-transform:none}
+.band{height:6px;background:linear-gradient(90deg,var(--lA) 0 11%,var(--lB) 0 22%,var(--lT) 0 33%,var(--lK) 0 44%,var(--lJ) 0 55%,var(--lH) 0 66%,var(--lL) 0 77%,var(--lM) 0 88%,var(--lP) 0)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;white-space:nowrap;scrollbar-width:none}nav a{color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:5px 10px;border:2px solid rgba(255,255,255,.5);border-radius:99px}nav a.on{background:var(--mante);color:var(--negro);border-color:var(--mante)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;max-width:920px;margin:12px auto 0;padding:0 14px}
+.acts button{border:3px solid var(--negro);background:var(--crema);font-weight:800;font-size:13px;padding:7px 11px;box-shadow:3px 3px 0 var(--negro);cursor:pointer}
+.acts #play{background:var(--lT);color:#fff;font-size:16px}
+main{max-width:920px;margin:0 auto;padding:12px 14px 80px}.doc{display:none}.doc.on{display:block}
+section,h1,h2,h3,h4{scroll-margin-top:118px}
+h1,h2,h3{font-family:"Arial Narrow",Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em;line-height:1.1}h1{font-size:30px;border-bottom:4px solid var(--negro);padding-bottom:6px}h2{font-size:22px;margin-top:28px;border-left:8px solid var(--lA);padding-left:8px}h3{font-size:18px;margin-top:22px}h4{margin:16px 0 4px}
+a{color:var(--tinta)}code{background:var(--crema);border:1px solid #d8d0bd;padding:0 4px;border-radius:3px;font-size:.9em}
+blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6px solid var(--lJ)}
+.tw{overflow-x:auto;margin:10px 0}table{border-collapse:collapse;min-width:100%;background:var(--crema);font-size:14px}th,td{border:2px solid var(--negro);padding:5px 7px;vertical-align:top;text-align:left}th{background:var(--negro);color:#fff}
+.pre{position:relative;margin:12px 0}pre{background:#0f2a45;color:#f1ece0;padding:12px;padding-top:34px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);white-space:pre-wrap;word-break:break-word;font-size:13px}
+.cp{position:absolute;right:8px;top:6px;border:2px solid var(--negro);background:var(--mante);font-weight:800;font-size:12px;padding:3px 10px;cursor:pointer}.cp.ok{background:var(--lT);color:#fff}
+.sw{display:inline-block;width:.9em;height:.9em;border:1px solid var(--negro);vertical-align:-1px;margin-right:3px;border-radius:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.ph{display:block;background:var(--crema);border:2px solid var(--negro);text-decoration:none;color:var(--negro);box-shadow:3px 3px 0 var(--negro)}.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}.ph span{display:block;padding:5px 7px;font-size:12px;line-height:1.3}.ph small{opacity:.7}.nota{font-size:14px;background:var(--crema);padding:8px;border:2px dashed var(--negro)}
+#ov{position:fixed;inset:0;z-index:50;background:#000}#ov[hidden]{display:none}#ov iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#cl{position:absolute;left:8px;bottom:8px;z-index:51;border:2px solid #000;background:#fbe7b0;font-weight:800;font-size:12px;padding:4px 8px;opacity:.85}
+#msg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:60;background:var(--negro);color:#fff;padding:14px 18px;border:3px solid var(--mante);font-weight:700;display:none}
+</style></head><body>
+<header><h1>El Metro · Todo en un archivo <small>%%VERSION%%</small></h1><div class="band"></div><nav id="nav"></nav></header>
+<div class="acts"><button id="play">▶ Jugar El Metro</button><button data-dl="EL-METRO-TODO.md">⬇ EL-METRO-TODO.md (documento único para IA)</button><button data-dl="CONTEXTO-IA.md">⬇ CONTEXTO-IA.md</button><button data-dl="SKILLS-IA.md">⬇ SKILLS-IA.md</button><button id="dlgame">⬇ Juego (el-metro.html)</button></div>
+<main id="main"></main>
+<div id="ov" hidden><iframe id="fr" title="El Metro" allow="fullscreen; autoplay; camera"></iframe><button id="cl">✕ cerrar el juego</button></div>
+<div id="msg"></div>
+<script type="application/json" id="docs">%%DOCS%%</script>
+<script type="application/json" id="gal">%%GAL%%</script>
+<script type="text/plain" id="juego">%%JUEGO%%</script>
+<script type="text/plain" id="todo">%%TODO%%</script>
+<script>
+(function () {
+  const DOCS = JSON.parse(document.getElementById('docs').textContent), GAL = JSON.parse(document.getElementById('gal').textContent);
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const slug = s => s.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
+  const fileTo = {}; DOCS.forEach(d => { if (d.file) fileTo[d.file] = d.id; }); fileTo['galeria.md'] = 'galeria'; fileTo['CONTEXTO-IA.md'] = 'guia'; fileTo['SKILLS-IA.md'] = 'skills'; fileTo['BITACORA.md'] = 'guia'; fileTo['PLAN.md'] = 'plan';
+  function inline(t) {
+    const codes = [];
+    let s = t.replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+    s = esc(s);
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, txt, href) => {
+      const f = href.split('#')[0].split('/').pop();
+      if (/\.md$/.test(f) && fileTo[f] && !/^https?:/.test(href)) return '<a href="#' + fileTo[f] + '">' + txt + '</a>';
+      if (/^index\.html/.test(href)) return '<a href="#' + (href.split('#')[1] || 'inicio') + '">' + txt + '</a>';
+      if (href.startsWith('#')) return '<a href="' + href + '">' + txt + '</a>';
+      return '<a href="' + href + '" target="_blank" rel="noopener">' + txt + '</a>';
+    });
+    s = s.replace(/(^|[\s(,;])(#[0-9a-fA-F]{6})\b/g, (m, p, c) => p + '<i class="sw" style="background:' + c + '"></i>' + c);
+    s = s.replace(/\u0000(\d+)\u0000/g, (m, k) => { const c = codes[+k], hex = /^#[0-9a-fA-F]{6}$/.test(c) ? '<i class="sw" style="background:' + c + '"></i>' : ''; return hex + '<code>' + esc(c) + '</code>'; });
+    return s;
+  }
+  function md(src) {
+    const L = src.replace(/\r/g, '').replace(/<!--[\s\S]*?-->/g, '').split('\n'), out = []; let i = 0;
+    while (i < L.length) {
+      const l = L[i];
+      if (/^```/.test(l)) { const buf = []; i++; while (i < L.length && !/^```/.test(L[i])) buf.push(L[i++]); i++; out.push('<div class="pre"><button class="cp">Copiar</button><pre>' + esc(buf.join('\n')) + '</pre></div>'); continue; }
+      if (/^#{1,6} /.test(l)) { const h = Math.min(4, l.match(/^#+/)[0].length), t = l.replace(/^#+ /, ''); out.push('<h' + h + ' id="' + slug(t) + '">' + inline(t) + '</h' + h + '>'); i++; continue; }
+      if (/^---\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
+      if (/^\|/.test(l)) { const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]); const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim()); let h = '<div class="tw"><table><thead><tr>' + cells(rows[0]).map(c => '<th>' + inline(c) + '</th>').join('') + '</tr></thead><tbody>'; for (const r of rows.slice(2)) h += '<tr>' + cells(r).map(c => '<td>' + inline(c) + '</td>').join('') + '</tr>'; out.push(h + '</tbody></table></div>'); continue; }
+      if (/^>\s?/.test(l)) { const buf = []; while (i < L.length && /^>\s?/.test(L[i])) buf.push(L[i++].replace(/^>\s?/, '')); out.push('<blockquote>' + buf.map(inline).join('<br>') + '</blockquote>'); continue; }
+      if (/^\s*([-*]|\d+\.)\s/.test(l)) { const ord = /^\s*\d+\./.test(l), items = []; while (i < L.length && /^\s*([-*]|\d+\.)\s/.test(L[i])) { const ind = L[i].match(/^\s*/)[0].length, txt = L[i].replace(/^\s*([-*]|\d+\.)\s/, ''); if (ind >= 2 && items.length) items[items.length - 1].sub.push(txt); else items.push({ txt, sub: [] }); i++; } out.push('<' + (ord ? 'ol' : 'ul') + '>' + items.map(it => '<li>' + inline(it.txt) + (it.sub.length ? '<ul>' + it.sub.map(x => '<li>' + inline(x) + '</li>').join('') + '</ul>' : '') + '</li>').join('') + '</' + (ord ? 'ol' : 'ul') + '>'); continue; }
+      if (!l.trim()) { i++; continue; }
+      const buf = []; while (i < L.length && L[i].trim() && !/^(#{1,6} |```|\||>|\s*([-*]|\d+\.)\s|---\s*$)/.test(L[i])) buf.push(L[i++]); out.push('<p>' + inline(buf.join(' ')) + '</p>');
+    }
+    return out.join('\n');
+  }
+  // pestañas
+  const nav = document.getElementById('nav'), main = document.getElementById('main'), shown = DOCS.filter(d => d.tab);
+  nav.innerHTML = shown.map(d => '<a href="#' + d.id + '">' + esc(d.tab) + '</a>').join('') + '<a href="#galeria">Galería</a>';
+  for (const d of shown) { const s = document.createElement('section'); s.id = d.id; s.className = 'doc'; main.appendChild(s); }
+  const g = document.createElement('section'); g.id = 'galeria'; g.className = 'doc'; main.appendChild(g);
+  const CAT = { metro: 'Metro (A y B)', cable: 'Metrocable', tranvia: 'Tranvía de Ayacucho', bus: 'Metroplús, alimentadores y busetas', ciudad: 'Ciudad', fiesta: 'Fiestas', cultura: 'Cultura' };
+  function fill(sec) {
+    if (sec.dataset.ok) return; sec.dataset.ok = 1;
+    if (sec.id === 'galeria') { let h = '<h1>Galería de referencia</h1><p class="nota">Fotos con licencia libre (Wikimedia Commons y Flickr, vía Openverse). Se cargan desde su sitio original (necesitan internet); toca una para ver la fuente, el autor y la licencia.</p>'; for (const c in CAT) { const L = GAL.filter(x => x.cat === c); if (!L.length) continue; h += '<h2>' + CAT[c] + ' <small>(' + L.length + ')</small></h2><div class="grid">' + L.map(x => '<a class="ph" href="' + x.fuente + '" target="_blank" rel="noopener"><img loading="lazy" referrerpolicy="no-referrer" src="' + x.miniatura + '" alt="' + esc(x.titulo || '') + '"><span>' + esc(x.titulo || '') + '<br><small>' + esc(x.autor || 'autor sin nombre') + ' · ' + esc(x.licencia) + '</small></span></a>').join('') + '</div>'; } sec.innerHTML = h; return; }
+    const d = DOCS.find(x => x.id === sec.id); sec.innerHTML = md(d.md);
+    sec.querySelectorAll('.cp').forEach(b => b.onclick = async () => { const t = b.nextElementSibling.textContent; try { await navigator.clipboard.writeText(t); } catch (e) { const r = document.createRange(); r.selectNodeContents(b.nextElementSibling); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); } b.textContent = '¡Copiado!'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500); });
+  }
+  function show() {
+    const id = decodeURIComponent((location.hash || '#inicio').slice(1)); let doc = document.getElementById(id), target = doc;
+    if (!doc || !doc.classList.contains('doc')) { for (const s of main.querySelectorAll('.doc')) { fill(s); const t = s.querySelector('[id="' + CSS.escape(id) + '"]'); if (t) { doc = s; target = t; break; } } }
+    if (!doc || !doc.classList.contains('doc')) doc = target = document.getElementById('inicio');
+    fill(doc); main.querySelectorAll('.doc').forEach(s => s.classList.toggle('on', s === doc));
+    nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + doc.id));
+    setTimeout(() => { if (target !== doc) target.scrollIntoView(); else scrollTo(0, 0); const a = nav.querySelector('a.on'); if (a) a.scrollIntoView({ inline: 'center', block: 'nearest' }); }, 0);
+  }
+  addEventListener('hashchange', show); show();
+  const msg = t => { const m = document.getElementById('msg'); m.textContent = t; m.style.display = t ? 'block' : 'none'; };
+  // descargas de texto
+  const save = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'text/markdown;charset=utf-8' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); };
+  const byFile = f => (DOCS.find(d => d.file === f) || {}).md || '';
+  async function gunzip(id) { if (!('DecompressionStream' in window)) throw new Error('Este navegador es muy antiguo para extraer el archivo. Descárgalo de https://juanfeliperico369-stack.github.io/MetroZero/'); const b64 = document.getElementById(id).textContent.trim(), bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+  document.querySelectorAll('[data-dl]').forEach(b => b.onclick = async () => { const f = b.dataset.dl; try { save(f, f === 'EL-METRO-TODO.md' ? await gunzip('todo') : byFile(f)); } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } });
+  // el juego (HTML comprimido con gzip dentro de este archivo)
+  let gameURL = null;
+  async function game() {
+    if (gameURL) return gameURL;
+    if (!('DecompressionStream' in window)) throw new Error('Este navegador es muy antiguo para abrir el juego desde aquí. Ábrelo en la web: https://juanfeliperico369-stack.github.io/MetroZero/');
+    const html = await gunzip('juego');
+    gameURL = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' })); game.html = html; return gameURL;
+  }
+  document.getElementById('play').onclick = async () => { try { msg('Abriendo el juego…'); const u = await game(); const ov = document.getElementById('ov'); document.getElementById('fr').src = u; ov.hidden = false; msg(''); try { if (ov.requestFullscreen) await ov.requestFullscreen(); } catch (e) { } } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } };
+  document.getElementById('cl').onclick = () => { const ov = document.getElementById('ov'); ov.hidden = true; document.getElementById('fr').src = 'about:blank'; if (document.fullscreenElement) document.exitFullscreen().catch(() => { }); };
+  document.getElementById('dlgame').onclick = async () => { try { await game(); save('el-metro.html', game.html, 'text/html;charset=utf-8'); } catch (e) { msg(e.message); setTimeout(() => msg(''), 6000); } };
+})();
+</script>
+</body></html>
+~~~~
+
+### `tools/todo.mjs`
+`````js
+// COMPILA EL PROYECTO EN UN SOLO DOCUMENTO.
+//  - dist/EL-METRO-TODO.md   : documento único para IA (protocolo primero; guía, skills, plan, bitácora, arte, galería y CÓDIGO FUENTE completo)
+//  - dist/El-Metro-TODO.html : el mismo contenido en pestañas + el juego jugable adentro + descargas (EL-METRO-TODO.md, CONTEXTO-IA.md, SKILLS-IA.md, el juego)
+//  - AGENTS.md, CLAUDE.md, GEMINI.md (raíz): protocolo e índice que los agentes de código leen automáticamente
+// Uso: node tools/todo.mjs
+import fs from 'node:fs';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import { execFileSync } from 'node:child_process';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const run = f => execFileSync(process.execPath, [path.join(root, 'tools', f)], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] }).toString().trim();
+console.log(run('build.mjs').split('\n').pop()); console.log(run('skills.mjs')); console.log(run('arte.mjs'));
+const rd = p => fs.readFileSync(path.join(root, p), 'utf8');
+const ver = (rd('src/js/00-core.js').match(/version: '([^']+)'/) || [])[1] || '?', hoy = new Date().toISOString().slice(0, 10);
+const WEB = 'https://juanfeliperico369-stack.github.io/MetroZero/';
+// baja los títulos un nivel (sin tocar bloques de código) y quita comentarios HTML
+const demote = (md, n = 1) => { let fence = false; return md.replace(/<!--[\s\S]*?-->\n?/g, '').split('\n').map(l => { if (/^(```|~~~)/.test(l)) fence = !fence; return !fence && /^#{1,5} /.test(l) ? '#'.repeat(n) + l : l; }).join('\n').trim(); };
+const PROTO = rd('arte/PROTOCOLO-IA.md');
+
+const LEEME = `# El Metro · Todo en uno
+
+> Versión del juego **v${ver}** · compilado el ${hoy}.
+> **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
+
+Aquí está **todo** el proyecto:
+- el **videojuego** (▶ Jugar en el archivo HTML; su **código fuente completo** va al final del documento único);
+- la **guía única para IA** (Gemini y ChatGPT): misión, visión, contexto, roles, encargos con prompts, correcciones, entrega y **skills**;
+- el **plan** y la **bitácora**;
+- toda la **carpeta de arte**: biblia, referencias, Medellín, historia, folclor y fiestas, diseño, entregas y galería.
+
+## Cómo usarlo
+1. **Jugar:** en \`El-Metro-TODO.html\`, botón **▶ Jugar El Metro** (funciona sin internet; el progreso queda en ese navegador). También en la web: ${WEB}
+2. **Gemini (Nano Banana) y ChatGPT:**
+   1. Sube **\`EL-METRO-TODO.md\`** (el documento único) como conocimiento de tu **Gem** o como archivo de tu **Proyecto**.
+   2. En las instrucciones pega el **rol** que corresponde (Guía única → Bloque 2).
+   3. Pídele que siga el **protocolo** y te responda el cuestionario.
+   4. Después, pide los encargos **uno por uno**, empezando por **G‑00**.
+3. **Agentes de código** (Codex “astra”, Antigravity “argon”, Claude Code): abren el repositorio; leen solos \`AGENTS.md\`, \`GEMINI.md\` o \`CLAUDE.md\` y las skills de \`.agents/skills/\` y \`.claude/skills/\`. Este documento les da todo junto.
+4. **Entregas de arte:** según la Guía única, Bloque 5 (carpetas, nombres y lista de control).
+
+## Enlaces
+- Juego en la web (PWA): ${WEB}
+- App Android (APK): ${WEB}el-metro.apk
+- Archivo con todo y el juego: ${WEB}El-Metro-TODO.html
+- Carpeta de arte en línea: ${WEB}arte/
+- Repositorio: https://github.com/juanfeliperico369-stack/MetroZero (rama de trabajo \`ccr-2a67f935-oat714\`)
+`;
+
+// ---------- código fuente ----------
+const lang = f => ({ '.js': 'js', '.mjs': 'js', '.html': 'html', '.css': 'css', '.sh': 'bash', '.kts': 'kotlin', '.kt': 'kotlin', '.java': 'java', '.xml': 'xml', '.properties': 'properties', '.md': 'markdown', '.gradle': 'groovy' })[path.extname(f)] || '';
+const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).flatMap(e => { const p = path.join(d, e.name); if (e.isDirectory()) return /(^|\/)(build|\.gradle|\.kotlin|\.idea|gradle|keystore|assets)$/.test(p) ? [] : walk(p); return [p]; });
+const codeFiles = [
+  'src/head.html', 'src/body.html', 'src/style.css',
+  ...fs.readdirSync(path.join(root, 'src/js')).filter(f => f.endsWith('.js')).sort().map(f => 'src/js/' + f),
+  'src/data/red.js', 'src/data/lugares.js', 'src/data/rutas.js',
+  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html)$/.test(f)).sort().map(f => 'tools/' + f),
+  ...(fs.existsSync(path.join(root, 'android')) ? walk('android').filter(f => /\.(kt|kts|java|xml|md|properties)$/.test(f) && !/local\.properties$|gradle-wrapper/.test(f)).sort() : [])
+];
+let code = '', codeBytes = 0;
+for (const f of codeFiles) {
+  if (!fs.existsSync(path.join(root, f))) continue;
+  const txt = rd(f), fence = txt.includes('~~~~') ? '`````' : '~~~~'; codeBytes += txt.length;
+  code += `\n### \`${f}\`\n${fence}${lang(f)}\n${txt.replace(/\s+$/, '')}\n${fence}\n`;
+}
+const valleKB = Math.round(fs.statSync(path.join(root, 'src/data/valle.js')).size / 1024);
+const JUEGO_MD = `# 13 · El videojuego: cómo jugarlo y código fuente completo
+
+## Cómo jugarlo
+- En **\`El-Metro-TODO.html\`**: botón **▶ Jugar El Metro**. También se puede descargar ahí mismo como \`el-metro.html\`.
+- En la web (PWA, instalable): ${WEB}
+- En Android: ${WEB}el-metro.apk
+
+## Cómo está hecho
+Un solo \`index.html\` sin librerías, armado por \`node tools/build.mjs\`. Concatena:
+- \`src/head.html\`, \`src/body.html\` y \`src/style.css\`;
+- los datos de \`src/data/\`;
+- los módulos de \`src/js/\` en orden.
+
+Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos están en la skill **el-metro-desarrollo** (parte 3 de este documento).
+
+## Datos que no van como texto
+- **\`src/data/valle.js\`** (${valleKB} KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con \`MAP.tile\`, \`MAP.tileM\` y \`MAP.elevM\` (ver \`src/js/10-map.js\`).
+- Las fuentes tipográficas y los íconos van embebidos al compilar.
+
+## Código fuente (${codeFiles.length} archivos, ${Math.round(codeBytes / 1024)} KB)
+${code}`;
+
+// ---------- documento único ----------
+const PARTES = [
+  ['0 · Protocolo para toda IA', PROTO],
+  ['1 · Léeme: qué es y cómo usarlo', LEEME],
+  ['2 · Guía única para IA (contexto, roles, encargos, skills y bitácora)', rd('arte/06-guia-unica-ia.md')],
+  ['3 · Skills del proyecto', rd('arte/SKILLS-IA.md')],
+  ['4 · Plan de desarrollo', rd('docs/PLAN.md')],
+  ['5 · Biblia de estilo', rd('arte/00-biblia-de-estilo.md')],
+  ['6 · Referencias de videojuegos', rd('arte/01-referencias-videojuegos.md')],
+  ['7 · Medellín y su transporte: identidad visual', rd('arte/02-medellin-visual.md')],
+  ['8 · Historia del Metro y de Medellín', rd('arte/03-historia-metro-y-medellin.md')],
+  ['9 · Folclor y fiestas', rd('arte/04-folklore-y-fiestas.md')],
+  ['10 · Diseño: mundo abierto + arcade', rd('arte/05-diseno-mundo-abierto-arcade.md')],
+  ['11 · Entregas e integración', rd('arte/08-entregas-e-integracion.md')],
+  ['12 · Galería de referencia (créditos)', rd('arte/galeria.md')]
+];
+let TODO = `# EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
+
+> **Versión del juego v${ver} · compilado el ${hoy}.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+>
+> **SI ERES UNA IA:**
+> 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
+> 2. **Lee TODO**, de principio a fin (si no te cabe de una vez, léelo por partes hasta terminar).
+> 3. Reflexiona, responde el **cuestionario** y prueba en pequeño.
+> 4. **Auto‑ajústate** guardando tus “Reglas aprendidas”.
+> 5. Solo entonces haz **tu** parte, con precisión.
+
+## Índice
+${PARTES.map(([t]) => '- ' + t).join('\n')}
+- 13 · El videojuego: cómo jugarlo y código fuente completo
+`;
+for (const [t, md] of PARTES) TODO += `\n---\n\n# ${t}\n\n${demote(md, 1)}\n`;
+TODO += `\n---\n\n${JUEGO_MD}\n\n---\n\n# FIN DEL DOCUMENTO\n\n> **Si eres una IA y llegaste hasta aquí:** vuelve al **PROTOCOLO** (parte 0):\n> - **paso 2**: resume misión, estado, tu rol, tus encargos y lo que no debes hacer;\n> - **paso 3**: responde el cuestionario;\n> - **paso 4**: haz tu prueba en pequeño;\n> - **paso 5**: auto‑ajústate.\n>\n> Después trabaja **solo** en lo tuyo, con precisión.\n`;
+fs.writeFileSync(path.join(root, 'dist', 'EL-METRO-TODO.md'), TODO);
+
+// ---------- AGENTS.md / CLAUDE.md / GEMINI.md ----------
+const agentes = name => `# ${name} · El Metro
+
+> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“argon”), Claude Code, Cursor y otros. **Archivo generado** por \`node tools/todo.mjs\` a partir de \`arte/PROTOCOLO-IA.md\`. No lo edites a mano: edita el protocolo y vuelve a compilar.
+
+${demote(PROTO, 1)}
+
+## Qué leer en este repositorio (paso 1 del protocolo)
+| Archivo | Qué es |
+|---|---|
+| \`docs/BITACORA.md\` | Estado, historial y pendientes |
+| \`docs/PLAN.md\` | Fases, incluida la 1b: Medellín fiel e isométrica |
+| \`arte/06-guia-unica-ia.md\` | Contexto, roles, encargos y skills |
+| \`arte/README.md\` | Índice de la carpeta de arte |
+| \`.agents/skills/\` y \`.claude/skills/\` | Skills \`el-metro-desarrollo\`, \`el-metro-arte\`, \`medellin-fiel\`, \`frontend-design\`, \`webapp-testing\`, \`skill-creator\` |
+
+**Todo junto, con el código:** \`node tools/todo.mjs\` genera:
+- \`dist/EL-METRO-TODO.md\`: el documento único;
+- \`dist/El-Metro-TODO.html\`: el mismo contenido con el juego jugable adentro.
+
+## Comandos esenciales
+~~~~bash
+node tools/build.mjs        # compila dist/index.html (un solo HTML)
+node tools/test.mjs 100     # autotest + 100 partidas + pantallas: debe dar 0 errores
+node tools/todo.mjs         # documento único + archivo con todo + este archivo
+~~~~
+
+## Reglas del proyecto
+- Un solo HTML, sin librerías externas ni internet en el juego.
+- Celulares modestos.
+- Español y todo público.
+- El arte nuevo siempre va con respaldo procedural.
+- No romper el guardado (\`elmetro.v1\`).
+- Las pruebas deben dar 0 errores.
+- Actualiza \`docs/BITACORA.md\` al cerrar cada sesión.
+`;
+for (const n of ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md']) fs.writeFileSync(path.join(root, n), agentes(n));
+
+// ---------- archivo HTML con todo y el juego ----------
+const D = (id, tab, file, md) => ({ id, tab, file, md });
+const DOCS = [
+  D('inicio', 'Inicio', 'LEEME.md', LEEME), D('protocolo', '⚠ Protocolo IA', 'PROTOCOLO-IA.md', PROTO),
+  D('guia', '★ Guía única para IA', '06-guia-unica-ia.md', rd('arte/06-guia-unica-ia.md')), D('skills', 'Skills', 'SKILLS-IA.md', rd('arte/SKILLS-IA.md')),
+  D('plan', 'Plan', 'PLAN.md', rd('docs/PLAN.md')), D('biblia', 'Biblia de estilo', '00-biblia-de-estilo.md', rd('arte/00-biblia-de-estilo.md')),
+  D('juegos', 'Referencias', '01-referencias-videojuegos.md', rd('arte/01-referencias-videojuegos.md')), D('medellin', 'Medellín visual', '02-medellin-visual.md', rd('arte/02-medellin-visual.md')),
+  D('historia', 'Historia', '03-historia-metro-y-medellin.md', rd('arte/03-historia-metro-y-medellin.md')), D('fiestas', 'Folclor y fiestas', '04-folklore-y-fiestas.md', rd('arte/04-folklore-y-fiestas.md')),
+  D('diseno', 'Diseño del juego', '05-diseno-mundo-abierto-arcade.md', rd('arte/05-diseno-mundo-abierto-arcade.md')), D('entregas', 'Entregas', '08-entregas-e-integracion.md', rd('arte/08-entregas-e-integracion.md')),
+  D('codigo', 'Código del juego', 'CODIGO.md', JUEGO_MD.replace(/\n### `[\s\S]*$/, '\n\n> El código fuente completo (' + codeFiles.length + ' archivos) va en **EL-METRO-TODO.md** (botón ⬇ arriba), para no cargar esta página.')),
+  D('galeria-md', null, 'galeria.md', rd('arte/galeria.md')), D('contexto', null, 'CONTEXTO-IA.md', rd('arte/CONTEXTO-IA.md'))
+];
+const J = x => JSON.stringify(x).replace(/</g, '\\u003c');
+const gz = b => zlib.gzipSync(b, { level: 9 }).toString('base64');
+const juego = fs.readFileSync(path.join(root, 'dist', 'index.html'));
+let html = rd('tools/todo-plantilla.html');
+html = html.replace(/%%VERSION%%/g, () => 'v' + ver).replace('%%DOCS%%', () => J(DOCS)).replace('%%GAL%%', () => J(JSON.parse(rd('arte/galeria.json')))).replace('%%JUEGO%%', () => gz(juego)).replace('%%TODO%%', () => gz(Buffer.from(TODO)));
+fs.writeFileSync(path.join(root, 'dist', 'El-Metro-TODO.html'), html);
+console.log(`dist/EL-METRO-TODO.md ${Math.round(TODO.length / 1024)} KB (código: ${codeFiles.length} archivos, ${Math.round(codeBytes / 1024)} KB) · dist/El-Metro-TODO.html ${(html.length / 1048576).toFixed(2)} MB · AGENTS.md, CLAUDE.md, GEMINI.md`);
+`````
+
+### `tools/verify-pages.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Verifica el juego publicado: carga, service worker activo, abre sin conexión,
+   errores de instalabilidad de Chrome (CDP Page.getInstallabilityErrors), manifest, íconos y Open Graph.
+   Uso: node tools/verify-pages.mjs [url] */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
+const url = process.argv[2] || 'https://juanfeliperico369-stack.github.io/MetroZero/';
+const b = await chromium.launch(), ctx = await b.newContext({ viewport: { width: 412, height: 860 } }), p = await ctx.newPage(), errs = [], R = {};
+p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+const res = await p.goto(url, { waitUntil: 'load' }); R.http = res.status();
+await p.waitForFunction(() => window.EM && EM.ready, null, { timeout: 30000 }); R.cargo = true;
+R.sw = await p.evaluate(async () => { const r = await navigator.serviceWorker.ready; return r.active ? r.active.state : 'sin activo'; });
+await p.reload({ waitUntil: 'load' }); R.controla = await p.evaluate(() => !!navigator.serviceWorker.controller);
+R.cache = await p.evaluate(async () => (await caches.keys()).join(','));
+const cdp = await ctx.newCDPSession(p); const inst = await cdp.send('Page.getInstallabilityErrors'); R.instalabilidad = inst.installabilityErrors.map(e => e.errorId + (e.errorArguments || []).map(a => ':' + a.value).join(''));
+const man = await cdp.send('Page.getAppManifest'); R.manifestErrores = (man.errors || []).map(e => e.message);
+R.meta = await p.evaluate(() => ({ ogImage: document.querySelector('meta[property="og:image"]').content, ogUrl: document.querySelector('meta[property="og:url"]').content, apple: document.querySelector('link[rel=apple-touch-icon]').href, capable: !!document.querySelector('meta[name=apple-mobile-web-app-capable]'), title: !!document.querySelector('meta[name=apple-mobile-web-app-title]'), vfc: /viewport-fit=cover/.test(document.querySelector('meta[name=viewport]').content) }));
+for (const f of ['compartir.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'manifest.webmanifest', 'el-metro.apk']) { const r = await p.request.get(url + f); R['GET ' + f] = r.status(); }
+await ctx.setOffline(true); await p.reload({ waitUntil: 'load' }); await p.waitForFunction(() => window.EM && EM.ready, null, { timeout: 30000 }); R.sinConexion = await p.evaluate(() => !!document.querySelector('#cover.on') && EM.netw.lines.length);
+await ctx.setOffline(false);
+R.erroresConsola = errs;
+console.log(JSON.stringify(R, null, 1)); await b.close();
+~~~~
+
+### `android/README.md`
+~~~~markdown
+# El Metro — APK Android
+
+Envoltorio mínimo (Java, una sola `Activity` con `WebView`, sin Capacitor/Cordova) que
+mete el juego ya construido (`dist/`) dentro del APK y lo sirve **sin conexión** desde
+`https://appassets.androidplatform.net/assets/www/index.html` (contexto seguro:
+localStorage, IndexedDB, `fetch`, WebRTC y cámara funcionan).
+
+## Construir
+
+```bash
+tools/apk.sh                     # -> dist/el-metro.apk (release firmado)
+tools/apk.sh -Pelmetro.versionName=0.2.0 -Pelmetro.versionCode=2   # args extra van a Gradle
+```
+
+El script (idempotente, no interactivo):
+
+1. Instala, si faltan, las *command-line tools* del SDK en `$ANDROID_HOME`
+   (por defecto `/opt/android-sdk`), acepta las licencias e instala
+   `platforms;android-36`, `build-tools;35.0.0` y `platform-tools`.
+2. Ejecuta Gradle (`$GRADLE`, o un Gradle 8.13+ instalado, o `android/gradlew`), que:
+   - sincroniza `dist/` → `assets/www/` (excepto `*.apk`);
+   - regenera los iconos (adaptativo + clásicos) desde `dist/icon-maskable-512.png`
+     y `dist/icon-512.png` (si no existen, dibuja uno provisional);
+   - compila y firma `assembleRelease` (R8 activado; `-Pelmetro.minify=false` lo desactiva).
+3. Copia el resultado a `dist/el-metro.apk` y lo verifica con `apksigner`.
+
+Requisitos: JDK 17+, `curl`, `unzip`. El proxy se toma de `JAVA_TOOL_OPTIONS` o de `HTTPS_PROXY`.
+
+Instalar: `adb install -r dist/el-metro.apk`, o copiar el APK al móvil y abrirlo
+(permitir «instalar apps desconocidas»). Android 7.0+ (API 24).
+
+**CI:** `.github/workflows/apk.yml` (manual o al empujar un tag `v*`) hace lo mismo,
+sube el APK como artefacto y, en tags, lo adjunta a la release
+(`…/releases/latest/download/el-metro.apk`).
+
+## Versiones
+
+En `android/gradle.properties`:
+
+```properties
+elmetro.versionName=0.1.0   # lo que ve el usuario / AndroidBridge.version()
+elmetro.versionCode=1       # entero; SUBIRLO en cada APK que se instale encima de otro
+```
+
+En un tag `vX.Y.Z` la CI usa `X.Y.Z` como versionName (el versionCode sale del archivo).
+
+## Firma (clave de DESARROLLO)
+
+`android/keystore/elmetro-dev.jks` — alias `elmetro`, contraseña (almacén y clave)
+**`elmetro-dev`**. Es una clave **de desarrollo para instalar a mano (sideload), NO para
+Google Play**: está en el repo, así que cualquiera puede firmar un APK que se haga pasar
+por éste. Si algún día se cambia de clave, Android no deja actualizar: hay que desinstalar
+(y se pierden las partidas guardadas). Para usar otra clave sin tocar el código:
+`-Pelmetro.keystore=… -Pelmetro.storePassword=… -Pelmetro.keyAlias=… -Pelmetro.keyPassword=…`
+(o variables `ELMETRO_KEYSTORE`, `ELMETRO_STORE_PASSWORD`, `ELMETRO_KEY_ALIAS`, `ELMETRO_KEY_PASSWORD`).
+
+## Para el juego (API JS)
+
+Detectar el APK: `if (window.AndroidBridge) { … }`
+
+| Método | Qué hace |
+|---|---|
+| `AndroidBridge.saveFile(name, mime, text)` → `boolean` | Guarda texto UTF-8 en **Descargas** (MediaStore en Android 10+; en 7–9 en `Android/data/co.metrozero.elmetro/files/Download`). Muestra «Guardado en Descargas: name». Si existe, Android añade ` (1)`. El MIME real se deduce de la extensión del nombre. |
+| `AndroidBridge.saveBase64(name, mime, base64)` → `boolean` | Igual, para binarios (base64 sin el prefijo `data:…,`). |
+| `AndroidBridge.share(text)` | Hoja «Compartir» de Android (texto plano). |
+| `AndroidBridge.vibrate(ms)` | Vibra `ms` ms (máx. 5000; `0` cancela). `navigator.vibrate` no funciona en WebView. |
+| `AndroidBridge.scanQR()` | Abre el lector QR **nativo** (ZXing, offline, sin Play Services) a pantalla completa; pide CAMERA si falta. Responde llamando `window.EMqrResult(texto)` o `window.EMqrResult(null)` si se cancela/falla. `QR.startScan()` ya lo usa cuando no hay `BarcodeDetector` (WebView no lo tiene). |
+| `AndroidBridge.version()` → `string` | versionName del APK. |
+
+Los métodos son **síncronos** y se llaman desde el hilo de JS.
+
+- **Botón atrás:** la app ejecuta `(window.EM&&EM.back)?String(EM.back()):'false'`.
+  Si `EM.back()` devuelve `true`, el juego lo gestionó (cerrar menú, etc.); si no, se cierra la app.
+- **Descargas** con `<a download href="blob:…|data:…">` también funcionan (respaldo), pero
+  es mejor usar `saveFile`.
+- **`<input type="file">`** abre el selector de archivos de Android (para importar partidas).
+- **Cámara:** `getUserMedia({video:…})` pide el permiso CAMERA la primera vez. Sólo vídeo (sin micrófono).
+- **WebRTC:** `RTCPeerConnection`/data channels en la Wi-Fi local; la app mantiene un
+  *multicast lock* mientras está en primer plano (mDNS de candidatos ICE).
+- **Service worker:** no se usa en el APK (los archivos ya están dentro); no registrarlo
+  si `window.AndroidBridge` existe (o ignorar el error).
+- **Pantalla:** inmersiva (barras ocultas), sin zoom, `textZoom` 100 %, ambas orientaciones,
+  pantalla siempre encendida. El notch y el teclado se compensan con *padding* nativo,
+  así que `env(safe-area-inset-*)` vale 0. Fondo `#0c2533` mientras carga.
+- **Enlaces externos** (`http(s)` a otros dominios) se abren en el navegador.
+- **Datos guardados** (localStorage/IndexedDB) dependen del origen
+  `https://appassets.androidplatform.net`: no cambiarlo o se pierden las partidas.
+- **Depurar:** builds `debug` (o `-Pelmetro.webviewDebug=true`) permiten `chrome://inspect`.
+  Logs de consola en `adb logcat -s ElMetro`.
+
+## Estructura
+
+```
+android/
+  settings.gradle.kts, gradle.properties, gradlew (+ gradle/wrapper)
+  keystore/elmetro-dev.jks
+  app/build.gradle.kts            # config + tareas syncXxxWebAssets / generateXxxLauncherIcons
+  app/src/main/AndroidManifest.xml
+  app/src/main/java/co/metrozero/elmetro/{MainActivity,AndroidBridge,ScanActivity}.java
+```
+~~~~
+
+### `android/app/build.gradle.kts`
+~~~~kotlin
+import java.awt.AlphaComposite
+import java.awt.BasicStroke
+import java.awt.Color
+import java.awt.Graphics2D
+import java.awt.Shape
+import java.awt.Polygon
+import java.awt.RenderingHints
+import java.awt.geom.AffineTransform
+import java.awt.geom.Ellipse2D
+import java.awt.geom.RoundRectangle2D
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+import javax.inject.Inject
+
+plugins {
+    id("com.android.application")
+}
+
+fun prop(name: String, default: String): String = providers.gradleProperty(name).orNull ?: default
+
+/** Gradle property -> variable de entorno -> valor por defecto. */
+fun setting(name: String, env: String, default: String): String =
+    providers.gradleProperty(name).orNull ?: providers.environmentVariable(env).orNull ?: default
+
+// Juego web ya construido (index.html, manifest, iconos...). Por defecto ../../dist.
+val distDir: Directory = rootProject.layout.projectDirectory.dir(prop("elmetro.distDir", "../dist"))
+val webExcludes = listOf("**/*.apk", "**/*.apk.idsig", "**/.DS_Store", "**/Thumbs.db")
+
+android {
+    namespace = "co.metrozero.elmetro"
+    compileSdk = prop("elmetro.compileSdk", "36").toInt()
+    buildToolsVersion = prop("elmetro.buildTools", "35.0.0")
+
+    defaultConfig {
+        applicationId = "co.metrozero.elmetro"
+        minSdk = 24
+        targetSdk = prop("elmetro.targetSdk", "36").toInt()
+        versionCode = prop("elmetro.versionCode", "1").toInt()
+        versionName = prop("elmetro.versionName", "0.1.0")
+        buildConfigField("boolean", "WEBVIEW_DEBUG", prop("elmetro.webviewDebug", "false").toBoolean().toString())
+    }
+
+    signingConfigs {
+        create("release") {
+            // Clave de DESARROLLO incluida en el repo (ver android/README.md).
+            // Para usar otra: -Pelmetro.keystore=... o ELMETRO_KEYSTORE, etc.
+            val storePass = setting("elmetro.storePassword", "ELMETRO_STORE_PASSWORD", "elmetro-dev")
+            storeFile = rootProject.file(setting("elmetro.keystore", "ELMETRO_KEYSTORE", "keystore/elmetro-dev.jks"))
+            storePassword = storePass
+            keyAlias = setting("elmetro.keyAlias", "ELMETRO_KEY_ALIAS", "elmetro")
+            keyPassword = setting("elmetro.keyPassword", "ELMETRO_KEY_PASSWORD", storePass)
+        }
+    }
+
+    buildTypes {
+        release {
+            // R8 reduce el APK de ~2 MB a ~0.3 MB. Desactívalo con -Pelmetro.minify=false si sospechas de él.
+            isMinifyEnabled = prop("elmetro.minify", "true").toBoolean()
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+    implementation("androidx.activity:activity:1.13.0")
+    implementation("androidx.webkit:webkit:1.18.0")
+    // Lector QR nativo offline (ZXing + cámara clásica; sin Play Services). Sólo depende de zxing:core.
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+}
+
+// Copia dist/ -> assets/www/ y genera los iconos del lanzador en cada build.
+androidComponents {
+    onVariants { variant ->
+        val cap = variant.name.replaceFirstChar { it.uppercase() }
+
+        val sync = tasks.register<SyncWebAssets>("sync${cap}WebAssets") {
+            distDirectory.set(distDir)
+            excludePatterns.set(webExcludes)
+            webFiles.from(fileTree(distDir) { exclude(webExcludes) })
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(sync, SyncWebAssets::outputDir)
+
+        val icons = tasks.register<GenerateLauncherIcons>("generate${cap}LauncherIcons") {
+            anyIcon.from(distDir.file("icon-512.png"))
+            maskableIcon.from(distDir.file("icon-maskable-512.png"))
+            fallbackColor.set("#0c2533")
+        }
+        variant.sources.res?.addGeneratedSourceDirectory(icons, GenerateLauncherIcons::outputDir)
+    }
+}
+
+/** Sincroniza el juego web construido (dist/) en assets/www del APK. */
+abstract class SyncWebAssets : DefaultTask() {
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val webFiles: ConfigurableFileCollection
+
+    @get:Internal
+    abstract val distDirectory: DirectoryProperty
+
+    @get:Input
+    abstract val excludePatterns: ListProperty<String>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Inject
+    abstract val fs: FileSystemOperations
+
+    @TaskAction
+    fun run() {
+        val dist = distDirectory.get().asFile
+        if (!dist.resolve("index.html").isFile) {
+            throw GradleException(
+                "Falta ${dist.resolve("index.html")} — construye primero el juego (dist/) " +
+                    "o indica otra carpeta con -Pelmetro.distDir=..."
+            )
+        }
+        fs.sync {
+            val patterns = excludePatterns.get()
+            from(dist) { exclude(patterns) }
+            into(outputDir.dir("www"))
+        }
+    }
+}
+
+/**
+ * Genera icono adaptativo (API 26+) e iconos clásicos (API 24-25) a partir de
+ * dist/icon-maskable-512.png y dist/icon-512.png. Sin iconos, dibuja uno provisional.
+ */
+abstract class GenerateLauncherIcons : DefaultTask() {
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val anyIcon: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val maskableIcon: ConfigurableFileCollection
+
+    @get:Input
+    abstract val fallbackColor: Property<String>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    private val densities = listOf("mdpi" to 1.0, "hdpi" to 1.5, "xhdpi" to 2.0, "xxhdpi" to 3.0, "xxxhdpi" to 4.0)
+
+    @TaskAction
+    fun generate() {
+        val out = outputDir.get().asFile
+        out.deleteRecursively()
+        val fallback = Color.decode(fallbackColor.get())
+        val any = anyIcon.files.firstOrNull { it.isFile }?.let { ImageIO.read(it) }?.let(::argb)
+        val maskable = maskableIcon.files.firstOrNull { it.isFile }?.let { ImageIO.read(it) }?.let(::argb)
+        if (any == null && maskable == null) logger.quiet("El Metro: sin iconos en dist/, se usa un icono provisional")
+
+        // Fuente "maskable": imagen a sangre completa con el motivo dentro del círculo central del 80%.
+        val maskSrc = maskable ?: any?.let { padOnSquare(it, cornerColor(it) ?: fallback, 0.62) } ?: placeholder(512, fallback)
+        val anySrc = any ?: clip(maskSrc, RoundRectangle2D.Double(0.0, 0.0, 1.0, 1.0, 0.36, 0.36))
+        val bg = cornerColor(maskSrc) ?: fallback
+
+        for ((dpi, f) in densities) {
+            val dir = out.resolve("mipmap-$dpi").apply { mkdirs() }
+            val legacy = (48 * f).toInt()
+            ImageIO.write(scale(anySrc, legacy), "png", dir.resolve("ic_launcher.png"))
+            ImageIO.write(clip(scale(maskSrc, legacy), Ellipse2D.Double(0.0, 0.0, 1.0, 1.0)), "png", dir.resolve("ic_launcher_round.png"))
+            // Capa frontal 108dp: el área segura del maskable (80%) coincide con la zona segura de 66dp.
+            val layer = (108 * f).toInt()
+            val inner = Math.round(82.5 * f).toInt()
+            val fg = BufferedImage(layer, layer, BufferedImage.TYPE_INT_ARGB)
+            fg.createGraphics().apply {
+                hints()
+                drawImage(scale(maskSrc, inner), (layer - inner) / 2, (layer - inner) / 2, null)
+                dispose()
+            }
+            ImageIO.write(fg, "png", dir.resolve("ic_launcher_foreground.png"))
+        }
+        val adaptive = """<?xml version="1.0" encoding="utf-8"?>
+            |<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+            |    <background android:drawable="@color/ic_launcher_background" />
+            |    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+            |</adaptive-icon>
+            |""".trimMargin()
+        out.resolve("mipmap-anydpi-v26").apply { mkdirs() }.let {
+            it.resolve("ic_launcher.xml").writeText(adaptive)
+            it.resolve("ic_launcher_round.xml").writeText(adaptive)
+        }
+        out.resolve("values").apply { mkdirs() }.resolve("ic_launcher_background.xml").writeText(
+            """<?xml version="1.0" encoding="utf-8"?>
+            |<resources>
+            |    <color name="ic_launcher_background">#%06X</color>
+            |</resources>
+            |""".trimMargin().format(bg.rgb and 0xFFFFFF)
+        )
+    }
+
+    private fun Graphics2D.hints() {
+        setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
+        setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+        setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+    }
+
+    private fun argb(src: BufferedImage): BufferedImage {
+        val img = BufferedImage(src.width, src.height, BufferedImage.TYPE_INT_ARGB)
+        img.createGraphics().apply { drawImage(src, 0, 0, null); dispose() }
+        return img
+    }
+
+    /** Escalado por mitades (buena calidad al reducir) hasta el tamaño final. */
+    private fun scale(src: BufferedImage, size: Int): BufferedImage {
+        var img = src
+        var w = src.width
+        var h = src.height
+        do {
+            w = if (w / 2 >= size) w / 2 else size
+            h = if (h / 2 >= size) h / 2 else size
+            val next = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+            next.createGraphics().apply { hints(); drawImage(img, 0, 0, w, h, null); dispose() }
+            img = next
+        } while (w != size || h != size)
+        return img
+    }
+
+    /** Recorta con una forma expresada en coordenadas unitarias (0..1). */
+    private fun clip(src: BufferedImage, unitShape: Shape): BufferedImage {
+        val s = src.width.toDouble()
+        val mask = BufferedImage(src.width, src.height, BufferedImage.TYPE_INT_ARGB)
+        mask.createGraphics().apply {
+            hints()
+            color = Color.WHITE
+            fill(AffineTransform.getScaleInstance(s, src.height.toDouble()).createTransformedShape(unitShape))
+            composite = AlphaComposite.SrcIn
+            drawImage(src, 0, 0, null)
+            dispose()
+        }
+        return mask
+    }
+
+    private fun cornerColor(img: BufferedImage): Color? {
+        val p = img.getRGB(img.width / 64, img.height / 64)
+        return if ((p ushr 24) >= 200) Color(p and 0xFFFFFF) else null
+    }
+
+    private fun padOnSquare(src: BufferedImage, bg: Color, ratio: Double): BufferedImage {
+        val size = 512
+        val inner = (size * ratio).toInt()
+        val img = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+        img.createGraphics().apply {
+            hints()
+            color = bg
+            fillRect(0, 0, size, size)
+            drawImage(scale(src, inner), (size - inner) / 2, (size - inner) / 2, null)
+            dispose()
+        }
+        return img
+    }
+
+    /** Icono provisional (sin fuentes tipográficas): círculo y una "M". */
+    private fun placeholder(size: Int, bg: Color): BufferedImage {
+        val img = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+        img.createGraphics().apply {
+            hints()
+            color = bg
+            fillRect(0, 0, size, size)
+            color = Color(0xF2B134)
+            stroke = BasicStroke(size * 0.045f)
+            val r = size * 0.36
+            draw(Ellipse2D.Double(size / 2 - r, size / 2 - r, 2 * r, 2 * r))
+            color = Color.WHITE
+            val pts = listOf(
+                0.32 to 0.67, 0.32 to 0.33, 0.40 to 0.33, 0.50 to 0.47, 0.60 to 0.33, 0.68 to 0.33,
+                0.68 to 0.67, 0.60 to 0.67, 0.60 to 0.46, 0.50 to 0.60, 0.40 to 0.46, 0.40 to 0.67,
+            )
+            fill(Polygon(pts.map { (it.first * size).toInt() }.toIntArray(), pts.map { (it.second * size).toInt() }.toIntArray(), pts.size))
+            dispose()
+        }
+        return img
+    }
+}
+~~~~
+
+### `android/app/src/main/AndroidManifest.xml`
+~~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- WebRTC en la Wi-Fi local (sin internet) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Cámara para leer códigos QR (getUserMedia) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.ElMetro"
+        android:hardwareAccelerated="true"
+        android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|layoutDirection|locale"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Lector QR nativo (ZXing). Sustituye a la CaptureActivity de la librería. -->
+        <activity
+            android:name=".ScanActivity"
+            android:exported="false"
+            android:screenOrientation="sensor"
+            android:stateNotNeeded="true"
+            android:theme="@style/Theme.ElMetro.Scan"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            tools:node="remove" />
+    </application>
+</manifest>
+~~~~
+
+### `android/app/src/main/java/co/metrozero/elmetro/AndroidBridge.java`
+~~~~java
+package co.metrozero.elmetro;
+
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
+import android.webkit.JavascriptInterface;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+/**
+ * Puente JS expuesto como window.AndroidBridge. Los métodos se ejecutan en un hilo
+ * del WebView (no el de UI): todo lo visual se envía con runOnUiThread.
+ */
+final class AndroidBridge {
+    private final MainActivity activity;
+
+    AndroidBridge(MainActivity activity) {
+        this.activity = activity;
+    }
+
+    /** Guarda texto (UTF-8) en Descargas. Devuelve true si se guardó. */
+    @JavascriptInterface
+    public boolean saveFile(String name, String mime, String text) {
+        byte[] data = (text == null ? "" : text).getBytes(StandardCharsets.UTF_8);
+        return save(name, mime, data);
+    }
+
+    /** Igual que saveFile pero con contenido binario en base64 (sin prefijo "data:"). */
+    @JavascriptInterface
+    public boolean saveBase64(String name, String mime, String base64) {
+        if (base64 == null) {
+            toast("No se pudo guardar el archivo");
+            return false;
+        }
+        try {
+            return save(name, mime, Base64.decode(base64, Base64.DEFAULT));
+        } catch (IllegalArgumentException e) {
+            toast("No se pudo guardar el archivo");
+            return false;
+        }
+    }
+
+    /** Abre el selector de "Compartir" de Android con un texto. */
+    @JavascriptInterface
+    public void share(String text) {
+        activity.runOnUiThread(() -> {
+            Intent send = new Intent(Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(Intent.EXTRA_TEXT, text == null ? "" : text);
+            try {
+                activity.startActivity(Intent.createChooser(send, null));
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(activity, "No hay apps para compartir", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /** Vibra ms milisegundos (máx. 5000; 0 cancela). */
+    @JavascriptInterface
+    @SuppressWarnings("deprecation") // Vibrator.vibrate(long) para API < 26
+    public void vibrate(int ms) {
+        Vibrator v;
+        if (Build.VERSION.SDK_INT >= 31) {
+            VibratorManager vm = activity.getSystemService(VibratorManager.class);
+            v = vm == null ? null : vm.getDefaultVibrator();
+        } else {
+            v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+        }
+        if (v == null || !v.hasVibrator()) return;
+        if (ms <= 0) {
+            v.cancel();
+            return;
+        }
+        long dur = Math.min(ms, 5000);
+        if (Build.VERSION.SDK_INT >= 26) {
+            v.vibrate(VibrationEffect.createOneShot(dur, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(dur);
+        }
+    }
+
+    /** Abre el lector QR nativo; el resultado llega con window.EMqrResult(texto) o EMqrResult(null). */
+    @JavascriptInterface
+    public void scanQR() {
+        activity.runOnUiThread(activity::startQrScan);
+    }
+
+    /** versionName del APK (p. ej. "0.1.0"). */
+    @JavascriptInterface
+    public String version() {
+        return BuildConfig.VERSION_NAME;
+    }
+
+    // ------------------------------------------------------------------------
+
+    private synchronized boolean save(String rawName, String rawMime, byte[] data) {
+        String mime = rawMime == null || rawMime.trim().isEmpty() ? "application/octet-stream" : rawMime.trim();
+        String name = cleanName(rawName, mime);
+        // MediaStore cambia la extensión si no cuadra con el MIME: lo deducimos del nombre.
+        String ext = name.substring(name.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+        String byExt = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+        String effectiveMime = byExt != null ? byExt : "application/octet-stream";
+        try {
+            String saved = Build.VERSION.SDK_INT >= 29
+                    ? saveToMediaStore(name, effectiveMime, data)
+                    : saveToAppDownloads(name, data);
+            toast("Guardado en Descargas: " + saved);
+            return true;
+        } catch (IOException | RuntimeException e) {
+            Log.e(MainActivity.TAG, "saveFile " + name, e);
+            toast("No se pudo guardar: " + name);
+            return false;
+        }
+    }
+
+    @RequiresApi(29)
+    private String saveToMediaStore(String name, String mime, byte[] data) throws IOException {
+        ContentResolver cr = activity.getContentResolver();
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+        values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+        Uri uri = cr.insert(MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), values);
+        if (uri == null) throw new IOException("MediaStore insert failed");
+        try (OutputStream os = cr.openOutputStream(uri)) {
+            if (os == null) throw new IOException("openOutputStream failed");
+            os.write(data);
+        } catch (IOException | RuntimeException e) {
+            cr.delete(uri, null, null);
+            throw e;
+        }
+        values.clear();
+        values.put(MediaStore.MediaColumns.IS_PENDING, 0);
+        cr.update(uri, values, null, null);
+        // Si ya existía, MediaStore lo renombra ("partida (1).json").
+        try (Cursor c = cr.query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst() && c.getString(0) != null) return c.getString(0);
+        }
+        return name;
+    }
+
+    /** Android 7-9: carpeta Download propia de la app (Android/data/co.metrozero.elmetro/files/Download). */
+    private String saveToAppDownloads(String name, byte[] data) throws IOException {
+        File dir = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        if (dir == null) dir = new File(activity.getFilesDir(), Environment.DIRECTORY_DOWNLOADS);
+        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("mkdirs " + dir);
+        File f = new File(dir, name);
+        int dot = name.lastIndexOf('.');
+        String base = dot > 0 ? name.substring(0, dot) : name;
+        String ext = dot > 0 ? name.substring(dot) : "";
+        for (int i = 1; f.exists(); i++) f = new File(dir, base + " (" + i + ")" + ext);
+        try (FileOutputStream os = new FileOutputStream(f)) {
+            os.write(data);
+        }
+        return f.getName();
+    }
+
+    private static String cleanName(String raw, String mime) {
+        String name = raw == null ? "" : raw.replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "_").trim();
+        while (name.startsWith(".")) name = name.substring(1);
+        if (name.isEmpty()) {
+            name = "el-metro-" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.ROOT).format(new Date());
+        }
+        if (name.lastIndexOf('.') <= 0) {
+            String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
+            if (ext == null && mime.startsWith("text/")) ext = "txt";
+            if (ext != null) name = name + "." + ext;
+        }
+        if (name.length() > 120) {
+            int dot = name.lastIndexOf('.');
+            String ext = dot > 0 && name.length() - dot <= 10 ? name.substring(dot) : "";
+            name = name.substring(0, 120 - ext.length()) + ext;
+        }
+        return name;
+    }
+
+    private void toast(String msg) {
+        activity.runOnUiThread(() -> Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show());
+    }
+}
+~~~~
+
+### `android/app/src/main/java/co/metrozero/elmetro/MainActivity.java`
+~~~~java
+package co.metrozero.elmetro;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.webkit.ConsoleMessage;
+import android.webkit.PermissionRequest;
+import android.webkit.RenderProcessGoneDetail;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import androidx.webkit.WebViewAssetLoader;
+
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/** Una sola Activity con un WebView que carga el juego desde assets/www. */
+public class MainActivity extends ComponentActivity {
+    static final String TAG = "ElMetro";
+    static final String HOST = "appassets.androidplatform.net";
+    static final String START_URL = "https://" + HOST + "/assets/www/index.html";
+    static final int BG = 0xFF0C2533;
+
+    private static final String BACK_JS = "(window.EM&&EM.back)?String(EM.back()):'false'";
+
+    /** Recuerda el nombre (atributo download) y retiene el blob antes de que se revoque. */
+    private static final String DOWNLOAD_HOOK_JS = "(function(){if(window.__emDlHook)return;window.__emDlHook=1;"
+            + "function rec(a){try{var h=(a&&a.href)||'';if(/^(blob|data):/.test(h)){var d={href:h,name:a.getAttribute('download')||''};"
+            + "d.p=fetch(h).then(function(r){return r.blob()});d.p.catch(function(){});window.__emDl=d;}}catch(e){}}"
+            + "var c=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){rec(this);return c.apply(this,arguments)};"
+            + "addEventListener('click',function(e){for(var t=e.target;t;t=t.parentNode){if(t.tagName==='A'){rec(t);break}}},true);})();";
+
+    private WebView webView;
+    private FrameLayout root;
+    private WebViewAssetLoader assetLoader;
+    private WifiManager.MulticastLock multicastLock;
+    private PermissionRequest pendingPermission;
+    private ValueCallback<Uri[]> fileCallback;
+
+    private final ActivityResultLauncher<String> cameraPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                PermissionRequest req = pendingPermission;
+                pendingPermission = null;
+                if (req == null) return;
+                if (granted) req.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                else req.deny();
+            });
+
+    private boolean scanningQr;
+
+    private final ActivityResultLauncher<ScanOptions> qrScanner =
+            registerForActivityResult(new ScanContract(), r -> {
+                scanningQr = false;
+                deliverQr(r.getContents());
+            });
+
+    private final ActivityResultLauncher<String> qrCameraPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    launchQrScanner();
+                } else {
+                    scanningQr = false;
+                    deliverQr(null);
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> fileChooser =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onFileChosen);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.layoutInDisplayCutoutMode = Build.VERSION.SDK_INT >= 30
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(lp);
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+
+        if (BuildConfig.DEBUG || BuildConfig.WEBVIEW_DEBUG) WebView.setWebContentsDebuggingEnabled(true);
+
+        assetLoader = new WebViewAssetLoader.Builder()
+                .setDomain(HOST)
+                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .build();
+
+        root = new FrameLayout(this);
+        root.setBackgroundColor(BG);
+        setContentView(root);
+        // Barras ocultas: sólo hay que esquivar el notch/recorte y el teclado.
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets i = insets.getInsets(WindowInsetsCompat.Type.displayCutout() | WindowInsetsCompat.Type.ime());
+            v.setPadding(i.left, i.top, i.right, i.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+
+        createWebView();
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                onBack();
+            }
+        });
+        hideSystemBars();
+        webView.loadUrl(START_URL);
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressWarnings("deprecation") // setDatabaseEnabled: inocuo, por compatibilidad
+    private void createWebView() {
+        webView = new WebView(this);
+        webView.setBackgroundColor(BG);
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setHorizontalScrollBarEnabled(false);
+        webView.setKeepScreenOn(true);
+
+        WebSettings s = webView.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setDatabaseEnabled(true);
+        s.setMediaPlaybackRequiresUserGesture(false);
+        s.setTextZoom(100);
+        s.setSupportZoom(false);
+        s.setBuiltInZoomControls(false);
+        s.setDisplayZoomControls(false);
+        s.setUseWideViewPort(true);
+        s.setAllowFileAccess(false);
+        s.setAllowContentAccess(false);
+        s.setSupportMultipleWindows(false);
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+        webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
+        webView.setWebViewClient(new Client());
+        webView.setWebChromeClient(new Chrome());
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> onDownload(url, mimeType));
+        root.addView(webView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    // ---------------------------------------------------------------- back
+
+    private void onBack() {
+        if (webView == null) {
+            finish();
+            return;
+        }
+        webView.evaluateJavascript(BACK_JS, result -> {
+            // evaluateJavascript devuelve JSON: un string JS "true" llega como "\"true\"".
+            if (!"\"true\"".equals(result) && !"true".equals(result)) finish();
+        });
+    }
+
+    // ---------------------------------------------------------------- pantalla completa
+
+    private void hideSystemBars() {
+        WindowInsetsControllerCompat c = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        c.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        c.hide(WindowInsetsCompat.Type.systemBars());
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) hideSystemBars();
+    }
+
+    // ---------------------------------------------------------------- ciclo de vida
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (webView != null) webView.onResume();
+        acquireMulticastLock();
+        hideSystemBars();
+    }
+
+    @Override
+    protected void onPause() {
+        if (webView != null) webView.onPause();
+        releaseMulticastLock();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        destroyWebView();
+        super.onDestroy();
+    }
+
+    private void destroyWebView() {
+        if (webView == null) return;
+        root.removeView(webView);
+        webView.destroy();
+        webView = null;
+    }
+
+    /** Algunos chips Wi-Fi filtran multicast sin este lock (mDNS de los candidatos ICE de WebRTC). */
+    private void acquireMulticastLock() {
+        try {
+            if (multicastLock == null) {
+                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                if (wm == null) return;
+                multicastLock = wm.createMulticastLock("elmetro-webrtc");
+                multicastLock.setReferenceCounted(false);
+            }
+            if (!multicastLock.isHeld()) multicastLock.acquire();
+        } catch (RuntimeException e) {
+            Log.w(TAG, "multicast lock", e);
+        }
+    }
+
+    private void releaseMulticastLock() {
+        try {
+            if (multicastLock != null && multicastLock.isHeld()) multicastLock.release();
+        } catch (RuntimeException e) {
+            Log.w(TAG, "multicast lock", e);
+        }
+    }
+
+    // ---------------------------------------------------------------- lector QR nativo
+
+    /** AndroidBridge.scanQR() (en el hilo de UI). Responde con window.EMqrResult(texto|null). */
+    void startQrScan() {
+        if (scanningQr) return;
+        scanningQr = true;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            launchQrScanner();
+        } else {
+            qrCameraPermission.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void launchQrScanner() {
+        ScanOptions options = new ScanOptions()
+                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                .setPrompt("Apunta la cámara al código QR")
+                .setBeepEnabled(false)
+                .setBarcodeImageEnabled(false)
+                .setOrientationLocked(true)
+                .setCaptureActivity(ScanActivity.class);
+        try {
+            qrScanner.launch(options);
+        } catch (ActivityNotFoundException e) {
+            scanningQr = false;
+            deliverQr(null);
+        }
+    }
+
+    private void deliverQr(String text) {
+        if (webView == null) return;
+        String arg = text == null ? "null"
+                : JSONObject.quote(text).replace("\u2028", "\\u2028").replace("\u2029", "\\u2029");
+        webView.evaluateJavascript("typeof window.EMqrResult==='function'&&window.EMqrResult(" + arg + ")", null);
+    }
+
+    // ---------------------------------------------------------------- descargas blob:/data:
+
+    private void onDownload(String url, String mimeType) {
+        if (webView == null || url == null) return;
+        if (url.startsWith("blob:") || url.startsWith("data:")) {
+            String js = "(function(u,m){var d=window.__emDl,n='',p;"
+                    + "if(d&&d.href===u){n=d.name;p=d.p}else{p=fetch(u).then(function(r){return r.blob()})}"
+                    + "p.then(function(b){return new Promise(function(res,rej){var f=new FileReader();"
+                    + "f.onload=function(){res([b.type,String(f.result)])};f.onerror=rej;f.readAsDataURL(b)})})"
+                    + ".then(function(x){var s=x[1];AndroidBridge.saveBase64(n,m||x[0],s.slice(s.indexOf(',')+1))})"
+                    + ".catch(function(){AndroidBridge.saveBase64(n,m,null)});})("
+                    + JSONObject.quote(url) + "," + JSONObject.quote(mimeType == null ? "" : mimeType) + ");";
+            webView.evaluateJavascript(js, null);
+        } else {
+            openExternal(Uri.parse(url));
+        }
+    }
+
+    private void openExternal(Uri uri) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (ActivityNotFoundException e) {
+            Log.w(TAG, "No activity for " + uri);
+        }
+    }
+
+    // ---------------------------------------------------------------- selector de archivos (<input type=file>)
+
+    private void onFileChosen(ActivityResult result) {
+        ValueCallback<Uri[]> cb = fileCallback;
+        fileCallback = null;
+        if (cb == null) return;
+        Intent data = result.getData();
+        List<Uri> uris = new ArrayList<>();
+        if (result.getResultCode() == RESULT_OK && data != null) {
+            ClipData clip = data.getClipData();
+            if (clip != null) {
+                for (int i = 0; i < clip.getItemCount(); i++) uris.add(clip.getItemAt(i).getUri());
+            } else if (data.getData() != null) {
+                uris.add(data.getData());
+            }
+        }
+        cb.onReceiveValue(uris.isEmpty() ? null : uris.toArray(new Uri[0]));
+    }
+
+    // ---------------------------------------------------------------- clientes del WebView
+
+    private final class Client extends WebViewClient {
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            return assetLoader.shouldInterceptRequest(request.getUrl());
+        }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            Uri uri = request.getUrl();
+            if (HOST.equals(uri.getHost())) return false;
+            String scheme = uri.getScheme();
+            if ("blob".equals(scheme) || "data".equals(scheme) || "about".equals(scheme)) return false;
+            openExternal(uri); // enlaces externos: navegador / app correspondiente
+            return true;
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            view.evaluateJavascript(DOWNLOAD_HOOK_JS, null);
+        }
+
+        @Override
+        public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+            // El proceso del renderer murió (p. ej. falta de memoria): recrear en vez de cerrar la app.
+            Log.e(TAG, "WebView renderer gone; recreating");
+            if (view == webView) {
+                destroyWebView();
+                recreate();
+            }
+            return true;
+        }
+    }
+
+    private final class Chrome extends WebChromeClient {
+        @Override
+        public void onPermissionRequest(PermissionRequest request) {
+            runOnUiThread(() -> {
+                boolean wantsCamera = Arrays.asList(request.getResources()).contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE);
+                if (!wantsCamera || !HOST.equals(request.getOrigin().getHost())) {
+                    request.deny();
+                    return;
+                }
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                } else {
+                    if (pendingPermission != null) pendingPermission.deny();
+                    pendingPermission = request;
+                    cameraPermission.launch(Manifest.permission.CAMERA);
+                }
+            });
+        }
+
+        @Override
+        public void onPermissionRequestCanceled(PermissionRequest request) {
+            if (pendingPermission == request) pendingPermission = null;
+        }
+
+        @Override
+        public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            if (fileCallback != null) fileCallback.onReceiveValue(null);
+            fileCallback = callback;
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType("*/*")
+                    .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
+            try {
+                fileChooser.launch(intent);
+            } catch (ActivityNotFoundException e) {
+                fileCallback = null;
+                callback.onReceiveValue(null);
+            }
+            return true;
+        }
+
+        @Override
+        public Bitmap getDefaultVideoPoster() {
+            // Evita el póster gris con "play" en <video> (vista previa de la cámara).
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage m) {
+            Log.d(TAG, m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")");
+            return true;
+        }
+    }
+}
+~~~~
+
+### `android/app/src/main/java/co/metrozero/elmetro/ScanActivity.java`
+~~~~java
+package co.metrozero.elmetro;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
+import com.journeyapps.barcodescanner.CaptureManager;
+import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+
+/**
+ * Lector QR nativo a pantalla completa (ZXing, 100 % offline, sin Play Services).
+ * Se lanza desde MainActivity con ScanContract; devuelve el texto o RESULT_CANCELED.
+ */
+public class ScanActivity extends Activity {
+    private CaptureManager capture;
+    private DecoratedBarcodeView barcodeView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (Build.VERSION.SDK_INT >= 28) {
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(lp);
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.BLACK);
+        barcodeView = new DecoratedBarcodeView(this);
+        root.addView(barcodeView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Texto de ayuda arriba (el texto lo pone ScanOptions.setPrompt).
+        TextView status = barcodeView.getStatusView();
+        FrameLayout.LayoutParams sp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+        sp.topMargin = dp(40);
+        status.setLayoutParams(sp);
+        status.setTextColor(Color.WHITE);
+        status.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(dp(16), dp(8), dp(16), dp(8));
+        status.setShadowLayer(6, 0, 0, Color.BLACK);
+
+        Button cancel = new Button(this);
+        cancel.setText("Cancelar");
+        cancel.setAllCaps(false);
+        cancel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        cancel.setMinWidth(dp(160));
+        cancel.setOnClickListener(v -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
+        FrameLayout.LayoutParams cp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        cp.bottomMargin = dp(40);
+        root.addView(cancel, cp);
+
+        setContentView(root);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets i = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(i.left, i.top, i.right, i.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
+        WindowInsetsControllerCompat c = WindowCompat.getInsetsController(window, window.getDecorView());
+        c.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        c.hide(WindowInsetsCompat.Type.systemBars());
+
+        capture = new CaptureManager(this, barcodeView);
+        capture.setShowMissingCameraPermissionDialog(false);
+        capture.initializeFromIntent(getIntent(), savedInstanceState);
+        capture.decode();
+    }
+
+    private int dp(int v) {
+        return Math.round(v * getResources().getDisplayMetrics().density);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        capture.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        capture.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        capture.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        capture.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        capture.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Teclas de volumen: linterna on/off.
+        return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    }
+}
+~~~~
+
+### `android/app/src/main/res/values-es/strings.xml`
+~~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La librería ZXing trae su propia traducción "es": se sobrescribe aquí. -->
+<resources>
+    <!-- Textos del lector QR (ZXing) en español -->
+    <string name="zxing_app_name">El Metro</string>
+    <string name="zxing_button_ok">Aceptar</string>
+    <string name="zxing_msg_camera_framework_bug">No se pudo abrir la cámara. Cierra otras apps que la usen o reinicia el teléfono.</string>
+    <string name="zxing_msg_default_status">Apunta la cámara al código QR</string>
+</resources>
+~~~~
+
+### `android/app/src/main/res/values-v28/themes.xml`
+~~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ElMetro" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/elmetro_bg</item>
+        <item name="android:colorBackground">@color/elmetro_bg</item>
+        <item name="android:colorPrimary">@color/elmetro_bg</item>
+        <item name="android:colorPrimaryDark">@color/elmetro_bg</item>
+        <item name="android:statusBarColor">@color/elmetro_bg</item>
+        <item name="android:navigationBarColor">@color/elmetro_bg</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>
+~~~~
+
+### `android/app/src/main/res/values/strings.xml`
+~~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">El Metro</string>
+    <!-- Textos del lector QR (ZXing) en español -->
+    <string name="zxing_app_name">El Metro</string>
+    <string name="zxing_button_ok">Aceptar</string>
+    <string name="zxing_msg_camera_framework_bug">No se pudo abrir la cámara. Cierra otras apps que la usen o reinicia el teléfono.</string>
+    <string name="zxing_msg_default_status">Apunta la cámara al código QR</string>
+</resources>
+~~~~
+
+### `android/app/src/main/res/values/themes.xml`
+~~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="elmetro_bg">#0C2533</color>
+
+    <style name="Theme.ElMetro" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/elmetro_bg</item>
+        <item name="android:colorBackground">@color/elmetro_bg</item>
+        <item name="android:colorPrimary">@color/elmetro_bg</item>
+        <item name="android:colorPrimaryDark">@color/elmetro_bg</item>
+        <item name="android:statusBarColor">@color/elmetro_bg</item>
+        <item name="android:navigationBarColor">@color/elmetro_bg</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="Theme.ElMetro.Scan">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>
+~~~~
+
+### `android/gradle.properties`
+~~~~properties
+# ---- Gradle ----
+org.gradle.jvmargs=-Xmx2g -Dfile.encoding=UTF-8 -Djava.awt.headless=true
+org.gradle.caching=true
+org.gradle.configuration-cache=true
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+
+# ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
+# Súbelos en cada versión que vayas a instalar encima de otra:
+# versionCode debe crecer siempre (Android no permite instalar un código menor).
+elmetro.versionName=0.1.0
+elmetro.versionCode=1
+
+# SDK: tools/apk.sh instala exactamente estas versiones.
+elmetro.compileSdk=36
+elmetro.targetSdk=36
+elmetro.buildTools=35.0.0
+
+# Reducir el código con R8 en release.
+elmetro.minify=true
+
+# Depuración remota del WebView (chrome://inspect) en builds release.
+elmetro.webviewDebug=false
+~~~~
+
+### `android/settings.gradle.kts`
+~~~~kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    plugins {
+        // AGP 8.13.x es la última línea compatible con Gradle 8.14 (wrapper).
+        id("com.android.application") version "8.13.2"
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "ElMetro"
+include(":app")
+~~~~
+
+
+---
+
+# FIN DEL DOCUMENTO
+
+> **Si eres una IA y llegaste hasta aquí:** vuelve al **PROTOCOLO** (parte 0):
+> - **paso 2**: resume misión, estado, tu rol, tus encargos y lo que no debes hacer;
+> - **paso 3**: responde el cuestionario;
+> - **paso 4**: haz tu prueba en pequeño;
+> - **paso 5**: auto‑ajústate.
+>
+> Después trabaja **solo** en lo tuyo, con precisión.
