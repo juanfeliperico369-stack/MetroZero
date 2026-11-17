@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.6.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v0.7.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.6.0** · compilado el 2026-11-17.
+> Versión del juego **v0.7.0** · compilado el 2026-11-17.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,14 +799,15 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.6.0 "El arte llega a la ciudad"
-**Novedad de v0.6.0:**
-- el arte de **Gemini (G‑)** y **ChatGPT (C‑)** entra al juego, siempre con respaldo procedural (`src/js/19-atlas.js` + `src/data/arte.js`, 78 piezas, 533 KB);
-- el **mapa cenital rediseñado**: vías por tipo y ancho, separadores, cebras solo en cruces, río con muros, escaleras y ciclorrutas legibles;
-- **verificado contra OpenStreetMap:** 98–100 % de las calles reales dentro de 20 m (`docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`);
-- el **servidor local ya no se cae** con rutas mal escritas.
+##### Estado al 2026-11-17 · v0.7.0 "Medellín reconocible"
+**Novedad de v0.7.0:** el mapa se corrige y se nombra con **datos abiertos oficiales** (`src/data/ciudad.js`, de `tools/ciudad_datos.py`):
+- **90 mil casillas corregidas:** las "andén" que en realidad eran lotes dentro de manzanas ahora son casas o edificios; parques y plazas reales;
+- **502 barrios** (Medellín, Itagüí, Envigado y Sabaneta) y **2.438 nombres de calle** (nomenclatura oficial y nombres populares);
+- **lotes catastrales** para dividir las casas;
+- rótulos en el mapa, barrio en el HUD y un letrero al entrar a otra calle o barrio;
+- casas con la fachada hacia su calle, andenes con bordillo y plazas y peatonales rediseñadas.
 
-El resto del estado (abajo) sigue vigente. El HTML pesa ~2,4 MB.
+v0.6.0 trajo el arte de Gemini y ChatGPT y el primer rediseño del mapa. El HTML pesa ~2,7 MB.
 
 ###### Estado anterior · v0.5.0 "La historia en la ciudad"
 **Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
@@ -863,6 +864,41 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ##### Historial
+###### v0.7.0 (2026-11-17) — Medellín reconocible
+Pedido del autor: “dibuja bien el mapa, dale vida, que sea preciso en ubicaciones y zonas; los peatonales están desordenados y sin sentido, lo mismo los barrios y la división de las casas; el corazón es reconocer cada calle, cada zona, cada barrio”.
+
+1. **Diagnóstico medido:** cruzando el mapa con las **manzanas catastrales** de Medellín, entre el **88 y el 97 % de las casillas “andén” caían dentro de manzanas**. No eran andenes: eran lotes construidos que la fuente original (Overture/OSM) no marcó. Por eso se pintaba adoquín donde hay casas.
+2. **Datos oficiales:**
+   - `tools/ciudad_descarga.py` baja de ArcGIS Online, una vez, las capas abiertas de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial, espacio público y 312.716 lotes (solo centroide y área). También los barrios de Itagüí, Envigado y Sabaneta.
+   - `tools/ciudad_datos.py` genera `src/data/ciudad.js` (329 KB) **sin tocar el mapa base**:
+     - **parche** de 89.446 casillas, que se aplica al cargar: andén dentro de manzana → casa o edificio según el tamaño de sus lotes; espacio público → parque o plaza. Fuera de Medellín se usa la regla medida en Medellín. No se tocan las plazas a ≤ 60 m de cada estación de la red ni los lugares emblemáticos;
+     - **barrios** en una grilla de 80 m;
+     - **nombre por casilla de vía**: dos capas, nomenclatura y nombre popular, con código predictivo;
+     - **lotes por casilla construida** (2 bits);
+     - **656 lugares** con nombre.
+3. **En el juego (`10-map.js`):**
+   - `MAP.ciudad()` decodifica todo al cargar (+~150 ms);
+   - `MAP.barrioAt`, `MAP.calleAt` y `MAP.lotT`;
+   - `MAP.drawLabels`: calles rotuladas siguiendo su dirección (nombres populares en mayúscula), parques y plazas, y barrios en mayúsculas espaciadas a media distancia; evita que se encimen.
+   - Se usa en Ciudad Libre, en el simulador de bus y en La Red.
+   - **HUD con el barrio** y **letrero** al entrar a otra calle o barrio (Ciudad Libre).
+4. **Dibujo:**
+   - **andén con bordillo** dentro de cada casilla de vía (calle 3 px ≈ 4 m, avenida 2 px; la autopista solo berma);
+   - **casas con fachada hacia su calle** (sur, este, oeste o norte), divididas según los lotes catastrales;
+   - techos de teja, eternit o **terraza paisa**: tanque, ropa tendida, columnas con varilla “para el segundo piso”, matas y, de vez en cuando, un perro;
+   - patios interiores de manzana;
+   - **peatonales de adoquín trabado** y **plazas de losas con franjas de ladrillo**, carritos con sombrilla y bancas con farol;
+   - los lugares emblemáticos ya no son rectángulos planos: solo su ícono (iglesia, estadio, pista, rocas de la Biblioteca España) y su nombre.
+5. **Atribución:** la licencia abierta del Catastro exige citar y declarar las transformaciones. Va en créditos, en La Red y en `docs/FUENTES.md`.
+6. **Pruebas:**
+   - el autotest verifica el parche, los 502 barrios y los 2.438 nombres, además de casos reales: Parque Berrío en La Candelaria; Carrera 50, Carrera 80, Calle 67 y Sistema Vial del Río junto a sus estaciones;
+   - 100 partidas, 0 errores; ~15 ms por trozo, igual que antes;
+   - capturas en Niquía, Parque Berrío, San Antonio, Santo Domingo, Prado, Floresta, Estadio, Manrique, Bello, Madera e Itagüí.
+7. **Pendiente:**
+   - barrios de **Bello** (y del norte y el sur del valle): no se encontró capa abierta, y Nominatim respondió “429, demasiadas solicitudes” desde la nube;
+   - anchos reales de calle por casilla (la malla trae el ancho);
+   - casillas G‑60 a G‑63 de Gemini en un acercamiento.
+
 ###### v0.6.0 (2026-11-17) — el arte llega a la ciudad
 1. **Entregas verificadas y ordenadas** en `arte/entregas/` (ver `INVENTARIO.md`):
    - 20 láminas de Gemini con el nombre de su encargo;
@@ -1079,6 +1115,7 @@ Datos en `src/data/`:
 - `rutas.js`: recorridos de buses por calles reales;
 - `lugares.js`: lugares con postal;
 - `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
+- `ciudad.js`: datos oficiales abiertos (parche de casillas, barrios, nombres de calle por casilla, lotes, lugares). **Generado** por `python3 tools/ciudad_datos.py CACHE` (descarga previa: `python3 tools/ciudad_descarga.py CACHE`). Se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels`. El mapa base `valle.js` **no se modifica**: el parche se aplica al cargar.
 
 **Convenciones:**
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
@@ -1091,6 +1128,8 @@ node tools/build.mjs                 # dist/index.html + manifest + sw.js (revis
 node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
 node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
 python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
+python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
+python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
@@ -1327,6 +1366,21 @@ Se dibuja de atrás hacia adelante (orden por x + y), con caras visibles al sur 
 - Ciudades de ejemplo: [Isometric NYC](https://www.pcgamer.com/software/ai/software-engineer-creates-classic-simcity-style-map-of-nyc-and-argues-that-ai-is-good-for-creatives-actually/) (IA ajustada para repintar), [Tiny Barcelona](https://tiny-barcelona.agenturl.dev), [Tiny Madrid](https://tinymadrid.app), [Tiny València](https://tinyvalencia.com) (datos 3D del Catastro y el IGN repintados), [Isometric Málaga](https://isometric-malaga.xiangminf.com), [CDMX](https://cdmxisometrico.com), [Buenos Aires](https://caba.nicolaspoore.com).
 - [tinyworlds](https://github.com/nihey/tinyworlds): sin IA. Toma OpenStreetMap y Overture Maps, hace un rasterizado por software y arma una pirámide de teselas. Una ciudad grande pesa unos 1,5 GB: por eso aquí se genera en el dispositivo.
 
+#### Datos oficiales abiertos (desde v0.7.0)
+La Alcaldía de Medellín publica en ArcGIS Online (cuenta `services1.arcgis.com/FZVaYraI7sEGQ6rF`, unas 525 capas públicas):
+- barrios (`shp_limite_barrio_vereda_cata`) y manzanas;
+- **malla vial 2026**, con nomenclatura (`via_gen`: CL 50, CR 80…) y **ancho** en metros;
+- jerarquía vial con nombres populares e inventario de espacio público;
+- **lotes catastrales**: 312 mil, con centroide y área.
+
+Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
+
+**Licencia del Catastro:** citar “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin” y declarar las transformaciones (ver `docs/FUENTES.md`).
+
+**Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
+
+Bello y los demás municipios del norte y del sur aún no tienen capa abierta de barrios. Nominatim limita a las IP de la nube (error 429): no insistas.
+
 ---
 
 # 4 · Plan de desarrollo
@@ -1345,6 +1399,13 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
   - retratos, tarjetas de capítulo, portada, íconos, medallas y adornos de fiestas, con `Atlas` y respaldo procedural;
   - **mapa cenital rediseñado** (vías por tipo y ancho, separadores, cebras en cruces, río con muros);
   - **Fase 1b medida:** el trazado de calles coincide con OpenStreetMap en un 98–100 % a 20 m. Falta la capa vectorial (anchos, glorietas, nombres) y los edificios reales.
+
+- **v0.7.0:** Fase 1b con **datos oficiales**:
+  - corrección de 89 mil casillas: lotes que estaban marcados como andén;
+  - barrios, nombres de calle, lotes y espacio público de Medellín (y barrios de Itagüí, Envigado y Sabaneta);
+  - rótulos, HUD y letrero de barrio y calle;
+  - casas orientadas a su calle con lotes reales, andenes y plazas rediseñadas.
+  - Siguiente: barrios de Bello y del resto del valle; anchos reales de calle; Maqueta 2:1.
 
 ### Fases
 #### Fase 1 · Arte real (2–3 sesiones)
@@ -2583,10 +2644,11 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 
 ## Datos que no van como texto
 - **`src/data/valle.js`** (1060 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
+- **`src/data/ciudad.js`** (330 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (65 archivos, 793 KB)
+## Código fuente (67 archivos, 834 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -2970,6 +3032,14 @@ img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-positio
 .trcard i{display:block;margin-top:6px;font-size:11px;opacity:.6;font-style:normal}
 @keyframes trCard{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 .mcard .mico ~ .t{padding-right:56px}
+/* v0.7.0 · letrero de calle y barrio (Ciudad Libre) */
+.lugar{position:absolute;left:10px;top:calc(118px + var(--sat));z-index:5;pointer-events:none;opacity:0;transform:translateY(-6px);background:var(--noche,#0c2533);color:#fff;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);padding:6px 10px 7px;max-width:72vw}
+.lugar.on{animation:lugarIn 3.6s ease forwards}
+.lugar b{display:block;font-family:var(--fd);font-stretch:80%;font-size:20px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.lugar i{display:block;font-style:normal;font-family:var(--fm);font-size:11px;opacity:.8}
+.lugar span{display:block;font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mante,#ffd27a);margin-top:2px}
+@keyframes lugarIn{0%{opacity:0;transform:translateY(-6px)}10%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+#game:has(.jobbar:not(.hide)) .lugar{top:calc(196px + var(--sat))}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -2978,7 +3048,7 @@ img.sthero{display:block;width:100%;height:210px;object-fit:cover;object-positio
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.6.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3596,8 +3666,57 @@ const MAP = EM.map = {
     const ed = new Int16Array(raw.slice(nT, nT + nE * 2).buffer), E = this.E = new Int16Array(nE);
     for (let j = 0; j < VM.eH; j++) { let a = 0; for (let i = 0; i < VM.eW; i++) { a += ed[j * VM.eW + i]; E[j * VM.eW + i] = a; } }
     this.mu = raw.slice(nT + nE * 2, nT + nE * 2 + nM); this.co = raw.slice(nT + nE * 2 + nM, nT + nE * 2 + nM * 2);
+    if (typeof CIUDAD !== 'undefined') { try { await this.ciudad(); } catch (e) { EM.errors.push('ciudad: ' + e.message); console.error(e); } }
     this.ready = true;
   },
+  /* ---------- MEDELLÍN RECONOCIBLE · datos oficiales abiertos (src/data/ciudad.js, de tools/ciudad_datos.py) ----------
+     1) parche: los 'andenes' que en realidad son lotes dentro de manzanas pasan a casa o edificio; parques y plazas reales;
+     2) barrios (grilla de 80 m); 3) nombre de calle por casilla de vía (nomenclatura y nombre popular); 4) lotes por casilla. */
+  async unz(b64, n) {
+    const bin = atob(b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    let r = null; if (window.DecompressionStream) { try { r = new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); } catch (e) { r = null; } }
+    return r && r.length >= n ? r : inflateRaw(u8, n);
+  },
+  async ciudad() {
+    const C = CIUDAD, t = this.t, n = MW * MH, P = C.parche, pb = await this.unz(P.data, P.bytes);
+    let wi = 0, pi = 0, ch = 0;
+    for (let i = 0; i < n; i++) if (t[i] === TT.WALK) { const c = (pb[wi >> 2] >> ((wi & 3) * 2)) & 3; wi++; if (!c) continue; ch++; t[i] = c === 1 ? TT.BRICK : c === 2 ? TT.BLDG : ((pb[P.nw + (pi >> 3)] >> (pi & 7)) & 1) ? TT.PLAZA : TT.GRASS; if (c === 3) pi++; }
+    for (let q = P.nw + P.np, last = 0; q < pb.length;) { let d = 0, sh = 0, b; do { b = pb[q++]; d += (b & 127) * 2 ** sh; sh += 7; } while (b & 128); last += d; t[last] = pb[q++]; ch++; }
+    this.parcheN = ch;
+    const bb = await this.unz(C.bgrid, C.bgridN); this.bg = new Uint16Array(bb.length >> 1); for (let i = 0; i < this.bg.length; i++) this.bg[i] = bb[2 * i] | bb[2 * i + 1] << 8;
+    // calles: por cada casilla de vía en orden, 0 izquierda · 1 arriba · 4 arriba-izq · 5 arriba-der · 2 sin nombre · 3 + varint nombre nuevo
+    const cd = await this.unz(C.cdata, C.cdataN), NR = C.nvias, rx = new Uint16Array(NR), rn = new Uint16Array(NR), rp = new Uint16Array(NR), row = new Int32Array(MH + 1);
+    const L = [{ p: 0, a: new Uint16Array(MW), b: new Uint16Array(MW), out: rn }, { p: C.cdataN0, a: new Uint16Array(MW), b: new Uint16Array(MW), out: rp }];
+    let k = 0;
+    for (let y = 0; y < MH; y++) {
+      row[y] = k; for (const s of L) { const z = s.a; s.a = s.b; s.b = z; s.b.fill(0); }   // a = fila de arriba, b = fila actual
+      for (let x = 0; x < MW; x++) {
+        const v = t[y * MW + x]; if (v !== TT.ROAD && v !== TT.AVE && v !== TT.AUTO && v !== TT.BRIDGE) continue;
+        rx[k] = x;
+        for (const s of L) {
+          const c = cd[s.p++]; let id = 0;
+          if (c === 0) id = s.b[x - 1]; else if (c === 1) id = s.a[x]; else if (c === 4) id = s.a[x - 1]; else if (c === 5) id = s.a[x + 1];
+          else if (c === 3) { let sh = 0, b; do { b = cd[s.p++]; id += (b & 127) * 2 ** sh; sh += 7; } while (b & 128); }
+          s.b[x] = id; s.out[k] = id;
+        }
+        k++;
+      }
+    }
+    row[MH] = k; this.rX = rx; this.rN = rn; this.rP = rp; this.rRow = row;
+    const lo = C.lotes, lb = await this.unz(lo.data, lo.n), w = lo.x1 - lo.x0 + 1, h = lo.y1 - lo.y0 + 1, la = new Uint8Array(w * h); let bi = 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = t[(y + lo.y0) * MW + x + lo.x0]; if (v === TT.BRICK || v === TT.BLDG) { la[y * w + x] = (lb[bi >> 2] >> ((bi & 3) * 2)) & 3; bi++; } }
+    this.lot = { x0: lo.x0, y0: lo.y0, w, h, a: la };
+  },
+  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; return v ? C.barrios[v - 1] : null; },
+  /* nombres de la casilla de vía (tx, ty): { n: nomenclatura, p: nombre popular } o null */
+  calleT(tx, ty) {
+    if (!this.rRow || ty < 0 || ty >= MH) return null; let a = this.rRow[ty], b = this.rRow[ty + 1] - 1;
+    while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m]; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
+    return null;
+  },
+  calleAt(x, y) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); return this.calleT(tx, ty) || this.calleT(tx + 1, ty) || this.calleT(tx - 1, ty) || this.calleT(tx, ty + 1) || this.calleT(tx, ty - 1); },
+  /* lotes catastrales en la casilla construida (Medellín): 0 sin dato, 1 uno, 2 dos o tres, 3 cuatro o más */
+  lotT(tx, ty) { const L = this.lot; if (!L) return 0; const x = tx - L.x0, y = ty - L.y0; return x < 0 || y < 0 || x >= L.w || y >= L.h ? 0 : L.a[y * L.w + x]; },
   tile(tx, ty) { tx |= 0; ty |= 0; return (tx < 0 || ty < 0 || tx >= MW || ty >= MH) ? TT.MOUNT : this.t[ty * MW + tx]; },
   tileM(x, y) { return this.tile(Math.floor(x / TM), Math.floor(y / TM)); },
   /* relieve: metros sobre el nivel del mar (bilineal en la grilla de 80 m) */
@@ -3660,8 +3779,11 @@ const MAP = EM.map = {
           case TT.BRICK: case TT.BLDG: col = [96, 112, 74]; m *= chk ? .95 : 1; break;   // patio (la casa se pinta encima)
           case TT.ROAD: case TT.AVE: case TT.AUTO: case TT.BRIDGE: {
             m *= .97 + hh * .05; if (hh > .985) m *= .86;   // parches del asfalto
-            const edge = (py === 0 && !road(nN)) || (py === P - 1 && !road(nS)) || (px === 0 && !road(nW)) || (px === P - 1 && !road(nE));
-            if (edge) { col = v === TT.BRIDGE ? [70, 70, 76] : [201, 194, 178]; m = sh; break; }
+            // andén con bordillo a cada lado de la calle (donde no sigue otra vía): calle 3 px (≈ 4 m), avenida 2, autopista solo berma
+            const de = Math.min(road(nN) ? 99 : py, road(nS) ? 99 : P - 1 - py, road(nW) ? 99 : px, road(nE) ? 99 : P - 1 - px), swk = v === TT.ROAD ? 3 : v === TT.AVE ? 2 : 0;
+            if (v === TT.BRIDGE) { if (de === 0) { col = [70, 70, 76]; m = sh; break; } }
+            else if (de < swk) { const hz = (road(nN) ? 99 : py) === de || (road(nS) ? 99 : P - 1 - py) === de; col = [198, 192, 180]; m = sh * ((hz ? (X * P + px) : (Y * P + py)) % 5 === 0 ? .9 : 1 + (hh - .5) * .04); break; }
+            else if (de === swk) { col = swk ? [222, 216, 204] : [150, 146, 138]; m = sh; break; }
             if (v === TT.BRIDGE) { col = [150, 150, 154]; m = sh * ((((X * P + px) + (Y * P + py)) % 9 === 0) ? .82 : .97 + hh * .05); break; }   // puente o viaducto: losa de concreto con juntas
             if (rk !== 1 && rk !== 2) break;   // cruce: asfalto limpio
             { const vt = rk === 1, a0 = vt ? px : py, nA = vt ? nW : nN, nB = vt ? nE : nS, sw = v === TT.AVE ? 2 : 1;   // frontera con otra vía paralela: separador
@@ -3679,8 +3801,12 @@ const MAP = EM.map = {
             } else if (!med && (a === Math.floor(mid) - 1 || a === Math.floor(mid))) { col = [244, 196, 52]; m = sh * .92; }   // calle ancha sin separador
             else if (a % 8 === 0 && a > 3 && a < Wd - 4 && dm > 4 && sep > 4 && al % 12 < 5) { col = [232, 230, 220]; m = sh * .95; }   // carriles
             break; }
-          case TT.WALK: m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.015 + (h2((X * P + px) >> 2, (Y * P + py) >> 2, 5) - .5) * .05; break;
-          case TT.PLAZA: m *= (((px >> 1) + (py >> 1)) % 2 ? .965 : 1.02) * ((px % 8 === 0 || py % 8 === 0) ? .93 : 1); break;
+          case TT.WALK: {   // peatonal o andén ancho: adoquín trabado (filas de 2 px, piezas de 4 px corridas a media pieza)
+            const gx = X * P + px, gy = Y * P + py, fila = gy >> 1, junta = (gy & 1) === 1 || ((gx + (fila & 1) * 2) & 3) === 0;
+            col = [200, 192, 178]; m *= junta ? .91 : 1 + (h2(gx >> 2, fila, 5) - .5) * .07; break; }
+          case TT.PLAZA: {   // plaza: losas de 4 px en dos tonos, con franja cada 16 px
+            const gx = X * P + px, gy = Y * P + py, banda = (gx & 15) === 0 || (gy & 15) === 0;
+            col = banda ? [178, 120, 92] : (((gx >> 2) + (gy >> 2)) & 1) ? [222, 212, 188] : [208, 198, 174]; m *= (gx & 3) === 0 || (gy & 3) === 0 ? .95 : 1; break; }
           case TT.CICLO: { const a = cvert ? px : py, al = cvert ? Y * P + py : X * P + px; col = [189, 182, 165]; m *= (px % 4 === 0 || py % 4 === 0) ? .955 : 1.01;
             if (a >= 5 && a <= 10) { col = a === 5 || a === 10 ? [236, 234, 226] : [64, 138, 96]; m = sh * (a === 7 || a === 8 ? (al % 8 < 4 ? 1.02 : .97) : 1); } break; }
           case TT.WATER: case TT.CANAL: {
@@ -3717,17 +3843,40 @@ const MAP = EM.map = {
           g.fillStyle = Art.shade('#2c5a2c', dk); g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill(); g.fillStyle = Art.shade(['#3f7a3a', '#4b8640', '#3a7246', '#56883c'][(r * 4) | 0], dk); g.beginPath(); g.arc(x - .5, y - .6, rr * .78, 0, TAU); g.fill();
           g.fillStyle = Art.shade('#79ac56', dk); g.fillRect(x - rr * .5, y - rr * .6, 2, 2); g.fillRect(x - rr * .1, y - rr * .75, 1.5, 1.5); g.fillRect(x + rr * .2, y - rr * .3, 1.5, 1.5); }
       } else if (v === TT.BRICK) {
-        // casas de barrio: 2 o 3 lotes por casilla, techos de teja, eternit o plancha con tanque; fachada hacia el sur
-        const nS = T(tx, ty + 1), nN = T(tx, ty - 1), streetS = nS !== TT.BRICK && nS !== TT.BLDG, nh = 2 + (h2(X, Y, 50) < .35 ? 1 : 0), hw = P / nh;
-        for (let i = 0; i < nh; i++) {
-          const hx = ox + Math.round(i * hw), w = Math.round((i + 1) * hw) - Math.round(i * hw), rr = h2(X * 3 + i, Y, 51), typ = rr < .42 ? 'teja' : rr < .7 ? 'plancha' : 'eternit', top = oy + (nN === TT.BRICK ? 0 : 1), hh = P - (top - oy) - (streetS ? 2 : 0);
-          const roof = typ === 'teja' ? ['#b4583a', '#a24b30', '#c4683f', '#8e4128'][(rr * 97 | 0) % 4] : typ === 'plancha' ? ['#b7b2a8', '#a9a49a', '#c2bdb2'][(rr * 31 | 0) % 3] : ['#8f979c', '#9aa2a6', '#7f878c'][(rr * 13 | 0) % 3];
+        // casas de barrio con la fachada hacia SU calle (sur, este, oeste o norte), divididas según los lotes catastrales
+        // (Medellín) o al azar estable (resto del valle). Techos de teja, eternit o plancha (terraza con tanque, ropa,
+        // columnas con varilla "para el segundo piso", matas y a veces un perro). Las casillas de adentro son patios y terrazas.
+        const nS = T(tx, ty + 1), nN = T(tx, ty - 1), nW = T(tx - 1, ty), nE = T(tx + 1, ty), calle = q => road(q) || q === TT.WALK || q === TT.PLAZA || q === TT.STEPS || q === TT.CICLO || q === TT.STATION;
+        const front = calle(nS) ? 'S' : calle(nE) && !calle(nW) ? 'E' : calle(nW) ? 'W' : calle(nE) ? 'E' : calle(nN) ? 'N' : '';
+        const lt = this.lotT(X, Y), hq = h2(X, Y, 50), nh = lt ? [2, 1 + (hq < .35 ? 1 : 0), 2 + (hq < .5 ? 1 : 0), 3 + (hq < .45 ? 1 : 0)][lt] : 2 + (hq < .35 ? 1 : 0);
+        const alongX = front !== 'E' && front !== 'W', span = P, hw = span / nh, streetS = front === 'S';
+        if (!front && hq < .4) {   // patio interior de la manzana: cemento o pasto, con ropa tendida o un palo de mango
+          R(ox, oy, P, P, hq < .2 ? '#9fa58a' : '#b3ac9c'); R(ox, oy, P, 1, 'rgba(20,20,20,.3)');
+          if (hq < .12) { g.fillStyle = '#2c5a2c'; g.beginPath(); g.arc(ox + 8, oy + 8, 5, 0, TAU); g.fill(); g.fillStyle = '#4b8640'; g.beginPath(); g.arc(ox + 7.5, oy + 7.4, 3.8, 0, TAU); g.fill(); }
+          else for (let q = 0; q < 6; q++) R(ox + 3 + q * 2, oy + 6 + (q & 1), 1, 2, ['#EC343A', '#F6C538', '#1C5C9C', '#fff', '#59AB42', '#EB318E'][(q + (X & 3)) % 6]);
+        } else for (let i = 0; i < nh; i++) {
+          const a0 = Math.round(i * hw), a1 = Math.round((i + 1) * hw), w0 = a1 - a0, rr = h2(X * 3 + i, Y * 5 + i, 51), typ = rr < .38 ? 'teja' : rr < .72 ? 'plancha' : 'eternit';
+          const hx = alongX ? ox + a0 : ox, hy = alongX ? oy : oy + a0, w = alongX ? w0 : P, hh0 = alongX ? P : w0;
+          const top = hy + (alongX && nN !== TT.BRICK && front !== 'N' ? 1 : 0), hh = hh0 - (top - hy) - (streetS ? 2 : 0);
+          const roof = typ === 'teja' ? ['#b4583a', '#a24b30', '#c4683f', '#8e4128'][(rr * 97 | 0) % 4] : typ === 'plancha' ? ['#b7b2a8', '#a9a49a', '#c2bdb2', '#b3a690'][(rr * 31 | 0) % 4] : ['#8f979c', '#9aa2a6', '#7f878c'][(rr * 13 | 0) % 3];
           R(hx, top, w, hh, roof);
-          if (typ === 'teja') { R(hx, top + (hh >> 1), w, 1, Art.shade(roof, 1.25)); for (let yy = top + 2; yy < top + hh - 1; yy += 2) R(hx + 1, yy, w - 2, 1, Art.shade(roof, (yy - top) < (hh >> 1) ? .9 : .8)); }
-          else if (typ === 'eternit') { for (let xx = hx + 1; xx < hx + w - 1; xx += 2) R(xx, top + 1, 1, hh - 2, Art.shade(roof, .82)); }
-          else { R(hx + 1, top + 1, w - 2, 1, Art.shade(roof, 1.12)); if (rr < .55) { R(hx + 2, top + 2, 4, 4, '#141414'); R(hx + 2, top + 2, 3, 3, rr < .5 ? '#2f5f9c' : '#1d1d1d'); R(hx + 2, top + 2, 1, 1, '#9cc0e6'); } if (h2(X, i, 52) < .45) { g.fillStyle = 'rgba(30,30,30,.55)'; for (let q = 0; q < 4; q++) g.fillRect(hx + w - 3, top + 1 + q * 3, 1, 1); } if (h2(Y, i, 53) < .3) { R(hx + 1, top + hh - 4, w - 2, 1, '#d9d9d9'); for (let q = 0; q < w - 3; q += 2) R(hx + 2 + q, top + hh - 3, 1, 2, ['#EC343A', '#F6C538', '#1C5C9C', '#fff'][q & 3]); } }
-          R(hx, top, 1, hh, 'rgba(20,20,20,.55)');   // medianera
-          if (streetS) { const wall = h2(X, i, 54) < .55 ? BRICKS[(rr * 7 | 0) % 4] : WALLS[(rr * 97 | 0) % WALLS.length]; R(hx, oy + P - 2, w, 5, wall); R(hx, oy + P + 3, w, 1, 'rgba(0,0,0,.35)'); R(hx + 1 + (rr * (w - 3) | 0), oy + P - 1, 2, 4, '#3a2a20'); const wx = hx + (rr < .5 ? w - 3 : 1); R(wx, oy + P - 1, 2, 2, '#28435a'); lights.push([wx, oy + P - 1, 2]); }
+          if (typ === 'teja') { if (alongX) { R(hx, top + (hh >> 1), w, 1, Art.shade(roof, 1.25)); for (let yy = top + 2; yy < top + hh - 1; yy += 2) R(hx + 1, yy, w - 2, 1, Art.shade(roof, (yy - top) < (hh >> 1) ? .9 : .8)); }
+            else { R(hx + (w >> 1), top, 1, hh, Art.shade(roof, 1.25)); for (let xx = hx + 2; xx < hx + w - 1; xx += 2) R(xx, top + 1, 1, hh - 2, Art.shade(roof, (xx - hx) < (w >> 1) ? .9 : .8)); } }
+          else if (typ === 'eternit') { if (alongX) for (let xx = hx + 1; xx < hx + w - 1; xx += 2) R(xx, top + 1, 1, hh - 2, Art.shade(roof, .82)); else for (let yy = top + 1; yy < top + hh - 1; yy += 2) R(hx + 1, yy, w - 2, 1, Art.shade(roof, .82)); }
+          else {   // plancha: la terraza paisa
+            R(hx + 1, top + 1, w - 2, 1, Art.shade(roof, 1.12));
+            if (rr < .5 && w > 4 && hh > 5) { R(hx + 2, top + 2, 4, 4, '#141414'); R(hx + 2, top + 2, 3, 3, rr < .47 ? '#2f5f9c' : '#1d1d1d'); R(hx + 2, top + 2, 1, 1, '#9cc0e6'); }
+            const r2 = h2(X + i, Y, 55);
+            if (r2 < .22 && w > 4 && hh > 6) { for (const [cx2, cy2] of [[hx + 1, top + 1], [hx + w - 3, top + 1], [hx + 1, top + hh - 3], [hx + w - 3, top + hh - 3]]) { R(cx2, cy2, 2, 2, '#8d8d86'); R(cx2, cy2, 1, 1, '#2b2b2b'); } }   // columnas con varilla
+            else if (r2 < .55 && hh > 6) { R(hx + 1, top + hh - 4, w - 2, 1, '#d9d9d9'); for (let q = 0; q < w - 3; q += 2) R(hx + 2 + q, top + hh - 3, 1, 2, ['#EC343A', '#F6C538', '#1C5C9C', '#fff', '#EB318E'][(q + i) % 5]); }   // ropa tendida
+            if (h2(X, Y + i, 56) < .3) for (let q = 0; q < 3; q++) R(hx + w - 2 - q * 2, top + 2, 1, 1, ['#3f8f3a', '#c4486b', '#59AB42'][q]);   // matas
+            if (h2(Y, X + i, 57) < .025 && w > 5) { R(hx + 3, top + (hh >> 1), 3, 1, '#7a4a22'); R(hx + 6, top + (hh >> 1) - 1, 1, 1, '#5a3418'); }   // perro en la terraza
+          }
+          if (alongX) R(hx, top, 1, hh, 'rgba(20,20,20,.55)'); else R(hx, hy, w, 1, 'rgba(20,20,20,.55)');   // medianera
+          const wall = h2(X, i, 54) < .55 ? BRICKS[(rr * 7 | 0) % 4] : WALLS[(rr * 97 | 0) % WALLS.length];
+          if (streetS) { R(hx, oy + P - 2, w, 5, wall); R(hx, oy + P + 3, w, 1, 'rgba(0,0,0,.35)'); R(hx + 1 + (rr * (w - 3) | 0), oy + P - 1, 2, 4, '#3a2a20'); const wx = hx + (rr < .5 ? w - 3 : 1); R(wx, oy + P - 1, 2, 2, '#28435a'); lights.push([wx, oy + P - 1, 2]); if (rr > .86) R(hx, oy + P - 2, w, 1, ['#EC343A', '#1C5C9C', '#59AB42', '#F6C538'][(rr * 40 | 0) % 4]); }
+          else if (front === 'E' || front === 'W') { const ex = front === 'E' ? ox + P - 2 : ox; R(ex, hy, 2, w0, Art.shade(wall, .92)); R(ex, hy + 1 + (rr * (w0 - 3) | 0), 2, 2, '#3a2a20'); if (w0 > 4) { R(ex, hy + w0 - 2, 2, 1, '#28435a'); lights.push([ex, hy + w0 - 2, 2]); } }
+          else if (front === 'N') { R(hx, oy, w, 2, Art.shade(wall, .92)); R(hx + 1 + (rr * (w - 3) | 0), oy, 2, 2, '#3a2a20'); }
         }
         R(ox, oy, P, 1, nN === TT.BRICK ? 'rgba(20,20,20,.25)' : '#141414');
       } else if (v === TT.BLDG) {
@@ -3759,6 +3908,12 @@ const MAP = EM.map = {
         const nN2 = T(tx, ty - 1), nS2 = T(tx, ty + 1), nW2 = T(tx - 1, ty), nE2 = T(tx + 1, ty), rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO || q === TT.BRIDGE, horiz = rd(nW2) || rd(nE2), col = ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#f2c400', '#3d6b3a', '#d98a3a'][(r * 97 | 0) % 8];
         if (horiz && !rd(nS2)) { const x = ox + 3 + (h2(X, Y, 70) * 5 | 0), y = oy + P - 6; R(x - 1, y - 1, 9, 5, '#141414'); R(x, y, 7, 3, col); R(x + 2, y, 3, 3, Art.shade(col, 1.15)); R(x + 5, y, 1, 3, '#1f2e3d'); }
         else if (!horiz && !rd(nE2)) { const x = ox + P - 6, y = oy + 3 + (h2(X, Y, 71) * 5 | 0); R(x - 1, y - 1, 5, 9, '#141414'); R(x, y, 3, 7, col); R(x, y + 2, 3, 3, Art.shade(col, 1.15)); R(x, y + 5, 3, 1, '#1f2e3d'); }
+      } else if ((v === TT.PLAZA || v === TT.WALK) && r > .9) {
+        // vida en la plaza o la peatonal: carrito de venta con sombrilla de colores, o banca con farol
+        const x = ox + 4 + (h2(X, Y, 80) * 8 | 0), y = oy + 4 + (h2(X, Y, 81) * 8 | 0);
+        if (r > .955) { g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(x + 2, y + 2, 4, 3, 0, 0, TAU); g.fill(); const cs = [['#EC343A', '#fff'], ['#F6C538', '#1C5C9C'], ['#59AB42', '#fff'], ['#E38835', '#EB318E']][(r * 400 | 0) % 4];
+          for (let q = 0; q < 4; q++) { g.fillStyle = cs[q & 1]; g.beginPath(); g.moveTo(x, y); g.arc(x, y, 3.6, q * TAU / 4, (q + 1) * TAU / 4); g.fill(); } R(x - .5, y - .5, 1, 1, '#141414'); }
+        else { R(x - 3, y, 6, 2, '#6a4a2c'); R(x - 3, y - 1, 6, 1, '#8a6a44'); R(x + 4, y - 3, 1, 4, '#2b2b2b'); R(x + 3, y - 4, 3, 1, '#ffe7a3'); lights.push([x + 3, y - 4, 3]); }
       } else if (v === TT.WALK && r < .4) {
         // árbol de andén (copa pequeña sobre la acera, del lado de la calle)
         const rd = q => q === TT.ROAD || q === TT.AVE || q === TT.AUTO, dx = rd(T(tx + 1, ty)) ? 4 : rd(T(tx - 1, ty)) ? -4 : 0, dy = rd(T(tx, ty + 1)) ? 4 : rd(T(tx, ty - 1)) ? -4 : 0;
@@ -3781,6 +3936,54 @@ const MAP = EM.map = {
       const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
       g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
     }
+  },
+  /* ---------- rótulos como en un mapa real: calles (con su dirección), barrios y parques ---------- */
+  rotulosTrozo(cx, cy) {
+    const CH = this.CH, x0 = cx * CH, x1 = x0 + CH, G = new Map(), out = [];
+    for (let ty = cy * CH; ty < Math.min(MH, (cy + 1) * CH); ty++) {
+      let a = this.rRow[ty], b = this.rRow[ty + 1]; while (a < b) { const m = (a + b) >> 1; if (this.rX[m] < x0) a = m + 1; else b = m; }
+      for (let i = a; i < this.rRow[ty + 1] && this.rX[i] < x1; i++) for (const [L, id] of [[1, this.rP[i]], [0, this.rN[i]]]) {
+        if (!id) continue; const key = L * 65536 + id; let q = G.get(key); if (!q) G.set(key, q = { L, id, n: 0, sx: 0, sy: 0, xx: 0, yy: 0, xy: 0, pts: [] });
+        const x = this.rX[i] + .5, y = ty + .5; q.n++; q.sx += x; q.sy += y; q.xx += x * x; q.yy += y * y; q.xy += x * y; q.pts.push(x, y);
+      }
+    }
+    for (const q of G.values()) {
+      if (q.n < (q.L ? 4 : 3)) continue; const mx = q.sx / q.n, my = q.sy / q.n, vx = q.xx / q.n - mx * mx, vy = q.yy / q.n - my * my, cxy = q.xy / q.n - mx * my;
+      let a = .5 * Math.atan2(2 * cxy, vx - vy); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
+      let best = 0, bd = 1e9; for (let i = 0; i < q.pts.length; i += 2) { const d = (q.pts[i] - mx) ** 2 + (q.pts[i + 1] - my) ** 2; if (d < bd) { bd = d; best = i; } }
+      const nm = CIUDAD.calles[q.id][0], av = /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(nm);
+      out.push({ x: q.pts[best] * TM, y: q.pts[best + 1] * TM, a, t: nm, pri: q.L ? 3 : av ? 2 : 1, len: Math.sqrt(Math.max(vx, vy)) * 2 * TM });
+    }
+    return out.sort((p, q) => q.pri - p.pri || q.len - p.len);
+  },
+  drawLabels(g, W, H, mx, my, k, dpr = 1, night = 0) {
+    if (!this.ready || typeof CIUDAD === 'undefined' || !this.rRow) return; const kc = k / dpr, S = (x, y) => [W / 2 + (x - mx) * k, H / 2 + (y - my) * k], boxes = [];
+    const libre = (x0, y0, x1, y1) => { for (const b of boxes) if (x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1]) return false; boxes.push([x0, y0, x1, y1]); return true; };
+    const ink = night > .4 ? '#f4ecd0' : '#1d2733', halo = night > .4 ? 'rgba(10,16,26,.85)' : 'rgba(250,246,236,.92)';
+    g.save(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    const texto = (t, x, y, a, f, col, hal, lw) => { g.font = f; const w = g.measureText(t).width, h = parseFloat(f.match(/(\d+(\.\d+)?)px/)[1]), c = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a)), bw = (w * c + h * sn) / 2 + 3 * dpr, bh = (w * sn + h * c) / 2 + 2 * dpr;
+      if (x + bw < 0 || y + bh < 0 || x - bw > W || y - bh > H || !libre(x - bw, y - bh, x + bw, y + bh)) return; g.save(); g.translate(x, y); g.rotate(a); g.strokeStyle = hal; g.lineWidth = lw; g.strokeText(t, 0, 0); g.fillStyle = col; g.fillText(t, 0, 0); g.restore(); };
+    // calles (a pie, en bici o en carro)
+    if (kc >= .75) {
+      const fs = clamp(kc * 5.2, 9, 13) * dpr, CHm = this.CH * TM, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+      for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
+        if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
+        for (const r of c.rot) { if (r.len < (r.pri === 3 ? 60 : 40)) continue; const [x, y] = S(r.x, r.y); texto(r.pri === 3 ? r.t.toUpperCase() : r.t, x, y, r.a, (r.pri >= 2 ? '800 ' : '700 ') + (r.pri === 3 ? fs * .95 : fs) + 'px Cuerpo, sans-serif', r.pri === 3 ? (night > .4 ? '#ffd27a' : '#5a3a12') : ink, halo, 3.2 * dpr); }
+      }
+    }
+    // parques, plazas y miradores
+    if (kc >= .6) for (const L of CIUDAD.lugares) {
+      if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;
+      const [x, y] = S(L[2] / 4 * TM, L[3] / 4 * TM); if (x < -80 || y < -40 || x > W + 80 || y > H + 40) continue;
+      texto((L[1] === 'plaza' || L[1] === 'plazoleta' ? '◆ ' : L[1] === 'mirador' ? '▲ ' : '♣ ') + L[0], x, y, 0, 'italic 700 ' + clamp(kc * 4.6, 9, 12) * dpr + 'px Cuerpo, sans-serif', night > .4 ? '#b9e6a0' : '#245a2a', halo, 3 * dpr);
+    }
+    // barrios: a media distancia, en mayúsculas espaciadas
+    if (kc >= .14 && kc < 1.6) for (const B of CIUDAD.barrios) {
+      if (!B[6] && kc < .9) continue; if (B[5] < (kc < .3 ? 60 : kc < .6 ? 18 : 4)) continue;
+      const [x, y] = S(B[3] / 4 * TM, B[4] / 4 * TM); if (x < -120 || y < -30 || x > W + 120 || y > H + 30) continue;
+      texto(B[0].toUpperCase().split('').join(String.fromCharCode(8202)), x, y, 0, '800 ' + clamp(kc * 9, 9, 14) * dpr + 'px Cuerpo, sans-serif', night > .4 ? 'rgba(255,236,190,.92)' : 'rgba(35,45,70,.78)', halo, 3.4 * dpr);
+    }
+    g.restore();
   },
   /* luces de ventanas (después del tinte de la noche) */
   lightsTop(g, night, t) {
@@ -5797,8 +6000,8 @@ const Ciudad = EM.ciudad = {
     for (const L of this.lm) {
       if (L.x + L.w < x0 || L.x - L.w > x1 || L.y + L.h < y0 || L.y - L.h > y1) continue; const p = S(L.x - L.w / 2, L.y - L.h / 2), w = L.w * k, h = L.h * k;
       const col = { iglesia: '#e9d9b7', terminal: '#c9ced4', volador: null, campus: '#d6e6d2', moravia: '#f2cfae', botanico: null, explora: '#EC343A', estadio: '#9aa0a6', botero: '#e9c9c9', coltejer: '#8d97a4', teatro: '#b9b5ad', lleras: null, pies: '#d9cdae', luces: '#d9cdae', depot: '#bfe1d9', cerro: null, mamm: '#b4583a', aeropuerto: '#9aa1a8', comuna13: null, bibespana: '#2b2b2b', palacio: '#f4ecd0', catedral: '#b4583a', parquenorte: null, deporte: '#cfe0ea', memoria: '#8d97a4', cruces: null }[L.k];
-      if (col) { g.fillStyle = 'rgba(20,20,20,.35)'; g.fillRect(p.x + 2, p.y + 3, w, h); g.fillStyle = col; g.fillRect(p.x, p.y, w, h); g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1, k * .5); g.strokeRect(p.x, p.y, w, h);
-        if (L.k === 'iglesia' || L.k === 'catedral') { g.fillStyle = Art.shade(col, .8); g.fillRect(p.x + w * .42, p.y + h * .1, w * .16, h * .5); g.fillStyle = PAL.negro; g.fillRect(p.x + w * .49, p.y + h * .02, Math.max(1, k * .3), h * .18); g.fillRect(p.x + w * .45, p.y + h * .07, w * .1, Math.max(1, k * .3)); }
+      if (col) {   // sin rectángulos planos: el mapa ya trae lo real (datos oficiales); aquí va solo el ícono del lugar
+        if (L.k === 'iglesia' || L.k === 'catedral') { const cx = p.x + w / 2, cy = p.y + h / 2, u = Math.min(w, h) * .32; g.fillStyle = 'rgba(20,20,20,.35)'; g.fillRect(cx - u * .45 + 2, cy - u * .2 + 3, u * .9, u * 1.1); g.fillStyle = col; g.fillRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.fillStyle = Art.shade(col, .8); g.fillRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1, k * .4); g.strokeRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.strokeRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.fillStyle = PAL.negro; g.fillRect(cx - Math.max(1, k * .3) / 2, cy - u * 1.05, Math.max(1, k * .3), u * .3); g.fillRect(cx - u * .1, cy - u * .95, u * .2, Math.max(1, k * .3)); }
         if (L.k === 'estadio') { g.fillStyle = '#59AB42'; g.beginPath(); g.ellipse(p.x + w / 2, p.y + h / 2, w * .3, h * .36, 0, 0, TAU); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); }
         if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); }
         if (L.k === 'campus' || L.k === 'deporte') { g.fillStyle = Art.shade(col, .85); for (let i = 0; i < 4; i++) g.fillRect(p.x + w * (.1 + (i % 2) * .5), p.y + h * (.1 + (i >> 1) * .5), w * .3, h * .3); }
@@ -6013,12 +6216,20 @@ const Libre = EM.modes.libre = {
   result(st) { return { done: false, win: false, score: st.pay, stars: 0, lines: [] }; },
   msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
-  hud(st) { this.updCtl(st); return [['🎫', fmt(Save.d.wallet)], ['', st.mode === 'veh' ? Math.round(Math.abs(st.vf) * 3.6) + ' km/h' : st.mode === 'ride' ? st.ride.line.id + ' · ' + Math.round(st.vf * 3.6) + ' km/h' : (MAP.ready ? (MAP.comunaAt(st.x, st.y) || MAP.muniAt(st.x, st.y)).replace(/^Comuna \d+ - /, '') : '')]]; },
+  hud(st) { this.updCtl(st); return [['🎫', fmt(Save.d.wallet)], ['', st.mode === 'veh' ? Math.round(Math.abs(st.vf) * 3.6) + ' km/h' : st.mode === 'ride' ? st.ride.line.id + ' · ' + Math.round(st.vf * 3.6) + ' km/h' : this.lugarTxt(st)]]; },
+  lugarTxt(st) { if (!MAP.ready) return ''; const B = MAP.barrioAt(st.x, st.y); return B ? B[0] : (MAP.comunaAt(st.x, st.y) || MAP.muniAt(st.x, st.y)).replace(/^Comuna \d+ - /, ''); },
+  /* letrero al entrar a otra calle o a otro barrio (como en los juegos de mundo abierto) */
+  letrero(st) {
+    if (EM.headless || Game.st !== st || !MAP.ready || st.mode === 'ride') return; if ((st._lt = (st._lt || 0) + 1) % 2) return;
+    const el = $('#lbLugar'); if (!el) return; const c = MAP.calleAt(st.x, st.y), B = MAP.barrioAt(st.x, st.y), calle = c ? (c.p || c.n) : '', bar = B ? B[0] + (B[1] && B[1] !== B[0] ? ' · ' + B[1] : '') : MAP.muniAt(st.x, st.y);
+    if (calle === st._calle && bar === st._bar) return; const nueva = calle && calle !== st._calle; st._calle = calle; st._bar = bar; if (!nueva && !bar) return;
+    el.innerHTML = (calle ? `<b>${esc(calle)}</b>${c && c.p && c.n ? `<i>${esc(c.n)}</i>` : ''}` : '') + `<span>${esc(bar || '')}</span>`; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  },
   /* ---------- controles ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp">▲</button><button class="abtn brk" id="lbDown">▼</button><button class="abtn hb" id="lbHb">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Adelantar el viaje">${Atlas.ico('ico_adelantar', '⏩')}</button></div><div id="lbJob" class="jobbar hide"></div><div id="trTalk" class="trtalk hide"></div>`;
+      <div class="vsel" id="lbView"><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Adelantar el viaje">${Atlas.ico('ico_adelantar', '⏩')}</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -6030,7 +6241,7 @@ const Libre = EM.modes.libre = {
     this.updCtl(st);
   },
   updCtl(st) {
-    if (EM.headless || Game.st !== st) return; const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
+    if (EM.headless || Game.st !== st) return; this.letrero(st); const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     const ff = $('#lbFF'); if (ff) { ff.style.display = st.mode === 'ride' || this.nearHub(st, 70) ? '' : 'none'; ff.classList.toggle('on', !!st.ff); }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal) jb.classList.add('hide');
@@ -6060,7 +6271,7 @@ const Libre = EM.modes.libre = {
     if (st.mode === 'walk') Ciudad.ped(g, { x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.joy.m > .15 ? 1 : 0), col: '#1C5C9C', skin: SKIN[1], seed: 7, stun: 0, umb: L.w.rain }, S, k, sh);
     Ciudad.partsDraw(g, S, k); Ciudad.bubblesDraw(g, S, k);
     // noche, luces y clima
-    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noRain: false, noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); if (night > .3 && st.mode === 'veh') { const q = S(st.x, st.y); g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, 30 * k); gr.addColorStop(0, 'rgba(255,240,200,' + (.18 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.fillRect(q.x - 30 * k, q.y - 30 * k, 60 * k, 60 * k); g.restore(); } Mundo.grain(g, W, H); }
+    if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noRain: false, noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); if (MAP.ready) MAP.drawLabels(g, W, H, mx, my, k, W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), night); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); if (night > .3 && st.mode === 'veh') { const q = S(st.x, st.y); g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, 30 * k); gr.addColorStop(0, 'rgba(255,240,200,' + (.18 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.fillRect(q.x - 30 * k, q.y - 30 * k, 60 * k, 60 * k); g.restore(); } Mundo.grain(g, W, H); }
     // objetivo: flecha al borde y marcador (la historia tiene prioridad sobre los oficios)
     const J = st.goal || st.job; if (J && J.x != null) { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.strokeStyle = PAL.mostaza; g.lineWidth = 3; g.beginPath(); g.arc(q.x, q.y, 10 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 26); g.lineTo(q.x - 7, q.y - 38); g.lineTo(q.x + 7, q.y - 38); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4, ax = cx + Math.cos(a) * r, ay = cy + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
@@ -6474,7 +6685,7 @@ const Bus = EM.modes.bus = {
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st);
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
-    g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
+    g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); } if (MAP.ready && k >= .3) MAP.drawLabels(g, W, H, mx, my, k, W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), Mundo.light().night);
     // ruta: carril exclusivo o recorrido del alimentador
     g.strokeStyle = st.kind === 'metroplus' ? 'rgba(14,111,118,.45)' : line.color + '66'; g.lineWidth = (st.kind === 'metroplus' ? 7 : 5) * k; g.lineJoin = 'round'; g.beginPath(); let on = false; for (const p of line.P.pts) { if (p.x < x0 - 200 || p.x > x1 + 200 || p.y < y0 - 200 || p.y > y1 + 200) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.stroke();
     if (st.kind === 'metroplus') { g.setLineDash([3 * k, 3 * k]); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, .3 * k); g.stroke(); g.setLineDash([]); }
@@ -7180,7 +7391,7 @@ const RedView = EM.red = {
   draw() {
     const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), k = this.cam.k; this.t = now();
     g.fillStyle = PAL.gris; g.fillRect(0, 0, w, h);
-    if (MAP.ready) { if (k > .55) MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
+    if (MAP.ready) { if (k > .55) { MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
     const lw = clamp(k * 60, 2.5, 9) * dpr / 1.5;
     for (const l of NET.lines) {
       if (!this.on[l.kind]) continue; g.setLineDash(l.status && l.status !== 'operativa' ? [lw * 2, lw * 1.5] : []);
@@ -7201,7 +7412,7 @@ const RedView = EM.red = {
       g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(p.x, p.y, r, 0, TAU); g.fill(); g.stroke();
       if (showLbl || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, p.x + r + 3, p.y + 4 * dpr); g.fillStyle = PAL.negro; g.fillText(s.name, p.x + r + 3, p.y + 4 * dpr); }
     }
-    g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA', 8 * dpr, h - 64 * dpr);
+    g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
   },
   pick(sx, sy) { let best = null, bd = 24 * (window.devicePixelRatio || 1); for (const s of NET.stations) { if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), d = Math.hypot(p.x - sx, p.y - sy); if (d < bd) { bd = d; best = s; } } return best; },
   card(s) {
@@ -7344,7 +7555,7 @@ const Menu = EM.menu = {
   },
   credits() {
     UI.modal(`<div class="pag">Créditos</div><h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
-      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
+      <div class="film">Mapa: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps · Relieve: SRTM / NASA (AWS Terrain Tiles) · Mapa base y datos tomados de “Juega EnCicla” · Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026) y datos abiertos de la Alcaldía de Medellín (barrios, manzanas, malla vial 2026, jerarquía vial, espacio público), rasterizados a casillas de 20 m; barrios de Itagüí, Envigado y Sabaneta publicados por sus alcaldías · Estética: revista EMSAY · Inspiración de géneros: juegos de trenes, semáforos, reparto y conectar piezas.</div>
       <p class="m">Versión ${EM.version} · Funciona sin internet · Tus partidas se guardan en este dispositivo (exporta para respaldarlas).</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
   },
   bot() {
@@ -7773,7 +7984,15 @@ const BotT = EM.test = {
     for (const c of CAPS) if (c.go) { const M = EM.modes[c.go[0]]; if (!M) E('historia: modo ' + c.go[0]); else if (!M.levels().some(l => l.id === c.go[1])) Wn('historia: nivel ' + c.go[1] + ' no existe (usa el primero)'); }
     let nT = 0; try { nT = EM.trama ? EM.trama.check(E) : 0; } catch (e) { E('trama: ' + e.message); }
     let nA = 0; try { nA = EM.atlas ? EM.atlas.check(E) : 0; } catch (e) { E('atlas: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    // Medellín reconocible: parche de casillas, barrios y nombres de calle (datos oficiales)
+    let nBa = 0, nCa = 0; try {
+      if (typeof CIUDAD === 'undefined') E('ciudad: falta src/data/ciudad.js'); else {
+        nBa = CIUDAD.barrios.length; nCa = CIUDAD.calles.length - 1; if (!(MAP.parcheN > 80000)) E('ciudad: parche no aplicado (' + MAP.parcheN + ')');
+        const cerca = (est, txt) => { const s = NET.stations.find(q => q.name === est); if (!s) return false; for (let r = 0; r <= 140; r += 10) for (let a = 0; a < TAU; a += .4) { const c = MAP.calleAt(s.x + Math.cos(a) * r, s.y + Math.sin(a) * r); if (c && (c.n + '|' + c.p).includes(txt)) return true; } return false; };
+        const B = NET.stations.find(q => q.name === 'Parque Berrío'), bb = B && MAP.barrioAt(B.x, B.y); if (!bb || bb[0] !== 'La Candelaria') E('ciudad: Parque Berrío debería quedar en La Candelaria (' + (bb && bb[0]) + ')');
+        for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
+      } } catch (e) { E('ciudad: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nBa} barrios · ${nCa} calles con nombre · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
@@ -8453,7 +8672,7 @@ const URL_ = arg('--url', 'https://juanfeliperico369-stack.github.io/MetroZero/'
 const read = p => fs.readFileSync(p, 'utf8');
 const version = /version: '([^']+)'/.exec(read(src('js/00-core.js')))[1];
 fs.mkdirSync(dist, { recursive: true });
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => read(src(p)));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => `/* ---- ${f} ---- */\n` + read(src('js/' + f)));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -8479,6 +8698,367 @@ self.addEventListener('fetch', e => {
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
 fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.mjs'));
 console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);
+~~~~
+
+### `tools/ciudad_datos.py`
+~~~~
+#!/usr/bin/env python3
+"""MEDELLÍN RECONOCIBLE · corrige el mapa base y genera src/data/ciudad.js con datos oficiales abiertos.
+
+  python3 tools/ciudad_descarga.py CACHE      # una vez: baja las capas (ver ese archivo)
+  python3 tools/ciudad_datos.py CACHE         # corrige src/data/valle.js y escribe src/data/ciudad.js
+
+Qué hace:
+0. No modifica src/data/valle.js: las correcciones van como parche en ciudad.js y se aplican al cargar (MAP.load).\n1. Medellín (manzanas oficiales):
+   - una casilla "andén" que cae DENTRO de una manzana catastral es un lote construido: pasa a casa (ladrillo)
+     o a edificio, según el tamaño de sus lotes;
+   - en parques, plazas y zonas verdes del inventario de espacio público, el andén o el lote vacío pasa a plaza o pasto.
+   No toca vías, estaciones, agua ni puentes: las rutas de bus y el juego siguen igual.
+2. Fuera de Medellín (sin manzanas abiertas): la misma corrección con una regla aprendida en Medellín
+   (vecinos construidos y sin calle al lado); se imprime su precisión medida.
+3. Barrios: Medellín (límite catastral oficial), Itagüí, Envigado y Sabaneta → grilla de 80 m + nombres.
+4. Calles: nomenclatura oficial de la malla vial de Medellín (Calle, Carrera, Diagonal…) y nombres de la jerarquía vial.
+5. Lotes: cuántos lotes caen en cada casilla construida de Medellín (para dividir las casas como son).
+6. Lugares: parques, plazas, plazoletas y ecoparques con nombre.
+"""
+import base64, json, math, os, re, sys, zlib
+from collections import Counter, defaultdict
+
+C = sys.argv[1] if len(sys.argv) > 1 else '.cache/ciudad'
+R = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+TT = dict(GRASS=0, MOUNT=1, BRICK=2, BLDG=3, ROAD=4, AVE=5, WALK=6, CICLO=7, WATER=8, CANAL=9, PLAZA=10, BRIDGE=11, STATION=12, LAND=13, AUTO=14, DEPOT=15, STEPS=16)
+ROADS = {TT['ROAD'], TT['AVE'], TT['AUTO'], TT['BRIDGE']}; BUILT = {TT['BRICK'], TT['BLDG']}
+
+# ---------- mapa base ----------
+vpath = os.path.join(R, 'src/data/valle.js'); src = open(vpath, encoding='utf-8').read()
+meta = json.loads(re.search(r'const VALLE_META = (\{.*?\});\n', src, re.S).group(1))
+b64 = re.search(r"const VALLE_BIN = '([^']*)'", src).group(1)
+raw = zlib.decompress(base64.b64decode(b64), -15)
+MW, MH = meta['W'], meta['H']; tiles = bytearray(raw[:MW * MH]); orig = bytes(tiles)
+TX = lambda lon: (lon - meta['lon0']) * meta['kx']; TY = lambda lat: (meta['latN'] - lat) * meta['ky']
+T = lambda x, y: tiles[y * MW + x] if 0 <= x < MW and 0 <= y < MH else TT['MOUNT']
+load = lambda n: json.load(open(os.path.join(C, n + '.json')))['features']
+
+def rings(geom):
+    if not geom: return []
+    if geom['type'] == 'Polygon': return [[(TX(a), TY(b)) for a, b in r] for r in geom['coordinates']]
+    if geom['type'] == 'MultiPolygon': return [[(TX(a), TY(b)) for a, b in r] for p in geom['coordinates'] for r in p]
+    return []
+
+def fill(rs, cb, k=1.0):
+    """Llama cb(i, j) por cada celda de lado k (en casillas) cuyo centro cae dentro (regla par-impar entre anillos)."""
+    if not rs: return
+    ys = [p[1] for r in rs for p in r]; y0, y1 = int(math.floor(min(ys) / k)), int(math.ceil(max(ys) / k))
+    for j in range(max(0, y0), y1 + 1):
+        yc = (j + .5) * k; xs = []
+        for r in rs:
+            for (ax, ay), (bx, by) in zip(r, r[1:] + r[:1]):
+                if (ay > yc) != (by > yc): xs.append(ax + (yc - ay) * (bx - ax) / (by - ay))
+        xs.sort()
+        for a, b in zip(xs[0::2], xs[1::2]):
+            for i in range(max(0, int(math.ceil(a / k - .5))), int(math.floor(b / k - .5)) + 1): cb(i, j)
+
+# ---------- 1 · Medellín: manzanas, espacio público y lotes ----------
+mde = bytearray(MW * MH); mz = bytearray(MW * MH); ep = bytearray(MW * MH)
+BARR = load('barrios_mde')
+for f in BARR:
+    fill(rings(f['geometry']), lambda i, j: mde.__setitem__(j * MW + i, 1) if i < MW and j < MH else None)
+for f in load('manzanas_mde'):
+    fill(rings(f['geometry']), lambda i, j: mz.__setitem__(j * MW + i, 1) if i < MW and j < MH else None)
+EPC = {'Plaza': 2, 'Plazoleta': 2, 'Plazuela': 2, 'Parque Cívico': 2, 'Parque Recreativo': 1, 'Zona Verde Recreacional': 1, 'Ecoparque': 1, 'Mirador Panoramico': 1}
+EPF = load('espacio_publico_mde')
+for f in EPF:
+    c = EPC.get((f['properties'] or {}).get('categoria'), 0)
+    if c: fill(rings(f['geometry']), lambda i, j, c=c: ep.__setitem__(j * MW + i, c) if i < MW and j < MH else None)
+lotN = Counter(); lotA = defaultdict(float)
+for f in load('lotes_mde'):
+    a = f['attributes']
+    if a.get('longitud') is None or a.get('latitud') is None: continue
+    x, y = int(TX(a['longitud'])), int(TY(a['latitud']))
+    lotN[(x, y)] += 1; lotA[(x, y)] += a.get('area_lote') or 0
+
+ALTOS = re.compile(r'Candelaria|Poblado|Laureles|América')
+def comuna(x, y):
+    i = min(meta['mH'] - 1, y // 8) * meta['mW'] + min(meta['mW'] - 1, x // 8); v = raw[MW * MH + meta['eW'] * meta['eH'] * 2 + meta['mW'] * meta['mH'] + i]
+    return meta['comunas'][v - 1] if v else ''
+def construido(x, y):
+    n = lotN.get((x, y), 0)
+    if n: return TT['BRICK'] if lotA[(x, y)] / n <= 350 else TT['BLDG']
+    v = Counter(T(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if T(x + dx, y + dy) in BUILT)
+    if v: return v.most_common(1)[0][0]
+    return TT['BLDG'] if ALTOS.search(comuna(x, y)) else TT['BRICK']
+
+# regla para fuera de Medellín, medida en Medellín: un andén con vecinos construidos y sin calle al lado está en una manzana
+def rasgos(x, y, t):
+    nb = sum(t[(y + dy) * MW + x + dx] in BUILT for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= x + dx < MW and 0 <= y + dy < MH)
+    nr = sum(t[(y + dy) * MW + x + dx] in ROADS for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= x + dx < MW and 0 <= y + dy < MH)
+    return nb, nr
+tab = defaultdict(lambda: [0, 0])
+for y in range(MH):
+    for x in range(MW):
+        i = y * MW + x
+        if mde[i] and orig[i] == TT['WALK']:
+            nb, nr = rasgos(x, y, orig); tab[(min(nb, 3), min(nr, 2))][0 if mz[i] else 1] += 1
+REGLA = {k for k, (a, b) in tab.items() if a + b >= 200 and a / (a + b) >= .85}
+print('andenes en Medellín: P(dentro de manzana | vecinos construidos, vecinos calle)')
+for k in sorted(tab): a, b = tab[k]; print(f'   {k}: {a / (a + b):5.1%} de {a + b:6d}{"  ← regla" if k in REGLA else ""}')
+
+# protección: andenes a 3 casillas o menos de una estación, y los lugares emblemáticos (src/data/lugares.js), se respetan
+prot = bytearray(MW * MH)
+for y in range(MH):
+    for x in range(MW):
+        if orig[y * MW + x] == TT['STATION']:
+            for dy in range(-3, 4):
+                for dx in range(-3, 4):
+                    if 0 <= x + dx < MW and 0 <= y + dy < MH: prot[(y + dy) * MW + x + dx] = 1
+# y las estaciones de la red (posición real de src/data/red.js): su plaza no se vuelve casa
+for m in re.finditer(r'\["[^"]+",(-?\d+\.\d+),(-?\d+\.\d+)\]', open(os.path.join(R, 'src/data/red.js'), encoding='utf-8').read()):
+    cx, cy = int(TX(float(m.group(2)))), int(TY(float(m.group(1))))
+    for y in range(cy - 3, cy + 4):
+        for x in range(cx - 3, cx + 4):
+            if 0 <= x < MW and 0 <= y < MH: prot[y * MW + x] = 1
+for m in re.finditer(r"\['\w+', '[^']*', '[^']*', (-?[\d.]+), (-?[\d.]+), (\d+), (\d+)", open(os.path.join(R, 'src/data/lugares.js'), encoding='utf-8').read()):
+    la, lo, w, h = float(m.group(1)), float(m.group(2)), int(m.group(3)), int(m.group(4)); cx, cy = int(TX(lo)), int(TY(la))
+    for y in range(cy - h // 2, cy + h // 2 + 1):
+        for x in range(cx - w // 2, cx + w // 2 + 1):
+            if 0 <= x < MW and 0 <= y < MH: prot[y * MW + x] = 1
+cambios = Counter()
+for y in range(MH):
+    for x in range(MW):
+        i = y * MW + x; v = orig[i]
+        if mde[i]:
+            if ep[i] and v in (TT['WALK'], TT['LAND']): nv = TT['PLAZA'] if ep[i] == 2 else TT['GRASS']
+            elif ep[i] == 2 and v == TT['GRASS']: nv = TT['PLAZA']
+            elif mz[i] and v == TT['WALK'] and not prot[i]: nv = construido(x, y)
+            else: continue
+        elif v == TT['WALK'] and not prot[i]:
+            nb, nr = rasgos(x, y, orig)
+            if (min(nb, 3), min(nr, 2)) not in REGLA: continue
+            nv = construido(x, y)
+        else: continue
+        if nv != v: tiles[i] = nv; cambios[(v, nv)] += 1
+NOM = {v: k for k, v in TT.items()}
+print('casillas corregidas:', sum(cambios.values()), {f'{NOM[a]}→{NOM[b]}': n for (a, b), n in cambios.most_common(8)})
+
+# ---------- 3 · barrios (grilla de 4×4 casillas = 80 m) ----------
+K = 4; GW, GH = (MW + K - 1) // K, (MH + K - 1) // K; bg = [0] * (GW * GH); barrios = []
+def campo(p, *pat):
+    for k, v in p.items():
+        if isinstance(v, str) and v.strip() and any(re.search(q, k, re.I) for q in pat): return v.strip()
+    return ''
+def titulo(s):
+    s = re.sub(r'\s+', ' ', s.strip()); peq = {'de', 'del', 'la', 'las', 'los', 'el', 'y', 'en'}
+    return ' '.join(w if (i and w.lower() in peq) else (w[:1].upper() + w[1:].lower() if w.isupper() or w.islower() else w) for i, w in enumerate(s.split(' ')))
+FUENTES_B = [('barrios_mde', 'Medellín', lambda p: p.get('nombre_bar') or '', lambda p: titulo(p.get('nombre_com') or ''), lambda p: p.get('indicador_') != 'R')]
+for nm, muni in [('barrios_itagui', 'Itagüí'), ('barrios_envigado', 'Envigado'), ('barrios_sabaneta', 'Sabaneta')]:
+    if os.path.exists(os.path.join(C, nm + '.json')):
+        FUENTES_B.append((nm, muni, lambda p: campo(p, r'^nom.*bar|^barrio$|^nombre$|^name$|nombre'), lambda p: '', lambda p: True))
+for nm, muni, fn, fc, urb in FUENTES_B:
+    for f in load(nm):
+        p = f['properties'] or {}; name = titulo(fn(p))
+        if not name or not f.get('geometry'): continue
+        idx = len(barrios) + 1; cells = []
+        fill(rings(f['geometry']), lambda i, j: cells.append((i, j)) if i < GW and j < GH else None, K)
+        if not cells: continue
+        for i, j in cells:
+            if not bg[j * GW + i] or muni != 'Medellín': bg[j * GW + i] = idx
+        mx = sum(i for i, j in cells) / len(cells); my = sum(j for i, j in cells) / len(cells)
+        lx, ly = min(cells, key=lambda c: (c[0] - mx) ** 2 + (c[1] - my) ** 2)
+        barrios.append([name, fc(p), muni, (lx * K + K // 2) * 4, (ly * K + K // 2) * 4, len(cells), 1 if urb(p) else 0])
+print('barrios:', len(barrios), Counter(b[2] for b in barrios))
+
+# ---------- 4 · calles ----------
+PRE = {'CL': 'Calle', 'CR': 'Carrera', 'DG': 'Diagonal', 'TV': 'Transversal', 'CQ': 'Circular', 'AV': 'Avenida', 'VIA': 'Vía', 'SERV': 'Vía de servicio'}
+def nombre_via(s):
+    s = (s or '').strip()
+    if not s or s.upper() in ('NULL', 'VIA', 'SERV'): return ''
+    m = re.match(r'^([A-Z]+)\s*(.*)$', s)
+    if not m or m.group(1) not in PRE: return ''
+    resto = re.sub(r'\s*\+\s*$', '', m.group(2)).strip()
+    resto = re.sub(r'(\d+)\s+([A-Z]{1,3})\b(?! ?SUR\b)', r'\1\2', resto)   # "1 B" → "1B"
+    resto = re.sub(r'\bSUR\b', 'Sur', re.sub(r'\bESTE\b', 'Este', resto))
+    return PRE[m.group(1)] + (' ' + resto if resto else '')
+def dp(pts, tol):
+    if len(pts) < 3: return pts
+    (ax, ay), (bx, by) = pts[0], pts[-1]; L = math.hypot(bx - ax, by - ay) or 1e-9; im, dm = 0, -1
+    for i in range(1, len(pts) - 1):
+        px, py = pts[i]; d = abs((bx - ax) * (ay - py) - (ax - px) * (by - ay)) / L
+        if d > dm: im, dm = i, d
+    return dp(pts[:im + 1], tol)[:-1] + dp(pts[im:], tol) if dm > tol else [pts[0], pts[-1]]
+calles = defaultdict(list)
+for f in load('malla_vial_mde'):
+    g = f.get('geometry'); n = nombre_via((f['properties'] or {}).get('via_gen'))
+    if not g or not n: continue
+    for line in ([g['coordinates']] if g['type'] == 'LineString' else g['coordinates']):
+        calles[n].append(dp([(TX(a), TY(b)) for a, b in line], .22))
+ARTER = defaultdict(list)
+for f in load('jerarquia_vial_mde'):
+    g = f.get('geometry'); p = f['properties'] or {}; n = titulo(p.get('label') or p.get('nombre') or '')
+    if not g or not n or re.match(r'^(Calle|Carrera|Diagonal|Transversal|Circular)\s+\d', n): continue
+    for line in ([g['coordinates']] if g['type'] == 'LineString' else g['coordinates']):
+        ARTER[n].append(dp([(TX(a), TY(b)) for a, b in line], .3))
+# nombre por casilla de vía: se recorre cada tramo cada 1/4 de casilla y vota en la casilla de vía que toca (o la vecina)
+nombres = [['', 0]]; nid = {}
+def idn(n, clase):
+    if (n, clase) not in nid: nid[(n, clase)] = len(nombres); nombres.append([n, clase])
+    return nid[(n, clase)]
+votos = [defaultdict(Counter), defaultdict(Counter)]   # 0: nomenclatura (o vía principal fuera de Medellín), 1: nombre popular
+def votar(capa, pts, k):
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        L = math.hypot(bx - ax, by - ay); m = max(1, int(L * 4))
+        for t in range(m + 1):
+            x, y = ax + (bx - ax) * t / m, ay + (by - ay) * t / m; ix, iy = int(x), int(y)
+            if T(ix, iy) in ROADS: votos[capa][iy * MW + ix][k] += 1
+            else:
+                c = [(ix + dx, iy + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if T(ix + dx, iy + dy) in ROADS]
+                if c: jx, jy = min(c, key=lambda q: (q[0] + .5 - x) ** 2 + (q[1] + .5 - y) ** 2); votos[capa][jy * MW + jx][k] += 1
+for n, partes in calles.items():
+    k = idn(n, 0)
+    for pts in partes: votar(0, pts, k)
+for n, partes in ARTER.items():
+    k = idn(n, 1)
+    for pts in partes: votar(1, pts, k)
+# fuera de Medellín: vías principales con nombre que ya trae el mapa (VALLE_META.lanes, en cuartos de casilla)
+ok = tot = 0
+for ln in meta.get('lanes', []):
+    n = (ln.get('n') or '').strip(); p = ln.get('p') or []
+    pts = [(p[i] / 4, p[i + 1] / 4) for i in range(0, len(p) - 1, 2)]
+    tot += len(pts); ok += sum(T(int(x), int(y)) in ROADS for x, y in pts)
+    if not n or not pts: continue
+    if all(mde[int(y) * MW + int(x)] for x, y in pts[:: max(1, len(pts) // 5)] if 0 <= int(x) < MW and 0 <= int(y) < MH): continue   # en Medellín manda la malla oficial
+    k = idn(n, 2); votar(0, pts, k)
+print(f'vías principales del mapa base: {ok / max(1, tot):.0%} de sus puntos caen en casillas de vía (comprobación de unidades)')
+road_idx = [i for i in range(MW * MH) if orig[i] in ROADS]
+s0 = [votos[0][i].most_common(1)[0][0] if i in votos[0] else 0 for i in road_idx]
+s1 = [votos[1][i].most_common(1)[0][0] if i in votos[1] else 0 for i in road_idx]
+def predictor(vals):
+    """Por cada casilla de vía en orden: 0 = igual a la izquierda, 1 = arriba, 4 = arriba-izquierda, 5 = arriba-derecha, 2 = sin nombre, 3 + varint = nombre nuevo."""
+    g = {}; out = bytearray()
+    for i, v in zip(road_idx, vals): g[i] = v
+    for i, v in zip(road_idx, vals):
+        x = i % MW
+        if v == 0: out.append(2); continue
+        if x > 0 and g.get(i - 1) == v: out.append(0); continue
+        if g.get(i - MW) == v: out.append(1); continue
+        if x > 0 and g.get(i - MW - 1) == v: out.append(4); continue
+        if x < MW - 1 and g.get(i - MW + 1) == v: out.append(5); continue
+        out.append(3); u = v
+        while u >= 128: out.append((u & 127) | 128); u >>= 7
+        out.append(u)
+    return bytes(out)
+p0, p1 = predictor(s0), predictor(s1)
+callesB = p0 + p1
+print('calles:', len(calles), 'nombres oficiales ·', len(ARTER), 'nombres populares · casillas de vía con nombre:', sum(1 for v in s0 if v), 'de', len(road_idx), '· con nombre popular:', sum(1 for v in s1 if v))
+
+# ---------- 5 · lotes por casilla construida (Medellín), 2 bits: 0 sin dato, 1 un lote, 2 dos o tres, 3 cuatro o más ----------
+xs = [x for (x, y) in lotN]; ys = [y for (x, y) in lotN]; LX0, LX1, LY0, LY1 = min(xs), max(xs), min(ys), max(ys)
+bits = []
+for y in range(LY0, LY1 + 1):
+    for x in range(LX0, LX1 + 1):
+        if tiles[y * MW + x] in BUILT:
+            n = lotN.get((x, y), 0); bits.append(0 if n == 0 else 1 if n == 1 else 2 if n <= 3 else 3)
+lotB = bytearray((len(bits) + 3) // 4)
+for k, b in enumerate(bits): lotB[k >> 2] |= b << ((k & 3) * 2)
+
+# ---------- 6 · lugares con nombre ----------
+lugares = []; GEN = re.compile(r'^(zona verde|parque recreativo|plazoleta|plazuela|ecoparque)\b.*$', re.I)
+CAT = {'Plaza': 'plaza', 'Plazoleta': 'plazoleta', 'Plazuela': 'plazoleta', 'Parque Cívico': 'parque', 'Parque Recreativo': 'parque', 'Ecoparque': 'ecoparque', 'Mirador Panoramico': 'mirador', 'Zona Verde Recreacional': 'verde'}
+for f in EPF:
+    p = f['properties'] or {}; n = (p.get('nombre') or '').strip(); cat = CAT.get(p.get('categoria'))
+    if not n or not cat or GEN.match(n) and len(n) < 26 or n.lower() == (p.get('categoria') or '').lower(): continue
+    rs = rings(f['geometry'])
+    if not rs: continue
+    r0 = rs[0]; A = sum(ax * by - bx * ay for (ax, ay), (bx, by) in zip(r0, r0[1:] + r0[:1])) / 2
+    if cat == 'verde' and abs(A) < 4: continue
+    cx = sum(x for x, y in r0) / len(r0); cy = sum(y for x, y in r0) / len(r0)
+    lugares.append([titulo(n) if n.isupper() else n, cat, round(cx * 4), round(cy * 4), round(abs(A), 1)])
+print('lugares con nombre:', len(lugares), Counter(l[1] for l in lugares))
+
+# ---------- salida ----------
+# parche: (salto desde el cambio anterior en varint, valor nuevo) en orden de casillas; se aplica al cargar el mapa
+# parche compacto: 2 bits por cada casilla 'andén' del mapa base (0 queda, 1 casa, 2 edificio, 3 pasto o plaza según el
+# inventario) + lista explícita (salto varint, valor) para los demás cambios (lote vacío o pasto que pasan a plaza o pasto)
+CODE = {TT['BRICK']: 1, TT['BLDG']: 2, TT['GRASS']: 3, TT['PLAZA']: 3}
+walk_bits = []; extra = bytearray(); last = 0; npch = 0; plaza_walk = bytearray()
+for i in range(MW * MH):
+    if orig[i] == TT['WALK']:
+        c = CODE.get(tiles[i], 0) if tiles[i] != orig[i] else 0; walk_bits.append(c)
+        if c == 3: plaza_walk.append(1 if tiles[i] == TT['PLAZA'] else 0)
+        if c: npch += 1
+    elif tiles[i] != orig[i]:
+        d = i - last; last = i; npch += 1
+        while d >= 128: extra.append((d & 127) | 128); d >>= 7
+        extra.append(d); extra.append(tiles[i])
+wb = bytearray((len(walk_bits) + 3) // 4)
+for k, c in enumerate(walk_bits): wb[k >> 2] |= c << ((k & 3) * 2)
+pz = bytearray((len(plaza_walk) + 7) // 8)
+for k, c in enumerate(plaza_walk): pz[k >> 3] |= c << (k & 7)
+pb = bytes(wb) + bytes(pz) + bytes(extra)
+z = lambda b: base64.b64encode((lambda c: c.compress(b) + c.flush())(zlib.compressobj(9, zlib.DEFLATED, -15))).decode()
+bgB = b''.join(v.to_bytes(2, 'little') for v in bg)
+out = {'v': 1, 'parche': {'n': npch, 'bytes': len(pb), 'nw': len(wb), 'np': len(pz), 'data': z(bytes(pb))}, 'K': K, 'GW': GW, 'GH': GH, 'barrios': barrios, 'bgrid': z(bgB), 'bgridN': len(bgB),
+       'calles': nombres, 'cdata': z(callesB), 'cdataN': len(callesB), 'cdataN0': len(p0), 'nvias': len(road_idx), 'lotes': {'x0': LX0, 'y0': LY0, 'x1': LX1, 'y1': LY1, 'data': z(bytes(lotB)), 'n': len(lotB)}, 'lugares': lugares}
+js = ('/* MEDELLÍN RECONOCIBLE · generado por tools/ciudad_datos.py (no editar a mano).\n'
+      '   Datos abiertos: Alcaldía de Medellín (barrios, manzanas, malla vial, jerarquía vial, espacio público y lotes catastrales),\n'
+      '   alcaldías de Itagüí, Envigado y Sabaneta (barrios). Coordenadas en cuartos de casilla (5 m). Ver docs/FUENTES.md. */\n'
+      'const CIUDAD = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n')
+open(os.path.join(R, 'src/data/ciudad.js'), 'w', encoding='utf-8').write(js)
+print(f'src/data/ciudad.js {len(js) // 1024} KB · parche de {npch} casillas · el mapa base (valle.js) no se modifica')
+~~~~
+
+### `tools/ciudad_descarga.py`
+~~~~
+#!/usr/bin/env python3
+"""Descarga (una vez) las capas abiertas oficiales que usa tools/ciudad_datos.py.
+
+  python3 tools/ciudad_descarga.py CARPETA_CACHE
+
+Fuentes (datos abiertos en ArcGIS Online; se citan en docs/FUENTES.md):
+- Alcaldía de Medellín: límite barrio-vereda catastral, manzanas, malla vial 2026 (nomenclatura y ancho),
+  jerarquía vial, inventario de espacio público y lotes catastrales (solo centroide y área, sin geometría).
+- Itagüí, Envigado y Sabaneta: capas de barrios publicadas por sus oficinas.
+Pagina de a 2000 registros con una pausa corta entre consultas. No vuelve a bajar lo que ya está en la caché.
+"""
+import json, os, sys, time, urllib.request, urllib.parse
+
+C = sys.argv[1] if len(sys.argv) > 1 else '.cache/ciudad'
+os.makedirs(C, exist_ok=True)
+UA = {'User-Agent': 'ElMetro-datos/0.7 (juego educativo offline)'}
+MDE = 'https://services1.arcgis.com/FZVaYraI7sEGQ6rF/arcgis/rest/services'
+CAPAS = {
+    'barrios_mde': (MDE + '/shp_limite_barrio_vereda_cata/FeatureServer/0', 'nombre_bar,nombre_com,codigo,indicador_', True, '0.00003'),
+    'manzanas_mde': (MDE + '/Manzanas/FeatureServer/0', 'BARRIOVERE,CODIGO_COM', True, '0.00002'),
+    'espacio_publico_mde': (MDE + '/InventarioEspacioPublicoMDE/FeatureServer/0', 'nombre,categoria,subcategor', True, '0.00002'),
+    'malla_vial_mde': (MDE + '/Malla_Vial_2026/FeatureServer/0', 'via_gen,via_pot,Ancho,calzada_ve,Barrio,Comuna', True, '0.00002'),
+    'jerarquia_vial_mde': (MDE + '/Jerarquia_Vial/FeatureServer/0', 'nombre,label,jerarquiza', True, '0.00003'),
+    'lotes_mde': (MDE + '/Lotes_Febrero_2026/FeatureServer/0', 'longitud,latitud,area_lote,numero_edi,tipo_lote', False, None),
+    'barrios_itagui': ('https://services6.arcgis.com/OgaxSIAS6LfBrEiE/arcgis/rest/services/Infraestructura_Deportiva_y_Recreativa_de_Itag%C3%BC%C3%AD_WFL1/FeatureServer/11', '*', True, '0.00003'),
+    'barrios_envigado': ('https://services7.arcgis.com/vAISUooSGCM0wKQp/arcgis/rest/services/Mapa_Base_Observatorio_Inmobiliario_WFL1/FeatureServer/3', '*', True, '0.00003'),
+    'barrios_sabaneta': ('https://services7.arcgis.com/OsNfmcCXlLRPMVA8/arcgis/rest/services/Barrios/FeatureServer/0', '*', True, '0.00003'),
+}
+
+def get(url):
+    for k in range(4):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120) as r: return json.loads(r.read())
+        except Exception as e:
+            print('  reintento', k + 1, e); time.sleep(3 * (k + 1))
+    raise SystemExit('no se pudo descargar: ' + url)
+
+for nombre, (url, campos, geo, off) in CAPAS.items():
+    dst = os.path.join(C, nombre + '.json')
+    if os.path.exists(dst): print('ya está', nombre); continue
+    feats, o = [], 0
+    while True:
+        q = {'where': '1=1', 'outFields': campos, 'returnGeometry': 'true' if geo else 'false', 'outSR': '4326', 'resultOffset': o, 'resultRecordCount': 2000, 'f': 'geojson' if geo else 'json'}
+        if geo: q.update(geometryPrecision='6', maxAllowableOffset=off)
+        d = get(url + '/query?' + urllib.parse.urlencode(q))
+        fs = d.get('features', []); feats += fs
+        print(f'  {nombre}: {len(feats)}')
+        if not fs or not (d.get('exceededTransferLimit') or (d.get('properties') or {}).get('exceededTransferLimit')) and len(fs) < 2000: break
+        o += len(fs); time.sleep(.4)
+    json.dump({'fuente': url, 'features': feats}, open(dst, 'w'))
+    print('listo', nombre, len(feats))
 ~~~~
 
 ### `tools/osm-ventanas.mjs`
@@ -9052,6 +9632,7 @@ Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos 
 
 ## Datos que no van como texto
 - **\`src/data/valle.js\`** (${valleKB} KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con \`MAP.tile\`, \`MAP.tileM\` y \`MAP.elevM\` (ver \`src/js/10-map.js\`).
+- **\`src/data/ciudad.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/ciudad.js')).size / 1024)} KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera \`python3 tools/ciudad_datos.py\`; se usa con \`MAP.barrioAt\`, \`MAP.calleAt\`, \`MAP.lotT\` y \`MAP.drawLabels\` (\`src/js/10-map.js\`).
 - **\`src/data/arte.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/arte.js')).size / 1024)} KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera \`python3 tools/arte_juego.py\` desde \`arte/entregas/\`; la lista con su uso está en \`arte/entregas/USO-EN-EL-JUEGO.md\`. Se usa con \`Atlas.img(id)\`, \`Atlas.url(id)\` y \`Atlas.tag(id)\` (\`src/js/19-atlas.js\`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
