@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.9.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v0.10.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.9.0** · compilado el 2026-11-17.
+> Versión del juego **v0.10.0** · compilado el 2026-11-17.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,7 +799,20 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.9.0 "Maqueta y álbum"
+##### Estado al 2026-11-17 · v0.10.0 "Valle completo y EnCicla"
+**Novedad de v0.10.0:**
+- **El mapa, medido y corregido:**
+  - las 49 estaciones tienen huella y techo;
+  - el río es continuo y siempre baja;
+  - el tranvía va por su calle;
+  - aparece el patio‑taller de Bello;
+  - hay barrios y nombres de calle en todo el valle.
+- **El calendario es real:** festivos de Colombia, y el Metro de 5 a. m. a 10 p. m. los domingos y festivos.
+- **Primer cruce con Juega EnCicla:** sus 133 estaciones en Ciudad Libre, con préstamo, timbre y logros.
+
+Debajo sigue vigente lo de v0.9.0.
+
+###### v0.9.0 "Maqueta y álbum"
 **Novedad de v0.9.0:** la **Maqueta 2:1** (el valle real en 3D isométrico, dentro de La Red) y el **Álbum de postales** (48 postales: los lugares reales con su vista aérea y 5 especiales con ilustración), más el cartel de la fiesta del día. Debajo sigue vigente lo de v0.8.0.
 
 ###### v0.8.0 "Identidad del Metro"
@@ -870,6 +883,69 @@ Investigación visual y guía de producción para el arte definitivo:
 **Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
 
 ##### Historial
+###### v0.10.0 (2026-11-17) — valle completo, calendario real y cruce con EnCicla
+Pedido del autor: “haz lo que puedas, mejóralo todo” (sobre la auditoría), y “audita Juega EnCicla, toma fragmentos, los huevos de pascua y las mejoras, y prepara la próxima revolución”.
+1. **Mapa (hoja de ruta M1–M6 de la auditoría, todo medido con `tools/auditoria-mapa.mjs`):**
+   - **Ajustes del mapa base** en `src/data/ajustes.js` (171 KB), generados por `tools/mapa_ajustes.mjs` y aplicados al cargar (`MAP.ajustes`):
+     - 86.642 casillas de vía ganan nombre de calle y 205 barrios aproximados llenan los municipios sin capa oficial, con datos de Juega EnCicla v1.2 (OpenStreetMap vía Overture).
+     - **Casas con barrio:** Bello pasa de 1 a 59 %, Girardota de 0 a 99 %, Barbosa de 0 a 98 % y Caldas y La Estrella de 0 y 4 a 83 %.
+     - **Vías con nombre:** Medellín pasa de 63 a 80 %, Itagüí de 18 a 78 % y Bello de 11 a 45 %.
+     - **Río:** 88 puentes donde una vía cortaba el cauce (69 cortes → 0) y 1.339 esquinas del relieve quemadas con regresión isotónica (37 tramos que subían → 0).
+     - 69 casillas de casa pasan a calle bajo el tranvía de Ayacucho (24 % del trazo sobre casas → 0 %).
+     - Se quitan las 32 escaleras sueltas que no conectaban con nada.
+     - **Patio‑taller del Metro en Bello** con balasto y vías, y talleres del antiguo Ferrocarril de Antioquia, ambos de OpenStreetMap.
+   - **Huellas de estación (`MAP.estaciones`):** andén techado orientado con la línea y la franja del color de cada línea.
+     - Medidas: metro 140 × 36 m, tranvía 44 × 16 m, cable 60 × 40 m.
+     - Las 49 estaciones tienen techo; ninguna queda sobre una casa.
+   - **Rótulos:**
+     - un nombre extra no repite el oficial del mismo trozo;
+     - patio y talleres van con ■ en azul.
+2. **Arreglos rápidos de la auditoría:**
+   - **Memoria:** la capa de luces de cada trozo se crea solo de noche, y la caché depende de la memoria del equipo (16, 28 o 40 trozos).
+   - **Sin tirón al arrancar:** cada cuadro construye trozos por 10 ms como máximo (mínimo uno); el resto se pinta liso un instante.
+   - **Resultado:** con 0 estrellas dice “Llegaste, sin estrellas” y da un consejo.
+   - **Accesibilidad:** nombres para los botones de íconos, botones de 44 px, letra de 12 px y avisos en `aria-live`.
+   - **Seguridad:** el código de invitación se descomprime con tope de 64 KB.
+3. **Calendario real, de Juega EnCicla:**
+   - `festivo()` cubre los festivos de Colombia (Ley Emiliani y Semana Santa).
+   - **Horario del Metro corregido:** antes abría a las 7 los domingos y no conocía los festivos. Ahora va de lunes a sábado de 4:30 a. m. a 11 p. m., y los domingos y festivos de 5 a. m. a 10 p. m.
+   - **Fechas:** Feria de las Flores (10 días desde el primer viernes de agosto), Fiesta del Libro, Día del Niño, Día del Padre y ciclovía.
+4. **EnCicla en Ciudad Libre** (`src/data/encicla.js`, 133 estaciones, de `tools/encicla_datos.mjs`):
+   - **Anclajes:** azules con postes verdes y bicis.
+   - **Préstamo:** con el horario de EnCicla y 60 minutos de juego; se devuelve en cualquier anclaje.
+   - **Frases:** al prestar habla un personaje de EnCicla; al devolver lejos se oye “Nadie aplaude al anfitrión, pero todos llegan.”
+   - **Logros nuevos:** *Metro + bici* y *Ciclista secreto* (tres timbrazos debajo de una estación del metro, el espejo del Maquinista secreto de EnCicla).
+   - **Postal** “Metro + EnCicla” y enlace al juego hermano en los créditos.
+   - Las medallas 21 y 22 quedan encargadas a ChatGPT (C‑12). Mientras llegan, la libreta usa emoji.
+5. **Documentos:**
+   - auditoría de Juega EnCicla con ideas para su IA: `docs/auditorias/2026-11-17-auditoria-encicla-v1.2.md`;
+   - plan de la próxima revolución: `docs/REVOLUCION.md`;
+   - actualización de la auditoría del mapa.
+6. **Pruebas:**
+   - el autotest suma el calendario (festivos de 2026 y horarios del Metro y de EnCicla), los ajustes del mapa (barrio en Bello, nombres nuevos, 49 huellas) y los anclajes de EnCicla;
+   - 100 partidas, 0 errores.
+7. **Reglas aprendidas:**
+   - los dos juegos comparten cuadrícula y relieve: cualquier corrección del mapa se mide una vez y sirve dos veces;
+   - el arte de logros nuevos se encarga a ChatGPT; el código solo pone el respaldo.
+
+###### Auditoría de v0.9.0 (2026-11-17) — juego y mapa medidos
+Pedido del autor: “audita el videojuego, dame ideas y sugerencias y, en especial, analiza el mapa para seguirlo mejorando después”. No cambia el juego.
+1. **Informe:** `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`. Trae rendimiento, balance, código, seguridad, accesibilidad, el mapa a fondo con cuatro láminas, la hoja de ruta del mapa (M1–M12, cada paso con su meta medible) y 14 ideas.
+2. **Herramienta nueva, `tools/auditoria-mapa.mjs`:** mide el mapa con el propio juego y dibuja las láminas. Sus cifras son los criterios de aceptación de cada mejora del mapa.
+3. **Hallazgos principales:**
+   - **Memoria:** la caché del mapa puede ocupar ~80 MB de imagen (40 trozos × 2 lienzos de 512²).
+   - **Rendimiento:** la panorámica lateral satura el hilo principal, y Ciudad Libre y el bus se congelan 0,2–0,3 s al arrancar.
+   - **Resultado incoherente:** el viaje en Metrocable se “gana” con puntaje negativo y dice “¡Bien hecho!”.
+   - **Accesibilidad:** el botón 🏃 de Ciudad Libre no tiene nombre y no hay región `aria-live`.
+   - **Seguridad:** las invitaciones se descomprimen sin tope.
+   - **Mapa:**
+     - las 49 estaciones no tienen huella y dos caen sobre edificios;
+     - el río se corta 69 veces y sube en 37 tramos (hasta 27 m en Copacabana);
+     - las quebradas ocupan 29,4 km², con 2.266 manchones de agua;
+     - el tranvía va en un 24 % sobre casas;
+     - fuera de Medellín e Itagüí casi no hay barrios (Bello 1 %), y fuera de Medellín pocas calles tienen nombre (4–18 %).
+4. **Regla aprendida:** el bot sirve para encontrar errores, no para balancear. El piloto automático del bus y de “Al volante” no intenta ganar. Para balancear hacen falta datos de jugadores.
+
 ###### v0.9.0 (2026-11-17) — Maqueta 2:1 y álbum de postales
 Pedido del autor: “continúa desarrollando y mejorando, termina lo pendiente y lo olvidado”.
 1. **Maqueta 2:1 (`src/js/24-iso.js`), en La Red con el botón “⬢ Maqueta 2:1”:** el valle real en proyección dimétrica.
@@ -1034,6 +1110,13 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
+0. **Hoja de ruta del mapa medida (auditoría del 17‑nov): M1–M6 hechos en v0.10.0.** Siguiente: M7 (quebradas a su tamaño). Plan grande en `docs/REVOLUCION.md`.
+0. **Hoja de ruta original del mapa (auditoría del 17‑nov):**
+   - M1–M6 en una sola sesión: estaciones con huella, río continuo y que siempre baja, tranvía por su calle, patio‑taller de Bello y escaleras con sentido;
+   - luego M7 (quebradas a su tamaño);
+   - luego M8 y M9 (nombres y barrios fuera de Medellín).
+   - Metas y fuentes en `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`. Comprobar con `node tools/auditoria-mapa.mjs`.
+   - **Arreglos rápidos del juego** del mismo informe: memoria del mapa, arranque sin tirón, resultado coherente con 0 estrellas, accesibilidad en juego y tope a las invitaciones.
 0a. **Maqueta 2:1: hecha en v0.9.0.** Siguiente: usarla también en Ciudad Libre como vista opcional y pintarla con el encargo G‑100.
 0b. **Arte, fase 2:**
    - estaciones y vehículos de perfil de Gemini (G‑20 a G‑37) en la panorámica;
@@ -1190,6 +1273,9 @@ python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ ar
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
 python3 tools/ciudad_datos.py .cache/ciudad      # → src/data/ciudad.js (parche, barrios, calles, lotes, lugares)
 node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (ver docs/auditorias/)
+node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas; --sin-ajustes para el antes
+node tools/mapa_ajustes.mjs RUTA_ENCICLA   # src/data/ajustes.js: nombres y barrios fuera de Medellín, puentes y relieve del río, escaleras, calle del tranvía, patio-taller
+node tools/encicla_datos.mjs RUTA_ENCICLA  # src/data/encicla.js: las 133 estaciones de EnCicla para Ciudad Libre
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -1444,6 +1530,22 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 
 **Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
 
+#### Medir antes y después (desde la auditoría del 17‑nov)
+- `node tools/auditoria-mapa.mjs` da las cifras que sirven de criterio de aceptación:
+  - nombres de calle y barrios por municipio;
+  - estaciones sin huella o sobre edificios;
+  - trazo del metro y del tranvía sobre casas;
+  - cortes y subidas del río;
+  - manchones de agua y escaleras sueltas;
+  - relieve.
+- Con `--img` dibuja las láminas.
+- Hoja de ruta M1–M12 con sus metas en `docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`.
+- **Toda mejora del mapa se entrega con su cifra de antes y de después.**
+- **Ajustes del mapa base (v0.10.0):** `tools/mapa_ajustes.mjs` corre el juego con `window.__sinAjustes` y escribe `src/data/ajustes.js`; `MAP.ajustes()` los aplica al cargar y `MAP.estaciones()` marca las huellas de estación cuando la red ya existe.
+  - El orden importa: capa oficial → nombres y barrios extra (mismo orden de casillas de vía) → cambios de casillas → huellas.
+- **Juega EnCicla** usa la misma cuadrícula y el mismo relieve: lo que se corrija aquí sirve allá, y al revés (ver `docs/auditorias/2026-11-17-auditoria-encicla-v1.2.md`).
+- **Relieve:** SRTM y Copernicus son modelos de **superficie**: miden copas de árboles, puentes y muros, no el agua. Antes de usar el relieve en el río hay que “quemar” el cauce para que siempre baje (regresión isotónica a lo largo del recorrido).
+
 Bello y los demás municipios del norte y del sur aún no tienen capa abierta de barrios. Nominatim limita a las IP de la nube (error 429): no insistas.
 
 ---
@@ -1475,6 +1577,10 @@ Un solo mundo: el Valle de Aburrá real (mapa de EnCicla) donde se vive el siste
 - **v0.8.0:** interfaz con la identidad del Metro (inicio como línea), seguridad revisada y código publicado sin comentarios. Pendiente: clave de firma de la APK fuera del repositorio.
 
 - **v0.9.0:** **Maqueta 2:1 hecha** (Fase 1b, paso 3) en La Red, y álbum de postales con vista aérea real. Siguiente: laderas ilustradas (G‑50 a G‑55) en el Metrocable, estaciones y trenes de perfil (G‑20 a G‑37) en la panorámica, barrios de Bello y anchos reales de calle.
+
+- **Auditoría de v0.9.0:** el mapa queda medido y con una hoja de ruta de 12 pasos, cada uno con su meta (`docs/auditorias/2026-11-17-auditoria-juego-y-mapa.md`). Siguiente: M1–M6 (estaciones con huella, río continuo y que baja, tranvía por su calle, patio‑taller y escaleras) y los arreglos rápidos de memoria y arranque.
+
+- **v0.10.0:** mapa medido y corregido (estaciones con huella, río continuo y que baja, tranvía por su calle, patio‑taller, barrios y nombres en todo el valle), calendario real y primer cruce con Juega EnCicla. **La próxima revolución está en `docs/REVOLUCION.md`:** el día del Metro, oficios, historia, mapa vectorial y valle común con EnCicla.
 
 ### Fases
 #### Fase 1 · Arte real (2–3 sesiones)
@@ -2714,10 +2820,11 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 ## Datos que no van como texto
 - **`src/data/valle.js`** (1060 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
 - **`src/data/ciudad.js`** (330 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
+- **`src/data/ajustes.js`** (171 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (69 archivos, 858 KB)
+## Código fuente (73 archivos, 926 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -2782,7 +2889,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
  <section class="scr" id="game">
   <canvas id="gcv"></canvas>
   <div id="ghud"><div class="gt"><b id="gTitle">—</b><small id="gSub">—</small></div><div class="chips" id="gChips"></div><button class="ib" id="gPause" aria-label="Pausa">❚❚</button></div>
-  <div id="gmsg"></div>
+  <div id="gmsg" role="status" aria-live="polite"></div>
   <div id="gctl"></div>
  </section>
 
@@ -2958,7 +3065,7 @@ h3{font-weight:800;font-size:15px;margin:16px 0 8px}
 .gbtns{position:absolute;left:8px;bottom:calc(10px + var(--sab));display:flex;flex-direction:column;gap:7px}
 .gbtns .btn{min-width:96px;font-size:14px;min-height:38px;padding:5px 12px}
 .vsel{position:fixed;right:8px;top:calc(58px + var(--sat));display:flex;gap:6px;z-index:4}
-.vsel button{width:46px;height:42px;border-radius:12px;background:var(--anden);color:var(--tinta);font-weight:800;font-size:12px;box-shadow:var(--sh)}
+.vsel button{width:46px;height:44px;border-radius:12px;background:var(--anden);color:var(--tinta);font-weight:800;font-size:12px;box-shadow:var(--sh)}
 .vsel button.on{background:var(--lJ)}
 /* ---------- ventanas ---------- */
 #modal{position:fixed;inset:0;z-index:60;background:rgba(15,34,56,.66);display:flex;align-items:center;justify-content:center;padding:14px}
@@ -3014,7 +3121,7 @@ textarea.code{width:100%;min-height:64px;border:1px solid var(--linea);border-ra
 .joy i{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--led);box-shadow:0 3px 0 rgba(0,0,0,.35)}
 .lbbtns{position:absolute;right:8px;bottom:calc(10px + var(--sab));display:grid;grid-template-columns:64px 64px;grid-template-rows:64px 64px;gap:8px;touch-action:none}
 .abtn{border-radius:18px;background:var(--anden);color:var(--tinta);box-shadow:0 4px 0 rgba(8,22,40,.35);font-size:24px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;-webkit-user-select:none;user-select:none;touch-action:none}
-.abtn small{font-size:10px;margin-top:3px}
+.abtn small{font-size:12px;margin-top:3px}
 .abtn.big{grid-row:1/3;grid-column:2;background:var(--lB);color:#fff;font-size:34px}
 .abtn.big.hot{background:var(--lJ);color:var(--tinta);animation:pulse .8s infinite alternate}
 @keyframes pulse{to{transform:scale(1.05)}}
@@ -3080,7 +3187,7 @@ textarea.code{width:100%;min-height:64px;border:1px solid var(--linea);border-ra
 .trcard .in{background:var(--anden);color:var(--tinta);border-radius:20px;box-shadow:var(--sombra);padding:10px 10px 14px;max-width:min(94vw,540px);text-align:center}
 .trcard .pic{border-radius:14px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .trcard .pic img{display:block;max-width:100%;max-height:min(50vh,420px);object-fit:contain}
-.trcard small{display:block;margin-top:12px;font-size:13px;font-weight:700;color:var(--lH)}
+.trcard small{display:block;margin-top:12px;font-size:13px;font-weight:700;color:#b01866}
 .trcard b{display:block;font-family:var(--fd);font-stretch:90%;font-size:clamp(26px,7vw,36px);line-height:1.05;margin-top:2px}
 .trcard i{display:block;margin-top:6px;font-size:12px;color:var(--suave);font-style:normal}
 .lugar{position:absolute;left:10px;top:calc(118px + var(--sat));z-index:5;pointer-events:none;opacity:0;background:var(--noche);color:#fff;border-radius:14px;box-shadow:inset 0 -4px 0 var(--lT),var(--sombra);padding:8px 14px 11px;max-width:72vw}
@@ -3131,7 +3238,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.9.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '0.10.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3155,7 +3262,25 @@ class RNG {
 const deep = o => JSON.parse(JSON.stringify(o));
 const now = () => performance.now() / 1000;
 function clockStr(d = new Date()) { return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
-function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), dow = d.getDay(); const a = dow === 0 ? 7 * 60 : dow === 6 ? 4 * 60 + 30 : 4 * 60 + 30; return m >= a && m < 23 * 60; }
+/* festivos de Colombia: los fijos, los de la Ley Emiliani (se corren al lunes) y los de Semana Santa según la Pascua (de Juega EnCicla) */
+const FESTIVOS = {};
+function festivo(d = new Date()) {
+  const y = d.getFullYear();
+  if (!FESTIVOS[y]) {
+    const F = FESTIVOS[y] = {}, D = (m, n) => new Date(y, m - 1, n), mas = (q, n) => new Date(q.getFullYear(), q.getMonth(), q.getDate() + n), lun = q => mas(q, (8 - q.getDay()) % 7), add = (q, n) => { F[q.getMonth() * 100 + q.getDate()] = n; };
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, h = (19 * a + b - Math.floor(b / 4) - Math.floor((b - Math.floor((b + 8) / 25) + 1) / 3) + 15) % 30, l = (32 + 2 * (b % 4) + 2 * Math.floor(c / 4) - h - c % 4) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), P = D(Math.floor((h + l - 7 * m + 114) / 31), (h + l - 7 * m + 114) % 31 + 1);
+    add(D(1, 1), 'Año Nuevo'); add(D(5, 1), 'Día del Trabajo'); add(D(7, 20), 'Día de la Independencia'); add(D(8, 7), 'Batalla de Boyacá'); add(D(12, 8), 'Inmaculada Concepción'); add(D(12, 25), 'Navidad');
+    add(lun(D(1, 6)), 'Reyes Magos'); add(lun(D(3, 19)), 'San José'); add(lun(D(6, 29)), 'San Pedro y San Pablo'); add(lun(D(8, 15)), 'La Asunción'); add(lun(D(10, 12)), 'Día de la Raza'); add(lun(D(11, 1)), 'Todos los Santos'); add(lun(D(11, 11)), 'Independencia de Cartagena');
+    add(mas(P, -3), 'Jueves Santo'); add(mas(P, -2), 'Viernes Santo'); add(lun(mas(P, 39)), 'Ascensión del Señor'); add(lun(mas(P, 60)), 'Corpus Christi'); add(lun(mas(P, 68)), 'Sagrado Corazón');
+  }
+  return FESTIVOS[y][d.getMonth() * 100 + d.getDate()] || null;
+}
+function domingoOFestivo(d = new Date()) { return d.getDay() === 0 || !!festivo(d); }
+/* horario del Metro: lunes a sábado de 4:30 a. m. a 11 p. m.; domingos y festivos de 5 a. m. a 10 p. m. */
+function serviceOpen(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(); return domingoOFestivo(d) ? m >= 300 && m < 1320 : m >= 270 && m < 1380; }
+function abreTxt(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), dia = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (m >= 1320 ? 1 : 0)); return domingoOFestivo(dia) ? '5:00 a. m.' : '4:30 a. m.'; }
+/* EnCicla presta de lunes a viernes de 5:30 a. m. a 9 p. m., los sábados de 6:30 a. m. a 7 p. m. y los domingos y festivos de 8 a. m. a 3 p. m. */
+function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMinutes(), t = domingoOFestivo(d) ? [480, 900, 'de 8 a. m. a 3 p. m.'] : d.getDay() === 6 ? [390, 1140, 'de 6:30 a. m. a 7 p. m.'] : [330, 1260, 'de 5:30 a. m. a 9 p. m.']; return { abierto: m >= t[0] && m < t[1], txt: 'hoy presta ' + t[2] }; }
 
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
@@ -3686,7 +3811,12 @@ const Net = EM.net = {
   async unpack(code) {
     code = String(code || '').replace(/\s+/g, ''); const i = code.indexOf('EM'); if (i < 0) throw new Error('Código no válido'); code = code.slice(i);
     const v = code.slice(0, 3), body = code.slice(4), bytes = b64u.dec(body);
-    if (v === 'EM1') { if (!window.DecompressionStream) throw new Error('Tu navegador no puede leer este código'); const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return JSON.parse(await new Response(ds).text()); }
+    if (v === 'EM1') {
+      if (!window.DecompressionStream) throw new Error('Tu navegador no puede leer este código');
+      const rd = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = []; let n = 0;
+      for (;;) { const { done, value } = await rd.read(); if (done) break; n += value.length; if (n > 65536) { rd.cancel(); throw new Error('Código no válido'); } parts.push(value); }
+      const all = new Uint8Array(n); let o = 0; for (const p of parts) { all.set(p, o); o += p.length; } return JSON.parse(new TextDecoder().decode(all));
+    }
     if (v === 'EM0') return JSON.parse(new TextDecoder().decode(bytes));
     throw new Error('Código no válido');
   },
@@ -3734,7 +3864,7 @@ const Net = EM.net = {
    ===================================================================== */
 const VM = VALLE_META, MW = VM.W, MH = VM.H, TM = VM.tile, ES = VM.es;
 const TT = { GRASS: 0, MOUNT: 1, BRICK: 2, BLDG: 3, ROAD: 4, AVE: 5, WALK: 6, CICLO: 7, WATER: 8, CANAL: 9, PLAZA: 10, BRIDGE: 11, STATION: 12, LAND: 13, AUTO: 14, DEPOT: 15, STEPS: 16 };
-const TCOL = ['#6f9a4a', '#3d6838', '#b4583a', '#8d97a4', '#4b5059', '#3f444d', '#bdb6a5', '#3f9a50', '#3a87a8', '#4b7f8c', '#d9cdae', '#6d6f75', '#f4ecd0', '#a99a7a', '#34383f', '#5ab0d0', '#a39882'];
+const TCOL = ['#6f9a4a', '#3d6838', '#b4583a', '#8d97a4', '#4b5059', '#3f444d', '#bdb6a5', '#3f9a50', '#3a87a8', '#4b7f8c', '#d9cdae', '#6d6f75', '#f4ecd0', '#a99a7a', '#34383f', '#8a8072', '#a39882'];
 const TRGB = TCOL.map(c => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]);
 const geoM = (lat, lon) => ({ x: (lon - VM.lon0) * VM.kx * TM, y: (VM.latN - lat) * VM.ky * TM });
 const mGeo = (x, y) => ({ lat: VM.latN - y / TM / VM.ky, lon: VM.lon0 + x / TM / VM.kx });
@@ -3752,6 +3882,7 @@ const MAP = EM.map = {
     for (let j = 0; j < VM.eH; j++) { let a = 0; for (let i = 0; i < VM.eW; i++) { a += ed[j * VM.eW + i]; E[j * VM.eW + i] = a; } }
     this.mu = raw.slice(nT + nE * 2, nT + nE * 2 + nM); this.co = raw.slice(nT + nE * 2 + nM, nT + nE * 2 + nM * 2);
     if (typeof CIUDAD !== 'undefined') { try { await this.ciudad(); } catch (e) { EM.errors.push('ciudad: ' + e.message); console.error(e); } }
+    if (typeof AJUSTES !== 'undefined' && typeof CIUDAD !== 'undefined' && !window.__sinAjustes) { try { await this.ajustes(); } catch (e) { EM.errors.push('ajustes: ' + e.message); console.error(e); } }
     this.ready = true;
   },
   /* ---------- MEDELLÍN RECONOCIBLE · datos oficiales abiertos (src/data/ciudad.js, de tools/ciudad_datos.py) ----------
@@ -3792,11 +3923,48 @@ const MAP = EM.map = {
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = t[(y + lo.y0) * MW + x + lo.x0]; if (v === TT.BRICK || v === TT.BLDG) { la[y * w + x] = (lb[bi >> 2] >> ((bi & 3) * 2)) & 3; bi++; } }
     this.lot = { x0: lo.x0, y0: lo.y0, w, h, a: la };
   },
-  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; return v ? C.barrios[v - 1] : null; },
+  /* ---------- AJUSTES DEL MAPA (src/data/ajustes.js, de tools/mapa_ajustes.mjs) ----------
+     nombres de calle y barrios donde la capa oficial no llega (mapa de Juega EnCicla: OpenStreetMap vía Overture; barrios aproximados),
+     río continuo y relieve que siempre baja por el cauce, escaleras sueltas, calle bajo el tranvía y patio-taller del Metro en Bello. */
+  async ajustes() {
+    const A = AJUSTES, t = this.t;
+    if (this.rRow) {   // nombres extra para las casillas de vía sin nombre oficial, en orden: 0 izquierda · 1 arriba · 4 arriba-izq · 5 arriba-der · 2 nada · 3 + varint
+      const cd = await this.unz(A.calles.d, A.calles.n), rE = new Uint16Array(this.rX.length); let p = 0, a = new Uint16Array(MW), b = new Uint16Array(MW);
+      for (let y = 0; y < MH; y++) {
+        const z = a; a = b; b = z; b.fill(0);
+        for (let k = this.rRow[y]; k < this.rRow[y + 1]; k++) { if (this.rN[k] || this.rP[k]) continue; const x = this.rX[k], c = cd[p++]; let id = 0; if (c === 0) id = b[x - 1]; else if (c === 1) id = a[x]; else if (c === 4) id = a[x - 1]; else if (c === 5) id = a[x + 1]; else if (c === 3) { let sh = 0, q; do { q = cd[p++]; id += (q & 127) * 2 ** sh; sh += 7; } while (q & 128); } b[x] = id; rE[k] = id; }
+      }
+      this.rE = rE;
+    }
+    const B = A.barrios, bb = await this.unz(B.d, B.GW * B.GH * 2); this.bgE = new Uint16Array(B.GW * B.GH); for (let i = 0; i < this.bgE.length; i++) this.bgE[i] = bb[2 * i] | bb[2 * i + 1] << 8;
+    this.barriosL = CIUDAD.barrios.concat(B.lista);
+    const T = A.tiles; for (const i of T.puente) t[i] = TT.BRIDGE; for (const i of T.agua) t[i] = TT.WATER; for (const i of T.calle) t[i] = TT.ROAD; for (let i = 0; i < T.pares.length; i += 2) t[T.pares[i]] = T.pares[i + 1];
+    for (let i = 0; i < A.relieve.length; i += 2) this.E[A.relieve[i]] = A.relieve[i + 1];
+    this.lugaresL = CIUDAD.lugares.concat(A.lugares); this.ajustado = true;
+  },
+  /* huellas de estación (andén techado, orientado con su línea): metro 140 × 36 m, tranvía 44 × 16 m y cable 60 × 40 m.
+     Las casillas pasan a estación salvo vías mayores, agua y escaleras; el techo se pinta encima con la franja de cada línea. */
+  estaciones() {
+    if (!this.t || window.__sinAjustes) return; const t = this.t, out = [], keep = new Set([TT.AUTO, TT.AVE, TT.BRIDGE, TT.WATER, TT.CANAL, TT.STEPS, TT.DEPOT]);
+    for (const s of NET.stations) {
+      const Ls = s.lines.filter(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!Ls.length) continue;
+      const L = Ls.find(l => l.kind === 'metro') || Ls.find(l => l.kind === 'tram') || Ls[0], P = L.P.pts; let bi = 0, bd = Infinity;
+      for (let i = 0; i < P.length - 1; i++) { const ax = P[i].x, ay = P[i].y, dx = P[i + 1].x - ax, dy = P[i + 1].y - ay, u = clamp(((s.x - ax) * dx + (s.y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = (ax + dx * u - s.x) ** 2 + (ay + dy * u - s.y) ** 2; if (d < bd) { bd = d; bi = i; } }
+      const a = Math.atan2(P[bi + 1].y - P[bi].y, P[bi + 1].x - P[bi].x), [w, h] = L.kind === 'metro' ? [140, 36] : L.kind === 'tram' ? [44, 16] : [60, 40], ca = Math.cos(a), sa = Math.sin(a), Rr = Math.ceil(w / TM);
+      out.push({ x: s.x, y: s.y, a, w, h, k: L.kind, cols: [...new Set(Ls.map(l => l.color))] });
+      let hechas = 0; const marca = (hh, ok) => { for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) {
+        const tx = Math.floor(s.x / TM) + dx, ty = Math.floor(s.y / TM) + dy, px = (tx + .5) * TM - s.x, py = (ty + .5) * TM - s.y;
+        if (Math.abs(px * ca + py * sa) <= w / 2 && Math.abs(-px * sa + py * ca) <= hh / 2 && tx >= 0 && ty >= 0 && tx < MW && ty < MH && ok(t[ty * MW + tx])) { t[ty * MW + tx] = TT.STATION; hechas++; }
+      } };
+      marca(h, q => !keep.has(q)); if (!hechas) marca(16, q => q !== TT.WATER && q !== TT.CANAL && q !== TT.BRIDGE);
+    }
+    this.techos = out; this.chunks.clear(); this._mini = null;
+  },
+  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; if (v) return C.barrios[v - 1]; if (!this.bgE) return null; const A = AJUSTES.barrios, w = this.bgE[clamp(Math.floor(y / TM / 8), 0, A.GH - 1) * A.GW + clamp(Math.floor(x / TM / 8), 0, A.GW - 1)]; return w ? A.lista[w - 1] : null; },
   /* nombres de la casilla de vía (tx, ty): { n: nomenclatura, p: nombre popular } o null */
   calleT(tx, ty) {
     if (!this.rRow || ty < 0 || ty >= MH) return null; let a = this.rRow[ty], b = this.rRow[ty + 1] - 1;
-    while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m]; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
+    while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m], e = this.rE ? this.rE[m] : 0; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : e ? { n: AJUSTES.calles.lista[e - 1], p: '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
     return null;
   },
   calleAt(x, y) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); return this.calleT(tx, ty) || this.calleT(tx + 1, ty) || this.calleT(tx - 1, ty) || this.calleT(tx, ty + 1) || this.calleT(tx, ty - 1); },
@@ -3901,6 +4069,7 @@ const MAP = EM.map = {
             m *= db === 2 ? .86 : db === 3 ? .94 : 1; const rp2 = ((X * P + px) * 3 + (Y * P + py) * 7 + ((X * P + px) >> 3)) % 29; if (rp2 === 0 && hh < .7) m *= 1.16; else if (hh < .012) m *= 1.3;   // brillos sueltos, sin rayas
             break; }
           case TT.STEPS: { const up = stx > sty, a = up ? px : py, s2 = up ? py : px; col = [198, 192, 180]; if (s2 === 0 || s2 === P - 1) { col = [120, 116, 108]; m = sh; } else m *= a % 3 === 0 ? .8 : a % 3 === 1 ? 1.06 : 1; break; }
+          case TT.DEPOT: { const a = (X * P + px) % 8; col = [138, 128, 112]; if (a === 2 || a === 5) { col = [62, 62, 66]; m = sh; } else if (a > 2 && a < 5 && (Y * P + py) % 3 === 0) { col = [104, 84, 62]; m = sh; } else m *= .94 + hh * .1; break; }   // patio: balasto y vías
           default: m *= .95 + hh * .08;
         }
         const o = ((ty * P + py) * n + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
@@ -4006,9 +4175,21 @@ const MAP = EM.map = {
         else if (h2(X, Y, 74) < .25) { R(ox + 6, oy + 6, 4, 2, '#5a3a22'); R(ox + 6, oy + 5, 4, 1, '#7a5a3a'); }   // banca
       }
     }
+    // techos de estación: andén techado con la franja del color de cada línea (las huellas vienen de MAP.estaciones)
+    if (this.techos) { const kk = P / TM, X0 = cx * CH * TM, Y0 = cy * CH * TM, half = CH * TM / 2;
+      for (const s of this.techos) {
+        if (Math.abs(s.x - X0 - half) > half + s.w || Math.abs(s.y - Y0 - half) > half + s.w) continue; const w = s.w * kk, h = s.h * kk, bw = Math.max(2, Math.round(h / 6));
+        g.save(); g.translate((s.x - X0) * kk, (s.y - Y0) * kk); g.rotate(s.a);
+        g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(-w / 2 + 3, -h / 2 + 3, w, h);
+        g.fillStyle = s.k === 'cable' ? '#d6d0c4' : '#e9e5dc'; g.fillRect(-w / 2, -h / 2, w, h); g.fillStyle = '#8b877f'; g.fillRect(-w / 2, -h / 2, w, 1); g.fillRect(-w / 2, h / 2 - 1, w, 1); g.fillRect(-w / 2, -h / 2, 1, h); g.fillRect(w / 2 - 1, -h / 2, 1, h);
+        if (s.k !== 'cable') { g.fillStyle = 'rgba(120,116,108,.45)'; for (let x = -w / 2 + 6; x < w / 2 - 3; x += 8) g.fillRect(x, -h / 2 + 2, 1, h - 4); }
+        s.cols.forEach((c, i) => { g.fillStyle = c; g.fillRect(-w / 2 + 2, -bw * s.cols.length / 2 + i * bw, w - 4, bw); });
+        if (s.k === 'cable') { g.fillStyle = '#5b5f66'; g.beginPath(); g.arc(0, 0, Math.min(w, h) * .22, 0, TAU); g.fill(); g.fillStyle = s.cols[0]; g.beginPath(); g.arc(0, 0, Math.min(w, h) * .12, 0, TAU); g.fill(); }
+        g.restore(); lights.push([(s.x - X0) * kk - 2, (s.y - Y0) * kk - 1, 4]);
+      }
+    }
     // capa de luces (ventanas encendidas) cacheada: se mezcla de noche con 'lighter'
-    const lc = mkCanvas(n, n), lg = lc.getContext('2d'); for (const [x, y, w] of lights) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
-    c.lightCv = lc; this.chunks.set(key, c); while (this.chunks.size > 40) this.chunks.delete(this.chunks.keys().next().value);
+    c.lights = lights; this.chunks.set(key, c); while (this.chunks.size > this.maxTrozos()) this.chunks.delete(this.chunks.keys().next().value);
     return c;
   },
   /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
@@ -4018,8 +4199,10 @@ const MAP = EM.map = {
     g.imageSmoothingEnabled = s < .95; this._vis = [];   // al alejar, suavizado: sin titileo de rayas y bordes
     for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
       if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue;
-      const c = this.chunk(cx, cy), sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
-      g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
+      const sx = Math.floor((cx * CHm - x0) * k), sy = Math.floor((cy * CHm - y0) * k);
+      if (!this.chunks.has(cx + ',' + cy) && this.prisa && this._hechos > 0 && now() > this.prisa) { g.fillStyle = TCOL[this.tile(cx * this.CH + 16, cy * this.CH + 16)]; g.fillRect(sx, sy, Math.ceil(CHm * k) + 1, Math.ceil(CHm * k) + 1); this.pend = 1; continue; }
+      if (!this.chunks.has(cx + ',' + cy)) this._hechos = (this._hechos || 0) + 1;
+      const c = this.chunk(cx, cy); g.drawImage(c, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1); this._vis.push([c, sx, sy, s]);
     }
   },
   /* ---------- rótulos como en un mapa real: calles (con su dirección), barrios y parques ---------- */
@@ -4027,17 +4210,18 @@ const MAP = EM.map = {
     const CH = this.CH, x0 = cx * CH, x1 = x0 + CH, G = new Map(), out = [];
     for (let ty = cy * CH; ty < Math.min(MH, (cy + 1) * CH); ty++) {
       let a = this.rRow[ty], b = this.rRow[ty + 1]; while (a < b) { const m = (a + b) >> 1; if (this.rX[m] < x0) a = m + 1; else b = m; }
-      for (let i = a; i < this.rRow[ty + 1] && this.rX[i] < x1; i++) for (const [L, id] of [[1, this.rP[i]], [0, this.rN[i]]]) {
+      for (let i = a; i < this.rRow[ty + 1] && this.rX[i] < x1; i++) for (const [L, id] of [[1, this.rP[i]], [0, this.rN[i]], [2, this.rE && !this.rN[i] && !this.rP[i] ? this.rE[i] : 0]]) {
         if (!id) continue; const key = L * 65536 + id; let q = G.get(key); if (!q) G.set(key, q = { L, id, n: 0, sx: 0, sy: 0, xx: 0, yy: 0, xy: 0, pts: [] });
         const x = this.rX[i] + .5, y = ty + .5; q.n++; q.sx += x; q.sy += y; q.xx += x * x; q.yy += y * y; q.xy += x * y; q.pts.push(x, y);
       }
     }
+    const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''), ofi = new Set(); for (const q of G.values()) if (q.L !== 2) ofi.add(norm(CIUDAD.calles[q.id][0]));
     for (const q of G.values()) {
-      if (q.n < (q.L ? 4 : 3)) continue; const mx = q.sx / q.n, my = q.sy / q.n, vx = q.xx / q.n - mx * mx, vy = q.yy / q.n - my * my, cxy = q.xy / q.n - mx * my;
+      if (q.n < (q.L === 1 ? 4 : 3) || (q.L === 2 && ofi.has(norm(AJUSTES.calles.lista[q.id - 1])))) continue; const mx = q.sx / q.n, my = q.sy / q.n, vx = q.xx / q.n - mx * mx, vy = q.yy / q.n - my * my, cxy = q.xy / q.n - mx * my;
       let a = .5 * Math.atan2(2 * cxy, vx - vy); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
       let best = 0, bd = 1e9; for (let i = 0; i < q.pts.length; i += 2) { const d = (q.pts[i] - mx) ** 2 + (q.pts[i + 1] - my) ** 2; if (d < bd) { bd = d; best = i; } }
-      const nm = CIUDAD.calles[q.id][0], av = /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(nm);
-      out.push({ x: q.pts[best] * TM, y: q.pts[best + 1] * TM, a, t: nm, pri: q.L ? 3 : av ? 2 : 1, len: Math.sqrt(Math.max(vx, vy)) * 2 * TM });
+      const nm = q.L === 2 ? AJUSTES.calles.lista[q.id - 1] : CIUDAD.calles[q.id][0], av = /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(nm);
+      out.push({ x: q.pts[best] * TM, y: q.pts[best + 1] * TM, a, t: nm, pri: q.L === 1 ? 3 : av ? 2 : 1, len: Math.sqrt(Math.max(vx, vy)) * 2 * TM });
     }
     return out.sort((p, q) => q.pri - p.pri || q.len - p.len);
   },
@@ -4052,28 +4236,37 @@ const MAP = EM.map = {
     if (kc >= .75) {
       const fs = clamp(kc * 5.2, 9, 13) * dpr, CHm = this.CH * TM, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
       for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
-        if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
+        if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH || (this.prisa && !this.chunks.has(cx + ',' + cy))) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
         for (const r of c.rot) { if (r.len < (r.pri === 3 ? 60 : 40)) continue; const [x, y] = S(r.x, r.y); texto(r.pri === 3 ? r.t.toUpperCase() : r.t, x, y, r.a, (r.pri >= 2 ? '800 ' : '700 ') + (r.pri === 3 ? fs * .95 : fs) + 'px Cuerpo, sans-serif', r.pri === 3 ? (night > .4 ? '#ffd27a' : '#5a3a12') : ink, halo, 3.2 * dpr); }
       }
     }
     // parques, plazas y miradores
-    if (kc >= .6) for (const L of CIUDAD.lugares) {
+    if (kc >= .6) for (const L of this.lugaresL || CIUDAD.lugares) {
       if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;
       const [x, y] = S(L[2] / 4 * TM, L[3] / 4 * TM); if (x < -80 || y < -40 || x > W + 80 || y > H + 40) continue;
-      texto((L[1] === 'plaza' || L[1] === 'plazoleta' ? '◆ ' : L[1] === 'mirador' ? '▲ ' : '♣ ') + L[0], x, y, 0, 'italic 700 ' + clamp(kc * 4.6, 9, 12) * dpr + 'px Cuerpo, sans-serif', night > .4 ? '#b9e6a0' : '#245a2a', halo, 3 * dpr);
+      const met = L[1] === 'metro' || L[1] === 'historia';
+      texto((met ? '■ ' : L[1] === 'plaza' || L[1] === 'plazoleta' ? '◆ ' : L[1] === 'mirador' ? '▲ ' : '♣ ') + L[0], x, y, 0, 'italic 700 ' + clamp(kc * 4.6, 9, 12) * dpr + 'px Cuerpo, sans-serif', met ? (night > .4 ? '#a9cdf2' : '#1C5C9C') : night > .4 ? '#b9e6a0' : '#245a2a', halo, 3 * dpr);
     }
     // barrios: a media distancia, en mayúsculas espaciadas
-    if (kc >= .14 && kc < 1.6) for (const B of CIUDAD.barrios) {
+    if (kc >= .14 && kc < 1.6) for (const B of this.barriosL || CIUDAD.barrios) {
       if (!B[6] && kc < .9) continue; if (B[5] < (kc < .3 ? 60 : kc < .6 ? 18 : 4)) continue;
       const [x, y] = S(B[3] / 4 * TM, B[4] / 4 * TM); if (x < -120 || y < -30 || x > W + 120 || y > H + 30) continue;
       texto(B[0].toUpperCase().split('').join(String.fromCharCode(8202)), x, y, 0, '800 ' + clamp(kc * 9, 9, 14) * dpr + 'px Cuerpo, sans-serif', night > .4 ? 'rgba(255,236,190,.92)' : 'rgba(35,45,70,.78)', halo, 3.4 * dpr);
     }
     g.restore();
   },
+  /* trozos en caché según la memoria del equipo: cada uno ocupa ~1 MB de imagen (2 con las luces de noche) */
+  maxTrozos() { if (!this._maxT) { const m = navigator.deviceMemory || 4, low = typeof Save !== 'undefined' && Save.d && Save.d.settings && Save.d.settings.q === 'low'; this._maxT = low || m <= 2 ? 16 : m <= 4 ? 28 : 40; } return this._maxT; },
+  /* capa de luces de ventanas de un trozo: se crea la primera vez que se necesita (solo de noche) */
+  luces(c) {
+    if (c.lightCv) return c.lightCv; const n = c.width, lc = mkCanvas(n, n), lg = lc.getContext('2d');
+    for (const [x, y, w] of c.lights || []) { const h = h2(x, y, 3); if (h > .62) continue; lg.fillStyle = 'rgba(255,' + (196 + (h * 90 | 0)) + ',110,' + (.55 + .45 * h2(x, y, 9)) + ')'; lg.fillRect(x, y, w, 1); if (h < .2) { lg.fillStyle = 'rgba(255,210,120,.25)'; lg.fillRect(x - 1, y - 1, w + 2, 3); } }
+    return (c.lightCv = lc);
+  },
   /* luces de ventanas (después del tinte de la noche) */
   lightsTop(g, night, t) {
     if (night < .25 || !this._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1); g.imageSmoothingEnabled = false;
-    for (const [c, sx, sy, s] of this._vis) g.drawImage(c.lightCv, sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
+    for (const [c, sx, sy, s] of this._vis) g.drawImage(this.luces(c), sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
     g.restore();
   },
   /* ---------- panorámica: mapa entero con sombreado del relieve (1 px = 2 casillas) ---------- */
@@ -4229,7 +4422,11 @@ const Mundo = EM.mundo = {
     if (m === 12 && (day === 24 || day === 25)) add('navidad', '¡Feliz Navidad! El último tren sale más temprano en Nochebuena', 'luces');
     if ((m === 12 && day >= 31) || (m === 1 && day === 1)) add('anonuevo', '¡Feliz año nuevo! Pólvora no, abrazos sí', 'fuegos');
     if (m === 12 || (m === 1 && day <= 10) || (m === 11 && day >= 28)) add('alumbrados', 'Alumbrados navideños: el río y los barrios se llenan de luces', 'luces');
-    if (m === 8 && day <= 12) add('feria', 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en las estaciones', 'flores');
+    const ff = nth(8, 5, 1), fl = nth(9, 5, 2);
+    if (m === 9 && day >= fl && day <= fl + 9) add('libro', 'Fiesta del Libro y la Cultura en el Jardín Botánico: la estación Universidad se llena de lectores', 'banderas');
+    if (m === 4 && wd === 6 && day + 7 > 30) add('nino', 'Día del Niño: juegos y globos en los parques del valle', 'banderas');
+    if (m === 6 && day === nth(6, 0, 3)) add('padre', 'Día del Padre: ¡a llamar al papá!', 'banderas');
+    if (m === 8 && day >= ff && day <= ff + 9) add('feria', 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en las estaciones', 'flores');
     if (m === 8 && day === nth(8, 0, 2)) add('silleteros', 'Hoy es el Desfile de Silleteros', 'flores');
     if (m === 7 && day === 20) add('julio20', '20 de julio: Día de la Independencia · banderas en las estaciones', 'banderas');
     if (m === 8 && day === 7) add('boyaca', '7 de agosto: Batalla de Boyacá', 'banderas');
@@ -4322,7 +4519,8 @@ const Atlas = EM.atlas = {
   check(E) {
     if (typeof ARTE === 'undefined') { E('atlas: falta src/data/arte.js'); return 0; }
     for (const [k, v] of Object.entries(ARTE)) if (!/^data:image\/webp;base64,/.test(v) && !/^<svg[\s>]/.test(v)) E('atlas: ' + k + ' no es WebP ni SVG');
-    const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
+    const pend = new Set(['logro_intermodal', 'logro_ciclista']);   // medallas encargadas a ChatGPT (C-12, 21 y 22): mientras llegan, la libreta usa el emoji
+    const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]).filter(id => !pend.has(id)), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
     for (const w of Object.keys(TRAMA_WHO)) if (this.WHO[w] && !this.retrato(w)) E('atlas: sin retrato de ' + w);
     for (const k of need) if (!this.has(k)) E('atlas: falta ' + k);
     return Object.keys(ARTE).length;
@@ -5103,12 +5301,14 @@ const Game = EM.game = {
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
+    MAP.prisa = t + 10; MAP._hechos = 0;
     try {
       if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
       g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
       for (const vp of this.vps) { g.save(); g.translate(vp.x, vp.y); if (vp.flip) { g.translate(vp.w, vp.h); g.rotate(Math.PI); } g.beginPath(); g.rect(0, 0, vp.w, vp.h); g.clip(); this.mode.draw(g, vp.st, vp); g.restore(); }
       if (this.duel) { g.fillStyle = PAL.negro; g.fillRect(0, this.vps[0].y - 3, w, 6); }
     } catch (e) { EM.errors.push('frame ' + this.mode.id + ': ' + e.message); console.error(e); }
+    MAP.prisa = 0;
     if ((this.hudT -= dt) <= 0) { this.hudT = .2; this.hud(); }
     if (this.net && this.net.tick) this.net.tick(dt);
     if (!this.ended && !(this.net && this.net.guest) && !this.mode.endless) { const r1 = this.mode.result(this.st), r2 = this.st2 ? this.mode.result(this.st2) : null; if (r1.done || (r2 && r2.done)) this.end(r1, r2); }
@@ -5144,7 +5344,8 @@ const Game = EM.game = {
     const earn = Save.record(M.id, this.lv, r1); Snd.play(r1.win ? 'win' : 'lose'); vib(r1.win ? 40 : 120);
     const lvls = M.levels(), i = lvls.findIndex(l => l.id === this.lv), nx = lvls[i + 1];
     const stars = '★'.repeat(r1.stars | 0) + '☆'.repeat(3 - (r1.stars | 0));
-    UI.modal(`<div class="pag">${r1.win ? 'Misión cumplida' : 'Fin de la partida'}</div><h2>${r1.win ? '¡Bien hecho!' : 'Casi…'}</h2><div style="font-size:34px;color:var(--mostaza);letter-spacing:.1em">${stars}</div>
+    const bien = r1.win && (r1.stars | 0) > 0;
+    UI.modal(`<div class="pag">${r1.win ? (bien ? 'Misión cumplida' : 'Llegaste') : 'Fin de la partida'}</div><h2>${bien ? '¡Bien hecho!' : r1.win ? 'Llegaste, sin estrellas' : 'Casi…'}</h2><div style="font-size:34px;color:var(--mostaza);letter-spacing:.1em">${stars}</div>${r1.win && !bien ? '<p class="m">Para ganar estrellas suma más puntos: suavidad, puntualidad y cuidar a los pasajeros.</p>' : ''}
       <div class="kv" style="margin:10px 0">${(r1.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Puntaje</b><span>${fmt(r1.score)}</span><b>Pasajes</b><span>+${earn} 🎫</span></div>
       ${r1.fact ? `<div class="film" style="margin:10px 0">Dato · ${esc(r1.fact)}</div>` : ''}
       <div class="row"><button class="btn pri" id="rsN" ${nx && r1.win ? '' : 'hidden'}>Siguiente ▶</button><button class="btn sm" id="rsR">↻ Otra vez</button><button class="btn sm gh" id="rsX">Salir</button></div>`);
@@ -6249,7 +6450,7 @@ const VEH = {
   taxi: { n: 'Taxi', len: 4.4, wid: 1.8, wb: 2.6, vmax: 100 / 3.6, acc: 3.4, brk: 7, smax: .62, srate: 2.4, grip: 6, col: '#f2c400', icon: '🚕', soft: 1 },
   moto: { n: 'Moto', len: 2.1, wid: .8, wb: 1.4, vmax: 115 / 3.6, acc: 4.2, brk: 7, smax: .7, srate: 3.2, grip: 7, col: '#EC343A', icon: '🏍', soft: 1, ciclo: 1 },
   camioneta: { n: 'Camioneta del Metro', len: 5.3, wid: 1.95, wb: 3.1, vmax: 95 / 3.6, acc: 2.9, brk: 6.5, smax: .58, srate: 2.1, grip: 5.5, col: '#1C5C9C', icon: '🛻', soft: 1, campo: 1 },
-  bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, col: '#59AB42', icon: '🚲', soft: 1, ciclo: 1, walk: 1 },
+  bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, col: '#9bd341', icon: '🚲', soft: 1, ciclo: 1, walk: 1 },
   alimentador: { n: 'Bus alimentador', len: 12, wid: 2.5, wb: 6, vmax: 55 / 3.6, acc: 1.2, brk: 3, smax: .55, srate: 1.3, grip: 5, col: '#f4f1ea', icon: '🚐', soft: 0 },
   metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, col: '#0E6F76', icon: '🚌', soft: 0 }
 };
@@ -6270,7 +6471,9 @@ const Libre = EM.modes.libre = {
     const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
     // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
     const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
-    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
+    // estaciones de EnCicla (src/data/encicla.js, de Juega EnCicla): anclajes con 2 a 4 bicis
+    st.docks = []; if (typeof ENCICLA !== 'undefined') ENCICLA.estaciones.forEach(([n, mu, la, lo, tp], i) => { const q = geoM(la, lo), p = this.nearTile(q.x, q.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS, 5); st.docks.push({ n, mu, tp, x: p.x, y: p.y }); for (let b = 0, nb = 2 + (h2(i, 7, 5) * 3 | 0); b < nb; b++) st.parked.push({ kind: 'bici', x: p.x - 2.4 + b * 1.4, y: p.y + 1.6, a: Math.PI / 2, id: st.parked.length, dock: i }); });
+    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (!st.docks.length && rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
     const bello = this.hub('Bello'); park('camioneta', bello.x + 60, bello.y + 40); park('camioneta', bello.x - 50, bello.y + 70); const sa = this.hub('San Antonio'); park('camioneta', sa.x + 60, sa.y - 50);
     for (const l of NET.lines) { if (l.kind === 'feeder') park('alimentador', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); if (l.kind === 'brt') { park('metroplus', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); park('metroplus', l.st[l.st.length - 1].x, l.st[l.st.length - 1].y, NET.at(l.P, l.P.len - 5).a + Math.PI); } }
     if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
@@ -6314,22 +6517,43 @@ const Libre = EM.modes.libre = {
     if (st.mode === 'veh') {
       const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
+      if (st.veh.kind === 'bici' && st.prestamo) { if (this.devolver(st)) return; st.prestamo = null; this.msg(st, '⚠ Dejaste la bici EnCicla sola. En EnCicla eso se reporta: devuélvela siempre en un anclaje', 'y'); }
       const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.nearTile(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
     }
     // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
     if (st.trama && Trama.onAction(st)) return;
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
-    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    if (best && best.dock != null && !EM.headless) { const Hh = enciclaHorario(new Date()); if (!Hh.abierto) { this.msg(st, '🚲 EnCicla no presta a esta hora: ' + Hh.txt, 'y'); return; } }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
     const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
-      st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
+      st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; st.subio = 1; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
     const p = Ciudad.peds.find(p => dist(p.x, p.y, st.x, st.y) < 3); if (p) { p.wait = 2; if (p.dog) { Ciudad.say(p, '¡Guau! 🐾'); p.owner = p.owner || null; return; } Ciudad.say(p); if (st.job && st.job.hint && Ciudad.rng.f() < .4) setTimeout(() => Ciudad.say(p, st.job.hint.slice(0, 40)), 1200); return; }
     this.msg(st, 'Nada por aquí: busca una estación, un taxi o una bici', 'y');
+  },
+  /* ---------- EnCicla (cruce con Juega EnCicla): préstamo de una hora, devolución en cualquier anclaje y timbre ---------- */
+  FRASES_ENCICLA: ['Santi, anfitrión: «Una sonrisa también se presta.»', 'Doña Luz, usuaria desde 2011: «Del afán no queda sino el cansancio.»', 'Don Jairo, mecánico: «Toda bici avisa lo que le duele.»', 'Wilson, conductor de balance: «Por las vías, nunca por la ciclorruta.»', 'Cata, sala de control: «El mapa habla.»', 'Maryi, pausas activas: «Un cuerpo que se mueve trabaja mejor.»'],
+  prestar(st, i) { const D = st.docks[i]; st.prestamo = { i, min: 0, x0: st.x, y0: st.y, avisado: 0 }; this.msg(st, '🚲 Préstamo EnCicla en ' + D.n + ': tienes 60 minutos', 'b'); this.msg(st, this.FRASES_ENCICLA[(st.t * 7 | 0) % this.FRASES_ENCICLA.length], 'g'); const h = new Date().getHours(); if (h >= 18 || h < 6) this.msg(st, 'Casco al montar y luces de noche: Cultura EnCicla', 'y'); },
+  devolver(st) {
+    let bi = -1, bd = 12; st.docks.forEach((D, i) => { const d = dist(D.x, D.y, st.x, st.y); if (d < bd) { bd = d; bi = i; } }); if (bi < 0) return false;
+    const P = st.prestamo, D = st.docks[bi], lejos = dist(P.x0, P.y0, D.x, D.y) > 400;
+    st.parked.push({ kind: 'bici', x: D.x - 2.4 + (st.parked.length % 4) * 1.4, y: D.y + 1.6, a: Math.PI / 2, id: st.parked.length, dock: bi }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; st.prestamo = null;
+    const t = this.nearTile(D.x, D.y - 3, q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y;
+    this.msg(st, '✓ Devuelves la bici en ' + D.n + ' (' + Math.max(1, Math.round(P.min)) + ' min)' + (lejos ? ' · «Nadie aplaude al anfitrión, pero todos llegan.»' : ''), 'g'); this.sfx(st, 'star');
+    if (st.subio && lejos) { Vida.logro('intermodal'); Album.ganar('Metro + EnCicla'); }
+    return true;
+  },
+  timbre(st) {
+    this.sfx(st, 'bell'); const T = st.timbres = (st.timbres || []).filter(t => st.t - t < 2.5); T.push(st.t); const h = this.nearHub(st, 45);
+    if (T.length >= 3 && h && h.lines.some(l => l.kind === 'metro')) { st.timbres = []; Vida.logro('ciclista'); this.msg(st, '🚲 ¡Ciclista secreto! Tres timbrazos debajo del metro. ¿Te gusta pedalear? Juega EnCicla', 'g'); }
+    else if (T.length === 1) this.msg(st, '🔔 ¡Tilín, tilín!', 'b');
   },
   nearHub(st, r) { let best = null, bd = r; for (const h of NET.stations) { const d = dist(h.x, h.y, st.x, st.y); if (d < bd) { bd = d; best = h; } } return best; },
   /* ---------- física ---------- */
   step(st, dt) {
     if (st.done) return; st.t += dt; const J = st.job;
+    if (st.prestamo) { const P = st.prestamo; P.min += dt / 10; if (P.min > 60 && !P.avisado) { P.avisado = 1; this.msg(st, '⏰ Pasó la hora del préstamo: devuelve o renueva la bici en una estación EnCicla', 'y'); } }   // 10 s de juego = 1 minuto de préstamo
+    if (st.mode === 'veh' && st.veh.kind === 'bici' && st.hb) { st.hb = false; this.timbre(st); }
     if (st.auto) { st.joy = { x: Math.sin(st.t * .3), y: -.8, m: 1 }; if (Math.floor(st.t) % 7 === 0 && !st._a) { st._a = 1; this.action(st); } else if (Math.floor(st.t) % 7) st._a = 0; }
     if (st.trama && st.trama.talk) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; }
     const ffOn = st.ff && (st.mode === 'ride' || !!this.nearHub(st, 70)); if (st.ff && !ffOn) st.ff = 0; const wdt = ffOn ? dt * 5 : dt;
@@ -6378,7 +6602,7 @@ const Libre = EM.modes.libre = {
   result(st) { return { done: false, win: false, score: st.pay, stars: 0, lines: [] }; },
   msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
-  hud(st) { this.updCtl(st); return [['🎫', fmt(Save.d.wallet)], ['', st.mode === 'veh' ? Math.round(Math.abs(st.vf) * 3.6) + ' km/h' : st.mode === 'ride' ? st.ride.line.id + ' · ' + Math.round(st.vf * 3.6) + ' km/h' : this.lugarTxt(st)]]; },
+  hud(st) { this.updCtl(st); const r = [['🎫', fmt(Save.d.wallet)], ['', st.mode === 'veh' ? Math.round(Math.abs(st.vf) * 3.6) + ' km/h' : st.mode === 'ride' ? st.ride.line.id + ' · ' + Math.round(st.vf * 3.6) + ' km/h' : this.lugarTxt(st)]]; if (st.prestamo) r.push(['🚲', Math.round(st.prestamo.min) + '/60 min']); return r; },
   lugarTxt(st) { if (!MAP.ready) return ''; const B = MAP.barrioAt(st.x, st.y); return B ? B[0] : (MAP.comunaAt(st.x, st.y) || MAP.muniAt(st.x, st.y)).replace(/^Comuna \d+ - /, ''); },
   /* letrero al entrar a otra calle o a otro barrio (como en los juegos de mundo abierto) */
   letrero(st) {
@@ -6390,7 +6614,7 @@ const Libre = EM.modes.libre = {
   /* ---------- controles ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
-      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp">▲</button><button class="abtn brk" id="lbDown">▼</button><button class="abtn hb" id="lbHb">✋</button></div>
+      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano">✋</button></div>
       <div class="vsel" id="lbView"><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Adelantar el viaje">${Atlas.ico('ico_adelantar', '⏩')}</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
@@ -6407,7 +6631,7 @@ const Libre = EM.modes.libre = {
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     const ff = $('#lbFF'); if (ff) { ff.style.display = st.mode === 'ride' || this.nearHub(st, 70) ? '' : 'none'; ff.classList.toggle('on', !!st.ff); }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal) jb.classList.add('hide');
-    const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; $('#lbHb').style.visibility = veh && !this.V(st).walk ? '' : 'hidden';
+    const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; const bici = veh && st.veh.kind === 'bici', hbB = $('#lbHb'); hbB.style.visibility = veh && (!this.V(st).walk || bici) ? '' : 'hidden'; if (hbB.dataset.b !== String(bici)) { hbB.dataset.b = bici; hbB.textContent = bici ? '🔔' : '✋'; hbB.setAttribute('aria-label', bici ? 'Timbre' : 'Freno de mano'); }
     const a = $('#lbAct'); let lbl = 'acción'; if (st.mode === 'ride') lbl = st.ride.ph === 'dwell' ? 'bajar' : 'viajando'; else if (veh) lbl = (st.job && st.job.k === 'taxi' && st.job.stage === 0 && dist(st.x, st.y, st.job.client.x, st.job.client.y) < 9) ? 'recoger' : 'bajarse'; else { const p = st.parked.find(p => dist(p.x, p.y, st.x, st.y) < 4.5 + VEH[p.kind].len / 2); if (p) lbl = VEH[p.kind].icon + ' subir'; else if (this.nearHub(st, 34)) lbl = 'abordar'; else if (Ciudad.peds.some(p => dist(p.x, p.y, st.x, st.y) < 3)) lbl = 'hablar'; }
     a.querySelector('small').textContent = lbl; a.classList.toggle('hot', lbl !== 'acción' && lbl !== 'viajando' && lbl !== 'bajarse');
     // motor (zumbido según la velocidad)
@@ -6421,6 +6645,14 @@ const Libre = EM.modes.libre = {
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1); Ciudad.marksDraw(g, S, k);
+    // estaciones de EnCicla: anclaje azul con postes verdes y tótem
+    for (const D of st.docks || []) {
+      if (D.x < x0 - 12 || D.x > x1 + 12 || D.y < y0 - 12 || D.y > y1 + 12) continue; const q = S(D.x, D.y);
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(q.x - 3.6 * k + 2, q.y + .2 * k + 2, 7.2 * k, 1.6 * k); g.fillStyle = '#0e2d55'; g.fillRect(q.x - 3.6 * k, q.y + .2 * k, 7.2 * k, 1.6 * k);
+      g.fillStyle = '#9bd341'; for (let i = 0; i < 5; i++) g.fillRect(q.x - 3.2 * k + i * 1.5 * k, q.y + .45 * k, .35 * k, 1.1 * k);
+      g.fillStyle = '#0e2d55'; g.fillRect(q.x + 3.9 * k, q.y - .9 * k, .9 * k, 2.6 * k); g.fillStyle = '#9bd341'; g.fillRect(q.x + 4.05 * k, q.y - .7 * k, .6 * k, .6 * k);
+      if (k > 2.2 && !st.far) { g.font = '700 ' + Math.round(clamp(k * 3, 10, 13)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.9)'; g.strokeText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.fillStyle = '#0e2d55'; g.fillText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.textAlign = 'left'; }
+    }
     // vehículos parqueados
     for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (p.kind === 'bici') { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.5 * k, 2.2 * k, 1 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.3 * k, 1.8 * k, .6 * k); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, false); }
     Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1);
@@ -7574,7 +7806,7 @@ const RedView = EM.red = {
       const r = (s.lines.length > 1 ? 5 : 3.6) * dpr * clamp(c.a * 2.5, .7, 1.4); g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = '#0F2238'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); g.stroke();
       if (c.a > .22 || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, q.x + r + 3, q.y + 4 * dpr); g.fillStyle = '#13253A'; g.fillText(s.name, q.x + r + 3, q.y + 4 * dpr); }
     }
-    if (c.a >= .07 && c.a < .5 && typeof CIUDAD !== 'undefined') { g.textAlign = 'center'; for (const B of CIUDAD.barrios) { if (!B[6] || B[5] < (c.a < .15 ? 70 : 16)) continue; const x = B[3] / 4 * TM, y = B[4] / 4 * TM, q = S(x, y, MAP.elevM(x, y) + 20); if (q.x < 0 || q.y < 0 || q.x > w || q.y > h) continue; g.font = '800 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(15,34,56,.55)'; g.strokeText(B[0].toUpperCase(), q.x, q.y); g.fillStyle = '#fff'; g.fillText(B[0].toUpperCase(), q.x, q.y); } g.textAlign = 'left'; }
+    if (c.a >= .07 && c.a < .5 && typeof CIUDAD !== 'undefined') { g.textAlign = 'center'; for (const B of MAP.barriosL || CIUDAD.barrios) { if (!B[6] || B[5] < (c.a < .15 ? 70 : 16)) continue; const x = B[3] / 4 * TM, y = B[4] / 4 * TM, q = S(x, y, MAP.elevM(x, y) + 20); if (q.x < 0 || q.y < 0 || q.x > w || q.y > h) continue; g.font = '800 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(15,34,56,.55)'; g.strokeText(B[0].toUpperCase(), q.x, q.y); g.fillStyle = '#fff'; g.fillText(B[0].toUpperCase(), q.x, q.y); } g.textAlign = 'left'; }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
   },
   draw() {
@@ -7678,7 +7910,7 @@ const Menu = EM.menu = {
     const loop = () => {
       if (UI.cur !== 'cover') return; requestAnimationFrame(loop); const h = new Date().getHours(); if (!cv.hidden) Art.cover(g, 320, 200, now(), h < 6 || h >= 19);
       const abierto = serviceOpen(), t = clockStr() + abierto; if (t === last) return; last = t;
-      const el = $('#cvClock'); el.classList.toggle('cerrado', !abierto); el.textContent = abierto ? 'En servicio, ' + clockStr() : 'Cerrado, abre a las 4:30';
+      const el = $('#cvClock'); el.classList.toggle('cerrado', !abierto); el.textContent = abierto ? 'En servicio, ' + clockStr() : 'Cerrado, abre a las ' + abreTxt().replace(' a. m.', '');
     };
     loop();
   },
@@ -7771,7 +8003,9 @@ const Menu = EM.menu = {
       <h3>Datos del mapa</h3><ul class="m" style="padding-left:18px;margin:0">
         <li>Calles, río y relieve: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps; relieve SRTM / NASA (AWS Terrain Tiles); mapa base de “Juega EnCicla”.</li>
         <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026).</li>
-        <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li></ul>
+        <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li>
+        <li>Estaciones de EnCicla, y nombres de calle y barrios fuera de esas capas: mapa de “Juega EnCicla” v1.2 (OpenStreetMap vía Overture, ODbL); los barrios de esa capa son aproximados. Patio-taller del Metro: © colaboradores de OpenStreetMap.</li></ul>
+      <p class="m">¿Te gusta pedalear? <a href="https://juanfeliperico369-stack.github.io/BicicletasUno/" target="_blank" rel="noopener">Juega EnCicla</a>, el juego hermano sobre las bicis públicas del valle.</p>
       <p class="m">Versión ${EM.version}. Funciona sin internet y guarda tus partidas en este dispositivo; exporta una copia para respaldarlas.</p><button class="btn pri" id="cOk">Cerrar</button>`); $('#cOk').onclick = () => UI.close();
   },
   bot() {
@@ -7816,7 +8050,8 @@ const LOGROS = [
   ['historia', 'La última vuelta', 'Termina la historia de Rosalba'], ['datos25', 'Enciclopedia paisa', 'Descubre 25 datos de estaciones'], ['noche', 'Turno de la noche', 'Juega después de las 7 p. m.'],
   ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
   ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %'],
-  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados']
+  ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados'],
+  ['intermodal', 'Metro + bici', 'En Ciudad Libre, viaja en metro, tranvía o cable y luego devuelve una bici EnCicla lejos de donde la tomaste'], ['ciclista', 'Ciclista secreto', 'Hay un timbre que suena tres veces debajo del metro…']
 ];
 /* Domingo de Pascua (algoritmo anónimo gregoriano) */
 function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
@@ -7824,7 +8059,7 @@ const Vida = EM.vida = {
   today() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); },
   /* fiestas y fechas del Metro según el calendario real */
   fiestas(d = new Date()) {
-    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
+    const out = Mundo.fiestas(d).map(f => ({ k: f.k, t: f.t })), h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las ' + abreTxt(d) + '). Aquí puedes seguir manejando 😉' }); else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' }); const fe = festivo(d); if (fe) out.push({ k: 'festivo', t: 'Hoy es festivo (' + fe + '): el Metro va de 5 a. m. a 10 p. m.' }); else if (d.getDay() === 0) out.push({ k: 'domingo', t: 'Domingo: el Metro va de 5 a. m. a 10 p. m.' }); if (domingoOFestivo(d) && h >= 7 && h < 13) out.push({ k: 'ciclovia', t: '🚴 Ciclovía hasta la 1 p. m.: muchas vías son para bicis, patines y peatones' }); const w = Mundo.weather(); out.push({ k: 'clima', t: 'El tiempo en el valle: ' + w.name + ', ' + Mundo.temp() + ' °C' }); return out;
   },
   fiestasViejas(d = new Date()) {
     const y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), out = [], doy = x => Math.floor((x - new Date(x.getFullYear(), 0, 0)) / 864e5), dd = doy(d);
@@ -7835,11 +8070,13 @@ const Vida = EM.vida = {
     if (m === 8 && day <= 12) out.push({ k: 'feria', t: 'Feria de las Flores: los silleteros bajan de Santa Elena · flores en los andenes' });
     if (m === 12 && day === 24) out.push({ k: 'navidad', t: 'Nochebuena: el último tren sale más temprano. ¡Feliz Navidad!' });
     const P = pascua(y), dp = Math.round((new Date(y, m - 1, day) - P) / 864e5); if (dp >= -7 && dp <= 0) out.push({ k: 'santa', t: 'Semana Santa: horario especial y muchos viajeros hacia las terminales' });
-    const h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las 4:30 a. m.). Aquí puedes seguir manejando 😉' });
+    const h = d.getHours(); if (!serviceOpen(d)) out.push({ k: 'cerrado', t: 'El Metro está cerrado (abre a las ' + abreTxt(d) + '). Aquí puedes seguir manejando 😉' });
     else if ((h >= 6 && h < 8) || (h >= 17 && h < 19)) out.push({ k: 'pico', t: 'Hora pico en el valle: más pasajeros y más trenes en la vía' });
     return out;
   },
   has(k) { return this.fiestas().some(f => f.k === k); },
+  /* entrega un logro desde cualquier modo (Ciudad Libre, EnCicla…) */
+  logro(k) { const d = Save.d, L = d.logros || (d.logros = {}), q = LOGROS.find(x => x[0] === k); if (!q || L[k]) return; L[k] = Date.now(); Save.write(); if (!EM.headless) { Snd.play('star'); UI.toast('🏅 Logro: ' + q[1]); } },
   bonus() { return this.has('aniv') ? 2 : 1; },
   daily() {
     const d = Save.d, t = this.today();
@@ -7946,6 +8183,7 @@ const ALBUM_EXTRA = [
   { id: 'x-gardel', name: 'Homenaje a Gardel', muni: 'Medellín · Manrique', art: 'esc_tango', dato: 'Carlos Gardel murió en Medellín en 1935, en un accidente de avión. En Manrique hay un barrio tanguero y una estación del Metroplús con su nombre.', como: 'Llega a la estación Gardel del Metroplús.' },
   { id: 'x-silleteros', name: 'Desfile de Silleteros', muni: 'Feria de las Flores', art: 'esc_silleteros', dato: 'Los campesinos de Santa Elena bajan cargando a la espalda silletas de flores de hasta 80 kilos.', como: 'Juega durante la Feria de las Flores (agosto).' },
   { id: 'x-alumbrados', name: 'Alumbrados del río', muni: 'Diciembre', art: 'esc_alumbrados', dato: 'Millones de luces en el río Medellín y en los barrios. Mucha gente los recorre en metro, de noche.', como: 'Juega de noche en temporada de Alumbrados.' },
+  { id: 'x-encicla', name: 'Metro + EnCicla', muni: 'Todo el valle', lat: 6.2586, lon: -75.5971, art: '', dato: 'EnCicla es el sistema público de bicicletas del Valle de Aburrá: desde 2011 une estaciones del Metro con universidades, parques y barrios.', como: 'En Ciudad Libre viaja en metro, tranvía o cable; luego toma una bici EnCicla y devuélvela lejos de donde la tomaste.' },
   { id: 'x-velitas', name: 'Noche de las Velitas', muni: '7 de diciembre', art: 'esc_velitas', dato: 'La noche del 7 de diciembre las familias encienden velas y faroles en andenes y balcones.', como: 'Juega la noche de las velitas.' }
 ];
 const Album = EM.album = {
@@ -8270,6 +8508,22 @@ const BotT = EM.test = {
       for (let r = 0; r < 4; r++) { Iso.rot = r; const p = Iso.P(s.x + 50, s.y - 30, Iso.Z0, c, 200, 160), w = Iso.Pi(p.x, p.y, c, 200, 160); if (Math.hypot(w.x - s.x - 50, w.y - s.y + 30) > .5) E('maqueta: la proyección no vuelve con giro ' + r); }
       Iso.rot = r0; if (!EM.headless) { Iso.render(c, 96, 72); const d = Iso.d; let tierra = 0; for (let i = 0; i < d.length; i++) if (((d[i] >> 16) & 255) - (d[i] & 255) < 20) tierra++; /* el cielo es azulado: azul mucho mayor que rojo */ if (tierra < d.length * .3) E('maqueta: el dibujo salió casi vacío'); }
     } catch (e) { E('maqueta: ' + e.message); }
+    // calendario: festivos de Colombia y horarios del Metro (lunes a sábado 4:30–23; domingos y festivos 5–22) y de EnCicla
+    try {
+      const F = (y, m, d, h = 12, mi = 0) => new Date(y, m - 1, d, h, mi);
+      if (festivo(F(2026, 1, 12)) !== 'Reyes Magos' || festivo(F(2026, 4, 3)) !== 'Viernes Santo' || festivo(F(2026, 5, 18)) !== 'Ascensión del Señor' || festivo(F(2026, 11, 18))) E('calendario: festivos de 2026 mal calculados');
+      if (serviceOpen(F(2026, 11, 22, 4, 45)) || !serviceOpen(F(2026, 11, 23, 4, 45)) || serviceOpen(F(2026, 11, 22, 22, 30)) || !serviceOpen(F(2026, 11, 21, 22, 30)) || serviceOpen(F(2026, 1, 12, 4, 45))) E('calendario: horario del Metro equivocado');
+      if (!enciclaHorario(F(2026, 11, 22, 9)).abierto || enciclaHorario(F(2026, 11, 22, 16)).abierto || !enciclaHorario(F(2026, 11, 23, 6)).abierto) E('calendario: horario de EnCicla equivocado');
+    } catch (e) { E('calendario: ' + e.message); }
+    // mapa ajustado (src/data/ajustes.js): nombres y barrios fuera de Medellín, huellas de estación; estaciones de EnCicla en Ciudad Libre
+    try {
+      if (typeof AJUSTES !== 'undefined' && !window.__sinAjustes) {
+        if (!MAP.ajustado) E('ajustes: no se aplicaron'); if (!MAP.techos || MAP.techos.length < 49) E('ajustes: faltan huellas de estación (' + (MAP.techos || []).length + ')');
+        const bl = NET.stations.find(q => q.name === 'Bello'); if (!MAP.barrioAt(bl.x, bl.y)) E('ajustes: Bello sin barrio');
+        let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')');
+      }
+      if (typeof ENCICLA !== 'undefined') { if (ENCICLA.estaciones.length < 100) E('encicla: faltan estaciones'); const L = EM.modes.libre.create('lb:San Antonio', { seed: 3 }); if (L.docks.length !== ENCICLA.estaciones.length || !L.parked.some(p => p.dock != null)) E('encicla: anclajes sin bicis'); }
+    } catch (e) { E('ajustes: ' + e.message); }
     // seguridad: una partida importada no cambia prototipos y los mensajes de otro celular no rompen el juego
     try {
       const d = Save.sanitize(JSON.parse('{"v":1,"__proto__":{"contaminado":1},"settings":{"__proto__":{"x":1}},"wallet":-5}'));
@@ -8338,6 +8592,7 @@ async function boot() {
   Menu.cover();
   try { await MAP.load(); } catch (e) { EM.errors.push('mapa: ' + e.message); }
   try { NET.build(); } catch (e) { EM.errors.push('red: ' + e.message); console.error(e); }
+  try { MAP.estaciones(); } catch (e) { EM.errors.push('estaciones: ' + e.message); console.error(e); }
   play.disabled = false; playTx.textContent = 'Ciudad Libre y todos los modos';
   history.pushState(null, '');
   document.addEventListener('pointerdown', () => { Snd.init(); Snd.resume(); }, { once: true });
@@ -8542,6 +8797,13 @@ const LUGARES = [
 ~~~~js
 /* Recorridos por calles reales (A* sobre el mapa OSM), generados por tools/rutas.mjs */
 const RUTAS = {"MP1":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3188,4376,3192,4372,3188,4364,3160,4364,3148,4356,3096,4352,3084,4344,2936,4328,2928,4340,2928,4352,2920,4368,2904,4388,2904,4396,2860,4452,2860,4464,2832,4492,2808,4508,2772,4548,2772,4600,2764,4620,2760,4888,2748,4904,2748,4960,2740,4968,2740,5072,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MP2":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3180,4388,3144,4392,3128,4408,3116,4408,3092,4432,3088,4448,3068,4480,3072,4504,3052,4532,3048,4568,3040,4576,3040,4588,3032,4604,3008,4628,3000,4652,2980,4672,2964,4708,2924,4752,2920,4768,2900,4804,2900,4816,2880,4848,2880,4860,2872,4876,2876,5108,2880,5116,2872,5124,2860,5124,2788,5072,2780,5076,2740,5076,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MPO":[2872,4020,2876,4024,2876,4036,2848,4060,2812,4060,2796,4068,2780,4084,2736,4096,2700,4112,2692,4108,2680,4120,2572,4120,2532,4140,2508,4140,2496,4132,2448,4132,2420,4144,2396,4144,2376,4132,2368,4132,2356,4140,2356,4148,2324,4184,2316,4224,2312,4228,2312,4244,2304,4260,2304,4280,2296,4300,2296,4316,2292,4320,2292,4348,2284,4356,2284,4368,2276,4380,2276,4404,2264,4440,2264,4460,2260,4464,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2160,4620,2160,4716,2156,4720,2152,4848,2148,4852,2148,4916,2144,4920,2144,4932,2164,4968,2164,5024],"AL-C6-001":[3420,3360,3412,3360,3388,3348,3368,3348,3364,3352,3336,3348,3332,3352,3308,3352,3296,3360,3272,3360,3264,3356,3264,3360,3248,3372,3208,3380,3196,3392,3188,3416,3180,3496,3168,3512,3148,3556],"AL-C6-002A":[3472,4288,3448,4284,3428,4300,3396,4300,3392,4296,3380,4304,3380,4316,3376,4320,3364,4316,3364,4356,3372,4372,3372,4384,3368,4388,3368,4408,3344,4432,3344,4440,3320,4464,3308,4456,3296,4468,3280,4460,3264,4472,3256,4464,3248,4476,3232,4488,3208,4468,3208,4452,3176,4424,3168,4412,3160,4416,3156,4412,3156,4392,3160,4388,3140,4368,3136,4356,3112,4352,3092,4340,3052,4340,3040,4328,3036,4316],"AL-C6-003":[3088,3936,3100,3952,3100,3968,3120,3980,3124,3992,3136,4000,3136,4008,3144,4020,3144,4036,3152,4044,3148,4096,3140,4116,3140,4144,3132,4160,3132,4188,3124,4204,3124,4240,3112,4252,3100,4256,3088,4336,3084,4340,3040,4340,3028,4344,3020,4356],"AL-C6-004":[3376,5148,3348,5128,3364,5108,3348,5096,3348,5088,3340,5080,3340,5056,3336,5052,3300,5052,3292,5032,3284,5024,3272,5024,3268,5020,3264,4996,3252,4984,3252,4976,3232,4964,3216,4960,3204,4972,3188,4972,3168,4996,3152,5000,3148,5012,3128,5036,3108,5036,3100,5044,3100,5056,3092,5064,3092,5072,3072,5088,3072,5108,3064,5116,3064,5124,3052,5132,3052,5148,3068,5168,3056,5152,3040,5156,3028,5148,3012,5152,2996,5164,2952,5116,2956,5108,2960,5048,2944,5020,2924,5000,2924,4980,2916,4960,2896,4936,2864,4932,2840,4908,2812,4896],"AL-C6-005":[3492,5192,3480,5188,3476,5180,3484,5172,3484,5164,3468,5152,3468,5144,3484,5120,3484,5100,3504,5084,3504,5076,3492,5068,3488,5044,3476,5028,3452,5028,3440,5012,3424,5004,3384,4968,3380,4960,3384,4940,3372,4928,3372,4912,3356,4896,3344,4896,3324,4876,3308,4876,3276,4856,3264,4868,3252,4868,3248,4864,3228,4868,3216,4860,3192,4864,3172,4852,3164,4852,3156,4844,3148,4844,3136,4832,3120,4832,3116,4836,3088,4808,3060,4796,3040,4780,3024,4780,3016,4772,2980,4776,2940,4740],"AL-C6-008":[3480,4860,3476,4848,3464,4840,3432,4804,3436,4784,3416,4764,3416,4752,3412,4748,3416,4744,3404,4708,3396,4696,3376,4684,3360,4664,3340,4664,3332,4656,3260,4664,3228,4652,3212,4652,3196,4644,3172,4644,3132,4604,3104,4588,3036,4524,3020,4516,3004,4516,2964,4492,2952,4492],"AL-C6-010":[3532,4780,3540,4788,3540,4820,3548,4824,3552,4836,3560,4844,3568,4844,3572,4852,3564,4860,3560,4888,3548,4904,3548,4916,3532,4912,3520,4920,3516,4908,3492,4884,3468,4872,3460,4872,3452,4864,3432,4868,3424,4852,3412,4852,3400,4844,3392,4844,3360,4812,3332,4808,3328,4804,3252,4800,3232,4788,3220,4788,3208,4776,3200,4776,3184,4760,3168,4752,3152,4764,3144,4764,3132,4752,3088,4732,3080,4724,3032,4708,3008,4684,2996,4664,2988,4664,2960,4648,2940,4628,2932,4612],"AL-C6-013":[3408,3508,3400,3520,3400,3528,3392,3536,3392,3548,3380,3560,3372,3608,3364,3616,3336,3628,3316,3620,3296,3632,3284,3628,3276,3636,3260,3636,3244,3648,3232,3680,3220,3684,3208,3684,3204,3680,3188,3700,3176,3704,3168,3720,3168,3732,3156,3744,3160,3752,3140,3748,3136,3752,3096,3756,3084,3744,3056,3744,3048,3736,3040,3736],"AL-C6-019":[3464,4216,3456,4212,3444,4220,3416,4216,3408,4224,3396,4224,3372,4204,3360,4208,3352,4200,3336,4200,3332,4196,3332,4184,3324,4192,3300,4192,3292,4188,3280,4208,3220,4200,3212,4212,3212,4228,3200,4244],"AL-C6-020":[3476,3868,3476,3876,3460,3888,3448,3884,3440,3888,3440,3908,3428,3928,3408,3948,3396,3948,3396,3960,3388,3976,3368,3996,3368,4004,3340,4028,3336,4056,3324,4060,3320,4072,3292,4096,3292,4104,3276,4112,3276,4124,3268,4128,3256,4144,3108,4116,3060,4148,3028,4144,3008,4136,2988,4140,2972,4156,2972,4168,2960,4192],"AL-C6-022":[3580,4144,3580,4148,3568,4148,3564,4152,3564,4164,3544,4176,3520,4180,3512,4204,3508,4204,3488,4180,3484,4184,3484,4216,3476,4228,3472,4224,3468,4228,3432,4228,3428,4224,3412,4228,3408,4224,3396,4224,3372,4204,3360,4208,3356,4212,3356,4240,3352,4244,3344,4240,3332,4244,3288,4292,3288,4312,3232,4364,3224,4364,3212,4352,3092,4348,3084,4340,3040,4340,3028,4344,3012,4360,2996,4392,2992,4404,2992,4436,2984,4444,2972,4476,2952,4492],"AL-C6-025":[3928,5144,3908,5160,3888,5136,3864,5124,3844,5128,3824,5120,3804,5140,3796,5132,3784,5132,3776,5140,3768,5140,3756,5128,3748,5128,3736,5140,3724,5140,3716,5148,3708,5140,3708,5132,3680,5104,3668,5104,3656,5092,3644,5088,3624,5088,3616,5084,3600,5064,3564,5064,3552,5060,3532,5040,3532,5020],"AL-C3-001":[2148,4912,2144,4936,2164,4964,2168,5136,2172,5140,2172,5152,2220,5200,2224,5304,2260,5380,2268,5388,2268,5416,2292,5444,2292,5460,2316,5488,2316,5504,2348,5536,2364,5560,2392,5564,2400,5572,2432,5572,2456,5596,2464,5628,2488,5652,2512,5656,2556,5696,2556,5752,2548,5772,2548,5784,2560,5796,2556,5816,2600,5860,2624,5876],"AL-C3-005":[1320,5008,1320,5024,1308,5064,1312,5072,1340,5048,1356,5048,1376,5040,1452,5040,1456,5044,1468,5044,1472,5040,1484,5040,1488,5036,1492,5040,1500,5036,1516,5048,1524,5048,1536,5036,1544,5036,1560,5024,1568,5024,1576,5012,1596,5016,1616,5004,1636,5004,1648,4992,1672,4988,1692,4964,1708,4964,1728,4952,1740,4952,1744,4956,1780,4956,1788,4952,1796,4960,1808,4956,1828,4972,1864,4984,1892,4984,1896,4988,1928,4988,1940,4980,1952,4980,1960,4972,1964,4980,1976,4988,1976,5008,1996,5016,1996,5044,2008,5048],"AL-C3-008":[2120,5412,2132,5420,2132,5436,2144,5440,2156,5452,2156,5468,2176,5488,2176,5500,2184,5508,2216,5508,2220,5504,2220,5492,2212,5480,2220,5468,2220,5460,2236,5452,2236,5440,2252,5424,2260,5424,2268,5416,2288,5416,2312,5384,2332,5372,2340,5372,2344,5360,2368,5344,2372,5304,2380,5292,2380,5284,2388,5276,2388,5220,2396,5196,2396,5176,2408,5156,2404,5064],"F-80":[2868,4032,2864,4028,2836,4028,2816,4048,2808,4048,2776,4088,2760,4088,2700,4112,2692,4108,2680,4120,2580,4120,2532,4140,2504,4140,2496,4132,2448,4132,2420,4144,2408,4144,2396,4136,2368,4132,2324,4184,2320,4208,2312,4216,2312,4244,2304,4264,2304,4280,2296,4300,2296,4316,2292,4320,2292,4336,2288,4340,2280,4384,2272,4400,2272,4420,2268,4424,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2172,4604,2164,4628,2160,4716,2156,4720,2156,4748,2152,4752,2152,4848,2148,4852,2148,4916,2144,4920,2144,4936,2164,4964,2164,5036,2168,5040,2172,5144,2216,5184,2216,5196,2220,5200,2220,5280,2224,5284,2228,5316,2236,5324,2236,5344,2260,5372,2260,5384,2292,5436,2292,5452,2308,5468,2308,5488,2340,5520,2340,5528,2356,5552,2376,5564,2424,5564,2452,5588,2452,5612,2456,5620,2472,5636,2500,5648,2508,5656,2516,5656,2560,5700,2564,5720,2560,5724,2540,5816,2556,5832,2564,5832,2588,5856,2592,5864,2588,5872]};
+~~~~
+
+### `src/data/encicla.js`
+~~~~js
+/* Estaciones de EnCicla (sistema público de bicicletas del Valle de Aburrá), tomadas de Juega EnCicla v1.2.0: posiciones aproximadas. Generado por tools/encicla_datos.mjs.
+   Tipos: a automática, m con anfitrión. Horario de préstamo según la página oficial de EnCicla, como lo usa Juega EnCicla (los festivos, como domingo). */
+const ENCICLA = {"v":"1.2.0","web":"https://juanfeliperico369-stack.github.io/BicicletasUno/","estaciones":[["Parque de Barbosa","Barbosa",6.438,-75.334,"a"],["Barbosa Norte","Barbosa",6.443,-75.33,"a"],["Parque de Girardota","Girardota",6.377,-75.447,"a"],["Girardota Centro","Girardota",6.38,-75.443,"a"],["Girardota Sur","Girardota",6.372,-75.449,"a"],["Parque de Copacabana","Copacabana",6.348,-75.51,"m"],["Copacabana Norte","Copacabana",6.353,-75.506,"a"],["Copacabana Calle 50","Copacabana",6.345,-75.513,"a"],["Ciudad Niquía","Bello",6.339,-75.542,"a"],["Hermosa Provincia","Bello",6.346,-75.545,"m"],["Fabricato","Bello",6.3285,-75.554,"a"],["Marco Fidel Suárez","Bello",6.34,-75.561,"m"],["Parque de Bello","Bello",6.3365,-75.557,"m"],["Bello Centro","Bello",6.3335,-75.56,"a"],["Calle 44 · Bello","Bello",6.3215,-75.5585,"a"],["Madera","Bello",6.3165,-75.5535,"a"],["Parque Juanes de la Paz","Medellín",6.296,-75.57,"m"],["Calle 80","Medellín",6.283,-75.5735,"a"],["Pilarica","Medellín",6.2805,-75.5845,"m"],["Robledo","Medellín",6.278,-75.595,"a"],["Pascual Bravo","Medellín",6.2775,-75.588,"m"],["Hospital Pablo Tobón Uribe","Medellín",6.2806,-75.5788,"a"],["Universidad Nacional","Medellín",6.2625,-75.5755,"m"],["Terminal del Norte","Medellín",6.2795,-75.5695,"m"],["Moravia","Medellín",6.276,-75.5655,"m"],["Aranjuez","Medellín",6.283,-75.556,"m"],["Jardín Botánico","Medellín",6.2722,-75.5625,"a"],["Estación Universidad","Medellín",6.269,-75.565,"a"],["Campo Valdés","Medellín",6.279,-75.553,"m"],["Universidad de Antioquia","Medellín",6.265,-75.569,"m"],["Manrique","Medellín",6.273,-75.55,"a"],["Parque Explora","Medellín",6.2712,-75.5675,"a"],["Prado","Medellín",6.2575,-75.564,"m"],["Avenida Caracas","Medellín",6.254,-75.562,"a"],["Museo de Antioquia","Medellín",6.253,-75.5695,"a"],["Parque Berrío","Medellín",6.2502,-75.5678,"m"],["Bomboná","Medellín",6.2478,-75.56,"a"],["Junín","Medellín",6.247,-75.5658,"a"],["San Antonio","Medellín",6.2465,-75.5705,"m"],["San Ignacio","Medellín",6.245,-75.564,"a"],["Plaza Cisneros","Medellín",6.2465,-75.573,"a"],["Plaza Mayor","Medellín",6.2433,-75.5768,"a"],["Ayacucho","Medellín",6.2458,-75.558,"m"],["La Alpujarra","Medellín",6.2425,-75.5735,"a"],["San Diego","Medellín",6.236,-75.565,"m"],["Parques del Río","Medellín",6.24,-75.579,"a"],["Exposiciones","Medellín",6.2385,-75.5748,"a"],["Industriales","Medellín",6.2305,-75.5744,"a"],["Área Metropolitana","Medellín",6.2405,-75.5705,"a"],["Avenida San Juan","Medellín",6.2445,-75.58,"a"],["Carlos E. Restrepo","Medellín",6.26,-75.58,"m"],["Estadio","Medellín",6.2545,-75.588,"m"],["Calasanz","Medellín",6.262,-75.6,"a"],["UPB","Medellín",6.244,-75.5895,"m"],["Unidad Deportiva","Medellín",6.2585,-75.5925,"a"],["Avenida 80","Medellín",6.247,-75.6,"a"],["Floresta","Medellín",6.2586,-75.5971,"a"],["San Javier","Medellín",6.2555,-75.6125,"m"],["Suramericana","Medellín",6.253,-75.5815,"m"],["Segundo Parque de Laureles","Medellín",6.243,-75.596,"a"],["Primer Parque de Laureles","Medellín",6.2475,-75.5915,"m"],["Avenida 33","Medellín",6.238,-75.59,"a"],["Rosales","Medellín",6.237,-75.605,"m"],["Parque de Belén","Medellín",6.231,-75.604,"a"],["Belén Las Playas","Medellín",6.225,-75.598,"m"],["Olaya Herrera","Medellín",6.2235,-75.587,"a"],["Terminal del Sur","Medellín",6.215,-75.5875,"m"],["Guayabal","Medellín",6.206,-75.588,"a"],["Cristo Rey","Medellín",6.199,-75.592,"a"],["Ciudad del Río","Medellín",6.222,-75.575,"a"],["Castropol","Medellín",6.215,-75.57,"a"],["Parque del Poblado","Medellín",6.2093,-75.5717,"m"],["Calle 10","Medellín",6.208,-75.5745,"a"],["Parque Lleras","Medellín",6.2095,-75.5662,"m"],["Manila","Medellín",6.204,-75.57,"a"],["Provenza","Medellín",6.2075,-75.565,"a"],["Oviedo","Medellín",6.199,-75.573,"a"],["Santafé","Medellín",6.1965,-75.5745,"a"],["Monterrey","Medellín",6.216,-75.5765,"a"],["Santa María de los Ángeles","Medellín",6.204,-75.5755,"a"],["Avenida Las Vegas","Medellín",6.2,-75.576,"a"],["EAFIT","Medellín",6.1995,-75.5795,"m"],["Aguacatala","Medellín",6.1935,-75.5805,"a"],["Ayurá","Envigado",6.187,-75.5845,"a"],["Jardines","Envigado",6.183,-75.578,"m"],["San Marcos","Envigado",6.18,-75.572,"a"],["Zona 2","Envigado",6.177,-75.576,"a"],["Alcalá","Envigado",6.174,-75.586,"m"],["La Magnolia","Envigado",6.172,-75.572,"a"],["Estación Envigado","Envigado",6.1755,-75.5945,"a"],["Parque de Envigado","Envigado",6.172,-75.588,"m"],["Milán-Vallejuelos","Envigado",6.168,-75.58,"a"],["La Mesa","Envigado",6.164,-75.576,"a"],["Otraparte","Envigado",6.1695,-75.5825,"m"],["El Portal","Envigado",6.184,-75.587,"a"],["La Paz","Envigado",6.179,-75.5915,"a"],["Bosques de Zúñiga","Envigado",6.189,-75.576,"a"],["Villagrande","Envigado",6.164,-75.592,"a"],["Barrio Obrero","Envigado",6.1665,-75.585,"a"],["Las Antillas","Envigado",6.16,-75.58,"a"],["Parque del Artista","Itagüí",6.178,-75.608,"a"],["Parque Simón Bolívar","Itagüí",6.174,-75.6,"a"],["Fátima","Itagüí",6.18,-75.615,"a"],["Parque Principal de Itagüí","Itagüí",6.171,-75.611,"m"],["Santa Cruz","Itagüí",6.168,-75.605,"m"],["Los Naranjos","Itagüí",6.164,-75.61,"a"],["Villa Paula","Itagüí",6.166,-75.62,"a"],["San Pío X","Itagüí",6.176,-75.62,"a"],["Ditaires","Itagüí",6.179,-75.625,"a"],["Pilsen","Itagüí",6.185,-75.61,"a"],["Ferrara","Itagüí",6.184,-75.6,"a"],["Centro de la Moda","Itagüí",6.16,-75.603,"a"],["Calle Larga","Sabaneta",6.15,-75.62,"a"],["Parque de Sabaneta","Sabaneta",6.152,-75.615,"m"],["Sabaneta Las Vegas","Sabaneta",6.156,-75.608,"a"],["Ancón Sur","Sabaneta",6.146,-75.626,"a"],["Aves María","Sabaneta",6.147,-75.612,"a"],["Mayorca","Sabaneta",6.16,-75.606,"a"],["Prados de Sabaneta","Sabaneta",6.1535,-75.61,"a"],["Las Lomitas","Sabaneta",6.144,-75.608,"a"],["Restrepo Naranjo","Sabaneta",6.149,-75.623,"a"],["Entreamigos","Sabaneta",6.1545,-75.6225,"a"],["La Doctora","Sabaneta",6.139,-75.611,"a"],["Yarumito","La Estrella",6.16,-75.64,"a"],["Parque de La Estrella","La Estrella",6.157,-75.6425,"a"],["C4TA","Medellín",6.2478,-75.6108,"a"],["Hospital Infantil","Medellín",6.2716,-75.5598,"a"],["San Cayetano","Sabaneta",6.1529,-75.6268,"m"],["Quintas de la Quinta","La Estrella",6.152,-75.642,"m"],["La Tablaza","La Estrella",6.13,-75.635,"a"],["Parque de Caldas","Caldas",6.0905,-75.6365,"m"],["Caldas Centro","Caldas",6.095,-75.634,"a"],["Caldas Sur","Caldas",6.086,-75.637,"a"]]};
 ~~~~
 
 ### `tools/apk.sh`
@@ -8959,6 +9221,203 @@ fs.writeFileSync(path.join(dist, 'favicon.svg'), `<svg xmlns="http://www.w3.org/
 await b.close(); console.log('íconos y compartir.png listos en dist/');
 ~~~~
 
+### `tools/auditoria-mapa.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Auditoría del mapa: mide con el propio juego qué tan completo y limpio está el mapa del valle.
+   Uso: node tools/auditoria-mapa.mjs [--json salida.json] [--img prefijo] [--sin-ajustes]
+   - Sin opciones imprime las métricas: tipos de casilla, nombres de calle y barrios por municipio, estaciones,
+     líneas, río (continuidad y pendiente), agua, escaleras, relieve y capa de ciudad.
+   - --img docs/auditorias/img/AAAA-MM-DD dibuja además cuatro láminas: cobertura, estaciones, agua y escaleras, perfil del río.
+   Las métricas son los criterios de aceptación de la hoja de ruta del mapa (docs/auditorias/). Compila antes con node tools/build.mjs */
+import { createRequire } from 'node:module'; import fs from 'node:fs';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const arg = k => process.argv.includes(k) ? process.argv[process.argv.indexOf(k) + 1] : null, JSON_OUT = arg('--json'), IMG = arg('--img');
+const browser = await chromium.launch(), page = await browser.newPage({ viewport: { width: 800, height: 600 } }), errores = [];
+page.on('pageerror', e => errores.push(e.message));
+if (process.argv.includes('--sin-ajustes')) await page.addInitScript(() => { window.__sinAjustes = true; });
+await page.goto('file://' + new URL('../dist/index.html', import.meta.url).pathname); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 60000 });
+
+const res = await page.evaluate(async conImg => {
+  const M = EM.map, t = M.t, VM = VALLE_META, W = VM.W, H = VM.H, TM = VM.tile, N = W * H, m = {}, img = {};
+  const NOM = ['pasto', 'monte', 'casa', 'edificio', 'calle', 'avenida', 'andén', 'ciclorruta', 'agua', 'canal', 'plaza', 'puente', 'estación', 'lote', 'autopista', 'patio', 'escaleras'];
+  const via = v => v === 4 || v === 5 || v === 14 || v === 11, casa = v => v === 2 || v === 3, agua = v => v === 8 || v === 9, km2 = n => Math.round(n * TM * TM / 1e4) / 100;
+
+  // 1) tipos de casilla
+  const tot = new Array(NOM.length).fill(0); for (let i = 0; i < N; i++) tot[t[i]]++;
+  m.tipos = Object.fromEntries(NOM.map((n, i) => [n, tot[i]]));
+
+  // 2) nombres de calle y barrios por municipio, y por cuadros de 320 m para la lámina de cobertura
+  const conNombre = new Uint8Array(N); for (let y = 0; y < H; y++) for (let k = M.rRow[y]; k < M.rRow[y + 1]; k++) if (M.rN[k] || M.rP[k] || (M.rE && M.rE[k])) conNombre[y * W + M.rX[k]] = 1;
+  const C = 16, GW = Math.ceil(W / C), GH = Math.ceil(H / C), cV = new Uint16Array(GW * GH), cN = new Uint16Array(GW * GH), cC = new Uint16Array(GW * GH), cB = new Uint16Array(GW * GH), mun = {};
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, v = t[i]; if (!via(v) && !casa(v) && !agua(v)) continue;
+    const nm = M.muniAt(x * TM + 10, y * TM + 10) || '(fuera de los 10 municipios)', o = mun[nm] || (mun[nm] = { vias: 0, conNombre: 0, casas: 0, conBarrio: 0, agua: 0 }), c = (y / C | 0) * GW + (x / C | 0);
+    if (via(v)) { o.vias++; cV[c]++; if (conNombre[i]) { o.conNombre++; cN[c]++; } }
+    else if (casa(v)) { o.casas++; cC[c]++; if (M.barrioAt(x * TM + 10, y * TM + 10)) { o.conBarrio++; cB[c]++; } }
+    else o.agua++;
+  }
+  m.municipios = Object.fromEntries(Object.entries(mun).map(([k, o]) => [k, { calles_con_nombre_pct: Math.round(o.conNombre / Math.max(1, o.vias) * 100), casas_con_barrio_pct: Math.round(o.conBarrio / Math.max(1, o.casas) * 100), agua_km2: km2(o.agua) }]));
+
+  // 3) estaciones de metro, tranvía y cable: casillas de estación alrededor y suelo bajo el punto real
+  const fija = l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable', fijas = NET.stations.filter(s => s.lines.some(fija));
+  const suelo = s => t[(s.y / TM | 0) * W + (s.x / TM | 0)];
+  const huella = s => { const tx = s.x / TM | 0, ty = s.y / TM | 0; let n = 0; for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) if (t[(ty + dy) * W + tx + dx] === 12) n++; return n; };
+  m.estaciones = { total: fijas.length, sin_huella: fijas.filter(s => !huella(s)).length, sin_huella_nombres: fijas.filter(s => !huella(s)).map(s => s.name), con_techo: (M.techos || []).length, sobre_casas: fijas.filter(s => casa(suelo(s))).map(s => s.name) };
+
+  // 4) metro y tranvía: parte del trazo que pasa sobre casas (el viaducto y el tranvía van sobre vías, el río o espacio libre)
+  m.lineas = {};
+  for (const l of NET.lines) {
+    if (l.kind !== 'metro' && l.kind !== 'tram') continue; const P = l.P.pts; let n = 0, sobre = 0;
+    for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i], k = Math.max(1, Math.hypot(b.x - a.x, b.y - a.y) / 10 | 0); for (let j = 0; j < k; j++) { n++; if (casa(t[((a.y + (b.y - a.y) * j / k) / TM | 0) * W + ((a.x + (b.x - a.x) * j / k) / TM | 0)])) sobre++; } }
+    m.lineas[l.id] = { tipo: l.kind, puntos_del_trazo: P.length, sobre_casas_pct: Math.round(sobre / n * 100) };
+  }
+
+  // 5) agua: cuerpos conectados, manchones de 1 a 4 casillas y superficie
+  const comp = new Int32Array(N).fill(-1), tam = [];
+  for (let i = 0; i < N; i++) {
+    if (!agua(t[i]) || comp[i] >= 0) continue; const id = tam.length, pila = [i]; comp[i] = id; let n = 0;
+    while (pila.length) { const j = pila.pop(); n++; const x = j % W; for (const q of [j - 1, j + 1, j - W, j + W]) if (q >= 0 && q < N && comp[q] < 0 && Math.abs(q % W - x) <= 1 && agua(t[q])) { comp[q] = id; pila.push(q); } }
+    tam.push(n);
+  }
+  const manchon = i => comp[i] >= 0 && tam[comp[i]] <= 4;
+  m.agua = { cuerpos: tam.length, manchones_1a4_casillas: tam.filter(n => n <= 4).length, rio_y_lagos_km2: km2(tot[8]), quebradas_km2: km2(tot[9]) };
+
+  // 6) escaleras: casillas sueltas (sin otra escalera al lado)
+  const suelta = i => t[i] === 16 && t[i - 1] !== 16 && t[i + 1] !== 16 && t[i - W] !== 16 && t[i + W] !== 16;
+  let sueltas = 0; for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (suelta(y * W + x)) sueltas++;
+  let aisladas = 0; for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) { const i = y * W + x; if (suelta(i) && ![t[i - 1], t[i + 1], t[i - W], t[i + W]].some(v => via(v) || v === 6 || v === 10 || v === 12 || v === 7)) aisladas++; }
+  m.escaleras = { casillas: tot[16], sueltas, sin_conexion: aisladas };
+
+  // 7) río Medellín: recorrido por el agua de Caldas a Barbosa con puntos de paso junto a la línea A.
+  //    A* que prefiere el agua y cruza cada corte por lo más corto; los cortes son casillas del recorrido que no son agua ni puente.
+  const cerca = (x, y, R) => { const tx = x / TM | 0, ty = y / TM | 0; let best = -1, bd = 1e9; for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const i = (ty + dy) * W + tx + dx; if (t[i] === 8 && dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = i; } } return best; };
+  const caldas = geoM(6.0905, -75.636), pasos = [cerca(caldas.x, caldas.y, 80)];
+  for (const nm of ['La Estrella', 'Itagüí', 'Industriales', 'Caribe', 'Niquía']) { const s = NET.stations.find(q => q.name === nm); pasos.push(cerca(s.x, s.y, 40)); }
+  let norte = -1; for (let i = 0; i < N; i++) if (t[i] === 8 && (norte < 0 || (i / W | 0) < (norte / W | 0)) && M.muniAt(i % W * TM, (i / W | 0) * TM) === 'Barbosa') norte = i; pasos.push(norte);
+  const costo = v => v === 8 || v === 11 ? 1 : v === 9 ? 2.5 : via(v) ? 20 : 40, dist = new Float32Array(N), prev = new Int32Array(N), camino = [];
+  for (let k = 1; k < pasos.length; k++) {
+    const a = pasos[k - 1], z = pasos[k], zx = z % W, zy = z / W | 0, heap = [[0, a]]; dist.fill(1e9); prev.fill(-1); dist[a] = 0;
+    const push = (d, i) => { heap.push([d, i]); let q = heap.length - 1; while (q > 0) { const pq = (q - 1) >> 1; if (heap[pq][0] <= heap[q][0]) break; [heap[pq], heap[q]] = [heap[q], heap[pq]]; q = pq; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let q = 0; for (;;) { const l = 2 * q + 1, r = l + 1; let s = q; if (l < heap.length && heap[l][0] < heap[s][0]) s = l; if (r < heap.length && heap[r][0] < heap[s][0]) s = r; if (s === q) break; [heap[s], heap[q]] = [heap[q], heap[s]]; q = s; } } return top; };
+    while (heap.length) { const j = pop()[1]; if (j === z) break; const x = j % W; for (const q of [j - 1, j + 1, j - W, j + W]) { if (q < 0 || q >= N || Math.abs(q % W - x) > 1) continue; const nd = dist[j] + costo(t[q]); if (nd < dist[q]) { dist[q] = nd; prev[q] = j; push(nd + Math.hypot(q % W - zx, (q / W | 0) - zy), q); } } }
+    const tramo = []; for (let j = z; j >= 0 && j !== a; j = prev[j]) tramo.push(j); tramo.push(a); tramo.reverse(); if (camino.length) tramo.shift(); camino.push(...tramo);
+  }
+  let cortes = 0, cortadas = 0, dentro = false; const porTipo = {};
+  for (const j of camino) { const v = t[j]; if (v === 8 || v === 9 || v === 11) { dentro = false; continue; } cortadas++; porTipo[NOM[v]] = (porTipo[NOM[v]] || 0) + 1; if (!dentro) { cortes++; dentro = true; } }
+  // perfil: una muestra cada 200 m (distancia medida en cuerdas de 5 casillas para no contar la escalera de la cuadrícula)
+  const perfil = []; let acc = 0, px = null, py = null, sig = 0;
+  for (let q = 0; q < camino.length; q += 5) { const j = camino[q], x = j % W * TM + 10, y = (j / W | 0) * TM + 10; if (px !== null) acc += Math.hypot(x - px, y - py); px = x; py = y; if (acc >= sig) { perfil.push({ km: acc / 1000, z: M.elevM(x, y), mu: M.muniAt(x, y) }); sig += 200; } }
+  // perfil corregido: regresión isotónica (la curva que siempre baja y más se parece al relieve), por fusión de vecinos que suben
+  const bloques = []; for (const s of perfil) { bloques.push({ v: s.z, n: 1 }); while (bloques.length > 1 && bloques[bloques.length - 2].v < bloques[bloques.length - 1].v) { const b2 = bloques.pop(), b1 = bloques.pop(); bloques.push({ v: (b1.v * b1.n + b2.v * b2.n) / (b1.n + b2.n), n: b1.n + b2.n }); } }
+  const corregido = []; for (const bl of bloques) for (let i = 0; i < bl.n; i++) corregido.push(bl.v);
+  const subidas = []; let maxI = 1; for (let i = 1; i < perfil.length; i++) { const d = perfil[i].z - perfil[i - 1].z; if (d > 3) subidas.push(i); if (d > perfil[maxI].z - perfil[maxI - 1].z) maxI = i; }
+  const maxSube = perfil[maxI].z - perfil[maxI - 1].z;
+  m.rio = { largo_km: Math.round(acc / 100) / 10, altura_inicio_m: Math.round(perfil[0].z), altura_fin_m: Math.round(perfil[perfil.length - 1].z), inicio: perfil[0].mu, fin: perfil[perfil.length - 1].mu, cortes, casillas_cortadas: cortadas, cortes_por_tipo: porTipo, tramos_que_suben_mas_de_3m: subidas.length, subida_max_m: Math.round(maxSube), donde_sube_mas: perfil[maxI].mu + ', km ' + perfil[maxI].km.toFixed(1), correccion_max_m: Math.round(Math.max(...perfil.map((s, i) => Math.abs(s.z - corregido[i])))) };
+
+  // 8) relieve
+  const E = M.E; let zmin = 1e9, zmax = -1e9, empinadas = 0, celdas = 0;
+  for (let j = 1; j < VM.eH; j++) for (let i = 1; i < VM.eW; i++) { const e = E[j * VM.eW + i]; zmin = Math.min(zmin, e); zmax = Math.max(zmax, e); celdas++; if (Math.hypot(e - E[j * VM.eW + i - 1], e - E[(j - 1) * VM.eW + i]) / (VM.es * TM) > .45) empinadas++; }
+  m.relieve = { min_m: zmin, max_m: zmax, celda_m: VM.es * TM, pendiente_mayor_45_pct: Math.round(empinadas / celdas * 1000) / 10 };
+  m.capa_ciudad = { casillas_corregidas: M.parcheN, barrios: CIUDAD.barrios.length, calles_con_nombre: CIUDAD.calles.length - 1, lugares: CIUDAD.lugares.length };
+  if (!conImg) return { m, img };
+
+  // ---------- láminas (colores de datos: rampa azul secuencial; rojo solo para marcar problemas) ----------
+  await document.fonts.load('16px Cuerpo'); await document.fonts.load('700 16px Titulos');
+  const SUP = '#fcfcfb', TX1 = '#0b0b0b', TX2 = '#52514e', REJ = '#e4e3df', TIERRA = '#efeeea', RAMPA = ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b'], ROJO = '#d03b3b', AZUL = '#2a78d6', GRIS = '#8d8c87';
+  const F = (s, w = 400) => `${w} ${s}px Cuerpo, sans-serif`, FT = s => `700 ${s}px Titulos, Cuerpo, sans-serif`;
+  const lienzo = (w, h) => { const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2; const g = c.getContext('2d'); g.scale(2, 2); g.fillStyle = SUP; g.fillRect(0, 0, w, h); return [c, g]; };
+  const halo = (g, txt, x, y) => { g.lineJoin = 'round'; g.strokeStyle = 'rgba(252,252,251,.92)'; g.lineWidth = 3.5; g.strokeText(txt, x, y); g.fillStyle = TX1; g.fillText(txt, x, y); };
+  const encabezado = (g, titulo, sub) => { g.fillStyle = TX1; g.font = FT(19); g.fillText(titulo, 20, 28); g.fillStyle = TX2; g.font = F(12.5); g.fillText(sub, 20, 48); };
+  const fuente = (g, h, extra = '') => { g.fillStyle = TX2; g.font = F(10.5); g.fillText('Fuente: mapa de El Metro v' + EM.version + ' (OpenStreetMap vía Overture, ODbL; capa oficial de Medellín)' + extra + '.', 20, h - 12); };
+  const aro = (g, x, y, r, w = 2) => { g.lineWidth = w + 2; g.strokeStyle = SUP; g.beginPath(); g.arc(x, y, r, 0, 7); g.stroke(); g.lineWidth = w; g.strokeStyle = ROJO; g.stroke(); };
+
+  { // (a) cobertura de nombres de calle y de barrios
+    const px = 3, PW = GW * px, PH = GH * px, GAP = 28, TOP = 92, w = 40 + PW * 2 + GAP, h = TOP + PH + 92, [c, g] = lienzo(w, h);
+    encabezado(g, '¿Dónde le faltan nombres al mapa?', 'Cada cuadro es de 320 × 320 m. Más oscuro = más completo. La cifra junto al nombre es el promedio del municipio.');
+    const mu = M.mu, MW8 = VM.mW, MH8 = VM.mH, k8 = 8 / C * px;
+    const ajuste = { 'Itagüí': [-22, 2], 'Sabaneta': [34, 26], 'La Estrella': [8, 8], 'Envigado': [16, 0], 'Copacabana': [-6, 0], 'Girardota': [0, 6] };
+    const panel = (ox, titulo, tot, ok, minimo, clave) => {
+      g.fillStyle = TX1; g.font = F(14, 700); g.fillText(titulo, ox, TOP - 10); const oy = TOP + 6;
+      for (let j = 0; j < MH8; j++) for (let i = 0; i < MW8; i++) if (mu[j * MW8 + i]) { g.fillStyle = TIERRA; g.fillRect(ox + i * k8, oy + j * k8, k8 + .3, k8 + .3); }
+      for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++) { const n = tot[j * GW + i]; if (n < minimo) continue; g.fillStyle = RAMPA[Math.min(4, ok[j * GW + i] / n * 5 | 0)]; g.fillRect(ox + i * px, oy + j * px, px, px); }
+      g.fillStyle = 'rgba(82,81,78,.75)';
+      for (let j = 0; j < MH8; j++) for (let i = 0; i < MW8; i++) { const a = mu[j * MW8 + i]; if (i + 1 < MW8 && mu[j * MW8 + i + 1] !== a) g.fillRect(ox + (i + 1) * k8 - .5, oy + j * k8, 1, k8 + .3); if (j + 1 < MH8 && mu[(j + 1) * MW8 + i] !== a) g.fillRect(ox + i * k8, oy + (j + 1) * k8 - .5, k8 + .3, 1); }
+      const cen = {}; for (let j = 0; j < MH8; j++) for (let i = 0; i < MW8; i++) { const a = mu[j * MW8 + i]; if (!a) continue; const o = cen[a] || (cen[a] = [0, 0, 0]); o[0] += i; o[1] += j; o[2]++; }
+      g.font = F(11.5, 700); g.textAlign = 'center';
+      for (const [a, o] of Object.entries(cen)) { const nm = VM.munis[a - 1], s = m.municipios[nm]; if (!s) continue; const d = ajuste[nm] || [0, 0]; halo(g, nm + ' ' + s[clave] + ' %', ox + o[0] / o[2] * k8 + d[0], oy + o[1] / o[2] * k8 + d[1]); }
+      g.textAlign = 'left';
+    };
+    panel(20, 'Calles con nombre', cV, cN, 4, 'calles_con_nombre_pct'); panel(20 + PW + GAP, 'Casas dentro de un barrio con nombre', cC, cB, 8, 'casas_con_barrio_pct');
+    const ly = TOP + PH + 26; g.font = F(12); g.fillStyle = TX2; g.fillText('Cobertura del cuadro:', 20, ly + 10);
+    ['0–20 %', '20–40 %', '40–60 %', '60–80 %', '80–100 %', 'sin calles ni casas'].forEach((s, i) => { const x = 152 + i * 92; g.fillStyle = i < 5 ? RAMPA[i] : TIERRA; g.fillRect(x, ly, 14, 14); g.fillStyle = TX1; g.fillText(s, x + 20, ly + 11); });
+    fuente(g, h, '. Medido con tools/auditoria-mapa.mjs'); img.cobertura = c.toDataURL('image/png');
+  }
+
+  { // (b) estaciones: el punto real y lo que hay debajo
+    const nombres = ['Alpujarra', 'Santo Domingo Savio', 'San Antonio'], CW = 300, GAP = 16, TOP = 64, w = 40 + CW * 3 + GAP * 2, h = TOP + CW + 78, k = .75, [c, g] = lienzo(w, h);
+    encabezado(g, m.estaciones.sin_huella ? 'Las estaciones no tienen huella en el mapa' : 'Las estaciones ya tienen huella en el mapa', 'Mapa del juego, 400 m de lado. El aro rojo marca el punto real de la estación; ' + (m.estaciones.sin_huella ? 'debajo no hay andén ni edificio de estación.' : 'encima va su techo con la franja de cada línea.'));
+    nombres.forEach((nm, n) => {
+      const s = NET.stations.find(q => q.name === nm), ox = 20 + n * (CW + GAP), P = (x, y) => ({ x: CW / 2 + (x - s.x) * k, y: CW / 2 + (y - s.y) * k });
+      g.save(); g.translate(ox, TOP); g.beginPath(); g.rect(0, 0, CW, CW); g.clip(); M.drawTop(g, CW, CW, s.x, s.y, k);
+      for (const l of NET.lines) { if (!fija(l)) continue; g.lineJoin = g.lineCap = 'round'; for (const [col, lw] of [['#141414', 6], [l.color, 3.5]]) { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); l.P.pts.forEach((p, i) => { const q = P(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); } }
+      M.drawLabels(g, CW, CW, s.x, s.y, k, 1); aro(g, CW / 2, CW / 2, 15, 3); g.restore();
+      g.strokeStyle = REJ; g.lineWidth = 1; g.strokeRect(ox + .5, TOP + .5, CW - 1, CW - 1);
+      g.fillStyle = TX1; g.font = F(13.5, 700); g.fillText(nm + ' · ' + s.lines.filter(fija).map(l => l.id).join(', '), ox, TOP + CW + 20);
+      g.fillStyle = TX2; g.font = F(12); g.fillText('Suelo bajo el aro: ' + NOM[suelo(s)], ox, TOP + CW + 38);
+    });
+    fuente(g, h); img.estaciones = c.toDataURL('image/webp', .82);
+  }
+
+  { // (c) manchones de agua y escaleras sueltas: la ventana de 960 m con más casos de cada uno
+    const VEN = 48, mejor = f => { let best = null; for (let y = 0; y + VEN < H; y += 8) for (let x = 0; x + VEN < W; x += 8) { let n = 0, cons = 0; for (let j = y; j < y + VEN; j += 2) for (let i = x; i < x + VEN; i += 2) if (casa(t[j * W + i])) cons++; if (cons < 120) continue; for (let j = y + 1; j < y + VEN - 1; j++) for (let i = x + 1; i < x + VEN - 1; i++) if (f(j * W + i)) n++; if (!best || n > best.n) best = { x, y, n }; } return best; };
+    const CW = 432, k = CW / (VEN * TM), GAP = 20, TOP = 64, w = 40 + CW * 2 + GAP, h = TOP + CW + 84, [c, g] = lienzo(w, h);
+    encabezado(g, 'Agua en pedacitos y escaleras sueltas', 'Las dos zonas del valle con más casos (960 m de lado). Cada aro rojo es un caso.');
+    const caja = (ox, f, titulo, sub) => {
+      const win = mejor(f), mx = (win.x + VEN / 2) * TM, my = (win.y + VEN / 2) * TM, vistos = new Set();
+      g.save(); g.translate(ox, TOP); g.beginPath(); g.rect(0, 0, CW, CW); g.clip(); M.drawTop(g, CW, CW, mx, my, k); M.drawLabels(g, CW, CW, mx, my, k, 1);
+      for (let j = win.y + 1; j < win.y + VEN - 1; j++) for (let i = win.x + 1; i < win.x + VEN - 1; i++) { const q = j * W + i; if (!f(q)) continue; const key = t[q] === 16 ? 'e' + q : 'a' + comp[q]; if (vistos.has(key)) continue; vistos.add(key); aro(g, (i - win.x + .5) * TM * k, (j - win.y + .5) * TM * k, 7); }
+      g.restore(); g.strokeStyle = REJ; g.lineWidth = 1; g.strokeRect(ox + .5, TOP + .5, CW - 1, CW - 1);
+      const bar = M.barrioAt(mx, my);
+      g.fillStyle = TX1; g.font = F(13.5, 700); g.fillText(titulo + ' · ' + vistos.size + ' casos', ox, TOP + CW + 20);
+      g.fillStyle = TX2; g.font = F(12); g.fillText(sub + (bar ? bar[0] + ', ' : '') + M.muniAt(mx, my), ox, TOP + CW + 38);
+    };
+    caja(20, manchon, 'Manchones de agua de 1 a 4 casillas', 'Quebradas cortadas por calles · '); caja(20 + CW + GAP, suelta, 'Escaleras de una sola casilla', 'Tramos de escalera aislados · ');
+    fuente(g, h); img['agua-escaleras'] = c.toDataURL('image/webp', .82);
+  }
+
+  { // (d) perfil del río: altura del relieve del juego a lo largo del cauce y perfil corregido propuesto
+    const w = 1000, h = 470, L = 70, R = 24, T = 78, B = 96, PW = w - L - R, PH = h - T - B, [c, g] = lienzo(w, h);
+    const zmin2 = Math.floor(Math.min(...perfil.map(s => s.z)) / 50) * 50, zmax2 = Math.ceil(Math.max(...perfil.map(s => s.z)) / 50) * 50, kmax = perfil[perfil.length - 1].km;
+    const X = km => L + km / kmax * PW, Y = z => T + (1 - (z - zmin2) / (zmax2 - zmin2)) * PH;
+    encabezado(g, subidas.length ? 'El río Medellín en el juego: debería bajar siempre' : 'El río Medellín en el juego: siempre baja', `Altura del relieve del juego a lo largo del cauce, de ${m.rio.inicio} a ${m.rio.fin} (${m.rio.largo_km.toLocaleString('es-CO')} km, una muestra cada 200 m).`);
+    g.font = F(11.5); g.textAlign = 'right';
+    for (let z = zmin2; z <= zmax2; z += 50) { const y = Math.round(Y(z)) + .5; g.strokeStyle = REJ; g.lineWidth = 1; g.beginPath(); g.moveTo(L, y); g.lineTo(L + PW, y); g.stroke(); g.fillStyle = TX2; g.fillText(z.toLocaleString('es-CO') + ' m', L - 8, y + 4); }
+    g.textAlign = 'center'; for (let km = 0; km <= kmax; km += 10) { g.fillStyle = TX2; g.fillText(km + ' km', Math.round(X(km)) + .5, T + PH + 18); }
+    let ini = 0; g.font = F(11.5, 700);
+    for (let i = 1; i <= perfil.length; i++) if (i === perfil.length || perfil[i].mu !== perfil[ini].mu) { const a = perfil[ini].km, b = perfil[i - 1].km, nm = perfil[ini].mu; ini = i; if (!nm || b - a < 2.5) continue; const x0 = X(a) + 2, x1 = X(b) - 2; g.strokeStyle = TX2; g.lineWidth = 1; g.beginPath(); g.moveTo(x0, T + PH + 32); g.lineTo(x1, T + PH + 32); g.stroke(); g.fillStyle = TX1; g.fillText(nm, (x0 + x1) / 2, T + PH + 48); }
+    g.lineJoin = g.lineCap = 'round';
+    if (subidas.length) { g.strokeStyle = GRIS; g.lineWidth = 1.5; } else g.strokeStyle = 'transparent'; g.beginPath(); corregido.forEach((z, i) => { i ? g.lineTo(X(perfil[i].km), Y(z)) : g.moveTo(X(perfil[i].km), Y(z)); }); g.stroke();
+    g.strokeStyle = AZUL; g.lineWidth = 2; g.beginPath(); perfil.forEach((s, i) => { i ? g.lineTo(X(s.km), Y(s.z)) : g.moveTo(X(s.km), Y(s.z)); }); g.stroke();
+    for (const i of subidas) { const x = X(perfil[i].km), y = Y(perfil[i].z); g.fillStyle = SUP; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.fillStyle = ROJO; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); }
+    g.textAlign = 'left'; g.font = F(12, 700); if (subidas.length) halo(g, `▲ sube ${Math.round(maxSube)} m en 200 m`, X(perfil[maxI].km) + 10, Y(perfil[maxI].z) - 10);
+    const ly = h - 26; let lx = 20; g.font = F(12);
+    const item = (dib, txt) => { dib(lx, ly); g.fillStyle = TX1; g.fillText(txt, lx + 26, ly + 4); lx += 52 + g.measureText(txt).width; };
+    item((x, y) => { g.strokeStyle = AZUL; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 18, y); g.stroke(); }, 'Altura del cauce en el juego (relieve SRTM)');
+    if (subidas.length) { item((x, y) => { g.strokeStyle = GRIS; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 18, y); g.stroke(); }, 'Perfil corregido propuesto (siempre baja)'); item((x, y) => { g.fillStyle = ROJO; g.beginPath(); g.arc(x + 9, y, 4, 0, 7); g.fill(); }, `▲ Tramo que sube más de 3 m (${subidas.length})`); }
+    else item(() => { }, 'Cero tramos que suben: el cauce está quemado en el relieve (src/data/ajustes.js)');
+    img.rio = c.toDataURL('image/png');
+  }
+  return { m, img };
+}, !!IMG);
+
+if (IMG) for (const [k, v] of Object.entries(res.img)) { const ext = v.startsWith('data:image/webp') ? 'webp' : 'png', f = `${IMG}-${k}.${ext}`; fs.writeFileSync(f, Buffer.from(v.split(',')[1], 'base64')); console.log('lámina:', f); }
+if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify(res.m, null, 1) + '\n');
+console.log(JSON.stringify(res.m, null, 1));
+if (errores.length) { console.error('errores en la página:', errores); process.exitCode = 1; }
+await browser.close();
+~~~~
+
 ### `tools/build.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -8976,7 +9435,7 @@ fs.mkdirSync(dist, { recursive: true });
 // /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -9363,6 +9822,173 @@ for nombre, (url, campos, geo, off) in CAPAS.items():
         o += len(fs); time.sleep(.4)
     json.dump({'fuente': url, 'features': feats}, open(dst, 'w'))
     print('listo', nombre, len(feats))
+~~~~
+
+### `tools/encicla_datos.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Estaciones de EnCicla para Ciudad Libre → src/data/encicla.js, tomadas de Juega EnCicla (el juego hermano).
+   Uso: node tools/encicla_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA
+   Toma la lista ESTACIONES de src/js/19-lugares.js: [id, nombre, municipio, lat, lon, tipo, demanda, zona].
+   Las posiciones son aproximadas (en Juega EnCicla v1.2, típicamente a 46 m de la real). */
+import fs from 'node:fs'; import path from 'node:path';
+const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/encicla_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA'); process.exit(1); }
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const src = fs.readFileSync(path.join(ENC, 'src/js/19-lugares.js'), 'utf8'), version = (fs.readFileSync(path.join(ENC, 'src/js/00-core.js'), 'utf8').match(/version: '([\d.]+)'/) || [])[1] || '?';
+const i0 = src.indexOf('[', src.indexOf('const ESTACIONES = ')); let i = i0, depth = 0, q = '';
+for (; i < src.length; i++) { const c = src[i]; if (q) { if (c === '\\') i++; else if (c === q) q = ''; continue; } if (c === "'" || c === '"') q = c; else if (c === '[') depth++; else if (c === ']' && --depth === 0) break; }
+const E = new Function('return ' + src.slice(i0, i + 1))();
+const est = E.map(([, n, mu, la, lo, tp]) => [n, mu, +la.toFixed(5), +lo.toFixed(5), tp]);
+const txt = `/* Estaciones de EnCicla (sistema público de bicicletas del Valle de Aburrá), tomadas de Juega EnCicla v${version}: posiciones aproximadas. Generado por tools/encicla_datos.mjs.
+   Tipos: a automática, m con anfitrión. Horario de préstamo según la página oficial de EnCicla, como lo usa Juega EnCicla (los festivos, como domingo). */
+const ENCICLA = ${JSON.stringify({ v: version, web: 'https://juanfeliperico369-stack.github.io/BicicletasUno/', estaciones: est })};
+`;
+fs.writeFileSync(path.join(root, 'src/data/encicla.js'), txt);
+console.log(est.length, 'estaciones · src/data/encicla.js', Math.round(txt.length / 1024), 'KB · tipos', [...new Set(est.map(e => e[4]))].join(','));
+~~~~
+
+### `tools/mapa_ajustes.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Ajustes del mapa base → src/data/ajustes.js. Se calculan con el propio juego (Chromium + Playwright) sobre el mapa sin ajustes.
+   Uso: node tools/build.mjs && node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA && node tools/build.mjs
+   1) Nombres de calle y barrios donde la capa oficial de Medellín no llega: vías y barrios del mapa de Juega EnCicla
+      (misma cuadrícula de 20 m; OpenStreetMap vía Overture, ODbL). Los barrios son aproximados: punto con nombre más cercano.
+   2) Río Medellín continuo (puentes donde una vía corta el cauce) y relieve que siempre baja por el cauce (regresión isotónica).
+   3) Escaleras sueltas que no conectan con ningún andén, plaza ni vía.
+   4) Calle bajo el tranvía de Ayacucho (las casillas de casa que pisa la vía del tranvía pasan a calle).
+   5) Patio-taller del Metro en Bello y talleres del antiguo Ferrocarril de Antioquia (polígonos de OpenStreetMap). */
+import { createRequire } from 'node:module'; import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA'); process.exit(1); }
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), rd = f => fs.readFileSync(path.join(ENC, f));
+const vjson = JSON.parse(rd('src/data/valle.json')), versionE = (String(rd('src/js/00-core.js')).match(/version: '([\d.]+)'/) || [])[1] || '?';
+const D = { vias: rd('src/data/vias.bin').toString('base64'), valle: rd('src/data/valle.bin').toString('base64'), barrios: vjson.barrios, calles: vjson.calles, W: vjson.W, H: vjson.H, eW: vjson.eW, eH: vjson.eH, mW: vjson.mW, mH: vjson.mH };
+/* OpenStreetMap (© colaboradores, ODbL), consultado el 17-nov-2026: way 52513116 (landuse=railway), 52513115 (building) y 142453569 (landuse=railway) */
+const OSM = {
+  patio: [[6.33083, -75.55306], [6.33083, -75.55296], [6.32991, -75.55141], [6.32983, -75.55145], [6.32965, -75.55112], [6.32951, -75.55103], [6.32942, -75.55103], [6.3282, -75.55187], [6.32751, -75.55234], [6.32692, -75.55271], [6.32604, -75.55321], [6.325, -75.55382], [6.32443, -75.55411], [6.32399, -75.55428], [6.32338, -75.55444], [6.3216, -75.55473], [6.32107, -75.55483], [6.31968, -75.5552], [6.31924, -75.55535], [6.31995, -75.55547], [6.32059, -75.55549], [6.32069, -75.55557], [6.32166, -75.55563], [6.32208, -75.55565], [6.32245, -75.55559], [6.32336, -75.55546], [6.32415, -75.55533], [6.3252, -75.55517], [6.32669, -75.55494], [6.32781, -75.55468], [6.32858, -75.55437]],
+  talleres: [[6.32891, -75.5538], [6.3288, -75.55346], [6.32863, -75.55352], [6.32844, -75.55293], [6.32755, -75.55321], [6.32763, -75.55347], [6.32695, -75.55369], [6.3271, -75.55415], [6.32741, -75.55405], [6.32747, -75.55426]],
+  ferrocarril: [[6.33333, -75.55397], [6.33312, -75.55423], [6.3323, -75.55383], [6.33157, -75.55347], [6.33114, -75.55315], [6.33168, -75.55269], [6.33225, -75.55199], [6.33366, -75.55032], [6.33497, -75.55109], [6.33517, -75.55129], [6.33488, -75.55265], [6.33442, -75.55303], [6.33392, -75.55342]]
+};
+
+const browser = await chromium.launch(), page = await browser.newPage(), errores = [];
+page.on('pageerror', e => errores.push(e.message));
+await page.addInitScript(() => { window.__sinAjustes = true; });
+await page.goto('file://' + path.join(root, 'dist/index.html')); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 });
+const R = await page.evaluate(async ({ D, OSM }) => {
+  const M = EM.map, t = M.t, VM = VALLE_META, W = VM.W, H = VM.H, TM = VM.tile, N = W * H, inf = {};
+  if (D.W !== W || D.H !== H) throw new Error('el mapa de EnCicla no tiene la misma cuadrícula');
+  const unz = async b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); };
+  const via = v => v === 4 || v === 5 || v === 14 || v === 11, casa = v => v === 2 || v === 3, varint = (a, v) => { while (v > 127) { a.push((v & 127) | 128); v = Math.floor(v / 128); } a.push(v); };
+
+  // ---- 1a) nombres de calle de EnCicla por casilla (calle, carrera, avenida y autopista con nombre), ensanchados una casilla ----
+  const vb = await unz(D.vias), dv = new DataView(vb.buffer); let o = 4; const nomE = new Uint16Array(N);
+  for (let v = 0, nV = dv.getUint32(0, true); v < nV; v++) {
+    const k = vb[o], cid = dv.getUint16(o + 1, true), n = dv.getUint16(o + 3, true); o += 5; let x = 0, y = 0, px = 0, py = 0;
+    for (let i = 0; i < n; i++, o += 4) {
+      x += dv.getInt16(o, true); y += dv.getInt16(o + 2, true); const ax = x / 8, ay = y / 8;
+      if (i && cid && k >= 1 && k <= 4) { const L = Math.max(1, Math.ceil(Math.hypot(ax - px, ay - py) * 2)); for (let j = 0; j <= L; j++) { const qx = Math.floor(px + (ax - px) * j / L), qy = Math.floor(py + (ay - py) * j / L); if (qx >= 0 && qy >= 0 && qx < W && qy < H) nomE[qy * W + qx] = cid; } }
+      px = ax; py = ay;
+    }
+  }
+  const nomD = nomE.slice(); for (let i = 0; i < N; i++) if (!nomD[i]) { const x = i % W; for (const q of [i - 1, i + 1, i - W, i + W]) if (q >= 0 && q < N && Math.abs(q % W - x) <= 1 && nomE[q]) { nomD[i] = nomE[q]; break; } }
+  const limpio = s => { s = String(s || '').replace(/\bsur\b/g, 'Sur').replace(/\bnorte\b/g, 'Norte').replace(/\s+/g, ' ').trim(); return /^\d/.test(s) || /^(Salida|Entrada|Acceso|Retorno|Conexión|Glorieta de salida)\b/i.test(s) ? '' : s; };
+  const usadas = new Map(), calles = [], idDe = cid => { const s = limpio(D.calles[cid - 1]); if (!s) return 0; if (!usadas.has(s)) { usadas.set(s, calles.length + 1); calles.push(s); } return usadas.get(s); };
+  // ---- 1b) un código por casilla de vía SIN nombre oficial, en el orden del juego: 0 izquierda · 1 arriba · 4 arriba-izquierda · 5 arriba-derecha · 2 sin nombre · 3 + varint ----
+  const cod = []; let a = new Uint16Array(W), b = new Uint16Array(W), nuevas = 0;
+  for (let y = 0; y < H; y++) {
+    const z = a; a = b; b = z; b.fill(0);
+    for (let k = M.rRow[y]; k < M.rRow[y + 1]; k++) {
+      const x = M.rX[k]; if (M.rN[k] || M.rP[k]) continue; const id = nomD[y * W + x] ? idDe(nomD[y * W + x]) : 0; b[x] = id;
+      if (!id) cod.push(2); else { nuevas++; if (x > 0 && b[x - 1] === id) cod.push(0); else if (a[x] === id) cod.push(1); else if (x > 0 && a[x - 1] === id) cod.push(4); else if (a[x + 1] === id) cod.push(5); else { cod.push(3); varint(cod, id); } }
+    }
+  }
+  inf.calles = { nombres: calles.length, casillas_nuevas: nuevas };
+
+  // ---- 1c) barrios de EnCicla (celdas de 160 m) solo donde la capa oficial (celdas de 80 m) no tiene barrio y hay casas ----
+  const vv = await unz(D.valle), off = N + D.eW * D.eH * 2 + D.mW * D.mH * 2, C = CIUDAD, bg8 = new Uint16Array(D.mW * D.mH), bl = [], bUs = new Map(), acc = [];
+  for (let cy = 0; cy < D.mH; cy++) for (let cx = 0; cx < D.mW; cx++) {
+    const e = vv[off + 2 * (cy * D.mW + cx)] | vv[off + 2 * (cy * D.mW + cx) + 1] << 8; if (!e) continue;
+    let ofi = false; for (let j = 0; j < 2 && !ofi; j++) for (let i = 0; i < 2; i++) { const gx = cx * 2 + i, gy = cy * 2 + j; if (gx < C.GW && gy < C.GH && M.bg[gy * C.GW + gx]) { ofi = true; break; } }
+    if (ofi) continue; let cas = 0; for (let j = 0; j < 8; j++) for (let i = 0; i < 8; i++) { const yy = cy * 8 + j, xx = cx * 8 + i; if (yy < H && xx < W && casa(t[yy * W + xx])) cas++; } if (!cas) continue;
+    const nm = D.barrios[e - 1]; if (!bUs.has(nm)) { bUs.set(nm, bl.length + 1); bl.push([nm, '', '', 0, 0, 0, 1]); acc.push({ x: 0, y: 0, n: 0, mu: {} }); }
+    const id = bUs.get(nm), A = acc[id - 1], mu = M.muniAt((cx * 8 + 4) * TM, (cy * 8 + 4) * TM) || ''; bg8[cy * D.mW + cx] = id; A.x += cx; A.y += cy; A.n++; A.mu[mu] = (A.mu[mu] || 0) + 1;
+  }
+  bl.forEach((B, i) => { const A = acc[i], mu = Object.entries(A.mu).sort((p, q) => q[1] - p[1])[0][0]; B[1] = mu; B[2] = mu; B[3] = Math.round((A.x / A.n + .5) * 32); B[4] = Math.round((A.y / A.n + .5) * 32); B[5] = Math.round(A.n * 2.56); });
+  inf.barrios = { nombres: bl.length, celdas: acc.reduce((s, A) => s + A.n, 0) };
+
+  // ---- 2) río: recorrido por el agua de Caldas a Barbosa (puntos de paso junto a la línea A) ----
+  const cerca = (x, y, Rr) => { const tx = x / TM | 0, ty = y / TM | 0; let best = -1, bd = 1e9; for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) { const i = (ty + dy) * W + tx + dx; if (t[i] === 8 && dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = i; } } return best; };
+  const c0 = geoM(6.0905, -75.636), pasos = [cerca(c0.x, c0.y, 80)];
+  for (const nm of ['La Estrella', 'Itagüí', 'Industriales', 'Caribe', 'Niquía']) { const s = NET.stations.find(q => q.name === nm); pasos.push(cerca(s.x, s.y, 40)); }
+  let norte = -1; for (let i = 0; i < N; i++) if (t[i] === 8 && (norte < 0 || (i / W | 0) < (norte / W | 0)) && M.muniAt(i % W * TM, (i / W | 0) * TM) === 'Barbosa') norte = i; pasos.push(norte);
+  const costo = v => v === 8 || v === 11 ? 1 : v === 9 ? 2.5 : via(v) ? 20 : 40, dist = new Float32Array(N), prev = new Int32Array(N), camino = [];
+  for (let k = 1; k < pasos.length; k++) {
+    const s0 = pasos[k - 1], z = pasos[k], zx = z % W, zy = z / W | 0, heap = [[0, s0]]; dist.fill(1e9); prev.fill(-1); dist[s0] = 0;
+    const push = (d, i) => { heap.push([d, i]); let q = heap.length - 1; while (q > 0) { const pq = (q - 1) >> 1; if (heap[pq][0] <= heap[q][0]) break; [heap[pq], heap[q]] = [heap[q], heap[pq]]; q = pq; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let q = 0; for (;;) { const l = 2 * q + 1, r = l + 1; let s = q; if (l < heap.length && heap[l][0] < heap[s][0]) s = l; if (r < heap.length && heap[r][0] < heap[s][0]) s = r; if (s === q) break; [heap[s], heap[q]] = [heap[q], heap[s]]; q = s; } } return top; };
+    while (heap.length) { const j = pop()[1]; if (j === z) break; const x = j % W; for (const q of [j - 1, j + 1, j - W, j + W]) { if (q < 0 || q >= N || Math.abs(q % W - x) > 1) continue; const nd = dist[j] + costo(t[q]); if (nd < dist[q]) { dist[q] = nd; prev[q] = j; push(nd + Math.hypot(q % W - zx, (q / W | 0) - zy), q); } } }
+    const tramo = []; for (let j = z; j >= 0 && j !== s0; j = prev[j]) tramo.push(j); tramo.push(s0); tramo.reverse(); if (camino.length) tramo.shift(); camino.push(...tramo);
+  }
+  const puentes = [], agua = [];
+  for (const j of camino) { const v = t[j]; if (v === 8 || v === 9 || v === 11) continue; if (via(v) || v === 7) puentes.push(j); else agua.push(j); }
+  // relieve: las esquinas de 80 m que tocan el cauce, en orden, con regresión isotónica (siempre baja); luego se quitan los saltos que queden
+  const es = VM.es, eW = VM.eW, E = Int16Array.from(M.E), g = TM * es;
+  const esq = j => { const gx = (j % W * TM + 10) / g, gy = ((j / W | 0) * TM + 10) / g, i = Math.floor(gx), k = Math.floor(gy); return [k * eW + i, k * eW + i + 1, (k + 1) * eW + i, (k + 1) * eW + i + 1]; };
+  const alto = j => { const gx = (j % W * TM + 10) / g, gy = ((j / W | 0) * TM + 10) / g, i = Math.floor(gx), k = Math.floor(gy), fx = gx - i, fy = gy - k, q = k * eW + i; return (E[q] * (1 - fx) + E[q + 1] * fx) * (1 - fy) + (E[q + eW] * (1 - fx) + E[q + eW + 1] * fx) * fy; };
+  const isot = z => { const bl2 = []; for (const v of z) { bl2.push({ v, n: 1 }); while (bl2.length > 1 && bl2[bl2.length - 2].v < bl2[bl2.length - 1].v) { const q2 = bl2.pop(), q1 = bl2.pop(); bl2.push({ v: (q1.v * q1.n + q2.v * q2.n) / (q1.n + q2.n), n: q1.n + q2.n }); } } const r = []; for (const q of bl2) for (let i = 0; i < q.n; i++) r.push(q.v); return r; };
+  const seq = [], vis = new Set(); for (const j of camino) for (const c of esq(j)) if (!vis.has(c)) { vis.add(c); seq.push(c); }
+  const iz = isot(seq.map(c => E[c])); seq.forEach((c, i) => { E[c] = Math.min(E[c], Math.floor(iz[i])); });
+  for (let ronda = 0; ronda < 8; ronda++) { let m = 1e9, cambios = 0; for (const j of camino) { const z = alto(j); if (z > m + .5) { for (const c of esq(j)) if (E[c] > m) { E[c] = Math.floor(m); cambios++; } } else m = Math.min(m, z); } if (!cambios) break; }
+  const relieve = []; for (let i = 0; i < E.length; i++) if (E[i] !== M.E[i]) relieve.push(i, E[i]);
+  inf.rio = { casillas: camino.length, puentes: puentes.length, agua: agua.length, esquinas_de_relieve: relieve.length / 2 };
+
+  // ---- 3) escaleras sueltas que no tocan andén, plaza, vía, estación ni ciclorruta → el suelo vecino más común ----
+  const conecta = v => via(v) || v === 6 || v === 10 || v === 12 || v === 7 || v === 16, escaleras = [];
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+    const i = y * W + x; if (t[i] !== 16) continue; const v4 = [t[i - 1], t[i + 1], t[i - W], t[i + W]]; if (v4.some(conecta)) continue;
+    const cnt = {}; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const v = t[i + dy * W + dx]; if (v !== 16) cnt[v] = (cnt[v] || 0) + 1; }
+    escaleras.push(i, +Object.entries(cnt).sort((p, q) => q[1] - p[1])[0][0]);
+  }
+  inf.escaleras = escaleras.length / 2;
+
+  // ---- 4) calle bajo el tranvía de Ayacucho ----
+  const T = NET.lines.find(l => l.id === 'T'), tranvia = new Set();
+  for (let i = 1; i < T.P.pts.length; i++) { const p0 = T.P.pts[i - 1], p1 = T.P.pts[i], L = Math.ceil(Math.hypot(p1.x - p0.x, p1.y - p0.y) / 5); for (let j = 0; j <= L; j++) { const x = (p0.x + (p1.x - p0.x) * j / L) / TM | 0, y = (p0.y + (p1.y - p0.y) * j / L) / TM | 0, q = y * W + x; if (casa(t[q])) tranvia.add(q); } }
+  inf.tranvia = tranvia.size;
+
+  // ---- 5) patio-taller del Metro y talleres del Ferrocarril de Antioquia ----
+  const poli = pts => { const P = pts.map(([la, lo]) => { const q = geoM(la, lo); return [q.x / TM, q.y / TM]; }), xs = P.map(p => p[0]), ys = P.map(p => p[1]), out = [];
+    for (let y = Math.floor(Math.min(...ys)); y <= Math.ceil(Math.max(...ys)); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.ceil(Math.max(...xs)); x++) {
+      let dentro = false; const px = x + .5, py = y + .5; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) dentro = !dentro; }
+      if (dentro) out.push(y * W + x);
+    } return out; };
+  const cen = pts => { const q = pts.reduce((s, [la, lo]) => [s[0] + la / pts.length, s[1] + lo / pts.length], [0, 0]), m = geoM(q[0], q[1]); return [Math.round(m.x / TM * 4), Math.round(m.y / TM * 4)]; };
+  const pa = poli(OSM.patio).filter(i => t[i] !== 8 && t[i] !== 9), ta = poli(OSM.talleres), patio = [];
+  for (const i of pa) patio.push(i, 15); for (const i of ta) patio.push(i, 3);
+  const lugares = [['Patio-taller del Metro', 'metro', ...cen(OSM.patio), Math.round(pa.length * .04)], ['Talleres del antiguo Ferrocarril de Antioquia', 'historia', ...cen(OSM.ferrocarril), 16]];
+  inf.patio = pa.length;
+  return { inf, cod, calles, bl, bg8: Array.from(bg8), puentes, agua, relieve, escaleras, tranvia: [...tranvia], patio, lugares, GW: D.mW, GH: D.mH };
+}, { D, OSM });
+if (errores.length) { console.error('errores en la página:', errores); process.exit(1); }
+
+const b64 = buf => zlib.deflateRawSync(Buffer.from(buf), { level: 9 }).toString('base64');
+const bg = Buffer.alloc(R.bg8.length * 2); R.bg8.forEach((v, i) => bg.writeUInt16LE(v, i * 2));
+const AJ = {
+  v: 1, encicla: versionE,
+  calles: { lista: R.calles, n: R.cod.length, d: b64(R.cod) },
+  barrios: { lista: R.bl, GW: R.GW, GH: R.GH, d: b64(bg) },
+  tiles: { puente: R.puentes, agua: R.agua, calle: R.tranvia, pares: [...R.escaleras, ...R.patio] },
+  relieve: R.relieve, lugares: R.lugares
+};
+const txt = `/* Ajustes del mapa base, generados por tools/mapa_ajustes.mjs (no editar a mano).
+   Nombres de calle y barrios fuera de la capa oficial: mapa de Juega EnCicla v${versionE} (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps); barrios aproximados por el punto con nombre más cercano.
+   Patio-taller del Metro y talleres del Ferrocarril de Antioquia: © colaboradores de OpenStreetMap (ODbL). Río y relieve: calculados sobre el propio mapa. */
+const AJUSTES = ${JSON.stringify(AJ)};
+`;
+fs.writeFileSync(path.join(root, 'src/data/ajustes.js'), txt);
+console.log(JSON.stringify(R.inf), '· src/data/ajustes.js', Math.round(txt.length / 1024), 'KB');
+await browser.close();
 ~~~~
 
 ### `tools/osm-ventanas.mjs`
@@ -9908,7 +10534,7 @@ const walk = d => fs.readdirSync(path.join(root, d), { withFileTypes: true }).fl
 const codeFiles = [
   'src/head.html', 'src/body.html', 'src/style.css',
   ...fs.readdirSync(path.join(root, 'src/js')).filter(f => f.endsWith('.js')).sort().map(f => 'src/js/' + f),
-  'src/data/red.js', 'src/data/lugares.js', 'src/data/rutas.js',
+  'src/data/red.js', 'src/data/lugares.js', 'src/data/rutas.js', 'src/data/encicla.js',
   ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|sh|html|py)$/.test(f)).sort().map(f => 'tools/' + f),
   ...(fs.existsSync(path.join(root, 'android')) ? walk('android').filter(f => /\.(kt|kts|java|xml|md|properties)$/.test(f) && !/local\.properties$|gradle-wrapper/.test(f)).sort() : [])
 ];
@@ -9937,6 +10563,7 @@ Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos 
 ## Datos que no van como texto
 - **\`src/data/valle.js\`** (${valleKB} KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con \`MAP.tile\`, \`MAP.tileM\` y \`MAP.elevM\` (ver \`src/js/10-map.js\`).
 - **\`src/data/ciudad.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/ciudad.js')).size / 1024)} KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera \`python3 tools/ciudad_datos.py\`; se usa con \`MAP.barrioAt\`, \`MAP.calleAt\`, \`MAP.lotT\` y \`MAP.drawLabels\` (\`src/js/10-map.js\`).
+- **\`src/data/ajustes.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/ajustes.js')).size / 1024)} KB): ajustes del mapa base generados por \`node tools/mapa_ajustes.mjs\`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **\`src/data/arte.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/arte.js')).size / 1024)} KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera \`python3 tools/arte_juego.py\` desde \`arte/entregas/\`; la lista con su uso está en \`arte/entregas/USO-EN-EL-JUEGO.md\`. Se usa con \`Atlas.img(id)\`, \`Atlas.url(id)\` y \`Atlas.tag(id)\` (\`src/js/19-atlas.js\`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
