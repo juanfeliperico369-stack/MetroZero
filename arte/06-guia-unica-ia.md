@@ -1,40 +1,52 @@
 # 06 · GUÍA ÚNICA DE ARTE PARA IA · *El Metro*
 
-> Una sola guía para las tres IA de imágenes: **Gemini (Nano Banana)**, **ChatGPT** y **Midjourney**.
-> Cada IA recibe **todo el contexto** (Bloque 1), pero **solo hace su parte** (Bloque 2: su rol; Bloque 3: sus encargos).
-> Reemplaza a las guías anteriores 06 (Gemini) y 07 (ChatGPT y Midjourney).
+> Una sola guía para las dos IA de imágenes del proyecto: **Gemini (Nano Banana)** y **ChatGPT**. *Midjourney salió del plan; su trabajo quedó repartido entre las dos.*
+> Las dos reciben **todo el contexto**: misión, visión, estado del juego, dirección de arte y la **bitácora completa** (Anexo A). Pero cada una **solo hace su parte**, según su rol (Bloque 2) y sus encargos (Bloque 3).
 
 ## Paso a paso (para ti)
-1. **Gemini:** crea un **Gem** (asistente personalizado) llamado “Artista 1 · El Metro” y pega en sus instrucciones el **Bloque 1 + el Rol de Gemini (2A)**. Si no usas Gems, pega ambos bloques al empezar cada conversación.
-2. **ChatGPT:** crea un **Proyecto** “El Metro · Arte” y pega en sus instrucciones el **Bloque 1 + el Rol de ChatGPT (2B)**. Si no, pégalos al empezar cada conversación.
-3. **Midjourney** no lee documentos largos. Sus prompts (Bloque 3C) **ya traen el contexto adentro**. Si quieres que ChatGPT te escriba más prompts de Midjourney, usa el Rol 2C.
-4. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en Gemini y ChatGPT y se usa como `--sref` en Midjourney, para que las tres IA dibujen igual.
+1. **Descarga `CONTEXTO-IA.md`**: tiene el Bloque 1 más la bitácora en un solo archivo. Está en la carpeta `arte/` y en la página de la carpeta de arte (botón ⬇).
+2. **Gemini:** crea un **Gem** llamado “Artista 1 · El Metro”.
+   - En sus **instrucciones** pega el **Rol de Gemini (2A)**.
+   - En su **conocimiento** sube `CONTEXTO-IA.md`.
+   - Si no usas Gems: al empezar cada conversación pega el Bloque 1 y el Rol 2A, y adjunta `CONTEXTO-IA.md`.
+3. **ChatGPT:** crea un **Proyecto** “El Metro · Arte”.
+   - En sus **instrucciones** pega el **Rol de ChatGPT (2B)**.
+   - En sus **archivos** sube `CONTEXTO-IA.md`.
+   - Si no usas proyectos, haz lo mismo que en Gemini.
+4. Empieza por **G‑00 (ancla de estilo)** en Gemini. Esa imagen se adjunta después en las dos IA para que dibujen igual.
 5. Pide los encargos **uno por uno**, copiando el prompt de cada uno.
 6. Guarda cada imagen con el **nombre exacto** del encargo y entrégamela como dice el Bloque 5.
 
 ---
 
-## BLOQUE 1 · CONTEXTO DEL PROYECTO (pégalo completo en Gemini y en ChatGPT)
+## BLOQUE 1 · CONTEXTO DEL PROYECTO (igual para las dos IA)
 ```
 === CONTEXTO DEL PROYECTO «EL METRO» — léelo completo; aplica a todo lo que hagas ===
 
+0) MISIÓN, VISIÓN Y ESTADO
+MISIÓN: que cualquier persona —niños, familias, paisas y visitantes— conozca, use y quiera la red de transporte y la ciudad de Medellín jugando: recorriendo su mapa real, manejando cada vehículo del sistema, cuidando a la gente con la "Cultura Metro" y viviendo sus fiestas.
+VISIÓN: ser el gran juego de mundo abierto sobre Medellín y su Metro. Una ciudad fiel (relieve, río, barrios, estaciones y estructuras), con arte propio de calidad y viva de día y de noche. Que funcione sin internet en celulares modestos y se juegue en familia y en red local. Más adelante, crecer a otras redes de metro y trenes del mundo.
+VALORES: Cultura Metro (respeto y cuidado), para todo público, fidelidad a la ciudad real, ligereza y accesibilidad, arte original.
+ESTADO ACTUAL (v0.5.0, publicado como web y app Android): el juego funciona con dibujo procedural (hecho por código). Lo que falta es el ARTE REAL que ustedes van a producir. La bitácora completa del juego está en el Anexo A de esta guía o en el archivo CONTEXTO-IA.md.
+
 1) QUÉ ES
 "El Metro" es un videojuego para celulares (web y Android), sin conexión y para todo público, sobre el Metro de Medellín (Colombia) y la ciudad real del Valle de Aburrá. Es un MUNDO ABIERTO + ARCADE: se recorre la ciudad real a pie, en bici, taxi, bus, metro, metrocable y tranvía.
-Módulos del juego:
-- Ciudad Libre: mundo abierto visto desde arriba (cenital), con misiones, pasajeros, peatones, perros y vendedores.
-- Bus: simulador cenital del Metroplús (bus articulado de 18 m) y de los alimentadores, de parada en parada, con pasajeros que pasan su tarjeta.
+Módulos:
+- Ciudad Libre: mundo abierto visto desde arriba, con misiones, pasajeros, peatones, perros y vendedores.
+- Bus: simulador visto desde arriba del Metroplús (articulado de 18 m) y de los alimentadores, de parada en parada, con pasajeros que pasan su tarjeta.
 - Metro y tranvía: vista lateral panorámica por capas (cordillera, cerros, laderas con barrios, ciudad) y cabina en primera persona con botones y procedimiento real.
 - Metrocable: viajar y operar las 6 líneas de cable.
 - Historia "La última vuelta": Rosalba, conductora del primer tren de 1995, vive su última semana de trabajo y le enseña todo a su nieta (la protagonista) recorriendo la ciudad.
 - Fiestas reales: el juego cambia con el calendario: Feria de las Flores (agosto), Alumbrados navideños (diciembre), Noche de las Velitas (7 de diciembre) y aniversario del Metro (30 de noviembre).
-Restricción técnica: todo el arte se reduce después a pixel art liviano para celulares modestos. Por eso se necesita arte limpio, con siluetas claras, la vista correcta y fondo plano.
+Restricción técnica: todo el arte se reduce después a pixel art liviano. Por eso se necesita arte limpio, con siluetas claras, la vista correcta y fondo plano.
 
 2) DIRECCIÓN DE ARTE
 Concepto: "Medellín de verdad, dibujada con cariño".
 - Ciudad vista desde arriba: pixel art denso y acogedor (techos, árboles en masa, río con orillas suaves, lluvia), con la claridad de los juegos clásicos de ciudad vista desde el cielo.
-- Panorámica lateral: siluetas planas por capas con bruma (perspectiva atmosférica); el cielo lo pinta el juego.
-- 3D: maqueta low-poly limpia, de caras planas.
-- Interfaz: estética editorial (papel crema, tinta azul, letras condensadas gruesas, bloques de color) con los colores de las líneas del Metro como acentos.
+- Panorámica lateral: siluetas planas por capas con bruma; el cielo lo pinta el juego.
+- Vista isométrica (nueva, ver sección 10): ciudad en miniatura en proyección dimétrica 2:1.
+- 3D: maqueta low-poly limpia.
+- Interfaz: estética editorial (papel crema, tinta azul, letras condensadas gruesas) con los colores de las líneas del Metro como acentos.
 Reglas para TODA imagen:
 - Luz desde arriba a la izquierda. SIN sombra proyectada en el piso (la pone el juego).
 - Contorno oscuro fino (#141414) en personajes y vehículos; edificios sin contorno grueso.
@@ -43,6 +55,7 @@ Reglas para TODA imagen:
 - Fondo magenta plano #FF00FF, o transparente si tu herramienta lo permite, salvo que el encargo diga otra cosa. Nunca fondo blanco.
 - PROHIBIDO: texto, letras o números (salvo cuando el encargo lo pida, y en español); logos o marcas reales (ni el logo del Metro ni de empresas); marcas de agua; armas; violencia; alcohol; cigarrillo; pólvora en manos de niños; estereotipos de narcotráfico. Todo es para todo público.
 - Arte ORIGINAL: no copies personajes, logos ni escenarios de otros juegos. Las referencias de la sección 8 son solo principios.
+- No uses capturas de Google Maps ni de Google Earth como base: sus términos lo restringen. Las bases reales las doy yo, hechas con datos abiertos.
 
 3) PALETAS (HEX)
 Líneas del sistema: A #1C5C9C · B #E38835 · T (tranvía) #59AB42 · K #B8CF40 · J #F6C538 · H #EB318E · L #8E612A · M #743D90 · P #EC343A · Metroplús 1 #0E6F76 · Metroplús 2 #65A9AC.
@@ -54,30 +67,31 @@ Fiestas: Feria de las Flores #9b3faf #f7c325 #d7263d #f28c28 #3a7d44 · Alumbrad
 
 4) VISTAS Y TAMAÑOS
 - Ciudad (cenital 3/4): desde arriba con unos 15° de inclinación; se ve el techo y una franja de la fachada de abajo. Una casilla del mapa = 20 m.
+- Isométrica (dimétrica 2:1): por cada píxel hacia arriba, dos hacia el lado (unos 26,6°); edificios con su altura real.
 - Sprites de vehículos: vista superior pura, mirando a la DERECHA. Escala 1 m = 8 px: carro 36×16, moto 16×8, bici 14×6, buseta 64×20, alimentador 96×20, articulado 144×20, coche de metro 176×24, cabina de cable 24×24.
 - Peatones: vista superior pura, 16×16 px por cuadro, 4 cuadros de caminar.
-- Panorámica: perfil puro, sin punto de fuga, SIN cielo; capas horizontales 4:1 (cordillera lejana, cerros, laderas con barrios, ciudad cercana).
+- Panorámica: perfil puro, sin punto de fuga, SIN cielo; capas horizontales muy anchas (21:9 o más): cordillera lejana, cerros, laderas con barrios, ciudad cercana.
 - Vehículos y estaciones de perfil: perfil puro mirando a la derecha.
 - Cabina en primera persona: vertical 9:16 y horizontal 16:9; el parabrisas en magenta plano.
 - Retratos: busto en tres cuartos mirando a la derecha, cuadrado.
 - Íconos: cuadrados, planos, contorno negro grueso, 2 colores más negro, sin texto.
 Las IA generan grande (1024 px o más) y luego se reduce y se pixela. Lo importante: la vista correcta, las proporciones y el fondo plano.
 
-5) CÓMO SE VE MEDELLÍN
-- Valle largo y angosto de norte a sur. El río Medellín va canalizado en el fondo, con autopistas a lado y lado, y el metro elevado corre junto al río.
-- Laderas a oriente y occidente llenas de barrios de LADRILLO naranja a la vista que suben hasta el monte verde. De noche, las laderas son un "pesebre" de luces cálidas.
+5) CÓMO SE VE MEDELLÍN (TOPOGRAFÍA Y ESTRUCTURAS)
+- Valle largo y angosto de norte a sur, a unos 1.495 m de altura. El río Medellín va canalizado en el fondo, con autopistas a lado y lado, y el metro elevado corre junto al río.
+- Laderas empinadas a oriente y occidente llenas de barrios de LADRILLO naranja a la vista que suben hasta el monte verde. Las calles de ladera son estrechas, con escaleras y curvas. De noche, las laderas son un "pesebre" de luces cálidas.
 - Casas de barrio: 2 a 4 pisos, terrazas planas con tanques de agua negros, varillas esperando el siguiente piso, ropa al sol, escaleras exteriores, algunas fachadas pintadas (menta, amarillo, rosado).
 - Otros lugares:
   · barrios tradicionales con techos de teja de barro;
-  · El Poblado, con torres de ladrillo y vidrio;
+  · El Poblado, con torres altas de ladrillo y vidrio entre mucho verde;
   · el centro, con la Catedral de ladrillo, el Palacio de la Cultura en damero blanco y negro, la Plaza Botero con esculturas de bronce y el Parque de los Pies Descalzos (guadua, agua, arena);
-  · el Pueblito Paisa, con muros blancos y balcones de madera de colores.
-- Vegetación: ceibas, guayacanes amarillos y rosados, palmas y guadua. Cerros: El Volador, Nutibara, Pan de Azúcar, El Picacho y Quitasol.
+  · el Pueblito Paisa sobre el cerro Nutibara.
+- Cerros tutelares: El Volador, Nutibara, Pan de Azúcar, El Picacho y Quitasol. Vegetación: ceibas, guayacanes amarillos y rosados, palmas y guadua.
 - Clima de eterna primavera: sol fuerte al mediodía, aguaceros en la tarde, niebla en la madrugada.
 
 6) EL SISTEMA DE TRANSPORTE
 - Metro (líneas A y B): viaducto de concreto gris claro sobre columnas, catenaria con postes; estaciones elevadas con cubierta metálica y andén con línea amarilla; trenes de 3 coches con cabina en ambos extremos, carrocería clara con franja de color.
-- Metrocable (K, J, L, H, M, P): cabinas pequeñas tipo góndola sobre torres metálicas que pasan por encima de las casas; la L (Arví) entra a un bosque de pinos con neblina.
+- Metrocable (K, J, L, H, M, P): cabinas pequeñas tipo góndola sobre torres metálicas que suben las laderas pasando por encima de las casas; la L (Arví) entra a un bosque de pinos con neblina.
 - Tranvía de Ayacucho: rueda sobre llantas guiado por un riel central, varios módulos, verde #59AB42, sube por una calle de casas de colores.
 - Metroplús: buses articulados de 18 m (#0E6F76) en carril exclusivo, con estaciones en el separador de la avenida y puertas de vidrio.
 - Alimentadores: buses blancos con franja que bajan de los barrios a las estaciones.
@@ -99,58 +113,62 @@ Las IA generan grande (1024 px o más) y luego se reduce y se pixela. Lo importa
 - Vuelo (Simulador de Vuelo 3D, Misiles!, 1945 Air Force): cielos amplios, minimalismo plano, lectura vertical.
 - Trenes y puzles (Tiny Rails; de Infinity Games: Railways, Traffix, Package Inc, Infinity Loop, Laser, Laberinto): pixel lateral cálido, minimalismo, código de colores.
 - Paisaje y calma (Grand Mountain Adventure, Alto's Odyssey, Townscaper, Town Brush): maqueta low-poly, siluetas por capas con degradados, casas de colores que encajan, pixel art denso con lluvia.
-- Atmósfera (arte digital de túneles de neón, Holstin, Cairn): noches de cine, pixel isométrico con luz, ilustración estilizada.
+- Ciudades isométricas en pixel art (Isometric NYC; Tiny Barcelona, Madrid, València y Málaga; las de Ciudad de México y Buenos Aires): ciudades reales en miniatura, fieles a su trazado y sus edificios.
+- Atmósfera (arte digital de túneles de neón, Holstin, Cairn): noches cinematográficas, pixel isométrico con luz, ilustración estilizada.
 
 9) REPARTO DEL TRABAJO (cada IA hace SOLO lo suyo)
-- ARTISTA 1 = GEMINI NANO BANANA, encargos G-: ancla de estilo, personajes (hojas, retratos y sprites), fotos reales convertidas a nuestro estilo (estaciones y vehículos de perfil), ladera desde foto, variantes por hora y por fiesta, hojas de casas de barrio.
-- ARTISTA 2 = CHATGPT, encargos C-: sprites de vehículos vistos desde arriba con fondo transparente, íconos e insignias, consola de cabina y tablero del bus, letreros en blanco, portada con título, decoraciones de fiesta.
-- ARTISTA 3 = MIDJOURNEY, encargos M-: capas panorámicas por zona y hora, texturas repetibles, arte de ambiente de las fiestas, portada pintada, conceptos de región.
+- ARTISTA 1 = GEMINI NANO BANANA, encargos G-:
+  ancla de estilo; personajes (hojas, retratos, sprites); fotos reales convertidas a nuestro estilo (estaciones y vehículos de perfil); ladera desde foto; variantes por hora y por fiesta; hojas de casas de barrio; CAPAS PANORÁMICAS por zona y hora; ESCENAS DE AMBIENTE de las fiestas; CONCEPTOS ISOMÉTRICOS por región; REPINTADO de los mosaicos isométricos base que yo genero con datos reales.
+- ARTISTA 2 = CHATGPT, encargos C-:
+  sprites de vehículos vistos desde arriba con fondo transparente; íconos e insignias; consola de cabina y tablero del bus; letreros en blanco; portada con título y sin título; pantalla de carga; decoraciones de fiesta; TEXTURAS REPETIBLES.
 
-10) ENTREGA
+10) INICIATIVA: MEDELLÍN FIEL E ISOMÉTRICA
+Meta: que la topografía, el relieve, el río, las vías y las estructuras de Medellín sean fieles. Hoy el juego tiene detalles mal ubicados o mal proporcionados. Se hará una ciudad en miniatura en proyección dimétrica 2:1, como los mapas de ciudades en pixel art (Isometric NYC, Tiny Barcelona, Tiny Madrid y similares).
+Cómo:
+(a) Yo genero, con datos abiertos (OpenStreetMap, alturas de edificios, modelo de relieve de 30 m), mosaicos BASE en 2:1 con la geometría real: laderas, edificios con su altura, calles, río, viaductos, estaciones y torres de cable.
+(b) La IA los REPINTA en nuestro estilo sin mover la geometría.
+(c) El juego usa el resultado en la vista isométrica y para corregir la vista desde arriba, la panorámica y el 3D.
+Prioridades: el relieve de las laderas, la altura y el trazado del viaducto, la ubicación y forma de las estaciones, las torres y la curva de los cables sobre las lomas, las alturas de El Poblado frente a los barrios, y los lugares icónicos (Catedral, Coltejer, Nutibara, El Volador, Biblioteca España, estadio, aeropuerto Olaya Herrera).
+
+11) ENTREGA
 - Cada imagen se guarda con el nombre exacto del encargo: minúsculas, sin tildes ni espacios (por ejemplo ret_rosalba_alegre.png).
 - Formato PNG, con fondo transparente o magenta #FF00FF.
 - Una imagen por encargo, o la hoja que se pida.
+
+12) BITÁCORA
+La bitácora completa del juego (qué se construyó, versiones, pruebas, qué falta) está en el ANEXO A. Léela para entender en qué punto está el proyecto. No tienes que hacer nada con ella.
 === FIN DEL CONTEXTO ===
 ```
 
 ---
 
-## BLOQUE 2 · ROLES (pega solo el de la IA que vas a usar, debajo del Bloque 1)
+## BLOQUE 2 · ROLES (pega solo el de la IA que vas a usar)
 
 ### 2A · Rol de Gemini (Nano Banana)
 ```
-TU ROL: eres el ARTISTA 1 de "El Metro" y trabajas en Gemini (Nano Banana). Conoces todo el contexto de arriba para entender el proyecto, pero SOLO haces los encargos que empiezan por G- (ancla de estilo, personajes, fotos convertidas a nuestro estilo, variantes de hora y de fiesta, hojas de casas de barrio).
-Si te pido un encargo C- o M-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 2 (ChatGPT) o al Artista 3 (Midjourney)" y no lo hagas.
+TU ROL: eres el ARTISTA 1 de "El Metro" y trabajas en Gemini (Nano Banana). Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por G-:
+ancla de estilo · personajes · fotos convertidas a nuestro estilo · variantes de hora y de fiesta · casas de barrio · capas panorámicas · escenas de ambiente de fiestas · conceptos isométricos · repintado de mosaicos isométricos base.
+Si te pido un encargo C-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 2 (ChatGPT)" y no lo hagas.
 Reglas de tu herramienta:
 - no das transparencia: usa siempre fondo magenta plano #FF00FF;
 - deja margen libre en las esquinas;
 - mantén el mismo estilo y los mismos personajes en toda la conversación;
 - cuando te adjunte "ancla_estilo.png", úsala como referencia EXACTA de estilo;
-- cuando te adjunte una foto real, conserva la forma real y cambia solo el estilo.
+- cuando te adjunte una foto o un render base, conserva la forma y la geometría y cambia solo el estilo.
 Responde solo: "Listo, Artista 1 (Gemini) preparado", y espera mi primer encargo.
 ```
 
 ### 2B · Rol de ChatGPT
 ```
-TU ROL: eres el ARTISTA 2 de "El Metro" y trabajas en el generador de imágenes de ChatGPT. Conoces todo el contexto de arriba para entender el proyecto, pero SOLO haces los encargos que empiezan por C- (sprites de vehículos vistos desde arriba con transparencia, íconos e insignias, consola de cabina y tablero del bus, letreros en blanco, portada con título, decoraciones de fiesta).
-Si te pido un encargo G- o M-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 1 (Gemini) o al Artista 3 (Midjourney)" y no lo hagas.
+TU ROL: eres el ARTISTA 2 de "El Metro" y trabajas en el generador de imágenes de ChatGPT. Conoces todo el contexto del proyecto (misión, visión, bitácora, dirección de arte), pero SOLO haces los encargos que empiezan por C-:
+sprites de vehículos vistos desde arriba con transparencia · íconos e insignias · consola de cabina y tablero del bus · letreros en blanco · portada con y sin título · pantalla de carga · decoraciones de fiesta · texturas repetibles.
+Si te pido un encargo G-, o algo que no está en tu lista, respóndeme: "Eso le corresponde al Artista 1 (Gemini)" y no lo hagas.
 Reglas de tu herramienta:
 - entrega PNG con FONDO TRANSPARENTE; si no puedes, usa magenta plano #FF00FF;
 - tamaños: 1024×1024 (cuadrado), 1536×1024 (horizontal), 1024×1536 (vertical);
 - solo pon texto cuando el encargo lo pida, y en español;
 - si te adjunto "ancla_estilo.png", copia exactamente su estilo.
 Responde solo: "Listo, Artista 2 (ChatGPT) preparado", y espera mi primer encargo.
-```
-
-### 2C · Rol opcional: ChatGPT como redactor de prompts para Midjourney
-```
-TU ROL: con el contexto de arriba, eres el REDACTOR DE PROMPTS del ARTISTA 3 (Midjourney). No generas imágenes: SOLO escribes prompts en inglés para los encargos M- que te pida, siguiendo la dirección de arte y las paletas del contexto. Cada prompt debe:
-- describir la vista y la composición, y nombrar los colores HEX clave;
-- terminar con los parámetros "--ar <proporción> --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature";
-- no nombrar juegos ni artistas;
-- ser para todo público.
-Si te pido algo que no es un encargo M-, responde "Eso le corresponde al Artista 1 o al Artista 2".
-Responde solo: "Listo, redactor de Midjourney preparado".
 ```
 
 ---
@@ -202,7 +220,7 @@ G-10. Igual que G-09 (de frente y luego desde arriba) con: vendedor de tinto con
 ```
 **G‑20 · Estación de perfil desde foto** → `est_lado_parque_berrio.png`
 ```
-G-20. [Adjunto una foto real de la estación y el ancla] Redibuja la estación de la foto como ilustración de PERFIL perfecto (vista lateral plana, sin perspectiva), en nuestro estilo: concreto gris claro, cubierta metálica, andén con línea amarilla, escaleras. Conserva la forma real. Formato 4:1 horizontal. Fondo magenta. Sin letreros ni texto.
+G-20. [Adjunto una foto real de la estación y el ancla] Redibuja la estación de la foto como ilustración de PERFIL perfecto (vista lateral plana, sin perspectiva), en nuestro estilo: concreto gris claro, cubierta metálica, andén con línea amarilla, escaleras. Conserva la forma real. Formato horizontal muy ancho (21:9). Fondo magenta. Sin letreros ni texto.
 ```
 **G‑21 a G‑25** repiten G‑20 con otras estaciones:
 - G‑21: San Antonio, `est_lado_san_antonio`.
@@ -213,7 +231,7 @@ G-20. [Adjunto una foto real de la estación y el ancla] Redibuja la estación d
 
 **G‑30 · Tren de perfil desde foto** → `veh_lado_metro_a.png`
 ```
-G-30. [Adjunto una foto real de un tren del Metro de Medellín y el ancla] Conviértelo en un sprite de PERFIL perfecto mirando a la derecha: 3 coches con cabina en los extremos, ventanas, puertas marcadas, pantógrafo y franja #1C5C9C. Formato 8:1 horizontal. Fondo magenta. Sin logos ni texto.
+G-30. [Adjunto una foto real de un tren del Metro de Medellín y el ancla] Conviértelo en un sprite de PERFIL perfecto mirando a la derecha: 3 coches con cabina en los extremos, ventanas, puertas marcadas, pantógrafo y franja #1C5C9C. Formato horizontal muy ancho (21:9). Fondo magenta. Sin logos ni texto.
 ```
 **G‑31 a G‑37** repiten G‑30 con otros vehículos:
 - G‑31: tren de la generación más nueva, `veh_lado_metro_nuevo`.
@@ -226,7 +244,7 @@ G-30. [Adjunto una foto real de un tren del Metro de Medellín y el ancla] Convi
 
 **G‑40 · Ladera desde foto** → `pan_ladera_casas.png`
 ```
-G-40. [Adjunto una foto real de una comuna en ladera y el ancla] Conviértela en una capa de fondo de vista lateral: silueta de montaña con casitas de ladrillo apiladas que suben desde abajo y se vuelven bosque verde arriba. Ilustración plana con detalle pixelado en las casas. Formato 4:1. Arriba de la montaña, fondo magenta. Sin texto.
+G-40. [Adjunto una foto real de una comuna en ladera y el ancla] Conviértela en una capa de fondo de vista lateral: silueta de montaña con casitas de ladrillo apiladas que suben desde abajo y se vuelven bosque verde arriba. Ilustración plana con detalle pixelado en las casas. Formato 21:9. Arriba de la montaña, fondo magenta. Sin texto.
 ```
 **G‑50 a G‑55 · Variantes por edición.** Adjunta la imagen ya aprobada y pide solo el cambio:
 
@@ -247,6 +265,71 @@ G-60. Hoja cuadrada con una cuadrícula de 4×4 casillas iguales y alineadas. Ca
 - G‑61: edificios de El Poblado (ladrillo y vidrio, azoteas con aire acondicionado), `cas_poblado_hoja`.
 - G‑62: parques, plazas, canchas y árboles, con guayacán amarillo y rosado, `cas_parques_hoja`.
 - G‑63: orillas del río, quebradas, escaleras de la Comuna 13 y grafitis vistos desde arriba, `cas_rio_comuna13_hoja`.
+
+**G‑70 a G‑73 · Capas panorámicas** → `pan_<zona>_<hora>_<capa>.png`
+```
+G-70. Capa de fondo para la vista lateral del juego: silueta de la CORDILLERA LEJANA de los Andes sobre el valle de Medellín, formas planas con bruma suave y un filo apenas iluminado, color #7f9fbf que se aclara hacia #a8c0d8 abajo. Vista de perfil perfecta, horizonte nivelado, sin edificios. Arriba del filo, fondo magenta plano (el cielo lo pone el juego). Formato horizontal muy ancho (21:9). Zona: [ZONA]. Hora: [HORA]. Sin texto.
+```
+- **G‑71 · Cerros** (`_2cerros`): “colinas verdes #5f8f86 delante de la cordillera, con pocas casas de ladrillo al pie”, con el mismo formato.
+- **G‑72 · Laderas con barrios** (`_3laderas`): “ladera empinada llena de casitas de ladrillo #b4583a con terrazas y tanques negros, que suben desde el valle y se vuelven bosque arriba, con una línea de metrocable de cabinas pequeñas”, con el mismo formato.
+- **G‑73 · Ciudad cercana** (`_4ciudad`): “siluetas de edificios de ladrillo de mediana altura, algunas torres de vidrio, la catedral de ladrillo, árboles y el viaducto elevado del metro”, con el mismo formato.
+
+Si queda corta, pide: “Extiende la misma imagen hacia la derecha, igual de alta y sin cambiar nada”. Yo empato los bordes al final.
+
+**Zonas [ZONA]** (y nombre del archivo):
+
+| Zona | Texto para el prompt |
+|---|---|
+| `norte` | Bello, casas bajas y fábricas textiles antiguas |
+| `centro` | catedral de ladrillo, edificios altos y una torre con aguja |
+| `occidente` | San Javier y Comuna 13: laderas muy pobladas con murales de colores |
+| `nororiente` | Santo Domingo: biblioteca de tres edificios negros como rocas en lo alto |
+| `sur` | El Poblado: torres de vidrio y ladrillo entre mucho verde |
+| `ayacucho` | una calle empinada con casas de colores |
+
+**Horas [HORA]** (y nombre del archivo):
+
+| Hora | Texto para el prompt |
+|---|---|
+| `dia` | luz de mediodía |
+| `tarde` | atardecer dorado con bruma naranja y violeta |
+| `noche` | noche con miles de ventanas cálidas #ffd27a en la ladera |
+| `alumbrados` | noche de diciembre con figuras de luces de colores junto al río |
+
+**G‑80 a G‑86 · Escenas de ambiente de fiestas** (sirven de referencia para todo el equipo) → `amb_<fiesta>.png`
+```
+G-80. Escena ilustrada (16:9) del DESFILE DE SILLETEROS en Medellín: campesinos cargan a la espalda grandes silletas de madera llenas de flores (#9b3faf #f7c325 #d7263d #f28c28) por una avenida ancha, familias aplaudiendo, sol de agosto y el viaducto del metro al fondo. Ambiente alegre y familiar, ilustración plana con detalles de pixel art, en el estilo del ancla. Sin texto.
+```
+Para los demás, cambia solo la escena:
+
+| ID | Escena | Archivo |
+|---|---|---|
+| G‑81 | Río de noche con enormes figuras de luces de colores (#fff1c1 #ffc23d #e83e8c #2ec4f1), familias paseando y un tren cruzando un viaducto iluminado | `amb_alumbrados` |
+| G‑82 | Barrio de ladera al anochecer, con velas y faroles de papel de colores en cada puerta | `amb_velitas` |
+| G‑83 | Avión antiguo de hélice de los años 30 y la silueta de una pareja bailando tango al atardecer, en homenaje | `amb_tango` |
+| G‑84 | Escaleras eléctricas techadas que suben una ladera de colores con murales enormes | `amb_comuna13` |
+| G‑85 | Cabinas de cable entrando a un bosque de pinos con neblina sobre la ciudad | `amb_arvi` |
+| G‑86 | Aguacero de tarde sobre la ciudad: calles brillantes, paraguas de colores y buses con las luces encendidas | `amb_aguacero` |
+
+**G‑90 · Concepto isométrico de región** (nuevo) → `concepto_iso_<region>.png`
+```
+G-90. Concepto de una porción de Medellín en miniatura, en proyección DIMÉTRICA 2:1 (pixel art "isométrico" de juego: por cada píxel hacia arriba, dos hacia el lado), en el estilo del ancla: [REGIÓN]. Edificios con su altura relativa real, techos detallados (losas con tanques de agua, tejas, azoteas), calles con carros diminutos, árboles en masa, gente pequeñita. Luz desde arriba a la izquierda. Fondo magenta fuera del terreno. Cuadrado (1:1). Sin texto.
+```
+**Regiones [REGIÓN]:**
+
+| Región | Texto para el prompt | Archivo |
+|---|---|---|
+| centro | Parque Berrío y la estación elevada del metro junto al Palacio de la Cultura en damero blanco y negro | `concepto_iso_centro` |
+| ladera | ladera de la Comuna 13 con casas de ladrillo apiladas, escaleras eléctricas techadas y una torre de metrocable | `concepto_iso_ladera` |
+| poblado | torres de ladrillo y vidrio entre árboles, con calles curvas en pendiente | `concepto_iso_poblado` |
+| río | el río canalizado con autopistas a los lados y el viaducto del metro | `concepto_iso_rio` |
+| cable | Santo Domingo con la estación del cable y la biblioteca de rocas negras | `concepto_iso_cable` |
+
+**G‑100 · Repintar mosaicos isométricos base** (cuando yo los envíe) → `iso_<zona>_<fila>_<col>.png`
+```
+G-100. Te adjunto un RENDER BASE en proyección dimétrica 2:1 de una zona REAL de Medellín, generado con datos abiertos (relieve, edificios con su altura, calles, río, viaductos, estaciones y torres de cable). Repíntalo en el estilo del ancla SIN mover ni cambiar la geometría: cada edificio, calle, árbol, vía y estación queda exactamente en la misma posición, con el mismo tamaño y el mismo encuadre. Solo cambia materiales y detalles: ladrillo naranja a la vista, losas con tanques de agua negros, tejas, vidrio en torres, andenes, cebras, árboles frondosos y gente pequeñita. Las zonas que en la base estén en magenta siguen en magenta. Sin texto.
+```
+*Si te devuelve algo movido, pide: “Vuelve a hacerlo calcando la base adjunta: misma geometría al píxel, solo cambia el estilo”.*
 
 ### 3B · ChatGPT (Artista 2) · encargos C‑
 > ChatGPT ya tiene el contexto. Adjunta `ancla_estilo.png` cuando exista.
@@ -305,73 +388,30 @@ C-21. Igual que C-20, pero del bus articulado: timón grande, palanca de puertas
 ```
 C-30. Letreros de estación en blanco (placas rectangulares con borde del color de cada línea), panel LED de próximo tren apagado, flechas de salida, la línea amarilla del andén y un torniquete visto de frente. Fondo transparente. Sin texto.
 ```
-**C‑40 · Portada para compartir** → `clave_compartir.png` (1536×1024; se recorta a 1200×630)
+**C‑40 · Portada** → `clave_compartir.png` (con título) y `clave_portada.png` (sin título), ambas a 1536×1024
 ```
-C-40. Un tren de metro claro con franja #1C5C9C cruza un viaducto al atardecer sobre el río de Medellín. Detrás, montañas con laderas llenas de casitas de ladrillo que empiezan a encenderse, un metrocable de cabinas de colores sube por la ladera y hay gallinazos en el cielo naranja y violeta. Ilustración plana por capas con detalle de pixel art. Arriba a la izquierda, el título "EL METRO" en letras condensadas gruesas color crema #fbe7b0 con borde #141414 y, debajo, "La última vuelta" en letra más pequeña. Sin logos reales.
+C-40. Un tren de metro claro con franja #1C5C9C cruza un viaducto al amanecer sobre el río de Medellín. Detrás, montañas con laderas llenas de casitas de ladrillo, un metrocable de cabinas de colores sube por la ladera y hay gallinazos en el cielo naranja y violeta. En la ventana de la cabina, Rosalba (abuela conductora con uniforme azul) sonríe con su termo de tinto. Ilustración plana por capas con detalle de pixel art, ambiente tierno y esperanzador.
+Versión 1: arriba a la izquierda, el título "EL METRO" en letras condensadas gruesas color crema #fbe7b0 con borde #141414 y, debajo, "La última vuelta" en letra más pequeña.
+Versión 2: la misma imagen SIN ningún texto.
+Sin logos reales.
 ```
 **C‑41 · Pantalla de carga** → `clave_carga.png` (1024×1536)
 ```
-C-41. La misma escena de C-40 en vertical, con Rosalba (abuela conductora con uniforme azul y tinto) de espaldas, mirando la ciudad desde el andén. Sin texto.
+C-41. La misma escena de C-40 en vertical, con Rosalba de espaldas mirando la ciudad desde el andén. Sin texto.
 ```
 **C‑50 · Decoraciones de fiesta** → `fiesta_sprites.png`
 ```
 C-50. Hoja con fondo transparente y vista cenital: pétalos sueltos (8 tipos), una silleta de flores vista desde arriba, faroles de papel (rojo, verde y amarillo) y velas, guirnaldas de luces en tramo recto y en curva, figuras de luz de Navidad vistas desde arriba (estrella, flor, pesebre sencillo) y banderines de la Feria.
 ```
+**C‑60 · Texturas repetibles** → `tex_<material>.png` (1024×1024)
+```
+C-60. Textura cuadrada REPETIBLE sin costuras (que encaje por los cuatro lados), vista desde arriba ortográfica, luz plana y pareja, apta para pixel art: [MATERIAL]. Sin sombras, sin texto, sin logos.
+```
+*Yo arreglo las costuras que queden. Haz una textura por material:*
 
-### 3C · Midjourney (Artista 3) · encargos M‑
-> Midjourney no lee el Bloque 1: estos prompts **ya traen el contexto adentro** y van en inglés.
-> **Antes de empezar:**
-> - Sube `ancla_estilo.png` a Midjourney y reemplaza `<URL_ANCLA>` por su enlace (referencia de estilo). Con `--sw 50` a `200` controlas cuánto pesa.
-> - Usa la versión más reciente (`--v 7` o superior).
-> - Para alargar una capa, usa **Pan** a la izquierda o la derecha. Yo empato los bordes al final.
-> - `--tile` es **solo para texturas** (M‑10).
-
-**M‑01 a M‑04 · Capas panorámicas** → `pan_<zona>_<hora>_<capa>.png`. Cambia en el prompt la zona y la hora de las listas de abajo.
-
-M‑01 · Cordillera lejana (`_1lejana`)
-```
-M-01 side view parallax background layer for a 2D mobile game set in Medellín, Colombia: distant Andes mountain range silhouette above a long narrow valley, flat shapes with soft atmospheric haze and a subtle ridge highlight, color #7f9fbf fading to #a8c0d8 at the base, no sky (plain flat magenta #FF00FF above the ridge), orthographic side view, horizon perfectly level, clean flat illustration, [HORA] --ar 4:1 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature, buildings
-```
-M‑02 · Cerros intermedios (`_2cerros`)
-```
-M-02 side view parallax layer for a 2D game in Medellín, Colombia: rolling green hills silhouette #5f8f86 in front of distant mountains, a few scattered red-brick houses at the base, flat illustration, plain flat magenta #FF00FF background above, orthographic side view, [HORA] --ar 4:1 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-M‑03 · Laderas con barrios (`_3laderas`)
-```
-M-03 side view of a steep green hillside in Medellín, Colombia, densely covered with small stacked red-brick houses (exposed orange brick #b4583a, flat concrete roofs with black water tanks, a few painted facades in mint, yellow and pink), houses climbing from the valley floor and fading into green forest near the top, a thin cable car line with tiny cabins crossing the slope, flat illustration with crisp pixel-art detail in the houses, plain flat magenta #FF00FF above the ridge, orthographic side view, [HORA] --ar 4:1 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-M‑04 · Ciudad cercana (`_4ciudad`)
-```
-M-04 side view of a dense Latin American city in a valley (Medellín, Colombia): mid-rise red-brick apartment buildings, a few glass towers, a large brick cathedral, trees, an elevated concrete metro viaduct, all as flat silhouettes with simple windows, plain flat magenta #FF00FF background above, orthographic side view, [HORA] --ar 4:1 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-**Zonas** (agrégala al prompt y al nombre del archivo):
-
-| Zona | Agrega al prompt |
-|---|---|
-| `norte` | Bello, low houses and old textile factories |
-| `centro` | brick cathedral, tall buildings, a needle-topped tower |
-| `occidente` | San Javier and Comuna 13, very dense hillsides with colorful murals |
-| `nororiente` | Santo Domingo, a library made of three black rock-like buildings on the hilltop |
-| `sur` | El Poblado, glass and brick towers among lots of greenery |
-| `ayacucho` | a steep street climbing with colorful houses |
-
-**[HORA]** (y el nombre del archivo):
-
-| Hora | Texto para [HORA] |
-|---|---|
-| `dia` | bright midday light |
-| `tarde` | golden hour, warm orange and violet haze |
-| `noche` | night, thousands of warm window lights #ffd27a scattered on the hillside |
-| `alumbrados` | December night with colorful Christmas light figures along the river |
-
-**M‑10 · Texturas repetibles** → `tex_<material>.png`
-```
-M-10 seamless tileable texture, top-down orthographic, exposed orange clay brick wall with light mortar joints, flat even lighting, pixel-art friendly, limited palette #b4583a #9a4630 #c8714d #d8c3a5 --tile --ar 1:1 --style raw --no text, logo, shadows
-```
-Cambia el material y el nombre del archivo:
-
-| Material | Agrega al prompt | Archivo |
+| Material [MATERIAL] | Colores | Archivo |
 |---|---|---|
+| Ladrillo naranja a la vista con juntas claras | #b4583a #9a4630 #c8714d #d8c3a5 | `tex_ladrillo` |
 | Teja de barro | #a8452f | `tex_teja` |
 | Asfalto con grietas suaves | #3b3f45 | `tex_asfalto` |
 | Baldosa de andén | #c9c1ad | `tex_anden` |
@@ -382,44 +422,20 @@ Cambia el material y el nombre del archivo:
 | Techo de eternit ondulado | — | `tex_eternit` |
 | Adoquín de plaza | — | `tex_adoquin` |
 
-**M‑20 a M‑26 · Ambiente de fiestas** (referencia para todo el equipo) → `amb_<fiesta>.png`
-```
-M-20 illustrated scene of a flower parade in Medellín, Colombia: farmers carrying huge wooden frames full of flowers on their backs along a wide avenue, cheering families, orchids, sunflowers and carnations (#9b3faf #f7c325 #d7263d #f28c28), bright August sun, an elevated metro viaduct in the background, joyful atmosphere, flat illustration with pixel-art details --ar 16:9 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-Para los demás, cambia solo la escena:
-
-| ID | Escena | Archivo |
-|---|---|---|
-| M‑21 | river at night lined with giant colorful Christmas light figures (#fff1c1 #ffc23d #e83e8c #2ec4f1), families walking, metro train crossing a lit viaduct | `amb_alumbrados` |
-| M‑22 | hillside neighborhood at dusk, every doorstep with candles and colorful paper lanterns | `amb_velitas` |
-| M‑23 | 1930s vintage propeller plane and a tango dancing couple silhouette at dusk, homage atmosphere | `amb_tango` |
-| M‑24 | covered outdoor escalators climbing a colorful hillside with huge murals | `amb_comuna13` |
-| M‑25 | cable car cabins entering a misty pine forest above the city | `amb_arvi` |
-| M‑26 | afternoon tropical rain over the city, shiny streets, colorful umbrellas, buses with headlights | `amb_aguacero` |
-
-**M‑30 · Portada pintada** (sin texto) → `clave_portada.png`
-```
-M-30 key art for a cozy open-world transit game set in Medellín, Colombia: sunrise over a long valley, an elevated metro train with a blue stripe (#1C5C9C) crossing over the river, cable car cabins climbing hillsides covered in red-brick houses, an elderly train driver woman with a thermos of coffee smiling at the window, warm golden light, layered flat illustration with crisp pixel details, hopeful and tender mood --ar 16:9 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-**M‑40 · Conceptos de región** (guía para la ciudad vista desde arriba) → `concepto_<region>.png`
-```
-M-40 top-down slightly tilted view of a Medellín, Colombia neighborhood block: red-brick houses with flat roofs and black water tanks, narrow streets with parked cars, a small park with a soccer court, a corner store with a colorful awning, cozy dense pixel-art style, soft light from top-left, no cast shadows --ar 1:1 --style raw --sref <URL_ANCLA> --no text, letters, logo, watermark, signature
-```
-Repite M‑40 para estas regiones: centro, ladera, Poblado, río y estación de metro.
-
 ---
 
-## BLOQUE 4 · CORRECCIONES RÁPIDAS
-| Problema | Gemini / ChatGPT (díselo así) | Midjourney (agrega o cambia) |
-|---|---|---|
-| Cambió el estilo | “Vuelve EXACTAMENTE al estilo del ancla adjunta: mismos colores y mismo grosor de píxel.” | Usa la misma `--sref` y sube `--sw` |
-| Salió texto o un logo | “Quita todo el texto, letras, números y logos.” | `--no text, letters, typography, signage, logo` |
-| La vista quedó en perspectiva | “Vista de perfil PERFECTA, sin punto de fuga” / “Vista cenital PURA desde arriba.” | `orthographic side view, no perspective, horizon perfectly level` |
-| El fondo no es plano | “Fondo magenta #FF00FF completamente plano, sin sombra ni degradado.” | `plain flat magenta background` |
-| Se ve borroso | “Píxeles grandes, nítidos y cuadrados, sin suavizado.” | `crisp pixel details, clean edges` |
-| Muy realista o recargado | “Más simple: formas planas y pocos colores.” | `flat illustration, simple shapes, limited palette` y baja `--s` |
-| El personaje cambió de cara | “Es el MISMO personaje de la hoja adjunta: misma cara, peinado, ropa y colores.” | (no aplica: los personajes son de Gemini) |
-| Te pidieron algo de otra IA | La IA debe responder “Eso le corresponde a…” | — |
+## BLOQUE 4 · CORRECCIONES RÁPIDAS (para Gemini y ChatGPT)
+| Problema | Díselo así |
+|---|---|
+| Cambió el estilo | “Vuelve EXACTAMENTE al estilo del ancla adjunta: mismos colores y mismo grosor de píxel.” |
+| Salió texto o un logo | “Quita todo el texto, letras, números y logos.” |
+| La vista quedó en perspectiva | “Vista de perfil PERFECTA, sin punto de fuga” / “Vista cenital PURA desde arriba” / “Proyección dimétrica 2:1 exacta.” |
+| Se movió la geometría de una base o foto | “Calca la base adjunta: misma geometría al píxel; solo cambia el estilo.” |
+| El fondo no es plano | “Fondo magenta #FF00FF completamente plano, sin sombra ni degradado.” |
+| Se ve borroso | “Píxeles grandes, nítidos y cuadrados, sin suavizado.” |
+| Muy realista o recargado | “Más simple: formas planas y pocos colores de la paleta.” |
+| El personaje cambió de cara | “Es el MISMO personaje de la hoja adjunta: misma cara, peinado, ropa y colores.” |
+| Pediste algo de la otra IA | La IA debe responder “Eso le corresponde a…”. Pídeselo a la que corresponde. |
 
 ---
 
@@ -428,15 +444,16 @@ Repite M‑40 para estas regiones: centro, ladera, Poblado, río y estación de 
 1. G‑00 (ancla de estilo);
 2. personajes (G‑01 a G‑10);
 3. vehículos vistos desde arriba (C‑01, C‑02);
-4. panorámicas del centro y el norte, de día y de noche (M‑01 a M‑04);
-5. casas de barrio (G‑60 a G‑63) y texturas (M‑10);
-6. estaciones y vehículos de perfil (G‑20 a G‑37);
-7. íconos (C‑10 a C‑12);
-8. cabina (C‑20, C‑21);
-9. fiestas (G‑53 a G‑55, C‑50, M‑20 a M‑26);
-10. portadas (C‑40, C‑41, M‑30).
+4. panorámicas del centro y el norte, de día y de noche (G‑70 a G‑73);
+5. casas de barrio (G‑60 a G‑63) y texturas (C‑60);
+6. conceptos isométricos (G‑90);
+7. estaciones y vehículos de perfil (G‑20 a G‑37);
+8. íconos (C‑10 a C‑12);
+9. cabina (C‑20, C‑21);
+10. fiestas (G‑53 a G‑55, C‑50, G‑80 a G‑86);
+11. portadas (C‑40, C‑41).
 
-Una entrega parcial ya sirve.
+G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya sirve.
 
 **Carpetas** (dentro de `arte/entregas/`):
 
@@ -449,9 +466,10 @@ Una entrega parcial ya sirve.
 | `panoramicas` | capas panorámicas y la ladera |
 | `casillas` | hojas de casas y barrios |
 | `texturas` | texturas repetibles |
+| `isometrico` | conceptos isométricos y mosaicos repintados |
 | `cabinas` | consola del metro y tablero del bus |
 | `iconos` | íconos e insignias |
-| `clave` | portadas, pantalla de carga y conceptos |
+| `clave` | portadas y pantalla de carga |
 | `fiestas` | variantes, decoraciones y ambiente de fiestas |
 
 **Reglas:**
@@ -480,3 +498,86 @@ Una entrega parcial ya sirve.
 4. ¿No tiene sombra proyectada, ni texto, ni logos?
 5. ¿Se lee bien en pequeño?
 6. ¿Tiene el nombre exacto del encargo?
+
+---
+
+## ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
+<!-- BITACORA:INICIO -->
+### Bitácora · El Metro
+
+> Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `docs/PROMPTS-IA.md`, y actualizar esta bitácora al cerrar cada sesión.
+
+#### Estado al 2026-11-17 · v0.5.0 "La historia en la ciudad"
+**Qué es:** un videojuego offline (un solo `index.html`, ~1,8 MB) sobre el Metro de Medellín y el Valle de Aburrá, construido sobre el **mapa real** (casillas de 20 m, OSM + relieve SRTM, tomado de "Juega EnCicla"). Un único mundo con módulos de simulación, no minijuegos:
+
+| Módulo | Archivo | Qué hace |
+|---|---|---|
+| Ciudad Libre | `36-libre.js` + `35-ciudad.js` | Mundo abierto cenital estilo GTA 1/2: a pie, bici, moto, taxi, camioneta; abordar metro/tranvía/cables/buses reales; oficios por radio; Cívica al abordar. |
+| Bus (Metroplús y alimentadores) | `38-bus.js` | Simulador cenital de estación a estación por calles reales: pasajeros que esperan y suben validando la Cívica (bip; a veces sin saldo y recargan), puertas, semáforos, tráfico, horario, confort, asistente de carril. 35 rutas (MP1, MP2, O y 15 alimentadores). |
+| Metro | `30-conduce.js` + `31-cabina.js` + `23-lado.js` | Metro y tranvía en vista panorámica 2D (relieve real en capas, laderas con barrios que se encienden de noche, calle con carros y gente bajo el viaducto, estaciones con techo) y cabina 1ª persona con **procedimiento real**: llave, selector de sentido, señal de salida, vigilante (hombre muerto), puertas por lado del andén, anuncio, botonera iluminada y **Escuela de conducción** (9 pasos). También 3ª persona/cine (WebGL). |
+| Metrocable | `52-cableviaje.js` | Opera la línea: viento, péndulo de la cabina, tormentas, fotos en miradores; vista lateral o 3D. |
+| Guía | `67-guia.js` | Aprende a usar el Metro: Cívica, cómo viajar, líneas, Cultura Metro, datos. |
+| Historia en la ciudad | `37-trama.js` (+ ganchos en `36-libre.js`) | "La última vuelta" jugada en el mapa: 8 capítulos con pasos (hablar, ir, abordar una línea, bajarse en una estación, postal, orientar pasajeros, manejar) sobre la red real: Niquía → Madera (escuela) → metro a Acevedo → cable K a Santo Domingo → alimentador C6‑001 a Santa Rita → metro a Hospital → Metroplús a Parque Aranjuez → tranvía en San Antonio → hora pico (orientar) → Niquía → La Estrella. Personajes con nombre en el mapa, diálogos con voz opcional, título de capítulo, ⏩ para adelantar viajes. Al terminar cada módulo se vuelve a la ciudad en la estación de llegada. Progreso en `Save.d.trama`. |
+| Historia clásica | `70-historia.js` | Los 11 capítulos con escenas pixeladas que llevan a cada módulo (siguen disponibles en el menú Historia). |
+| La Red / Juntos / Arcade | `60-mapa.js`, `80-multi.js`, `40/45/50-*.js`, `32-volante.js` | Mapa‑gerencia; multijugador local (duelo, QR Wi‑Fi, servidor `server.mjs`); los puzles antiguos quedaron como "Arcade". |
+
+**Mundo vivo:** `18-mundo.js` (reloj ×30/real/día/noche, clima por temporada y hora con semilla del día, fechas: aniversario 30/11, Alumbrados, Velitas, Novena, Navidad, Año Nuevo, Feria de las Flores, Silleteros, 20 de julio, 7 de agosto, Antioqueñidad, Amor y Amistad, Halloween, Madre, Semana Santa). `35-ciudad.js`: transporte real en movimiento con paradas, peatones con rumbo/paraguas/miedo/conversación, gente esperando el bus, vendedores ambulantes, tráfico en carriles reales con semáforos de 32 s, sombras por sol, faros, postes, ventanas encendidas.
+
+**Arte:** `10-map.js` casillas de 16 px dibujadas por **manzanas/lotes** (tejados unidos por lote con tanques, aires, paneles, terrazas verdes; fachada sur con ventanas y toldos; sombras en capa aparte; barrios de ladrillo con 2–3 casas por casilla y techos de teja/plancha/eternit, ropa tendida; carros parqueados, árboles y bancas en andenes; avenidas con carriles, línea amarilla en calles locales y cebras solo en cruces reales), viaductos con rieles, andenes, torres de cable; `21-sprites.js` sprites cenitales con detalle (metro por carros con cabina, articulado con fuelle, alimentador, taxi con aviso, carros, motos, cabinas, peatones con cabeza/brazos/paraguas, carrito de vendedor); `22-gl.js` 3D low‑poly propio (WebGL 1; viaducto de concreto con balasto, rieles de acero y pretiles; sin edificios encima de la vía); `23-lado.js` panorámica por capas (cordillera y laderas con barrios de ladrillo y monte por ruido suave, en tira cacheada; luces de ventanas de noche; fachadas y árboles de primer plano anclados al mundo).
+
+**Datos:** `src/data/red.js` (31 líneas, 222 paradas, 97 datos de línea, 58 de estación, 38 trivias; fuentes en `docs/FUENTES.md`), `rutas.js` (recorridos de bus por calles reales, A*), `lugares.js` (45 lugares reales con postal), `valle.js` (mapa).
+
+**Pruebas:** `node tools/test.mjs 100` → selfTest (datos, solubilidad, rutas) + partidas automáticas en todos los modos + recorrido de pantallas. Última corrida: ver Historial v0.4.0. El bot también vive en el menú (🤖).
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (rama `gh-pages`; v0.5.0 verificada el 2026-11-17: carga, service worker con caché `el-metro-v0.5.0-63270c88`, sin conexión, instalable sin errores) · APK v0.5.0 (versionCode 5) en `/el-metro.apk`.
+
+#### Carpeta de arte (`arte/`, 2026-11-17)
+Investigación visual y guía de producción para el arte definitivo:
+- biblia de estilo, 32 referencias de juegos analizadas (incluye los 4 reels del autor), identidad visual de Medellín y su transporte, historia del Metro y de la ciudad con fuentes, folclor y calendario de fiestas, y diseño de mundo abierto + arcade;
+- **guía única de prompts** (`06-guia-unica-ia.md`) para **dos IA**: Gemini Nano Banana (encargos G‑) y ChatGPT (encargos C‑). Midjourney salió del plan: sus panorámicas, ambientes de fiesta y conceptos pasaron a Gemini, y las texturas y la portada sin título a ChatGPT. La guía trae **misión, visión, estado**, la dirección de arte y **la bitácora completa como Anexo A** (sincronizada por `tools/arte.mjs`, que también genera `arte/CONTEXTO-IA.md` para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT);
+- **Fase 1b del plan · Medellín fiel e isométrica:** relieve de 30 m, alturas de edificios por casilla, viaducto, estaciones y cables medidos, vista dimétrica 2:1 procedural y repintado con IA (G‑100) de zonas héroe. Referencias: Isometric NYC, Tiny Barcelona, Madrid, València y Málaga, CDMX, Buenos Aires, isometriccities.com y tinyworlds (detalle en `docs/PLAN.md`);
+- 71 fotos de referencia con licencia libre, enlazadas desde Openverse con autor y licencia (`galeria.md`/`galeria.json`). Las descargas directas desde Wikimedia y Flickr están bloqueadas en la nube;
+- `node tools/arte.mjs` genera `arte/index.html`: una página con todo, botones de copiar en los prompts, muestras de color y galería. Publicada en `/arte/` de GitHub Pages.
+
+**Siguiente paso:** cuando el autor traiga el arte (estructura en `arte/08-entregas-e-integracion.md`), limpiar el magenta, cuantizar a la paleta, armar atlas y conectarlos en `10-map.js`, `21-sprites.js`, `23-lado.js`, `31-cabina.js` y `37-trama.js`, siempre con respaldo procedural.
+
+#### Historial
+##### v0.5.0 (2026-11-17) — la historia se juega dentro de la ciudad
+1. Nuevo `37-trama.js`: motor de pasos (hablar, ir, abordar, bajar, foto, orientar, módulo) con datos validados por el autotest (`Trama.check`): estaciones, líneas, niveles y postales deben existir.
+2. Personajes en el mapa (Rosalba, Don Efraín, Doña Marleny, Wílmar, agente de tránsito, pasajeros con ❓) con nombre y marcador; conversación en caja inferior con voz opcional; preguntas de orientación de rutas reales (A→K, B→J, T→H, T→M, A→P, A→K→L…).
+3. Módulos encadenados: "¡Vamos!" lanza el metro/cable/bus/tranvía y al terminar vuelve a Ciudad Libre en la estación de llegada (`Trama.place`), avanzando el capítulo.
+4. Ciudad Libre: barra de capítulo con distancia, flecha y punto en el minimapa (`st.goal`), botón ⏩ (×5 al viajar o esperar en una estación), preferencia de línea al abordar en estaciones compartidas (`Ciudad.atHub(..., pref)`), los oficios se pausan durante la historia.
+5. Panorámica: paleta de día tipo ilustración (cordillera azul, cerros intermedios, suelo verde), capa intermedia `R.inter` para escalonar siluetas, sin "ruido" de casas en la cordillera de día (solo luces de noche).
+6. Menú Historia: "Nuevo · la historia en la ciudad" (empezar/seguir/reiniciar) sobre los capítulos clásicos.
+7. Pruebas: autotest con 8 capítulos validados; 100 partidas, 0 errores, 0 de consola, todas las capturas; prueba guiada en Chromium (hablar → manejar → volver a Madera; abordar en Madera con ⏩ y bajarse en Acevedo).
+
+##### v0.4.0 (2026-11-17) — ciudad de verdad, cabina real, laderas
+1. Ciudad cenital redibujada por lotes y manzanas (`10-map.js`): tejados unidos, fachadas, sombras, tanques, barrios de ladrillo variados, carros parqueados, árboles de andén, carriles en avenidas, cebras solo en cruces.
+2. `31-cabina.js`: procedimiento de cabina (llave → sentido → señal → tracción; vigilante cada 25–40 s; puertas del lado correcto según el andén; anuncio) con botonera iluminada y Escuela de conducción de 9 pasos (`A:0-2#escuela`).
+3. 3D: sin edificios bajo/encima del viaducto (`G3.railMask`), tablero de concreto con balasto, rieles claros y pretiles.
+4. Panorámica: laderas con barrios (comunas) y monte con ruido de valor, filo iluminado y bruma; de noche las laderas se llenan de luces; fachadas con ventanas/toldos y árboles de primer plano anclados al mundo (antes "saltaban"); título de estación más abajo en horizontal.
+5. Bus: validación Cívica al subir (bip, pasajeros sin saldo que recargan), pasajes en el HUD y en el resumen.
+6. **Corrección importante:** los buses largos se trababan contra esquinas de manzana (casillas de 20 m) al girar y el piloto automático no avanzaba; ahora el corredor de la ruta (±7 m) es transitable (`st.lane` en `38-bus.js`, usado por `Libre.drive`).
+7. Ciudad: perros callejeros y paseados con correa (`Spr.dog`), ladran cuando un vehículo los asusta; no son clientes de taxi.
+8. Pruebas: 100 partidas (0 errores) + 60 partidas con la versión final (0 errores, 0 de consola). `tools/test.mjs` reintenta capturas lentas (SwiftShader tarda en la primera captura de cada modo).
+
+##### v0.3.0 (2026-11-17) — rediseño por retroalimentación del autor
+1. Se abandona el enfoque de minijuegos: el menú ahora son módulos de simulación sobre el mapa; los puzles pasan a "Arcade".
+2. Nuevo `38-bus.js` (simulador cenital de Metroplús/alimentadores) con pasajeros que esperan y abordan, puertas, horario, paradas perdidas, confort, semáforos, choques; rutas se "abren" al completarse.
+3. Metro: vista panorámica 2D por defecto (recuerda la última vista), cabina rediseñada, diagrama de línea, otros trenes en la vía, estaciones con techo/letrero/gente, calle con carros y peatones y fachadas de primer plano.
+4. Sprites nuevos (`21-sprites.js`), cebras, vendedores, Cívica al abordar, guía educativa, reloj configurable.
+5. Correcciones: `#gctl` ocupa toda la pantalla (barras de misión visibles), luces de ventanas cacheadas por trozo, bucle congelable para capturas, pendientes limitadas para buses.
+##### v0.2.0 (2026-11-16)
+Ciudad Libre, Al volante 3D, Metrocable viaje, 3D WebGL, vista lateral, mundo (reloj/clima/fechas), paleta oficial de líneas, pedales/inclinar.
+##### v0.1.0 (2026-11-16)
+Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Metroplús, Cable), La Red, historia, misiones/logros, multijugador local, APK, PWA, bot.
+
+#### Qué falta (prioridad)
+0. **Medellín fiel (Fase 1b):** corregir topografía, relieve y estructuras (viaducto, estaciones, cables, alturas, lugares icónicos) y crear la vista isométrica 2:1.
+1. **Arte "real":** sprites y tiles hechos a mano o generados por IA (ver `docs/PROMPTS-IA.md`), fondos pintados para la panorámica (cerros, Alumbrados), cabina del metro con foto‑referencia, portada/compartir ilustrados.
+2. **Bus:** interiores en parada (cámara que se acerca), pasajeros con destinos, cobro con Cívica, paradas intermedias reales de Metroplús (en la mediana), pico y placa/hora pico, 3D opcional dentro del simulador.
+3. **Metro:** señales en la vía (ATP real), anuncios de voz grabados, interior del tren (pasajeros), tramos nocturnos con Alumbrados, cables desde el metro, escuela también para tranvía (pantógrafo, señales de tranvía).
+4. **Ciudad Libre / historia:** sesión 2 de la historia (Alumbrados, cable Arví, línea J y Comuna 13, Metro de la 80), escenas de corte con los personajes, más NPC (policía de tránsito, ciclistas EnCicla), interiores de estación, retos de tiempo, cooperativo.
+5. **Datos:** alimentadores del sur (Itagüí, Envigado, Sabaneta, Bello) y paraderos exactos; estaciones de Metroplús en la mediana con sus accesos.
+6. **Técnico:** trozos del mapa en Web Worker (hoy ~50 ms por trozo de 640 m al entrar en zona nueva), probar en celulares reales (rendimiento 3D y cenital, WebRTC), modo Bluetooth/“Cerca” nativo en el APK, lector QR JS para iPhone, sonido de motor por vehículo, música por módulo.
+<!-- BITACORA:FIN -->

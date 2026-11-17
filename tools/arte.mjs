@@ -36,17 +36,27 @@ function md(src) {
     if (/^---\s*$/.test(l)) { out.push('<hr>'); i++; continue; }
     if (/^\|/.test(l)) { const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]); const cells = r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim()); let h = '<div class="tw"><table><thead><tr>' + cells(rows[0]).map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead><tbody>'; for (const r of rows.slice(2)) h += '<tr>' + cells(r).map(c => `<td>${inline(c)}</td>`).join('') + '</tr>'; out.push(h + '</tbody></table></div>'); continue; }
     if (/^>\s?/.test(l)) { const buf = []; while (i < L.length && /^>\s?/.test(L[i])) buf.push(L[i++].replace(/^>\s?/, '')); out.push(`<blockquote>${buf.map(inline).join('<br>')}</blockquote>`); continue; }
-    if (/^\s*([-*]|\d+\.)\s/.test(l)) { const ord = /^\s*\d+\./.test(l), buf = []; while (i < L.length && /^\s*([-*]|\d+\.)\s/.test(L[i])) { buf.push(L[i].replace(/^\s*([-*]|\d+\.)\s/, '')); i++; } out.push(`<${ord ? 'ol' : 'ul'}>${buf.map(b => `<li>${inline(b)}</li>`).join('')}</${ord ? 'ol' : 'ul'}>`); continue; }
+    if (/^\s*([-*]|\d+\.)\s/.test(l)) { const ord = /^\s*\d+\./.test(l), items = []; while (i < L.length && /^\s*([-*]|\d+\.)\s/.test(L[i])) { const ind = L[i].match(/^\s*/)[0].length, txt = L[i].replace(/^\s*([-*]|\d+\.)\s/, ''); if (ind >= 2 && items.length) items[items.length - 1].sub.push(txt); else items.push({ txt, sub: [] }); i++; } out.push(`<${ord ? 'ol' : 'ul'}>${items.map(it => `<li>${inline(it.txt)}${it.sub.length ? '<ul>' + it.sub.map(x => `<li>${inline(x)}</li>`).join('') + '</ul>' : ''}</li>`).join('')}</${ord ? 'ol' : 'ul'}>`); continue; }
     if (!l.trim()) { i++; continue; }
     const buf = []; while (i < L.length && L[i].trim() && !/^(#{1,4} |```|\||>|\s*([-*]|\d+\.)\s|---\s*$)/.test(L[i])) buf.push(L[i++]); out.push(`<p>${inline(buf.join(' '))}</p>`); n++;
   }
   return out.join('\n');
 }
+// bitácora → anexo de la guía única (sincronizada) y CONTEXTO-IA.md (contexto + bitácora en un solo archivo para Gems y Proyectos)
+{
+  const gp = path.join(dir, '06-guia-unica-ia.md'), bit = fs.readFileSync(path.join(root, 'docs', 'BITACORA.md'), 'utf8').trim().replace(/^(#{1,4}) /gm, (m, h) => '#'.repeat(Math.min(6, h.length + 2)) + ' ');
+  let g = fs.readFileSync(gp, 'utf8');
+  g = g.replace(/<!-- BITACORA:INICIO -->[\s\S]*?<!-- BITACORA:FIN -->/, `<!-- BITACORA:INICIO -->\n${bit}\n<!-- BITACORA:FIN -->`);
+  fs.writeFileSync(gp, g);
+  const i = g.indexOf('## BLOQUE 1'), a = g.indexOf('```', i), b = g.indexOf('```', a + 3), ctx = g.slice(g.indexOf('\n', a) + 1, b).trim();
+  const out = `# CONTEXTO PARA IA · El Metro\n\n> Archivo para subir como **conocimiento** a un Gem de Gemini o a un **Proyecto** de ChatGPT. Contiene el contexto completo del proyecto (Bloque 1 de la guía única) y la bitácora del juego. El **rol** de cada IA y sus **encargos** están en \`06-guia-unica-ia.md\`.\n\n${ctx}\n\n---\n\n# ANEXO A · BITÁCORA DEL JUEGO\n\n${bit}\n`;
+  fs.writeFileSync(path.join(dir, 'CONTEXTO-IA.md'), out);
+}
 const gal = JSON.parse(fs.readFileSync(path.join(dir, 'galeria.json'), 'utf8'));
 const CAT = { metro: 'Metro (A y B)', cable: 'Metrocable', tranvia: 'Tranvía de Ayacucho', bus: 'Metroplús, alimentadores y busetas', ciudad: 'Ciudad', fiesta: 'Fiestas', cultura: 'Cultura' };
 let galHtml = '<p class="nota">Fotos con licencia libre encontradas con Openverse (Wikimedia Commons y Flickr). Se cargan desde su sitio original; toca una para ver la fuente, el autor y la licencia.</p>';
 for (const c of Object.keys(CAT)) { const L = gal.filter(g => g.cat === c); if (!L.length) continue; galHtml += `<h2>${CAT[c]} <small>(${L.length})</small></h2><div class="grid">` + L.map(g => `<a class="ph" href="${g.fuente}" target="_blank" rel="noopener"><img loading="lazy" referrerpolicy="no-referrer" src="${g.miniatura}" alt="${esc(g.titulo || '')}"><span>${esc(g.titulo || '')}<br><small>${esc(g.autor || 'autor sin nombre')} · ${esc(g.licencia)}</small></span></a>`).join('') + '</div>'; }
-const sections = DOCS.map(([id, t, f]) => `<section id="${id}" class="doc">${md(fs.readFileSync(path.join(dir, f), 'utf8'))}</section>`).join('\n') + `<section id="galeria" class="doc"><h1>Galería de referencia</h1>${galHtml}</section>`;
+const sections = DOCS.map(([id, t, f]) => `<section id="${id}" class="doc">${id === 'guia' ? '<p class="dl"><a href="CONTEXTO-IA.md" download>⬇ Descargar CONTEXTO-IA.md</a> · contexto completo + bitácora, para subir a un Gem de Gemini o a un Proyecto de ChatGPT</p>' : ''}${md(fs.readFileSync(path.join(dir, f), 'utf8').replace(/<!--[\s\S]*?-->/g, ''))}</section>`).join('\n') + `<section id="galeria" class="doc"><h1>Galería de referencia</h1>${galHtml}</section>`;
 const nav = DOCS.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('') + '<a href="#galeria">Galería</a>';
 const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>El Metro · Carpeta de arte</title><meta name="robots" content="noindex">
 <style>
@@ -64,7 +74,7 @@ blockquote{margin:12px 0;padding:8px 12px;background:var(--crema);border-left:6p
 .pre{position:relative;margin:12px 0}pre{background:#0f2a45;color:#f1ece0;padding:12px;padding-top:34px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);white-space:pre-wrap;word-break:break-word;font-size:13px}
 .cp{position:absolute;right:8px;top:6px;border:2px solid var(--negro);background:var(--mante);font-weight:800;font-size:12px;padding:3px 10px;cursor:pointer}.cp.ok{background:var(--lT);color:#fff}
 .sw{display:inline-block;width:.9em;height:.9em;border:1px solid var(--negro);vertical-align:-1px;margin-right:3px;border-radius:2px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.ph{display:block;background:var(--crema);border:2px solid var(--negro);text-decoration:none;color:var(--negro);box-shadow:3px 3px 0 var(--negro)}.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}.ph span{display:block;padding:5px 7px;font-size:12px;line-height:1.3}.ph small{opacity:.7}.nota{font-size:14px;background:var(--crema);padding:8px;border:2px dashed var(--negro)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.ph{display:block;background:var(--crema);border:2px solid var(--negro);text-decoration:none;color:var(--negro);box-shadow:3px 3px 0 var(--negro)}.ph img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#ddd}.ph span{display:block;padding:5px 7px;font-size:12px;line-height:1.3}.ph small{opacity:.7}.dl{background:var(--lT);color:#fff;padding:8px 10px;border:3px solid var(--negro);box-shadow:4px 4px 0 var(--negro);font-size:14px}.dl a{color:#fff;font-weight:800}.nota{font-size:14px;background:var(--crema);padding:8px;border:2px dashed var(--negro)}
 </style></head><body><header><h1>El Metro · Carpeta de arte</h1><div class="band"></div><nav>${nav}</nav></header><main>${sections}</main>
 <script>
 const show=()=>{const id=decodeURIComponent((location.hash||'#inicio').slice(1)),sec=document.getElementById(id)||document.querySelector(id?'[id="'+id+'"]':'#inicio');let doc=sec&&sec.closest('.doc');if(!doc)doc=document.getElementById('inicio');document.querySelectorAll('.doc').forEach(d=>d.classList.toggle('on',d===doc));document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+doc.id));setTimeout(()=>{if(sec&&sec!==doc)sec.scrollIntoView();else scrollTo(0,0);const a=document.querySelector('nav a.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'});},0);};

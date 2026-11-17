@@ -10,13 +10,14 @@ Investigación visual y guía de producción para llevar *El Metro* a un **mundo
 | [`03-historia-metro-y-medellin.md`](03-historia-metro-y-medellin.md) | Cronología del Metro (1995–hoy, con fuentes), historia de la ciudad e ideas para el juego |
 | [`04-folklore-y-fiestas.md`](04-folklore-y-fiestas.md) | Fiestas, mitos, arriería, música, comida, habla paisa, **calendario del juego** y paletas culturales |
 | [`05-diseno-mundo-abierto-arcade.md`](05-diseno-mundo-abierto-arcade.md) | **Diseño del juego**: fantasía, mundo, bucles, cámaras, capa arcade, eventos en el mundo, progresión e integración al código |
-| [`06-guia-unica-ia.md`](06-guia-unica-ia.md) | **GUÍA ÚNICA DE PROMPTS para Gemini Nano Banana, ChatGPT y Midjourney**: Bloque 1 con el contexto completo (para todas las IA), Bloque 2 con el rol de cada una (solo hace su parte), Bloque 3 con los encargos G‑, C‑ y M‑, Bloque 4 con correcciones y Bloque 5 con la entrega |
+| [`06-guia-unica-ia.md`](06-guia-unica-ia.md) | **GUÍA ÚNICA DE PROMPTS para Gemini Nano Banana y ChatGPT**: misión, visión, estado y contexto completo para las dos IA; el rol de cada una (solo hace su parte); encargos G‑ y C‑; correcciones; entrega; y la **bitácora del juego como anexo** |
+| [`CONTEXTO-IA.md`](CONTEXTO-IA.md) | Contexto completo más la bitácora en **un solo archivo**, para subir como conocimiento a un Gem de Gemini o a un Proyecto de ChatGPT. Lo genera `node tools/arte.mjs` |
 | [`08-entregas-e-integracion.md`](08-entregas-e-integracion.md) | Orden de producción, carpetas, nombres, cómo entregar y cómo se integra |
 | [`index.html`](index.html) (Galería) · [`galeria.md`](galeria.md) · `galeria.json` | **71 fotos de referencia con licencia libre** (metro, cables, tranvía, buses, ciudad, fiestas y cultura), con autor y licencia. Se enlazan, no se copiaron |
 
 **Flujo:**
 1. Leer la biblia.
 2. Hacer el ancla de estilo en Gemini.
-3. Producir con la guía única (06): cada IA recibe el contexto completo y su rol.
+3. Producir con la guía única (06): cada IA (Gemini y ChatGPT) recibe el contexto completo y su rol.
 4. Entregar según la guía 08.
 5. Yo lo integro, lo pruebo y lo publico.

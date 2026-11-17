@@ -1,6 +1,6 @@
 # 00 · Biblia de estilo de *El Metro*
 
-> Las reglas visuales que debe cumplir **todo** el arte, lo haga una persona, Gemini, ChatGPT o Midjourney. Si una imagen no cumple esto, no entra al juego.
+> Las reglas visuales que debe cumplir **todo** el arte, lo haga una persona, Gemini o ChatGPT. Si una imagen no cumple esto, no entra al juego.
 
 ## 1. Concepto en una frase
 **“Medellín de verdad, dibujada con cariño”**:
