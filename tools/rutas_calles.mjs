@@ -11,7 +11,9 @@ const RUTAS = JSON.parse(fs.readFileSync(path.join(root, 'src/data/rutas.js'), '
 const RED = JSON.parse(fs.readFileSync(path.join(root, 'src/data/red.js'), 'utf8').match(/const RED = (\{[\s\S]*?\});\s*\n/)[1]);
 const VM = JSON.parse(fs.readFileSync(path.join(root, 'src/data/valle.js'), 'utf8').match(/const VALLE_META = (\{.*?\});\n/s)[1]);
 const TM = 20, U = VIAS.u, geo = (lat, lon) => [(lon - VM.lon0) * VM.kx * TM, (VM.latN - lat) * VM.ky * TM];
-const paradas = {}; for (const l of RED.lines) if (l.stations && (l.kind === 'brt' || l.kind === 'feeder')) paradas[l.id] = l.stations.map(([n, la, lo]) => geo(la, lo));
+// Metroplús: cada parada en su andén real (src/data/metroplus_andenes.js, de tools/metroplus_andenes.py) cuando se conoce
+const ANDENES = fs.existsSync(path.join(root, 'src/data/metroplus_andenes.js')) ? JSON.parse(fs.readFileSync(path.join(root, 'src/data/metroplus_andenes.js'), 'utf8').match(/const MP_ANDENES = (\{.*\});/s)[1]) : {};
+const paradas = {}; for (const l of RED.lines) if (l.stations && (l.kind === 'brt' || l.kind === 'feeder')) paradas[l.id] = l.stations.map(([n, la, lo]) => (ANDENES[l.id] && ANDENES[l.id][n]) || geo(la, lo));
 // ---------- 1. vías vehiculares en metros ----------
 const b = zlib.inflateRawSync(Buffer.from(VIAS.d, 'base64')); let o = 0, px = 0, py = 0;
 const rv = () => { let v = 0, sh = 0, c; do { c = b[o++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; }, uz = v => v % 2 ? -(v + 1) / 2 : v / 2;

@@ -90,6 +90,34 @@ const BotT = EM.test = {
         let n = 0, f = 0, nmp = 0, fmp = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); if (l.kind === 'feeder') { n++; if (!asfalto(q.x, q.y, 4)) f++; } else { nmp++; if (VC.solid(q.x, q.y, 1)) fmp++; } } }
         if (n && f / n > .06) E('alimentadores: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
         if (nmp && fmp) E('Metroplús: ' + fmp + ' puntos de su carril quedaron dentro de un edificio o del agua');
+        // Metroplús (1.3.0): cada estación sobre su línea, cerca de su andén real (las terminales pueden quedar más lejos) y fuera de los edificios
+        for (const l of NET.lines) { if (l.kind !== 'brt') continue; if (l.st.length < 8) E(l.id + ': solo ' + l.st.length + ' estaciones');
+          for (const s of l.st) { if (NET.project(l.P, s.x, s.y).d > 1) E(l.id + ': ' + s.name + ' no está sobre su línea'); const d = Math.hypot(s.ox - s.x, s.oy - s.y); if (d >= 45) Wn(l.id + ': ' + s.name + ' (terminal) quedó a ' + Math.round(d) + ' m de su andén real'); if (VC.solid(s.x, s.y, .5)) E(l.id + ': la estación ' + s.name + ' quedó dentro de un edificio'); } }
+        // puentes y niveles (1.3.0): cargados, con su calle encima, pilas sólidas; por la rampa se sube, por la mitad se pasa por debajo y la baranda no deja caer
+        if (typeof PUENTES !== 'undefined') {
+          if (!VC.PU || VC.PU.length < 1500) E('puentes: solo ' + (VC.PU ? VC.PU.length : 0) + ' (deben ser más de 1.500)'); else {
+            const npz = VC.ch.filter(c => c.pz).length; if (npz < 500) E('puentes: solo ' + npz + ' calles pasan por un puente');
+            const B = VC.PU.filter(q => !q.pe && q.h >= 5 && q.len >= 80 && q.pil.length >= 2).sort((a, b) => b.len - a.len)[0];
+            if (!B) E('puentes: ningún puente vehicular alto'); else {
+              if (!VC.solid(B.pil[0], B.pil[1], .3)) E('puentes: las pilas no se chocan');
+              const Lb = EM.modes.libre, a = VC.puAt(B, 1), m = VC.puAt(B, B.len / 2), no = () => false;
+              const r1 = Lb.nivel({ x: a.x - a.ux, y: a.y - a.uy, z: 0 }, a.x, a.y, no, true); if (!r1[0] || r1[1] !== B.z) E('niveles: por la rampa no se sube al puente');
+              const r2 = Lb.nivel({ x: m.x + m.uy * 30, y: m.y - m.ux * 30, z: 0 }, m.x, m.y, no, true); if (!r2[0] || r2[1] !== 0) E('niveles: por debajo de la mitad del puente no se pasa');
+              const r3 = Lb.nivel({ x: m.x, y: m.y, z: B.z }, m.x - m.uy * (B.w / 2 + 1.5), m.y + m.ux * (B.w / 2 + 1.5), no, true); if (r3[0]) E('niveles: desde lo alto del puente se cae por la baranda');
+            }
+          }
+          // viaducto: entre columnas se pasa por debajo (y el jugador se ve a través del tablero); las columnas fuera de la calle sí se chocan
+          const lA = NET.lines.find(l => l.id === 'A'); if (lA) { let n = 0, mal = 0, nc = 0, mc = 0;
+            for (let t = 615; t < lA.P.len - 600; t += 300) { if (lA.st.some(s => Math.abs(s.s - t) < 120)) continue; const q = NET.at(lA.P, t); n++; if (VC.enBase(q.x, q.y, .3) || !VC.tapado(q.x, q.y)) mal++; const c = NET.at(lA.P, t - 15); if (!VC.enSegs(VC.segsCerca(c.x, c.y, 1), c.x, c.y)) { nc++; if (!VC.enBase(c.x, c.y, .3)) mc++; } }
+            if (mal) E('viaducto: en ' + mal + ' de ' + n + ' puntos no se pasa por debajo'); if (mc) E('viaducto: ' + mc + ' de ' + nc + ' columnas no se chocan'); }
+          // estaciones del metro: la calle que pasa por debajo (Bolívar en el Centro, la 80 en Floresta) queda libre
+          let na = 0, ba = 0; for (const l of NET.lines) { if (l.kind !== 'metro') continue; for (const s of l.st) { const pl = KIND.metro.plat, s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl));
+            for (let t = s0 + 22; t <= s0 + pl - 22; t += 3) for (let o = -10; o <= 10; o += 2.5) { const q = NET.at(l.P, t, o); if (!asfalto(q.x, q.y)) continue; na++; if (VC.enBase(q.x, q.y, .3)) ba++; } } }
+          if (na > 200 && ba / na > .03) E('estaciones del metro: ' + (ba / na * 100).toFixed(1) + ' % de la calle que pasa por debajo quedó tapada'); else if (na > 200 && ba / na > .01) Wn('estaciones del metro: ' + (ba / na * 100).toFixed(1) + ' % de la calle de abajo tocada por un acceso');
+        }
+        // cámara (1.3.0): tres ángulos distintos y el del guardado aplicado
+        if (!VC.ANGULOS || VC.ANGULOS.length < 3 || new Set(VC.ANGULOS.map(A => A.ob)).size !== VC.ANGULOS.length) E('cámara: faltan ángulos');
+        else if (VC.ob !== VC.ANGULOS[clamp(Save.d.settings.angulo | 0, 0, VC.ANGULOS.length - 1)].ob) E('cámara: el ángulo guardado no se aplicó');
         // arquitectura icónica: cargada, sin edificios genéricos encima y sólida (las plazas se caminan)
         if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
         for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
@@ -110,7 +138,7 @@ const BotT = EM.test = {
         }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {

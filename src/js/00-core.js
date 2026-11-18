@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '1.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '1.3.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -49,7 +49,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido' } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0 } };
 }
 const Save = EM.save = {
   d: null,

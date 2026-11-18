@@ -25,7 +25,9 @@ const VC = EM.vcity = {
       for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) { const key = gx * 4096 + gy; let a = this.cg.get(key); if (!a) this.cg.set(key, a = []); a.push(i); }
     }
     if (this.hitosInit) this.hitosInit();
+    if (this.puentesInit) this.puentesInit();
     if (this.edifInit) await this.edifInit();
+    if (this.angulo && Save.d && Save.d.settings && Save.d.settings.angulo) this.angulo(Save.d.settings.angulo);   // ángulo de cámara guardado
     this.on = true;
   },
   near(x0, y0, x1, y1) { const out = new Set(); for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) for (const i of this.cg.get(gx * 4096 + gy) || []) out.add(i); return [...out].map(i => this.ch[i]); },
@@ -51,7 +53,8 @@ const VC = EM.vcity = {
       for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * DR, py = Y0 + (gy + .5) * DR, t = clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0, 1), d = Math.hypot(ax + dx * t - px, ay + dy * t - py), j = gy * DN + gx; if (d < dirD[j]) { dirD[j] = d; dirA[j] = an; } }
     };
     const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ), asf = new Uint8Array(NG * NG);
-    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k <= 4 || c.k === 6 || c.k === 7) { const o2 = occ; occ = asf; stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], Math.max(1, c.w / 2 + (c.k <= 4 ? 1.3 : .3)), c.k <= 4 ? 2 : 1); occ = o2; } if (c.k !== 3 && c.k !== 5 && !this.ED) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }   // el campo de direcciones solo hace falta para generar casas
+    for (const c of cs) { const r = this.hw(c), P = c.P; if (c.pz) for (const Q of this.partes(c)) for (let i = 2; i < Q.length; i += 2) stampSeg(Q[i - 2], Q[i - 1], Q[i], Q[i + 1], r, 1);
+      for (let i = 2; i < P.length; i += 2) { if (!c.pz) stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k <= 4 || c.k === 6 || c.k === 7) { const o2 = occ; occ = asf; stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], Math.max(1, c.w / 2 + (c.k <= 4 ? 1.3 : .3)), c.k <= 4 ? 2 : 1); occ = o2; } if (c.k !== 3 && c.k !== 5 && !this.ED) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }   // el campo de direcciones solo hace falta para generar casas
     // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
     if (typeof NET !== 'undefined') for (const l of NET.lines) {
       if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
@@ -134,6 +137,7 @@ const VC = EM.vcity = {
     const Rg = this.regionAt(x, y), k = Math.floor(x / 40) * 8192 + Math.floor(y / 40);
     for (const i of Rg.bins.get(k) || []) { const b = (Rg.fis || Rg.bs)[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (b.k === 10) continue; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r && (!b.P || this.enPol(b.P, x, y, r))) return true; }
     for (const H of Rg.hitos) if (this.dentroH(H, x, y)) return true;
+    if (this.enBase && this.enBase(x, y, r)) return true;
     const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); if (v === TT.WATER || v === TT.CANAL) { const gx = Math.floor((x - Rg.X0) / Rg.RES), gy = Math.floor((y - Rg.Y0) / Rg.RES); return !(gx >= 0 && gy >= 0 && gx < Rg.NG && gy < Rg.NG && Rg.occ[gy * Rg.NG + gx] === 1); }
     return false;
   },
@@ -166,8 +170,8 @@ const VC = EM.vcity = {
   pos: new Map(),
   postes(cx, cy) {
     const key = cx * 4096 + cy; let r = this.pos.get(key); if (r) return r; r = []; const R = 320, x0 = cx * R, y0 = cy * R;
-    for (const c of this.near(x0, y0, x0 + R, y0 + R)) { if (c.k > 4 || (c.k === 1 && c.i % 3)) continue; const P = c.P, paso = c.k === 2 || c.k === 3 ? 32 : 45; let acc = h2(c.i, 1, 7) * paso, lado = 1;
-      for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1; for (let t = paso - acc; t < L; t += paso) { const o = (c.w / 2 + .8) * lado, x = ax + dx * t / L - dy / L * o, y = ay + dy * t / L + dx / L * o; if (x >= x0 && x < x0 + R && y >= y0 && y < y0 + R) r.push(x, y); lado = -lado; } acc = (acc + L) % paso; } }
+    for (const c of this.near(x0, y0, x0 + R, y0 + R)) { if (c.k > 4 || (c.k === 1 && c.i % 3)) continue; for (const P of this.partes(c)) { const paso = c.k === 2 || c.k === 3 ? 32 : 45; let acc = h2(c.i, 1, 7) * paso, lado = 1;
+      for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1; for (let t = paso - acc; t < L; t += paso) { const o = (c.w / 2 + .8) * lado, x = ax + dx * t / L - dy / L * o, y = ay + dy * t / L + dx / L * o; if (x >= x0 && x < x0 + R && y >= y0 && y < y0 + R) r.push(x, y); lado = -lado; } acc = (acc + L) % paso; } } }
     this.pos.set(key, r); while (this.pos.size > 60) this.pos.delete(this.pos.keys().next().value); return r;
   },
   /* halo de luz cálida (una sola imagen que se reusa en cada poste) */
@@ -176,7 +180,7 @@ const VC = EM.vcity = {
   calle(x, y) { let best = null, bd = 14; for (const c of this.near(x - 14, y - 14, x + 14, y + 14)) { if (!c.nm || c.k === 5) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y) - c.w / 2; if (d < bd) { bd = d; best = c; } } } return best ? VIAS.nombres[best.nm - 1] : ''; },
   /* un punto de andén (o de calle peatonal) cerca de (x, y): para que la gente camine por las aceras dibujadas */
   acera(x, y, rnd) {
-    let best = null, bd = 32; for (const c of this.near(x - 32, y - 32, x + 32, y + 32)) { if (c.k === 3 || c.k === 5 || c.k === 7) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (d < bd) { bd = d; best = [c, i, t]; } } }
+    let best = null, bd = 32; for (const c of this.near(x - 32, y - 32, x + 32, y + 32)) { if (c.k === 3 || c.k === 5 || c.k === 7) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { if (c.pz && c.pz.has(i / 2)) continue; const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (d < bd) { bd = d; best = [c, i, t]; } } }
     if (!best) return null; const [c, i, t] = best, P = c.P, ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1, sd = rnd() < .5 ? -1 : 1, off = c.k === 6 ? (rnd() - .5) * c.w * .6 : (c.w / 2 + 1.25) * sd;
     const q = { x: ax + dx * t - dy / L * off, y: ay + dy * t + dx / L * off, a: Math.atan2(dy, dx) + (sd < 0 ? Math.PI : 0) }; return this.solid(q.x, q.y, .3) ? null : q;
   },
@@ -223,6 +227,7 @@ const VC = EM.vcity = {
     if (L.d < 2 && this.suelosEsp) this.suelosEsp(g, X0, Y0, S + 2 / sc, sc, L.d);
     this.calles(g, X0, Y0, S + 2 / sc, sc, L.d);
     if (L.d < 2) this.estructuras(g, X0, Y0, S + 2 / sc, sc, L.d, c);
+    if (L.d < 2 && this.PG) { const I = (x, y) => ({ x, y }); for (const z of [1, 2, 3]) this.puentesDib(g, I, sc, X0, Y0, X0 + S + 2 / sc, Y0 + S + 2 / sc, z); }
     g.setTransform(1, 0, 0, 1, 0, 0);
     return c;
   },
@@ -293,7 +298,7 @@ const VC = EM.vcity = {
   /* calles: sardinel, andén, asfalto, carriles y cebras */
   calles(g, X0, Y0, S, sc, lod) {
     const cs = this.near(X0 - 40, Y0 - 40, X0 + S + 40, Y0 + S + 40), path = P => { g.moveTo(P[0], P[1]); for (let i = 2; i < P.length; i += 2) g.lineTo(P[i], P[i + 1]); };
-    const run = (f, wf, col, dash) => { g.strokeStyle = col; g.setLineDash(dash || []); for (const c of cs) { if (!f(c)) continue; g.lineWidth = wf(c); g.beginPath(); path(c.P); g.stroke(); } g.setLineDash([]); };
+    const run = (f, wf, col, dash) => { g.strokeStyle = col; g.setLineDash(dash || []); for (const c of cs) { if (!f(c)) continue; g.lineWidth = wf(c); g.beginPath(); for (const Q of this.partes(c)) path(Q); g.stroke(); } g.setLineDash([]); };
     g.lineJoin = 'round'; g.lineCap = 'round';
     const veh = c => c.k <= 4, urb = c => c.k === 1 || c.k === 2 || c.k === 4;
     if (lod < 2) {
@@ -315,10 +320,11 @@ const VC = EM.vcity = {
       if (!veh(c) || c.P.length < 4) continue;
       if (c.k === 2 || c.k === 3) {
         const nl = Math.max(2, Math.round(c.w / 3.5)); g.strokeStyle = '#efede5'; g.lineWidth = .22;
-        for (const s of [-1, 1]) { g.beginPath(); path(this.offset(c.P, s * (c.w / 2 - .5))); g.stroke(); }
-        g.setLineDash([3, 5]); for (let i = 1; i < nl; i++) { g.beginPath(); path(this.offset(c.P, -c.w / 2 + i * c.w / nl)); g.stroke(); } g.setLineDash([]);
-        if (c.k === 3) { g.strokeStyle = '#e8c64a'; g.lineWidth = .25; g.beginPath(); path(this.offset(c.P, -(c.w / 2 - .9))); g.stroke(); }
-      } else if (c.k === 4 || c.w >= 8) { g.strokeStyle = c.k === 4 ? '#e8c64a' : '#e7e5dd'; g.lineWidth = .2; g.setLineDash(c.k === 4 ? [] : [2.5, 4]); g.beginPath(); path(c.P); g.stroke(); g.setLineDash([]); }
+        for (const Q of this.partes(c)) { if (Q.length < 4) continue;
+          for (const s of [-1, 1]) { g.beginPath(); path(this.offset(Q, s * (c.w / 2 - .5))); g.stroke(); }
+          g.setLineDash([3, 5]); for (let i = 1; i < nl; i++) { g.beginPath(); path(this.offset(Q, -c.w / 2 + i * c.w / nl)); g.stroke(); } g.setLineDash([]);
+          if (c.k === 3) { g.strokeStyle = '#e8c64a'; g.lineWidth = .25; g.beginPath(); path(this.offset(Q, -(c.w / 2 - .9))); g.stroke(); g.strokeStyle = '#efede5'; g.lineWidth = .22; } }
+      } else if (c.k === 4 || c.w >= 8) { g.strokeStyle = c.k === 4 ? '#e8c64a' : '#e7e5dd'; g.lineWidth = .2; g.setLineDash(c.k === 4 ? [] : [2.5, 4]); g.beginPath(); for (const Q of this.partes(c)) path(Q); g.stroke(); g.setLineDash([]); }
     }
     // cebras en los cruces con semáforo (VM.lights): a lado y lado del cruce, de borde a borde de cada calle
     if (lod === 0 && VM.lights) {
@@ -337,9 +343,13 @@ const VC = EM.vcity = {
   },
   /* casas, edificios y árboles de las regiones que tocan el trozo (con su volumen hacia arriba) */
   estructuras(g, X0, Y0, S, sc, lod, cv) {
-    const ob = this.ob, top = 150 * ob, rs = []; for (let ry = Math.floor((Y0 - 30) / this.R); ry <= Math.floor((Y0 + S + top + 30) / this.R); ry++) for (let rx = Math.floor((X0 - 30) / this.R); rx <= Math.floor((X0 + S + 30) / this.R); rx++) rs.push(this.region(rx, ry));
+    // de lejos (lod 1) con datos reales no se arma la región entera (física, recorte, árboles): basta con las huellas
+    // leídas del binario, sin las que caen en la calle; los árboles salen de las casillas. Así un trozo de 640 m cuesta poco.
+    const ob = this.ob, top = 150 * ob, rs = [], lejos = lod === 1 && !!this.ED, L1 = [];
+    for (let ry = Math.floor((Y0 - 30) / this.R); ry <= Math.floor((Y0 + S + top + 30) / this.R); ry++) for (let rx = Math.floor((X0 - 30) / this.R); rx <= Math.floor((X0 + S + 30) / this.R); rx++) { if (!lejos) { rs.push(this.region(rx, ry)); continue; } const Rg = this.reg.get(rx * 4096 + ry); if (Rg) rs.push(Rg); else L1.push(this.edifDe(rx, ry)); }
     const vis = b => { const r = b.hw + b.hd; return b.x + r > X0 - 4 && b.x - r < X0 + S + 4 && b.y + r > Y0 - 4 && b.y - r - b.h * ob < Y0 + S + 4; };
     const B = []; for (const Rg of rs) for (const b of Rg.bs) if (vis(b)) B.push(b);
+    for (const L of L1) for (const b of L) { if (b.rec === false || !vis(b)) continue; if (b.rec === undefined && this.enSegs(this.segsCerca(b.x, b.y, 1), b.x, b.y)) continue; B.push(b); }
     const HS = this.HT ? this.hitosEn(X0 - 30, Y0 - 30, X0 + S + 30, Y0 + S + 190 * ob) : [];
     for (const H of HS) this.hitoSuelo(g, H, lod, cv);   // plazas y parques especiales, a ras de piso
     for (const H of HS) B.push({ hito: H, ym: H.y1, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
@@ -347,10 +357,11 @@ const VC = EM.vcity = {
     // sombras (sol de la tarde): una sola pasada, debajo de todo
     g.fillStyle = 'rgba(16,22,34,.24)'; g.beginPath();
     for (const H of HS) if (!H.libre) this.sombra(g, H);
-    for (const b of B) if (!b.hito) this.sombraEd(g, b, lod === 1);
+    for (const b of B) if (!b.hito && (lod !== 1 || b.h > 4.5)) this.sombraEd(g, b, lod === 1);   // de lejos, la sombra de una casa de un piso no alcanza un píxel
     g.fill();
     // árboles bajos antes que los edificios del frente
     const T = []; for (const Rg of rs) for (let i = 0; i < Rg.trees.length; i += 4) { const x = Rg.trees[i], y = Rg.trees[i + 1]; if (x > X0 - 6 && x < X0 + S + 6 && y > Y0 - 6 && y < Y0 + S + 10) T.push(Rg.trees, i); }
+    if (L1.length) { const A = this.arbolesLejos(X0, Y0, S, B); for (let i = 0; i < A.length; i += 4) T.push(A, i); }
     g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i] + A[i + 2] * .5, y = A[i + 1] + A[i + 2] * .35, r = A[i + 2]; g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU); } g.fill();   // sombras de todos los árboles, en una pasada
     if (lod === 1) this.edifLejos(g, B, ob, cv);   // de lejos: casas en lote por color, edificios uno por uno
     else for (const b of B) { if (b.hito) this.hito(g, b.hito, lod, cv); else this.dibEd(g, b, sc); }
@@ -360,6 +371,14 @@ const VC = EM.vcity = {
       ['#2f5b2f', '#4f8a45', '#f0c13a', '#e78bb8'].forEach((c, i) => { g.fillStyle = c; g.fill(cop[i]); }); }
     // luces de ventanas para la noche (capa aparte, se arma cuando hace falta)
     cv.lights = (cv.lights || []).concat(B.filter(b => !b.hito && b.h > 6 && b.s > .3).map(b => [b.x, b.y - b.h * ob * .5, b.hw, b.h])); cv.X0 = X0; cv.Y0 = Y0; cv.sc = sc;
+  },
+  /* árboles de lejos sin armar la región: parques y, en las manzanas, según la zona (van debajo de los edificios) */
+  arbolesLejos(X0, Y0, S, B) {
+    const out = [], DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 }, C = 4, N = Math.ceil(S / C) + 2, oc = new Uint8Array(N * N);
+    for (const b of B) { if (b.hito) continue; const r = Math.max(b.hw, b.hd) + .5, i0 = Math.max(0, Math.floor((b.x - r - X0) / C)), i1 = Math.min(N - 1, Math.floor((b.x + r - X0) / C)), j0 = Math.max(0, Math.floor((b.y - r - Y0) / C)), j1 = Math.min(N - 1, Math.floor((b.y + r - Y0) / C)); for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) oc[j * N + i] = 1; }
+    for (let y = Math.floor(Y0 / 9) * 9 + 4; y < Y0 + S; y += 9) for (let x = Math.floor(X0 / 9) * 9 + 4; x < X0 + S; x += 9) { const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); let p = v === TT.GRASS ? .5 : v === TT.PLAZA ? .12 : (v === TT.BRICK || v === TT.BLDG) ? DENS[this.zona(x, y)] || .04 : 0;
+      if (!p || h2(x, y, 21) >= p) continue; const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6, gi = Math.floor((jx - X0) / C), gj = Math.floor((jy - Y0) / C); if (gi >= 0 && gj >= 0 && gi < N && gj < N && oc[gj * N + gi]) continue; out.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); }
+    return out;
   },
   luces(c) {
     if (c.lightCv) return c.lightCv; const n = c.width, lc = mkCanvas(n, n), g = lc.getContext('2d'); g.setTransform(c.sc, 0, 0, c.sc, -c.X0 * c.sc, -c.Y0 * c.sc);

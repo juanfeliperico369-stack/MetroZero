@@ -59,7 +59,11 @@ const NET = EM.netw = {
         pts = R ? R.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []) : q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
       }
       if (!st) st = (L.stations || []).map(([n, la, lo]) => Object.assign({ name: n }, geoM(la, lo)));
+      // Metroplús: cada estación en el centro de su andén real (src/data/metroplus_andenes.js), no donde apuntaba la parada de la relación
+      if (k === 'brt' && typeof MP_ANDENES !== 'undefined' && MP_ANDENES[L.id]) for (const s of st) { const q = MP_ANDENES[L.id][s.name]; if (q) { s.x = q[0]; s.y = q[1]; } }
       // Metroplús: su corredor real por el carril exclusivo (src/data/metroplus.js)
+      // la Línea O va en tráfico mixto: por las calles dibujadas, pasando por cada andén (src/data/rutas_calles.js)
+      if (!pts && L.id === 'MPO' && typeof RUTAS_CALLES !== 'undefined' && RUTAS_CALLES[L.id]) pts = RUTAS_CALLES[L.id].reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       if (!pts && k === 'brt' && typeof METROPLUS !== 'undefined' && METROPLUS[L.id]) pts = METROPLUS[L.id].p.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       // buses: el recorrido rehecho sobre las calles dibujadas (src/data/rutas_calles.js); si falta, el de casillas (RUTAS)
       if (!pts && typeof RUTAS_CALLES !== 'undefined' && RUTAS_CALLES[L.id]) pts = RUTAS_CALLES[L.id].reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
@@ -76,6 +80,8 @@ const NET = EM.netw = {
       }
       // cada estación queda SOBRE su línea (el andén se centra en la vía y los rieles entran y salen por sus extremos)
       line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y), on = k !== 'cable' && k !== 'future' ? this.at(line.P, pr.s) : s; return { name: s.name, x: on.x, y: on.y, ox: s.x, oy: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
+      // un andén de Metroplús que este sentido del corredor no toca (calles de un solo sentido) no es parada de esta línea en el juego
+      if (k === 'brt') line.st = line.st.filter((s, i, A) => i === 0 || i === A.length - 1 || Math.hypot(s.ox - s.x, s.oy - s.y) < 45).map((s, i) => Object.assign(s, { i }));
       line.st.forEach((s, i) => s.i = i);
       if (line.st.length < 2) continue;
       line.km = line.km || +(line.P.len / 1000).toFixed(1);

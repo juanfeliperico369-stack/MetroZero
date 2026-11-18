@@ -220,6 +220,11 @@ textarea.code{width:100%;min-height:64px;border:1px solid var(--linea);border-ra
 .jobbar.trama b{font-size:16px}
 #game .vsel button#lbRun.on{background:var(--lJ)}
 #game .vsel button#lbFF.on{background:var(--lT);color:#fff}
+#game .vsel button#lbCam.on{background:var(--lA);color:#fff}
+.campanel{position:fixed;right:8px;top:calc(110px + var(--sat));display:flex;gap:6px;z-index:4}
+.campanel.hide{display:none}
+.campanel button{min-width:46px;height:44px;padding:0 8px;border-radius:12px;background:var(--anden);color:var(--tinta);font-weight:800;font-size:18px;box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.campanel button small{font-size:9px;font-weight:700;margin-top:2px}
 /* ---------- guía ---------- */
 .guia-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
 .guia-tabs button{border-radius:999px;background:var(--anden);padding:7px 13px;font-weight:800;font-size:13px;box-shadow:0 1px 0 var(--linea)}

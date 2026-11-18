@@ -119,15 +119,21 @@ const Bus = EM.modes.bus = {
     // ruta: carril exclusivo o recorrido del alimentador
     g.strokeStyle = st.kind === 'metroplus' ? 'rgba(14,111,118,.45)' : line.color + '66'; g.lineWidth = (st.kind === 'metroplus' ? 7 : 5) * k; g.lineJoin = 'round'; g.beginPath(); let on = false; for (const p of line.P.pts) { if (p.x < x0 - 200 || p.x > x1 + 200 || p.y < y0 - 200 || p.y > y1 + 200) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.stroke();
     if (st.kind === 'metroplus') { g.setLineDash([3 * k, 3 * k]); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, .3 * k); g.stroke(); g.setLineDash([]); }
-    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1); Ciudad.marksDraw(g, S, k);
+    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.marksDraw(g, S, k);
     // paradas de esta ruta: zona de parada, caseta y nombre
     for (let i = 0; i < st.stops.length; i++) { const s = st.stopS[i], q0 = this.stopPos(line, s, st.dir, st.kind), q = S(q0.x, q0.y); if (q.x < -80 || q.y < -80 || q.x > W + 80 || q.y > H + 80) continue; const cur = i === st.ni; g.save(); g.translate(q.x, q.y); g.rotate(q0.a); g.fillStyle = cur ? 'rgba(246,197,56,.35)' : 'rgba(255,255,255,.12)'; g.fillRect(-15 * k, -(st.kind === 'metroplus' ? 2 : 1) * k - 4.5 * k, 30 * k, 4 * k); g.fillStyle = PAL.negro; g.fillRect(-3 * k, -2.2 * k, 6 * k, 2.2 * k); g.fillStyle = cur ? PAL.mostaza : line.color; g.fillRect(-2.7 * k, -2 * k, 5.4 * k, 1.6 * k); g.restore(); const nm = line.st[st.stops[i]].name; g.font = '700 ' + Math.max(10, Math.min(15, k * 7)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.92)'; g.strokeText(nm, q.x, q.y - 9 * k); g.fillStyle = cur ? '#8a5d00' : PAL.negro; g.fillText(nm, q.x, q.y - 9 * k); g.textAlign = 'left'; }
-    Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1); Ciudad.vendorsDraw(g, S, k, sh, x0, y0, x1, y1);
-    for (const c of Ciudad.cars) Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, S, k, sh, night, true);
+    Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.vendorsDraw(g, S, k, sh, x0, y0, x1, y1);
+    // por niveles, como en Ciudad Libre: lo de abajo, los puentes con lo que va encima, el viaducto y los cables
+    const ob = VC.ob, SZ = h => h ? (x, y) => S(x, y - h * ob) : S, altos = [];
+    for (const c of Ciudad.cars) { const h = VC.PG ? VC.carAlto(c) : 0, Sc = SZ(h), f = () => Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); if (h > .4) altos.push([c.z || 1, f]); else f(); }
     for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) Ciudad.ped(g, p, S, k, sh);
-    // el bus del jugador (articulado: dos secciones)
-    if (st.kind === 'metroplus') { Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'brt', S, k, sh, night, true, { doors: 'left', sign: 1 }); }
-    else Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'feeder', S, k, sh, night, true, { doors: 'right', sign: 1 });
+    // el bus del jugador (articulado: dos secciones), en el puente si su recorrido va por uno (tablero en la misma dirección)
+    let bz = 0, bh = 0; if (VC.PG) { const P = VC.puenteEn(st.x, st.y, null, .5); if (P && !P.B.pe) { const u = VC.puAt(P.B, P.s); if (Math.abs(u.ux * Math.cos(st.h) + u.uy * Math.sin(st.h)) > .86) { bz = P.B.z; bh = P.h; } } }
+    const Sb = SZ(bh), bus = () => { if (st.kind === 'metroplus') Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'brt', Sb, k, sh, night, true, { doors: 'left', sign: 1 }); else Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'feeder', Sb, k, sh, night, true, { doors: 'right', sign: 1 }); };
+    if (bz) altos.push([bz, bus]); else bus();
+    const nivelDib = z => { if (VC.PG) VC.puentesDib(g, S, k, x0, y0, x1, y1, z); for (const [lz, f] of altos) if (lz === z) f(); };
+    nivelDib(1); if (VC.on) { Ciudad.stations(g, S, k, x0, y0, x1, y1, 'alto'); Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, 'alto'); } nivelDib(2); nivelDib(3);
+    if (VC.on) { Ciudad.stations(g, S, k, x0, y0, x1, y1, 'cable'); Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, 'cable'); }
     if (st.doors === 1) { const d = this.doorPos(st), q = S(d.x, d.y); g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); }
     Ciudad.partsDraw(g, S, k); Ciudad.bubblesDraw(g, S, k);
     if (!EM.headless) { Mundo.overlay(g, W, H, st.t, { noGrain: true }); if (MAP.ready && k >= .3) MAP.lightsTop(g, night, st.t); Ciudad.streetLights(g, S, k, night, x0, y0, x1, y1, W, H); Mundo.grain(g, W, H); }

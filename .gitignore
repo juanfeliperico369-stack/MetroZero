@@ -13,3 +13,4 @@ android/app/src/main/assets/www/
 *.iml
 dist/
 .cache/
+__pycache__/

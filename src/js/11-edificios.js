@@ -312,6 +312,23 @@ Object.assign(VC, {
     for (const [c, p] of muros) { g.fillStyle = c; g.fill(p); } for (const [c, p] of techos) { g.fillStyle = c; g.fill(p); }
     for (const b of B) { if (b.hito) { this.hito(g, b.hito, 1, cv); continue; } if (b.k !== 1 && b.k !== 2) continue; this.estilo(b); const P = b.P || this.esqP(b), up = b.h * ob; g.fillStyle = b.cs; g.beginPath(); poly(g, hull(P, up)); g.fill(); g.fillStyle = b.cr; g.beginPath(); roof(g, P, up); g.fill(); g.strokeStyle = 'rgba(20,26,38,.35)'; g.lineWidth = .8; g.stroke(); }
   },
+  /* ---------- quién tapa a quién: los edificios que quedan delante (más al sur) de alguien y cuyo volumen cae sobre su figura ----------
+     items: [{x, y, r (medio ancho), a (alto, m)}]; devuelve esos edificios para pintarlos en orden con la gente */
+  ocluir(items) {
+    if (!this.ED && !this.reg.size) return []; const ob = this.ob, vistos = new Set(), out = [];
+    for (const e of items) {
+      if (e.b) continue; const top = e.y - e.a * ob;
+      for (let gy = Math.floor(e.y / 40); gy <= Math.floor((e.y + 160 * ob) / 40); gy++) for (let gx = Math.floor((e.x - e.r - 30) / 40); gx <= Math.floor((e.x + e.r + 30) / 40); gx++) {
+        const Rg = this.reg.get(Math.floor(gx * 40 / this.R) * 4096 + Math.floor(gy * 40 / this.R)); if (!Rg) continue;
+        for (const i of Rg.bins.get(gx * 8192 + gy) || []) { const b = (Rg.fis || Rg.bs)[i]; if (vistos.has(b) || b.k === 10 || b.ym <= e.y + .2) continue;
+          const up = b.h * ob, r = b.P ? Math.hypot(b.hw, b.hd) : Math.abs(b.ux) * b.hw + Math.abs(b.uy) * b.hd, ry = b.P ? r : Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd;
+          if (e.x + e.r < b.x - r || e.x - e.r > b.x + r || e.y < b.y - ry - up || top > b.ym) continue;   // su caja en pantalla no toca la figura
+          vistos.add(b); out.push(b); } }
+    }
+    return out;
+  },
+  /* un edificio pintado directo en la pantalla (encima de alguien que queda detrás) */
+  dibEdVista(g, b, k, W, H, mx, my, shx = 0, shy = 0) { g.save(); g.setTransform(k, 0, 0, k, W / 2 - mx * k + shx, H / 2 - my * k + shy); this.dibEd(g, b, this.pick(k).sc); g.restore(); },
   /* ---------- suelos especiales: canchas, pistas, piscinas y campus ---------- */
   suelosInit() {
     const S = SUELOS, G = this.SG = new Map(), C = 320, put = (o, x0, y0, x1, y1) => { for (let gy = Math.floor(y0 / C); gy <= Math.floor(y1 / C); gy++) for (let gx = Math.floor(x0 / C); gx <= Math.floor(x1 / C); gx++) { const k = gx * 4096 + gy; let a = G.get(k); if (!a) G.set(k, a = []); a.push(o); } };
