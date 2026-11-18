@@ -95,7 +95,8 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 |---|---|
 | `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
 | `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, rótulos, barrios; delega el dibujo cenital en `VC` |
-| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios generados a lo largo de cada calle por regiones de 640 m, choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios **reales** por regiones de 640 m (de `EDIFICIOS`; generados a lo largo de cada calle solo si faltan los datos), choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-edificios.js` | **Casas y edificios reales** (1.2.0): lee `EDIFICIOS` por región (`VC.edifDe`), los recorta contra la calle (`VC.recorta` con `segsCerca`/`enSegs`), estilo por zona y uso (`VC.estilo`: muros, techos de teja a dos aguas, lámina, plancha con tanque, azotea), dibujo de cerca (`dibEd`) y de lejos en lote (`edifLejos`), y suelos especiales (`SUELOS`: canchas, pistas, piscinas, campus y sus rótulos) |
 | `11-hitos.js` | **Arquitectura icónica** (`HITOS`): huella real de OSM, estilos de dibujo propios (`aguja`, `basilica`, `iglesia`, `palacio`, `estadio`, `rocas`, `vidrio`, `ladrillo`, `republicano`, `moderno`, `cupula`, `cubos`, `luces`, `botero`, `pies`); reserva su huella en la región y es sólida |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos). A, B y T usan el eje real de `RIELES`; los buses, `RUTAS_CALLES`; cada estación queda sobre su línea |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
@@ -142,6 +143,16 @@ Datos en `src/data/`:
 - **El metro va elevado** en las vistas con volumen: tablero, andenes, cubiertas y trenes se corren `KIND.metro.deck × VC.ob` hacia arriba; las columnas y el edificio de acceso van al piso.
 - **Medir antes de afirmar:** `EM.test.selfTest()` revisa vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
+### Reglas aprendidas (casas y edificios reales, 1.2.0)
+- **Las casas y los edificios son las huellas reales** (`src/data/edificios.js`, de `tools/edificios_datos.py`): 639.457 en el valle, guardadas por región de 640 m y leídas solo cuando hacen falta. La generación a lo largo de las calles queda de respaldo si faltan los datos.
+- **La calle siempre libre:** huellas (Overture) y vías (EnCicla, cuantizadas a 2,5 m) vienen de fuentes distintas y se corren 1–2 m. Cada edificio se recorta contra los tramos de calle (asfalto con medio andén, peatonales, escaleras, carril del Metroplús y tranvía). El autotest exige que los bordes de carril queden libres en más del 99 %.
+- **Nunca guardes en un objeto compartido una decisión tomada con la rejilla de una región:** la de una vecina no cubre todo el edificio. Mide contra datos globales (tramos de calle, hitos) y guarda el resultado en el edificio (`b.rec`).
+- **La física mira también a los vecinos:** `Rg.fis` = edificios propios + los de regiones vecinas que entran en esta.
+- **Un polígono que se recorta queda rectángulo:** mide la calle contra el rectángulo entero, no contra el polígono (si no, la calle que pasaba por el hueco de una L queda tapada).
+- **Lo que se dibuja por miles va en lote:** árboles y casas de lejos se pintan por color con `Path2D` (un trozo de 640 m en la zona más densa pasó de 385 a ~140 ms).
+- **No recompiles `dist/` mientras corren las pruebas.**
+- **Cómo medir:** capturas por lugar (`geoM(lat, lon)` + `EM.map.drawTop`), tiempo de región y de trozo, y la fracción de calle bloqueada antes y después.
+
 ### Comandos
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
@@ -154,6 +165,8 @@ node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (v
 node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas; --sin-ajustes para el antes
 node tools/mapa_ajustes.mjs RUTA_ENCICLA   # src/data/ajustes.js: nombres y barrios fuera de Medellín, puentes y relieve del río, escaleras, calle del tranvía, patio-taller
 node tools/encicla_datos.mjs RUTA_ENCICLA  # src/data/encicla.js: las 133 estaciones de EnCicla para Ciudad Libre
+python3 tools/edificios_datos.py --descargar CARPETA   # una vez: huellas y usos de Overture (duckdb) y pisos oficiales del Catastro
+python3 tools/edificios_datos.py CARPETA               # → src/data/edificios.js (casas y edificios reales, canchas, piscinas y campus)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -190,7 +203,7 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 ### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
-- El tamaño del HTML importa: hoy pesa unos 2,4 MB (533 KB son arte). El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`.
+- El tamaño del HTML importa. Desde v1.2.0 pesa unos 8 MB: 4,5 MB son las casas y edificios reales (`src/data/edificios.js`) y 0,5 MB el arte. El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`. Antes de sumar datos, mide qué flujo pesa más (posiciones, medidas, ángulos, polígonos).
 - Lo que el bot no ve (tarjetas, diálogos, portada) se revisa con capturas: en v0.6.0 un comentario anuló una línea y solo se notó en la captura.
 - El mapa cenital: mide las vías **con las de su mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados) y revisa el banco de sitios reales (Niquía, Acevedo, San Antonio, Parque Berrío, Santo Domingo, Poblado, Industriales, Floresta) a k = 2,1, 1 y 0,42.
 
@@ -407,6 +420,16 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 **Licencia del Catastro:** citar “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin” y declarar las transformaciones (ver `docs/FUENTES.md`).
 
 **Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
+
+### Medellín desde el aire (desde v1.2.0)
+- Investigación completa, con créditos de cada foto: `docs/investigacion/medellin-desde-el-aire.md`. Solo fotos con licencia libre (Wikimedia Commons) y datos abiertos; **nunca imágenes de Google Maps ni de Google Earth**.
+- **Huella real, material por zona:** la forma y la posición de cada casa son las reales (Overture: OSM, Microsoft y Google Open Buildings). Los pisos son oficiales en Popular, El Poblado y Robledo (Catastro, capa `3DConstruccciones`), de OSM donde existen y estimados por zona en el resto. Muros, techos y árboles salen de la zona (`VC.zona`: comuna o municipio).
+- **Lo que se ve desde arriba:**
+  - El fondo plano del valle (Laureles, Belén, Centro, alrededores del aeropuerto) es terracota: teja de barro.
+  - Las laderas populares son claras: fibrocemento y zinc sobre ladrillo, planchas con tanque, escaleras con baranda amarilla.
+  - El Poblado son torres de ladrillo de 12 a 30 pisos en el bosque.
+  - El Centro es fachada continua ocre y de ladrillo, con teja vieja y azoteas.
+- **La Alpujarra:** la Alcaldía y la Gobernación son bloques blancos con fachada inclinada, parteluces y culatas macizas (estilo `alpujarra` de `11-hitos.js`).
 
 ### Medir antes y después (desde la auditoría del 17‑nov)
 - `node tools/auditoria-mapa.mjs` da las cifras que sirven de criterio de aceptación:

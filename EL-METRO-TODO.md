@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v1.1.1 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v1.2.0 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v1.1.1** · compilado el 2026-11-18.
+> Versión del juego **v1.2.0** · compilado el 2026-11-18.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,8 +799,49 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-18 · v1.1.1 "Ciudad con curvas" (retoque)
+##### Estado al 2026-11-18 · v1.2.0 "Medellín tal cual"
+**Novedad de v1.2.0:** se investigó a Medellín desde el aire: fotos aéreas, desde el avión, el metrocable, drones y satélite, todas con licencia libre y sin imágenes de Google. Con eso la ciudad se dibuja con sus **casas y edificios reales**:
+- **Casas y edificios:** 639.457 en todo el valle, de Caldas a Barbosa, con su huella real (posición, forma y orientación).
+  - Datos: `src/data/edificios.js`, generado por `tools/edificios_datos.py`, de Overture Maps (OpenStreetMap, Microsoft ML Buildings y Google Open Buildings).
+  - Van por región de 640 m y se leen solo cuando hacen falta. La generación a lo largo de las calles queda de respaldo.
+- **Pisos:**
+  - 7.779 oficiales, del Catastro de Medellín (capa `3DConstruccciones` de Popular, El Poblado y Robledo);
+  - 5.028 de OpenStreetMap (Coltejer 38, Edificio del Café 36, Torre Institucional de la Alcaldía 24…);
+  - el resto, estimados por zona y tamaño con lo medido en esas tres comunas.
+- **Usos:** casa, bloque, torre, bodega, colegio o universidad, hospital, iglesia con campanario, cívico, comercio, coliseo, cubierta abierta, invernadero y tanque redondo.
+- **Materiales y techos por zona**, como se ven desde el aire (`src/js/11-edificios.js`):
+  - laderas de ladrillo a la vista, con fibrocemento, zinc oxidado y planchas con tanque negro o azul;
+  - barrios planos de teja de barro: desde el avión son un tapete terracota;
+  - El Poblado, de torres de ladrillo entre el bosque, con piscinas y helipuertos en algunas azoteas;
+  - el Centro, ocre y de ladrillo;
+  - los pueblos, blancos con teja.
+  - Detalles: teja a dos aguas con cumbrera y hastiales, láminas con canales, y ventanas y puerta por piso.
+- **Suelos:** 56 campus universitarios con su prado, sus árboles y su rótulo; 1.368 canchas (de fútbol con sus líneas y placas polideportivas de colores); 37 pistas atléticas y 885 piscinas. Más árboles en patios y antejardines de Laureles y El Poblado.
+- **La Alpujarra tal cual:** la Alcaldía, la Gobernación y el Palacio de Justicia van con fachada inclinada, parteluces blancos, ventanas oscuras y culatas macizas (estilo `alpujarra`).
+- **La calle siempre libre:** huellas y vías vienen de fuentes distintas y se corren 1–2 m.
+  - Por eso cada edificio se recorta contra el asfalto con medio andén, las peatonales, las escaleras, el carril del Metroplús y el tranvía.
+  - Sin recorte, del 7 al 29 % de los bordes de carril quedaban dentro de una casa y el taxi se trababa. Ahora quedan del 0 al 0,05 %, como en 1.1.1.
+- **Investigación:** `docs/investigacion/medellin-desde-el-aire.md` reúne lo que se ve en cada zona, cómo se volvió regla y los créditos de cada foto.
+- **Autotest nuevo:** revisa que carguen más de 600.000 edificios reales, que más del 99 % de los bordes de carril quede libre, que haya torres en El Poblado, edificios educativos en la UdeA, campus y canchas.
+- **Rendimiento:**
+  - una región de 640 m se arma en 10 a 60 ms (60 ms en Popular, la más densa);
+  - un trozo cercano, en 1 a 18 ms;
+  - un trozo de 640 m de lejos, en la zona más densa, en unos 140 ms, con árboles y casas de lejos en lote;
+  - manejando, los cuadros tardan en JavaScript lo mismo que en 1.1.1.
+- **Peso:** el HTML pasa de 3,6 a 8,1 MB; 4,5 MB son las casas y los edificios.
+
+Herramienta nueva: `tools/edificios_datos.py` (cómo regenerar en `docs/FUENTES.md`).
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 0 avisos (639.457 casas y edificios reales, calles libres, torres en El Poblado, la UdeA, campus y canchas); 100 partidas del bot (367 mil pasos) con 0 errores y 0 errores de consola. Capturas por lugar (La Alpujarra, la UdeA, la Nacional, EAFIT, la UPB, Popular, Santo Domingo, Laureles, El Poblado, el Centro, Guayabal, la Comuna 13 y la noche) comparadas con las fotos. Con un taxi en Santo Domingo y en Laureles se llega a 30 km/h, como en 1.1.1.
+
+**Publicado:** PENDIENTE_PUBLICACION
+
+###### v1.1.1 "Ciudad con curvas" (retoque)
 **Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
+
+**Qué se probó:** autotest con 0 errores y 0 avisos; 100 partidas del bot (364 mil pasos) con 0 errores y 0 errores de consola.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.1.1 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.1.1-38220983`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 21, **3,3 MB**).
 
 ###### v1.1.0 "Ciudad con curvas"
 **Novedad de v1.1.0** (une la línea de 1.0.0 de la otra IA con v0.10.0 y redibuja la ciudad):
@@ -1132,8 +1173,9 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
 
 ##### Qué falta (prioridad)
 0. **Medellín fiel (Fase 1b):**
-   - **capa vectorial de OpenStreetMap**: ejes de vía con su ancho, glorietas, curvas y **nombres de calles**;
-   - **huellas reales de edificios** y usos del suelo;
+   - **capa vectorial de OpenStreetMap**: hecha en v1.1.0 (ejes de vía con su ancho, curvas y nombres).
+   - **huellas reales de edificios** y usos del suelo: hechas en v1.2.0.
+   - Sigue: pisos oficiales para todo Medellín (la capa abierta solo trae tres comunas); color de techo por edificio; el Orquideorama y la celosía dorada de la Plaza de la Libertad; armar los trozos de lejos en un Web Worker (hoy ~140 ms en la zona más densa).
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.
@@ -1260,7 +1302,8 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 |---|---|
 | `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
 | `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, rótulos, barrios; delega el dibujo cenital en `VC` |
-| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios generados a lo largo de cada calle por regiones de 640 m, choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios **reales** por regiones de 640 m (de `EDIFICIOS`; generados a lo largo de cada calle solo si faltan los datos), choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-edificios.js` | **Casas y edificios reales** (1.2.0): lee `EDIFICIOS` por región (`VC.edifDe`), los recorta contra la calle (`VC.recorta` con `segsCerca`/`enSegs`), estilo por zona y uso (`VC.estilo`: muros, techos de teja a dos aguas, lámina, plancha con tanque, azotea), dibujo de cerca (`dibEd`) y de lejos en lote (`edifLejos`), y suelos especiales (`SUELOS`: canchas, pistas, piscinas, campus y sus rótulos) |
 | `11-hitos.js` | **Arquitectura icónica** (`HITOS`): huella real de OSM, estilos de dibujo propios (`aguja`, `basilica`, `iglesia`, `palacio`, `estadio`, `rocas`, `vidrio`, `ladrillo`, `republicano`, `moderno`, `cupula`, `cubos`, `luces`, `botero`, `pies`); reserva su huella en la región y es sólida |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos). A, B y T usan el eje real de `RIELES`; los buses, `RUTAS_CALLES`; cada estación queda sobre su línea |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
@@ -1307,6 +1350,16 @@ Datos en `src/data/`:
 - **El metro va elevado** en las vistas con volumen: tablero, andenes, cubiertas y trenes se corren `KIND.metro.deck × VC.ob` hacia arriba; las columnas y el edificio de acceso van al piso.
 - **Medir antes de afirmar:** `EM.test.selfTest()` revisa vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
+#### Reglas aprendidas (casas y edificios reales, 1.2.0)
+- **Las casas y los edificios son las huellas reales** (`src/data/edificios.js`, de `tools/edificios_datos.py`): 639.457 en el valle, guardadas por región de 640 m y leídas solo cuando hacen falta. La generación a lo largo de las calles queda de respaldo si faltan los datos.
+- **La calle siempre libre:** huellas (Overture) y vías (EnCicla, cuantizadas a 2,5 m) vienen de fuentes distintas y se corren 1–2 m. Cada edificio se recorta contra los tramos de calle (asfalto con medio andén, peatonales, escaleras, carril del Metroplús y tranvía). El autotest exige que los bordes de carril queden libres en más del 99 %.
+- **Nunca guardes en un objeto compartido una decisión tomada con la rejilla de una región:** la de una vecina no cubre todo el edificio. Mide contra datos globales (tramos de calle, hitos) y guarda el resultado en el edificio (`b.rec`).
+- **La física mira también a los vecinos:** `Rg.fis` = edificios propios + los de regiones vecinas que entran en esta.
+- **Un polígono que se recorta queda rectángulo:** mide la calle contra el rectángulo entero, no contra el polígono (si no, la calle que pasaba por el hueco de una L queda tapada).
+- **Lo que se dibuja por miles va en lote:** árboles y casas de lejos se pintan por color con `Path2D` (un trozo de 640 m en la zona más densa pasó de 385 a ~140 ms).
+- **No recompiles `dist/` mientras corren las pruebas.**
+- **Cómo medir:** capturas por lugar (`geoM(lat, lon)` + `EM.map.drawTop`), tiempo de región y de trozo, y la fracción de calle bloqueada antes y después.
+
 #### Comandos
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
@@ -1319,6 +1372,8 @@ node tools/osm-ventanas.mjs v.json   # verificar el mapa contra OpenStreetMap (v
 node tools/auditoria-mapa.mjs --json m.json --img docs/auditorias/img/AAAA-MM-DD   # cifras del mapa (criterios de aceptación) y láminas; --sin-ajustes para el antes
 node tools/mapa_ajustes.mjs RUTA_ENCICLA   # src/data/ajustes.js: nombres y barrios fuera de Medellín, puentes y relieve del río, escaleras, calle del tranvía, patio-taller
 node tools/encicla_datos.mjs RUTA_ENCICLA  # src/data/encicla.js: las 133 estaciones de EnCicla para Ciudad Libre
+python3 tools/edificios_datos.py --descargar CARPETA   # una vez: huellas y usos de Overture (duckdb) y pisos oficiales del Catastro
+python3 tools/edificios_datos.py CARPETA               # → src/data/edificios.js (casas y edificios reales, canchas, piscinas y campus)
 node tools/test.mjs 30 --shots DIR   # además, capturas de cada pantalla
 node tools/assets.mjs                # íconos y compartir.png (el apple-touch-icon debe quedar sin transparencia)
 bash tools/apk.sh -Pelmetro.versionName=X.Y.Z -Pelmetro.versionCode=N   # APK
@@ -1355,7 +1410,7 @@ node tools/todo.mjs                  # COMPILA TODO: dist/EL-METRO-TODO.md (docu
 #### Errores conocidos
 - Wikimedia y Flickr bloquean descargas desde servidores en la nube. Para referencias, usa enlaces con su licencia (ver `arte/galeria.md`).
 - No uses capturas de Google Maps ni de Google Earth como base de arte.
-- El tamaño del HTML importa: hoy pesa unos 2,4 MB (533 KB son arte). El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`.
+- El tamaño del HTML importa. Desde v1.2.0 pesa unos 8 MB: 4,5 MB son las casas y edificios reales (`src/data/edificios.js`) y 0,5 MB el arte. El arte nuevo va en WebP pequeño o SVG minificado, dentro de `src/data/arte.js`. Antes de sumar datos, mide qué flujo pesa más (posiciones, medidas, ángulos, polígonos).
 - Lo que el bot no ve (tarjetas, diálogos, portada) se revisa con capturas: en v0.6.0 un comentario anuló una línea y solo se notó en la captura.
 - El mapa cenital: mide las vías **con las de su mismo tipo** (en los datos, autopista, avenida y viaducto vienen pegados) y revisa el banco de sitios reales (Niquía, Acevedo, San Antonio, Parque Berrío, Santo Domingo, Poblado, Industriales, Floresta) a k = 2,1, 1 y 0,42.
 
@@ -1572,6 +1627,16 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 **Licencia del Catastro:** citar “Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin” y declarar las transformaciones (ver `docs/FUENTES.md`).
 
 **Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
+
+#### Medellín desde el aire (desde v1.2.0)
+- Investigación completa, con créditos de cada foto: `docs/investigacion/medellin-desde-el-aire.md`. Solo fotos con licencia libre (Wikimedia Commons) y datos abiertos; **nunca imágenes de Google Maps ni de Google Earth**.
+- **Huella real, material por zona:** la forma y la posición de cada casa son las reales (Overture: OSM, Microsoft y Google Open Buildings). Los pisos son oficiales en Popular, El Poblado y Robledo (Catastro, capa `3DConstruccciones`), de OSM donde existen y estimados por zona en el resto. Muros, techos y árboles salen de la zona (`VC.zona`: comuna o municipio).
+- **Lo que se ve desde arriba:**
+  - El fondo plano del valle (Laureles, Belén, Centro, alrededores del aeropuerto) es terracota: teja de barro.
+  - Las laderas populares son claras: fibrocemento y zinc sobre ladrillo, planchas con tanque, escaleras con baranda amarilla.
+  - El Poblado son torres de ladrillo de 12 a 30 pisos en el bosque.
+  - El Centro es fachada continua ocre y de ladrillo, con teja vieja y azoteas.
+- **La Alpujarra:** la Alcaldía y la Gobernación son bloques blancos con fachada inclinada, parteluces y culatas macizas (estilo `alpujarra` de `11-hitos.js`).
 
 #### Medir antes y después (desde la auditoría del 17‑nov)
 - `node tools/auditoria-mapa.mjs` da las cifras que sirven de criterio de aceptación:
@@ -2865,9 +2930,11 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/ciudad.js`** (372 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
 - **`src/data/ajustes.js`** (39 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
+- **`src/data/vias.js`, `rieles.js`, `metroplus.js`, `rutas_calles.js` y `hitos.js`**: calles con su curva y su ancho, eje de los rieles, corredores de Metroplús, recorridos de los alimentadores y arquitectura icónica (ver `docs/FUENTES.md`).
+- **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (80 archivos, 1051 KB)
+## Código fuente (82 archivos, 1114 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3281,7 +3348,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '1.1.1', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '1.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4311,6 +4378,8 @@ const MAP = EM.map = {
     }
     // arquitectura icónica (de cerca), sobre su volumen
     if (VC.on && VC.rotulosHitos) VC.rotulosHitos(texto, S, k, kc, dpr, night);
+    // campus universitarios
+    if (VC.on && VC.rotulosCampus) VC.rotulosCampus(texto, S, k, kc, dpr, night);
     // parques, plazas y miradores
     if (kc >= .6) for (const L of this.lugaresL || CIUDAD.lugares) {
       if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;
@@ -4364,9 +4433,10 @@ const MAP = EM.map = {
    CIUDAD VECTORIAL (1.1.0): la ciudad se dibuja como se vive, sin cubos ni escalones.
    · Calles: vectores de src/data/vias.js con su curva y su ancho (sardinel, andén, asfalto, carriles, cebras en los semáforos).
    · Suelo: río, parques, montaña, plazas y manzanas con bordes suaves (máscara de casillas suavizada y umbral).
-   · Estructuras: casas y edificios generados A LO LARGO de cada calle, girados con ella y retirados del andén;
-     volumen al estilo de las ciudades de vista cenital (techo desplazado, fachadas con ventanas, sombra y contorno).
-   · Física: se choca contra esos edificios (rectángulos) y contra el agua fuera de los puentes; lo demás se anda.
+   · Estructuras (desde 1.2.0): las casas y los edificios REALES de src/data/edificios.js, recortados contra la calle
+     (src/js/11-edificios.js); si faltan los datos, se generan a lo largo de cada calle como en 1.1.x. Volumen al estilo
+     de las ciudades de vista cenital (techo desplazado, fachadas con ventanas, sombra y contorno).
+   · Física: se choca contra esos edificios (rectángulo o polígono) y contra el agua fuera de los puentes; lo demás se anda.
    Se dibuja en trozos con nivel de detalle (160 m a 2 px/m, 640 m a 0,8 px/m y 2,5 km a 0,2 px/m).
    ===================================================================== */
 const VC = EM.vcity = {
@@ -4386,17 +4456,19 @@ const VC = EM.vcity = {
       for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) { const key = gx * 4096 + gy; let a = this.cg.get(key); if (!a) this.cg.set(key, a = []); a.push(i); }
     }
     if (this.hitosInit) this.hitosInit();
+    if (this.edifInit) await this.edifInit();
     this.on = true;
   },
   near(x0, y0, x1, y1) { const out = new Set(); for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) for (const i of this.cg.get(gx * 4096 + gy) || []) out.add(i); return [...out].map(i => this.ch[i]); },
   /* medio ancho del corredor de una vía (asfalto + andén) */
   hw(c) { return c.w / 2 + (c.k === 1 || c.k === 2 || c.k === 4 ? 2.6 : c.k === 3 ? 1.6 : .7); },
-  /* ---------- región de 640 m: rejilla de ocupación de 2 m (1 vía o transporte, 2 edificio), edificios y árboles ----------
-     Los edificios se generan A LO LARGO de cada calle (frente girado con ella, retirado del andén) y luego se llena el
-     interior de las manzanas alineado con la calle más cercana. Cada edificio queda entero dentro de su región. */
+  /* ---------- región de 640 m: rejilla de ocupación de 2 m (1 vía o transporte, 2 edificio, 3 hito), edificios y árboles ----------
+     Con datos (1.2.0), los edificios son los reales de la región (y los de las vecinas que entran, para la física).
+     Sin datos, se generan A LO LARGO de cada calle (frente girado con ella, retirado del andén) y luego se llena el
+     interior de las manzanas alineado con la calle más cercana. */
   region(rx, ry) {
     const key = rx * 4096 + ry; let Rg = this.reg.get(key); if (Rg) { this.reg.delete(key); this.reg.set(key, Rg); return Rg; }
-    const R = this.R, M = 48, X0 = rx * R - M, Y0 = ry * R - M, SZ = R + 2 * M, RES = 2, NG = SZ / RES, occ = new Uint8Array(NG * NG), bs = [], trees = [];
+    const R = this.R, M = 48, X0 = rx * R - M, Y0 = ry * R - M, SZ = R + 2 * M, RES = 2, NG = SZ / RES, bs = [], trees = []; let occ = new Uint8Array(NG * NG);
     const DR = 8, DN = SZ / DR, dirA = new Float32Array(DN * DN), dirD = new Float32Array(DN * DN).fill(1e9);
     const stampSeg = (ax, ay, bx, by, r, v) => {
       const gx0 = Math.max(0, Math.floor((Math.min(ax, bx) - r - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((Math.max(ax, bx) + r - X0) / RES)), gy0 = Math.max(0, Math.floor((Math.min(ay, by) - r - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((Math.max(ay, by) + r - Y0) / RES));
@@ -4409,8 +4481,8 @@ const VC = EM.vcity = {
       const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, an = Math.atan2(dy, dx);
       for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * DR, py = Y0 + (gy + .5) * DR, t = clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0, 1), d = Math.hypot(ax + dx * t - px, ay + dy * t - py), j = gy * DN + gx; if (d < dirD[j]) { dirD[j] = d; dirA[j] = an; } }
     };
-    const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ);
-    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k !== 3 && c.k !== 5) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }
+    const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ), asf = new Uint8Array(NG * NG);
+    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k <= 4 || c.k === 6 || c.k === 7) { const o2 = occ; occ = asf; stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], Math.max(1, c.w / 2 + (c.k <= 4 ? 1.3 : .3)), c.k <= 4 ? 2 : 1); occ = o2; } if (c.k !== 3 && c.k !== 5 && !this.ED) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }   // el campo de direcciones solo hace falta para generar casas
     // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
     if (typeof NET !== 'undefined') for (const l of NET.lines) {
       if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
@@ -4422,6 +4494,8 @@ const VC = EM.vcity = {
     const hits = this.HT ? this.hitosEn(X0, Y0, X0 + SZ, Y0 + SZ) : [];
     for (const H of hits) { const gx0 = Math.max(0, Math.floor((H.x0 - 2 - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((H.x1 + 2 - X0) / RES)), gy0 = Math.max(0, Math.floor((H.y0 - 2 - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((H.y1 + 2 - Y0) / RES));
       for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const j = gy * NG + gx; if (occ[j]) continue; const px = X0 + (gx + .5) * RES, py = Y0 + (gy + .5) * RES; if (this.dentroH(H, px, py) || this.dentroH(H, px + 1.5, py) || this.dentroH(H, px - 1.5, py) || this.dentroH(H, px, py + 1.5) || this.dentroH(H, px, py - 1.5)) occ[j] = 3; } }
+    // casas y edificios reales (src/data/edificios.js); sin datos, se generan a lo largo de las calles como antes
+    const ext = [], reales = this.edifRegion ? this.edifRegion(rx, ry, X0, Y0, NG, RES, occ, bs, ext, asf) : false;
     const tileAt = (x, y) => MAP.tile(Math.floor(x / TM), Math.floor(y / TM));
     // suelo donde se puede construir: manzanas, y vías o andenes de la rejilla de 20 m que la calle vectorial no ocupa
     const okS = v => v === TT.BRICK || v === TT.BLDG || v === TT.ROAD || v === TT.AVE || v === TT.WALK || v === TT.CICLO || v === TT.STEPS;
@@ -4438,11 +4512,11 @@ const VC = EM.vcity = {
     // ¿edificio o casa? lo dicen las casillas de alrededor (edificio en BLDG, casa en BRICK) o los pisos reales de la zona
     const tipo = (x, y) => { let e = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = tileAt(x + i * TM, y + j * TM); if (v === TT.BLDG) e++; else if (v === TT.BRICK) c++; } if (e || c) return e > c; return MAP.bHeight(x, y, 3) > 14; };
     const altura = (x, y, ed, i) => ed ? clamp(MAP.bHeight(x, y, i), 9, 140) : 3.1 * (1 + (h2(x | 0, y | 0, 7) * (MAP.hg ? 2.6 : 2.2) | 0));
-    const pon = (X, Y, hw, hd, ux, uy, ed, i) => { ocupa(X, Y, hw, hd, ux, uy); bs.push({ x: X, y: Y, hw, hd, ux, uy, h: altura(X, Y, ed, i), ed, s: h2(X | 0, Y | 0, 9) }); };
+    const pon = (X, Y, hw, hd, ux, uy, ed, i) => { ocupa(X, Y, hw, hd, ux, uy); const h = altura(X, Y, ed, i), pis = Math.max(1, Math.round(h / 3.05)); bs.push({ x: X, y: Y, hw, hd, ux, uy, h, ed, pis, k: ed ? (pis >= 10 ? 2 : 1) : 0, P: null, ym: Y + Math.abs(uy) * hw + Math.abs(ux) * hd, s: h2(X | 0, Y | 0, 9) }); };
     // 1 · frentes: a lo largo de cada tramo de calle, carrera, avenida, peatonal y escalera, a ambos lados
     for (const c of cs) {
       if (c.k === 3 || c.k === 5) continue; const P = c.P, off0 = this.hw(c);
-      for (let i = 2; i < P.length; i += 2) {
+      if (!reales) for (let i = 2; i < P.length; i += 2) {
         const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 6) continue;
         if (Math.max(ax, bx) + 40 < cx0 || Math.min(ax, bx) - 40 > cx0 + R || Math.max(ay, by) + 40 < cy0 || Math.min(ay, by) - 40 > cy0 + R) continue;
         const ux = (bx - ax) / L, uy = (by - ay) / L;
@@ -4464,21 +4538,24 @@ const VC = EM.vcity = {
         }
       }
       // árboles de avenida a lado y lado, sobre el andén
-      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
+      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && asf[Math.floor((y - Y0) / RES) * NG + Math.floor((x - X0) / RES)] !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
     }
     // 2 · interior de las manzanas: rejilla con desfase, alineada con la calle más cercana
-    for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
+    if (!reales) for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
       const jx = x + (h2(x, y, 51) - .5) * 4, jy = y + (h2(x, y, 52) - .5) * 4; if (occAt(jx, jy) || !okS(tileAt(jx, jy))) continue;
       const di = clamp(Math.floor((jy - Y0) / DR), 0, DN - 1) * DN + clamp(Math.floor((jx - X0) / DR), 0, DN - 1); if (dirD[di] > 70) continue;
       const an = dirA[di], ux = Math.cos(an), uy = Math.sin(an), ed = tipo(jx, jy), r = h2(x, y, 53);
       for (const f of [1, .75, .55]) { const hw = (ed ? 7 + r * 6 : 3 + r * 2) * f, hd = (ed ? 6 + r * 5 : 4 + r * 2.5) * f; if (hw < 2.2 || hd < 2.2) break; if (cabe(jx, jy, hw, hd, ux, uy)) { pon(jx, jy, hw, hd, ux, uy, ed, 77); break; } }
     }
     // árboles en parques y zonas verdes de la ciudad (no en la montaña, que tiene su propio dosel)
-    for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if ((v === TT.GRASS || v === TT.PLAZA) && h2(x, y, 21) < (v === TT.GRASS ? .5 : .12) && !occAt(x, y)) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
+    const DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 };
+    for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if (occAt(x, y)) continue; let p = v === TT.GRASS ? .5 : v === TT.PLAZA ? .12 : 0;
+      if (reales && (v === TT.BRICK || v === TT.BLDG)) p = this.enCampus && this.enCampus(x, y) ? .42 : DENS[this.zona(x, y)] || .04;
+      if (p && h2(x, y, 21) < p) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; if (occAt(jx, jy) === 2) continue; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
     // índice de edificios por celdas de 40 m (choques)
-    const bins = new Map(); bs.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
-    Rg = { bs, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
-    this.reg.set(key, Rg); while (this.reg.size > 36) this.reg.delete(this.reg.keys().next().value);
+    const fis = ext.length ? bs.concat(ext) : bs, bins = new Map(); fis.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
+    Rg = { bs, fis, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
+    this.reg.set(key, Rg); while (this.reg.size > 30) this.reg.delete(this.reg.keys().next().value);
     return Rg;
   },
   /* ---------- física ---------- */
@@ -4486,7 +4563,7 @@ const VC = EM.vcity = {
   /* ¿choca un círculo de radio r en (x, y)? contra edificios, y contra el agua fuera de vías y puentes */
   solid(x, y, r = .4) {
     const Rg = this.regionAt(x, y), k = Math.floor(x / 40) * 8192 + Math.floor(y / 40);
-    for (const i of Rg.bins.get(k) || []) { const b = Rg.bs[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r) return true; }
+    for (const i of Rg.bins.get(k) || []) { const b = (Rg.fis || Rg.bs)[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (b.k === 10) continue; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r && (!b.P || this.enPol(b.P, x, y, r))) return true; }
     for (const H of Rg.hitos) if (this.dentroH(H, x, y)) return true;
     const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); if (v === TT.WATER || v === TT.CANAL) { const gx = Math.floor((x - Rg.X0) / Rg.RES), gy = Math.floor((y - Rg.Y0) / Rg.RES); return !(gx >= 0 && gy >= 0 && gx < Rg.NG && gy < Rg.NG && Rg.occ[gy * Rg.NG + gx] === 1); }
     return false;
@@ -4574,6 +4651,7 @@ const VC = EM.vcity = {
     const S = L.S, sc = L.sc, n = Math.round(S * sc), c = mkCanvas(n + 2, n + 2), g = c.getContext('2d', { willReadFrequently: this.sw }), X0 = cx * S - 1 / sc, Y0 = cy * S - 1 / sc;   // 1 px de margen alrededor
     this.suelo(g, n + 2, X0, Y0, S + 2 / sc, sc, L.d);
     g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc);
+    if (L.d < 2 && this.suelosEsp) this.suelosEsp(g, X0, Y0, S + 2 / sc, sc, L.d);
     this.calles(g, X0, Y0, S + 2 / sc, sc, L.d);
     if (L.d < 2) this.estructuras(g, X0, Y0, S + 2 / sc, sc, L.d, c);
     g.setTransform(1, 0, 0, 1, 0, 0);
@@ -4695,59 +4773,22 @@ const VC = EM.vcity = {
     const B = []; for (const Rg of rs) for (const b of Rg.bs) if (vis(b)) B.push(b);
     const HS = this.HT ? this.hitosEn(X0 - 30, Y0 - 30, X0 + S + 30, Y0 + S + 190 * ob) : [];
     for (const H of HS) this.hitoSuelo(g, H, lod, cv);   // plazas y parques especiales, a ras de piso
-    for (const H of HS) B.push({ hito: H, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
-    B.sort((a, b) => (a.y + Math.abs(a.uy) * a.hw + Math.abs(a.ux) * a.hd) - (b.y + Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd));
-    const esq = b => [[b.x - b.ux * b.hw + b.uy * b.hd, b.y - b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw + b.uy * b.hd, b.y + b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw - b.uy * b.hd, b.y + b.uy * b.hw + b.ux * b.hd], [b.x - b.ux * b.hw - b.uy * b.hd, b.y - b.uy * b.hw + b.ux * b.hd]];
+    for (const H of HS) B.push({ hito: H, ym: H.y1, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
+    B.sort((a, b) => a.ym - b.ym);   // de atrás hacia adelante: el borde de abajo de cada huella
     // sombras (sol de la tarde): una sola pasada, debajo de todo
     g.fillStyle = 'rgba(16,22,34,.24)'; g.beginPath();
     for (const H of HS) if (!H.libre) this.sombra(g, H);
-    for (const b of B) { if (b.hito) continue; const E = esq(b), sx = Math.min(14, b.h * .32), sy = Math.min(9, b.h * .2); g.moveTo(E[0][0] + sx, E[0][1] + sy); for (const [x, y] of [E[1], E[2], E[3]]) g.lineTo(x + sx, y + sy); g.closePath(); for (const [x, y] of E) { g.moveTo(x, y); g.lineTo(x + sx, y + sy); } }
+    for (const b of B) if (!b.hito) this.sombraEd(g, b, lod === 1);
     g.fill();
     // árboles bajos antes que los edificios del frente
     const T = []; for (const Rg of rs) for (let i = 0; i < Rg.trees.length; i += 4) { const x = Rg.trees[i], y = Rg.trees[i + 1]; if (x > X0 - 6 && x < X0 + S + 6 && y > Y0 - 6 && y < Y0 + S + 10) T.push(Rg.trees, i); }
-    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2]; g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); g.arc(x + r * .5, y + r * .35, r, 0, TAU); g.fill(); }
-    const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICK = ['#b5593c', '#a9533a', '#c0654a', '#9c4a33'], TOWER = ['#d8d4cc', '#c3cad2', '#e6dcc8', '#aab4bf', '#cfc8bb'], GLASS = ['#5f88a8', '#4f7896', '#6c97b5'];
-    const sh = (hex, m) => Art.shade(hex, m), out = lod === 0 ? .32 : .6;
-    const colores = b => { if (b.cw) return; const s = b.s, ed = b.ed; b.cw = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
-      b.cr = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3]; b.cs = sh(b.cw, .8); };
-    if (lod === 1) {   // de lejos: las casas en lote (una silueta común y los techos por color), las torres una por una (silueta y techo)
-      const hull = (E, up) => { const Pt = E.concat(E.map(([x, y]) => [x, y - up])).sort((p, q) => p[0] - q[0] || p[1] - q[1]), cr = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]), lo = [], hi = [];
-        for (const p of Pt) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (let i = Pt.length - 1; i >= 0; i--) { const p = Pt[i]; while (hi.length > 1 && cr(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); } return lo.slice(0, -1).concat(hi.slice(0, -1)); };
-      const poly = (P, Q) => { P.moveTo(Q[0][0], Q[0][1]); for (let i = 1; i < Q.length; i++) P.lineTo(Q[i][0], Q[i][1]); P.closePath(); };
-      const techo = (E, up) => { const T = E.map(([x, y]) => [x, y - up]); let a = 0; for (let i = 0; i < 4; i++) { const p = T[i], q = T[(i + 1) % 4]; a += p[0] * q[1] - q[0] * p[1]; } return a < 0 ? T.reverse() : T; };
-      const muros = new Path2D(), techos = new Map();
-      for (const b of B) { if (b.ed || b.hito) continue; colores(b); const E = esq(b), up = b.h * ob; poly(muros, hull(E, up)); let P = techos.get(b.cr); if (!P) techos.set(b.cr, P = new Path2D()); poly(P, techo(E, up)); }
-      g.fillStyle = '#9a7e6c'; g.fill(muros); for (const [c, P] of techos) { g.fillStyle = c; g.fill(P); }
-      for (const b of B) { if (b.hito) { this.hito(g, b.hito, lod, cv); continue; } if (!b.ed) continue; colores(b); const E = esq(b), up = b.h * ob, Hh = hull(E, up); g.fillStyle = b.cs; g.beginPath(); poly(g, Hh); g.fill(); g.fillStyle = b.cr; g.beginPath(); poly(g, techo(E, up)); g.fill(); }
-    } else
-    for (const b of B) {
-      if (b.hito) { this.hito(g, b.hito, lod, cv); continue; }
-      const E = esq(b), up = b.h * ob, s = b.s, ed = b.ed, wall = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
-      const roof = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3];
-      // fachadas que dan hacia abajo de la pantalla (las que se ven)
-      for (let e = 0; e < 4; e++) {
-        const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4], nx = by - ay, ny = -(bx - ax), L = Math.hypot(nx, ny) || 1; if (ny / L < .04) continue;
-        const lum = .78 + .2 * (nx / L); g.fillStyle = sh(wall, lum); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(bx, by - up); g.lineTo(ax, ay - up); g.closePath(); g.fill();
-        if (lod === 0 && up > 2.2) {   // pisos: franjas de ventanas a lo largo de la fachada
-          const fl = Math.max(1, Math.round(b.h / 3.1)), step = up / fl; g.strokeStyle = ed ? 'rgba(30,48,70,.55)' : 'rgba(40,40,48,.45)'; g.lineWidth = Math.min(.9, step * .38); g.beginPath();
-          for (let f = 0; f < fl; f++) { const yy = f * step + step * .55, i0 = .12, i1 = .88; g.moveTo(ax + (bx - ax) * i0, ay + (by - ay) * i0 - yy); g.lineTo(ax + (bx - ax) * i1, ay + (by - ay) * i1 - yy); }
-          g.stroke();
-        } else if (lod === 0 && !ed) { g.fillStyle = '#4a3528'; const m = .5 + (s - .5) * .5, px = ax + (bx - ax) * m, py = ay + (by - ay) * m; g.fillRect(px - .5, py - 2.1, 1, 2); }
-      }
-      // techo
-      g.fillStyle = roof; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath(); g.fill();
-      if (lod === 0) {
-        if (!ed && s < .55) { g.strokeStyle = sh(roof, .82); g.lineWidth = .3; g.beginPath(); for (let t = .2; t < 1; t += .2) { const ax = E[0][0] + (E[3][0] - E[0][0]) * t, ay = E[0][1] + (E[3][1] - E[0][1]) * t - up, bx = E[1][0] + (E[2][0] - E[1][0]) * t, by = E[1][1] + (E[2][1] - E[1][1]) * t - up; g.moveTo(ax, ay); g.lineTo(bx, by); } g.stroke(); }
-        else if (!ed) { g.fillStyle = s > .8 ? '#2f4f7a' : '#3a3a3a'; g.beginPath(); g.arc(b.x + b.ux * b.hw * .4, b.y + b.uy * b.hw * .4 - up, .9, 0, TAU); g.fill(); }
-        else { g.fillStyle = sh(roof, .85); const w = Math.min(b.hw, b.hd) * .5; g.save(); g.translate(b.x, b.y - up); g.rotate(Math.atan2(b.uy, b.ux)); g.fillRect(-w * .6, -w * .45, w * 1.2, w * .9); if (b.h > 60 && s > .7) { g.strokeStyle = '#e8c64a'; g.lineWidth = .35; g.beginPath(); g.arc(0, 0, w * .38, 0, TAU); g.stroke(); } g.restore(); }
-      }
-      // contorno oscuro del volumen
-      g.strokeStyle = `rgba(20,26,38,${out})`; g.lineWidth = lod === 0 ? .32 : .9; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath();
-      for (let e = 0; e < 4; e++) { const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4]; if (by - ay === 0 && bx - ax === 0) continue; const ny = -(bx - ax); if (ny <= 0) continue; g.moveTo(ax, ay); g.lineTo(ax, ay - up); g.moveTo(bx, by); g.lineTo(bx, by - up); g.moveTo(ax, ay); g.lineTo(bx, by); }
-      g.stroke();
-    }
+    g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i] + A[i + 2] * .5, y = A[i + 1] + A[i + 2] * .35, r = A[i + 2]; g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU); } g.fill();   // sombras de todos los árboles, en una pasada
+    if (lod === 1) this.edifLejos(g, B, ob, cv);   // de lejos: casas en lote por color, edificios uno por uno
+    else for (const b of B) { if (b.hito) this.hito(g, b.hito, lod, cv); else this.dibEd(g, b, sc); }
     // copas de los árboles (encima de su sombra; los guayacanes florecen amarillo o rosado)
-    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2], fl = A[i + 3]; g.fillStyle = '#2f5b2f'; g.beginPath(); g.arc(x, y - 1.6, r, 0, TAU); g.fill(); g.fillStyle = fl ? (h2(x | 0, y | 0, 5) < .5 ? '#f0c13a' : '#e78bb8') : '#4f8a45'; g.beginPath(); g.arc(x - r * .2, y - 1.6 - r * .25, r * .74, 0, TAU); g.fill(); }
+    { const cop = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];   // copas por color, en cuatro pasadas
+      for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2], fl = A[i + 3], c = fl ? (h2(x | 0, y | 0, 5) < .5 ? 2 : 3) : 1; cop[0].moveTo(x + r, y - 1.6); cop[0].arc(x, y - 1.6, r, 0, TAU); const r2 = r * .74, cx = x - r * .2, cy = y - 1.6 - r * .25; cop[c].moveTo(cx + r2, cy); cop[c].arc(cx, cy, r2, 0, TAU); }
+      ['#2f5b2f', '#4f8a45', '#f0c13a', '#e78bb8'].forEach((c, i) => { g.fillStyle = c; g.fill(cop[i]); }); }
     // luces de ventanas para la noche (capa aparte, se arma cuando hace falta)
     cv.lights = (cv.lights || []).concat(B.filter(b => !b.hito && b.h > 6 && b.s > .3).map(b => [b.x, b.y - b.h * ob * .5, b.hw, b.h])); cv.X0 = X0; cv.Y0 = Y0; cv.sc = sc;
   },
@@ -4763,6 +4804,359 @@ const VC = EM.vcity = {
     g.restore();
   }
 };
+~~~~
+
+### `src/js/11-edificios.js`
+~~~~js
+/* =====================================================================
+   CASAS Y EDIFICIOS REALES (1.2.0): cada casa y cada edificio del valle con su huella real (src/data/edificios.js).
+   · Forma, posición y orientación: huellas abiertas (Overture: OpenStreetMap, Microsoft ML Buildings y Google Open Buildings).
+   · Pisos: los oficiales del Catastro de Medellín en Popular, El Poblado y Robledo; los de OpenStreetMap donde existen;
+     en el resto, estimados por zona y tamaño con lo medido en esas tres comunas.
+   · Materiales y techos por zona, como se ven desde el aire (ver docs/investigacion/medellin-desde-el-aire.md):
+     laderas de ladrillo a la vista con techos de zinc, fibrocemento y plancha con tanque; Laureles de casas blancas y de
+     ladrillo con teja y mucho árbol; El Poblado de torres de ladrillo entre el bosque; el Centro de fachadas ocres y de
+     ladrillo con teja vieja y azoteas; las bodegas de lámina; los pueblos de casas blancas con teja de barro.
+   · Suelos especiales: canchas, pistas atléticas, piscinas y campus universitarios con su prado.
+   Si los datos faltan o fallan, el motor vuelve a generar las casas a lo largo de las calles (respaldo procedural).
+   ===================================================================== */
+const KED = { casa: 0, edificio: 1, torre: 2, nave: 3, educativo: 4, salud: 5, iglesia: 6, civico: 7, comercio: 8, deporte: 9, techo: 10, invernadero: 11, tanque: 12, transporte: 13, parqueadero: 14, rural: 15 };
+Object.assign(VC, {
+  ED: null,
+  // zona de cada comuna de Medellín (1 a 21, en el orden de VALLE_META.comunas) y de cada municipio (1 a 10)
+  ZC: [null, 'ladera', 'ladera', 'ladera', 'mixto', 'mixto', 'ladera', 'mixto', 'ladera', 'ladera', 'centro', 'laureles', 'laureles', 'ladera', 'poblado', 'mixto', 'laureles', 'pueblo', 'mixto', 'pueblo', 'pueblo', 'pueblo'],
+  ZM: [null, 'mixto', 'mixto', 'mixto', 'poblado', 'poblado', 'mixto', 'pueblo', 'mixto', 'pueblo', 'pueblo'],
+  zona(x, y) {
+    if (!MAP.co) return 'mixto'; const i = clamp(Math.floor(y / TM / 8), 0, VM.mH - 1) * VM.mW + clamp(Math.floor(x / TM / 8), 0, VM.mW - 1), c = MAP.co[i];
+    return c ? this.ZC[c] || 'mixto' : this.ZM[MAP.mu[i]] || 'pueblo';
+  },
+  /* ---------- carga: índice por regiones de 640 m (los edificios se leen por región cuando hacen falta) ---------- */
+  async edifInit() {
+    if (typeof EDIFICIOS === 'undefined' || !EDIFICIOS.data) return;
+    try {
+      const E = EDIFICIOS, b = await MAP.unz(E.data, E.raw); if (!b || b.length < E.raw) return;
+      const nR = E.nx * E.ny, cnt = new Int32Array(nR), i0 = new Int32Array(nR), p0 = new Int32Array(nR), q0 = new Int32Array(nR); let o = 0, ci = 0, cp = 0, cq = 0;
+      const rv = () => { let v = 0, sh = 0, c; do { c = b[o++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; };
+      for (let r = 0; r < nR; r++) { cnt[r] = rv(); const pb = rv(), qb = rv(); i0[r] = ci; p0[r] = cp; q0[r] = cq; ci += cnt[r]; cp += pb; cq += qb; }
+      const Ls = E.len, oPos = Ls[0], oDim = oPos + Ls[1], oAng = oDim + Ls[2], oPis = oAng + Ls[3], oKin = oPis + Ls[4], oPol = oKin + Ls[5];
+      if (ci !== E.n || o !== Ls[0]) throw new Error('índice de edificios inconsistente');
+      this.ED = { b, nx: E.nx, ny: E.ny, R: E.R, Q: E.Q, cnt, i0, p0, q0, oPos, oDim, oAng, oPis, oKin, oPol, cache: new Map() };
+    } catch (e) { this.ED = null; EM.errors.push('edificios: ' + e.message); console.error(e); }
+    if (typeof SUELOS !== 'undefined') this.suelosInit();
+  },
+  /* altura en metros según el uso y los pisos (la teja suma su cumbrera aparte) */
+  alto(k, pis) {
+    switch (k) {
+      case 3: return 4.5 + pis * 2.6; case 9: return 7 + pis * 2.2; case 10: return 3.2; case 11: return 3; case 6: return Math.max(8, pis * 3.4);
+      case 0: case 15: return pis * 2.7 + .5; default: return pis * 3.05 + .6;
+    }
+  },
+  /* los edificios de una región, leídos del binario (se guardan los últimos que se usaron) */
+  edifDe(rx, ry) {
+    const E = this.ED; if (!E || rx < 0 || ry < 0 || rx >= E.nx || ry >= E.ny) return [];
+    const r = ry * E.nx + rx; let L = E.cache.get(r); if (L) { E.cache.delete(r); E.cache.set(r, L); return L; }
+    const b = E.b, n = E.cnt[r], R = E.R, Q = E.Q, X0 = rx * R, Y0 = ry * R; L = [];
+    let o = E.oPos + E.p0[r], q = E.oPol + E.q0[r], px = 0, py = 0, pa = 0;
+    const rv = () => { let v = 0, sh = 0, c; do { c = b[o++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; };
+    const rq = () => { let v = 0, sh = 0, c; do { c = b[q++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; };
+    const uz = v => v % 2 ? -(v + 1) / 2 : v / 2;
+    for (let j = 0; j < n; j++) {
+      const i = E.i0[r] + j; px += uz(rv()); py += uz(rv());
+      const hw = Math.max(.5, b[E.oDim + 2 * i] / Q), hd = Math.max(.5, b[E.oDim + 2 * i + 1] / Q); pa = (pa + b[E.oAng + i]) % 128;
+      const an = (pa + .5) * Math.PI / 128, ux = Math.cos(an), uy = Math.sin(an), pis = b[E.oPis + i] || 1, kf = b[E.oKin + i], k = kf & 15, x = X0 + px / Q, y = Y0 + py / Q;
+      let P = null, ym = y + Math.abs(uy) * hw + Math.abs(ux) * hd;
+      if (kf & 16) {
+        const nv = rq(); P = new Float32Array(nv * 2); let qx = px, qy = py, A = 0; ym = -1e9;
+        for (let v = 0; v < nv; v++) { qx += uz(rq()); qy += uz(rq()); P[2 * v] = X0 + qx / Q; P[2 * v + 1] = Y0 + qy / Q; if (P[2 * v + 1] > ym) ym = P[2 * v + 1]; }
+        for (let v = 0; v < nv; v++) { const w = (v + 1) % nv; A += P[2 * v] * P[2 * w + 1] - P[2 * w] * P[2 * v + 1]; }
+        if (A < 0) { const Q2 = new Float32Array(nv * 2); for (let v = 0; v < nv; v++) { Q2[2 * v] = P[2 * (nv - 1 - v)]; Q2[2 * v + 1] = P[2 * (nv - 1 - v) + 1]; } P = Q2; }   // mismo sentido que las esquinas del rectángulo
+      }
+      L.push({ x, y, hw, hd, ux, uy, h: this.alto(k, pis), pis, k, P, ym, of: kf & 96, s: h2(x * 2 | 0, y * 2 | 0, 9), ed: k !== 0 && k !== 15 });
+    }
+    E.cache.set(r, L); while (E.cache.size > 60) E.cache.delete(E.cache.keys().next().value);
+    return L;
+  },
+  /* ¿está (x, y) dentro del polígono P o a menos de r de su borde? */
+  enPol(P, x, y, r = 0) {
+    const n = P.length / 2; let dentro = false;
+    for (let i = 0, j = n - 1; i < n; j = i++) { const xi = P[2 * i], yi = P[2 * i + 1], xj = P[2 * j], yj = P[2 * j + 1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) dentro = !dentro; }
+    if (dentro || r <= 0) return dentro;
+    for (let i = 0, j = n - 1; i < n; j = i++) { const ax = P[2 * j], ay = P[2 * j + 1], dx = P[2 * i] - ax, dy = P[2 * i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < r) return true; }
+    return false;
+  },
+  /* tramos de calle que deben quedar libres (calles de carros con medio andén; peatonales y escaleras), por celda de 160 m */
+  segsCelda(gx, gy) {
+    const sc = this.sc || (this.sc = new Map()), key = gx * 4096 + gy; let S = sc.get(key); if (S) return S;
+    const C = this.CG, x0 = gx * C, y0 = gy * C, x1 = x0 + C, y1 = y0 + C, out = [];
+    for (const i of this.cg.get(key) || []) { const c = this.ch[i]; if (!(c.k <= 4 || c.k === 6 || c.k === 7)) continue; const r = Math.max(1, c.w / 2 + (c.k <= 4 ? 1.3 : .3)), P = c.P;
+      for (let j = 2; j < P.length; j += 2) { const ax = P[j - 2], ay = P[j - 1], bx = P[j], by = P[j + 1]; if (Math.max(ax, bx) + r < x0 || Math.min(ax, bx) - r > x1 || Math.max(ay, by) + r < y0 || Math.min(ay, by) - r > y1) continue; out.push(ax, ay, bx, by, r); } }
+    // el carril del Metroplús y el tranvía de Ayacucho van a ras de calle: también quedan libres
+    if (!this.trSeg && typeof NET !== 'undefined' && NET.lines) { const T = this.trSeg = new Map(); for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'tram') continue; const r = l.kind === 'brt' ? 5.5 : 5, Pt = l.P.pts;
+      for (let j = 1; j < Pt.length; j++) { const a = Pt[j - 1], b = Pt[j]; for (let cy = Math.floor((Math.min(a.y, b.y) - r) / C); cy <= Math.floor((Math.max(a.y, b.y) + r) / C); cy++) for (let cx = Math.floor((Math.min(a.x, b.x) - r) / C); cx <= Math.floor((Math.max(a.x, b.x) + r) / C); cx++) { const k = cx * 4096 + cy; let L = T.get(k); if (!L) T.set(k, L = []); L.push(a.x, a.y, b.x, b.y, r); } } } }
+    if (this.trSeg) for (const v of this.trSeg.get(key) || []) out.push(v);
+    S = Float32Array.from(out); sc.set(key, S); while (sc.size > 600) sc.delete(sc.keys().next().value); return S;
+  },
+  /* los tramos que pasan a menos de R de (x, y) */
+  segsCerca(x, y, R) {
+    const C = this.CG, out = [];
+    for (let gy = Math.floor((y - R) / C); gy <= Math.floor((y + R) / C); gy++) for (let gx = Math.floor((x - R) / C); gx <= Math.floor((x + R) / C); gx++) { const S = this.segsCelda(gx, gy);
+      for (let i = 0; i < S.length; i += 5) { const r = S[i + 4] + R; if (Math.max(S[i], S[i + 2]) + r < x || Math.min(S[i], S[i + 2]) - r > x || Math.max(S[i + 1], S[i + 3]) + r < y || Math.min(S[i + 1], S[i + 3]) - r > y) continue; out.push(S[i], S[i + 1], S[i + 2], S[i + 3], S[i + 4]); } }
+    return out;
+  },
+  enSegs(S, x, y) { for (let i = 0; i < S.length; i += 5) { const ax = S[i], ay = S[i + 1], dx = S[i + 2] - ax, dy = S[i + 3] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), qx = ax + dx * t - x, qy = ay + dy * t - y; if (qx * qx + qy * qy < S[i + 4] * S[i + 4]) return true; } return false; },
+  /* recorta el rectángulo de un edificio para que no pise la calle; si la calle lo atraviesa por dentro o queda muy chico, no va */
+  recorta(b) {
+    const ux = b.ux, uy = b.uy, bad = [], S = this.segsCerca(b.x, b.y, Math.hypot(b.hw, b.hd) + .5); if (!S.length) return true;
+    const na = Math.max(1, Math.ceil(b.hw * 2)), nd = Math.max(1, Math.ceil(b.hd * 2));   // muestras cada metro o menos, bordes incluidos
+    const muestrea = pol => { bad.length = 0; for (let i = 0; i <= na; i++) for (let j = 0; j <= nd; j++) { const a = -b.hw + 2 * b.hw * i / na, d = -b.hd + 2 * b.hd * j / nd, x = b.x + ux * a - uy * d, y = b.y + uy * a + ux * d; if (this.enSegs(S, x, y) && (!pol || this.enPol(b.P, x, y, .5))) bad.push(a, d); } };
+    muestrea(!!b.P); if (!bad.length) return true;
+    if (b.P) muestrea(false);   // un polígono recortado queda como rectángulo: se mide la calle contra el rectángulo entero
+    let a0 = -b.hw, a1 = b.hw, d0 = -b.hd, d1 = b.hd;
+    let n = 1;
+    for (let it = 0; it < 400 && n; it++) {
+      n = 0; let cA0 = 0, cA1 = 0, cD0 = 0, cD1 = 0;
+      for (let i = 0; i < bad.length; i += 2) { const a = bad[i], d = bad[i + 1]; if (a < a0 - 1e-6 || a > a1 + 1e-6 || d < d0 - 1e-6 || d > d1 + 1e-6) continue; n++; if (a < a0 + 1.5) cA0++; if (a > a1 - 1.5) cA1++; if (d < d0 + 1.5) cD0++; if (d > d1 - 1.5) cD1++; }
+      if (!n) break; const m = Math.max(cA0, cA1, cD0, cD1); if (!m) return false;
+      if (m === cA0) a0 += 1; else if (m === cA1) a1 -= 1; else if (m === cD0) d0 += 1; else d1 -= 1;
+      if (a1 - a0 < 2.4 || d1 - d0 < 2.4) return false;
+    }
+    if (n) return false;   // no alcanzó a despejar la calle
+    // medio metro más en los lados recortados: la máscara de la calle va en celdas de 2 m
+    if (a0 > -b.hw) a0 += .6; if (a1 < b.hw) a1 -= .6; if (d0 > -b.hd) d0 += .6; if (d1 < b.hd) d1 -= .6; if (a1 - a0 < 2 || d1 - d0 < 2) return false;
+    const ca = (a0 + a1) / 2, cd = (d0 + d1) / 2; b.x += ux * ca - uy * cd; b.y += uy * ca + ux * cd; b.hw = (a1 - a0) / 2; b.hd = (d1 - d0) / 2; b.P = null; b.cut = 1;
+    if (b.hw < b.hd) { const t = b.hw; b.hw = b.hd; b.hd = t; const ox = b.ux; b.ux = -b.uy; b.uy = ox; }   // el lado largo sigue siendo hw
+    b.ym = b.y + Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd; return true;
+  },
+  /* pone en la región sus edificios reales y marca su ocupación; los de las regiones vecinas que entran en esta van a la física (ext) */
+  edifRegion(rx, ry, X0, Y0, NG, RES, occ, bs, ext, asf) {
+    if (!this.ED) return false;
+    const R = this.R, occAt = (x, y) => { const gx = Math.floor((x - X0) / RES), gy = Math.floor((y - Y0) / RES); return gx < 0 || gy < 0 || gx >= NG || gy >= NG ? -1 : occ[gy * NG + gx]; };
+    const marca = b => {
+      const r = Math.hypot(b.hw, b.hd), gx0 = Math.max(0, Math.floor((b.x - r - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((b.x + r - X0) / RES)), gy0 = Math.max(0, Math.floor((b.y - r - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((b.y + r - Y0) / RES));
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const j = gy * NG + gx; if (occ[j]) continue; const px = X0 + (gx + .5) * RES, py = Y0 + (gy + .5) * RES, dx = px - b.x, dy = py - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (Math.abs(a) <= b.hw + .4 && Math.abs(d) <= b.hd + .4 && (!b.P || this.enPol(b.P, px, py, .4))) occ[j] = 2; }
+    };
+    // huellas y vías vienen de fuentes distintas y se corren uno o dos metros: cada edificio se recorta contra la calle (asfalto
+    // y medio andén, peatonales y escaleras) para que la calle quede siempre libre; si su centro cae en la calle o en un hito, no va
+    // (la decisión no depende de la región: se mide contra los tramos de calle y los hitos, y se guarda en el edificio)
+    const libre = b => { if (b.rec !== undefined) return b.rec; const S = this.segsCerca(b.x, b.y, 1); if (this.enSegs(S, b.x, b.y) || this.hitosEn(b.x, b.y, b.x, b.y).some(H => this.dentroH(H, b.x, b.y))) return (b.rec = false); return (b.rec = this.recorta(b)); };
+    for (const b of this.edifDe(rx, ry)) if (libre(b)) { bs.push(b); if (b.k !== 10) marca(b); }
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+      if (!i && !j) continue;
+      for (const b of this.edifDe(rx + i, ry + j)) { const r = b.hw + b.hd; if (b.x + r < rx * R || b.x - r > (rx + 1) * R || b.y + r < ry * R || b.y - r > (ry + 1) * R) continue; if (!libre(b)) continue; ext.push(b); if (b.k !== 10) marca(b); }
+    }
+    return true;
+  },
+  /* ---------- estilo: materiales y techos por zona y por uso, como en las fotos aéreas ---------- */
+  PAL: {
+    ladrillo: ['#b5593c', '#a9533a', '#c0654a', '#9c4a33', '#b86446', '#a65a3e', '#bd6a4c'],
+    pintado: ['#7fb3d5', '#8fc79a', '#e98fae', '#f2d16b', '#f4f1ea', '#f0a35e', '#9b8fd1', '#6fc2b8', '#f6f3ea'],
+    claro: ['#f4efe4', '#efe3c8', '#f2e6d0', '#ece6da', '#f7f1e6', '#e9e2d2'],
+    ocre: ['#e8d9b5', '#d9c49a', '#e2cfa8', '#cfc3ad', '#e6d3b0', '#d6bd8f'],
+    gris: ['#bfc0bb', '#a9aeb3', '#c9c6bd', '#b3b6b1'],
+    torreLad: ['#b86a4a', '#c27552', '#a85d3f', '#c98b62', '#b5603f', '#a4583c'],
+    vidrio: ['#5f88a8', '#4f7896', '#6c97b5', '#58809e'],
+    teja: ['#b9553a', '#c6663f', '#a8462f', '#b4502f', '#bf5d3c'],
+    plancha: ['#a8a49b', '#b3ada2', '#9d9a93', '#bdb6a8', '#aaa69f'],
+    eternit: ['#b9bbb6', '#a9aca8', '#c4c5bf', '#b0b2ad'],
+    zinc: ['#8a5a40', '#9b6b4b', '#7d6352', '#a7a9a6', '#94603f'],
+    metal: ['#c5cbcf', '#dfe3e4', '#9fb1bd', '#b8c0c4', '#d2d6d4'],
+  },
+  estilo(b) {
+    if (b.cw) return b;
+    const z = b.z || (b.z = this.zona(b.x, b.y)), k = b.k, P = this.PAL, pk = (a, u) => a[Math.floor(u * a.length) % a.length];
+    const u1 = h2(b.x * 7 | 0, b.y * 7 | 0, 31), u2 = h2(b.x * 5 | 0, b.y * 3 | 0, 32), u3 = h2(b.x * 3 | 0, b.y * 11 | 0, 33);
+    let w, r, t;
+    switch (k) {
+      case 3: w = pk(P.gris, u1); r = pk(P.metal, u2); t = 'nave'; break;
+      case 11: w = '#e3ebe4'; r = '#eef3ee'; t = 'inv'; break;
+      case 12: w = '#d9dcd8'; r = '#c4c9c6'; t = 'plana'; break;
+      case 10: w = '#8f8a82'; r = pk(P.metal.concat(P.eternit), u2); t = 'techo'; break;
+      case 6: w = pk(['#efe6d2', '#f3eee2', '#e9dcc0', '#f1e4c6'], u1); r = pk(P.teja, u2); t = b.hw * b.hd < 900 ? 'teja' : 'tejaP'; break;
+      case 5: w = pk(['#f3f4f2', '#eef0ee', '#e8ecef'], u1); r = pk(['#c9ccc9', '#bcc2c4'], u2); t = 'azotea'; break;
+      case 4: w = u1 < .45 ? pk(P.ladrillo, u2) : pk(['#efe0c0', '#f2ead8', '#e7dcc4', '#f4f0e6'], u2); if (u3 < .4 && b.hw * b.hd < 110) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.plancha, u1); t = 'azotea'; } break;
+      case 8: w = pk(['#e6e4de', '#ddd8cc', '#cfd4d8', '#ece9e2'], u1); r = pk(P.plancha.concat(P.metal), u2); t = 'azotea'; break;
+      case 7: case 13: w = pk(['#d8d3c8', '#cfcac0', '#e2ddd2'], u1); r = pk(P.plancha, u2); t = 'azotea'; break;
+      case 9: w = '#d5d2c9'; r = pk(['#9fb1bd', '#b8c0c4', '#c9ced1'], u2); t = 'nave'; break;
+      case 14: w = '#b9b8b2'; r = '#a3a29d'; t = 'plana'; break;
+      case 1: case 2: {
+        const lad = z === 'poblado' ? .66 : z === 'laureles' ? .55 : z === 'centro' ? .36 : z === 'ladera' ? .7 : .5, vid = k === 2 ? (z === 'centro' || z === 'poblado' ? .16 : .07) : .02;
+        w = u1 < vid ? pk(P.vidrio, u2) : u1 < vid + lad ? pk(z === 'poblado' ? P.torreLad : P.ladrillo, u2) : pk(z === 'centro' ? P.ocre.concat(P.gris) : P.claro.concat(P.ocre), u2);
+        r = pk(P.plancha, u3); t = 'azotea'; if (k === 1 && z !== 'centro' && z !== 'ladera' && u3 < .42 && b.hw * b.hd < 150) { r = pk(P.teja, u1); t = 'teja'; } break;
+      }
+      case 15: w = pk(P.claro, u1); r = pk(P.teja, u2); t = 'teja'; break;
+      default:   // casa: según la zona
+        if (z === 'ladera') { w = u1 < .72 ? pk(P.ladrillo, u2) : pk(P.pintado, u2); if (u3 < .28) { r = pk(P.plancha, u1); t = 'plancha'; } else if (u3 < .5) { r = pk(P.eternit, u1); t = 'lamina'; } else if (u3 < .76) { r = pk(P.zinc, u1); t = 'lamina'; } else if (u3 < .93) { r = pk(P.teja.concat(P.ladrillo), u1); t = u3 < .86 ? 'teja' : 'plancha'; } else { r = '#dfe3e4'; t = 'lamina'; } }
+        else if (z === 'laureles') { w = u1 < .42 ? pk(P.claro, u2) : u1 < .86 ? pk(P.ladrillo, u2) : pk(P.pintado, u2); if (u3 < .68) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.plancha, u1); t = 'plancha'; } }
+        else if (z === 'poblado') { w = u1 < .6 ? pk(P.claro, u2) : pk(P.torreLad, u2); if (u3 < .62) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.plancha, u1); t = 'plancha'; } }
+        else if (z === 'centro') { w = u1 < .45 ? pk(P.ocre, u2) : u1 < .8 ? pk(P.ladrillo, u2) : pk(P.gris, u2); if (u3 < .5) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.plancha, u1); t = 'plancha'; } }
+        else if (z === 'pueblo') { w = u1 < .68 ? pk(P.claro, u2) : u1 < .84 ? pk(P.pintado, u2) : pk(P.ladrillo, u2); if (u3 < .78) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.eternit, u1); t = 'lamina'; } }
+        else { w = u1 < .56 ? pk(P.ladrillo, u2) : u1 < .86 ? pk(P.claro, u2) : pk(P.pintado, u2); if (u3 < .34) { r = pk(P.plancha, u1); t = 'plancha'; } else if (u3 < .8) { r = pk(P.teja, u1); t = 'teja'; } else { r = pk(P.eternit, u1); t = 'lamina'; } }
+    }
+    if (b.P && t === 'teja') t = 'tejaP';   // en planta irregular la teja va sin cumbrera
+    b.cw = w; b.cr = r; b.rt = t; b.cs = Art.shade(w, .8); return b;
+  },
+  /* esquinas del rectángulo orientado, en el mismo sentido que los polígonos (si u = (1, 0): arriba-izq, arriba-der, abajo-der, abajo-izq) */
+  esqP(b) { const { x, y, ux, uy, hw, hd } = b; return [x - ux * hw + uy * hd, y - uy * hw - ux * hd, x + ux * hw + uy * hd, y + uy * hw - ux * hd, x + ux * hw - uy * hd, y + uy * hw + ux * hd, x - ux * hw - uy * hd, y - uy * hw + ux * hd]; },
+  /* sombra (sol de la tarde, desde el noroeste): la huella barrida hacia el sureste */
+  sombraEd(g, b, simple) {
+    const P = b.P || this.esqP(b), n = P.length / 2, sx = Math.min(14, b.h * .32), sy = Math.min(9, b.h * .2);
+    if (b.k === 12) { const r = (b.hw + b.hd) / 2; g.moveTo(b.x + sx + r, b.y + sy); g.arc(b.x + sx, b.y + sy, r, 0, TAU); return; }
+    g.moveTo(P[0] + sx, P[1] + sy); for (let i = 1; i < n; i++) g.lineTo(P[2 * i] + sx, P[2 * i + 1] + sy); g.closePath(); if (simple) return;
+    for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = P[2 * i], ay = P[2 * i + 1], bx = P[2 * j], by = P[2 * j + 1]; if ((bx - ax) * sy - (by - ay) * sx < 0) continue; g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(bx + sx, by + sy); g.lineTo(ax + sx, ay + sy); g.closePath(); }
+  },
+  /* un edificio con su volumen (lod 0: de cerca, con ventanas, puertas, tanques y teja) */
+  dibEd(g, b, sc) {
+    this.estilo(b); const ob = this.ob, k = b.k, sh = Art.shade, up = b.h * ob, det = sc >= 1.9, fino = sc >= 3.5;
+    if (k === 12) return this.dibTanque(g, b, det);
+    const P = b.P || this.esqP(b), n = P.length / 2, s = b.s, techo = k === 10, out = sc >= 3.5 ? .3 : .45;
+    // muros que miran hacia abajo de la pantalla (los que se ven), con la luz del oeste
+    if (!techo) for (let e = 0; e < n; e++) {
+      const f = (e + 1) % n, ax = P[2 * e], ay = P[2 * e + 1], bx = P[2 * f], by = P[2 * f + 1], nx = by - ay, ny = -(bx - ax), L = Math.hypot(nx, ny) || 1; if (ny / L < .04) continue;
+      g.fillStyle = sh(b.cw, .76 + .2 * (nx / L)); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(bx, by - up); g.lineTo(ax, ay - up); g.closePath(); g.fill();
+      if (det && up > 2 && L > 2.2) this.fachada(g, b, ax, ay, bx, by, L, up, fino);
+    }
+    // techo
+    const T = this.techo2(g, b, P, n, up, det, fino);
+    if (techo) {   // cubierta sin muros: postes en las esquinas de adelante
+      g.strokeStyle = 'rgba(40,40,40,.6)'; g.lineWidth = .25; g.beginPath(); for (let i = 0; i < n; i++) { const x = P[2 * i], y = P[2 * i + 1]; g.moveTo(x, y); g.lineTo(x, y - up); } g.stroke();
+    }
+    // contorno oscuro del volumen
+    g.strokeStyle = `rgba(20,26,38,${out})`; g.lineWidth = sc >= 3.5 ? .22 : .5; g.beginPath();
+    if (!T) { g.moveTo(P[0], P[1] - up); for (let i = 1; i < n; i++) g.lineTo(P[2 * i], P[2 * i + 1] - up); g.closePath(); }
+    if (!techo) for (let e = 0; e < n; e++) { const f = (e + 1) % n, ax = P[2 * e], ay = P[2 * e + 1], bx = P[2 * f], by = P[2 * f + 1]; if (-(bx - ax) <= 0) continue; g.moveTo(ax, ay); g.lineTo(ax, ay - up); g.moveTo(bx, by); g.lineTo(bx, by - up); g.moveTo(ax, ay); g.lineTo(bx, by); }
+    g.stroke();
+    // iglesia: campanario en el frente (el extremo del eje largo que mira hacia abajo)
+    if (k === 6 && det) { const sd = b.uy >= 0 ? 1 : -1, tx = b.x + b.ux * (b.hw - 2.2) * sd, ty = b.y + b.uy * (b.hw - 2.2) * sd, th = b.h + 9; this.dibTorrecilla(g, tx, ty, 2.1, th, b.cw, b.cr); }
+  },
+  /* ventanas y puertas sobre un muro visible */
+  fachada(g, b, ax, ay, bx, by, L, up, fino) {
+    const ob = this.ob, k = b.k, fl = Math.max(1, b.pis), dz = up / fl, vid = b.cw && /^#[4-6]/.test(b.cw), torre = k === 1 || k === 2 || k === 5 || k === 7 || k === 8 || k === 13 || k === 4;
+    const wpt = (t, z) => [ax + (bx - ax) * t, ay + (by - ay) * t - z];
+    if (torre || vid) {   // franjas de ventanas por piso (y parteluces en el vidrio)
+      g.strokeStyle = vid ? 'rgba(225,240,250,.5)' : 'rgba(30,48,70,.55)'; g.lineWidth = Math.min(.8, dz * .38); g.beginPath();
+      for (let f = 0; f < fl; f++) { const z = f * dz + dz * .55, [x1, y1] = wpt(.08, z), [x2, y2] = wpt(.92, z); g.moveTo(x1, y1); g.lineTo(x2, y2); }
+      g.stroke();
+      if (fino && L > 6) { g.strokeStyle = vid ? 'rgba(20,40,60,.35)' : 'rgba(255,255,255,.18)'; g.lineWidth = .18; g.beginPath(); const nm = Math.floor(L / 2.6); for (let i = 1; i < nm; i++) { const [x1, y1] = wpt(i / nm, 0), [x2, y2] = wpt(i / nm, up - .3); g.moveTo(x1, y1); g.lineTo(x2, y2); } g.stroke(); }
+      return;
+    }
+    if (k === 3 || k === 9 || k === 11 || k === 14) { if (fino && L > 8) { g.fillStyle = 'rgba(60,64,70,.55)'; const [x1, y1] = wpt(.4, 0), [x2, y2] = wpt(.6, 0); g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x2, y2 - Math.min(up * .7, 4.5 * ob)); g.lineTo(x1, y1 - Math.min(up * .7, 4.5 * ob)); g.closePath(); g.fill(); } return; }
+    // casas: una ventana cada ~3 m por piso y la puerta abajo
+    const nv = Math.max(1, Math.floor(L / 3.1)), ww = Math.min(.32, 1 / nv * .45), hz = dz * .42;
+    g.fillStyle = 'rgba(38,44,58,.62)'; g.beginPath();
+    for (let f = 0; f < fl; f++) for (let i = 0; i < nv; i++) {
+      if (!f && i === (nv > 1 ? (b.s * nv | 0) : -1)) continue; const t = (i + .5) / nv, z = f * dz + dz * .38, [x1, y1] = wpt(t - ww / 2, z), [x2, y2] = wpt(t + ww / 2, z);
+      g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x2, y2 - hz); g.lineTo(x1, y1 - hz); g.closePath();
+    }
+    g.fill();
+    { const i = nv > 1 ? (b.s * nv | 0) : 0, t = (i + .5) / nv, wd = Math.min(.22, .9 / L), [x1, y1] = wpt(t - wd / 2, 0), [x2, y2] = wpt(t + wd / 2, 0); g.fillStyle = b.s < .5 ? '#5a3a26' : '#3c4a5c'; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x2, y2 - dz * .7); g.lineTo(x1, y1 - dz * .7); g.closePath(); g.fill(); }
+  },
+  /* techo según su tipo; devuelve true si ya dibujó su contorno */
+  techo2(g, b, P, n, up, det, fino) {
+    const sh = Art.shade, t = b.rt, ob = this.ob, s = b.s;
+    const plano = (col) => { g.fillStyle = col; g.beginPath(); g.moveTo(P[0], P[1] - up); for (let i = 1; i < n; i++) g.lineTo(P[2 * i], P[2 * i + 1] - up); g.closePath(); g.fill(); };
+    if (t === 'teja' && !b.P) {   // dos aguas: cumbrera a lo largo del lado largo
+      const lu = b.hw >= b.hd, ax = lu ? b.ux : -b.uy, ay = lu ? b.uy : b.ux, la = lu ? b.hw : b.hd, ls = lu ? b.hd : b.hw, vx = ay, vy = -ax, rise = Math.min(ls * .62, 3.2) * ob, top = up + rise;
+      const r1x = b.x - ax * la, r1y = b.y - ay * la - top, r2x = b.x + ax * la, r2y = b.y + ay * la - top;
+      const lado = sd => { const c1x = b.x - ax * la + vx * ls * sd, c1y = b.y - ay * la + vy * ls * sd - up, c2x = b.x + ax * la + vx * ls * sd, c2y = b.y + ay * la + vy * ls * sd - up, luz = (vx * sd * -1 + vy * sd * -1) > 0;
+        g.fillStyle = sh(b.cr, luz ? 1.06 : .8); g.beginPath(); g.moveTo(c1x, c1y); g.lineTo(c2x, c2y); g.lineTo(r2x, r2y); g.lineTo(r1x, r1y); g.closePath(); g.fill();
+        if (det) { g.strokeStyle = sh(b.cr, .7); g.lineWidth = fino ? .14 : .25; g.beginPath(); const m = Math.max(2, Math.round(la * 2 / (fino ? 1.2 : 2.4))); for (let i = 1; i < m; i++) { const f = i / m; g.moveTo(c1x + (c2x - c1x) * f, c1y + (c2y - c1y) * f); g.lineTo(r1x + (r2x - r1x) * f, r1y + (r2y - r1y) * f); } g.stroke(); }
+        return [c1x, c1y, c2x, c2y]; };
+      const atras = vy * -1 > 0 ? 1 : -1;   // primero el faldón de atrás (el que mira hacia arriba de la pantalla)
+      const A = lado(atras), B = lado(-atras);
+      // hastiales: el triángulo de muro bajo la teja en los extremos que se ven
+      for (const sd of [1, -1]) { const ex = ax * sd, ey = ay * sd; if (ey <= .04) continue; const px = b.x + ax * la * sd, py = b.y + ay * la * sd; g.fillStyle = sh(b.cw, .8 + .18 * ex); g.beginPath(); g.moveTo(px + vx * ls, py + vy * ls - up); g.lineTo(px - vx * ls, py - vy * ls - up); g.lineTo(px, py - top); g.closePath(); g.fill(); }
+      g.strokeStyle = 'rgba(40,24,16,.55)'; g.lineWidth = fino ? .22 : .4; g.beginPath(); g.moveTo(r1x, r1y); g.lineTo(r2x, r2y); g.moveTo(A[0], A[1]); g.lineTo(A[2], A[3]); g.lineTo(r2x, r2y); g.lineTo(B[2], B[3]); g.lineTo(B[0], B[1]); g.lineTo(r1x, r1y); g.closePath(); g.stroke();
+      return true;
+    }
+    plano(t === 'tejaP' ? b.cr : b.cr);
+    if (!det) return false;
+    const cx = b.x, cy = b.y - up, u = [b.ux, b.uy], v = [b.uy, -b.ux];
+    if (t === 'tejaP' || t === 'lamina' || t === 'nave' || t === 'inv') {   // láminas, teja o naves: canales a lo largo
+      const paso = t === 'nave' ? 2.2 : t === 'inv' ? 1.6 : fino ? .9 : 1.8, m = Math.floor(b.hw * 2 / paso); if (m > 1 && m < 160) {
+        g.save(); g.beginPath(); g.moveTo(P[0], P[1] - up); for (let i = 1; i < n; i++) g.lineTo(P[2 * i], P[2 * i + 1] - up); g.closePath(); g.clip();
+        g.strokeStyle = t === 'inv' ? 'rgba(150,170,160,.6)' : sh(b.cr, .78); g.lineWidth = t === 'nave' ? .3 : .16; g.beginPath();
+        for (let i = 1; i < m; i++) { const a = -b.hw + i * paso, x = cx + u[0] * a, y = cy + u[1] * a; g.moveTo(x - v[0] * b.hd, y - v[1] * b.hd); g.lineTo(x + v[0] * b.hd, y + v[1] * b.hd); }
+        g.stroke(); if (t === 'nave' && s < .45) { g.fillStyle = 'rgba(255,255,255,.18)'; for (let i = 0; i < m; i += 2) { const a = -b.hw + i * paso, x = cx + u[0] * a, y = cy + u[1] * a; g.beginPath(); g.moveTo(x - v[0] * b.hd, y - v[1] * b.hd); g.lineTo(x + v[0] * b.hd, y + v[1] * b.hd); g.lineTo(x + v[0] * b.hd + u[0] * paso, y + v[1] * b.hd + u[1] * paso); g.lineTo(x - v[0] * b.hd + u[0] * paso, y - v[1] * b.hd + u[1] * paso); g.closePath(); g.fill(); } }
+        g.restore();
+      }
+      // en las laderas, piedras y llantas para que no se vuele la teja; y algunas láminas oxidadas a parches
+      if (t === 'lamina' && fino && s > .55) { g.fillStyle = 'rgba(60,50,40,.5)'; for (let i = 0; i < 3; i++) { const a = (h2(cx | 0, i, 71) - .5) * b.hw * 1.4, d = (h2(cy | 0, i, 72) - .5) * b.hd * 1.4; g.beginPath(); g.arc(cx + u[0] * a + v[0] * d, cy + u[1] * a + v[1] * d, .35, 0, TAU); g.fill(); } }
+      return false;
+    }
+    if (t === 'plancha') {   // losa: antepecho, tanque de agua (negro o azul) y en Laureles y El Poblado, matas en la terraza
+      if (fino && b.hw > 2.5 && b.hd > 2.5) { g.strokeStyle = sh(b.cr, 1.12); g.lineWidth = .3; g.beginPath(); const k2 = .82; g.moveTo(cx + (P[0] - b.x) * k2, cy + (P[1] - b.y) * k2); for (let i = 1; i < n; i++) g.lineTo(cx + (P[2 * i] - b.x) * k2, cy + (P[2 * i + 1] - b.y) * k2); g.closePath(); g.stroke(); }
+      const tx = cx + u[0] * b.hw * (s - .5) * 1.1 + v[0] * b.hd * .45, ty = cy + u[1] * b.hw * (s - .5) * 1.1 + v[1] * b.hd * .45;
+      g.fillStyle = s > .72 ? '#2f5f9a' : '#262626'; g.beginPath(); g.arc(tx, ty - .45, .75, 0, TAU); g.fill(); g.fillStyle = 'rgba(255,255,255,.25)'; g.beginPath(); g.arc(tx - .2, ty - .7, .3, 0, TAU); g.fill();
+      if ((b.z === 'laureles' || b.z === 'poblado') && s < .35) { g.fillStyle = '#4f8a45'; for (let i = 0; i < 3; i++) { g.beginPath(); g.arc(cx - u[0] * b.hw * .5 + v[0] * (i - 1) * b.hd * .5, cy - u[1] * b.hw * .5 + v[1] * (i - 1) * b.hd * .5, .55, 0, TAU); g.fill(); } }
+      return false;
+    }
+    if (t === 'azotea') {   // edificios: cuarto de máquinas, y en las torres altas a veces piscina o helipuerto
+      const w = Math.min(b.hw, b.hd) * .5; g.save(); g.translate(cx, cy); g.rotate(Math.atan2(b.uy, b.ux));
+      g.fillStyle = sh(b.cr, .86); g.fillRect(-w * .6, -w * .45, w * 1.2, w * .9);
+      if (b.pis >= 8 && b.z === 'poblado' && s > .82 && b.hw > 9) { g.fillStyle = '#5ec8e0'; g.fillRect(b.hw * .25, -b.hd * .55, b.hw * .5, b.hd * .35); }
+      if (b.pis >= 22 && s < .12) { g.strokeStyle = '#e8c64a'; g.lineWidth = .35; g.beginPath(); g.arc(-b.hw * .4, 0, Math.min(b.hd * .5, 4), 0, TAU); g.stroke(); }
+      g.restore(); return false;
+    }
+    return false;
+  },
+  /* tanque redondo (acueducto, combustibles) */
+  dibTanque(g, b, det) {
+    const r = Math.max(2, (b.hw + b.hd) / 2), up = Math.max(4, r * 1.2) * this.ob; g.fillStyle = Art.shade(b.cw, .82); g.fillRect(b.x - r, b.y - up, r * 2, up);
+    g.beginPath(); g.arc(b.x, b.y, r, 0, Math.PI); g.fill(); g.fillStyle = b.cr; g.beginPath(); g.arc(b.x, b.y - up, r, 0, TAU); g.fill();
+    g.strokeStyle = 'rgba(20,26,38,.45)'; g.lineWidth = .3; g.stroke(); if (det) { g.strokeStyle = 'rgba(255,255,255,.3)'; g.beginPath(); g.arc(b.x, b.y - up, r * .6, 0, TAU); g.stroke(); }
+  },
+  /* campanario de iglesia */
+  dibTorrecilla(g, x, y, r, h, cw, cr) {
+    const up = h * this.ob, sh = Art.shade; g.fillStyle = sh(cw, .82); g.fillRect(x - r, y - up, r * 2, up); g.fillStyle = sh(cw, .96); g.fillRect(x - r, y - up - r * .2, r * 2, r * 1.2);
+    g.fillStyle = 'rgba(40,30,20,.65)'; g.fillRect(x - r * .4, y - up + r * .9, r * .8, r * 1.1); g.fillStyle = sh(cr, .9); g.beginPath(); g.moveTo(x - r * 1.1, y - up - r * .2); g.lineTo(x, y - up - r * 2.2); g.lineTo(x + r * 1.1, y - up - r * .2); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(20,26,38,.45)'; g.lineWidth = .25; g.strokeRect(x - r, y - up, r * 2, up);
+  },
+  /* de lejos (lod 1): las casas en lote por color (silueta y techo), los edificios y torres uno por uno */
+  edifLejos(g, B, ob, cv) {
+    const hull = (P, up) => { const n = P.length / 2, Pt = []; for (let i = 0; i < n; i++) { Pt.push([P[2 * i], P[2 * i + 1]], [P[2 * i], P[2 * i + 1] - up]); } Pt.sort((p, q) => p[0] - q[0] || p[1] - q[1]); const cr = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]), lo = [], hi = [];
+      for (const p of Pt) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (let i = Pt.length - 1; i >= 0; i--) { const p = Pt[i]; while (hi.length > 1 && cr(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); } return lo.slice(0, -1).concat(hi.slice(0, -1)); };
+    const poly = (Pa, Q) => { Pa.moveTo(Q[0][0], Q[0][1]); for (let i = 1; i < Q.length; i++) Pa.lineTo(Q[i][0], Q[i][1]); Pa.closePath(); };
+    const roof = (Pa, P, up) => { const n = P.length / 2; Pa.moveTo(P[0], P[1] - up); for (let i = 1; i < n; i++) Pa.lineTo(P[2 * i], P[2 * i + 1] - up); Pa.closePath(); };
+    const muros = new Map(), techos = new Map(), get = (M, c) => { let p = M.get(c); if (!p) M.set(c, p = new Path2D()); return p; };
+    for (const b of B) { if (b.hito || b.k === 1 || b.k === 2) continue; this.estilo(b); const P = b.P || this.esqP(b), up = b.h * ob; if (b.k !== 10) roof(get(muros, b.cs), P, 0); roof(get(techos, b.cr), P, up); }
+    for (const [c, p] of muros) { g.fillStyle = c; g.fill(p); } for (const [c, p] of techos) { g.fillStyle = c; g.fill(p); }
+    for (const b of B) { if (b.hito) { this.hito(g, b.hito, 1, cv); continue; } if (b.k !== 1 && b.k !== 2) continue; this.estilo(b); const P = b.P || this.esqP(b), up = b.h * ob; g.fillStyle = b.cs; g.beginPath(); poly(g, hull(P, up)); g.fill(); g.fillStyle = b.cr; g.beginPath(); roof(g, P, up); g.fill(); g.strokeStyle = 'rgba(20,26,38,.35)'; g.lineWidth = .8; g.stroke(); }
+  },
+  /* ---------- suelos especiales: canchas, pistas, piscinas y campus ---------- */
+  suelosInit() {
+    const S = SUELOS, G = this.SG = new Map(), C = 320, put = (o, x0, y0, x1, y1) => { for (let gy = Math.floor(y0 / C); gy <= Math.floor(y1 / C); gy++) for (let gx = Math.floor(x0 / C); gx <= Math.floor(x1 / C); gx++) { const k = gx * 4096 + gy; let a = G.get(k); if (!a) G.set(k, a = []); a.push(o); } };
+    for (const t of ['cancha', 'pista', 'piscina']) for (const a of S[t] || []) { const [x, y, hw, hd, an] = a, r = hw + hd, o = { t, x, y, hw, hd, ux: Math.cos(an), uy: Math.sin(an), f: a[5] || 1 }; put(o, x - r, y - r, x + r, y + r); }
+    this.campus = (S.campus || []).map(c => { const P = Float32Array.from(c.P); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (let i = 0; i < P.length; i += 2) { x0 = Math.min(x0, P[i]); x1 = Math.max(x1, P[i]); y0 = Math.min(y0, P[i + 1]); y1 = Math.max(y1, P[i + 1]); } const o = { t: 'campus', n: c.n, x: c.x, y: c.y, P, x0, y0, x1, y1, A: (x1 - x0) * (y1 - y0) }; put(o, x0, y0, x1, y1); return o; });
+  },
+  suelosEn(x0, y0, x1, y1) { if (!this.SG) return []; const out = new Set(), C = 320; for (let gy = Math.floor(y0 / C); gy <= Math.floor(y1 / C); gy++) for (let gx = Math.floor(x0 / C); gx <= Math.floor(x1 / C); gx++) for (const o of this.SG.get(gx * 4096 + gy) || []) out.add(o); return [...out]; },
+  /* ¿(x, y) cae en un campus? (para sembrar árboles en sus prados) */
+  enCampus(x, y) { for (const o of this.suelosEn(x, y, x, y)) if (o.t === 'campus' && x >= o.x0 && x <= o.x1 && y >= o.y0 && y <= o.y1 && this.enPol(o.P, x, y)) return o; return null; },
+  suelosEsp(g, X0, Y0, S, sc, lod) {
+    const L = this.suelosEn(X0 - 20, Y0 - 20, X0 + S + 20, Y0 + S + 20); if (!L.length) return; const fino = sc >= 1.9;
+    // campus: prado claro debajo de todo (los edificios, plazas y calles van encima)
+    for (const o of L) { if (o.t !== 'campus') continue; g.fillStyle = 'rgba(150,196,120,.5)'; g.beginPath(); const P = o.P; g.moveTo(P[0], P[1]); for (let i = 2; i < P.length; i += 2) g.lineTo(P[i], P[i + 1]); g.closePath(); g.fill(); }
+    const rect = (o, m, col) => { const hw = o.hw - m, hd = o.hd - m; if (hw <= 0 || hd <= 0) return; g.fillStyle = col; g.beginPath(); g.moveTo(o.x - o.ux * hw + o.uy * hd, o.y - o.uy * hw - o.ux * hd); g.lineTo(o.x + o.ux * hw + o.uy * hd, o.y + o.uy * hw - o.ux * hd); g.lineTo(o.x + o.ux * hw - o.uy * hd, o.y + o.uy * hw + o.ux * hd); g.lineTo(o.x - o.ux * hw - o.uy * hd, o.y - o.uy * hw + o.ux * hd); g.closePath(); g.fill(); };
+    const lin = (o, ax, ad, bx, bd) => { g.moveTo(o.x + o.ux * ax - o.uy * ad, o.y + o.uy * ax + o.ux * ad); g.lineTo(o.x + o.ux * bx - o.uy * bd, o.y + o.uy * bx + o.ux * bd); };
+    for (const o of L) {
+      if (o.t === 'pista') { rect(o, 0, '#c4573a'); rect(o, Math.min(o.hd * .28, 9), '#5f9e4f'); continue; }
+      if (o.t === 'piscina') { rect(o, 0, '#e9eef0'); rect(o, Math.min(.6, o.hd * .25), '#4fbcd8'); if (fino) { g.strokeStyle = 'rgba(255,255,255,.45)'; g.lineWidth = .2; g.beginPath(); lin(o, -o.hw * .6, 0, o.hw * .6, 0); g.stroke(); } continue; }
+      if (o.t !== 'cancha') continue;
+      const A = o.hw * o.hd * 4, grande = A > 2400, col = grande ? (h2(o.x | 0, o.y | 0, 3) < .25 ? '#4f9a6a' : '#5f9e4f') : ['#4f8f8a', '#3f7fb0', '#b45b46', '#6a8f4f', '#8a8f96'][Math.floor(h2(o.x | 0, o.y | 0, 4) * 5)];
+      rect(o, 0, col);
+      if (grande && fino) { g.fillStyle = 'rgba(255,255,255,.07)'; for (let i = 0; i < 10; i += 2) { const a = -o.hw + i * o.hw / 5; g.beginPath(); g.moveTo(o.x + o.ux * a + o.uy * o.hd, o.y + o.uy * a - o.ux * o.hd); g.lineTo(o.x + o.ux * (a + o.hw / 5) + o.uy * o.hd, o.y + o.uy * (a + o.hw / 5) - o.ux * o.hd); g.lineTo(o.x + o.ux * (a + o.hw / 5) - o.uy * o.hd, o.y + o.uy * (a + o.hw / 5) + o.ux * o.hd); g.lineTo(o.x + o.ux * a - o.uy * o.hd, o.y + o.uy * a + o.ux * o.hd); g.closePath(); g.fill(); } }
+      if (!fino) continue;
+      const m = Math.min(1.2, o.hd * .12), hw = o.hw - m, hd = o.hd - m; g.strokeStyle = 'rgba(250,250,245,.85)'; g.lineWidth = grande ? .18 : .12; g.beginPath();
+      lin(o, -hw, -hd, hw, -hd); lin(o, hw, -hd, hw, hd); lin(o, hw, hd, -hw, hd); lin(o, -hw, hd, -hw, -hd); lin(o, 0, -hd, 0, hd); g.stroke();
+      g.beginPath(); g.arc(o.x, o.y, Math.min(hd * .3, 9.15), 0, TAU); g.stroke();
+      if (grande) { const aw = Math.min(16.5, hw * .3), ad = Math.min(20, hd * .55); g.beginPath(); lin(o, -hw, -ad, -hw + aw, -ad); lin(o, -hw + aw, -ad, -hw + aw, ad); lin(o, -hw + aw, ad, -hw, ad); lin(o, hw, -ad, hw - aw, -ad); lin(o, hw - aw, -ad, hw - aw, ad); lin(o, hw - aw, ad, hw, ad); g.stroke(); }
+    }
+  },
+  /* rótulos de los campus universitarios (de cerca) */
+  rotulosCampus(texto, S, k, kc, dpr, night) {
+    if (kc < .7 || !this.campus) return;
+    for (const o of this.campus) { if (o.A < (kc < 1.1 ? 150000 : 20000)) continue; const [x, y] = S(o.x, o.y); texto(o.n, x, y, 0, '700 ' + clamp(kc * 4.4, 10, 13) * dpr + 'px Cuerpo, sans-serif', night > .4 ? '#d8f0ff' : '#14365a', night > .4 ? 'rgba(10,16,26,.85)' : 'rgba(240,248,236,.92)', 3 * dpr); }
+  }
+});
 ~~~~
 
 ### `src/js/11-hitos.js`
@@ -4901,6 +5295,26 @@ Object.assign(VC, {
       case 'moderno': {   // La Alpujarra y otros: concreto con franjas de ventanas
         const Q = H.P[0]; this.muros(g, Q, 0, h, '#c4c8cc', fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, 3.6, 'rgba(40,58,80,.6)', 1) : null);
         this.techo(g, Q, h, '#a6aab0'); contorno(Q, h); const T = this.cuadro(H.cx, H.cy, H.ang, -4, 4, -3, 3); this.muros(g, T, h, h + 3, '#9aa0a6'); this.techo(g, T, h + 3, '#8c9298'); L.push([H.cx, H.cy - h * ob * .5, 12, h]); break;
+      }
+      case 'alpujarra': {   // Alcaldía, Gobernación y Palacio de Justicia: bloques de concreto blanco con fachada inclinada
+        // (más anchos abajo), parteluces verticales y ventanas oscuras de bronce entre culatas macizas, como en las fotos aéreas
+        const Q = H.P[0], n = Q.length / 2, cw = this.area2(Q) > 0, f = .88, T = new Float32Array(Q.length); let Lmax = 0;
+        for (let i = 0; i < n; i++) { T[2 * i] = H.cx + (Q[2 * i] - H.cx) * f; T[2 * i + 1] = H.cy + (Q[2 * i + 1] - H.cy) * f; const j = (i + 1) % n; Lmax = Math.max(Lmax, Math.hypot(Q[2 * j] - Q[2 * i], Q[2 * j + 1] - Q[2 * i + 1])); }
+        const F = []; for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; let nx = by - ay, ny = -(bx - ax); if (!cw) { nx = -nx; ny = -ny; } const L = Math.hypot(nx, ny) || 1; if (ny / L < .03) continue; F.push([Math.max(ay, by), i, j, nx / L, Math.hypot(bx - ax, by - ay)]); }
+        F.sort((p, q) => p[0] - q[0]); const u = h * ob;
+        for (const [, i, j, nx, L] of F) {
+          const ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1], tx = T[2 * i], ty = T[2 * i + 1] - u, sx = T[2 * j], sy = T[2 * j + 1] - u, larga = L > Lmax * .45;
+          g.fillStyle = Art.shade(larga ? '#8d9097' : '#eceae4', .84 + .18 * nx); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(sx, sy); g.lineTo(tx, ty); g.closePath(); g.fill();
+          if (larga && fino) {   // parteluces blancos y franja alta
+            g.strokeStyle = 'rgba(236,234,228,.9)'; g.lineWidth = .45; g.beginPath(); const m = Math.max(4, Math.round(L / 1.6));
+            for (let q = 1; q < m; q++) { const t = q / m; g.moveTo(ax + (bx - ax) * t, ay + (by - ay) * t); g.lineTo(tx + (sx - tx) * t, ty + (sy - ty) * t); } g.stroke();
+            g.strokeStyle = 'rgba(60,62,70,.55)'; g.lineWidth = .3; g.beginPath(); for (let z = 3.6; z < h - 3; z += 3.6) { const a = z / h; g.moveTo(ax + (tx - ax) * a, ay + (ty - ay) * a); g.lineTo(bx + (sx - bx) * a, by + (sy - by) * a); } g.stroke();
+            g.fillStyle = '#eceae4'; const a = 1 - 2.4 / h; g.beginPath(); g.moveTo(ax + (tx - ax) * a, ay + (ty - ay) * a); g.lineTo(bx + (sx - bx) * a, by + (sy - by) * a); g.lineTo(sx, sy); g.lineTo(tx, ty); g.closePath(); g.fill();
+          }
+        }
+        this.techo(g, T, h, '#d9d7d0', 'rgba(120,118,110,.6)'); contorno(T, h);
+        const M = this.cuadro(H.cx, H.cy, H.ang, -5, 5, -3, 3); this.muros(g, M, h, h + 2.6, '#cfcdc6'); this.techo(g, M, h + 2.6, '#bdbab2');
+        L.push([H.cx, H.cy - h * ob * .5, 14, h]); break;
       }
       case 'cupula': {   // Planetario: base clara y la gran cúpula
         const Q = H.P[0]; this.muros(g, Q, 0, h, '#e6e2d8'); this.techo(g, Q, h, '#cfcac0'); contorno(Q, h); this.cupula(g, H.cx, H.cy, h, Math.min(14, Math.sqrt(H.A / Math.PI) * .62), '#e9edf0'); break;
@@ -8730,7 +9144,8 @@ const Menu = EM.menu = {
     UI.modal(`<h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
       <h3>Datos del mapa</h3><ul class="m" style="padding-left:18px;margin:0">
         <li>Calles, río y relieve: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps; relieve SRTM / NASA (AWS Terrain Tiles); mapa base de “Juega EnCicla”.</li>
-        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026).</li>
+        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026; pisos de las construcciones de Popular, El Poblado y Robledo).</li>
+        <li>Casas y edificios: huellas de Overture Maps Foundation (© colaboradores de OpenStreetMap, ODbL; Microsoft ML Buildings, ODbL; Google Open Buildings, CC BY 4.0). Pisos oficiales o de OpenStreetMap donde existen; en el resto, estimados por zona. Canchas, piscinas y campus: OpenStreetMap vía Overture.</li>
         <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li>
         <li>Estaciones de EnCicla, y nombres de calle y barrios fuera de esas capas: mapa de “Juega EnCicla” v1.2 (OpenStreetMap vía Overture, ODbL); los barrios de esa capa son aproximados. Patio-taller del Metro: © colaboradores de OpenStreetMap.</li></ul>
       <p class="m">¿Te gusta pedalear? <a href="https://juanfeliperico369-stack.github.io/BicicletasUno/" target="_blank" rel="noopener">Juega EnCicla</a>, el juego hermano sobre las bicis públicas del valle.</p>
@@ -9270,7 +9685,7 @@ const BotT = EM.test = {
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
     // ciudad vectorial (1.1.0): calles con curva, edificios fuera de las vías, andenes sobre su línea, giros suaves y buses sobre el asfalto
-    let nVias = 0; try {
+    let nVias = 0, nEd = 0; try {
       if (typeof VIAS !== 'undefined') {
         if (!VC.on || VC.ch.length < 20000) E('ciudad vectorial: no cargó las vías (' + VC.ch.length + ')'); nVias = VC.ch.length;
         const asfalto = (x, y, m = -.3) => { for (const c of VC.near(x - 20, y - 20, x + 20, y + 20)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < c.w / 2 + m) return true; } } return false; };
@@ -9287,9 +9702,23 @@ const BotT = EM.test = {
         if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
         for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
         const B0 = VC.HT.find(q => q.id === 'botero'); if (B0 && VC.solid(B0.cx + 6, B0.cy + 6, .3) && VC.solid(B0.cx - 6, B0.cy - 6, .3)) Wn('arquitectura: la Plaza Botero no se deja caminar');
+        // casas y edificios reales (1.2.0): cargados, con pisos y usos, y con la calle siempre libre (se recortan contra el asfalto)
+        if (typeof EDIFICIOS !== 'undefined') {
+          if (!VC.ED) E('edificios reales: no cargaron'); else {
+            nEd = VC.ED.cnt.reduce((a, b) => a + b, 0); if (nEd < 600000) E('edificios reales: solo ' + nEd + ' (deben ser más de 600.000)');
+            let m = 0, bl = 0; for (const n of ['Parque Berrío', 'Estadio', 'Santo Domingo Savio', 'Poblado', 'Niquía', 'San Javier']) { const h = NET.stations.find(q => q.name === n); if (!h) continue;
+              for (const c of VC.near(h.x - 220, h.y - 220, h.x + 220, h.y + 220)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1;
+                for (let t = 0; t < L; t += 4) { const x = ax + dx * t / L, y = ay + dy * t / L; if (Math.abs(x - h.x) > 220 || Math.abs(y - h.y) > 220) continue; const ox = -dy / L * (c.w / 2 - .8), oy = dx / L * (c.w / 2 - .8); m++; if (VC.solid(x + ox, y + oy, .4) || VC.solid(x - ox, y - oy, .4)) bl++; } } } }
+            if (m < 500) Wn('edificios reales: pocas muestras de calle (' + m + ')'); else if (bl / m > .01) E('edificios reales: ' + (bl / m * 100).toFixed(1) + ' % de los bordes de carril quedan dentro de un edificio'); else if (bl / m > .003) Wn('edificios reales: ' + (bl / m * 100).toFixed(2) + ' % de los bordes de carril tocan un edificio');
+            const hp = NET.stations.find(q => q.name === 'Poblado'); if (hp && !VC.regionAt(hp.x, hp.y).bs.some(b => b.k === 2 && b.pis >= 10)) Wn('edificios reales: El Poblado sin torres de 10 pisos o más');
+            const hu = NET.stations.find(q => q.name === 'Universidad'); if (hu && !VC.regionAt(hu.x, hu.y).bs.some(b => b.k === 4)) Wn('edificios reales: la Universidad de Antioquia sin edificios educativos cerca de su estación');
+            if (!VC.campus || VC.campus.length < 20) Wn('campus universitarios: pocos (' + (VC.campus ? VC.campus.length : 0) + ')');
+            if (!VC.SG || VC.suelosEn(0, 0, MW * TM, MH * TM).filter(o => o.t === 'cancha').length < 800) Wn('suelos: pocas canchas');
+          }
+        }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
@@ -10184,7 +10613,7 @@ fs.mkdirSync(dist, { recursive: true });
 // /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/metroplus.js','data/hitos.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/metroplus.js','data/hitos.js', 'data/edificios.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -10573,6 +11002,350 @@ for nombre, (url, campos, geo, off) in CAPAS.items():
     print('listo', nombre, len(feats))
 ~~~~
 
+### `tools/edificios_datos.py`
+~~~~
+#!/usr/bin/env python3
+"""Casas y edificios reales del Valle de Aburrá -> src/data/edificios.js
+
+Cada casa y cada edificio con su huella real (posición, forma y orientación), sus pisos y su uso.
+
+Fuentes (se citan en docs/FUENTES.md):
+- Huellas: Overture Maps Foundation, tema buildings (release 2026-10-21.0), que reúne OpenStreetMap (ODbL),
+  Microsoft ML Buildings (ODbL) y Google Open Buildings (CC BY 4.0 / ODbL). Son polígonos abiertos, no imágenes.
+- Pisos: los oficiales de la capa 3DConstruccciones de la Subsecretaría de Catastro de Medellín (Popular, El Poblado
+  y Robledo); los de OpenStreetMap (building:levels o height) donde existen; en el resto, estimados por zona y tamaño
+  con las distribuciones medidas en esas tres comunas.
+- Usos del suelo (campus, industria, hospitales, canchas, piscinas, pistas): Overture base/land_use y base/water (OSM, ODbL).
+
+Uso:
+  python3 tools/edificios_datos.py --descargar CARPETA   # baja las capas (duckdb; S3 público de Overture y ArcGIS)
+  python3 tools/edificios_datos.py CARPETA               # genera src/data/edificios.js (shapely, pyarrow, numpy)
+Para que DuckDB lea el bucket público detrás de un proxy: env -u AWS_ACCESS_KEY_ID -u AWS_SECRET_ACCESS_KEY ...
+
+Formato de src/data/edificios.js (una sola cadena base64 de deflate-raw):
+  por región de 640 m (fila por fila), en el índice: número de edificios, bytes de posiciones y bytes de polígonos (varint);
+  luego, por flujos: posiciones (centro en medios metros, deltas zigzag-varint en orden de Hilbert), medidas (medio frente
+  y medio fondo en medios metros, uint8), ángulo (128 pasos en 180°, delta mod 128), pisos (uint8), uso (uint8: 4 bits de
+  tipo, bit 16 polígono, bit 32 pisos oficiales, bit 64 pisos de OSM) y polígonos (n vértices y deltas zigzag-varint).
+"""
+import base64, json, math, os, re, sys, time, zlib
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REL = 's3://overturemaps-us-west-2/release/2026-10-21.0'
+ARCGIS = 'https://services1.arcgis.com/FZVaYraI7sEGQ6rF/arcgis/rest/services/3DConstruccciones/FeatureServer/0'
+R = 640.0            # región del motor de ciudad (VC.R)
+Q = 2.0              # medios metros
+KINDS = ['casa', 'edificio', 'torre', 'nave', 'educativo', 'salud', 'iglesia', 'civico', 'comercio', 'deporte', 'techo', 'invernadero', 'tanque', 'transporte', 'parqueadero', 'rural']
+K = {k: i for i, k in enumerate(KINDS)}
+
+
+def meta():
+    s = open(os.path.join(ROOT, 'src/data/valle.js'), encoding='utf8').read()
+    i = s.index('VALLE_META'); j = s.index('{', i); d = 0
+    for k in range(j, len(s)):
+        d += s[k] == '{'; d -= s[k] == '}'
+        if d == 0: break
+    M = json.loads(s[j:k + 1])
+    b = re.search(r'VALLE_BIN\s*=\s*"([^"]+)"', s) or re.search(r"VALLE_BIN\s*=\s*'([^']+)'", s)
+    raw = zlib.decompress(base64.b64decode(b.group(1)), -15)
+    nT, nE, nM = M['W'] * M['H'], M['eW'] * M['eH'], M['mW'] * M['mH']
+    M['_mu'] = raw[nT + nE * 2: nT + nE * 2 + nM]; M['_co'] = raw[nT + nE * 2 + nM: nT + nE * 2 + nM * 2]
+    return M
+
+
+def descargar(C):
+    import duckdb, subprocess
+    os.makedirs(C, exist_ok=True)
+    M = meta(); TM = M['tile']
+    BB = (M['lon0'], M['lon0'] + M['W'] / M['kx'], M['latN'] - M['H'] / M['ky'], M['latN'])
+    c = duckdb.connect(); c.execute('INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;')
+    px = os.environ.get('HTTPS_PROXY') or os.environ.get('https_proxy')
+    if px: c.execute(f"SET http_proxy='{re.sub(r'^https?://', '', px).rstrip('/')}'")
+    if os.path.exists('/root/.ccr/ca-bundle.crt'): c.execute("SET ca_cert_file='/root/.ccr/ca-bundle.crt'")
+    c.execute("SET s3_region='us-west-2'; SET http_timeout=120000; CREATE SECRET anon (TYPE s3, KEY_ID '', SECRET '', REGION 'us-west-2')")
+    dentro = f'bbox.xmax > {BB[0]} AND bbox.xmin < {BB[1]} AND bbox.ymax > {BB[2]} AND bbox.ymin < {BB[3]}'
+    pedidos = {
+        'edificios': f"SELECT id, sources[1].dataset AS src, subtype, class, height, num_floors, names.primary AS name, ST_AsWKB(geometry) AS wkb FROM read_parquet('{REL}/theme=buildings/type=building/*', hive_partitioning=1) WHERE {dentro}",
+        'uso': f"SELECT id, subtype, class, names.primary AS name, ST_AsWKB(geometry) AS wkb FROM read_parquet('{REL}/theme=base/type=land_use/*', hive_partitioning=1) WHERE {dentro}",
+        'agua': f"SELECT id, subtype, class, names.primary AS name, ST_AsWKB(geometry) AS wkb FROM read_parquet('{REL}/theme=base/type=water/*', hive_partitioning=1) WHERE {dentro} AND class IN ('swimming_pool', 'reflecting_pool', 'fountain')",
+    }
+    for nom, sql in pedidos.items():
+        f = os.path.join(C, nom + '.parquet')
+        if os.path.exists(f): print('ya está', nom); continue
+        t = time.time(); c.execute(f"COPY ({sql}) TO '{f}' (FORMAT PARQUET)")
+        print(nom, c.execute(f"select count(*) from '{f}'").fetchone()[0], round(time.time() - t), 's', flush=True)
+    f = os.path.join(C, 'construcciones3d.json')
+    if not os.path.exists(f):
+        subprocess.run([sys.executable, '-c', ARC_PY, ARCGIS, 'numero_pis,altura,nombre_com', f], check=True)
+
+
+ARC_PY = r'''
+import json, sys, time, urllib.request, urllib.parse
+url, campos, dst = sys.argv[1:4]; UA = {'User-Agent': 'ElMetro-datos/1.2 (juego educativo offline)'}
+def get(u):
+    for k in range(6):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=180) as r: return json.loads(r.read())
+        except Exception as e: print('  reintento', k + 1, e); time.sleep(4 * (k + 1))
+    raise SystemExit('falló ' + u)
+feats, o = [], 0
+while True:
+    q = {'where': '1=1', 'outFields': campos, 'returnGeometry': 'true', 'outSR': '4326', 'resultOffset': o, 'resultRecordCount': 2000, 'f': 'geojson', 'geometryPrecision': '7'}
+    d = get(url + '/query?' + urllib.parse.urlencode(q)); fs = d.get('features', []); feats += fs
+    if not fs or (not (d.get('exceededTransferLimit') or (d.get('properties') or {}).get('exceededTransferLimit')) and len(fs) < 2000): break
+    o += len(fs); time.sleep(.4)
+json.dump({'fuente': url, 'features': feats}, open(dst, 'w')); print('construcciones oficiales', len(feats))
+'''
+
+# ---------- pisos estimados: cuantiles por zona y tamaño de la huella (m²) ----------
+# Popular, El Poblado y Robledo: medidos uniendo las huellas con la capa oficial (ver --medir); el resto, por fotos y OSM.
+BINS = [60, 120, 250, 500, 1000, 1e12]
+QS = [0, .25, .5, .75, .9, .97, 1]
+TIPO = {   # cuantiles de pisos en QS, por rango de área
+    'ladera':  [[1, 2, 2, 3, 3, 4, 5], [1, 2, 2, 3, 3, 4, 5], [1, 2, 3, 3, 4, 4, 5], [1, 2, 3, 4, 4, 5, 6], [2, 3, 3, 4, 4, 5, 6], [1, 2, 3, 4, 5, 6, 8]],
+    'mixto':   [[1, 2, 2, 3, 4, 5, 6], [1, 2, 2, 4, 5, 6, 8], [1, 2, 2, 4, 6, 9, 12], [1, 2, 4, 5, 10, 16, 20], [1, 2, 4, 5, 7, 12, 16], [1, 3, 4, 8, 12, 16, 20]],
+    'poblado': [[1, 1, 2, 2, 4, 7, 10], [1, 2, 3, 4, 5, 7, 10], [1, 2, 3, 4, 6, 12, 18], [1, 2, 2, 7, 13, 22, 28], [1, 2, 5, 13, 22, 28, 32], [1, 2, 3, 8, 16, 24, 30]],
+    'laureles': [[1, 2, 2, 3, 3, 4, 5], [1, 2, 2, 3, 4, 5, 6], [2, 2, 3, 4, 6, 8, 10], [2, 3, 4, 6, 9, 12, 16], [2, 4, 6, 8, 12, 16, 20], [2, 3, 5, 8, 12, 18, 24]],
+    'centro':  [[1, 2, 2, 3, 4, 5, 6], [2, 2, 3, 4, 5, 7, 9], [2, 3, 4, 5, 8, 11, 15], [2, 3, 5, 7, 10, 15, 22], [2, 4, 6, 9, 14, 20, 30], [2, 3, 5, 8, 14, 22, 36]],
+    'pueblo':  [[1, 1, 1, 2, 2, 3, 3], [1, 1, 2, 2, 3, 3, 4], [1, 1, 2, 2, 3, 4, 5], [1, 2, 2, 3, 4, 5, 8], [1, 2, 2, 3, 4, 6, 10], [1, 1, 2, 3, 4, 6, 10]],
+}
+# comuna o municipio -> tipo de zona (lo que muestran las fotos aéreas)
+ZONA_COMUNA = {1: 'ladera', 2: 'ladera', 3: 'ladera', 4: 'mixto', 5: 'mixto', 6: 'ladera', 7: 'mixto', 8: 'ladera', 9: 'ladera', 10: 'centro', 11: 'laureles', 12: 'laureles',
+               13: 'ladera', 14: 'poblado', 15: 'mixto', 16: 'laureles', 17: 'pueblo', 18: 'mixto', 19: 'pueblo', 20: 'pueblo', 21: 'pueblo'}
+ZONA_MUNI = {'Medellín': 'mixto', 'Bello': 'mixto', 'Itagüí': 'mixto', 'Envigado': 'poblado', 'Sabaneta': 'poblado', 'La Estrella': 'mixto', 'Caldas': 'pueblo',
+             'Copacabana': 'mixto', 'Girardota': 'pueblo', 'Barbosa': 'pueblo'}
+
+
+def h01(x, y, s):
+    v = (int(x * 7.3) * 73856093 ^ int(y * 5.9) * 19349663 ^ s * 83492791) & 0xffffffff
+    v = (v ^ (v >> 13)) * 1274126177 & 0xffffffff
+    return ((v ^ (v >> 16)) & 0xffffff) / 0x1000000
+
+
+def cuantil(tabla, u):
+    for i in range(1, len(QS)):
+        if u <= QS[i]:
+            a, b = tabla[i - 1], tabla[i]; t = (u - QS[i - 1]) / (QS[i] - QS[i - 1]); return a + (b - a) * t
+    return tabla[-1]
+
+
+def hilbert(x, y, n=2048):
+    d, s = 0, n // 2
+    while s > 0:
+        rx = 1 if (x & s) else 0; ry = 1 if (y & s) else 0; d += s * s * ((3 * rx) ^ ry)
+        if ry == 0:
+            if rx == 1: x, y = s - 1 - x, s - 1 - y
+            x, y = y, x
+        s //= 2
+    return d
+
+
+def varint(v, out):
+    v = ((v << 1) ^ (v >> 63)) & ((1 << 64) - 1)   # zigzag
+    while True:
+        b = v & 127; v >>= 7
+        if v: out.append(b | 128)
+        else: out.append(b); return
+
+
+def uvarint(v, out):
+    while True:
+        b = v & 127; v >>= 7
+        if v: out.append(b | 128)
+        else: out.append(b); return
+
+
+def generar(C):
+    import numpy as np, pyarrow.parquet as pq, shapely
+    from shapely import STRtree
+    t0 = time.time(); M = meta(); TM = M['tile']; W, H = M['W'] * TM, M['H'] * TM
+    proj = lambda c: np.column_stack([(c[:, 0] - M['lon0']) * M['kx'] * TM, (M['latN'] - c[:, 1]) * M['ky'] * TM])
+    rd = lambda f, cols: pq.read_table(os.path.join(C, f), columns=cols).to_pydict()
+    T = rd('edificios.parquet', ['src', 'class', 'num_floors', 'height', 'wkb'])
+    G = shapely.make_valid(shapely.transform(shapely.from_wkb(T['wkb']), proj))
+    # un multipolígono de make_valid se queda con su parte mayor
+    def mayor(g):
+        if g.geom_type == 'Polygon': return g
+        ps = [p for p in getattr(g, 'geoms', []) if p.geom_type == 'Polygon']
+        return max(ps, key=lambda p: p.area) if ps else None
+    G = np.array([mayor(g) for g in G], dtype=object); ok = np.array([g is not None for g in G])
+    A = np.zeros(len(G)); A[ok] = shapely.area(G[ok].astype(object))
+    ct = np.zeros((len(G), 2)); ct[ok] = shapely.get_coordinates(shapely.centroid(G[ok].astype(object)))
+    ok &= (A >= 12) & (ct[:, 0] > 0) & (ct[:, 1] > 0) & (ct[:, 0] < W) & (ct[:, 1] < H)
+    idx = np.nonzero(ok)[0]; G = G[idx]; A = A[idx]; ct = ct[idx]
+    cls = np.array([T['class'][i] or '' for i in idx]); src = np.array([T['src'][i] or '' for i in idx])
+    nfl = np.array([T['num_floors'][i] if T['num_floors'][i] is not None else -1 for i in idx], float)
+    hgt = np.array([T['height'][i] if T['height'][i] is not None else -1 for i in idx], float)
+    print('huellas en el mapa (>= 12 m²):', len(G), round(time.time() - t0, 1), 's', flush=True)
+
+    # hitos: sus edificios los dibuja el motor de arquitectura icónica
+    s = open(os.path.join(ROOT, 'src/data/hitos.js'), encoding='utf8').read(); HT = json.loads(s[s.index('['):s.rindex(']') + 1])
+    hp = [shapely.Polygon(np.array(P).reshape(-1, 2)) for h in HT for P in h['P'] if len(P) >= 6]
+    hp = [shapely.make_valid(p) for p in hp]; tr = STRtree(hp)
+    bi, hi = tr.query(G.astype(object), predicate='intersects'); quita = np.zeros(len(G), bool)
+    if len(bi):
+        inter = shapely.area(shapely.intersection(G[bi].astype(object), np.array(hp, dtype=object)[hi]))
+        np.logical_or.at(quita, bi, inter >= .3 * A[bi])
+    print('bajo los hitos (se quitan):', int(quita.sum()))
+
+    # pisos oficiales (Popular, El Poblado, Robledo)
+    pis_of = np.zeros(len(G))
+    fo = os.path.join(C, 'construcciones3d.json')
+    if os.path.exists(fo):
+        F = json.load(open(fo))['features']
+        OG = shapely.make_valid(shapely.transform(np.array([shapely.geometry.shape(f['geometry']) if f['geometry'] else shapely.Point(0, 0) for f in F], dtype=object), proj))
+        OP = np.array([f['properties'].get('numero_pis') or 0 for f in F], float)
+        ib, io = STRtree(OG).query(G.astype(object), predicate='intersects')
+        inter = shapely.area(shapely.intersection(G[ib].astype(object), OG[io])); oa = shapely.area(OG); cov = np.zeros(len(G))
+        okp = (inter >= .2 * A[ib]) | (inter >= .6 * oa[io]); np.maximum.at(pis_of, ib[okp], OP[io[okp]]); np.add.at(cov, ib, inter)
+        pis_of[cov < .3 * A] = 0
+        print('con pisos oficiales:', int((pis_of > 0).sum()))
+
+    # usos del suelo que contienen cada edificio
+    U = rd('uso.parquet', ['subtype', 'class', 'name', 'wkb'])
+    UG = shapely.make_valid(shapely.transform(shapely.from_wkb(U['wkb']), proj))
+    usok = {'industrial': 'nave', 'works': 'nave', 'school': 'educativo', 'college': 'educativo', 'university': 'educativo', 'kindergarten': 'educativo',
+            'hospital': 'salud', 'clinic': 'salud', 'religious': 'iglesia', 'retail': 'comercio', 'commercial': 'comercio', 'stadium': 'deporte', 'military': 'civico',
+            'farmland': 'rural', 'farmyard': 'rural', 'meadow': 'rural', 'orchard': 'rural', 'greenhouse_horticulture': 'invernadero'}
+    ui = [i for i, c in enumerate(U['class']) if c in usok and UG[i].geom_type in ('Polygon', 'MultiPolygon')]
+    uso = np.array([''] * len(G), dtype=object)
+    if ui:
+        UGs = UG[ui]; ib, io = STRtree(UGs).query(shapely.points(ct), predicate='within')
+        for b, o in zip(ib, io): uso[b] = usok[U['class'][ui[o]]]
+
+    # zona de cada edificio (comuna o municipio) por la grilla de 160 m del mapa
+    CL = 8 * TM; mx = np.clip((ct[:, 0] // CL).astype(int), 0, M['mW'] - 1); my = np.clip((ct[:, 1] // CL).astype(int), 0, M['mH'] - 1)
+    co = np.frombuffer(M['_co'], np.uint8)[my * M['mW'] + mx]; mu = np.frombuffer(M['_mu'], np.uint8)[my * M['mW'] + mx]
+    munis = M['munis']
+    zona = np.array([ZONA_COMUNA.get(int(c), 'mixto') if c else ZONA_MUNI.get(munis[m - 1] if m else '', 'pueblo') for c, m in zip(co, mu)], dtype=object)
+
+    # pisos: oficial > OSM > estimado
+    pis = np.where(pis_of > 0, pis_of, np.where(nfl > 0, nfl, np.where(hgt > 0, np.round(hgt / 3), 0)))
+    fuente = np.where(pis_of > 0, 32, np.where((nfl > 0) | (hgt > 0), 64, 0))
+    ab = np.searchsorted(BINS, A, side='right'); ab = np.minimum(ab, len(BINS) - 1)
+    for i in np.nonzero(pis <= 0)[0]:
+        z = zona[i]; c = cls[i]
+        if z == 'ladera' and A[i] > 1500: z = 'mixto'
+        tab = TIPO[z][ab[i]]; u = h01(ct[i, 0], ct[i, 1], 7); p = cuantil(tab, u)
+        if uso[i] in ('nave', 'invernadero') or c in ('industrial', 'warehouse', 'greenhouse', 'shed', 'roof', 'shelter', 'carport', 'garage', 'garages', 'hangar'): p = min(p, 2 if A[i] < 4000 else 3)
+        elif uso[i] == 'rural' or c in ('farm', 'farm_auxiliary', 'barn', 'stable', 'cabin', 'hut'): p = min(p, 2)
+        elif c in ('church', 'chapel', 'cathedral', 'temple', 'religious'): p = 3 if A[i] < 400 else 5
+        elif uso[i] in ('educativo', 'salud') and A[i] > 300: p = max(2, min(p, 6))
+        elif c in ('house', 'detached', 'semidetached_house', 'terrace', 'bungalow'): p = min(p, 3)
+        pis[i] = max(1, round(p))
+    pis = np.clip(pis, 1, 60).astype(int)
+
+    # uso del edificio
+    CK = {'house': 'casa', 'detached': 'casa', 'semidetached_house': 'casa', 'terrace': 'casa', 'bungalow': 'casa', 'residential': None, 'apartments': None,
+          'commercial': 'comercio', 'retail': 'comercio', 'office': 'comercio', 'supermarket': 'comercio', 'hotel': 'comercio', 'kiosk': 'comercio',
+          'industrial': 'nave', 'warehouse': 'nave', 'manufacture': 'nave', 'factory': 'nave', 'hangar': 'nave',
+          'school': 'educativo', 'university': 'educativo', 'college': 'educativo', 'kindergarten': 'educativo', 'library': 'educativo',
+          'hospital': 'salud', 'clinic': 'salud', 'church': 'iglesia', 'chapel': 'iglesia', 'cathedral': 'iglesia', 'temple': 'iglesia', 'religious': 'iglesia', 'mosque': 'iglesia', 'monastery': 'iglesia',
+          'civic': 'civico', 'public': 'civico', 'government': 'civico', 'fire_station': 'civico', 'police': 'civico', 'military': 'civico', 'prison': 'civico', 'townhall': 'civico',
+          'stadium': 'deporte', 'grandstand': 'deporte', 'sports_hall': 'deporte', 'sports_centre': 'deporte', 'pavilion': 'deporte',
+          'roof': 'techo', 'shelter': 'techo', 'carport': 'techo', 'canopy': 'techo', 'greenhouse': 'invernadero', 'storage_tank': 'tanque', 'silo': 'tanque',
+          'train_station': 'transporte', 'transportation': 'transporte', 'garage': 'parqueadero', 'garages': 'parqueadero', 'parking': 'parqueadero',
+          'farm': 'rural', 'farm_auxiliary': 'rural', 'barn': 'rural', 'stable': 'rural', 'shed': 'rural', 'cabin': 'rural', 'hut': 'rural', 'cowshed': 'rural'}
+    kind = np.zeros(len(G), np.uint8)
+    for i in range(len(G)):
+        k = CK.get(cls[i])
+        if not k and uso[i] and uso[i] != 'rural': k = uso[i] if (uso[i] != 'nave' or A[i] >= 250 or pis[i] <= 2) and (uso[i] != 'comercio' or A[i] >= 400) else None
+        if k == 'nave' and pis[i] >= 5: k = 'edificio'
+        if not k: k = 'torre' if pis[i] >= 10 else 'edificio' if pis[i] >= 4 else ('nave' if A[i] >= 2500 and pis[i] <= 3 else 'rural' if uso[i] == 'rural' and A[i] < 600 else 'casa')
+        if k == 'casa' and pis[i] >= 4: k = 'edificio'
+        if k == 'edificio' and pis[i] >= 10: k = 'torre'
+        kind[i] = K[k]
+    # geometría: rectángulo orientado si la forma es casi rectangular; si no, polígono simplificado
+    O = shapely.oriented_envelope(G.astype(object)); rect = A / np.maximum(shapely.area(O), 1e-6)
+    co4 = shapely.get_coordinates(O).reshape(-1, 5, 2)[:, :4]; e1 = co4[:, 1] - co4[:, 0]; e2 = co4[:, 2] - co4[:, 1]
+    L1 = np.hypot(e1[:, 0], e1[:, 1]); L2 = np.hypot(e2[:, 0], e2[:, 1]); larga = L1 >= L2
+    ang = np.where(larga, np.arctan2(e1[:, 1], e1[:, 0]), np.arctan2(e2[:, 1], e2[:, 0])) % math.pi
+    LW = np.maximum(L1, L2); LD = np.minimum(L1, L2); oc = co4.mean(1)
+    esPol = ((rect < .78) & (A >= 90)) | (LW / 2 * Q > 255) | (LD / 2 * Q > 255)
+    keep = ~quita
+    print('polígonos:', int((esPol & keep).sum()), '· rectángulos:', int((~esPol & keep).sum()), flush=True)
+
+    # codificación por regiones de 640 m
+    nx, ny = int(math.ceil(W / R)), int(math.ceil(H / R))
+    cx = np.where(esPol, ct[:, 0], oc[:, 0]); cy = np.where(esPol, ct[:, 1], oc[:, 1])
+    rx = np.clip((cx // R).astype(int), 0, nx - 1); ry = np.clip((cy // R).astype(int), 0, ny - 1)
+    X = np.clip(np.round((cx - rx * R) * Q).astype(int), 0, 2047); Y = np.clip(np.round((cy - ry * R) * Q).astype(int), 0, 2047)
+    hk = np.array([hilbert(int(x), int(y)) for x, y in zip(X, Y)])
+    reg = ry * nx + rx; orden = np.lexsort((hk, reg)); orden = orden[keep[orden]]
+    pos, dim, an, pi_, ki, pol = bytearray(), bytearray(), bytearray(), bytearray(), bytearray(), bytearray()
+    cnt = np.zeros(nx * ny, int); pb = np.zeros(nx * ny, int); qb = np.zeros(nx * ny, int)
+    last = -1; px = py = pa = 0; npol = 0
+    for i in orden:
+        r = reg[i]
+        if r != last: last = r; px = py = pa = 0
+        p0, q0 = len(pos), len(pol)
+        varint(int(X[i]) - px, pos); varint(int(Y[i]) - py, pos); px, py = int(X[i]), int(Y[i])
+        dim.append(min(255, int(math.ceil(LW[i] / 2 * Q)))); dim.append(min(255, int(math.ceil(LD[i] / 2 * Q))))
+        a = int(ang[i] / math.pi * 128) % 128; an.append((a - pa) % 128); pa = a
+        pi_.append(int(pis[i])); fl = int(kind[i]) | int(fuente[i])
+        if esPol[i]:
+            g = G[i].simplify(1.0, preserve_topology=True)
+            if g.geom_type != 'Polygon' or g.is_empty: g = G[i]
+            ex = np.asarray(g.exterior.coords)[:-1]
+            if len(ex) > 32: ex = np.asarray(G[i].simplify(2.0, preserve_topology=True).exterior.coords)[:-1]
+            if 3 <= len(ex) <= 120:
+                fl |= 16; npol += 1; uvarint(len(ex), pol); qx, qy = px, py
+                for vx, vy in ex:
+                    jx = int(round((vx - rx[i] * R) * Q)); jy = int(round((vy - ry[i] * R) * Q)); varint(jx - qx, pol); varint(jy - qy, pol); qx, qy = jx, jy
+        ki.append(fl)
+        cnt[r] += 1; pb[r] += len(pos) - p0; qb[r] += len(pol) - q0
+    idxb = bytearray()
+    for r in range(nx * ny): uvarint(int(cnt[r]), idxb); uvarint(int(pb[r]), idxb); uvarint(int(qb[r]), idxb)
+    flujos = [idxb, pos, dim, an, pi_, ki, pol]; todo = b''.join(bytes(f) for f in flujos)
+    z = zlib.compressobj(9, zlib.DEFLATED, -15); comp = z.compress(todo) + z.flush()
+    n = int(cnt.sum())
+
+    # suelos: canchas, pistas, piscinas y campus (nombre y polígono simplificado para el rótulo y el prado)
+    suelos = {'cancha': [], 'pista': [], 'piscina': [], 'campus': []}
+    def obb(g):
+        o = shapely.oriented_envelope(g); c4 = np.asarray(o.exterior.coords)[:4]; a1 = c4[1] - c4[0]; a2 = c4[2] - c4[1]; l1, l2 = math.hypot(*a1), math.hypot(*a2)
+        if l1 < l2: a1, l1, l2 = a2, l2, l1
+        c = c4.mean(0); return [round(c[0], 1), round(c[1], 1), round(l1 / 2, 1), round(l2 / 2, 1), round(math.atan2(a1[1], a1[0]) % math.pi, 3)]
+    for i, c in enumerate(U['class']):
+        g = mayor(UG[i]) if UG[i].geom_type != 'Polygon' else UG[i]
+        if g is None or g.is_empty: continue
+        x, y = g.centroid.x, g.centroid.y
+        if not (0 < x < W and 0 < y < H): continue
+        if c == 'pitch' and g.area >= 80: suelos['cancha'].append(obb(g) + [round(g.area / max(1, shapely.oriented_envelope(g).area), 2)])
+        elif c == 'track' and g.area >= 400: suelos['pista'].append(obb(g))
+        elif c in ('university', 'college') and g.area >= 4000 and U['name'][i]:
+            gs = g.simplify(3); ex = np.asarray(gs.exterior.coords)[:-1].round(1).ravel().tolist()
+            suelos['campus'].append({'n': U['name'][i], 'x': round(x, 1), 'y': round(y, 1), 'P': ex})
+    Wd = rd('agua.parquet', ['class', 'wkb'])
+    for c, w in zip(Wd['class'], Wd['wkb']):
+        if c != 'swimming_pool': continue
+        g = mayor(shapely.make_valid(shapely.transform(shapely.from_wkb(w), proj)))
+        if g is None or g.area < 12: continue
+        x, y = g.centroid.x, g.centroid.y
+        if 0 < x < W and 0 < y < H: suelos['piscina'].append(obb(g))
+    stats = {'edificios': n, 'poligonos': npol, 'oficiales': int(((fuente == 32) & keep).sum()), 'osm': int(((fuente == 64) & keep).sum()),
+             'por_uso': {KINDS[k]: int(((kind == k) & keep).sum()) for k in range(len(KINDS))},
+             'por_fuente': {s_: int(((src == s_) & keep).sum()) for s_ in sorted(set(src))},
+             'pisos_medios_por_zona': {z_: round(float(pis[(zona == z_) & keep].mean()), 2) for z_ in TIPO if ((zona == z_) & keep).any()},
+             'suelos': {k: len(v) for k, v in suelos.items()}, 'bytes': {'crudo': len(todo), 'deflate': len(comp)}}
+    txt = ('/* Casas y edificios reales del Valle de Aburrá: huella (posición, forma y orientación), pisos y uso. Generado por tools/edificios_datos.py (no editar a mano).\n'
+           '   Huellas: Overture Maps Foundation (OpenStreetMap, ODbL; Microsoft ML Buildings, ODbL; Google Open Buildings, CC BY 4.0 / ODbL).\n'
+           '   Pisos: Subsecretaría de Catastro de Medellín, capa 3DConstruccciones (Popular, El Poblado y Robledo; www.medellin.gov.co/geomedellin);\n'
+           '   OpenStreetMap donde existen; en el resto, estimados por zona y tamaño. Usos del suelo, canchas y piscinas: Overture (OpenStreetMap, ODbL). */\n'
+           f'const EDIFICIOS = {json.dumps({"v": 1, "R": R, "nx": nx, "ny": ny, "n": n, "Q": Q, "kinds": KINDS, "len": [len(f) for f in flujos], "raw": len(todo)})};\n'
+           f'EDIFICIOS.data = "{base64.b64encode(comp).decode()}";\n'
+           f'const SUELOS = {json.dumps(suelos, ensure_ascii=False, separators=(",", ":"))};\n')
+    open(os.path.join(ROOT, 'src/data/edificios.js'), 'w', encoding='utf8').write(txt)
+    json.dump(stats, open(os.path.join(ROOT, 'docs/auditorias/edificios.json'), 'w'), ensure_ascii=False, indent=1)
+    print(json.dumps(stats, ensure_ascii=False)); print('src/data/edificios.js', round(len(txt) / 1e6, 2), 'MB ·', round(time.time() - t0), 's')
+
+
+if __name__ == '__main__':
+    if len(sys.argv) > 2 and sys.argv[1] == '--descargar': descargar(sys.argv[2])
+    elif len(sys.argv) > 1: generar(sys.argv[1])
+    else: print(__doc__)
+~~~~
+
 ### `tools/encicla_datos.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -10642,10 +11415,10 @@ HITOS = [
     ('carre', 'Edificio Carré', 'republicano', 16, [('w', 32474597)], {'col': '#e9c9a0'}),
     ('bibepm', 'Biblioteca EPM', 'ladrillo', 22, [('w', 32474558)], {}),
     ('ferrocarril', 'Estación del Ferrocarril de Antioquia', 'republicano', 12, [('w', 32470267)], {'col': '#e3c99a'}),
-    ('alcaldia', 'Alcaldía de Medellín', 'moderno', 48, [('w', 32469824)], {}),
-    ('gobernacion', 'Gobernación de Antioquia', 'moderno', 48, [('w', 32469791)], {}),
+    ('alcaldia', 'Alcaldía de Medellín', 'alpujarra', 48, [('w', 32469824)], {}),
+    ('gobernacion', 'Gobernación de Antioquia', 'alpujarra', 48, [('w', 32469791)], {}),
     ('concejo', 'Concejo de Medellín', 'moderno', 18, [('w', 230296296)], {}),
-    ('justicia', 'Palacio de Justicia', 'moderno', 32, [('w', 32470439)], {}),
+    ('justicia', 'Palacio de Justicia', 'alpujarra', 36, [('w', 32470439)], {}),
     ('nacional', 'Palacio Nacional', 'republicano', 24, [('w', 31973366)], {'col': '#d8c8a8'}),
     ('banrep', 'Banco de la República', 'republicano', 20, [('w', 129724091)], {'col': '#d9d4c8'}),
     ('planetario', 'Planetario de Medellín', 'cupula', 10, [('w', 93329440)], {}),
@@ -11649,6 +12422,8 @@ Las pruebas son \`node tools/test.mjs 100\`. El mapa de módulos y los comandos 
 - **\`src/data/ciudad.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/ciudad.js')).size / 1024)} KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera \`python3 tools/ciudad_datos.py\`; se usa con \`MAP.barrioAt\`, \`MAP.calleAt\`, \`MAP.lotT\` y \`MAP.drawLabels\` (\`src/js/10-map.js\`).
 - **\`src/data/ajustes.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/ajustes.js')).size / 1024)} KB): ajustes del mapa base generados por \`node tools/mapa_ajustes.mjs\`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **\`src/data/arte.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/arte.js')).size / 1024)} KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera \`python3 tools/arte_juego.py\` desde \`arte/entregas/\`; la lista con su uso está en \`arte/entregas/USO-EN-EL-JUEGO.md\`. Se usa con \`Atlas.img(id)\`, \`Atlas.url(id)\` y \`Atlas.tag(id)\` (\`src/js/19-atlas.js\`), siempre con respaldo procedural.
+- **\`src/data/vias.js\`, \`rieles.js\`, \`metroplus.js\`, \`rutas_calles.js\` y \`hitos.js\`**: calles con su curva y su ancho, eje de los rieles, corredores de Metroplús, recorridos de los alimentadores y arquitectura icónica (ver \`docs/FUENTES.md\`).
+- **\`src/data/edificios.js\`** (${Math.round(fs.statSync(path.join(root, 'src/data/edificios.js')).size / 1024)} KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (\`SUELOS\`). Lo genera \`python3 tools/edificios_datos.py\`; se usa con \`VC.edifDe\`, \`VC.edifRegion\` y \`VC.dibEd\` (\`src/js/11-edificios.js\`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
 ## Código fuente (${codeFiles.length} archivos, ${Math.round(codeBytes / 1024)} KB)
