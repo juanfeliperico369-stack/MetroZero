@@ -39,6 +39,8 @@ const NET = EM.netw = {
     const a = P.pts[lo], b = P.pts[Math.min(lo + 1, n - 1)], L = (c[lo + 1] - c[lo]) || 1, k = clamp((s - c[lo]) / L, 0, 1), ang = Math.atan2(b.y - a.y, b.x - a.x);
     return { x: a.x + (b.x - a.x) * k - Math.sin(ang) * off, y: a.y + (b.y - a.y) * k + Math.cos(ang) * off, a: ang };
   },
+  /* dirección media de la línea entre s − d y s + d (orienta andenes sin el quiebre de un vértice) */
+  dirAt(P, s, d = 30) { const a = this.at(P, s - d), b = this.at(P, s + d); return Math.atan2(b.y - a.y, b.x - a.x); },
   project(P, x, y) {
     let bd = 1e18, bs = 0;
     for (let i = 0; i < P.pts.length - 1; i++) { const a = P.pts[i], b = P.pts[i + 1], dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy || 1, t = clamp(((x - a.x) * dx + (y - a.y) * dy) / L2, 0, 1), px = a.x + dx * t, py = a.y + dy * t, d = (x - px) ** 2 + (y - py) ** 2; if (d < bd) { bd = d; bs = P.cum[i] + Math.sqrt(L2) * t; } }
@@ -52,14 +54,26 @@ const NET = EM.netw = {
       let pts = null, st = null;
       const osm = VM.metro && VM.metro[L.id === 'TA' ? 'T' : L.id];
       if (osm && (k === 'metro' || k === 'tram')) {
-        pts = q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
+        // eje real entre los dos rieles de OpenStreetMap (src/data/rieles.js); si falta, el trazado simplificado del mapa base
+        const R = typeof RIELES !== 'undefined' && RIELES[L.id === 'TA' ? 'T' : L.id];
+        pts = R ? R.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []) : q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
       }
       if (!st) st = (L.stations || []).map(([n, la, lo]) => Object.assign({ name: n }, geoM(la, lo)));
+      // buses: el recorrido rehecho sobre las calles dibujadas (src/data/rutas_calles.js); si falta, el de casillas (RUTAS)
+      if (!pts && typeof RUTAS_CALLES !== 'undefined' && RUTAS_CALLES[L.id]) pts = RUTAS_CALLES[L.id].reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       if (!pts && typeof RUTAS !== 'undefined' && RUTAS[L.id]) pts = q(RUTAS[L.id]);
       if (!pts) { const via = (L.via || []).map(([la, lo]) => geoM(la, lo)); pts = via.length && k !== "cable" ? this.orderAlong(st, via) : st.map(s => ({ x: s.x, y: s.y })); }
       if (pts.length < 2) continue;
       line.P = this.poly(pts);
-      line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y); return { name: s.name, x: s.x, y: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
+      // una línea de metro que termina sobre otra (la B en San Antonio) llega hasta el borde del viaducto de la otra, no encima
+      if (k === 'metro') for (const o of this.lines) if (o.kind === 'metro') for (const fin of [0, 1]) {
+        const P = line.P, e = fin ? P.pts[P.pts.length - 1] : P.pts[0]; if (this.project(o.P, e.x, e.y).d > 12) continue;
+        let c = 0; while (c < 60 && this.project(o.P, this.at(P, fin ? P.len - c : c).x, this.at(P, fin ? P.len - c : c).y).d < 14) c += 1;
+        const a = fin ? 0 : c, b = fin ? P.len - c : P.len, q2 = [this.at(P, a)]; P.pts.forEach((p, i) => { if (P.cum[i] > a && P.cum[i] < b) q2.push(p); }); q2.push(this.at(P, b));
+        line.P = this.poly(q2.map(p => ({ x: p.x, y: p.y })));
+      }
+      // cada estación queda SOBRE su línea (el andén se centra en la vía y los rieles entran y salen por sus extremos)
+      line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y), on = k !== 'cable' && k !== 'future' ? this.at(line.P, pr.s) : s; return { name: s.name, x: on.x, y: on.y, ox: s.x, oy: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
       line.st.forEach((s, i) => s.i = i);
       if (line.st.length < 2) continue;
       line.km = line.km || +(line.P.len / 1000).toFixed(1);

@@ -47,7 +47,7 @@ const Ciudad = EM.ciudad = {
     this.spawnT -= dt;
     if (this.spawnT <= 0 && this.peds.length < want) {
       this.spawnT = .12; const rng = this.rng;
-      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200, x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r, v = MAP.tileM(x, y); if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
+      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200; let x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r; const v = MAP.tileM(x, y), ac = VC.on && rng.f() < .75 ? VC.acera(x, y, () => rng.f()) : null; if (ac) { x = ac.x; y = ac.y; } else if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; if (VC.on && VC.solid(x, y, .5)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
         if (rng.f() < .08) { o.dog = 1; o.umb = false; o.v = 1.4 + rng.f(); o.col = rng.pick(DOG_COL); } else if (rng.f() < .1) this.peds.push({ x: x - 1.2, y, a: o.a, v: o.v, seed: rng.i(1, 1e6), tgt: null, wait: 0, col: rng.pick(DOG_COL), stun: 0, ph: 0, scared: 0, dog: 1, owner: o }); break; }
     }
     for (const p of this.peds) {
@@ -55,17 +55,19 @@ const Ciudad = EM.ciudad = {
       if (p.owner) { const o = p.owner; if (o.gone || o.board || o.waitStop != null || dist(p.x, p.y, o.x, o.y) > 25) p.owner = null; else { const tx = o.x - Math.cos(o.a) * 1.7 + Math.sin(this.t * .8 + p.seed) * .5, ty = o.y - Math.sin(o.a) * 1.7 + Math.cos(this.t * .7 + p.seed) * .5, d = dist(p.x, p.y, tx, ty); if (d > .25) { p.a = Math.atan2(ty - p.y, tx - p.x); const st = Math.min(d, (o.v + 1.4) * dt); p.x += Math.cos(p.a) * st; p.y += Math.sin(p.a) * st; p.ph += dt * 5; } if (p.scared > 0) p.scared -= dt; continue; } }
       if (p.board) { const d = dist(p.x, p.y, p.board.x, p.board.y); if (d < 1.2) { p.gone = true; continue; } p.a = Math.atan2(p.board.y - p.y, p.board.x - p.x); p.x += Math.cos(p.a) * 1.7 * dt; p.y += Math.sin(p.a) * 1.7 * dt; continue; }
       if (p.waitStop != null) { p.ph = Math.sin(this.t * .6 + p.seed) * .3; continue; }
-      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
+      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (this.pisa(nx, ny)) { p.x = nx; p.y = ny; } continue; }
       if (p.wait > 0) { p.wait -= dt; continue; }
       if (!p.tgt || dist(p.x, p.y, p.tgt.x, p.tgt.y) < 4) { if (p.tgt) p.wait = .5 + this.rng.f() * 3; p.tgt = this.pedTarget(p); continue; }
       const ta = Math.atan2(p.tgt.y - p.y, p.tgt.x - p.x); let moved = false;
-      for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4]) { const a = ta + off, st = p.v * dt, nx = p.x + Math.cos(a) * st, ny = p.y + Math.sin(a) * st, v = MAP.tileM(nx, ny); if (WALK_OK.has(v) && (v !== TT.ROAD || off === 0)) { p.a += Math.atan2(Math.sin(a - p.a), Math.cos(a - p.a)) * Math.min(1, dt * 6); p.x = nx; p.y = ny; moved = true; break; } }
+      for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4]) { const a = ta + off, st = p.v * dt, nx = p.x + Math.cos(a) * st, ny = p.y + Math.sin(a) * st, v = MAP.tileM(nx, ny); if (this.pisa(nx, ny, v) && (v !== TT.ROAD || off === 0 || VC.on)) { p.a += Math.atan2(Math.sin(a - p.a), Math.cos(a - p.a)) * Math.min(1, dt * 6); p.x = nx; p.y = ny; moved = true; break; } }
       if (!moved) { p.tgt = null; p.wait = .3; }
       // miedo a los vehículos rápidos
       if (player && player.veh && Math.abs(player.vf) > 3) { const dx = p.x - player.x, dy = p.y - player.y, d = Math.hypot(dx, dy); if (d < 9) { p.scared = .8; p.a = Math.atan2(dy, dx); if (d < 2.2 && Math.abs(player.vf) > 1.5 && !p.hit) { p.hit = 1; p.stun = 2.5; player.onPed && player.onPed(p); } } }
     }
     this.peds = this.peds.filter(p => !p.gone && (p.waitStop != null || dist(p.x, p.y, fx, fy) < 420));
   },
+  /* ¿un peatón puede pisar aquí? con la ciudad vectorial: todo menos edificios y agua; si no, las casillas de andar */
+  pisa(x, y, v = MAP.tileM(x, y)) { return VC.on ? !VC.solid(x, y, .3) : WALK_OK.has(v); },
   /* gente esperando en una parada (para el simulador de bus) */
   spawnWaiting(stopIdx, x, y, n) {
     const rng = this.rng, out = [];
@@ -73,11 +75,12 @@ const Ciudad = EM.ciudad = {
     return out;
   },
   vendorsDraw(g, S, k, sh, x0, y0, x1, y1) {
-    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
+    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; if (VC.on && !v.ok) { const q = VC.despeja(v.x, v.y, 1.6); v.x = q.x; v.y = q.y; v.ok = 1; } const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
   },
   pedTarget(p) {
     const rng = this.rng; if (rng.f() < .35) { let best = null, bd = 1e9; for (const h of NET.stations) { const d = dist(h.x, h.y, p.x, p.y); if (d < bd && d > 25) { bd = d; best = h; } } if (best && bd < 260) return { x: best.x + (rng.f() - .5) * 20, y: best.y + (rng.f() - .5) * 20 }; }
-    for (let k = 0; k < 8; k++) { const a = rng.f() * TAU, r = 40 + rng.f() * 120, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r, v = MAP.tileM(x, y); if (v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS) return { x, y }; }
+    if (VC.on) for (let k = 0; k < 4; k++) { const a = p.a + (rng.f() - .5) * (k ? 2.4 : .7), r = 30 + rng.f() * 90, q = VC.acera(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, () => rng.f()); if (q) return q; }   // por el andén, más o menos hacia donde iba
+    for (let k = 0; k < 8; k++) { const a = rng.f() * TAU, r = 40 + rng.f() * 120, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r, v = MAP.tileM(x, y); if ((v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS) && !(VC.on && VC.solid(x, y, .5))) return { x, y }; }
     return { x: p.x + (rng.f() - .5) * 30, y: p.y + (rng.f() - .5) * 30 };
   },
   say(p, txt) { this.bubbles.push({ x: p.x, y: p.y, t: 2.4, txt: txt || this.rng.pick(PED_FRASES), p }); },
@@ -112,13 +115,14 @@ const Ciudad = EM.ciudad = {
     for (const L of this.lm) {
       if (L.x + L.w < x0 || L.x - L.w > x1 || L.y + L.h < y0 || L.y - L.h > y1) continue; const p = S(L.x - L.w / 2, L.y - L.h / 2), w = L.w * k, h = L.h * k;
       const col = { iglesia: '#e9d9b7', terminal: '#c9ced4', volador: null, campus: '#d6e6d2', moravia: '#f2cfae', botanico: null, explora: '#EC343A', estadio: '#9aa0a6', botero: '#e9c9c9', coltejer: '#8d97a4', teatro: '#b9b5ad', lleras: null, pies: '#d9cdae', luces: '#d9cdae', depot: '#bfe1d9', cerro: null, mamm: '#b4583a', aeropuerto: '#9aa1a8', comuna13: null, bibespana: '#2b2b2b', palacio: '#f4ecd0', catedral: '#b4583a', parquenorte: null, deporte: '#cfe0ea', memoria: '#8d97a4', cruces: null }[L.k];
-      if (col) {   // sin rectángulos planos: el mapa ya trae lo real (datos oficiales); aquí va solo el ícono del lugar
+      if (VC.on) { if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); } }   // con la ciudad vectorial los edificios y parques ya están dibujados: sin íconos planos
+      else if (col) {   // sin rectángulos planos: el mapa ya trae lo real (datos oficiales); aquí va solo el ícono del lugar
         if (L.k === 'iglesia' || L.k === 'catedral') { const cx = p.x + w / 2, cy = p.y + h / 2, u = Math.min(w, h) * .32; g.fillStyle = 'rgba(20,20,20,.35)'; g.fillRect(cx - u * .45 + 2, cy - u * .2 + 3, u * .9, u * 1.1); g.fillStyle = col; g.fillRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.fillStyle = Art.shade(col, .8); g.fillRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1, k * .4); g.strokeRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.strokeRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.fillStyle = PAL.negro; g.fillRect(cx - Math.max(1, k * .3) / 2, cy - u * 1.05, Math.max(1, k * .3), u * .3); g.fillRect(cx - u * .1, cy - u * .95, u * .2, Math.max(1, k * .3)); }
         if (L.k === 'estadio') { g.fillStyle = '#59AB42'; g.beginPath(); g.ellipse(p.x + w / 2, p.y + h / 2, w * .3, h * .36, 0, 0, TAU); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); }
         if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); }
         if (L.k === 'campus' || L.k === 'deporte') { g.fillStyle = Art.shade(col, .85); for (let i = 0; i < 4; i++) g.fillRect(p.x + w * (.1 + (i % 2) * .5), p.y + h * (.1 + (i >> 1) * .5), w * .3, h * .3); }
         if (L.k === 'bibespana') { g.fillStyle = '#3a3a3a'; for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(p.x + w * (.1 + i * .3), p.y + h * .9); g.lineTo(p.x + w * (.25 + i * .3), p.y + h * .15); g.lineTo(p.x + w * (.4 + i * .3), p.y + h * .9); g.fill(); } }
-      } else { const n = Math.max(3, Math.round(w * h / Math.max(60, k * k * 400))); for (let i = 0; i < Math.min(n, 60); i++) { const tx = p.x + h2(i, 1, L.id.length) * w, ty = p.y + h2(i, 2, L.id.length) * h, r = (1.5 + h2(i, 3, 1) * 2) * k; g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(tx + r * .4, ty + r * .5, r, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#2f6b3c'][i % 3]; g.beginPath(); g.arc(tx, ty, r, 0, TAU); g.fill(); } }
+      } else if (!VC.on) { const n = Math.max(3, Math.round(w * h / Math.max(60, k * k * 400))); for (let i = 0; i < Math.min(n, 60); i++) { const tx = p.x + h2(i, 1, L.id.length) * w, ty = p.y + h2(i, 2, L.id.length) * h, r = (1.5 + h2(i, 3, 1) * 2) * k; g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(tx + r * .4, ty + r * .5, r, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#2f6b3c'][i % 3]; g.beginPath(); g.arc(tx, ty, r, 0, TAU); g.fill(); } }
       if (k > .9) { g.font = '700 ' + Math.max(10, Math.min(16, k * 5)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.9)'; g.strokeText(L.name, p.x + w / 2, p.y + h + 12); g.fillStyle = PAL.negro; g.fillText(L.name, p.x + w / 2, p.y + h + 12); g.textAlign = 'left'; }
     }
   },
@@ -140,8 +144,8 @@ const Ciudad = EM.ciudad = {
   transitDraw(g, S, k, sh, night, x0, y0, x1, y1) {
     for (const v of this.transit) {
       const p = this.tpos(v); if (p.x < x0 - 100 || p.x > x1 + 100 || p.y < y0 - 100 || p.y > y1 + 100) continue; const K = KIND[v.line.kind], kind = v.line.kind, col = v.line.color;
-      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, S, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
-      else if (kind === 'cable') { const q = NET.at(v.line.P, v.s); this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', S, k, sh, night, false); }
+      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2, T = kind === 'metro' && VC.on ? (x, y) => S(x, y - KIND.metro.deck * VC.ob) : S; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, T, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
+      else if (kind === 'cable') { const q = NET.at(v.line.P, v.s), T = VC.on ? (x, y) => S(x, y - 14 * VC.ob) : S; this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', T, k, sh, night, false); }
       else { const q = NET.at(v.line.P, v.s - v.dir * K.len / 2, v.dir * 2.2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), K.len, 2.5, col, kind, S, k, sh, night, true); }
     }
   },
@@ -149,35 +153,84 @@ const Ciudad = EM.ciudad = {
   streetLights(g, S, k, night, x0, y0, x1, y1, W, H) {
     if (night < .25) return; g.save(); g.globalCompositeOperation = 'lighter';
     const step = TM * 3, R = Math.max(8, 14 * k);
-    for (let y = Math.floor(y0 / step) * step; y < y1; y += step) for (let x = Math.floor(x0 / step) * step; x < x1; x += step) {
+    if (VC.on) {   // postes a lo largo de las calles dibujadas: un halo cacheado por poste
+      const HL = VC.halo(), CR = 320; g.globalAlpha = clamp(.5 * night, 0, .5);
+      for (let cy = Math.floor((y0 - 20) / CR); cy <= Math.floor((y1 + 20) / CR); cy++) for (let cx = Math.floor((x0 - 20) / CR); cx <= Math.floor((x1 + 20) / CR); cx++) { const P = VC.postes(cx, cy); for (let i = 0; i < P.length; i += 2) { const q = S(P[i], P[i + 1]); if (q.x < -R || q.y < -R || q.x > W + R || q.y > H + R) continue; g.drawImage(HL, q.x - R, q.y - R, R * 2, R * 2); } }
+      g.globalAlpha = 1;
+    } else for (let y = Math.floor(y0 / step) * step; y < y1; y += step) for (let x = Math.floor(x0 / step) * step; x < x1; x += step) {
       const v = MAP.tileM(x + 10, y + 10); if (!(v === TT.AVE || v === TT.AUTO || v === TT.PLAZA || v === TT.STATION || (v === TT.ROAD && h2(x, y, 4) < .25))) continue; if (h2(x, y, 5) > .8) continue;
       const q = S(x + 10, y + 10); if (q.x < -R || q.y < -R || q.x > W + R || q.y > H + R) continue; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, R); gr.addColorStop(0, 'rgba(255,214,140,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,214,140,0)'); g.fillStyle = gr; g.fillRect(q.x - R, q.y - R, R * 2, R * 2);
     }
     for (const h of NET.stations) { const q = S(h.x, h.y); if (q.x < -60 || q.y < -60 || q.x > W + 60 || q.y > H + 60) continue; const r = Math.max(16, 40 * k), gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, r); gr.addColorStop(0, 'rgba(200,230,255,' + (.35 * night) + ')'); gr.addColorStop(1, 'rgba(200,230,255,0)'); g.fillStyle = gr; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); }
     g.restore();
   },
+  /* franja que sigue la línea P entre s0 y s1, con desplazamientos laterales o0 y o1 (andenes y techos sobre la curva) */
+  banda(g, S, P, s0, s1, o0, o1) { const n = Math.max(2, Math.ceil((s1 - s0) / 8)); g.beginPath(); for (let i = 0; i <= n; i++) { const q = NET.at(P, s0 + (s1 - s0) * i / n, o0), w = S(q.x, q.y); i ? g.lineTo(w.x, w.y) : g.moveTo(w.x, w.y); } for (let i = n; i >= 0; i--) { const q = NET.at(P, s0 + (s1 - s0) * i / n, o1), w = S(q.x, q.y); g.lineTo(w.x, w.y); } g.closePath(); },
   /* estaciones y paradas sobre el mapa */
   stations(g, S, k, x0, y0, x1, y1) {
-    const path = (l, pad) => { g.beginPath(); let on = false; for (const p of l.P.pts) { if (p.x < x0 - pad || p.x > x1 + pad || p.y < y0 - pad || p.y > y1 + pad) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } };
+    // tramos de la línea que tocan la vista (los segmentos rectos pueden medir cientos de metros: se mira el segmento, no el vértice)
+    const vis = (l, pad) => { const P = l.P.pts, c = l.P.cum; let a = Infinity, b = -1; for (let i = 0; i < P.length - 1; i++) { const p = P[i], q = P[i + 1]; if (Math.max(p.x, q.x) < x0 - pad || Math.min(p.x, q.x) > x1 + pad || Math.max(p.y, q.y) < y0 - pad || Math.min(p.y, q.y) > y1 + pad) continue; if (c[i] < a) a = c[i]; if (c[i + 1] > b) b = c[i + 1]; } return b < 0 ? null : [a, b]; };
+    const path = (l, pad, T = S) => { g.beginPath(); const P = l.P.pts; let last = -2; for (let i = 0; i < P.length - 1; i++) { const p = P[i], q = P[i + 1]; if (Math.max(p.x, q.x) < x0 - pad || Math.min(p.x, q.x) > x1 + pad || Math.max(p.y, q.y) < y0 - pad || Math.min(p.y, q.y) > y1 + pad) continue; if (last !== i - 1) { const w = T(p.x, p.y); g.moveTo(w.x, w.y); } const w = T(q.x, q.y); g.lineTo(w.x, w.y); last = i; } };
+    const rieles = (l, R, offs, col, lw, T = S) => { const st = Math.max(3, 2.5 / k); g.strokeStyle = col; g.lineWidth = lw; for (const o of offs) { g.beginPath(); for (let s = R[0]; s <= R[1] + st; s += st) { const q0 = NET.at(l.P, Math.min(s, R[1]), o), q = T(q0.x, q0.y); s === R[0] ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke(); } };
+    // el metro va elevado: tablero a 7 m (en la vista con volumen se dibuja corrido hacia arriba, con columnas y su sombra en el piso)
+    const dz = VC.on ? KIND.metro.deck * VC.ob : 0, Se = (x, y) => S(x, y - dz), Sc = (x, y) => S(x, y - (KIND.metro.deck + 4.2) * VC.ob);
     g.lineJoin = 'round'; g.lineCap = 'butt';
     for (const l of NET.lines) {
-      if (l.kind === 'future' || l.kind === 'cable') continue;
-      if (l.kind === 'metro') { // viaducto: sombra, bordes, tablero, rieles
-        path(l, 300); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 10.5 * k; g.save(); g.translate(1.5 * k, 2.5 * k); g.stroke(); g.restore();
-        g.strokeStyle = '#4f4b45'; g.lineWidth = 10 * k; g.stroke(); g.strokeStyle = '#9a9185'; g.lineWidth = 8.6 * k; g.stroke(); g.strokeStyle = '#6f685e'; g.lineWidth = .5 * k; g.stroke();
-        for (const o of [-2.4, -1.2, 1.2, 2.4]) { g.beginPath(); let on = false; for (let s = Math.max(0, NET.project(l.P, x0, y0).s - 400); s < l.P.len; s += 14) { const q0 = NET.at(l.P, s, o); if (q0.x < x0 - 60 || q0.x > x1 + 60 || q0.y < y0 - 60 || q0.y > y1 + 60) { on = false; if (s > NET.project(l.P, x1, y1).s + 400) break; continue; } const q = S(q0.x, q0.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.strokeStyle = '#2b2a28'; g.lineWidth = Math.max(.8, .22 * k); g.stroke(); }
-      } else if (l.kind === 'tram') { path(l, 200); g.strokeStyle = 'rgba(30,30,30,.55)'; g.lineWidth = 6.2 * k; g.stroke(); g.strokeStyle = '#5d6168'; g.lineWidth = 6 * k; g.stroke(); g.strokeStyle = '#d8d8d8'; g.lineWidth = Math.max(.8, .25 * k); g.stroke(); }
-      else { path(l, 200); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
-      for (const s of l.st) { if (s.x < x0 - 80 || s.x > x1 + 80 || s.y < y0 - 80 || s.y > y1 + 80) continue; const q = S(s.x, s.y), K = KIND[l.kind], pl = K.plat * k, a = NET.at(l.P, s.s).a;
-        g.save(); g.translate(q.x, q.y); g.rotate(a);
-        if (l.kind === 'metro') { const off = 5 * k, w = 4 * k; g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-pl / 2 + 1.5 * k, -off - w + 2.5 * k, pl, w); g.fillRect(-pl / 2 + 1.5 * k, off + 2.5 * k, pl, w); g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); g.fillRect(-pl / 2, off, pl, w); g.fillStyle = PAL.mante; g.fillRect(-pl / 2, -off - .5 * k, pl, .5 * k); g.fillRect(-pl / 2, off, pl, .5 * k); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .9 * k, pl, .9 * k); g.fillRect(-pl / 2, off + w, pl, .9 * k); g.fillStyle = 'rgba(0,0,0,.12)'; for (let x = -pl / 2 + 2 * k; x < pl / 2; x += 6 * k) { g.fillRect(x, -off - w - .8 * k, .6 * k, w + .8 * k); g.fillRect(x, off, .6 * k, w + .8 * k); } }
-        else if (l.kind === 'tram' || l.kind === 'brt') { const off = (l.kind === 'tram' ? 3.4 : 2) * k, w = 2.6 * k; g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); if (l.kind === 'tram') g.fillRect(-pl / 2, off, pl, w); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .6 * k, pl, .7 * k); if (l.kind === 'brt') { g.fillStyle = '#141414'; g.fillRect(-pl / 2, -off - w, pl, .4 * k); } }
-        else { g.fillStyle = l.color; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, Math.max(3, 2.2 * k), 0, TAU); g.fill(); g.stroke(); }
-        g.restore(); }
+      if (l.kind === 'future' || l.kind === 'cable') continue; const R = vis(l, 160); if (!R) continue;
+      if (l.kind === 'metro') { // viaducto: columnas, sombra en el piso, tablero a su altura, durmientes y dos vías (cuatro rieles)
+        if (dz) {
+          // edificio de acceso de cada estación, abajo del viaducto: muros claros, techo y franja del color de la línea (asoma a los lados del tablero)
+          for (const st of l.st) { if (st.x < x0 - 90 || st.x > x1 + 90 || st.y < y0 - 90 || st.y > y1 + 90) continue; const s0 = clamp(st.s - KIND.metro.plat / 2, 0, Math.max(0, l.P.len - KIND.metro.plat)), a0 = s0 + 22, a1 = s0 + KIND.metro.plat - 22, S5 = (x, y) => S(x, y - 5 * VC.ob);
+            this.banda(g, S, l.P, a0, a1, -11, 11); g.fillStyle = 'rgba(0,0,0,.22)'; g.save(); g.translate(1.6 * k, 1 * k); g.fill(); g.restore(); g.fillStyle = '#cfc6b3'; g.fill();
+            this.banda(g, S5, l.P, a0, a1, -11, 11); g.fillStyle = '#e6dfcf'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.5)'; g.lineWidth = Math.max(1, .2 * k); g.stroke();
+            for (const sd of [-1, 1]) { this.banda(g, S5, l.P, a0, a1, sd * 10, sd * 11); g.fillStyle = l.color; g.fill(); } }
+          const paso = 30; g.lineCap = 'butt';
+          for (let t = Math.ceil(R[0] / paso) * paso; t <= R[1]; t += paso) { const q0 = NET.at(l.P, t); if (q0.x < x0 - 30 || q0.x > x1 + 30 || q0.y < y0 - 30 || q0.y > y1 + 30) continue; const a = S(q0.x, q0.y), b = Se(q0.x, q0.y);
+            g.strokeStyle = 'rgba(0,0,0,.22)'; g.lineWidth = 2.4 * k; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(a.x + 2.2 * k, a.y + 1.4 * k); g.stroke();
+            g.strokeStyle = '#857f75'; g.lineWidth = 2.4 * k; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); g.strokeStyle = '#aaa398'; g.lineWidth = .8 * k; g.beginPath(); g.moveTo(a.x - .6 * k, a.y); g.lineTo(b.x - .6 * k, b.y); g.stroke(); }
+          path(l, 160); g.strokeStyle = 'rgba(0,0,0,.2)'; g.lineWidth = 9.6 * k; g.save(); g.translate(2.2 * k, 1.4 * k); g.stroke(); g.restore();
+        } else { path(l, 160); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 10.5 * k; g.save(); g.translate(1.5 * k, 2.5 * k); g.stroke(); g.restore(); }
+        path(l, 160, Se); g.strokeStyle = '#4f4b45'; g.lineWidth = 10 * k; g.stroke(); g.strokeStyle = '#9a9185'; g.lineWidth = 8.6 * k; g.stroke();
+        if (dz) { g.strokeStyle = 'rgba(60,56,50,.55)'; g.lineWidth = 1.1 * k; g.save(); g.translate(0, 5 * k); g.stroke(); g.restore(); }   // canto del tablero
+        if (k > .5) { g.strokeStyle = '#7d756a'; g.lineWidth = 2.6 * k; g.setLineDash([.35 * k, .55 * k]); for (const o of [-2, 2]) { g.beginPath(); for (let s = R[0]; s <= R[1] + 3; s += Math.max(3, 2.5 / k)) { const q0 = NET.at(l.P, Math.min(s, R[1]), o), q = Se(q0.x, q0.y); s === R[0] ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke(); } g.setLineDash([]); }
+        rieles(l, R, [-2.72, -1.28, 1.28, 2.72], '#2b2a28', Math.max(.8, .22 * k), Se);
+      } else if (l.kind === 'tram') { path(l, 160); g.strokeStyle = 'rgba(30,30,30,.45)'; g.lineWidth = 6.4 * k; g.stroke(); g.strokeStyle = '#6a6e74'; g.lineWidth = 6 * k; g.stroke(); rieles(l, R, [-1.9, -.5, .5, 1.9], '#2e3034', Math.max(.8, .2 * k)); g.strokeStyle = '#c9c9c4'; g.lineWidth = Math.max(.8, .22 * k); path(l, 160); g.stroke(); }
+      else { path(l, 160); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
+      // andenes: siguen la curva de su línea entre s − largo/2 y s + largo/2 (el tren se detiene dentro y los rieles salen por los extremos)
+      for (const s of l.st) {
+        if (s.x < x0 - 90 || s.x > x1 + 90 || s.y < y0 - 90 || s.y > y1 + 90) continue; const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), s1 = Math.min(l.P.len, s0 + K.plat);   // en las terminales el andén entero queda hacia adentro
+        if (l.kind === 'metro') {
+          for (const sd of [-1, 1]) {   // dos andenes laterales: piso, línea amarilla junto a la vía y franja del color de la línea
+            this.banda(g, Se, l.P, s0, s1, sd * 4.1, sd * 8.6); g.fillStyle = 'rgba(0,0,0,.28)'; g.save(); g.translate(1.5 * k, 2.5 * k); g.fill(); g.restore(); g.fillStyle = '#ece6d6'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.55)'; g.lineWidth = Math.max(1, .25 * k); g.stroke();
+            this.banda(g, Se, l.P, s0, s1, sd * 4.1, sd * 4.55); g.fillStyle = '#f2c400'; g.fill();
+            if (dz) {   // cubierta metálica sobre el andén (a 4 m), con su sombra, nervios y el borde del color de la línea
+              this.banda(g, Se, l.P, s0 + 6, s1 - 6, sd * 4.6, sd * 8.6); g.fillStyle = 'rgba(30,30,30,.16)'; g.fill();
+              this.banda(g, Sc, l.P, s0 + 6, s1 - 6, sd * 5.0, sd * 9.0); g.fillStyle = '#dde1e4'; g.fill(); g.strokeStyle = 'rgba(60,66,74,.6)'; g.lineWidth = Math.max(1, .2 * k); g.stroke();
+              this.banda(g, Sc, l.P, s0 + 6, s1 - 6, sd * 8.3, sd * 9.0); g.fillStyle = l.color; g.fill();
+              if (k > .6) { g.strokeStyle = 'rgba(120,126,134,.55)'; g.lineWidth = Math.max(1, .16 * k); g.beginPath(); for (let t = s0 + 10; t < s1 - 8; t += 6) { const A = NET.at(l.P, t, sd * 5.0), B2 = NET.at(l.P, t, sd * 8.3), qa = Sc(A.x, A.y), qb = Sc(B2.x, B2.y); g.moveTo(qa.x, qa.y); g.lineTo(qb.x, qb.y); } g.stroke(); }
+            } else {
+              this.banda(g, S, l.P, s0 + 6, s1 - 6, sd * 5.6, sd * 8.6); g.fillStyle = '#d4d0c6'; g.fill();
+              this.banda(g, S, l.P, s0 + 6, s1 - 6, sd * 7.8, sd * 8.6); g.fillStyle = l.color; g.fill();
+            }
+          }
+        } else if (l.kind === 'tram' || l.kind === 'brt') {
+          const o = l.kind === 'tram' ? 3.3 : 1.9, w = l.kind === 'tram' ? 2.8 : 3.2;
+          for (const sd of l.kind === 'tram' ? [-1, 1] : [-1]) { this.banda(g, S, l.P, s0, s1, sd * o, sd * (o + w)); g.fillStyle = 'rgba(0,0,0,.22)'; g.save(); g.translate(k, 1.6 * k); g.fill(); g.restore(); g.fillStyle = '#ece6d6'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.5)'; g.lineWidth = Math.max(1, .2 * k); g.stroke(); this.banda(g, S, l.P, s0 + 3, s1 - 3, sd * (o + w * .45), sd * (o + w)); g.fillStyle = l.color; g.fill(); }
+        } else { const q = S(s.x, s.y); g.fillStyle = l.color; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y, Math.max(3, 2.2 * k), 0, TAU); g.fill(); g.stroke(); }
+      }
     }
     // metrocables: cable doble, torres cada ~260 m y estaciones
-    for (const l of NET.lines) { if (l.kind !== 'cable') continue; for (let i = 0; i < l.st.length - 1; i++) { const a = l.st[i], b = l.st[i + 1]; if (Math.max(a.x, b.x) < x0 - 100 || Math.min(a.x, b.x) > x1 + 100 || Math.max(a.y, b.y) < y0 - 100 || Math.min(a.y, b.y) > y1 + 100) continue; const qa = S(a.x, a.y), qb = S(b.x, b.y), L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1), ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang) * 1.5 * k, oy = Math.cos(ang) * 1.5 * k; g.strokeStyle = 'rgba(20,20,20,.8)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(qa.x + ox, qa.y + oy); g.lineTo(qb.x + ox, qb.y + oy); g.moveTo(qa.x - ox, qa.y - oy); g.lineTo(qb.x - ox, qb.y - oy); g.stroke(); for (let t = 1; t <= nt; t++) { const f = t / (nt + 1), tx = lerp(a.x, b.x, f), ty = lerp(a.y, b.y, f), q = S(tx, ty); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 1.5 * k + 2 * k, q.y - 1.5 * k + 3 * k, 3 * k, 3 * k); g.fillStyle = '#8f949a'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1; g.strokeRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); } }
-      for (const s of l.st) { if (s.x < x0 - 60 || s.x > x1 + 60 || s.y < y0 - 60 || s.y > y1 + 60) continue; const q = S(s.x, s.y); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 12 * k + 2.5 * k, q.y - 8 * k + 3.5 * k, 24 * k, 16 * k); g.fillStyle = '#d9d2c3'; g.fillRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); g.fillStyle = l.color; g.fillRect(q.x - 12 * k, q.y - 9 * k, 24 * k, 1.6 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.strokeRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); } }
+    for (const l of NET.lines) { if (l.kind !== 'cable') continue; const zc = VC.on ? 14 * VC.ob : 0, Sk = (x, y) => S(x, y - zc);
+      for (let i = 0; i < l.st.length - 1; i++) { const a = l.st[i], b = l.st[i + 1]; if (Math.max(a.x, b.x) < x0 - 100 || Math.min(a.x, b.x) > x1 + 100 || Math.max(a.y, b.y) < y0 - 100 || Math.min(a.y, b.y) > y1 + 100) continue;
+        const qa = Sk(a.x, a.y), qb = Sk(b.x, b.y), L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1), ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang) * 1.5 * k, oy = Math.cos(ang) * 1.5 * k;
+        for (let t = 1; t <= nt; t++) { const f = t / (nt + 1), tx = lerp(a.x, b.x, f), ty = lerp(a.y, b.y, f), q = S(tx, ty), qt = Sk(tx, ty);   // torres: poste del piso al cable, con su brazo
+          if (zc) { g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(q.x, q.y); g.lineTo(q.x + 4.5 * k, q.y + 2.8 * k); g.stroke(); g.strokeStyle = '#7c8188'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(q.x, q.y); g.lineTo(qt.x, qt.y); g.stroke(); g.strokeStyle = '#5b5f66'; g.lineWidth = Math.max(1, .5 * k); g.beginPath(); g.moveTo(qt.x - ox * 1.3, qt.y - oy * 1.3); g.lineTo(qt.x + ox * 1.3, qt.y + oy * 1.3); g.stroke(); }
+          else { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 1.5 * k + 2 * k, q.y - 1.5 * k + 3 * k, 3 * k, 3 * k); g.fillStyle = '#8f949a'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1; g.strokeRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); } }
+        if (zc) { g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); const sa = S(a.x, a.y), sb = S(b.x, b.y); g.moveTo(sa.x + 4.5 * k, sa.y + 2.8 * k); g.lineTo(sb.x + 4.5 * k, sb.y + 2.8 * k); g.stroke(); }   // sombra del cable
+        g.strokeStyle = 'rgba(20,20,20,.8)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(qa.x + ox, qa.y + oy); g.lineTo(qb.x + ox, qb.y + oy); g.moveTo(qa.x - ox, qa.y - oy); g.lineTo(qb.x - ox, qb.y - oy); g.stroke(); }
+      for (const s of l.st) { if (s.x < x0 - 60 || s.x > x1 + 60 || s.y < y0 - 60 || s.y > y1 + 60) continue; const q = S(s.x, s.y), a = NET.dirAt(l.P, s.s, 40), up = 7 * k * .45;   // estación girada con su cable: base, volumen y techo
+        g.save(); g.translate(q.x, q.y); g.rotate(a); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-14 * k + 2.5 * k, -9 * k + 3.5 * k, 28 * k, 18 * k); g.fillStyle = '#b9b2a4'; g.fillRect(-14 * k, -9 * k, 28 * k, 18 * k); g.restore();
+        g.save(); g.translate(q.x, q.y - up); g.rotate(a); g.fillStyle = '#e4ddcc'; g.fillRect(-14 * k, -9 * k, 28 * k, 18 * k); g.fillStyle = '#5b5f66'; g.fillRect(-9 * k, -2.2 * k, 18 * k, 4.4 * k); g.fillStyle = l.color; g.fillRect(-14 * k, -9 * k, 28 * k, 2 * k); g.fillRect(-14 * k, 7 * k, 28 * k, 2 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.strokeRect(-14 * k, -9 * k, 28 * k, 18 * k); g.restore(); } }
     g.setLineDash([]);
     for (const h of NET.stations) { if (h.x < x0 || h.x > x1 || h.y < y0 || h.y > y1 || !h.lines.some(l => l.kind !== 'future')) continue; const q = S(h.x, h.y), big = h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!big && k < 1.4) continue; g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, big ? Math.max(5, 3 * k) : 3, 0, TAU); g.fill(); g.stroke(); if (k > .7 || big) { g.font = '700 ' + Math.max(10, Math.min(15, k * 5)) + 'px Cuerpo, sans-serif'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.92)'; g.strokeText(h.name, q.x + 7, q.y - 6); g.fillStyle = PAL.negro; g.fillText(h.name, q.x + 7, q.y - 6); } }
   },

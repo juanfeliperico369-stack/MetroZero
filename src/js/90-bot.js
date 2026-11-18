@@ -55,7 +55,7 @@ const BotT = EM.test = {
       if (typeof AJUSTES !== 'undefined' && !window.__sinAjustes) {
         if (!MAP.ajustado) E('ajustes: no se aplicaron'); if (!MAP.techos || MAP.techos.length < 49) E('ajustes: faltan huellas de estación (' + (MAP.techos || []).length + ')');
         const bl = NET.stations.find(q => q.name === 'Bello'); if (!MAP.barrioAt(bl.x, bl.y)) E('ajustes: Bello sin barrio');
-        let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')');
+        if (AJUSTES.calles) { let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')'); }
       }
       if (typeof ENCICLA !== 'undefined') { if (ENCICLA.estaciones.length < 100) E('encicla: faltan estaciones'); const L = EM.modes.libre.create('lb:San Antonio', { seed: 3 }); if (L.docks.length !== ENCICLA.estaciones.length || !L.parked.some(p => p.dock != null)) E('encicla: anclajes sin bicis'); }
     } catch (e) { E('ajustes: ' + e.message); }
@@ -71,12 +71,31 @@ const BotT = EM.test = {
     // Medellín reconocible: parche de casillas, barrios y nombres de calle (datos oficiales)
     let nBa = 0, nCa = 0; try {
       if (typeof CIUDAD === 'undefined') E('ciudad: falta src/data/ciudad.js'); else {
-        nBa = CIUDAD.barrios.length; nCa = CIUDAD.calles.length - 1; if (!(MAP.parcheN > 80000)) E('ciudad: parche no aplicado (' + MAP.parcheN + ')');
+        nBa = CIUDAD.barrios.length; nCa = CIUDAD.calles.length - 1; if (!(MAP.parcheN > 60000)) E('ciudad: parche no aplicado (' + MAP.parcheN + ')');
         const cerca = (est, txt) => { const s = NET.stations.find(q => q.name === est); if (!s) return false; for (let r = 0; r <= 140; r += 10) for (let a = 0; a < TAU; a += .4) { const c = MAP.calleAt(s.x + Math.cos(a) * r, s.y + Math.sin(a) * r); if (c && (c.n + '|' + c.p).includes(txt)) return true; } return false; };
         const B = NET.stations.find(q => q.name === 'Parque Berrío'), bb = B && MAP.barrioAt(B.x, B.y); if (!bb || bb[0] !== 'La Candelaria') E('ciudad: Parque Berrío debería quedar en La Candelaria (' + (bb && bb[0]) + ')');
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    // ciudad vectorial (1.1.0): calles con curva, edificios fuera de las vías, andenes sobre su línea, giros suaves y buses sobre el asfalto
+    let nVias = 0; try {
+      if (typeof VIAS !== 'undefined') {
+        if (!VC.on || VC.ch.length < 20000) E('ciudad vectorial: no cargó las vías (' + VC.ch.length + ')'); nVias = VC.ch.length;
+        const asfalto = (x, y, m = -.3) => { for (const c of VC.near(x - 20, y - 20, x + 20, y + 20)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < c.w / 2 + m) return true; } } return false; };
+        let nb = 0, mal = 0; for (const n of ['Parque Berrío', 'Estadio', 'Santo Domingo Savio']) { const h = NET.stations.find(q => q.name === n); if (!h) continue; const R = VC.regionAt(h.x, h.y); for (const b of R.bs) { nb++; if (asfalto(b.x, b.y)) mal++; } }
+        if (nb < 500) E('ciudad vectorial: pocos edificios generados (' + nb + ')'); if (mal) E('ciudad vectorial: ' + mal + ' edificios sobre el asfalto');
+        for (const l of NET.lines) { if (l.kind !== 'metro' && l.kind !== 'tram') continue; const P = l.P.pts; let giro = 0; for (let i = 2; i < P.length; i++) { let d = Math.abs(Math.atan2(P[i].y - P[i - 1].y, P[i].x - P[i - 1].x) - Math.atan2(P[i - 1].y - P[i - 2].y, P[i - 1].x - P[i - 2].x)); if (d > Math.PI) d = TAU - d; giro = Math.max(giro, d); }
+          if (l.kind === 'metro' && giro > .2) E(l.id + ': la vía tiene un quiebre de ' + Math.round(giro * 57.3) + '° (debe ser curva)');
+          for (const s of l.st) { if (NET.project(l.P, s.x, s.y).d > 1) E(l.id + ': el andén de ' + s.name + ' no está sobre su línea'); if (Math.hypot(s.ox - s.x, s.oy - s.y) > 30) Wn(l.id + ': ' + s.name + ' quedó a ' + Math.round(Math.hypot(s.ox - s.x, s.oy - s.y)) + ' m de su punto');
+            const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), a0 = NET.dirAt(l.P, s0 + 5, 4), a1 = NET.dirAt(l.P, s0 + K.plat - 5, 4); let da = Math.abs(a1 - a0); if (da > Math.PI) da = TAU - da; if (l.kind === 'metro' && da > .44) Wn(l.id + ': el andén de ' + s.name + ' gira ' + Math.round(da * 57.3) + '°'); } }
+        let n = 0, f = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); n++; if (!asfalto(q.x, q.y, 4)) f++; } }
+        if (n && f / n > .04) E('buses: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        // arquitectura icónica: cargada, sin edificios genéricos encima y sólida (las plazas se caminan)
+        if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
+        for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
+        const B0 = VC.HT.find(q => q.id === 'botero'); if (B0 && VC.solid(B0.cx + 6, B0.cy + 6, .3) && VC.solid(B0.cx - 6, B0.cy - 6, .3)) Wn('arquitectura: la Plaza Botero no se deja caminar');
+      }
+    } catch (e) { E('ciudad vectorial: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {

@@ -8,6 +8,7 @@ async function boot() {
   $('#gPause').onclick = () => Game.pause(true);
   Menu.cover();
   try { await MAP.load(); } catch (e) { EM.errors.push('mapa: ' + e.message); }
+  try { await VC.init(); } catch (e) { EM.errors.push('ciudad vectorial: ' + e.message); console.error(e); }
   try { NET.build(); } catch (e) { EM.errors.push('red: ' + e.message); console.error(e); }
   try { MAP.estaciones(); } catch (e) { EM.errors.push('estaciones: ' + e.message); console.error(e); }
   play.disabled = false; playTx.textContent = 'Ciudad Libre y todos los modos';

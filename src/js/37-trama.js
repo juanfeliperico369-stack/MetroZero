@@ -136,7 +136,7 @@ const Trama = EM.trama = {
   walkable(q) { return q === TT.WALK || q === TT.PLAZA || q === TT.STATION || q === TT.STEPS || q === TT.GRASS; },
   npcPos(S, i = 0) {
     const p = this.stPos(S.at, S.line); if (!p) return null; const a = h2(hashStr((S.who || 'p') + i), 3, 11) * TAU, r = 12 + i * 7;
-    const t = Libre.nearTile(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
+    const t = Libre.libre(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
   },
   /* ---------- ciclo de vida ---------- */
   init(st) { st.trama = { npcs: [], talk: null, key: '', talked: 0, warned: 0, rode: 0, ok: 0 }; this.enter(st); },
@@ -227,7 +227,7 @@ const Trama = EM.trama = {
     return false;
   },
   /* ---------- módulos: manejar y volver a la ciudad ---------- */
-  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.nearTile(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
+  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.libre(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
   launch(st, S) {
     if (EM.headless || st.auto) { this.next(st); return; }
     const T = this.save(), C = this.cap(), M = EM.modes[S.m], lvl = M.levels().find(l => l.id === S.lv) || M.levels()[0];

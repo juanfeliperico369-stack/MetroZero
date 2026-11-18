@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Ajustes del mapa base → src/data/ajustes.js. Se calculan con el propio juego (Chromium + Playwright) sobre el mapa sin ajustes.
-   Uso: node tools/build.mjs && node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA && node tools/build.mjs
+   Uso: node tools/build.mjs && node tools/mapa_ajustes.mjs [RUTA_DEL_REPO_DE_JUEGA_ENCICLA v1.2, de 20 m] [--sin-nombres] && node tools/build.mjs
    1) Nombres de calle y barrios donde la capa oficial de Medellín no llega: vías y barrios del mapa de Juega EnCicla
       (misma cuadrícula de 20 m; OpenStreetMap vía Overture, ODbL). Los barrios son aproximados: punto con nombre más cercano.
    2) Río Medellín continuo (puentes donde una vía corta el cauce) y relieve que siempre baja por el cauce (regresión isotónica).
@@ -9,10 +9,10 @@
    5) Patio-taller del Metro en Bello y talleres del antiguo Ferrocarril de Antioquia (polígonos de OpenStreetMap). */
 import { createRequire } from 'node:module'; import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
 const { chromium } = createRequire(import.meta.url)('playwright');
-const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA'); process.exit(1); }
+const ENC = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : null;   // sin repo de EnCicla: solo río, relieve, escaleras, tranvía y patio (el mapa v3 ya trae nombres y barrios)
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), rd = f => fs.readFileSync(path.join(ENC, f));
-const vjson = JSON.parse(rd('src/data/valle.json')), versionE = (String(rd('src/js/00-core.js')).match(/version: '([\d.]+)'/) || [])[1] || '?';
-const D = { vias: rd('src/data/vias.bin').toString('base64'), valle: rd('src/data/valle.bin').toString('base64'), barrios: vjson.barrios, calles: vjson.calles, W: vjson.W, H: vjson.H, eW: vjson.eW, eH: vjson.eH, mW: vjson.mW, mH: vjson.mH };
+const vjson = ENC ? JSON.parse(rd('src/data/valle.json')) : null, versionE = ENC ? (String(rd('src/js/00-core.js')).match(/version: '([\d.]+)'/) || [])[1] || '?' : null;
+const D = ENC ? { nombres: !process.argv.includes('--sin-nombres'), vias: rd('src/data/vias.bin').toString('base64'), valle: rd('src/data/valle.bin').toString('base64'), barrios: vjson.barrios, calles: vjson.calles, W: vjson.W, H: vjson.H, eW: vjson.eW, eH: vjson.eH, mW: vjson.mW, mH: vjson.mH } : null;
 /* OpenStreetMap (© colaboradores, ODbL), consultado el 17-nov-2026: way 52513116 (landuse=railway), 52513115 (building) y 142453569 (landuse=railway) */
 const OSM = {
   patio: [[6.33083, -75.55306], [6.33083, -75.55296], [6.32991, -75.55141], [6.32983, -75.55145], [6.32965, -75.55112], [6.32951, -75.55103], [6.32942, -75.55103], [6.3282, -75.55187], [6.32751, -75.55234], [6.32692, -75.55271], [6.32604, -75.55321], [6.325, -75.55382], [6.32443, -75.55411], [6.32399, -75.55428], [6.32338, -75.55444], [6.3216, -75.55473], [6.32107, -75.55483], [6.31968, -75.5552], [6.31924, -75.55535], [6.31995, -75.55547], [6.32059, -75.55549], [6.32069, -75.55557], [6.32166, -75.55563], [6.32208, -75.55565], [6.32245, -75.55559], [6.32336, -75.55546], [6.32415, -75.55533], [6.3252, -75.55517], [6.32669, -75.55494], [6.32781, -75.55468], [6.32858, -75.55437]],
@@ -26,10 +26,11 @@ await page.addInitScript(() => { window.__sinAjustes = true; });
 await page.goto('file://' + path.join(root, 'dist/index.html')); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 });
 const R = await page.evaluate(async ({ D, OSM }) => {
   const M = EM.map, t = M.t, VM = VALLE_META, W = VM.W, H = VM.H, TM = VM.tile, N = W * H, inf = {};
-  if (D.W !== W || D.H !== H) throw new Error('el mapa de EnCicla no tiene la misma cuadrícula');
+  if (D && (D.W !== W || D.H !== H)) throw new Error('el mapa de EnCicla no tiene la misma cuadrícula');
   const unz = async b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); };
   const via = v => v === 4 || v === 5 || v === 14 || v === 11, casa = v => v === 2 || v === 3, varint = (a, v) => { while (v > 127) { a.push((v & 127) | 128); v = Math.floor(v / 128); } a.push(v); };
 
+  const extras = async () => {
   // ---- 1a) nombres de calle de EnCicla por casilla (calle, carrera, avenida y autopista con nombre), ensanchados una casilla ----
   const vb = await unz(D.vias), dv = new DataView(vb.buffer); let o = 4; const nomE = new Uint16Array(N);
   for (let v = 0, nV = dv.getUint32(0, true); v < nV; v++) {
@@ -66,6 +67,9 @@ const R = await page.evaluate(async ({ D, OSM }) => {
   bl.forEach((B, i) => { const A = acc[i], mu = Object.entries(A.mu).sort((p, q) => q[1] - p[1])[0][0]; B[1] = mu; B[2] = mu; B[3] = Math.round((A.x / A.n + .5) * 32); B[4] = Math.round((A.y / A.n + .5) * 32); B[5] = Math.round(A.n * 2.56); });
   inf.barrios = { nombres: bl.length, celdas: acc.reduce((s, A) => s + A.n, 0) };
 
+    return { cod, calles, bl, bg8 };
+  };
+  const ex = D ? await extras() : { cod: [], calles: [], bl: [], bg8: new Uint16Array(0) }, { bl, bg8 } = ex, cod = D && D.nombres ? ex.cod : [], calles = D && D.nombres ? ex.calles : [];
   // ---- 2) río: recorrido por el agua de Caldas a Barbosa (puntos de paso junto a la línea A) ----
   const cerca = (x, y, Rr) => { const tx = x / TM | 0, ty = y / TM | 0; let best = -1, bd = 1e9; for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) { const i = (ty + dy) * W + tx + dx; if (t[i] === 8 && dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = i; } } return best; };
   const c0 = geoM(6.0905, -75.636), pasos = [cerca(c0.x, c0.y, 80)];
@@ -117,7 +121,7 @@ const R = await page.evaluate(async ({ D, OSM }) => {
   for (const i of pa) patio.push(i, 15); for (const i of ta) patio.push(i, 3);
   const lugares = [['Patio-taller del Metro', 'metro', ...cen(OSM.patio), Math.round(pa.length * .04)], ['Talleres del antiguo Ferrocarril de Antioquia', 'historia', ...cen(OSM.ferrocarril), 16]];
   inf.patio = pa.length;
-  return { inf, cod, calles, bl, bg8: Array.from(bg8), puentes, agua, relieve, escaleras, tranvia: [...tranvia], patio, lugares, GW: D.mW, GH: D.mH };
+  return { inf, cod, calles, bl, bg8: Array.from(bg8), puentes, agua, relieve, escaleras, tranvia: [...tranvia], patio, lugares, GW: D ? D.mW : 0, GH: D ? D.mH : 0 };
 }, { D, OSM });
 if (errores.length) { console.error('errores en la página:', errores); process.exit(1); }
 
@@ -125,13 +129,13 @@ const b64 = buf => zlib.deflateRawSync(Buffer.from(buf), { level: 9 }).toString(
 const bg = Buffer.alloc(R.bg8.length * 2); R.bg8.forEach((v, i) => bg.writeUInt16LE(v, i * 2));
 const AJ = {
   v: 1, encicla: versionE,
-  calles: { lista: R.calles, n: R.cod.length, d: b64(R.cod) },
-  barrios: { lista: R.bl, GW: R.GW, GH: R.GH, d: b64(bg) },
+  calles: R.cod.length ? { lista: R.calles, n: R.cod.length, d: b64(R.cod) } : null,
+  barrios: R.bl.length ? { lista: R.bl, GW: R.GW, GH: R.GH, d: b64(bg) } : null,
   tiles: { puente: R.puentes, agua: R.agua, calle: R.tranvia, pares: [...R.escaleras, ...R.patio] },
   relieve: R.relieve, lugares: R.lugares
 };
 const txt = `/* Ajustes del mapa base, generados por tools/mapa_ajustes.mjs (no editar a mano).
-   Nombres de calle y barrios fuera de la capa oficial: mapa de Juega EnCicla v${versionE} (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps); barrios aproximados por el punto con nombre más cercano.
+   ${versionE ? `Nombres de calle y barrios fuera de la capa oficial: mapa de Juega EnCicla v${versionE} (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps); barrios aproximados por el punto con nombre más cercano.` : 'Sobre el mapa v3, que ya trae nombres y barrios: solo río continuo, relieve del cauce, escaleras, calle del tranvía y patio-taller.'}
    Patio-taller del Metro y talleres del Ferrocarril de Antioquia: © colaboradores de OpenStreetMap (ODbL). Río y relieve: calculados sobre el propio mapa. */
 const AJUSTES = ${JSON.stringify(AJ)};
 `;

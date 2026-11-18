@@ -32,6 +32,17 @@ Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** a
 | Horario de préstamo de EnCicla | Página oficial de EnCicla, como lo usa Juega EnCicla (consulta del 17‑nov‑2026); los festivos van como domingo por decisión del autor | `src/js/00-core.js` |
 | Festivos de Colombia | Ley 51 de 1983 (Ley Emiliani) y Semana Santa según la Pascua; cálculo tomado de Juega EnCicla | `src/js/00-core.js` |
 
+## Ciudad con curvas (v1.1.0)
+| Dato | Fuente | Archivo |
+|---|---|---|
+| Mapa base v3 (manzanas oficiales, huellas, pisos y barrios por celda) | El Metro 1.0.0: tubería de mapas de Juega EnCicla 1.3.1 (`tools/geo/build.py`, TILE=20) y `tools/mapa_valle.py`; © colaboradores de OpenStreetMap (ODbL) vía Overture Maps, huellas de Overture (OSM, Microsoft y Google), capas oficiales de Medellín, relieve SRTM/NASA | `src/data/valle.js`, `src/data/ciudad.js`, `src/data/rutas.js` |
+| 26.919 calles como vectores, con su curva, su ancho y su nombre | Juega EnCicla 1.3.1, `src/data/vias.bin` (casillas de 10 m): © colaboradores de OpenStreetMap (ODbL) vía Overture Maps; nomenclatura y ancho de la malla vial oficial de Medellín cuando existe | `src/data/vias.js` (`tools/vias_datos.mjs`) |
+| Eje de las líneas A, B y del tranvía de Ayacucho | Vías férreas de OpenStreetMap (`railway=subway` y `tram`), consulta Overpass del 18‑nov‑2026; punto medio entre los dos rieles, suavizado | `src/data/rieles.js` (`tools/rieles_datos.mjs`) |
+| Arquitectura icónica (30 piezas: Coltejer, Basílica Metropolitana, Palacio de la Cultura, Museo de Antioquia, Plaza Botero, Atanasio Girardot, Biblioteca España, Edificio EPM, Teatro Metropolitano, Parque de las Luces, La Alpujarra, Planetario, Explora…) | Huellas de edificios de OpenStreetMap (API 0.6, consulta del 18‑nov‑2026); alturas aproximadas por pisos conocidos | `src/data/hitos.js` (`tools/hitos_datos.py`) |
+| Recorridos de Metroplús y alimentadores por las calles | Trazado de `src/data/rutas.js` rehecho sobre la red de calles de `src/data/vias.js` (camino más corto por el corredor de la ruta, pasando por cada parada) | `src/data/rutas_calles.js` (`tools/rutas_calles.mjs`) |
+
+**Transformaciones** de esta capa: simplificación de líneas (Ramer–Douglas–Peucker, 1,25 m en calles y 0,35 m en rieles), cuantización a 2,5 m, suavizado del eje férreo (media móvil de ±18 m) y esquinas de los buses redondeadas (radio de ~6 m). Las casas y los edificios que se ven NO son huellas reales: se generan a lo largo de cada calle, con la altura real de su zona cuando existe.
+
 ## Coordenadas
 
 | Datos | Fuente |

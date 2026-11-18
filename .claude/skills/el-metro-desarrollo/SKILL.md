@@ -37,8 +37,10 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | Archivo | Qué hace |
 |---|---|
 | `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
-| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
-| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
+| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, rótulos, barrios; delega el dibujo cenital en `VC` |
+| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios generados a lo largo de cada calle por regiones de 640 m, choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-hitos.js` | **Arquitectura icónica** (`HITOS`): huella real de OSM, estilos de dibujo propios (`aguja`, `basilica`, `iglesia`, `palacio`, `estadio`, `rocas`, `vidrio`, `ladrillo`, `republicano`, `moderno`, `cupula`, `cubos`, `luces`, `botero`, `pies`); reserva su huella en la región y es sólida |
+| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos). A, B y T usan el eje real de `RIELES`; los buses, `RUTAS_CALLES`; cada estación queda sobre su línea |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
 | `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
@@ -59,7 +61,10 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 Datos en `src/data/`:
 - `valle.js`: mapa y relieve de EnCicla;
 - `red.js`: líneas y estaciones;
-- `rutas.js`: recorridos de buses por calles reales;
+- `rutas.js`: recorridos de buses por calles reales (casillas; respaldo);
+- `vias.js`: 26.919 calles como vectores con ancho y nombre. **Generado** por `node tools/vias_datos.mjs RUTA_DE_JUEGA_ENCICLA_1.3`;
+- `rieles.js`: eje de A, B y T entre los dos rieles de OpenStreetMap. **Generado** por `node tools/rieles_datos.mjs JSON_DE_OVERPASS`;
+- `rutas_calles.js`: Metroplús y alimentadores por las calles vectoriales, pasando por cada parada. **Generado** por `node tools/rutas_calles.mjs`;
 - `lugares.js`: lugares con postal;
 - `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 - `ciudad.js`: datos oficiales abiertos (parche de casillas, barrios, nombres de calle por casilla, lotes, lugares). **Generado** por `python3 tools/ciudad_datos.py CACHE` (descarga previa: `python3 tools/ciudad_descarga.py CACHE`). Se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels`. El mapa base `valle.js` **no se modifica**: el parche se aplica al cargar.
@@ -68,6 +73,16 @@ Datos en `src/data/`:
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
 - Cada modo implementa `levels()`, `create(lv, opts)`, `step(st, dt)`, `draw(g, st, vp)`, `hud(st)`, `mount(st, el)`.
 - Usa `EM.headless` y `st.auto` para que el bot juegue sin interfaz.
+
+## Reglas aprendidas (ciudad vectorial, 1.1.0)
+- **Nada se dibuja por casillas en las vistas cenitales:** todo pasa por `MAP.drawTop` → `VC.drawTop`. Las casillas siguen siendo la verdad del uso del suelo (parque, agua, monte, manzana), no de la forma.
+- **Cada trozo lleva 1 px de margen** y se pega con su ancho y su alto redondeados por separado: así no hay costuras.
+- **Los trozos se dibujan por CPU** (`willReadFrequently`): miles de figuras pequeñas son más parejas por CPU que en la tarjeta gráfica; nunca se leen píxeles de vuelta (`getImageData`) al armar un trozo.
+- **Lo que se ubica en el mapa** (carros parqueados, anclajes, vendedores, personajes, el jugador al bajarse) pasa por `VC.despeja` para no quedar dentro de un edificio; se acomoda al acercarse, no al empezar (generar todo el valle al inicio es lento).
+- **Una estación es un andén sobre su línea** (`NET.at(l.P, s.s)`), dibujado con `Ciudad.banda` siguiendo la curva; en las terminales el andén entero queda hacia adentro.
+- **Un edificio famoso se dibuja con su huella real** (`tools/hitos_datos.py`), nunca inventado; si OSM no lo tiene (p. ej. el Orquideorama), no se pone.
+- **El metro va elevado** en las vistas con volumen: tablero, andenes, cubiertas y trenes se corren `KIND.metro.deck × VC.ob` hacia arriba; las columnas y el edificio de acceso van al piso.
+- **Medir antes de afirmar:** `EM.test.selfTest()` revisa vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
 ## Comandos
 ```

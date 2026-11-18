@@ -26,7 +26,7 @@ const Game = EM.game = {
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
-    MAP.prisa = t + 10; MAP._hechos = 0;
+    MAP.prisa = t + .012; MAP._hechos = 0;   // presupuesto del cuadro para armar trozos del mapa (12 ms; siempre al menos uno)
     try {
       if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
       g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }

@@ -53,7 +53,7 @@ const RedView = EM.red = {
     if (this.iso) { this.drawIso(); return; }
     const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), k = this.cam.k; this.t = now();
     g.fillStyle = PAL.gris; g.fillRect(0, 0, w, h);
-    if (MAP.ready) { if (k > .55) { MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
+    if (MAP.ready) { if (k > .55) { MAP.prisa = now() + .014; MAP._hechos = 0; MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); MAP.prisa = 0; } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
     const lw = clamp(k * 60, 2.5, 9) * dpr / 1.5;
     for (const l of NET.lines) {
       if (!this.on[l.kind]) continue; g.setLineDash(l.status && l.status !== 'operativa' ? [lw * 2, lw * 1.5] : []);
