@@ -657,6 +657,10 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 #### Estado al 2026-11-18 · v1.1.1 "Ciudad con curvas" (retoque)
 **Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
 
+**Qué se probó:** autotest con 0 errores y 0 avisos; 100 partidas del bot (364 mil pasos) con 0 errores y 0 errores de consola.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.1.1 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.1.1-38220983`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 21, **3,3 MB**).
+
 ##### v1.1.0 "Ciudad con curvas"
 **Novedad de v1.1.0** (une la línea de 1.0.0 de la otra IA con v0.10.0 y redibuja la ciudad):
 - **Mapa base de 1.0.0:** manzanas oficiales, huellas, pisos y barrios en todo el valle (formato v3: `ba`, `hg`, `lt`), con `CIUDAD` y `RUTAS` de 1.0.0 y lo de v0.10.0 encima (EnCicla, calendario, ajustes, accesibilidad).
