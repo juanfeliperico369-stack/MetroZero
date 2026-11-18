@@ -409,6 +409,8 @@ const MAP = EM.map = {
     }
     // arquitectura icónica (de cerca), sobre su volumen
     if (VC.on && VC.rotulosHitos) VC.rotulosHitos(texto, S, k, kc, dpr, night);
+    // campus universitarios
+    if (VC.on && VC.rotulosCampus) VC.rotulosCampus(texto, S, k, kc, dpr, night);
     // parques, plazas y miradores
     if (kc >= .6) for (const L of this.lugaresL || CIUDAD.lugares) {
       if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;

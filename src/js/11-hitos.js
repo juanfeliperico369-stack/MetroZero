@@ -133,6 +133,26 @@ Object.assign(VC, {
         const Q = H.P[0]; this.muros(g, Q, 0, h, '#c4c8cc', fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, 3.6, 'rgba(40,58,80,.6)', 1) : null);
         this.techo(g, Q, h, '#a6aab0'); contorno(Q, h); const T = this.cuadro(H.cx, H.cy, H.ang, -4, 4, -3, 3); this.muros(g, T, h, h + 3, '#9aa0a6'); this.techo(g, T, h + 3, '#8c9298'); L.push([H.cx, H.cy - h * ob * .5, 12, h]); break;
       }
+      case 'alpujarra': {   // Alcaldía, Gobernación y Palacio de Justicia: bloques de concreto blanco con fachada inclinada
+        // (más anchos abajo), parteluces verticales y ventanas oscuras de bronce entre culatas macizas, como en las fotos aéreas
+        const Q = H.P[0], n = Q.length / 2, cw = this.area2(Q) > 0, f = .88, T = new Float32Array(Q.length); let Lmax = 0;
+        for (let i = 0; i < n; i++) { T[2 * i] = H.cx + (Q[2 * i] - H.cx) * f; T[2 * i + 1] = H.cy + (Q[2 * i + 1] - H.cy) * f; const j = (i + 1) % n; Lmax = Math.max(Lmax, Math.hypot(Q[2 * j] - Q[2 * i], Q[2 * j + 1] - Q[2 * i + 1])); }
+        const F = []; for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; let nx = by - ay, ny = -(bx - ax); if (!cw) { nx = -nx; ny = -ny; } const L = Math.hypot(nx, ny) || 1; if (ny / L < .03) continue; F.push([Math.max(ay, by), i, j, nx / L, Math.hypot(bx - ax, by - ay)]); }
+        F.sort((p, q) => p[0] - q[0]); const u = h * ob;
+        for (const [, i, j, nx, L] of F) {
+          const ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1], tx = T[2 * i], ty = T[2 * i + 1] - u, sx = T[2 * j], sy = T[2 * j + 1] - u, larga = L > Lmax * .45;
+          g.fillStyle = Art.shade(larga ? '#8d9097' : '#eceae4', .84 + .18 * nx); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(sx, sy); g.lineTo(tx, ty); g.closePath(); g.fill();
+          if (larga && fino) {   // parteluces blancos y franja alta
+            g.strokeStyle = 'rgba(236,234,228,.9)'; g.lineWidth = .45; g.beginPath(); const m = Math.max(4, Math.round(L / 1.6));
+            for (let q = 1; q < m; q++) { const t = q / m; g.moveTo(ax + (bx - ax) * t, ay + (by - ay) * t); g.lineTo(tx + (sx - tx) * t, ty + (sy - ty) * t); } g.stroke();
+            g.strokeStyle = 'rgba(60,62,70,.55)'; g.lineWidth = .3; g.beginPath(); for (let z = 3.6; z < h - 3; z += 3.6) { const a = z / h; g.moveTo(ax + (tx - ax) * a, ay + (ty - ay) * a); g.lineTo(bx + (sx - bx) * a, by + (sy - by) * a); } g.stroke();
+            g.fillStyle = '#eceae4'; const a = 1 - 2.4 / h; g.beginPath(); g.moveTo(ax + (tx - ax) * a, ay + (ty - ay) * a); g.lineTo(bx + (sx - bx) * a, by + (sy - by) * a); g.lineTo(sx, sy); g.lineTo(tx, ty); g.closePath(); g.fill();
+          }
+        }
+        this.techo(g, T, h, '#d9d7d0', 'rgba(120,118,110,.6)'); contorno(T, h);
+        const M = this.cuadro(H.cx, H.cy, H.ang, -5, 5, -3, 3); this.muros(g, M, h, h + 2.6, '#cfcdc6'); this.techo(g, M, h + 2.6, '#bdbab2');
+        L.push([H.cx, H.cy - h * ob * .5, 14, h]); break;
+      }
       case 'cupula': {   // Planetario: base clara y la gran cúpula
         const Q = H.P[0]; this.muros(g, Q, 0, h, '#e6e2d8'); this.techo(g, Q, h, '#cfcac0'); contorno(Q, h); this.cupula(g, H.cx, H.cy, h, Math.min(14, Math.sqrt(H.A / Math.PI) * .62), '#e9edf0'); break;
       }

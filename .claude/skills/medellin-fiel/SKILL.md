@@ -76,6 +76,16 @@ Los usa `tools/ciudad_descarga.py` + `tools/ciudad_datos.py`.
 
 **Lección medida:** en el mapa base, casi todas las casillas “andén” (88–97 %) eran lotes dentro de manzanas. Antes de dibujar, cruza con las manzanas.
 
+## Medellín desde el aire (desde v1.2.0)
+- Investigación completa, con créditos de cada foto: `docs/investigacion/medellin-desde-el-aire.md`. Solo fotos con licencia libre (Wikimedia Commons) y datos abiertos; **nunca imágenes de Google Maps ni de Google Earth**.
+- **Huella real, material por zona:** la forma y la posición de cada casa son las reales (Overture: OSM, Microsoft y Google Open Buildings). Los pisos son oficiales en Popular, El Poblado y Robledo (Catastro, capa `3DConstruccciones`), de OSM donde existen y estimados por zona en el resto. Muros, techos y árboles salen de la zona (`VC.zona`: comuna o municipio).
+- **Lo que se ve desde arriba:**
+  - El fondo plano del valle (Laureles, Belén, Centro, alrededores del aeropuerto) es terracota: teja de barro.
+  - Las laderas populares son claras: fibrocemento y zinc sobre ladrillo, planchas con tanque, escaleras con baranda amarilla.
+  - El Poblado son torres de ladrillo de 12 a 30 pisos en el bosque.
+  - El Centro es fachada continua ocre y de ladrillo, con teja vieja y azoteas.
+- **La Alpujarra:** la Alcaldía y la Gobernación son bloques blancos con fachada inclinada, parteluces y culatas macizas (estilo `alpujarra` de `11-hitos.js`).
+
 ## Medir antes y después (desde la auditoría del 17‑nov)
 - `node tools/auditoria-mapa.mjs` da las cifras que sirven de criterio de aceptación:
   - nombres de calle y barrios por municipio;

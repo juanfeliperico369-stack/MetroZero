@@ -2,9 +2,10 @@
    CIUDAD VECTORIAL (1.1.0): la ciudad se dibuja como se vive, sin cubos ni escalones.
    · Calles: vectores de src/data/vias.js con su curva y su ancho (sardinel, andén, asfalto, carriles, cebras en los semáforos).
    · Suelo: río, parques, montaña, plazas y manzanas con bordes suaves (máscara de casillas suavizada y umbral).
-   · Estructuras: casas y edificios generados A LO LARGO de cada calle, girados con ella y retirados del andén;
-     volumen al estilo de las ciudades de vista cenital (techo desplazado, fachadas con ventanas, sombra y contorno).
-   · Física: se choca contra esos edificios (rectángulos) y contra el agua fuera de los puentes; lo demás se anda.
+   · Estructuras (desde 1.2.0): las casas y los edificios REALES de src/data/edificios.js, recortados contra la calle
+     (src/js/11-edificios.js); si faltan los datos, se generan a lo largo de cada calle como en 1.1.x. Volumen al estilo
+     de las ciudades de vista cenital (techo desplazado, fachadas con ventanas, sombra y contorno).
+   · Física: se choca contra esos edificios (rectángulo o polígono) y contra el agua fuera de los puentes; lo demás se anda.
    Se dibuja en trozos con nivel de detalle (160 m a 2 px/m, 640 m a 0,8 px/m y 2,5 km a 0,2 px/m).
    ===================================================================== */
 const VC = EM.vcity = {
@@ -24,17 +25,19 @@ const VC = EM.vcity = {
       for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) { const key = gx * 4096 + gy; let a = this.cg.get(key); if (!a) this.cg.set(key, a = []); a.push(i); }
     }
     if (this.hitosInit) this.hitosInit();
+    if (this.edifInit) await this.edifInit();
     this.on = true;
   },
   near(x0, y0, x1, y1) { const out = new Set(); for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) for (const i of this.cg.get(gx * 4096 + gy) || []) out.add(i); return [...out].map(i => this.ch[i]); },
   /* medio ancho del corredor de una vía (asfalto + andén) */
   hw(c) { return c.w / 2 + (c.k === 1 || c.k === 2 || c.k === 4 ? 2.6 : c.k === 3 ? 1.6 : .7); },
-  /* ---------- región de 640 m: rejilla de ocupación de 2 m (1 vía o transporte, 2 edificio), edificios y árboles ----------
-     Los edificios se generan A LO LARGO de cada calle (frente girado con ella, retirado del andén) y luego se llena el
-     interior de las manzanas alineado con la calle más cercana. Cada edificio queda entero dentro de su región. */
+  /* ---------- región de 640 m: rejilla de ocupación de 2 m (1 vía o transporte, 2 edificio, 3 hito), edificios y árboles ----------
+     Con datos (1.2.0), los edificios son los reales de la región (y los de las vecinas que entran, para la física).
+     Sin datos, se generan A LO LARGO de cada calle (frente girado con ella, retirado del andén) y luego se llena el
+     interior de las manzanas alineado con la calle más cercana. */
   region(rx, ry) {
     const key = rx * 4096 + ry; let Rg = this.reg.get(key); if (Rg) { this.reg.delete(key); this.reg.set(key, Rg); return Rg; }
-    const R = this.R, M = 48, X0 = rx * R - M, Y0 = ry * R - M, SZ = R + 2 * M, RES = 2, NG = SZ / RES, occ = new Uint8Array(NG * NG), bs = [], trees = [];
+    const R = this.R, M = 48, X0 = rx * R - M, Y0 = ry * R - M, SZ = R + 2 * M, RES = 2, NG = SZ / RES, bs = [], trees = []; let occ = new Uint8Array(NG * NG);
     const DR = 8, DN = SZ / DR, dirA = new Float32Array(DN * DN), dirD = new Float32Array(DN * DN).fill(1e9);
     const stampSeg = (ax, ay, bx, by, r, v) => {
       const gx0 = Math.max(0, Math.floor((Math.min(ax, bx) - r - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((Math.max(ax, bx) + r - X0) / RES)), gy0 = Math.max(0, Math.floor((Math.min(ay, by) - r - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((Math.max(ay, by) + r - Y0) / RES));
@@ -47,8 +50,8 @@ const VC = EM.vcity = {
       const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, an = Math.atan2(dy, dx);
       for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * DR, py = Y0 + (gy + .5) * DR, t = clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0, 1), d = Math.hypot(ax + dx * t - px, ay + dy * t - py), j = gy * DN + gx; if (d < dirD[j]) { dirD[j] = d; dirA[j] = an; } }
     };
-    const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ);
-    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k !== 3 && c.k !== 5) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }
+    const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ), asf = new Uint8Array(NG * NG);
+    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k <= 4 || c.k === 6 || c.k === 7) { const o2 = occ; occ = asf; stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], Math.max(1, c.w / 2 + (c.k <= 4 ? 1.3 : .3)), c.k <= 4 ? 2 : 1); occ = o2; } if (c.k !== 3 && c.k !== 5 && !this.ED) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }   // el campo de direcciones solo hace falta para generar casas
     // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
     if (typeof NET !== 'undefined') for (const l of NET.lines) {
       if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
@@ -60,6 +63,8 @@ const VC = EM.vcity = {
     const hits = this.HT ? this.hitosEn(X0, Y0, X0 + SZ, Y0 + SZ) : [];
     for (const H of hits) { const gx0 = Math.max(0, Math.floor((H.x0 - 2 - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((H.x1 + 2 - X0) / RES)), gy0 = Math.max(0, Math.floor((H.y0 - 2 - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((H.y1 + 2 - Y0) / RES));
       for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const j = gy * NG + gx; if (occ[j]) continue; const px = X0 + (gx + .5) * RES, py = Y0 + (gy + .5) * RES; if (this.dentroH(H, px, py) || this.dentroH(H, px + 1.5, py) || this.dentroH(H, px - 1.5, py) || this.dentroH(H, px, py + 1.5) || this.dentroH(H, px, py - 1.5)) occ[j] = 3; } }
+    // casas y edificios reales (src/data/edificios.js); sin datos, se generan a lo largo de las calles como antes
+    const ext = [], reales = this.edifRegion ? this.edifRegion(rx, ry, X0, Y0, NG, RES, occ, bs, ext, asf) : false;
     const tileAt = (x, y) => MAP.tile(Math.floor(x / TM), Math.floor(y / TM));
     // suelo donde se puede construir: manzanas, y vías o andenes de la rejilla de 20 m que la calle vectorial no ocupa
     const okS = v => v === TT.BRICK || v === TT.BLDG || v === TT.ROAD || v === TT.AVE || v === TT.WALK || v === TT.CICLO || v === TT.STEPS;
@@ -76,11 +81,11 @@ const VC = EM.vcity = {
     // ¿edificio o casa? lo dicen las casillas de alrededor (edificio en BLDG, casa en BRICK) o los pisos reales de la zona
     const tipo = (x, y) => { let e = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = tileAt(x + i * TM, y + j * TM); if (v === TT.BLDG) e++; else if (v === TT.BRICK) c++; } if (e || c) return e > c; return MAP.bHeight(x, y, 3) > 14; };
     const altura = (x, y, ed, i) => ed ? clamp(MAP.bHeight(x, y, i), 9, 140) : 3.1 * (1 + (h2(x | 0, y | 0, 7) * (MAP.hg ? 2.6 : 2.2) | 0));
-    const pon = (X, Y, hw, hd, ux, uy, ed, i) => { ocupa(X, Y, hw, hd, ux, uy); bs.push({ x: X, y: Y, hw, hd, ux, uy, h: altura(X, Y, ed, i), ed, s: h2(X | 0, Y | 0, 9) }); };
+    const pon = (X, Y, hw, hd, ux, uy, ed, i) => { ocupa(X, Y, hw, hd, ux, uy); const h = altura(X, Y, ed, i), pis = Math.max(1, Math.round(h / 3.05)); bs.push({ x: X, y: Y, hw, hd, ux, uy, h, ed, pis, k: ed ? (pis >= 10 ? 2 : 1) : 0, P: null, ym: Y + Math.abs(uy) * hw + Math.abs(ux) * hd, s: h2(X | 0, Y | 0, 9) }); };
     // 1 · frentes: a lo largo de cada tramo de calle, carrera, avenida, peatonal y escalera, a ambos lados
     for (const c of cs) {
       if (c.k === 3 || c.k === 5) continue; const P = c.P, off0 = this.hw(c);
-      for (let i = 2; i < P.length; i += 2) {
+      if (!reales) for (let i = 2; i < P.length; i += 2) {
         const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 6) continue;
         if (Math.max(ax, bx) + 40 < cx0 || Math.min(ax, bx) - 40 > cx0 + R || Math.max(ay, by) + 40 < cy0 || Math.min(ay, by) - 40 > cy0 + R) continue;
         const ux = (bx - ax) / L, uy = (by - ay) / L;
@@ -102,21 +107,24 @@ const VC = EM.vcity = {
         }
       }
       // árboles de avenida a lado y lado, sobre el andén
-      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
+      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && asf[Math.floor((y - Y0) / RES) * NG + Math.floor((x - X0) / RES)] !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
     }
     // 2 · interior de las manzanas: rejilla con desfase, alineada con la calle más cercana
-    for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
+    if (!reales) for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
       const jx = x + (h2(x, y, 51) - .5) * 4, jy = y + (h2(x, y, 52) - .5) * 4; if (occAt(jx, jy) || !okS(tileAt(jx, jy))) continue;
       const di = clamp(Math.floor((jy - Y0) / DR), 0, DN - 1) * DN + clamp(Math.floor((jx - X0) / DR), 0, DN - 1); if (dirD[di] > 70) continue;
       const an = dirA[di], ux = Math.cos(an), uy = Math.sin(an), ed = tipo(jx, jy), r = h2(x, y, 53);
       for (const f of [1, .75, .55]) { const hw = (ed ? 7 + r * 6 : 3 + r * 2) * f, hd = (ed ? 6 + r * 5 : 4 + r * 2.5) * f; if (hw < 2.2 || hd < 2.2) break; if (cabe(jx, jy, hw, hd, ux, uy)) { pon(jx, jy, hw, hd, ux, uy, ed, 77); break; } }
     }
     // árboles en parques y zonas verdes de la ciudad (no en la montaña, que tiene su propio dosel)
-    for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if ((v === TT.GRASS || v === TT.PLAZA) && h2(x, y, 21) < (v === TT.GRASS ? .5 : .12) && !occAt(x, y)) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
+    const DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 };
+    for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if (occAt(x, y)) continue; let p = v === TT.GRASS ? .5 : v === TT.PLAZA ? .12 : 0;
+      if (reales && (v === TT.BRICK || v === TT.BLDG)) p = this.enCampus && this.enCampus(x, y) ? .42 : DENS[this.zona(x, y)] || .04;
+      if (p && h2(x, y, 21) < p) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; if (occAt(jx, jy) === 2) continue; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
     // índice de edificios por celdas de 40 m (choques)
-    const bins = new Map(); bs.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
-    Rg = { bs, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
-    this.reg.set(key, Rg); while (this.reg.size > 36) this.reg.delete(this.reg.keys().next().value);
+    const fis = ext.length ? bs.concat(ext) : bs, bins = new Map(); fis.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
+    Rg = { bs, fis, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
+    this.reg.set(key, Rg); while (this.reg.size > 30) this.reg.delete(this.reg.keys().next().value);
     return Rg;
   },
   /* ---------- física ---------- */
@@ -124,7 +132,7 @@ const VC = EM.vcity = {
   /* ¿choca un círculo de radio r en (x, y)? contra edificios, y contra el agua fuera de vías y puentes */
   solid(x, y, r = .4) {
     const Rg = this.regionAt(x, y), k = Math.floor(x / 40) * 8192 + Math.floor(y / 40);
-    for (const i of Rg.bins.get(k) || []) { const b = Rg.bs[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r) return true; }
+    for (const i of Rg.bins.get(k) || []) { const b = (Rg.fis || Rg.bs)[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (b.k === 10) continue; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r && (!b.P || this.enPol(b.P, x, y, r))) return true; }
     for (const H of Rg.hitos) if (this.dentroH(H, x, y)) return true;
     const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); if (v === TT.WATER || v === TT.CANAL) { const gx = Math.floor((x - Rg.X0) / Rg.RES), gy = Math.floor((y - Rg.Y0) / Rg.RES); return !(gx >= 0 && gy >= 0 && gx < Rg.NG && gy < Rg.NG && Rg.occ[gy * Rg.NG + gx] === 1); }
     return false;
@@ -212,6 +220,7 @@ const VC = EM.vcity = {
     const S = L.S, sc = L.sc, n = Math.round(S * sc), c = mkCanvas(n + 2, n + 2), g = c.getContext('2d', { willReadFrequently: this.sw }), X0 = cx * S - 1 / sc, Y0 = cy * S - 1 / sc;   // 1 px de margen alrededor
     this.suelo(g, n + 2, X0, Y0, S + 2 / sc, sc, L.d);
     g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc);
+    if (L.d < 2 && this.suelosEsp) this.suelosEsp(g, X0, Y0, S + 2 / sc, sc, L.d);
     this.calles(g, X0, Y0, S + 2 / sc, sc, L.d);
     if (L.d < 2) this.estructuras(g, X0, Y0, S + 2 / sc, sc, L.d, c);
     g.setTransform(1, 0, 0, 1, 0, 0);
@@ -333,59 +342,22 @@ const VC = EM.vcity = {
     const B = []; for (const Rg of rs) for (const b of Rg.bs) if (vis(b)) B.push(b);
     const HS = this.HT ? this.hitosEn(X0 - 30, Y0 - 30, X0 + S + 30, Y0 + S + 190 * ob) : [];
     for (const H of HS) this.hitoSuelo(g, H, lod, cv);   // plazas y parques especiales, a ras de piso
-    for (const H of HS) B.push({ hito: H, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
-    B.sort((a, b) => (a.y + Math.abs(a.uy) * a.hw + Math.abs(a.ux) * a.hd) - (b.y + Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd));
-    const esq = b => [[b.x - b.ux * b.hw + b.uy * b.hd, b.y - b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw + b.uy * b.hd, b.y + b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw - b.uy * b.hd, b.y + b.uy * b.hw + b.ux * b.hd], [b.x - b.ux * b.hw - b.uy * b.hd, b.y - b.uy * b.hw + b.ux * b.hd]];
+    for (const H of HS) B.push({ hito: H, ym: H.y1, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
+    B.sort((a, b) => a.ym - b.ym);   // de atrás hacia adelante: el borde de abajo de cada huella
     // sombras (sol de la tarde): una sola pasada, debajo de todo
     g.fillStyle = 'rgba(16,22,34,.24)'; g.beginPath();
     for (const H of HS) if (!H.libre) this.sombra(g, H);
-    for (const b of B) { if (b.hito) continue; const E = esq(b), sx = Math.min(14, b.h * .32), sy = Math.min(9, b.h * .2); g.moveTo(E[0][0] + sx, E[0][1] + sy); for (const [x, y] of [E[1], E[2], E[3]]) g.lineTo(x + sx, y + sy); g.closePath(); for (const [x, y] of E) { g.moveTo(x, y); g.lineTo(x + sx, y + sy); } }
+    for (const b of B) if (!b.hito) this.sombraEd(g, b, lod === 1);
     g.fill();
     // árboles bajos antes que los edificios del frente
     const T = []; for (const Rg of rs) for (let i = 0; i < Rg.trees.length; i += 4) { const x = Rg.trees[i], y = Rg.trees[i + 1]; if (x > X0 - 6 && x < X0 + S + 6 && y > Y0 - 6 && y < Y0 + S + 10) T.push(Rg.trees, i); }
-    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2]; g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); g.arc(x + r * .5, y + r * .35, r, 0, TAU); g.fill(); }
-    const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICK = ['#b5593c', '#a9533a', '#c0654a', '#9c4a33'], TOWER = ['#d8d4cc', '#c3cad2', '#e6dcc8', '#aab4bf', '#cfc8bb'], GLASS = ['#5f88a8', '#4f7896', '#6c97b5'];
-    const sh = (hex, m) => Art.shade(hex, m), out = lod === 0 ? .32 : .6;
-    const colores = b => { if (b.cw) return; const s = b.s, ed = b.ed; b.cw = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
-      b.cr = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3]; b.cs = sh(b.cw, .8); };
-    if (lod === 1) {   // de lejos: las casas en lote (una silueta común y los techos por color), las torres una por una (silueta y techo)
-      const hull = (E, up) => { const Pt = E.concat(E.map(([x, y]) => [x, y - up])).sort((p, q) => p[0] - q[0] || p[1] - q[1]), cr = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]), lo = [], hi = [];
-        for (const p of Pt) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (let i = Pt.length - 1; i >= 0; i--) { const p = Pt[i]; while (hi.length > 1 && cr(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); } return lo.slice(0, -1).concat(hi.slice(0, -1)); };
-      const poly = (P, Q) => { P.moveTo(Q[0][0], Q[0][1]); for (let i = 1; i < Q.length; i++) P.lineTo(Q[i][0], Q[i][1]); P.closePath(); };
-      const techo = (E, up) => { const T = E.map(([x, y]) => [x, y - up]); let a = 0; for (let i = 0; i < 4; i++) { const p = T[i], q = T[(i + 1) % 4]; a += p[0] * q[1] - q[0] * p[1]; } return a < 0 ? T.reverse() : T; };
-      const muros = new Path2D(), techos = new Map();
-      for (const b of B) { if (b.ed || b.hito) continue; colores(b); const E = esq(b), up = b.h * ob; poly(muros, hull(E, up)); let P = techos.get(b.cr); if (!P) techos.set(b.cr, P = new Path2D()); poly(P, techo(E, up)); }
-      g.fillStyle = '#9a7e6c'; g.fill(muros); for (const [c, P] of techos) { g.fillStyle = c; g.fill(P); }
-      for (const b of B) { if (b.hito) { this.hito(g, b.hito, lod, cv); continue; } if (!b.ed) continue; colores(b); const E = esq(b), up = b.h * ob, Hh = hull(E, up); g.fillStyle = b.cs; g.beginPath(); poly(g, Hh); g.fill(); g.fillStyle = b.cr; g.beginPath(); poly(g, techo(E, up)); g.fill(); }
-    } else
-    for (const b of B) {
-      if (b.hito) { this.hito(g, b.hito, lod, cv); continue; }
-      const E = esq(b), up = b.h * ob, s = b.s, ed = b.ed, wall = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
-      const roof = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3];
-      // fachadas que dan hacia abajo de la pantalla (las que se ven)
-      for (let e = 0; e < 4; e++) {
-        const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4], nx = by - ay, ny = -(bx - ax), L = Math.hypot(nx, ny) || 1; if (ny / L < .04) continue;
-        const lum = .78 + .2 * (nx / L); g.fillStyle = sh(wall, lum); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(bx, by - up); g.lineTo(ax, ay - up); g.closePath(); g.fill();
-        if (lod === 0 && up > 2.2) {   // pisos: franjas de ventanas a lo largo de la fachada
-          const fl = Math.max(1, Math.round(b.h / 3.1)), step = up / fl; g.strokeStyle = ed ? 'rgba(30,48,70,.55)' : 'rgba(40,40,48,.45)'; g.lineWidth = Math.min(.9, step * .38); g.beginPath();
-          for (let f = 0; f < fl; f++) { const yy = f * step + step * .55, i0 = .12, i1 = .88; g.moveTo(ax + (bx - ax) * i0, ay + (by - ay) * i0 - yy); g.lineTo(ax + (bx - ax) * i1, ay + (by - ay) * i1 - yy); }
-          g.stroke();
-        } else if (lod === 0 && !ed) { g.fillStyle = '#4a3528'; const m = .5 + (s - .5) * .5, px = ax + (bx - ax) * m, py = ay + (by - ay) * m; g.fillRect(px - .5, py - 2.1, 1, 2); }
-      }
-      // techo
-      g.fillStyle = roof; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath(); g.fill();
-      if (lod === 0) {
-        if (!ed && s < .55) { g.strokeStyle = sh(roof, .82); g.lineWidth = .3; g.beginPath(); for (let t = .2; t < 1; t += .2) { const ax = E[0][0] + (E[3][0] - E[0][0]) * t, ay = E[0][1] + (E[3][1] - E[0][1]) * t - up, bx = E[1][0] + (E[2][0] - E[1][0]) * t, by = E[1][1] + (E[2][1] - E[1][1]) * t - up; g.moveTo(ax, ay); g.lineTo(bx, by); } g.stroke(); }
-        else if (!ed) { g.fillStyle = s > .8 ? '#2f4f7a' : '#3a3a3a'; g.beginPath(); g.arc(b.x + b.ux * b.hw * .4, b.y + b.uy * b.hw * .4 - up, .9, 0, TAU); g.fill(); }
-        else { g.fillStyle = sh(roof, .85); const w = Math.min(b.hw, b.hd) * .5; g.save(); g.translate(b.x, b.y - up); g.rotate(Math.atan2(b.uy, b.ux)); g.fillRect(-w * .6, -w * .45, w * 1.2, w * .9); if (b.h > 60 && s > .7) { g.strokeStyle = '#e8c64a'; g.lineWidth = .35; g.beginPath(); g.arc(0, 0, w * .38, 0, TAU); g.stroke(); } g.restore(); }
-      }
-      // contorno oscuro del volumen
-      g.strokeStyle = `rgba(20,26,38,${out})`; g.lineWidth = lod === 0 ? .32 : .9; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath();
-      for (let e = 0; e < 4; e++) { const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4]; if (by - ay === 0 && bx - ax === 0) continue; const ny = -(bx - ax); if (ny <= 0) continue; g.moveTo(ax, ay); g.lineTo(ax, ay - up); g.moveTo(bx, by); g.lineTo(bx, by - up); g.moveTo(ax, ay); g.lineTo(bx, by); }
-      g.stroke();
-    }
+    g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i] + A[i + 2] * .5, y = A[i + 1] + A[i + 2] * .35, r = A[i + 2]; g.moveTo(x + r, y); g.arc(x, y, r, 0, TAU); } g.fill();   // sombras de todos los árboles, en una pasada
+    if (lod === 1) this.edifLejos(g, B, ob, cv);   // de lejos: casas en lote por color, edificios uno por uno
+    else for (const b of B) { if (b.hito) this.hito(g, b.hito, lod, cv); else this.dibEd(g, b, sc); }
     // copas de los árboles (encima de su sombra; los guayacanes florecen amarillo o rosado)
-    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2], fl = A[i + 3]; g.fillStyle = '#2f5b2f'; g.beginPath(); g.arc(x, y - 1.6, r, 0, TAU); g.fill(); g.fillStyle = fl ? (h2(x | 0, y | 0, 5) < .5 ? '#f0c13a' : '#e78bb8') : '#4f8a45'; g.beginPath(); g.arc(x - r * .2, y - 1.6 - r * .25, r * .74, 0, TAU); g.fill(); }
+    { const cop = [new Path2D(), new Path2D(), new Path2D(), new Path2D()];   // copas por color, en cuatro pasadas
+      for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2], fl = A[i + 3], c = fl ? (h2(x | 0, y | 0, 5) < .5 ? 2 : 3) : 1; cop[0].moveTo(x + r, y - 1.6); cop[0].arc(x, y - 1.6, r, 0, TAU); const r2 = r * .74, cx = x - r * .2, cy = y - 1.6 - r * .25; cop[c].moveTo(cx + r2, cy); cop[c].arc(cx, cy, r2, 0, TAU); }
+      ['#2f5b2f', '#4f8a45', '#f0c13a', '#e78bb8'].forEach((c, i) => { g.fillStyle = c; g.fill(cop[i]); }); }
     // luces de ventanas para la noche (capa aparte, se arma cuando hace falta)
     cv.lights = (cv.lights || []).concat(B.filter(b => !b.hito && b.h > 6 && b.s > .3).map(b => [b.x, b.y - b.h * ob * .5, b.hw, b.h])); cv.X0 = X0; cv.Y0 = Y0; cv.sc = sc;
   },

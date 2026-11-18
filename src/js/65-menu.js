@@ -117,7 +117,8 @@ const Menu = EM.menu = {
     UI.modal(`<h2>El Metro</h2><p class="m">Un juego sin ánimo de lucro, para todo público, sobre el Metro de Medellín y el Valle de Aburrá. No es un producto oficial del Metro de Medellín.</p>
       <h3>Datos del mapa</h3><ul class="m" style="padding-left:18px;margin:0">
         <li>Calles, río y relieve: © colaboradores de OpenStreetMap (ODbL), vía Overture Maps; relieve SRTM / NASA (AWS Terrain Tiles); mapa base de “Juega EnCicla”.</li>
-        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026).</li>
+        <li>Fuente: Portal de Datos Abiertos Subsecretaria de Catastro del Municipio de Medellín, Colombia www.medellin.gov.co/geomedellin (lotes, febrero de 2026; pisos de las construcciones de Popular, El Poblado y Robledo).</li>
+        <li>Casas y edificios: huellas de Overture Maps Foundation (© colaboradores de OpenStreetMap, ODbL; Microsoft ML Buildings, ODbL; Google Open Buildings, CC BY 4.0). Pisos oficiales o de OpenStreetMap donde existen; en el resto, estimados por zona. Canchas, piscinas y campus: OpenStreetMap vía Overture.</li>
         <li>Datos abiertos de la Alcaldía de Medellín: barrios, manzanas, malla vial 2026, jerarquía vial y espacio público. Barrios de Itagüí, Envigado y Sabaneta publicados por esas alcaldías. Todo se pasó a casillas de 20 m para el juego.</li>
         <li>Estaciones de EnCicla, y nombres de calle y barrios fuera de esas capas: mapa de “Juega EnCicla” v1.2 (OpenStreetMap vía Overture, ODbL); los barrios de esa capa son aproximados. Patio-taller del Metro: © colaboradores de OpenStreetMap.</li></ul>
       <p class="m">¿Te gusta pedalear? <a href="https://juanfeliperico369-stack.github.io/BicicletasUno/" target="_blank" rel="noopener">Juega EnCicla</a>, el juego hermano sobre las bicis públicas del valle.</p>

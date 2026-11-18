@@ -654,7 +654,44 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-#### Estado al 2026-11-18 · v1.1.1 "Ciudad con curvas" (retoque)
+#### Estado al 2026-11-18 · v1.2.0 "Medellín tal cual"
+**Novedad de v1.2.0:** se investigó a Medellín desde el aire: fotos aéreas, desde el avión, el metrocable, drones y satélite, todas con licencia libre y sin imágenes de Google. Con eso la ciudad se dibuja con sus **casas y edificios reales**:
+- **Casas y edificios:** 639.457 en todo el valle, de Caldas a Barbosa, con su huella real (posición, forma y orientación).
+  - Datos: `src/data/edificios.js`, generado por `tools/edificios_datos.py`, de Overture Maps (OpenStreetMap, Microsoft ML Buildings y Google Open Buildings).
+  - Van por región de 640 m y se leen solo cuando hacen falta. La generación a lo largo de las calles queda de respaldo.
+- **Pisos:**
+  - 7.779 oficiales, del Catastro de Medellín (capa `3DConstruccciones` de Popular, El Poblado y Robledo);
+  - 5.028 de OpenStreetMap (Coltejer 38, Edificio del Café 36, Torre Institucional de la Alcaldía 24…);
+  - el resto, estimados por zona y tamaño con lo medido en esas tres comunas.
+- **Usos:** casa, bloque, torre, bodega, colegio o universidad, hospital, iglesia con campanario, cívico, comercio, coliseo, cubierta abierta, invernadero y tanque redondo.
+- **Materiales y techos por zona**, como se ven desde el aire (`src/js/11-edificios.js`):
+  - laderas de ladrillo a la vista, con fibrocemento, zinc oxidado y planchas con tanque negro o azul;
+  - barrios planos de teja de barro: desde el avión son un tapete terracota;
+  - El Poblado, de torres de ladrillo entre el bosque, con piscinas y helipuertos en algunas azoteas;
+  - el Centro, ocre y de ladrillo;
+  - los pueblos, blancos con teja.
+  - Detalles: teja a dos aguas con cumbrera y hastiales, láminas con canales, y ventanas y puerta por piso.
+- **Suelos:** 56 campus universitarios con su prado, sus árboles y su rótulo; 1.368 canchas (de fútbol con sus líneas y placas polideportivas de colores); 37 pistas atléticas y 885 piscinas. Más árboles en patios y antejardines de Laureles y El Poblado.
+- **La Alpujarra tal cual:** la Alcaldía, la Gobernación y el Palacio de Justicia van con fachada inclinada, parteluces blancos, ventanas oscuras y culatas macizas (estilo `alpujarra`).
+- **La calle siempre libre:** huellas y vías vienen de fuentes distintas y se corren 1–2 m.
+  - Por eso cada edificio se recorta contra el asfalto con medio andén, las peatonales, las escaleras, el carril del Metroplús y el tranvía.
+  - Sin recorte, del 7 al 29 % de los bordes de carril quedaban dentro de una casa y el taxi se trababa. Ahora quedan del 0 al 0,05 %, como en 1.1.1.
+- **Investigación:** `docs/investigacion/medellin-desde-el-aire.md` reúne lo que se ve en cada zona, cómo se volvió regla y los créditos de cada foto.
+- **Autotest nuevo:** revisa que carguen más de 600.000 edificios reales, que más del 99 % de los bordes de carril quede libre, que haya torres en El Poblado, edificios educativos en la UdeA, campus y canchas.
+- **Rendimiento:**
+  - una región de 640 m se arma en 10 a 60 ms (60 ms en Popular, la más densa);
+  - un trozo cercano, en 1 a 18 ms;
+  - un trozo de 640 m de lejos, en la zona más densa, en unos 140 ms, con árboles y casas de lejos en lote;
+  - manejando, los cuadros tardan en JavaScript lo mismo que en 1.1.1.
+- **Peso:** el HTML pasa de 3,6 a 8,1 MB; 4,5 MB son las casas y los edificios.
+
+Herramienta nueva: `tools/edificios_datos.py` (cómo regenerar en `docs/FUENTES.md`).
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 0 avisos (639.457 casas y edificios reales, calles libres, torres en El Poblado, la UdeA, campus y canchas); 100 partidas del bot (367 mil pasos) con 0 errores y 0 errores de consola. Capturas por lugar (La Alpujarra, la UdeA, la Nacional, EAFIT, la UPB, Popular, Santo Domingo, Laureles, El Poblado, el Centro, Guayabal, la Comuna 13 y la noche) comparadas con las fotos. Con un taxi en Santo Domingo y en Laureles se llega a 30 km/h, como en 1.1.1.
+
+**Publicado:** PENDIENTE_PUBLICACION
+
+##### v1.1.1 "Ciudad con curvas" (retoque)
 **Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
 
 **Qué se probó:** autotest con 0 errores y 0 avisos; 100 partidas del bot (364 mil pasos) con 0 errores y 0 errores de consola.
@@ -991,8 +1028,9 @@ Base: HTML único, mapa real, red completa, puzles (Despacho, Alimentadores, Met
 
 #### Qué falta (prioridad)
 0. **Medellín fiel (Fase 1b):**
-   - **capa vectorial de OpenStreetMap**: ejes de vía con su ancho, glorietas, curvas y **nombres de calles**;
-   - **huellas reales de edificios** y usos del suelo;
+   - **capa vectorial de OpenStreetMap**: hecha en v1.1.0 (ejes de vía con su ancho, curvas y nombres).
+   - **huellas reales de edificios** y usos del suelo: hechas en v1.2.0.
+   - Sigue: pisos oficiales para todo Medellín (la capa abierta solo trae tres comunas); color de techo por edificio; el Orquideorama y la celosía dorada de la Plaza de la Libertad; armar los trozos de lejos en un Web Worker (hoy ~140 ms en la zona más densa).
    - estructuras (viaducto, estaciones, cables) y la **Maqueta 2:1**.
    - Hay que decidir cuánto peso aceptar (ver `docs/auditorias/2026-11-17-fidelidad-mapa-osm.md`).
    - El extracto de OSM (Geofabrik) está bloqueado desde la nube: procesarlo en el PC del autor o en una GitHub Action.

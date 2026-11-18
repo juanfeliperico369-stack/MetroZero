@@ -77,7 +77,7 @@ const BotT = EM.test = {
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
     // ciudad vectorial (1.1.0): calles con curva, edificios fuera de las vías, andenes sobre su línea, giros suaves y buses sobre el asfalto
-    let nVias = 0; try {
+    let nVias = 0, nEd = 0; try {
       if (typeof VIAS !== 'undefined') {
         if (!VC.on || VC.ch.length < 20000) E('ciudad vectorial: no cargó las vías (' + VC.ch.length + ')'); nVias = VC.ch.length;
         const asfalto = (x, y, m = -.3) => { for (const c of VC.near(x - 20, y - 20, x + 20, y + 20)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < c.w / 2 + m) return true; } } return false; };
@@ -94,9 +94,23 @@ const BotT = EM.test = {
         if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
         for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
         const B0 = VC.HT.find(q => q.id === 'botero'); if (B0 && VC.solid(B0.cx + 6, B0.cy + 6, .3) && VC.solid(B0.cx - 6, B0.cy - 6, .3)) Wn('arquitectura: la Plaza Botero no se deja caminar');
+        // casas y edificios reales (1.2.0): cargados, con pisos y usos, y con la calle siempre libre (se recortan contra el asfalto)
+        if (typeof EDIFICIOS !== 'undefined') {
+          if (!VC.ED) E('edificios reales: no cargaron'); else {
+            nEd = VC.ED.cnt.reduce((a, b) => a + b, 0); if (nEd < 600000) E('edificios reales: solo ' + nEd + ' (deben ser más de 600.000)');
+            let m = 0, bl = 0; for (const n of ['Parque Berrío', 'Estadio', 'Santo Domingo Savio', 'Poblado', 'Niquía', 'San Javier']) { const h = NET.stations.find(q => q.name === n); if (!h) continue;
+              for (const c of VC.near(h.x - 220, h.y - 220, h.x + 220, h.y + 220)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1;
+                for (let t = 0; t < L; t += 4) { const x = ax + dx * t / L, y = ay + dy * t / L; if (Math.abs(x - h.x) > 220 || Math.abs(y - h.y) > 220) continue; const ox = -dy / L * (c.w / 2 - .8), oy = dx / L * (c.w / 2 - .8); m++; if (VC.solid(x + ox, y + oy, .4) || VC.solid(x - ox, y - oy, .4)) bl++; } } } }
+            if (m < 500) Wn('edificios reales: pocas muestras de calle (' + m + ')'); else if (bl / m > .01) E('edificios reales: ' + (bl / m * 100).toFixed(1) + ' % de los bordes de carril quedan dentro de un edificio'); else if (bl / m > .003) Wn('edificios reales: ' + (bl / m * 100).toFixed(2) + ' % de los bordes de carril tocan un edificio');
+            const hp = NET.stations.find(q => q.name === 'Poblado'); if (hp && !VC.regionAt(hp.x, hp.y).bs.some(b => b.k === 2 && b.pis >= 10)) Wn('edificios reales: El Poblado sin torres de 10 pisos o más');
+            const hu = NET.stations.find(q => q.name === 'Universidad'); if (hu && !VC.regionAt(hu.x, hu.y).bs.some(b => b.k === 4)) Wn('edificios reales: la Universidad de Antioquia sin edificios educativos cerca de su estación');
+            if (!VC.campus || VC.campus.length < 20) Wn('campus universitarios: pocos (' + (VC.campus ? VC.campus.length : 0) + ')');
+            if (!VC.SG || VC.suelosEn(0, 0, MW * TM, MH * TM).filter(o => o.t === 'cancha').length < 800) Wn('suelos: pocas canchas');
+          }
+        }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
