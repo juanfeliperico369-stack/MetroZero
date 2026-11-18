@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v0.10.0 · compilado el 2026-11-17.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v1.1.0 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v0.10.0** · compilado el 2026-11-17.
+> Versión del juego **v1.1.0** · compilado el 2026-11-18.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,7 +799,25 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-17 · v0.10.0 "Valle completo y EnCicla"
+##### Estado al 2026-11-18 · v1.1.0 "Ciudad con curvas"
+**Novedad de v1.1.0** (une la línea de 1.0.0 de la otra IA con v0.10.0 y redibuja la ciudad):
+- **Mapa base de 1.0.0:** manzanas oficiales, huellas, pisos y barrios en todo el valle (formato v3: `ba`, `hg`, `lt`), con `CIUDAD` y `RUTAS` de 1.0.0 y lo de v0.10.0 encima (EnCicla, calendario, ajustes, accesibilidad).
+- **Motor de ciudad vectorial** (`src/js/11-ciudad2.js`, `VC`): reemplaza el dibujo por casillas en todas las vistas cenitales.
+  - Calles de `src/data/vias.js` (26.919 vías de Juega EnCicla 1.3.1) con su curva, su ancho, andén, sardinel, carriles y cebras.
+  - Suelo sin escalones: contornos de cuadrados marchantes difuminados (parques y lago con esquinas redondas).
+  - Casas y edificios generados a lo largo de cada calle, girados con ella, sin tocar vías ni andenes; volumen al estilo de las ciudades cenitales (techo desplazado, fachadas con ventanas, sombra y contorno).
+  - Cuatro niveles de detalle (80 m a 4 px/m … 2,5 km a 0,2 px/m), presupuesto de 12 ms por cuadro, trozos por adelantado hacia donde va la cámara y 1 px de margen por trozo (sin costuras).
+- **Rieles que concuerdan:** eje real de A, B y T entre los dos rieles de OpenStreetMap (`src/data/rieles.js`; giro máximo 6°). Cada estación queda sobre su línea y su andén sigue la vía; la B termina al borde del viaducto de la A.
+- **Buses por las calles:** Metroplús y alimentadores rehechos sobre la red vectorial pasando por cada parada (`src/data/rutas_calles.js`).
+- **Física libre:** a pie y en vehículo solo frenan los edificios dibujados y el agua; fuera del asfalto hay más roce. La gente camina por los andenes; carros, bicis y anclajes se acomodan fuera de los edificios al acercarse. Cámara alineada al píxel.
+- **Arquitectura icónica** (`src/js/11-hitos.js`, `src/data/hitos.js`): 30 edificios y plazas con su huella real de OpenStreetMap y un dibujo propio: la aguja del Coltejer, las torres y la cúpula de la Basílica, el Palacio de la Cultura en franjas, las graderías y la cancha del Atanasio, las tres rocas de la Biblioteca España, el vidrio del Edificio EPM, las cajas rojas de Explora, la cúpula del Planetario, La Alpujarra, los postes del Parque de las Luces (se encienden de noche) y las esculturas de la Plaza Botero. Nada genérico se monta encima y se choca contra ellos.
+- **Metro elevado:** el tablero va a 7 m con columnas cada 30 m y su sombra en el piso; los andenes llevan cubierta metálica con el color de la línea y cada estación su edificio de acceso abajo. Los cables del Metrocable van a 14 m con sus torres.
+- **Rótulos y postes** sobre las calles dibujadas; el letrero toma el nombre de la vía cuando la capa oficial no lo trae.
+- **Autotest nuevo:** vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
+
+Herramientas nuevas: `tools/vias_datos.mjs`, `tools/rieles_datos.mjs`, `tools/rutas_calles.mjs` y `tools/hitos_datos.py` (cómo regenerar en `docs/FUENTES.md`).
+
+###### v0.10.0 "Valle completo y EnCicla"
 **Novedad de v0.10.0:**
 - **El mapa, medido y corregido:**
   - las 49 estaciones tienen huella y techo;
@@ -1232,8 +1250,10 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | Archivo | Qué hace |
 |---|---|
 | `00-core.js` | `EM`, `Save`, sonido y música generativa, `UI`, utilidades |
-| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, trozos cenitales en caché |
-| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos) |
+| `10-map.js` | Mapa real (casillas de 20 m, `TT.*`), relieve, rótulos, barrios; delega el dibujo cenital en `VC` |
+| `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios generados a lo largo de cada calle por regiones de 640 m, choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
+| `11-hitos.js` | **Arquitectura icónica** (`HITOS`): huella real de OSM, estilos de dibujo propios (`aguja`, `basilica`, `iglesia`, `palacio`, `estadio`, `rocas`, `vidrio`, `ladrillo`, `republicano`, `moderno`, `cupula`, `cubos`, `luces`, `botero`, `pies`); reserva su huella en la región y es sólida |
+| `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos). A, B y T usan el eje real de `RIELES`; los buses, `RUTAS_CALLES`; cada estación queda sobre su línea |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
 | `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
 | `20-art.js` / `21-sprites.js` | Paleta `PAL` y sprites procedurales |
@@ -1254,7 +1274,10 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 Datos en `src/data/`:
 - `valle.js`: mapa y relieve de EnCicla;
 - `red.js`: líneas y estaciones;
-- `rutas.js`: recorridos de buses por calles reales;
+- `rutas.js`: recorridos de buses por calles reales (casillas; respaldo);
+- `vias.js`: 26.919 calles como vectores con ancho y nombre. **Generado** por `node tools/vias_datos.mjs RUTA_DE_JUEGA_ENCICLA_1.3`;
+- `rieles.js`: eje de A, B y T entre los dos rieles de OpenStreetMap. **Generado** por `node tools/rieles_datos.mjs JSON_DE_OVERPASS`;
+- `rutas_calles.js`: Metroplús y alimentadores por las calles vectoriales, pasando por cada parada. **Generado** por `node tools/rutas_calles.mjs`;
 - `lugares.js`: lugares con postal;
 - `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 - `ciudad.js`: datos oficiales abiertos (parche de casillas, barrios, nombres de calle por casilla, lotes, lugares). **Generado** por `python3 tools/ciudad_datos.py CACHE` (descarga previa: `python3 tools/ciudad_descarga.py CACHE`). Se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels`. El mapa base `valle.js` **no se modifica**: el parche se aplica al cargar.
@@ -1263,6 +1286,16 @@ Datos en `src/data/`:
 - Coordenadas del mundo en metros: x hacia el este, y hacia el sur. Casilla `TM = 20` m.
 - Cada modo implementa `levels()`, `create(lv, opts)`, `step(st, dt)`, `draw(g, st, vp)`, `hud(st)`, `mount(st, el)`.
 - Usa `EM.headless` y `st.auto` para que el bot juegue sin interfaz.
+
+#### Reglas aprendidas (ciudad vectorial, 1.1.0)
+- **Nada se dibuja por casillas en las vistas cenitales:** todo pasa por `MAP.drawTop` → `VC.drawTop`. Las casillas siguen siendo la verdad del uso del suelo (parque, agua, monte, manzana), no de la forma.
+- **Cada trozo lleva 1 px de margen** y se pega con su ancho y su alto redondeados por separado: así no hay costuras.
+- **Los trozos se dibujan por CPU** (`willReadFrequently`): miles de figuras pequeñas son más parejas por CPU que en la tarjeta gráfica; nunca se leen píxeles de vuelta (`getImageData`) al armar un trozo.
+- **Lo que se ubica en el mapa** (carros parqueados, anclajes, vendedores, personajes, el jugador al bajarse) pasa por `VC.despeja` para no quedar dentro de un edificio; se acomoda al acercarse, no al empezar (generar todo el valle al inicio es lento).
+- **Una estación es un andén sobre su línea** (`NET.at(l.P, s.s)`), dibujado con `Ciudad.banda` siguiendo la curva; en las terminales el andén entero queda hacia adentro.
+- **Un edificio famoso se dibuja con su huella real** (`tools/hitos_datos.py`), nunca inventado; si OSM no lo tiene (p. ej. el Orquideorama), no se pone.
+- **El metro va elevado** en las vistas con volumen: tablero, andenes, cubiertas y trenes se corren `KIND.metro.deck × VC.ob` hacia arriba; las columnas y el edificio de acceso van al piso.
+- **Medir antes de afirmar:** `EM.test.selfTest()` revisa vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
 #### Comandos
 ```
@@ -2818,13 +2851,13 @@ Un solo `index.html` sin librerías, armado por `node tools/build.mjs`. Concaten
 Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos están en la skill **el-metro-desarrollo** (parte 3 de este documento).
 
 ## Datos que no van como texto
-- **`src/data/valle.js`** (1060 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
-- **`src/data/ciudad.js`** (330 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
-- **`src/data/ajustes.js`** (171 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
+- **`src/data/valle.js`** (1163 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
+- **`src/data/ciudad.js`** (372 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
+- **`src/data/ajustes.js`** (39 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (73 archivos, 926 KB)
+## Código fuente (79 archivos, 1047 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3238,7 +3271,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '0.10.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '1.1.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3873,7 +3906,8 @@ const MAP = EM.map = {
   t: null, E: null, ready: false, chunks: new Map(), CH: 32, PX: 16,
   async load() {
     const bin = atob(VALLE_BIN), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-    const nT = MW * MH, nE = VM.eW * VM.eH, nM = VM.mW * VM.mH, size = nT + nE * 2 + nM * 2;
+    // formato v3: después de casillas, relieve, municipios y comunas vienen, por celda de 160 m, barrio (uint16), pisos y lotes
+    const nT = MW * MH, nE = VM.eW * VM.eH, nM = VM.mW * VM.mH, nB = VM.ba ? nM * 2 : 0, nH = VM.hg ? nM : 0, nL = VM.lt ? nM : 0, size = nT + nE * 2 + nM * 2 + nB + nH + nL;
     let raw = null;
     if (window.DecompressionStream) { try { raw = new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); } catch (e) { raw = null; } }
     if (!raw || raw.length < size) raw = inflateRaw(u8, size);
@@ -3881,6 +3915,7 @@ const MAP = EM.map = {
     const ed = new Int16Array(raw.slice(nT, nT + nE * 2).buffer), E = this.E = new Int16Array(nE);
     for (let j = 0; j < VM.eH; j++) { let a = 0; for (let i = 0; i < VM.eW; i++) { a += ed[j * VM.eW + i]; E[j * VM.eW + i] = a; } }
     this.mu = raw.slice(nT + nE * 2, nT + nE * 2 + nM); this.co = raw.slice(nT + nE * 2 + nM, nT + nE * 2 + nM * 2);
+    const o2 = nT + nE * 2 + nM * 2; if (nB) this.ba = new Uint16Array(raw.slice(o2, o2 + nB).buffer); if (nH) this.hg = raw.slice(o2 + nB, o2 + nB + nH); if (nL) this.lt = raw.slice(o2 + nB + nH, o2 + nB + nH + nL);
     if (typeof CIUDAD !== 'undefined') { try { await this.ciudad(); } catch (e) { EM.errors.push('ciudad: ' + e.message); console.error(e); } }
     if (typeof AJUSTES !== 'undefined' && typeof CIUDAD !== 'undefined' && !window.__sinAjustes) { try { await this.ajustes(); } catch (e) { EM.errors.push('ajustes: ' + e.message); console.error(e); } }
     this.ready = true;
@@ -3928,7 +3963,7 @@ const MAP = EM.map = {
      río continuo y relieve que siempre baja por el cauce, escaleras sueltas, calle bajo el tranvía y patio-taller del Metro en Bello. */
   async ajustes() {
     const A = AJUSTES, t = this.t;
-    if (this.rRow) {   // nombres extra para las casillas de vía sin nombre oficial, en orden: 0 izquierda · 1 arriba · 4 arriba-izq · 5 arriba-der · 2 nada · 3 + varint
+    if (this.rRow && A.calles) {   // nombres extra para las casillas de vía sin nombre oficial, en orden: 0 izquierda · 1 arriba · 4 arriba-izq · 5 arriba-der · 2 nada · 3 + varint
       const cd = await this.unz(A.calles.d, A.calles.n), rE = new Uint16Array(this.rX.length); let p = 0, a = new Uint16Array(MW), b = new Uint16Array(MW);
       for (let y = 0; y < MH; y++) {
         const z = a; a = b; b = z; b.fill(0);
@@ -3936,8 +3971,8 @@ const MAP = EM.map = {
       }
       this.rE = rE;
     }
-    const B = A.barrios, bb = await this.unz(B.d, B.GW * B.GH * 2); this.bgE = new Uint16Array(B.GW * B.GH); for (let i = 0; i < this.bgE.length; i++) this.bgE[i] = bb[2 * i] | bb[2 * i + 1] << 8;
-    this.barriosL = CIUDAD.barrios.concat(B.lista);
+    if (A.barrios) { const B = A.barrios, bb = await this.unz(B.d, B.GW * B.GH * 2); this.bgE = new Uint16Array(B.GW * B.GH); for (let i = 0; i < this.bgE.length; i++) this.bgE[i] = bb[2 * i] | bb[2 * i + 1] << 8;
+    this.barriosL = CIUDAD.barrios.concat(B.lista); }
     const T = A.tiles; for (const i of T.puente) t[i] = TT.BRIDGE; for (const i of T.agua) t[i] = TT.WATER; for (const i of T.calle) t[i] = TT.ROAD; for (let i = 0; i < T.pares.length; i += 2) t[T.pares[i]] = T.pares[i + 1];
     for (let i = 0; i < A.relieve.length; i += 2) this.E[A.relieve[i]] = A.relieve[i + 1];
     this.lugaresL = CIUDAD.lugares.concat(A.lugares); this.ajustado = true;
@@ -3948,9 +3983,8 @@ const MAP = EM.map = {
     if (!this.t || window.__sinAjustes) return; const t = this.t, out = [], keep = new Set([TT.AUTO, TT.AVE, TT.BRIDGE, TT.WATER, TT.CANAL, TT.STEPS, TT.DEPOT]);
     for (const s of NET.stations) {
       const Ls = s.lines.filter(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!Ls.length) continue;
-      const L = Ls.find(l => l.kind === 'metro') || Ls.find(l => l.kind === 'tram') || Ls[0], P = L.P.pts; let bi = 0, bd = Infinity;
-      for (let i = 0; i < P.length - 1; i++) { const ax = P[i].x, ay = P[i].y, dx = P[i + 1].x - ax, dy = P[i + 1].y - ay, u = clamp(((s.x - ax) * dx + (s.y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = (ax + dx * u - s.x) ** 2 + (ay + dy * u - s.y) ** 2; if (d < bd) { bd = d; bi = i; } }
-      const a = Math.atan2(P[bi + 1].y - P[bi].y, P[bi + 1].x - P[bi].x), [w, h] = L.kind === 'metro' ? [140, 36] : L.kind === 'tram' ? [44, 16] : [60, 40], ca = Math.cos(a), sa = Math.sin(a), Rr = Math.ceil(w / TM);
+      const L = Ls.find(l => l.kind === 'metro') || Ls.find(l => l.kind === 'tram') || Ls[0], ls = L.st.find(q => q.hub === s), pr = ls ? { s: ls.s } : NET.project(L.P, s.x, s.y);
+      const a = L.kind === 'cable' ? NET.dirAt(L.P, pr.s, 40) : NET.dirAt(L.P, pr.s, 50), [w, h] = L.kind === 'metro' ? [140, 36] : L.kind === 'tram' ? [44, 16] : [60, 40], ca = Math.cos(a), sa = Math.sin(a), Rr = Math.ceil(w / TM);
       out.push({ x: s.x, y: s.y, a, w, h, k: L.kind, cols: [...new Set(Ls.map(l => l.color))] });
       let hechas = 0; const marca = (hh, ok) => { for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) {
         const tx = Math.floor(s.x / TM) + dx, ty = Math.floor(s.y / TM) + dy, px = (tx + .5) * TM - s.x, py = (ty + .5) * TM - s.y;
@@ -3960,14 +3994,34 @@ const MAP = EM.map = {
     }
     this.techos = out; this.chunks.clear(); this._mini = null;
   },
-  barrioAt(x, y) { if (!this.bg) return null; const C = CIUDAD, i = clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1), v = this.bg[i]; if (v) return C.barrios[v - 1]; if (!this.bgE) return null; const A = AJUSTES.barrios, w = this.bgE[clamp(Math.floor(y / TM / 8), 0, A.GH - 1) * A.GW + clamp(Math.floor(x / TM / 8), 0, A.GW - 1)]; return w ? A.lista[w - 1] : null; },
+  /* barrio: capa oficial (rejilla de 80 m) → barrio del mapa v3 (punto con nombre más cercano, celda de 160 m) → ajustes */
+  barrioAt(x, y) {
+    if (!this.bg) return null; const C = CIUDAD, v = this.bg[clamp(Math.floor(y / TM / C.K), 0, C.GH - 1) * C.GW + clamp(Math.floor(x / TM / C.K), 0, C.GW - 1)]; if (v) return C.barrios[v - 1];
+    const j = clamp(Math.floor(y / TM / 8), 0, VM.mH - 1) * VM.mW + clamp(Math.floor(x / TM / 8), 0, VM.mW - 1);
+    if (this.ba && VM.barrios) { const b = this.ba[j]; if (b) { const mu = this.muniAt(x, y); return [VM.barrios[b - 1], mu, mu, 0, 0, 0, 1]; } }
+    if (this.bgE) { const A = AJUSTES.barrios, w = this.bgE[clamp(Math.floor(y / TM / 8), 0, A.GH - 1) * A.GW + clamp(Math.floor(x / TM / 8), 0, A.GW - 1)]; if (w) return A.lista[w - 1]; }
+    return null;
+  },
   /* nombres de la casilla de vía (tx, ty): { n: nomenclatura, p: nombre popular } o null */
   calleT(tx, ty) {
     if (!this.rRow || ty < 0 || ty >= MH) return null; let a = this.rRow[ty], b = this.rRow[ty + 1] - 1;
     while (a <= b) { const m = (a + b) >> 1, x = this.rX[m]; if (x === tx) { const N = CIUDAD.calles, n = this.rN[m], p = this.rP[m], e = this.rE ? this.rE[m] : 0; return n || p ? { n: n ? N[n][0] : '', p: p ? N[p][0] : '' } : e ? { n: AJUSTES.calles.lista[e - 1], p: '' } : null; } if (x < tx) a = m + 1; else b = m - 1; }
     return null;
   },
-  calleAt(x, y) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); return this.calleT(tx, ty) || this.calleT(tx + 1, ty) || this.calleT(tx - 1, ty) || this.calleT(tx, ty + 1) || this.calleT(tx, ty - 1); },
+  calleAt(x, y) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM), c = this.calleT(tx, ty) || this.calleT(tx + 1, ty) || this.calleT(tx - 1, ty) || this.calleT(tx, ty + 1) || this.calleT(tx, ty - 1); if (c || !VC.on) return c; const n = VC.calle(x, y); return n ? { n, p: '' } : null; },
+  /* una esquina "Calle N con Carrera M" (nomenclatura oficial) a una distancia entre rmin y rmax, para los domicilios por dirección (de El Metro 1.0.0) */
+  esquina(x, y, rmin, rmax, rng) {
+    if (!this.rRow || typeof CIUDAD === 'undefined') return null; const N = CIUDAD.calles, R = Math.ceil(rmax / TM), cx = Math.floor(x / TM), cy = Math.floor(y / TM), out = [];
+    const nom = (tx, ty) => { const c = this.calleT(tx, ty); return c ? c.n : ''; };
+    for (let ty = Math.max(1, cy - R); ty <= Math.min(MH - 2, cy + R); ty++) {
+      let a = this.rRow[ty], b = this.rRow[ty + 1]; while (a < b) { const m = (a + b) >> 1; if (this.rX[m] < cx - R) a = m + 1; else b = m; }
+      for (let m = a; m < this.rRow[ty + 1] && this.rX[m] <= cx + R; m++) {
+        const id = this.rN[m]; if (!id || !/^Calle \d/.test(N[id][0])) continue; const tx = this.rX[m], d = Math.hypot(tx - cx, ty - cy) * TM; if (d < rmin || d > rmax) continue;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n2 = nom(tx + dx, ty + dy); if (/^Carrera \d/.test(n2)) { out.push([N[id][0], n2, (tx + .5) * TM, (ty + .5) * TM]); break; } }
+      }
+    }
+    if (!out.length) return null; const e = out[Math.floor(rng.f() * out.length)]; return { a: e[0], b: e[1], x: e[2], y: e[3] };
+  },
   /* lotes catastrales en la casilla construida (Medellín): 0 sin dato, 1 uno, 2 dos o tres, 3 cuatro o más */
   lotT(tx, ty) { const L = this.lot; if (!L) return 0; const x = tx - L.x0, y = ty - L.y0; return x < 0 || y < 0 || x >= L.w || y >= L.h ? 0 : L.a[y * L.w + x]; },
   tile(tx, ty) { tx |= 0; ty |= 0; return (tx < 0 || ty < 0 || tx >= MW || ty >= MH) ? TT.MOUNT : this.t[ty * MW + tx]; },
@@ -3982,6 +4036,7 @@ const MAP = EM.map = {
   /* altura típica de edificios según la zona (centro y El Poblado: torres; laderas: casas de ladrillo) */
   bHeight(x, y, seed) {
     const c = this.comunaAt(x, y), r = h2(x | 0, y | 0, seed);
+    if (this.hg) { const f = this.hg[clamp(Math.floor(y / TM / 8), 0, VM.mH - 1) * VM.mW + clamp(Math.floor(x / TM / 8), 0, VM.mW - 1)]; if (f) return Math.max(6, f * 3 * (.45 + .55 * r)); }   // pisos reales de la zona (huellas de edificios)
     if (/Candelaria/.test(c)) return 18 + r * 60; if (/Poblado/.test(c)) return 20 + r * 70; if (/Laureles|América|Belén/.test(c)) return 9 + r * 22;
     return 6 + r * 10;
   },
@@ -4194,6 +4249,7 @@ const MAP = EM.map = {
   },
   /* dibuja el mapa cenital: centro (mx,my) en metros, escala k px/m. Con night > 0 enciende ventanas */
   drawTop(g, W, H, mx, my, k, night = 0) {
+    if (VC.on) return VC.drawTop(g, W, H, mx, my, k, night);   // ciudad vectorial (11-ciudad2.js)
     const CHm = this.CH * TM, s = k * TM / this.PX;
     const x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.imageSmoothingEnabled = s < .95; this._vis = [];   // al alejar, suavizado: sin titileo de rayas y bordes
@@ -4232,14 +4288,19 @@ const MAP = EM.map = {
     g.save(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
     const texto = (t, x, y, a, f, col, hal, lw) => { g.font = f; const w = g.measureText(t).width, h = parseFloat(f.match(/(\d+(\.\d+)?)px/)[1]), c = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a)), bw = (w * c + h * sn) / 2 + 3 * dpr, bh = (w * sn + h * c) / 2 + 2 * dpr;
       if (x + bw < 0 || y + bh < 0 || x - bw > W || y - bh > H || !libre(x - bw, y - bh, x + bw, y + bh)) return; g.save(); g.translate(x, y); g.rotate(a); g.strokeStyle = hal; g.lineWidth = lw; g.strokeText(t, 0, 0); g.fillStyle = col; g.fillText(t, 0, 0); g.restore(); };
-    // calles (a pie, en bici o en carro)
-    if (kc >= .75) {
+    // calles (a pie, en bici o en carro): con la ciudad vectorial, sobre la vía dibujada y girados con ella
+    if (kc >= .75 && VC.on) {
+      const fs = clamp(kc * 5.2, 9, 13) * dpr, R = 320, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+      for (let cy = Math.floor(y0 / R); cy <= Math.floor(y1 / R); cy++) for (let cx = Math.floor(x0 / R); cx <= Math.floor(x1 / R); cx++) for (const r of VC.rotulos(cx, cy)) { if (r.len < (r.pri >= 2 ? 50 : 60)) continue; const [x, y] = S(r.x, r.y); texto(r.pri === 3 ? r.t.toUpperCase() : r.t, x, y, r.a, (r.pri >= 2 ? '800 ' : '700 ') + (r.pri === 3 ? fs * .95 : fs) + 'px Cuerpo, sans-serif', r.pri === 3 ? (night > .4 ? '#ffd27a' : '#5a3a12') : ink, halo, 3.2 * dpr); }
+    } else if (kc >= .75) {
       const fs = clamp(kc * 5.2, 9, 13) * dpr, CHm = this.CH * TM, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
       for (let cy = Math.floor(y0 / CHm); cy <= Math.floor(y1 / CHm); cy++) for (let cx = Math.floor(x0 / CHm); cx <= Math.floor(x1 / CHm); cx++) {
         if (cx < 0 || cy < 0 || cx * this.CH >= MW || cy * this.CH >= MH || (this.prisa && !this.chunks.has(cx + ',' + cy))) continue; const c = this.chunk(cx, cy); if (!c.rot) c.rot = this.rotulosTrozo(cx, cy);
         for (const r of c.rot) { if (r.len < (r.pri === 3 ? 60 : 40)) continue; const [x, y] = S(r.x, r.y); texto(r.pri === 3 ? r.t.toUpperCase() : r.t, x, y, r.a, (r.pri >= 2 ? '800 ' : '700 ') + (r.pri === 3 ? fs * .95 : fs) + 'px Cuerpo, sans-serif', r.pri === 3 ? (night > .4 ? '#ffd27a' : '#5a3a12') : ink, halo, 3.2 * dpr); }
       }
     }
+    // arquitectura icónica (de cerca), sobre su volumen
+    if (VC.on && VC.rotulosHitos) VC.rotulosHitos(texto, S, k, kc, dpr, night);
     // parques, plazas y miradores
     if (kc >= .6) for (const L of this.lugaresL || CIUDAD.lugares) {
       if (L[1] === 'verde' && (kc < 1.4 || L[4] < 8)) continue; if (kc < 1 && L[4] < 30) continue;
@@ -4265,6 +4326,7 @@ const MAP = EM.map = {
   },
   /* luces de ventanas (después del tinte de la noche) */
   lightsTop(g, night, t) {
+    if (VC.on) return VC.lightsTop(g, night, t);
     if (night < .25 || !this._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1); g.imageSmoothingEnabled = false;
     for (const [c, sx, sy, s] of this._vis) g.drawImage(this.luces(c), sx, sy, Math.ceil(c.width * s) + 1, Math.ceil(c.height * s) + 1);
     g.restore();
@@ -4284,6 +4346,577 @@ const MAP = EM.map = {
   /* camino más corto sobre la grilla (A*) para buses: pruebas y rutas nuevas */
   roadOK(v) { return v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE; }
 };
+~~~~
+
+### `src/js/11-ciudad2.js`
+~~~~js
+/* =====================================================================
+   CIUDAD VECTORIAL (1.1.0): la ciudad se dibuja como se vive, sin cubos ni escalones.
+   · Calles: vectores de src/data/vias.js con su curva y su ancho (sardinel, andén, asfalto, carriles, cebras en los semáforos).
+   · Suelo: río, parques, montaña, plazas y manzanas con bordes suaves (máscara de casillas suavizada y umbral).
+   · Estructuras: casas y edificios generados A LO LARGO de cada calle, girados con ella y retirados del andén;
+     volumen al estilo de las ciudades de vista cenital (techo desplazado, fachadas con ventanas, sombra y contorno).
+   · Física: se choca contra esos edificios (rectángulos) y contra el agua fuera de los puentes; lo demás se anda.
+   Se dibuja en trozos con nivel de detalle (160 m a 2 px/m, 640 m a 0,8 px/m y 2,5 km a 0,2 px/m).
+   ===================================================================== */
+const VC = EM.vcity = {
+  on: false, sw: true, ch: [], cg: new Map(), CG: 160, reg: new Map(), R: 640, ob: .45,
+  // niveles de detalle: trozos de 80 m a 4 px/m (pantallas densas, a pie), 160 m a 2 px/m, 640 m a 0,8 px/m y 2,5 km a 0,2 px/m
+  L: [{ i: 0, d: 0, sc: 4, S: 80, max: 44, k: 2.6 }, { i: 1, d: 0, sc: 2, S: 160, max: 32, k: 1.1 }, { i: 2, d: 1, sc: .8, S: 640, max: 14, k: .32 }, { i: 3, d: 2, sc: .2, S: 2560, max: 8, k: 0 }],
+  cache: [new Map(), new Map(), new Map(), new Map()],
+  DEFW: { 1: 7, 2: 15, 3: 12, 4: 10, 5: 2.5, 6: 5, 7: 3 },
+  /* ---------- carga: cadenas de vía en metros e índice por celdas de 160 m ---------- */
+  async init() {
+    if (typeof VIAS === 'undefined' || !MAP.ready) return; const b = await MAP.unz(VIAS.d, VIAS.bytes), U = VIAS.u; let o = 0, px = 0, py = 0;
+    const rv = () => { let v = 0, sh = 0, c; do { c = b[o++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; }, uz = v => v % 2 ? -(v + 1) / 2 : v / 2;
+    for (let i = 0; i < VIAS.n; i++) {
+      const k = rv(), nm = rv(), w2 = rv(), np = rv(), P = new Float32Array(np * 2); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (let j = 0; j < np; j++) { px += uz(rv()); py += uz(rv()); const x = px * U, y = py * U; P[2 * j] = x; P[2 * j + 1] = y; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      const c = { k, nm, w: w2 / 2 || this.DEFW[k] || 6, P, x0, y0, x1, y1, i }; this.ch.push(c);
+      for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) { const key = gx * 4096 + gy; let a = this.cg.get(key); if (!a) this.cg.set(key, a = []); a.push(i); }
+    }
+    if (this.hitosInit) this.hitosInit();
+    this.on = true;
+  },
+  near(x0, y0, x1, y1) { const out = new Set(); for (let gy = Math.floor(y0 / this.CG); gy <= Math.floor(y1 / this.CG); gy++) for (let gx = Math.floor(x0 / this.CG); gx <= Math.floor(x1 / this.CG); gx++) for (const i of this.cg.get(gx * 4096 + gy) || []) out.add(i); return [...out].map(i => this.ch[i]); },
+  /* medio ancho del corredor de una vía (asfalto + andén) */
+  hw(c) { return c.w / 2 + (c.k === 1 || c.k === 2 || c.k === 4 ? 2.6 : c.k === 3 ? 1.6 : .7); },
+  /* ---------- región de 640 m: rejilla de ocupación de 2 m (1 vía o transporte, 2 edificio), edificios y árboles ----------
+     Los edificios se generan A LO LARGO de cada calle (frente girado con ella, retirado del andén) y luego se llena el
+     interior de las manzanas alineado con la calle más cercana. Cada edificio queda entero dentro de su región. */
+  region(rx, ry) {
+    const key = rx * 4096 + ry; let Rg = this.reg.get(key); if (Rg) { this.reg.delete(key); this.reg.set(key, Rg); return Rg; }
+    const R = this.R, M = 48, X0 = rx * R - M, Y0 = ry * R - M, SZ = R + 2 * M, RES = 2, NG = SZ / RES, occ = new Uint8Array(NG * NG), bs = [], trees = [];
+    const DR = 8, DN = SZ / DR, dirA = new Float32Array(DN * DN), dirD = new Float32Array(DN * DN).fill(1e9);
+    const stampSeg = (ax, ay, bx, by, r, v) => {
+      const gx0 = Math.max(0, Math.floor((Math.min(ax, bx) - r - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((Math.max(ax, bx) + r - X0) / RES)), gy0 = Math.max(0, Math.floor((Math.min(ay, by) - r - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((Math.max(ay, by) + r - Y0) / RES));
+      const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, r2 = r * r;
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * RES, py = Y0 + (gy + .5) * RES, t = clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0, 1), qx = ax + dx * t - px, qy = ay + dy * t - py; if (qx * qx + qy * qy <= r2) { const j = gy * NG + gx; if (occ[j] < v) occ[j] = v; } }
+    };
+    // campo de direcciones: en cada celda de 8 m, el rumbo de la calle más cercana (hasta 70 m), para alinear el interior de las manzanas
+    const stampDir = (ax, ay, bx, by) => {
+      const r = 70, gx0 = Math.max(0, Math.floor((Math.min(ax, bx) - r - X0) / DR)), gx1 = Math.min(DN - 1, Math.floor((Math.max(ax, bx) + r - X0) / DR)), gy0 = Math.max(0, Math.floor((Math.min(ay, by) - r - Y0) / DR)), gy1 = Math.min(DN - 1, Math.floor((Math.max(ay, by) + r - Y0) / DR));
+      const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1, an = Math.atan2(dy, dx);
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * DR, py = Y0 + (gy + .5) * DR, t = clamp(((px - ax) * dx + (py - ay) * dy) / L2, 0, 1), d = Math.hypot(ax + dx * t - px, ay + dy * t - py), j = gy * DN + gx; if (d < dirD[j]) { dirD[j] = d; dirA[j] = an; } }
+    };
+    const cs = this.near(X0, Y0, X0 + SZ, Y0 + SZ);
+    for (const c of cs) { const r = this.hw(c), P = c.P; for (let i = 2; i < P.length; i += 2) { stampSeg(P[i - 2], P[i - 1], P[i], P[i + 1], r, 1); if (c.k !== 3 && c.k !== 5) stampDir(P[i - 2], P[i - 1], P[i], P[i + 1]); } }
+    // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
+    if (typeof NET !== 'undefined') for (const l of NET.lines) {
+      if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
+      if (l.kind !== 'metro' && l.kind !== 'tram') continue; const r = l.kind === 'metro' ? 7 : 4.5, P = l.P.pts;
+      for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i]; if (Math.max(a.x, b.x) < X0 - 20 || Math.min(a.x, b.x) > X0 + SZ + 20 || Math.max(a.y, b.y) < Y0 - 20 || Math.min(a.y, b.y) > Y0 + SZ + 20) continue; stampSeg(a.x, a.y, b.x, b.y, r, 1); }
+      for (const s of l.st) { const pl = KIND[l.kind].plat; if (s.x < X0 - pl || s.x > X0 + SZ + pl || s.y < Y0 - pl || s.y > Y0 + SZ + pl) continue; const s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl)); for (let t = s0; t < s0 + pl; t += 10) { const a = NET.at(l.P, t), b = NET.at(l.P, Math.min(t + 10, s0 + pl)); stampSeg(a.x, a.y, b.x, b.y, l.kind === 'metro' ? 13 : 8, 1); } }
+    }
+    // arquitectura icónica: su huella (con 1,5 m de margen) queda reservada; nada genérico se monta encima
+    const hits = this.HT ? this.hitosEn(X0, Y0, X0 + SZ, Y0 + SZ) : [];
+    for (const H of hits) { const gx0 = Math.max(0, Math.floor((H.x0 - 2 - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((H.x1 + 2 - X0) / RES)), gy0 = Math.max(0, Math.floor((H.y0 - 2 - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((H.y1 + 2 - Y0) / RES));
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const j = gy * NG + gx; if (occ[j]) continue; const px = X0 + (gx + .5) * RES, py = Y0 + (gy + .5) * RES; if (this.dentroH(H, px, py) || this.dentroH(H, px + 1.5, py) || this.dentroH(H, px - 1.5, py) || this.dentroH(H, px, py + 1.5) || this.dentroH(H, px, py - 1.5)) occ[j] = 3; } }
+    const tileAt = (x, y) => MAP.tile(Math.floor(x / TM), Math.floor(y / TM));
+    // suelo donde se puede construir: manzanas, y vías o andenes de la rejilla de 20 m que la calle vectorial no ocupa
+    const okS = v => v === TT.BRICK || v === TT.BLDG || v === TT.ROAD || v === TT.AVE || v === TT.WALK || v === TT.CICLO || v === TT.STEPS;
+    const occAt = (x, y) => { const gx = Math.floor((x - X0) / RES), gy = Math.floor((y - Y0) / RES); return gx < 0 || gy < 0 || gx >= NG || gy >= NG ? 1 : occ[gy * NG + gx]; };
+    const cx0 = rx * R, cy0 = ry * R, dentro = (x, y) => x >= cx0 && x < cx0 + R && y >= cy0 && y < cy0 + R;
+    // ¿cabe un rectángulo (centro, medio frente, medio fondo, eje)? sobre suelo construible, sin vías ni otros edificios, entero en la región
+    const cabe = (x, y, hw, hd, ux, uy) => {
+      const sa = Math.min(2, hw), sb = Math.min(2, hd);
+      for (let a = -hw; a <= hw + .01; a += sa) for (let d = -hd; d <= hd + .01; d += sb) { const px = x + ux * a - uy * d, py = y + uy * a + ux * d; if (!dentro(px, py) || occAt(px, py) || !okS(tileAt(px, py))) return false; }
+      return true;
+    };
+    const ocupa = (x, y, hw, hd, ux, uy) => { const r = Math.hypot(hw, hd), gx0 = Math.max(0, Math.floor((x - r - X0) / RES)), gx1 = Math.min(NG - 1, Math.floor((x + r - X0) / RES)), gy0 = Math.max(0, Math.floor((y - r - Y0) / RES)), gy1 = Math.min(NG - 1, Math.floor((y + r - Y0) / RES));
+      for (let gy = gy0; gy <= gy1; gy++) for (let gx = gx0; gx <= gx1; gx++) { const px = X0 + (gx + .5) * RES - x, py = Y0 + (gy + .5) * RES - y, a = px * ux + py * uy, d = -px * uy + py * ux; if (Math.abs(a) <= hw + .6 && Math.abs(d) <= hd + .6 && !occ[gy * NG + gx]) occ[gy * NG + gx] = 2; } };
+    // ¿edificio o casa? lo dicen las casillas de alrededor (edificio en BLDG, casa en BRICK) o los pisos reales de la zona
+    const tipo = (x, y) => { let e = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = tileAt(x + i * TM, y + j * TM); if (v === TT.BLDG) e++; else if (v === TT.BRICK) c++; } if (e || c) return e > c; return MAP.bHeight(x, y, 3) > 14; };
+    const altura = (x, y, ed, i) => ed ? clamp(MAP.bHeight(x, y, i), 9, 140) : 3.1 * (1 + (h2(x | 0, y | 0, 7) * (MAP.hg ? 2.6 : 2.2) | 0));
+    const pon = (X, Y, hw, hd, ux, uy, ed, i) => { ocupa(X, Y, hw, hd, ux, uy); bs.push({ x: X, y: Y, hw, hd, ux, uy, h: altura(X, Y, ed, i), ed, s: h2(X | 0, Y | 0, 9) }); };
+    // 1 · frentes: a lo largo de cada tramo de calle, carrera, avenida, peatonal y escalera, a ambos lados
+    for (const c of cs) {
+      if (c.k === 3 || c.k === 5) continue; const P = c.P, off0 = this.hw(c);
+      for (let i = 2; i < P.length; i += 2) {
+        const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 6) continue;
+        if (Math.max(ax, bx) + 40 < cx0 || Math.min(ax, bx) - 40 > cx0 + R || Math.max(ay, by) + 40 < cy0 || Math.min(ay, by) - 40 > cy0 + R) continue;
+        const ux = (bx - ax) / L, uy = (by - ay) / L;
+        for (const sd of [1, -1]) {
+          const nx = -uy * sd, ny = ux * sd; let t = 1.5 + h2(ax | 0, ay | 0, 11 + sd) * 2;
+          while (t < L - 3) {
+            const mx = ax + ux * t, my = ay + uy * t, px = mx + nx * (off0 + 5), py = my + ny * (off0 + 5); if (!dentro(px, py) || !okS(tileAt(px, py)) || occAt(px, py)) { t += 3; continue; }
+            const ed = tipo(px, py), torre = ed && MAP.bHeight(px, py, i) > 28, r = h2(mx | 0, my | 0, 5);
+            let fw = ed ? (torre ? 18 + r * 12 : 11 + r * 9) : 5.5 + r * 4, fd = ed ? (torre ? 16 + r * 10 : 12 + r * 8) : 8 + h2(mx | 0, my | 0, 6) * 6; fw = Math.min(fw, L - t - .5); if (fw < 4) break;
+            const back = ed ? (torre ? 3 + r * 3 : .8 + r * 1.5) : .3; let ok = false, D = fd, X = 0, Y = 0;
+            for (const f of [1, .7, .5]) { D = fd * f; X = mx + ux * fw / 2 + nx * (off0 + back + D / 2); Y = my + uy * fw / 2 + ny * (off0 + back + D / 2); if (D >= 5 && cabe(X, Y, fw / 2, D / 2, ux, uy)) { ok = true; break; } }
+            if (ok) {
+              pon(X, Y, fw / 2, D / 2, ux, uy, ed, i);
+              const D2 = ed ? 12 + r * 8 : 7 + r * 5, g2 = ed ? 6 : 1, X2 = X + nx * (D / 2 + g2 + D2 / 2), Y2 = Y + ny * (D / 2 + g2 + D2 / 2);   // segunda fila (espalda con espalda)
+              if (cabe(X2, Y2, fw / 2, D2 / 2, ux, uy)) pon(X2, Y2, fw / 2, D2 / 2, ux, uy, ed, i + 1);
+            }
+            t += fw + (ed ? 2 + r * 4 : .15);
+          }
+        }
+      }
+      // árboles de avenida a lado y lado, sobre el andén
+      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
+    }
+    // 2 · interior de las manzanas: rejilla con desfase, alineada con la calle más cercana
+    for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
+      const jx = x + (h2(x, y, 51) - .5) * 4, jy = y + (h2(x, y, 52) - .5) * 4; if (occAt(jx, jy) || !okS(tileAt(jx, jy))) continue;
+      const di = clamp(Math.floor((jy - Y0) / DR), 0, DN - 1) * DN + clamp(Math.floor((jx - X0) / DR), 0, DN - 1); if (dirD[di] > 70) continue;
+      const an = dirA[di], ux = Math.cos(an), uy = Math.sin(an), ed = tipo(jx, jy), r = h2(x, y, 53);
+      for (const f of [1, .75, .55]) { const hw = (ed ? 7 + r * 6 : 3 + r * 2) * f, hd = (ed ? 6 + r * 5 : 4 + r * 2.5) * f; if (hw < 2.2 || hd < 2.2) break; if (cabe(jx, jy, hw, hd, ux, uy)) { pon(jx, jy, hw, hd, ux, uy, ed, 77); break; } }
+    }
+    // árboles en parques y zonas verdes de la ciudad (no en la montaña, que tiene su propio dosel)
+    for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if ((v === TT.GRASS || v === TT.PLAZA) && h2(x, y, 21) < (v === TT.GRASS ? .5 : .12) && !occAt(x, y)) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
+    // índice de edificios por celdas de 40 m (choques)
+    const bins = new Map(); bs.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
+    Rg = { bs, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
+    this.reg.set(key, Rg); while (this.reg.size > 36) this.reg.delete(this.reg.keys().next().value);
+    return Rg;
+  },
+  /* ---------- física ---------- */
+  regionAt(x, y) { return this.region(Math.floor(x / this.R), Math.floor(y / this.R)); },
+  /* ¿choca un círculo de radio r en (x, y)? contra edificios, y contra el agua fuera de vías y puentes */
+  solid(x, y, r = .4) {
+    const Rg = this.regionAt(x, y), k = Math.floor(x / 40) * 8192 + Math.floor(y / 40);
+    for (const i of Rg.bins.get(k) || []) { const b = Rg.bs[i], dx = x - b.x, dy = y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (Math.abs(a) < b.hw + r && Math.abs(d) < b.hd + r) return true; }
+    for (const H of Rg.hitos) if (this.dentroH(H, x, y)) return true;
+    const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); if (v === TT.WATER || v === TT.CANAL) { const gx = Math.floor((x - Rg.X0) / Rg.RES), gy = Math.floor((y - Rg.Y0) / Rg.RES); return !(gx >= 0 && gy >= 0 && gx < Rg.NG && gy < Rg.NG && Rg.occ[gy * Rg.NG + gx] === 1); }
+    return false;
+  },
+  /* agarre del suelo para vehículos: vía 1, andén y plaza .7, pasto .55, montaña .4 */
+  agarre(x, y) {
+    const Rg = this.regionAt(x, y), gx = Math.floor((x - Rg.X0) / Rg.RES), gy = Math.floor((y - Rg.Y0) / Rg.RES); if (gx >= 0 && gy >= 0 && gx < Rg.NG && gy < Rg.NG && Rg.occ[gy * Rg.NG + gx] === 1) return 1;
+    const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); return v === TT.MOUNT || v === TT.LAND ? .4 : v === TT.GRASS ? .55 : .7;
+  },
+  /* punto libre más cercano (fuera de edificios y agua; con calle, sobre la calzada o el andén), para poner carros, bicis, gente y al jugador */
+  despeja(x, y, r = .6, calle = false, R = 60) {
+    const ok = (px, py) => !this.solid(px, py, r) && (!calle || this.agarre(px, py) === 1); if (ok(x, y)) return { x, y };
+    for (let d = 2; d <= R; d += 2) { const n = Math.ceil(d * TAU / 2.5); for (let i = 0; i < n; i++) { const a = i / n * TAU, px = x + Math.cos(a) * d, py = y + Math.sin(a) * d; if (ok(px, py)) return { x: px, y: py }; } }
+    return { x, y };
+  },
+  /* rótulos de calle sobre la vía dibujada: por celda de 320 m, un rótulo por nombre (en el tramo más largo), girado con la calle */
+  rot: new Map(),
+  rotulos(cx, cy) {
+    const key = cx * 4096 + cy; let r = this.rot.get(key); if (r) return r; const R = 320, x0 = cx * R, y0 = cy * R, best = new Map();
+    for (const c of this.near(x0, y0, x0 + R, y0 + R)) {
+      if (!c.nm || c.k === 5 || c.k === 7) continue; const P = c.P; let L = 0; for (let i = 2; i < P.length; i += 2) L += Math.hypot(P[i] - P[i - 2], P[i + 1] - P[i - 1]); if (L < 45) continue;
+      let h = L / 2, i = 2; for (; i < P.length - 2; i += 2) { const d = Math.hypot(P[i] - P[i - 2], P[i + 1] - P[i - 1]); if (h <= d) break; h -= d; }
+      const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, d = Math.hypot(dx, dy) || 1, x = ax + dx * h / d, y = ay + dy * h / d; if (x < x0 || x >= x0 + R || y < y0 || y >= y0 + R) continue;
+      let a = Math.atan2(dy, dx); if (a > Math.PI / 2) a -= Math.PI; if (a < -Math.PI / 2) a += Math.PI;
+      const t = VIAS.nombres[c.nm - 1], pri = c.k === 3 ? 3 : c.k === 2 || /^(Avenida|Autopista|Vía|Doble|Troncal|Circular|Diagonal|Transversal)/.test(t) ? 2 : 1, o = best.get(t);
+      if (!o || L > o.len) best.set(t, { x, y, a, t, pri, len: L });
+    }
+    r = [...best.values()].sort((p, q) => q.pri - p.pri || q.len - p.len); this.rot.set(key, r); while (this.rot.size > 60) this.rot.delete(this.rot.keys().next().value); return r;
+  },
+  /* postes de luz por celda de 320 m: cada ~32 m en avenidas y autopistas, cada ~45 m en carreras y algunas calles, sobre el andén */
+  pos: new Map(),
+  postes(cx, cy) {
+    const key = cx * 4096 + cy; let r = this.pos.get(key); if (r) return r; r = []; const R = 320, x0 = cx * R, y0 = cy * R;
+    for (const c of this.near(x0, y0, x0 + R, y0 + R)) { if (c.k > 4 || (c.k === 1 && c.i % 3)) continue; const P = c.P, paso = c.k === 2 || c.k === 3 ? 32 : 45; let acc = h2(c.i, 1, 7) * paso, lado = 1;
+      for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1; for (let t = paso - acc; t < L; t += paso) { const o = (c.w / 2 + .8) * lado, x = ax + dx * t / L - dy / L * o, y = ay + dy * t / L + dx / L * o; if (x >= x0 && x < x0 + R && y >= y0 && y < y0 + R) r.push(x, y); lado = -lado; } acc = (acc + L) % paso; } }
+    this.pos.set(key, r); while (this.pos.size > 60) this.pos.delete(this.pos.keys().next().value); return r;
+  },
+  /* halo de luz cálida (una sola imagen que se reusa en cada poste) */
+  halo() { if (this._halo) return this._halo; const c = mkCanvas(64, 64), g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,214,140,1)'); gr.addColorStop(.35, 'rgba(255,204,120,.45)'); gr.addColorStop(1, 'rgba(255,200,120,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return (this._halo = c); },
+  /* nombre de la calle vectorial más cercana (a menos de 14 m), para el letrero cuando la capa oficial no lo trae */
+  calle(x, y) { let best = null, bd = 14; for (const c of this.near(x - 14, y - 14, x + 14, y + 14)) { if (!c.nm || c.k === 5) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y) - c.w / 2; if (d < bd) { bd = d; best = c; } } } return best ? VIAS.nombres[best.nm - 1] : ''; },
+  /* un punto de andén (o de calle peatonal) cerca de (x, y): para que la gente camine por las aceras dibujadas */
+  acera(x, y, rnd) {
+    let best = null, bd = 32; for (const c of this.near(x - 32, y - 32, x + 32, y + 32)) { if (c.k === 3 || c.k === 5 || c.k === 7) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (d < bd) { bd = d; best = [c, i, t]; } } }
+    if (!best) return null; const [c, i, t] = best, P = c.P, ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L = Math.hypot(dx, dy) || 1, sd = rnd() < .5 ? -1 : 1, off = c.k === 6 ? (rnd() - .5) * c.w * .6 : (c.w / 2 + 1.25) * sd;
+    const q = { x: ax + dx * t - dy / L * off, y: ay + dy * t + dx / L * off, a: Math.atan2(dy, dx) + (sd < 0 ? Math.PI : 0) }; return this.solid(q.x, q.y, .3) ? null : q;
+  },
+  /* trozos por adelantado con el tiempo que le sobra al cuadro: hacia donde va la cámara y el nivel siguiente si se está alejando */
+  prefetch(W, H, mx, my, k, vx = 0, vy = 0) {
+    if (!this.on || !MAP.prisa || now() > MAP.prisa - .003) return; const L = this.pick(k), hw = W / 2 / k, hh = H / 2 / k, ax = clamp(vx * 1.6, -hw, hw), ay = clamp(vy * 1.6, -hh, hh);
+    const cand = []; const mira = (L2, x0, y0, x1, y1) => { const S = L2.S; for (let cy = Math.floor(y0 / S); cy <= Math.floor(y1 / S); cy++) for (let cx = Math.floor(x0 / S); cx <= Math.floor(x1 / S); cx++) if (!this.cache[L2.i].has(cx * 4096 + cy)) cand.push([L2, cx, cy, Math.hypot((cx + .5) * S - mx - ax, (cy + .5) * S - my - ay)]); };
+    mira(L, mx - hw + Math.min(0, ax) - L.S * .5, my - hh + Math.min(0, ay) - L.S * .5, mx + hw + Math.max(0, ax) + L.S * .5, my + hh + Math.max(0, ay) + L.S * .5);
+    const L2 = this.L[L.i + 1]; if (!cand.length && L2 && k < L.k * 1.25) mira(L2, mx - hw * 1.3, my - hh * 1.3, mx + hw * 1.3, my + hh * 1.3);
+    if (!cand.length) return; cand.sort((a, b) => a[3] - b[3]); const [L3, cx, cy] = cand[0], C = this.cache[L3.i]; C.set(cx * 4096 + cy, this.trozo(L3, cx, cy)); while (C.size > L3.max) C.delete(C.keys().next().value);
+  },
+  /* ---------- dibujo ---------- */
+  pick(k) { const low = Save.d && Save.d.settings && Save.d.settings.q === 'low'; for (const L of this.L) if (k >= L.k * (low ? 1.3 : 1)) return L; return this.L[3]; },
+  drawTop(g, W, H, mx, my, k, night = 0) {
+    const L = this.pick(k), S = L.S, n = Math.round(S * L.sc), s = k / L.sc, x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k, C = this.cache[L.i];
+    g.imageSmoothingEnabled = s < 1.6; MAP._vis = [];
+    // primero el trozo donde está el centro, luego los demás: así lo que se ve primero está completo
+    const lista = []; for (let cy = Math.floor(y0 / S); cy <= Math.floor(y1 / S); cy++) for (let cx = Math.floor(x0 / S); cx <= Math.floor(x1 / S); cx++) lista.push([cx, cy, Math.hypot((cx + .5) * S - mx, (cy + .5) * S - my)]);
+    lista.sort((a, b) => a[2] - b[2]);
+    for (const [cx, cy] of lista) {
+      const key = cx * 4096 + cy, sx = Math.round((cx * S - x0) * k), sy = Math.round((cy * S - y0) * k), sw = Math.round(((cx + 1) * S - x0) * k) - sx, sh = Math.round(((cy + 1) * S - y0) * k) - sy;
+      let c = C.get(key);
+      if (!c) {
+        if (MAP.prisa && MAP._hechos > 0 && now() > MAP.prisa) { this.relleno(g, L, cx, cy, sx, sy, sw, sh); MAP.pend = 1; continue; }
+        c = this.trozo(L, cx, cy); C.set(key, c); MAP._hechos = (MAP._hechos || 0) + 1; while (C.size > L.max) C.delete(C.keys().next().value);
+      } else { C.delete(key); C.set(key, c); }
+      g.drawImage(c, 1, 1, n, n, sx, sy, sw, sh); MAP._vis.push([c, sx, sy, sw, sh]);   // el trozo trae 1 px de margen: sin costuras al escalar
+    }
+  },
+  /* mientras se arma un trozo: el de menos detalle si está, o el color del suelo */
+  relleno(g, L, cx, cy, sx, sy, sw, sh) {
+    for (let j = L.i + 1; j < this.L.length; j++) { const L2 = this.L[j], r = L2.S / L.S, kx = Math.floor(cx / r), ky = Math.floor(cy / r); let c = this.cache[j].get(kx * 4096 + ky);
+      // si no hay nada armado, el nivel más lejano se arma al momento (imagen de casillas y avenidas: pocos ms) y se usa de relleno
+      if (!c && j === this.L.length - 1) { c = this.trozo(L2, kx, ky); this.cache[j].set(kx * 4096 + ky, c); while (this.cache[j].size > L2.max) this.cache[j].delete(this.cache[j].keys().next().value); }
+      if (c) { const n2 = (c.width - 2) / r; g.drawImage(c, 1 + (cx - kx * r) * n2, 1 + (cy - ky * r) * n2, n2, n2, sx, sy, sw, sh); return; } }
+    g.fillStyle = '#d3cdc0'; g.fillRect(sx, sy, sw, sh);
+  },
+  /* un trozo con su nivel de detalle */
+  trozo(L, cx, cy) {
+    // el trozo se dibuja por CPU (miles de figuras pequeñas: más rápido y parejo que en la tarjeta gráfica) y se pega como imagen
+    const S = L.S, sc = L.sc, n = Math.round(S * sc), c = mkCanvas(n + 2, n + 2), g = c.getContext('2d', { willReadFrequently: this.sw }), X0 = cx * S - 1 / sc, Y0 = cy * S - 1 / sc;   // 1 px de margen alrededor
+    this.suelo(g, n + 2, X0, Y0, S + 2 / sc, sc, L.d);
+    g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc);
+    this.calles(g, X0, Y0, S + 2 / sc, sc, L.d);
+    if (L.d < 2) this.estructuras(g, X0, Y0, S + 2 / sc, sc, L.d, c);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    return c;
+  },
+  /* suelo con bordes suaves y sin leer píxeles: cada clase se rellena con su contorno de cuadrados marchantes sobre los centros
+     de las casillas (las escaleras de 20 m quedan como diagonales y esquinas biseladas). El agua y los parques llevan borde. */
+  // cuadrados marchantes: por caso, los vértices del polígono interior (0 esq. sup. izq., 1 arriba, 2 esq. sup. der., 3 derecha, 4 esq. inf. der., 5 abajo, 6 esq. inf. izq., 7 izquierda)
+  MS: [null, [7, 5, 6], [5, 3, 4], [7, 3, 4, 6], [1, 2, 3], [1, 2, 3, 5, 6, 7], [1, 2, 4, 5], [1, 2, 4, 6, 7], [0, 1, 7], [0, 1, 5, 6], [0, 1, 3, 4, 5, 7], [0, 1, 3, 4, 6], [0, 2, 3, 7], [0, 2, 3, 5, 6], [0, 2, 4, 5, 7], [0, 2, 4, 6]],
+  RGB: { 1: [74, 122, 66], 13: [74, 122, 66], 0: [124, 170, 92], 9: [124, 170, 92], 2: [196, 160, 138], 3: [168, 166, 164], 10: [219, 208, 182], 8: [56, 132, 182], 15: [138, 128, 112] },
+  suelo(g, n, X0, Y0, S, sc, lod) {
+    const tx0 = Math.floor(X0 / TM) - 1, ty0 = Math.floor(Y0 / TM) - 1, TN = Math.ceil(S / TM) + 3, H = TM / 2, MS = this.MS;
+    const tiles = new Uint8Array(TN * TN); for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) tiles[j * TN + i] = MAP.tile(tx0 + i, ty0 + j);
+    if (lod === 2) {   // de muy lejos (4 px por casilla): la imagen de casillas ampliada con suavizado, sin figuras
+      const sm = mkCanvas(TN, TN), sg = sm.getContext('2d'), im = sg.createImageData(TN, TN), base = [211, 205, 192];
+      for (let i = 0; i < TN * TN; i++) { const c = this.RGB[tiles[i]] || base, j = (Math.floor(i / TN) * TN + i % TN) * 4, x = (tx0 + i % TN + .5) * TM, y = (ty0 + Math.floor(i / TN) + .5) * TM, e = MAP.elevM(x, y), sh = clamp(1 + (MAP.elevM(x - 40, y - 40) - e) * .008, .7, 1.2); im.data[j] = clamp(c[0] * sh, 0, 255); im.data[j + 1] = clamp(c[1] * sh, 0, 255); im.data[j + 2] = clamp(c[2] * sh, 0, 255); im.data[j + 3] = 255; }
+      sg.putImageData(im, 0, 0); g.imageSmoothingEnabled = true; const ts = TM * sc; g.drawImage(sm, (tx0 * TM - X0) * sc, (ty0 * TM - Y0) * sc, TN * ts, TN * ts); return;
+    }
+    g.fillStyle = '#d3cdc0'; g.fillRect(0, 0, n, n);   // piso urbano (andenes, patios y antejardines)
+    g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); g.lineJoin = 'round';
+    // forma de una clase de suelo. Con suave, el campo se difumina (3×3 binomial) y el borde pasa por donde vale ½: esquinas redondas;
+    // lo que queda muy chico para el campo difuminado (una o dos casillas) se pinta como cuadro de esquinas redondas
+    const forma = (test, suave) => {
+      const m = new Uint8Array(TN * TN); let any = 0; for (let i = 0; i < TN * TN; i++) if (test(tiles[i])) { m[i] = 1; any = 1; } if (!any) return false;
+      let f = m; if (suave) { f = new Float32Array(TN * TN); const M = (i, j) => m[clamp(j, 0, TN - 1) * TN + clamp(i, 0, TN - 1)]; for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) f[j * TN + i] = (4 * M(i, j) + 2 * (M(i - 1, j) + M(i + 1, j) + M(i, j - 1) + M(i, j + 1)) + M(i - 1, j - 1) + M(i + 1, j - 1) + M(i - 1, j + 1) + M(i + 1, j + 1)) / 16; }
+      const t = (u, v) => u === v ? .5 : clamp((.5 - u) / (v - u), 0, 1);
+      g.beginPath();
+      for (let j = 0; j < TN - 1; j++) for (let i = 0, run = -1; i < TN; i++) {
+        const A = i < TN - 1 ? f[j * TN + i] : 0, B = i < TN - 1 ? f[j * TN + i + 1] : 0, C = i < TN - 1 ? f[(j + 1) * TN + i + 1] : 0, D = i < TN - 1 ? f[(j + 1) * TN + i] : 0, c = (A >= .5) * 8 + (B >= .5) * 4 + (C >= .5) * 2 + (D >= .5);
+        // celdas llenas seguidas: una sola franja (menos figuras que dibujar)
+        if (c === 15) { if (run < 0) run = i; continue; } if (run >= 0) { const xa = (tx0 + run + .5) * TM, xb = (tx0 + i + .5) * TM, ya = (ty0 + j + .5) * TM, yb = ya + TM; g.moveTo(xa, ya); g.lineTo(xb, ya); g.lineTo(xb, yb); g.lineTo(xa, yb); g.closePath(); run = -1; }
+        if (!c || i >= TN - 1) continue;
+        const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM, V = MS[c];
+        for (let q = 0; q < V.length; q++) { const v = V[q]; let px, py;
+          switch (v) { case 0: px = 0; py = 0; break; case 1: px = t(A, B); py = 0; break; case 2: px = 1; py = 0; break; case 3: px = 1; py = t(B, C); break; case 4: px = 1; py = 1; break; case 5: px = t(D, C); py = 1; break; case 6: px = 0; py = 1; break; default: px = 0; py = t(A, D); }
+          q ? g.lineTo(x + px * TM, y + py * TM) : g.moveTo(x + px * TM, y + py * TM); }
+        g.closePath();
+      }
+      if (suave) for (let j = 1; j < TN - 1; j++) for (let i = 1; i < TN - 1; i++) if (m[j * TN + i] && f[j * TN + i] < .5) { const x = (tx0 + i) * TM + 2, y = (ty0 + j) * TM + 2; g.moveTo(x + 5, y); g.arcTo(x + 16, y, x + 16, y + 16, 5); g.arcTo(x + 16, y + 16, x, y + 16, 5); g.arcTo(x, y + 16, x, y, 5); g.arcTo(x, y, x + 16, y, 5); g.closePath(); }
+      return true; };
+    const capa = (test, col, borde, bw, suave) => { if (!forma(test, suave)) return; if (borde && lod < 2) { g.strokeStyle = borde; g.lineWidth = bw; g.stroke(); } g.fillStyle = col; g.fill(); };
+    capa(v => v === TT.MOUNT || v === TT.LAND, '#4a7a42', '#3d6838', 3, true);
+    capa(v => v === TT.GRASS || v === TT.CANAL, '#7caa5c', '#5f8f48', 1.6, true);
+    if (lod === 2) { capa(v => v === TT.BRICK, '#c4a08a', null, 0, true); capa(v => v === TT.BLDG, '#a8a6a4', null, 0, true); }   // de lejos, la trama de casas y edificios
+    capa(v => v === TT.PLAZA, '#dbd0b6', '#b9ab8c', 1, true);
+    capa(v => v === TT.DEPOT, '#8a8070', '#6f665a', 1, true);
+    capa(v => v === TT.WATER, '#3884b6', '#969286', 5, false);   // el agua sin difuminar: un cauce de una casilla no se corta
+    // monte: copas de árbol sobre el dosel (cerca), y brillos del agua
+    if (lod === 0) {
+      for (let j = 1; j < TN - 1; j++) for (let i = 1; i < TN - 1; i++) {
+        const v = tiles[j * TN + i], X = tx0 + i, Y = ty0 + j;
+        if (v === TT.MOUNT || v === TT.LAND) for (let q = 0; q < 3; q++) { const x = (X + .15 + h2(X, Y, 30 + q) * .7) * TM, y = (Y + .15 + h2(X, Y, 40 + q) * .7) * TM, r = 3.2 + h2(X, Y, 20 + q) * 3; g.fillStyle = 'rgba(20,40,22,.35)'; g.beginPath(); g.arc(x + r * .4, y + r * .45, r, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#3a7246', '#56883c'][(h2(X, Y, 50 + q) * 4) | 0]; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); g.fillStyle = 'rgba(160,200,110,.35)'; g.beginPath(); g.arc(x - r * .3, y - r * .35, r * .45, 0, TAU); g.fill(); }
+        else if (v === TT.WATER && h2(X, Y, 61) < .5) { const x = (X + h2(X, Y, 62)) * TM, y = (Y + h2(X, Y, 63)) * TM; g.strokeStyle = 'rgba(220,240,255,.45)'; g.lineWidth = .5; g.beginPath(); g.moveTo(x - 2.5, y); g.quadraticCurveTo(x, y - 1, x + 2.5, y); g.stroke(); }
+      }
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    // relieve: sombreado de laderas (luz del noroeste) desde la rejilla de elevación, ampliado con suavizado
+    { const ts = TM * sc, dx = (tx0 * TM - X0) * sc, dy = (ty0 * TM - Y0) * sc, E = (x, y) => MAP.elevM(x, y), sh = mkCanvas(TN, TN), shg = sh.getContext('2d'), im = shg.createImageData(TN, TN); let any = 0;
+      for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) { const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM, d = (E(x - 30, y - 30) - E(x + 30, y + 30)) * .012, o = (j * TN + i) * 4; if (Math.abs(d) < .02) continue; any = 1; if (d < 0) { im.data[o + 3] = Math.min(110, -d * 300); } else { im.data[o] = im.data[o + 1] = im.data[o + 2] = 255; im.data[o + 3] = Math.min(60, d * 160); } }
+      if (any) { shg.putImageData(im, 0, 0); g.imageSmoothingEnabled = true; g.drawImage(sh, 0, 0, TN, TN, dx + ts / 2, dy + ts / 2, TN * ts, TN * ts); } }
+    // quebradas: un hilo de agua entre los centros de sus casillas, dentro de su retiro verde
+    g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); g.strokeStyle = '#3f8fc4'; g.lineWidth = 2.6; g.lineCap = g.lineJoin = 'round'; g.beginPath();
+    for (let j = 1; j < TN - 1; j++) for (let i = 1; i < TN - 1; i++) { if (tiles[j * TN + i] !== TT.CANAL) continue; const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM; let solo = 1;
+      for (const [a, b] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) { const u = tiles[(j + b) * TN + i + a]; if (u === TT.CANAL || u === TT.WATER) { if (a && b && (tiles[j * TN + i + a] === TT.CANAL || tiles[(j + b) * TN + i] === TT.CANAL)) continue; g.moveTo(x, y); g.lineTo(x + a * TM, y + b * TM); solo = 0; } }
+      if (solo) { g.moveTo(x - 4, y); g.lineTo(x + 4, y); } }
+    g.stroke(); g.setTransform(1, 0, 0, 1, 0, 0);
+  },
+  /* desplaza una polilínea a un lado (normal promediada en cada vértice) */
+  offset(P, d) { const n = P.length / 2, Q = new Float32Array(P.length); for (let i = 0; i < n; i++) { const a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1), dx = P[2 * b] - P[2 * a], dy = P[2 * b + 1] - P[2 * a + 1], L = Math.hypot(dx, dy) || 1; Q[2 * i] = P[2 * i] - dy / L * d; Q[2 * i + 1] = P[2 * i + 1] + dx / L * d; } return Q; },
+  /* calles: sardinel, andén, asfalto, carriles y cebras */
+  calles(g, X0, Y0, S, sc, lod) {
+    const cs = this.near(X0 - 40, Y0 - 40, X0 + S + 40, Y0 + S + 40), path = P => { g.moveTo(P[0], P[1]); for (let i = 2; i < P.length; i += 2) g.lineTo(P[i], P[i + 1]); };
+    const run = (f, wf, col, dash) => { g.strokeStyle = col; g.setLineDash(dash || []); for (const c of cs) { if (!f(c)) continue; g.lineWidth = wf(c); g.beginPath(); path(c.P); g.stroke(); } g.setLineDash([]); };
+    g.lineJoin = 'round'; g.lineCap = 'round';
+    const veh = c => c.k <= 4, urb = c => c.k === 1 || c.k === 2 || c.k === 4;
+    if (lod < 2) {
+      // peatonales y escaleras (debajo de las calles)
+      run(c => c.k === 6, c => c.w + 1.2, '#a59d8b'); run(c => c.k === 6, c => c.w, '#e8e0cc');
+      run(c => c.k === 7, c => c.w + 1, '#9a917e'); run(c => c.k === 7, c => c.w, '#d3c9b2'); if (lod === 0) run(c => c.k === 7, c => c.w * .9, '#a99d84', [.35, .55]);
+      // andén con sardinel
+      run(urb, c => c.w + 6.2, '#9a958a'); run(urb, c => c.w + 5.2, '#d9d4c8');
+      run(c => c.k === 3, c => c.w + 3.4, '#8f8b82');
+    }
+    // asfalto por jerarquía (las mayores encima); de muy lejos solo avenidas, autopistas y carreras, un poco más anchas para que se lean
+    for (const k of lod === 2 ? [4, 2, 3] : [1, 4, 2, 3]) run(c => c.k === k, c => lod === 2 ? Math.max(c.w, 9) : c.w, k === 3 ? '#3e434b' : k === 2 ? '#454a52' : '#4d525a');
+    if (lod === 2) return;
+    // ciclorrutas
+    run(c => c.k === 5, c => c.w + .6, '#e9e6dc'); run(c => c.k === 5, c => c.w, '#2e9d55');
+    // marcas: borde y carriles en avenidas y autopistas, línea de centro en carreras, punteada en calles anchas
+    g.lineCap = 'butt';
+    for (const c of cs) {
+      if (!veh(c) || c.P.length < 4) continue;
+      if (c.k === 2 || c.k === 3) {
+        const nl = Math.max(2, Math.round(c.w / 3.5)); g.strokeStyle = '#efede5'; g.lineWidth = .22;
+        for (const s of [-1, 1]) { g.beginPath(); path(this.offset(c.P, s * (c.w / 2 - .5))); g.stroke(); }
+        g.setLineDash([3, 5]); for (let i = 1; i < nl; i++) { g.beginPath(); path(this.offset(c.P, -c.w / 2 + i * c.w / nl)); g.stroke(); } g.setLineDash([]);
+        if (c.k === 3) { g.strokeStyle = '#e8c64a'; g.lineWidth = .25; g.beginPath(); path(this.offset(c.P, -(c.w / 2 - .9))); g.stroke(); }
+      } else if (c.k === 4 || c.w >= 8) { g.strokeStyle = c.k === 4 ? '#e8c64a' : '#e7e5dd'; g.lineWidth = .2; g.setLineDash(c.k === 4 ? [] : [2.5, 4]); g.beginPath(); path(c.P); g.stroke(); g.setLineDash([]); }
+    }
+    // cebras en los cruces con semáforo (VM.lights): a lado y lado del cruce, de borde a borde de cada calle
+    if (lod === 0 && VM.lights) {
+      g.strokeStyle = '#eeece4'; g.lineWidth = .55;
+      for (const [a, b] of VM.lights) {
+        const lx = a * TM / 4, ly = b * TM / 4; if (lx < X0 - 30 || ly < Y0 - 30 || lx > X0 + S + 30 || ly > Y0 + S + 30) continue;
+        for (const c of cs) {
+          if (!veh(c)) continue; const P = c.P; let bd = 14, bi = -1, bt = 0;
+          for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((lx - ax) * dx + (ly - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1), d = Math.hypot(ax + dx * t - lx, ay + dy * t - ly); if (d < bd) { bd = d; bi = i; bt = t; } }
+          if (bi < 0) continue; const ax = P[bi - 2], ay = P[bi - 1], dx = P[bi] - ax, dy = P[bi + 1] - ay, L = Math.hypot(dx, dy); if (L < 1) continue; const ux = dx / L, uy = dy / L, cx2 = ax + dx * bt, cy2 = ay + dy * bt, hw = c.w / 2 - .4;
+          for (const sd of [-1, 1]) { const zx = cx2 + ux * (9 + c.w * .3) * sd, zy = cy2 + uy * (9 + c.w * .3) * sd; g.beginPath(); for (let q = -hw + .4; q <= hw - .2; q += 1.1) { const px = zx - uy * q, py = zy + ux * q; g.moveTo(px - ux * 1.6, py - uy * 1.6); g.lineTo(px + ux * 1.6, py + uy * 1.6); } g.stroke(); }
+        }
+      }
+    }
+    g.lineCap = 'round';
+  },
+  /* casas, edificios y árboles de las regiones que tocan el trozo (con su volumen hacia arriba) */
+  estructuras(g, X0, Y0, S, sc, lod, cv) {
+    const ob = this.ob, top = 150 * ob, rs = []; for (let ry = Math.floor((Y0 - 30) / this.R); ry <= Math.floor((Y0 + S + top + 30) / this.R); ry++) for (let rx = Math.floor((X0 - 30) / this.R); rx <= Math.floor((X0 + S + 30) / this.R); rx++) rs.push(this.region(rx, ry));
+    const vis = b => { const r = b.hw + b.hd; return b.x + r > X0 - 4 && b.x - r < X0 + S + 4 && b.y + r > Y0 - 4 && b.y - r - b.h * ob < Y0 + S + 4; };
+    const B = []; for (const Rg of rs) for (const b of Rg.bs) if (vis(b)) B.push(b);
+    const HS = this.HT ? this.hitosEn(X0 - 30, Y0 - 30, X0 + S + 30, Y0 + S + 190 * ob) : [];
+    for (const H of HS) this.hitoSuelo(g, H, lod, cv);   // plazas y parques especiales, a ras de piso
+    for (const H of HS) B.push({ hito: H, y: H.y1, x: H.cx, ux: 0, uy: 0, hw: 0, hd: 0, h: 0 });
+    B.sort((a, b) => (a.y + Math.abs(a.uy) * a.hw + Math.abs(a.ux) * a.hd) - (b.y + Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd));
+    const esq = b => [[b.x - b.ux * b.hw + b.uy * b.hd, b.y - b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw + b.uy * b.hd, b.y + b.uy * b.hw - b.ux * b.hd], [b.x + b.ux * b.hw - b.uy * b.hd, b.y + b.uy * b.hw + b.ux * b.hd], [b.x - b.ux * b.hw - b.uy * b.hd, b.y - b.uy * b.hw + b.ux * b.hd]];
+    // sombras (sol de la tarde): una sola pasada, debajo de todo
+    g.fillStyle = 'rgba(16,22,34,.24)'; g.beginPath();
+    for (const H of HS) if (!H.libre) this.sombra(g, H);
+    for (const b of B) { if (b.hito) continue; const E = esq(b), sx = Math.min(14, b.h * .32), sy = Math.min(9, b.h * .2); g.moveTo(E[0][0] + sx, E[0][1] + sy); for (const [x, y] of [E[1], E[2], E[3]]) g.lineTo(x + sx, y + sy); g.closePath(); for (const [x, y] of E) { g.moveTo(x, y); g.lineTo(x + sx, y + sy); } }
+    g.fill();
+    // árboles bajos antes que los edificios del frente
+    const T = []; for (const Rg of rs) for (let i = 0; i < Rg.trees.length; i += 4) { const x = Rg.trees[i], y = Rg.trees[i + 1]; if (x > X0 - 6 && x < X0 + S + 6 && y > Y0 - 6 && y < Y0 + S + 10) T.push(Rg.trees, i); }
+    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2]; g.fillStyle = 'rgba(16,30,20,.3)'; g.beginPath(); g.arc(x + r * .5, y + r * .35, r, 0, TAU); g.fill(); }
+    const WALLS = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2'], BRICK = ['#b5593c', '#a9533a', '#c0654a', '#9c4a33'], TOWER = ['#d8d4cc', '#c3cad2', '#e6dcc8', '#aab4bf', '#cfc8bb'], GLASS = ['#5f88a8', '#4f7896', '#6c97b5'];
+    const sh = (hex, m) => Art.shade(hex, m), out = lod === 0 ? .32 : .6;
+    const colores = b => { if (b.cw) return; const s = b.s, ed = b.ed; b.cw = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
+      b.cr = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3]; b.cs = sh(b.cw, .8); };
+    if (lod === 1) {   // de lejos: las casas en lote (una silueta común y los techos por color), las torres una por una (silueta y techo)
+      const hull = (E, up) => { const Pt = E.concat(E.map(([x, y]) => [x, y - up])).sort((p, q) => p[0] - q[0] || p[1] - q[1]), cr = (o, a, c) => (a[0] - o[0]) * (c[1] - o[1]) - (a[1] - o[1]) * (c[0] - o[0]), lo = [], hi = [];
+        for (const p of Pt) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (let i = Pt.length - 1; i >= 0; i--) { const p = Pt[i]; while (hi.length > 1 && cr(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); } return lo.slice(0, -1).concat(hi.slice(0, -1)); };
+      const poly = (P, Q) => { P.moveTo(Q[0][0], Q[0][1]); for (let i = 1; i < Q.length; i++) P.lineTo(Q[i][0], Q[i][1]); P.closePath(); };
+      const techo = (E, up) => { const T = E.map(([x, y]) => [x, y - up]); let a = 0; for (let i = 0; i < 4; i++) { const p = T[i], q = T[(i + 1) % 4]; a += p[0] * q[1] - q[0] * p[1]; } return a < 0 ? T.reverse() : T; };
+      const muros = new Path2D(), techos = new Map();
+      for (const b of B) { if (b.ed || b.hito) continue; colores(b); const E = esq(b), up = b.h * ob; poly(muros, hull(E, up)); let P = techos.get(b.cr); if (!P) techos.set(b.cr, P = new Path2D()); poly(P, techo(E, up)); }
+      g.fillStyle = '#9a7e6c'; g.fill(muros); for (const [c, P] of techos) { g.fillStyle = c; g.fill(P); }
+      for (const b of B) { if (b.hito) { this.hito(g, b.hito, lod, cv); continue; } if (!b.ed) continue; colores(b); const E = esq(b), up = b.h * ob, Hh = hull(E, up); g.fillStyle = b.cs; g.beginPath(); poly(g, Hh); g.fill(); g.fillStyle = b.cr; g.beginPath(); poly(g, techo(E, up)); g.fill(); }
+    } else
+    for (const b of B) {
+      if (b.hito) { this.hito(g, b.hito, lod, cv); continue; }
+      const E = esq(b), up = b.h * ob, s = b.s, ed = b.ed, wall = ed ? (b.h > 28 && s < .45 ? GLASS[(s * 30 | 0) % 3] : TOWER[(s * 50 | 0) % 5]) : s < .45 ? BRICK[(s * 40 | 0) % 4] : WALLS[(s * 80 | 0) % 8];
+      const roof = ed ? ['#a7aaa8', '#8e9499', '#b9b5ad', '#9c9f98'][(s * 70 | 0) % 4] : s < .55 ? ['#b9553a', '#c6663f', '#a8462f'][(s * 90 | 0) % 3] : ['#a9a59c', '#9aa0a3', '#b7b2a6'][(s * 60 | 0) % 3];
+      // fachadas que dan hacia abajo de la pantalla (las que se ven)
+      for (let e = 0; e < 4; e++) {
+        const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4], nx = by - ay, ny = -(bx - ax), L = Math.hypot(nx, ny) || 1; if (ny / L < .04) continue;
+        const lum = .78 + .2 * (nx / L); g.fillStyle = sh(wall, lum); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(bx, by - up); g.lineTo(ax, ay - up); g.closePath(); g.fill();
+        if (lod === 0 && up > 2.2) {   // pisos: franjas de ventanas a lo largo de la fachada
+          const fl = Math.max(1, Math.round(b.h / 3.1)), step = up / fl; g.strokeStyle = ed ? 'rgba(30,48,70,.55)' : 'rgba(40,40,48,.45)'; g.lineWidth = Math.min(.9, step * .38); g.beginPath();
+          for (let f = 0; f < fl; f++) { const yy = f * step + step * .55, i0 = .12, i1 = .88; g.moveTo(ax + (bx - ax) * i0, ay + (by - ay) * i0 - yy); g.lineTo(ax + (bx - ax) * i1, ay + (by - ay) * i1 - yy); }
+          g.stroke();
+        } else if (lod === 0 && !ed) { g.fillStyle = '#4a3528'; const m = .5 + (s - .5) * .5, px = ax + (bx - ax) * m, py = ay + (by - ay) * m; g.fillRect(px - .5, py - 2.1, 1, 2); }
+      }
+      // techo
+      g.fillStyle = roof; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath(); g.fill();
+      if (lod === 0) {
+        if (!ed && s < .55) { g.strokeStyle = sh(roof, .82); g.lineWidth = .3; g.beginPath(); for (let t = .2; t < 1; t += .2) { const ax = E[0][0] + (E[3][0] - E[0][0]) * t, ay = E[0][1] + (E[3][1] - E[0][1]) * t - up, bx = E[1][0] + (E[2][0] - E[1][0]) * t, by = E[1][1] + (E[2][1] - E[1][1]) * t - up; g.moveTo(ax, ay); g.lineTo(bx, by); } g.stroke(); }
+        else if (!ed) { g.fillStyle = s > .8 ? '#2f4f7a' : '#3a3a3a'; g.beginPath(); g.arc(b.x + b.ux * b.hw * .4, b.y + b.uy * b.hw * .4 - up, .9, 0, TAU); g.fill(); }
+        else { g.fillStyle = sh(roof, .85); const w = Math.min(b.hw, b.hd) * .5; g.save(); g.translate(b.x, b.y - up); g.rotate(Math.atan2(b.uy, b.ux)); g.fillRect(-w * .6, -w * .45, w * 1.2, w * .9); if (b.h > 60 && s > .7) { g.strokeStyle = '#e8c64a'; g.lineWidth = .35; g.beginPath(); g.arc(0, 0, w * .38, 0, TAU); g.stroke(); } g.restore(); }
+      }
+      // contorno oscuro del volumen
+      g.strokeStyle = `rgba(20,26,38,${out})`; g.lineWidth = lod === 0 ? .32 : .9; g.beginPath(); g.moveTo(E[0][0], E[0][1] - up); for (let e = 1; e < 4; e++) g.lineTo(E[e][0], E[e][1] - up); g.closePath();
+      for (let e = 0; e < 4; e++) { const [ax, ay] = E[e], [bx, by] = E[(e + 1) % 4]; if (by - ay === 0 && bx - ax === 0) continue; const ny = -(bx - ax); if (ny <= 0) continue; g.moveTo(ax, ay); g.lineTo(ax, ay - up); g.moveTo(bx, by); g.lineTo(bx, by - up); g.moveTo(ax, ay); g.lineTo(bx, by); }
+      g.stroke();
+    }
+    // copas de los árboles (encima de su sombra; los guayacanes florecen amarillo o rosado)
+    for (let q = 0; q < T.length; q += 2) { const A = T[q], i = T[q + 1], x = A[i], y = A[i + 1], r = A[i + 2], fl = A[i + 3]; g.fillStyle = '#2f5b2f'; g.beginPath(); g.arc(x, y - 1.6, r, 0, TAU); g.fill(); g.fillStyle = fl ? (h2(x | 0, y | 0, 5) < .5 ? '#f0c13a' : '#e78bb8') : '#4f8a45'; g.beginPath(); g.arc(x - r * .2, y - 1.6 - r * .25, r * .74, 0, TAU); g.fill(); }
+    // luces de ventanas para la noche (capa aparte, se arma cuando hace falta)
+    cv.lights = (cv.lights || []).concat(B.filter(b => !b.hito && b.h > 6 && b.s > .3).map(b => [b.x, b.y - b.h * ob * .5, b.hw, b.h])); cv.X0 = X0; cv.Y0 = Y0; cv.sc = sc;
+  },
+  luces(c) {
+    if (c.lightCv) return c.lightCv; const n = c.width, lc = mkCanvas(n, n), g = lc.getContext('2d'); g.setTransform(c.sc, 0, 0, c.sc, -c.X0 * c.sc, -c.Y0 * c.sc);
+    for (const [x, y, r] of c.glow || []) { const gr = g.createRadialGradient(x, y, 0, x, y, r * 2.2); gr.addColorStop(0, 'rgba(255,236,190,.95)'); gr.addColorStop(1, 'rgba(255,220,160,0)'); g.fillStyle = gr; g.fillRect(x - r * 2.2, y - r * 2.2, r * 4.4, r * 4.4); }
+    for (const [x, y, w, h] of c.lights || []) { const r = h2(x | 0, y | 0, 41); if (r > .7) continue; g.fillStyle = `rgba(255,${200 + (r * 70 | 0)},120,${.55 + r * .4})`; const nn = Math.max(1, Math.round(h / 6)); for (let i = 0; i < nn; i++) if (h2(x | 0, i, 42) < .55) g.fillRect(x - w * .5 + h2(x | 0, i, 43) * w, y - h * .15 + i * .9, .9, .6); }
+    return (c.lightCv = lc);
+  },
+  lightsTop(g, night, t) {
+    if (night < .25 || !MAP._vis) return; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp(night * (.85 + .15 * Math.sin(t * 1.7)), 0, 1);
+    for (const [c, sx, sy, sw, sh] of MAP._vis) if ((c.lights && c.lights.length) || (c.glow && c.glow.length)) g.drawImage(this.luces(c), 1, 1, c.width - 2, c.height - 2, sx, sy, sw, sh);
+    g.restore();
+  }
+};
+~~~~
+
+### `src/js/11-hitos.js`
+~~~~js
+/* =====================================================================
+   ARQUITECTURA ICÓNICA (1.1.0): los edificios que hacen reconocible a Medellín, con su huella real
+   (src/data/hitos.js, de OpenStreetMap) y un dibujo propio en el mismo volumen de la ciudad:
+   la aguja del Coltejer, las torres y la cúpula de la Basílica, el ajedrezado del Palacio de la Cultura,
+   las graderías del Atanasio Girardot, las tres rocas de la Biblioteca España, el vidrio del Edificio EPM,
+   los postes del Parque de las Luces, las esculturas de la Plaza Botero y la arena de los Pies Descalzos.
+   Los edificios genéricos no se montan encima y se choca contra ellos (salvo las plazas y parques).
+   ===================================================================== */
+const HITO_LIBRE = new Set(['botero', 'pies', 'luces']);
+Object.assign(VC, {
+  HT: [],
+  /* prepara los hitos: polígonos, caja, centro, área, eje principal y (en iglesias) el lado de la fachada */
+  hitosInit() {
+    if (typeof HITOS === 'undefined') return; const out = [];
+    for (const o of HITOS) {
+      const P = o.P.map(a => Float32Array.from(a)); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, sx = 0, sy = 0, n = 0, A = 0;
+      for (const Q of P) { for (let i = 0; i < Q.length; i += 2) { const x = Q[i], y = Q[i + 1]; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); sx += x; sy += y; n++; } A += Math.abs(this.area2(Q)) / 2; }
+      const H = { id: o.id, n: o.n, k: o.k, h: o.h, P, x0, y0, x1, y1, cx: sx / n, cy: sy / n, A, libre: HITO_LIBRE.has(o.k), o };
+      if (o.cancha) H.C = Float32Array.from(o.cancha);
+      // eje principal (para naves de iglesia): dirección de mayor varianza de los vértices
+      let xx = 0, yy = 0, xy = 0; for (const Q of P) for (let i = 0; i < Q.length; i += 2) { const dx = Q[i] - H.cx, dy = Q[i + 1] - H.cy; xx += dx * dx; yy += dy * dy; xy += dx * dy; }
+      H.ang = .5 * Math.atan2(2 * xy, xx - yy); out.push(H);
+    }
+    this.HT = out;
+  },
+  area2(Q) { let a = 0; for (let i = 0, n = Q.length; i < n; i += 2) { const j = (i + 2) % n; a += Q[i] * Q[j + 1] - Q[j] * Q[i + 1]; } return a; },
+  dentroP(Q, x, y) { let c = false; for (let i = 0, j = Q.length - 2; i < Q.length; j = i, i += 2) { const ax = Q[i], ay = Q[i + 1], bx = Q[j], by = Q[j + 1]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; },
+  dentroH(H, x, y) { if (x < H.x0 || x > H.x1 || y < H.y0 || y > H.y1) return false; for (const Q of H.P) if (this.dentroP(Q, x, y)) return true; return false; },
+  hitosEn(x0, y0, x1, y1) { return this.HT.filter(H => H.x1 > x0 && H.x0 < x1 && H.y1 > y0 && H.y0 < y1); },
+  /* ---------- dibujo ---------- */
+  pol(g, Q, z) { const u = z * this.ob; g.moveTo(Q[0], Q[1] - u); for (let i = 2; i < Q.length; i += 2) g.lineTo(Q[i], Q[i + 1] - u); g.closePath(); },
+  /* muros visibles de un prisma (cara con su normal hacia abajo de la pantalla), del más lejano al más cercano */
+  muros(g, Q, z0, z1, col, det) {
+    const n = Q.length, cw = this.area2(Q) > 0, ob = this.ob, F = [];
+    for (let i = 0; i < n; i += 2) { const ax = Q[i], ay = Q[i + 1], bx = Q[(i + 2) % n], by = Q[(i + 3) % n]; let nx = by - ay, ny = -(bx - ax); if (!cw) { nx = -nx; ny = -ny; } const L = Math.hypot(nx, ny) || 1; if (ny / L < .03) continue; F.push([Math.max(ay, by), ax, ay, bx, by, nx / L]); }
+    F.sort((p, q) => p[0] - q[0]);
+    for (const [, ax, ay, bx, by, nx] of F) {
+      g.fillStyle = Art.shade(col, .8 + .2 * nx); g.beginPath(); g.moveTo(ax, ay - z0 * ob); g.lineTo(bx, by - z0 * ob); g.lineTo(bx, by - z1 * ob); g.lineTo(ax, ay - z1 * ob); g.closePath(); g.fill();
+      if (det) det(ax, ay, bx, by, z0, z1, nx);
+    }
+    return F;
+  },
+  techo(g, Q, z, col, borde) { g.fillStyle = col; g.beginPath(); this.pol(g, Q, z); g.fill(); if (borde) { g.strokeStyle = borde; g.lineWidth = .35; g.stroke(); } },
+  /* pirámide (corona, cubierta de torre): del polígono a la altura z hasta un vértice a zt */
+  piramide(g, Q, z, zt, cx, cy, col) {
+    const ob = this.ob, n = Q.length, F = []; for (let i = 0; i < n; i += 2) { const ax = Q[i], ay = Q[i + 1], bx = Q[(i + 2) % n], by = Q[(i + 3) % n]; F.push([(ay + by) / 2, ax, ay, bx, by]); }
+    F.sort((p, q) => p[0] - q[0]);
+    for (const [, ax, ay, bx, by] of F) { const mx = (ax + bx) / 2 - cx, my = (ay + by) / 2 - cy, L = Math.hypot(mx, my) || 1; g.fillStyle = Art.shade(col, .82 + .22 * (mx / L) * -.6 + .12 * (my / L)); g.beginPath(); g.moveTo(ax, ay - z * ob); g.lineTo(bx, by - z * ob); g.lineTo(cx, cy - zt * ob); g.closePath(); g.fill(); }
+  },
+  /* pisos: líneas de ventanas a lo largo de una cara (punteadas si son ventanas sueltas) */
+  ventanas(g, ax, ay, bx, by, z0, z1, piso, col, lw, dash) {
+    const ob = this.ob; g.strokeStyle = col; g.lineWidth = lw; if (dash) g.setLineDash(dash); g.beginPath();
+    for (let z = z0 + piso * .55; z < z1 - .8; z += piso) { g.moveTo(ax + (bx - ax) * .06, ay + (by - ay) * .06 - z * ob); g.lineTo(ax + (bx - ax) * .94, ay + (by - ay) * .94 - z * ob); }
+    g.stroke(); if (dash) g.setLineDash([]);
+  },
+  cuadro(cx, cy, u, a, b, c, d) { const ux = Math.cos(u), uy = Math.sin(u); return Float32Array.from([[a, c], [b, c], [b, d], [a, d]].flatMap(([s, t]) => [cx + ux * s - uy * t, cy + uy * s + ux * t])); },
+  cupula(g, cx, cy, z, r, col) {
+    const ob = this.ob; g.fillStyle = Art.shade(col, .8); g.fillRect(cx - r, cy - (z + r * .35) * ob, r * 2, r * .35 * ob + .01);
+    g.fillStyle = col; g.beginPath(); g.ellipse(cx, cy - (z + r * .35) * ob - r * .25, r, r * .95, 0, Math.PI, 0); g.lineTo(cx + r, cy - (z + r * .35) * ob); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.28)'; g.beginPath(); g.ellipse(cx - r * .35, cy - (z + r * .35) * ob - r * .7, r * .3, r * .22, -.5, 0, TAU); g.fill();
+    g.fillStyle = Art.shade(col, .7); g.fillRect(cx - r * .12, cy - (z + r * .35) * ob - r * 1.4, r * .24, r * .45);
+  },
+  sombra(g, H) { const sx = Math.min(16, H.h * .32 + 1), sy = Math.min(10, H.h * .2 + .5); for (const Q of H.P) { g.moveTo(Q[0] + sx, Q[1] + sy); for (let i = 2; i < Q.length; i += 2) g.lineTo(Q[i] + sx, Q[i + 1] + sy); g.closePath(); for (let i = 0; i < Q.length; i += 2) { g.moveTo(Q[i], Q[i + 1]); g.lineTo(Q[i] + sx, Q[i + 1] + sy); } } },
+  /* suelo de las plazas y parques especiales (antes que los edificios) */
+  hitoSuelo(g, H, lod, cv) {
+    const ob = this.ob, Q = H.P[0], clip = () => { g.save(); g.beginPath(); for (const P of H.P) this.pol(g, P, 0); g.clip(); };
+    if (H.k === 'botero') { this.techo(g, Q, 0, '#d9ccb0', '#b9a98a'); if (lod === 0) { clip(); g.strokeStyle = 'rgba(150,130,100,.35)'; g.lineWidth = .15; g.beginPath(); for (let x = Math.floor(H.x0 / 4) * 4; x < H.x1; x += 4) { g.moveTo(x, H.y0); g.lineTo(x, H.y1); } for (let y = Math.floor(H.y0 / 4) * 4; y < H.y1; y += 4) { g.moveTo(H.x0, y); g.lineTo(H.x1, y); } g.stroke(); g.restore(); } }
+    else if (H.k === 'pies') {
+      this.techo(g, Q, 0, '#e4d2a2', '#c8b07c'); clip(); const L = Math.max(H.x1 - H.x0, H.y1 - H.y0), u = H.ang, ux = Math.cos(u), uy = Math.sin(u);
+      g.strokeStyle = '#5aa9d6'; g.lineWidth = 2.2; g.lineCap = 'round'; g.beginPath(); for (const o of [-14, 0, 14]) { g.moveTo(H.cx - ux * L - uy * o, H.cy - uy * L + ux * o); g.lineTo(H.cx + ux * L - uy * o, H.cy + uy * L + ux * o); } g.stroke();
+      for (let i = 0; i < 70; i++) { const x = H.x0 + h2(i, 3, 61) * (H.x1 - H.x0), y = H.y0 + h2(i, 4, 61) * (H.y1 - H.y0); if (h2(i, 5, 61) < .45) { g.fillStyle = 'rgba(20,40,20,.3)'; g.beginPath(); g.arc(x + .8, y + .6, 1.6, 0, TAU); g.fill(); g.fillStyle = ['#4b7d35', '#5e9440', '#3e6d2e'][i % 3]; g.beginPath(); g.arc(x, y - 1.2, 1.5, 0, TAU); g.fill(); } }   // guaduales
+      g.restore();
+    } else if (H.k === 'luces') { this.techo(g, Q, 0, '#d9d6cf', '#b8b3a8'); if (lod === 0) { clip(); g.strokeStyle = 'rgba(120,116,108,.3)'; g.lineWidth = .15; g.beginPath(); for (let x = Math.floor(H.x0 / 7) * 7; x < H.x1; x += 7) { g.moveTo(x, H.y0); g.lineTo(x, H.y1); } for (let y = Math.floor(H.y0 / 7) * 7; y < H.y1; y += 7) { g.moveTo(H.x0, y); g.lineTo(H.x1, y); } g.stroke(); g.restore(); } }
+  },
+  /* el volumen de cada hito, en su turno del orden de pintura */
+  hito(g, H, lod, cv) {
+    const ob = this.ob, h = H.h, fino = lod === 0, L = cv.lights || (cv.lights = []), G = cv.glow || (cv.glow = []);
+    const contorno = (Q, z) => { g.strokeStyle = 'rgba(20,26,38,.55)'; g.lineWidth = fino ? .32 : .8; g.beginPath(); this.pol(g, Q, z); g.stroke(); };
+    switch (H.k) {
+      case 'aguja': {   // Coltejer: torre de 150 m con su corona en punta de aguja (175 m)
+        const Q = H.P[0], c = '#cfd3d6', zt = h + (H.o.corona || 25) * 1.5;
+        this.muros(g, Q, 0, h, c, fino ? (ax, ay, bx, by) => { g.strokeStyle = 'rgba(40,60,80,.35)'; g.lineWidth = .25; g.beginPath(); for (let t = .1; t < 1; t += .1) { const x = ax + (bx - ax) * t, y = ay + (by - ay) * t; g.moveTo(x, y - 1); g.lineTo(x, y - h * ob); } g.stroke(); } : null);
+        this.techo(g, Q, h, '#b8bdc2'); this.piramide(g, Q, h, zt, H.cx, H.cy, '#c9ced3');
+        g.fillStyle = '#1d2733'; g.beginPath(); g.moveTo(H.cx - .5, H.cy + 1 - (h + 4) * ob); g.lineTo(H.cx + .5, H.cy + 1 - (h + 4) * ob); g.lineTo(H.cx, H.cy + 1 - (zt - 6) * ob); g.closePath(); g.fill();   // el ojo de la aguja
+        contorno(Q, h); L.push([H.cx, H.cy - h * ob * .5, 8, h]); G.push([H.cx, H.cy - zt * ob, 3]); break;
+      }
+      case 'basilica': case 'iglesia': {   // nave, cubierta a dos aguas, torres de la fachada y cúpula
+        const Q = H.P[0], bas = H.k === 'basilica', pared = bas ? '#9c4a33' : '#efe9dc', teja = bas ? '#7e3a28' : '#b9553a', u = H.ang, ux = Math.cos(u), uy = Math.sin(u);
+        let a0 = 1e9, a1 = -1e9, b0 = 1e9, b1 = -1e9; for (let i = 0; i < Q.length; i += 2) { const dx = Q[i] - H.cx, dy = Q[i + 1] - H.cy, a = dx * ux + dy * uy, b = -dx * uy + dy * ux; a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b); }
+        if (H.fr == null) { const calle = s => { let bd = 1e9; const x = H.cx + ux * s, y = H.cy + uy * s; for (const c of this.near(x - 40, y - 40, x + 40, y + 40)) { const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); bd = Math.min(bd, Math.hypot(ax + dx * t - x, ay + dy * t - y)); } } return bd; }; H.fr = calle(a1) < calle(a0) ? 1 : -1; }
+        this.muros(g, Q, 0, h, pared, fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, h / 2, 'rgba(40,30,30,.5)', .9, [1, 3]) : null);
+        this.techo(g, Q, h, teja); if (fino) { g.save(); g.beginPath(); this.pol(g, Q, h); g.clip(); g.fillStyle = 'rgba(255,255,255,.12)'; g.beginPath(); const R = 400; g.moveTo(H.cx - ux * R, H.cy - uy * R - h * ob); g.lineTo(H.cx + ux * R, H.cy + uy * R - h * ob); g.lineTo(H.cx + ux * R - uy * R, H.cy + uy * R + ux * R - h * ob); g.lineTo(H.cx - ux * R - uy * R, H.cy - uy * R + ux * R - h * ob); g.closePath(); g.fill(); g.restore(); }
+        contorno(Q, h); const fa = H.fr > 0 ? a1 : a0; let f0 = 1e9, f1 = -1e9; for (let i = 0; i < Q.length; i += 2) { const dx = Q[i] - H.cx, dy = Q[i + 1] - H.cy, a = dx * ux + dy * uy, b = -dx * uy + dy * ux; if (Math.abs(a - fa) < (a1 - a0) * .22) { f0 = Math.min(f0, b); f1 = Math.max(f1, b); } } if (!(f1 > f0)) { f0 = b0; f1 = b1; } b0 = f0; b1 = f1;
+        const s = Math.min(9, (b1 - b0) * .3), nT = H.o.torres || 1, ht = h * (bas ? 2.1 : 1.9);
+        const torres = nT === 2 ? [b0 + s / 2, b1 - s / 2] : [(b0 + b1) / 2];
+        if (H.o.cupula) { const r = Math.min(10, (b1 - b0) * .3), ca = fa - H.fr * (a1 - a0) * .62; this.cupula(g, H.cx + ux * ca, H.cy + uy * ca, h, r, bas ? '#8a8f94' : '#d8d2c4'); }
+        for (const tb of torres) { const T = this.cuadro(H.cx, H.cy, u, fa - H.fr * s, fa, tb - s / 2, tb + s / 2); this.muros(g, T, 0, ht, pared, fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, 6, 'rgba(30,20,20,.6)', .7, [.8, 2]) : null); this.techo(g, T, ht, Art.shade(pared, .9)); let tx = 0, ty = 0; for (let i = 0; i < 8; i += 2) { tx += T[i] / 4; ty += T[i + 1] / 4; } this.piramide(g, T, ht, ht + s * 1.3, tx, ty, teja); G.push([tx, ty - (ht + s * 1.3) * ob, 1.5]); }
+        L.push([H.cx, H.cy - h * ob * .5, 10, h]); break;
+      }
+      case 'palacio': {   // Palacio de la Cultura: piedra en franjas blancas y negras, pináculos y cúpula central
+        const Q = H.P[0];
+        this.muros(g, Q, 0, h, '#f0ece2', (ax, ay, bx, by, z0, z1) => { g.strokeStyle = 'rgba(34,34,38,.8)'; g.lineWidth = .45; g.beginPath(); for (let z = 1.2; z < z1; z += 2.2) { g.moveTo(ax, ay - z * ob); g.lineTo(bx, by - z * ob); } g.stroke(); if (fino) this.ventanas(g, ax, ay, bx, by, z0, z1, 6, 'rgba(20,30,50,.55)', .8, [1, 2.6]); });
+        this.techo(g, Q, h, '#6b6e75'); contorno(Q, h);
+        for (let i = 0; i < Q.length; i += 2) { const x = Q[i], y = Q[i + 1], T = this.cuadro(x, y, 0, -.9, .9, -.9, .9); this.piramide(g, T, h, h + 5, x, y, '#3a3d44'); }
+        this.cupula(g, H.cx, H.cy, h, 7, '#55595f'); L.push([H.cx, H.cy - h * ob * .5, 8, h]); break;
+      }
+      case 'estadio': {   // Atanasio Girardot: muro exterior, graderías en anillos que bajan hacia la cancha
+        const O = H.P[0], C = H.C, sC = C ? Math.sqrt(Math.abs(this.area2(C)) / Math.abs(this.area2(O))) : .55, N = fino ? 6 : 3;
+        this.muros(g, O, 0, h, '#c3c6c9', fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, 5.5, 'rgba(40,46,56,.5)', .6, [2, 2]) : null); contorno(O, h);
+        for (let i = 0; i < N; i++) { const f = 1 - (1 - sC * 1.04) * i / N, z = h - (h - 2) * i / N, R = new Float32Array(O.length); for (let j = 0; j < O.length; j += 2) { R[j] = H.cx + (O[j] - H.cx) * f; R[j + 1] = H.cy + (O[j + 1] - H.cy) * f; } this.techo(g, R, z, i % 2 ? '#9aa3ad' : '#b4bcc5'); if (fino && i % 2 === 0) { g.strokeStyle = 'rgba(220,40,40,.35)'; g.lineWidth = .4; g.beginPath(); this.pol(g, R, z); g.stroke(); } }
+        if (C) { this.techo(g, C, 0, '#4f9a3c', '#f4f4ee'); if (fino) { let sx = 0, sy = 0; for (let j = 0; j < C.length; j += 2) { sx += C[j]; sy += C[j + 1]; } const n = C.length / 2, cx = sx / n, cy = sy / n; g.save(); g.beginPath(); this.pol(g, C, 0); g.clip(); g.fillStyle = 'rgba(255,255,255,.07)'; for (let x = Math.floor(H.x0 / 6) * 6; x < H.x1; x += 12) g.fillRect(x, H.y0, 6, H.y1 - H.y0); g.restore(); g.strokeStyle = '#f4f4ee'; g.lineWidth = .35; g.beginPath(); g.arc(cx, cy, 9.15, 0, TAU); g.stroke(); } }
+        for (let j = 0; j < O.length; j += 8) G.push([O[j], O[j + 1] - (h + 8) * ob, 4]); break;   // torres de luz
+      }
+      case 'rocas': {   // Biblioteca España: tres rocas negras talladas sobre la ladera
+        H.P.forEach((Q, i) => { const z = h * [1, .82, .7][i % 3]; this.muros(g, Q, 0, z, '#2b2c31'); let cx = 0, cy = 0; for (let j = 0; j < Q.length; j += 2) { cx += Q[j] * 2 / Q.length; cy += Q[j + 1] * 2 / Q.length; }
+          for (let j = 0; j < Q.length; j += 2) { g.fillStyle = (j / 2) % 2 ? '#43454d' : '#55575f'; g.beginPath(); g.moveTo(Q[j], Q[j + 1] - z * ob); g.lineTo(Q[(j + 2) % Q.length], Q[(j + 3) % Q.length] - z * ob); g.lineTo(cx, cy - (z + 3) * ob); g.closePath(); g.fill(); }
+          contorno(Q, z); L.push([cx, cy - z * ob * .5, 4, z]); }); break;
+      }
+      case 'vidrio': {   // Edificio EPM: vidrio azul verdoso con montantes y reflejos
+        const Q = H.P[0];
+        this.muros(g, Q, 0, h, '#4f86a8', fino ? (ax, ay, bx, by, z0, z1) => { g.strokeStyle = 'rgba(210,230,240,.35)'; g.lineWidth = .2; g.beginPath(); const Lf = Math.hypot(bx - ax, by - ay); for (let t = 0; t < Lf; t += 3) { const x = ax + (bx - ax) * t / Lf, y = ay + (by - ay) * t / Lf; g.moveTo(x, y); g.lineTo(x, y - z1 * ob); } g.stroke(); this.ventanas(g, ax, ay, bx, by, z0, z1, 4.2, 'rgba(20,40,60,.4)', .25); g.fillStyle = 'rgba(255,255,255,.12)'; g.beginPath(); g.moveTo(ax, ay - z1 * ob * .2); g.lineTo(ax + (bx - ax) * .35, ay + (by - ay) * .35 - z1 * ob * .9); g.lineTo(ax + (bx - ax) * .5, ay + (by - ay) * .5 - z1 * ob * .9); g.lineTo(ax + (bx - ax) * .15, ay + (by - ay) * .15 - z1 * ob * .2); g.closePath(); g.fill(); } : null);
+        this.techo(g, Q, h, '#7d8a93'); contorno(Q, h); L.push([H.cx, H.cy - h * ob * .5, 14, h]); L.push([H.cx + 8, H.cy - h * ob * .5, 14, h]); break;
+      }
+      case 'ladrillo': {   // Teatro Metropolitano, Biblioteca EPM y MAMM: ladrillo a la vista
+        const Q = H.P[0]; this.muros(g, Q, 0, h, '#a5543a', fino ? (ax, ay, bx, by, z0, z1) => { g.strokeStyle = 'rgba(70,30,20,.28)'; g.lineWidth = .12; g.beginPath(); for (let z = .6; z < z1; z += .9) { g.moveTo(ax, ay - z * ob); g.lineTo(bx, by - z * ob); } g.stroke(); } : null);
+        this.techo(g, Q, h, '#8f4630'); contorno(Q, h); L.push([H.cx, H.cy - h * ob * .5, 6, h]); break;
+      }
+      case 'republicano': {   // edificios republicanos del centro: color, cornisa y ventanas por piso
+        const Q = H.P[0], col = H.o.col || '#d9c9a5'; this.muros(g, Q, 0, h, col, (ax, ay, bx, by, z0, z1) => { g.strokeStyle = Art.shade(col, .7); g.lineWidth = .8; g.beginPath(); g.moveTo(ax, ay - (z1 - .6) * ob); g.lineTo(bx, by - (z1 - .6) * ob); g.stroke(); if (fino) this.ventanas(g, ax, ay, bx, by, z0, z1 - 1, 4, 'rgba(50,40,30,.6)', 1.1, [.9, 1.6]); });
+        this.techo(g, Q, h, Art.shade(col, .82)); contorno(Q, h); L.push([H.cx, H.cy - h * ob * .5, 8, h]); break;
+      }
+      case 'moderno': {   // La Alpujarra y otros: concreto con franjas de ventanas
+        const Q = H.P[0]; this.muros(g, Q, 0, h, '#c4c8cc', fino ? (ax, ay, bx, by, z0, z1) => this.ventanas(g, ax, ay, bx, by, z0, z1, 3.6, 'rgba(40,58,80,.6)', 1) : null);
+        this.techo(g, Q, h, '#a6aab0'); contorno(Q, h); const T = this.cuadro(H.cx, H.cy, H.ang, -4, 4, -3, 3); this.muros(g, T, h, h + 3, '#9aa0a6'); this.techo(g, T, h + 3, '#8c9298'); L.push([H.cx, H.cy - h * ob * .5, 12, h]); break;
+      }
+      case 'cupula': {   // Planetario: base clara y la gran cúpula
+        const Q = H.P[0]; this.muros(g, Q, 0, h, '#e6e2d8'); this.techo(g, Q, h, '#cfcac0'); contorno(Q, h); this.cupula(g, H.cx, H.cy, h, Math.min(14, Math.sqrt(H.A / Math.PI) * .62), '#e9edf0'); break;
+      }
+      case 'cubos': {   // Parque Explora: las cajas rojas
+        for (const Q of H.P) { this.muros(g, Q, 0, h, '#c1272d'); this.techo(g, Q, h, '#d9473e', '#f4f1ea'); }
+        break;
+      }
+      case 'luces': {   // Parque de las Luces: postes de 24 m (de noche se encienden)
+        if (lod > 0) break; const Q = H.P[0], tops = []; for (let y = Math.floor(H.y0 / 8) * 8 + 4; y < H.y1; y += 8) for (let x = Math.floor(H.x0 / 8) * 8 + 4; x < H.x1; x += 8) if (this.dentroP(Q, x, y)) tops.push(x, y);
+        g.strokeStyle = 'rgba(30,34,40,.28)'; g.lineWidth = .4; g.beginPath(); for (let i = 0; i < tops.length; i += 2) { g.moveTo(tops[i], tops[i + 1]); g.lineTo(tops[i] + 7, tops[i + 1] + 4.5); } g.stroke();   // sombras
+        g.strokeStyle = '#7e8288'; g.lineWidth = .7; g.beginPath(); for (let i = 0; i < tops.length; i += 2) { g.moveTo(tops[i], tops[i + 1]); g.lineTo(tops[i], tops[i + 1] - 24 * ob); } g.stroke();
+        g.strokeStyle = '#f6f5f1'; g.lineWidth = .4; g.beginPath(); for (let i = 0; i < tops.length; i += 2) { g.moveTo(tops[i] - .1, tops[i + 1]); g.lineTo(tops[i] - .1, tops[i + 1] - 24 * ob); tops[i + 1] -= 24 * ob; } g.stroke(); g.fillStyle = '#ffffff'; for (let i = 0; i < tops.length; i += 2) { g.beginPath(); g.arc(tops[i], tops[i + 1], .45, 0, TAU); g.fill(); G.push([tops[i], tops[i + 1], 2.2]); } break;
+      }
+      case 'botero': {   // Plaza Botero: las esculturas de bronce
+        const Q = H.P[0], S = []; for (let i = 0; i < 120 && S.length < 23; i++) { const x = H.x0 + 4 + h2(i, 1, 23) * (H.x1 - H.x0 - 8), y = H.y0 + 4 + h2(i, 2, 23) * (H.y1 - H.y0 - 8); if (this.dentroP(Q, x, y) && S.every(([a, b]) => Math.hypot(a - x, b - y) > 7)) S.push([x, y]); }
+        S.sort((p, q) => p[1] - q[1]); for (const [x, y] of S) { const r = 1.9 + h2(x | 0, y | 0, 3) * .9; g.fillStyle = 'rgba(20,20,20,.3)'; g.beginPath(); g.ellipse(x + 1.2, y + .8, r * 1.1, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = '#5a4630'; g.beginPath(); g.ellipse(x, y - 1.6 * ob - r * .5, r, r * 1.2, 0, 0, TAU); g.fill(); g.fillStyle = '#7a6040'; g.beginPath(); g.arc(x - r * .25, y - 3.4 * ob - r * 1.3, r * .5, 0, TAU); g.fill(); }
+        break;
+      }
+    }
+  },
+  /* nombres de los hitos (de cerca), sobre su volumen */
+  rotulosHitos(texto, S, k, kc, dpr, night) {
+    if (kc < 1.1) return; for (const H of this.HT) { if (H.libre) continue; const [x, y] = S(H.cx, H.cy - Math.min(H.h, 60) * this.ob - 3); texto(H.n, x, y, 0, 'italic 700 ' + clamp(kc * 4.2, 9, 12) * dpr + 'px Cuerpo, sans-serif', night > .4 ? '#ffe2a8' : '#3a2a12', night > .4 ? 'rgba(10,16,26,.85)' : 'rgba(250,246,236,.92)', 3 * dpr); }
+  }
+});
 ~~~~
 
 ### `src/js/12-red.js`
@@ -4329,6 +4962,8 @@ const NET = EM.netw = {
     const a = P.pts[lo], b = P.pts[Math.min(lo + 1, n - 1)], L = (c[lo + 1] - c[lo]) || 1, k = clamp((s - c[lo]) / L, 0, 1), ang = Math.atan2(b.y - a.y, b.x - a.x);
     return { x: a.x + (b.x - a.x) * k - Math.sin(ang) * off, y: a.y + (b.y - a.y) * k + Math.cos(ang) * off, a: ang };
   },
+  /* dirección media de la línea entre s − d y s + d (orienta andenes sin el quiebre de un vértice) */
+  dirAt(P, s, d = 30) { const a = this.at(P, s - d), b = this.at(P, s + d); return Math.atan2(b.y - a.y, b.x - a.x); },
   project(P, x, y) {
     let bd = 1e18, bs = 0;
     for (let i = 0; i < P.pts.length - 1; i++) { const a = P.pts[i], b = P.pts[i + 1], dx = b.x - a.x, dy = b.y - a.y, L2 = dx * dx + dy * dy || 1, t = clamp(((x - a.x) * dx + (y - a.y) * dy) / L2, 0, 1), px = a.x + dx * t, py = a.y + dy * t, d = (x - px) ** 2 + (y - py) ** 2; if (d < bd) { bd = d; bs = P.cum[i] + Math.sqrt(L2) * t; } }
@@ -4342,14 +4977,26 @@ const NET = EM.netw = {
       let pts = null, st = null;
       const osm = VM.metro && VM.metro[L.id === 'TA' ? 'T' : L.id];
       if (osm && (k === 'metro' || k === 'tram')) {
-        pts = q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
+        // eje real entre los dos rieles de OpenStreetMap (src/data/rieles.js); si falta, el trazado simplificado del mapa base
+        const R = typeof RIELES !== 'undefined' && RIELES[L.id === 'TA' ? 'T' : L.id];
+        pts = R ? R.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []) : q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
       }
       if (!st) st = (L.stations || []).map(([n, la, lo]) => Object.assign({ name: n }, geoM(la, lo)));
+      // buses: el recorrido rehecho sobre las calles dibujadas (src/data/rutas_calles.js); si falta, el de casillas (RUTAS)
+      if (!pts && typeof RUTAS_CALLES !== 'undefined' && RUTAS_CALLES[L.id]) pts = RUTAS_CALLES[L.id].reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       if (!pts && typeof RUTAS !== 'undefined' && RUTAS[L.id]) pts = q(RUTAS[L.id]);
       if (!pts) { const via = (L.via || []).map(([la, lo]) => geoM(la, lo)); pts = via.length && k !== "cable" ? this.orderAlong(st, via) : st.map(s => ({ x: s.x, y: s.y })); }
       if (pts.length < 2) continue;
       line.P = this.poly(pts);
-      line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y); return { name: s.name, x: s.x, y: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
+      // una línea de metro que termina sobre otra (la B en San Antonio) llega hasta el borde del viaducto de la otra, no encima
+      if (k === 'metro') for (const o of this.lines) if (o.kind === 'metro') for (const fin of [0, 1]) {
+        const P = line.P, e = fin ? P.pts[P.pts.length - 1] : P.pts[0]; if (this.project(o.P, e.x, e.y).d > 12) continue;
+        let c = 0; while (c < 60 && this.project(o.P, this.at(P, fin ? P.len - c : c).x, this.at(P, fin ? P.len - c : c).y).d < 14) c += 1;
+        const a = fin ? 0 : c, b = fin ? P.len - c : P.len, q2 = [this.at(P, a)]; P.pts.forEach((p, i) => { if (P.cum[i] > a && P.cum[i] < b) q2.push(p); }); q2.push(this.at(P, b));
+        line.P = this.poly(q2.map(p => ({ x: p.x, y: p.y })));
+      }
+      // cada estación queda SOBRE su línea (el andén se centra en la vía y los rieles entran y salen por sus extremos)
+      line.st = st.map((s, i) => { const pr = this.project(line.P, s.x, s.y), on = k !== 'cable' && k !== 'future' ? this.at(line.P, pr.s) : s; return { name: s.name, x: on.x, y: on.y, ox: s.x, oy: s.y, s: pr.s, i, line }; }).sort((a, b) => a.s - b.s);
       line.st.forEach((s, i) => s.i = i);
       if (line.st.length < 2) continue;
       line.km = line.km || +(line.P.len / 1000).toFixed(1);
@@ -5301,7 +5948,7 @@ const Game = EM.game = {
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
-    MAP.prisa = t + 10; MAP._hechos = 0;
+    MAP.prisa = t + .012; MAP._hechos = 0;   // presupuesto del cuadro para armar trozos del mapa (12 ms; siempre al menos uno)
     try {
       if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
       g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
@@ -6298,7 +6945,7 @@ const Ciudad = EM.ciudad = {
     this.spawnT -= dt;
     if (this.spawnT <= 0 && this.peds.length < want) {
       this.spawnT = .12; const rng = this.rng;
-      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200, x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r, v = MAP.tileM(x, y); if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
+      for (let k = 0; k < 6; k++) { const a = rng.f() * TAU, r = 90 + rng.f() * 200; let x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r; const v = MAP.tileM(x, y), ac = VC.on && rng.f() < .75 ? VC.acera(x, y, () => rng.f()) : null; if (ac) { x = ac.x; y = ac.y; } else if (v !== TT.WALK && v !== TT.PLAZA && v !== TT.STATION && v !== TT.STEPS && !(v === TT.GRASS && rng.f() < .3)) continue; if (VC.on && VC.solid(x, y, .5)) continue; const o = { x, y, a: rng.f() * TAU, v: 1 + rng.f() * .8, seed: rng.i(1, 1e6), tgt: null, wait: 0, umb: w.rain && rng.f() < .7, col: rng.pick(PED_COL), skin: rng.pick(SKIN), stun: 0, ph: 0, scared: 0 }; this.peds.push(o);
         if (rng.f() < .08) { o.dog = 1; o.umb = false; o.v = 1.4 + rng.f(); o.col = rng.pick(DOG_COL); } else if (rng.f() < .1) this.peds.push({ x: x - 1.2, y, a: o.a, v: o.v, seed: rng.i(1, 1e6), tgt: null, wait: 0, col: rng.pick(DOG_COL), stun: 0, ph: 0, scared: 0, dog: 1, owner: o }); break; }
     }
     for (const p of this.peds) {
@@ -6306,17 +6953,19 @@ const Ciudad = EM.ciudad = {
       if (p.owner) { const o = p.owner; if (o.gone || o.board || o.waitStop != null || dist(p.x, p.y, o.x, o.y) > 25) p.owner = null; else { const tx = o.x - Math.cos(o.a) * 1.7 + Math.sin(this.t * .8 + p.seed) * .5, ty = o.y - Math.sin(o.a) * 1.7 + Math.cos(this.t * .7 + p.seed) * .5, d = dist(p.x, p.y, tx, ty); if (d > .25) { p.a = Math.atan2(ty - p.y, tx - p.x); const st = Math.min(d, (o.v + 1.4) * dt); p.x += Math.cos(p.a) * st; p.y += Math.sin(p.a) * st; p.ph += dt * 5; } if (p.scared > 0) p.scared -= dt; continue; } }
       if (p.board) { const d = dist(p.x, p.y, p.board.x, p.board.y); if (d < 1.2) { p.gone = true; continue; } p.a = Math.atan2(p.board.y - p.y, p.board.x - p.x); p.x += Math.cos(p.a) * 1.7 * dt; p.y += Math.sin(p.a) * 1.7 * dt; continue; }
       if (p.waitStop != null) { p.ph = Math.sin(this.t * .6 + p.seed) * .3; continue; }
-      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (WALK_OK.has(MAP.tileM(nx, ny))) { p.x = nx; p.y = ny; } continue; }
+      if (p.scared > 0) { p.scared -= dt; if (p.dog && !p.bark) { p.bark = 1; this.say(p, this.rng.pick(['¡Guau!', '¡Guau, guau!', '¡Grrr!'])); } const st = p.v * 2.4 * dt, nx = p.x + Math.cos(p.a) * st, ny = p.y + Math.sin(p.a) * st; if (this.pisa(nx, ny)) { p.x = nx; p.y = ny; } continue; }
       if (p.wait > 0) { p.wait -= dt; continue; }
       if (!p.tgt || dist(p.x, p.y, p.tgt.x, p.tgt.y) < 4) { if (p.tgt) p.wait = .5 + this.rng.f() * 3; p.tgt = this.pedTarget(p); continue; }
       const ta = Math.atan2(p.tgt.y - p.y, p.tgt.x - p.x); let moved = false;
-      for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4]) { const a = ta + off, st = p.v * dt, nx = p.x + Math.cos(a) * st, ny = p.y + Math.sin(a) * st, v = MAP.tileM(nx, ny); if (WALK_OK.has(v) && (v !== TT.ROAD || off === 0)) { p.a += Math.atan2(Math.sin(a - p.a), Math.cos(a - p.a)) * Math.min(1, dt * 6); p.x = nx; p.y = ny; moved = true; break; } }
+      for (const off of [0, .5, -.5, 1, -1, 1.6, -1.6, 2.4]) { const a = ta + off, st = p.v * dt, nx = p.x + Math.cos(a) * st, ny = p.y + Math.sin(a) * st, v = MAP.tileM(nx, ny); if (this.pisa(nx, ny, v) && (v !== TT.ROAD || off === 0 || VC.on)) { p.a += Math.atan2(Math.sin(a - p.a), Math.cos(a - p.a)) * Math.min(1, dt * 6); p.x = nx; p.y = ny; moved = true; break; } }
       if (!moved) { p.tgt = null; p.wait = .3; }
       // miedo a los vehículos rápidos
       if (player && player.veh && Math.abs(player.vf) > 3) { const dx = p.x - player.x, dy = p.y - player.y, d = Math.hypot(dx, dy); if (d < 9) { p.scared = .8; p.a = Math.atan2(dy, dx); if (d < 2.2 && Math.abs(player.vf) > 1.5 && !p.hit) { p.hit = 1; p.stun = 2.5; player.onPed && player.onPed(p); } } }
     }
     this.peds = this.peds.filter(p => !p.gone && (p.waitStop != null || dist(p.x, p.y, fx, fy) < 420));
   },
+  /* ¿un peatón puede pisar aquí? con la ciudad vectorial: todo menos edificios y agua; si no, las casillas de andar */
+  pisa(x, y, v = MAP.tileM(x, y)) { return VC.on ? !VC.solid(x, y, .3) : WALK_OK.has(v); },
   /* gente esperando en una parada (para el simulador de bus) */
   spawnWaiting(stopIdx, x, y, n) {
     const rng = this.rng, out = [];
@@ -6324,11 +6973,12 @@ const Ciudad = EM.ciudad = {
     return out;
   },
   vendorsDraw(g, S, k, sh, x0, y0, x1, y1) {
-    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
+    for (const v of this.vendors) { if (v.x < x0 - 10 || v.x > x1 + 10 || v.y < y0 - 10 || v.y > y1 + 10) continue; if (VC.on && !v.ok) { const q = VC.despeja(v.x, v.y, 1.6); v.x = q.x; v.y = q.y; v.ok = 1; } const q = S(v.x, v.y), s = Math.max(2, k * 1.6); g.save(); g.translate(q.x + 2.2 * s, q.y); g.rotate(v.a); Spr.cart(g, s * .9, v.col); g.restore(); this.ped(g, { x: v.x, y: v.y, a: v.a, ph: 0, col: '#fbe7b0', skin: v.skin, seed: v.seed, stun: 0, hat: '#f4f1ea' }, S, k, sh); if (dist(v.x, v.y, this.focus.x, this.focus.y) < 40 && this.t - v.said > 9) { v.said = this.t; this.say(v, '¡' + v.name + '! ¡A la orden!'); } }
   },
   pedTarget(p) {
     const rng = this.rng; if (rng.f() < .35) { let best = null, bd = 1e9; for (const h of NET.stations) { const d = dist(h.x, h.y, p.x, p.y); if (d < bd && d > 25) { bd = d; best = h; } } if (best && bd < 260) return { x: best.x + (rng.f() - .5) * 20, y: best.y + (rng.f() - .5) * 20 }; }
-    for (let k = 0; k < 8; k++) { const a = rng.f() * TAU, r = 40 + rng.f() * 120, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r, v = MAP.tileM(x, y); if (v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS) return { x, y }; }
+    if (VC.on) for (let k = 0; k < 4; k++) { const a = p.a + (rng.f() - .5) * (k ? 2.4 : .7), r = 30 + rng.f() * 90, q = VC.acera(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, () => rng.f()); if (q) return q; }   // por el andén, más o menos hacia donde iba
+    for (let k = 0; k < 8; k++) { const a = rng.f() * TAU, r = 40 + rng.f() * 120, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r, v = MAP.tileM(x, y); if ((v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS) && !(VC.on && VC.solid(x, y, .5))) return { x, y }; }
     return { x: p.x + (rng.f() - .5) * 30, y: p.y + (rng.f() - .5) * 30 };
   },
   say(p, txt) { this.bubbles.push({ x: p.x, y: p.y, t: 2.4, txt: txt || this.rng.pick(PED_FRASES), p }); },
@@ -6363,13 +7013,14 @@ const Ciudad = EM.ciudad = {
     for (const L of this.lm) {
       if (L.x + L.w < x0 || L.x - L.w > x1 || L.y + L.h < y0 || L.y - L.h > y1) continue; const p = S(L.x - L.w / 2, L.y - L.h / 2), w = L.w * k, h = L.h * k;
       const col = { iglesia: '#e9d9b7', terminal: '#c9ced4', volador: null, campus: '#d6e6d2', moravia: '#f2cfae', botanico: null, explora: '#EC343A', estadio: '#9aa0a6', botero: '#e9c9c9', coltejer: '#8d97a4', teatro: '#b9b5ad', lleras: null, pies: '#d9cdae', luces: '#d9cdae', depot: '#bfe1d9', cerro: null, mamm: '#b4583a', aeropuerto: '#9aa1a8', comuna13: null, bibespana: '#2b2b2b', palacio: '#f4ecd0', catedral: '#b4583a', parquenorte: null, deporte: '#cfe0ea', memoria: '#8d97a4', cruces: null }[L.k];
-      if (col) {   // sin rectángulos planos: el mapa ya trae lo real (datos oficiales); aquí va solo el ícono del lugar
+      if (VC.on) { if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); } }   // con la ciudad vectorial los edificios y parques ya están dibujados: sin íconos planos
+      else if (col) {   // sin rectángulos planos: el mapa ya trae lo real (datos oficiales); aquí va solo el ícono del lugar
         if (L.k === 'iglesia' || L.k === 'catedral') { const cx = p.x + w / 2, cy = p.y + h / 2, u = Math.min(w, h) * .32; g.fillStyle = 'rgba(20,20,20,.35)'; g.fillRect(cx - u * .45 + 2, cy - u * .2 + 3, u * .9, u * 1.1); g.fillStyle = col; g.fillRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.fillStyle = Art.shade(col, .8); g.fillRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.strokeStyle = PAL.negro; g.lineWidth = Math.max(1, k * .4); g.strokeRect(cx - u * .45, cy - u * .2, u * .9, u * 1.1); g.strokeRect(cx - u * .18, cy - u * .75, u * .36, u * .6); g.fillStyle = PAL.negro; g.fillRect(cx - Math.max(1, k * .3) / 2, cy - u * 1.05, Math.max(1, k * .3), u * .3); g.fillRect(cx - u * .1, cy - u * .95, u * .2, Math.max(1, k * .3)); }
         if (L.k === 'estadio') { g.fillStyle = '#59AB42'; g.beginPath(); g.ellipse(p.x + w / 2, p.y + h / 2, w * .3, h * .36, 0, 0, TAU); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke(); }
         if (L.k === 'aeropuerto') { g.fillStyle = '#3f444d'; g.fillRect(p.x + w * .38, p.y + h * .04, w * .24, h * .92); g.fillStyle = '#fff'; for (let yy = p.y + h * .08; yy < p.y + h * .9; yy += Math.max(6, k * 24)) g.fillRect(p.x + w * .49, yy, Math.max(1, k * .6), Math.max(3, k * 10)); }
         if (L.k === 'campus' || L.k === 'deporte') { g.fillStyle = Art.shade(col, .85); for (let i = 0; i < 4; i++) g.fillRect(p.x + w * (.1 + (i % 2) * .5), p.y + h * (.1 + (i >> 1) * .5), w * .3, h * .3); }
         if (L.k === 'bibespana') { g.fillStyle = '#3a3a3a'; for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(p.x + w * (.1 + i * .3), p.y + h * .9); g.lineTo(p.x + w * (.25 + i * .3), p.y + h * .15); g.lineTo(p.x + w * (.4 + i * .3), p.y + h * .9); g.fill(); } }
-      } else { const n = Math.max(3, Math.round(w * h / Math.max(60, k * k * 400))); for (let i = 0; i < Math.min(n, 60); i++) { const tx = p.x + h2(i, 1, L.id.length) * w, ty = p.y + h2(i, 2, L.id.length) * h, r = (1.5 + h2(i, 3, 1) * 2) * k; g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(tx + r * .4, ty + r * .5, r, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#2f6b3c'][i % 3]; g.beginPath(); g.arc(tx, ty, r, 0, TAU); g.fill(); } }
+      } else if (!VC.on) { const n = Math.max(3, Math.round(w * h / Math.max(60, k * k * 400))); for (let i = 0; i < Math.min(n, 60); i++) { const tx = p.x + h2(i, 1, L.id.length) * w, ty = p.y + h2(i, 2, L.id.length) * h, r = (1.5 + h2(i, 3, 1) * 2) * k; g.fillStyle = 'rgba(18,38,22,.4)'; g.beginPath(); g.ellipse(tx + r * .4, ty + r * .5, r, r * .7, 0, 0, TAU); g.fill(); g.fillStyle = ['#3f7a3a', '#4b8640', '#2f6b3c'][i % 3]; g.beginPath(); g.arc(tx, ty, r, 0, TAU); g.fill(); } }
       if (k > .9) { g.font = '700 ' + Math.max(10, Math.min(16, k * 5)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.9)'; g.strokeText(L.name, p.x + w / 2, p.y + h + 12); g.fillStyle = PAL.negro; g.fillText(L.name, p.x + w / 2, p.y + h + 12); g.textAlign = 'left'; }
     }
   },
@@ -6391,8 +7042,8 @@ const Ciudad = EM.ciudad = {
   transitDraw(g, S, k, sh, night, x0, y0, x1, y1) {
     for (const v of this.transit) {
       const p = this.tpos(v); if (p.x < x0 - 100 || p.x > x1 + 100 || p.y < y0 - 100 || p.y > y1 + 100) continue; const K = KIND[v.line.kind], kind = v.line.kind, col = v.line.color;
-      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, S, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
-      else if (kind === 'cable') { const q = NET.at(v.line.P, v.s); this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', S, k, sh, night, false); }
+      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2, T = kind === 'metro' && VC.on ? (x, y) => S(x, y - KIND.metro.deck * VC.ob) : S; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, T, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
+      else if (kind === 'cable') { const q = NET.at(v.line.P, v.s), T = VC.on ? (x, y) => S(x, y - 14 * VC.ob) : S; this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', T, k, sh, night, false); }
       else { const q = NET.at(v.line.P, v.s - v.dir * K.len / 2, v.dir * 2.2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), K.len, 2.5, col, kind, S, k, sh, night, true); }
     }
   },
@@ -6400,35 +7051,84 @@ const Ciudad = EM.ciudad = {
   streetLights(g, S, k, night, x0, y0, x1, y1, W, H) {
     if (night < .25) return; g.save(); g.globalCompositeOperation = 'lighter';
     const step = TM * 3, R = Math.max(8, 14 * k);
-    for (let y = Math.floor(y0 / step) * step; y < y1; y += step) for (let x = Math.floor(x0 / step) * step; x < x1; x += step) {
+    if (VC.on) {   // postes a lo largo de las calles dibujadas: un halo cacheado por poste
+      const HL = VC.halo(), CR = 320; g.globalAlpha = clamp(.5 * night, 0, .5);
+      for (let cy = Math.floor((y0 - 20) / CR); cy <= Math.floor((y1 + 20) / CR); cy++) for (let cx = Math.floor((x0 - 20) / CR); cx <= Math.floor((x1 + 20) / CR); cx++) { const P = VC.postes(cx, cy); for (let i = 0; i < P.length; i += 2) { const q = S(P[i], P[i + 1]); if (q.x < -R || q.y < -R || q.x > W + R || q.y > H + R) continue; g.drawImage(HL, q.x - R, q.y - R, R * 2, R * 2); } }
+      g.globalAlpha = 1;
+    } else for (let y = Math.floor(y0 / step) * step; y < y1; y += step) for (let x = Math.floor(x0 / step) * step; x < x1; x += step) {
       const v = MAP.tileM(x + 10, y + 10); if (!(v === TT.AVE || v === TT.AUTO || v === TT.PLAZA || v === TT.STATION || (v === TT.ROAD && h2(x, y, 4) < .25))) continue; if (h2(x, y, 5) > .8) continue;
       const q = S(x + 10, y + 10); if (q.x < -R || q.y < -R || q.x > W + R || q.y > H + R) continue; const gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, R); gr.addColorStop(0, 'rgba(255,214,140,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,214,140,0)'); g.fillStyle = gr; g.fillRect(q.x - R, q.y - R, R * 2, R * 2);
     }
     for (const h of NET.stations) { const q = S(h.x, h.y); if (q.x < -60 || q.y < -60 || q.x > W + 60 || q.y > H + 60) continue; const r = Math.max(16, 40 * k), gr = g.createRadialGradient(q.x, q.y, 0, q.x, q.y, r); gr.addColorStop(0, 'rgba(200,230,255,' + (.35 * night) + ')'); gr.addColorStop(1, 'rgba(200,230,255,0)'); g.fillStyle = gr; g.fillRect(q.x - r, q.y - r, r * 2, r * 2); }
     g.restore();
   },
+  /* franja que sigue la línea P entre s0 y s1, con desplazamientos laterales o0 y o1 (andenes y techos sobre la curva) */
+  banda(g, S, P, s0, s1, o0, o1) { const n = Math.max(2, Math.ceil((s1 - s0) / 8)); g.beginPath(); for (let i = 0; i <= n; i++) { const q = NET.at(P, s0 + (s1 - s0) * i / n, o0), w = S(q.x, q.y); i ? g.lineTo(w.x, w.y) : g.moveTo(w.x, w.y); } for (let i = n; i >= 0; i--) { const q = NET.at(P, s0 + (s1 - s0) * i / n, o1), w = S(q.x, q.y); g.lineTo(w.x, w.y); } g.closePath(); },
   /* estaciones y paradas sobre el mapa */
   stations(g, S, k, x0, y0, x1, y1) {
-    const path = (l, pad) => { g.beginPath(); let on = false; for (const p of l.P.pts) { if (p.x < x0 - pad || p.x > x1 + pad || p.y < y0 - pad || p.y > y1 + pad) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } };
+    // tramos de la línea que tocan la vista (los segmentos rectos pueden medir cientos de metros: se mira el segmento, no el vértice)
+    const vis = (l, pad) => { const P = l.P.pts, c = l.P.cum; let a = Infinity, b = -1; for (let i = 0; i < P.length - 1; i++) { const p = P[i], q = P[i + 1]; if (Math.max(p.x, q.x) < x0 - pad || Math.min(p.x, q.x) > x1 + pad || Math.max(p.y, q.y) < y0 - pad || Math.min(p.y, q.y) > y1 + pad) continue; if (c[i] < a) a = c[i]; if (c[i + 1] > b) b = c[i + 1]; } return b < 0 ? null : [a, b]; };
+    const path = (l, pad, T = S) => { g.beginPath(); const P = l.P.pts; let last = -2; for (let i = 0; i < P.length - 1; i++) { const p = P[i], q = P[i + 1]; if (Math.max(p.x, q.x) < x0 - pad || Math.min(p.x, q.x) > x1 + pad || Math.max(p.y, q.y) < y0 - pad || Math.min(p.y, q.y) > y1 + pad) continue; if (last !== i - 1) { const w = T(p.x, p.y); g.moveTo(w.x, w.y); } const w = T(q.x, q.y); g.lineTo(w.x, w.y); last = i; } };
+    const rieles = (l, R, offs, col, lw, T = S) => { const st = Math.max(3, 2.5 / k); g.strokeStyle = col; g.lineWidth = lw; for (const o of offs) { g.beginPath(); for (let s = R[0]; s <= R[1] + st; s += st) { const q0 = NET.at(l.P, Math.min(s, R[1]), o), q = T(q0.x, q0.y); s === R[0] ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke(); } };
+    // el metro va elevado: tablero a 7 m (en la vista con volumen se dibuja corrido hacia arriba, con columnas y su sombra en el piso)
+    const dz = VC.on ? KIND.metro.deck * VC.ob : 0, Se = (x, y) => S(x, y - dz), Sc = (x, y) => S(x, y - (KIND.metro.deck + 4.2) * VC.ob);
     g.lineJoin = 'round'; g.lineCap = 'butt';
     for (const l of NET.lines) {
-      if (l.kind === 'future' || l.kind === 'cable') continue;
-      if (l.kind === 'metro') { // viaducto: sombra, bordes, tablero, rieles
-        path(l, 300); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 10.5 * k; g.save(); g.translate(1.5 * k, 2.5 * k); g.stroke(); g.restore();
-        g.strokeStyle = '#4f4b45'; g.lineWidth = 10 * k; g.stroke(); g.strokeStyle = '#9a9185'; g.lineWidth = 8.6 * k; g.stroke(); g.strokeStyle = '#6f685e'; g.lineWidth = .5 * k; g.stroke();
-        for (const o of [-2.4, -1.2, 1.2, 2.4]) { g.beginPath(); let on = false; for (let s = Math.max(0, NET.project(l.P, x0, y0).s - 400); s < l.P.len; s += 14) { const q0 = NET.at(l.P, s, o); if (q0.x < x0 - 60 || q0.x > x1 + 60 || q0.y < y0 - 60 || q0.y > y1 + 60) { on = false; if (s > NET.project(l.P, x1, y1).s + 400) break; continue; } const q = S(q0.x, q0.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.strokeStyle = '#2b2a28'; g.lineWidth = Math.max(.8, .22 * k); g.stroke(); }
-      } else if (l.kind === 'tram') { path(l, 200); g.strokeStyle = 'rgba(30,30,30,.55)'; g.lineWidth = 6.2 * k; g.stroke(); g.strokeStyle = '#5d6168'; g.lineWidth = 6 * k; g.stroke(); g.strokeStyle = '#d8d8d8'; g.lineWidth = Math.max(.8, .25 * k); g.stroke(); }
-      else { path(l, 200); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
-      for (const s of l.st) { if (s.x < x0 - 80 || s.x > x1 + 80 || s.y < y0 - 80 || s.y > y1 + 80) continue; const q = S(s.x, s.y), K = KIND[l.kind], pl = K.plat * k, a = NET.at(l.P, s.s).a;
-        g.save(); g.translate(q.x, q.y); g.rotate(a);
-        if (l.kind === 'metro') { const off = 5 * k, w = 4 * k; g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-pl / 2 + 1.5 * k, -off - w + 2.5 * k, pl, w); g.fillRect(-pl / 2 + 1.5 * k, off + 2.5 * k, pl, w); g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); g.fillRect(-pl / 2, off, pl, w); g.fillStyle = PAL.mante; g.fillRect(-pl / 2, -off - .5 * k, pl, .5 * k); g.fillRect(-pl / 2, off, pl, .5 * k); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .9 * k, pl, .9 * k); g.fillRect(-pl / 2, off + w, pl, .9 * k); g.fillStyle = 'rgba(0,0,0,.12)'; for (let x = -pl / 2 + 2 * k; x < pl / 2; x += 6 * k) { g.fillRect(x, -off - w - .8 * k, .6 * k, w + .8 * k); g.fillRect(x, off, .6 * k, w + .8 * k); } }
-        else if (l.kind === 'tram' || l.kind === 'brt') { const off = (l.kind === 'tram' ? 3.4 : 2) * k, w = 2.6 * k; g.fillStyle = '#e9e2cf'; g.fillRect(-pl / 2, -off - w, pl, w); if (l.kind === 'tram') g.fillRect(-pl / 2, off, pl, w); g.fillStyle = l.color; g.fillRect(-pl / 2, -off - w - .6 * k, pl, .7 * k); if (l.kind === 'brt') { g.fillStyle = '#141414'; g.fillRect(-pl / 2, -off - w, pl, .4 * k); } }
-        else { g.fillStyle = l.color; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, Math.max(3, 2.2 * k), 0, TAU); g.fill(); g.stroke(); }
-        g.restore(); }
+      if (l.kind === 'future' || l.kind === 'cable') continue; const R = vis(l, 160); if (!R) continue;
+      if (l.kind === 'metro') { // viaducto: columnas, sombra en el piso, tablero a su altura, durmientes y dos vías (cuatro rieles)
+        if (dz) {
+          // edificio de acceso de cada estación, abajo del viaducto: muros claros, techo y franja del color de la línea (asoma a los lados del tablero)
+          for (const st of l.st) { if (st.x < x0 - 90 || st.x > x1 + 90 || st.y < y0 - 90 || st.y > y1 + 90) continue; const s0 = clamp(st.s - KIND.metro.plat / 2, 0, Math.max(0, l.P.len - KIND.metro.plat)), a0 = s0 + 22, a1 = s0 + KIND.metro.plat - 22, S5 = (x, y) => S(x, y - 5 * VC.ob);
+            this.banda(g, S, l.P, a0, a1, -11, 11); g.fillStyle = 'rgba(0,0,0,.22)'; g.save(); g.translate(1.6 * k, 1 * k); g.fill(); g.restore(); g.fillStyle = '#cfc6b3'; g.fill();
+            this.banda(g, S5, l.P, a0, a1, -11, 11); g.fillStyle = '#e6dfcf'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.5)'; g.lineWidth = Math.max(1, .2 * k); g.stroke();
+            for (const sd of [-1, 1]) { this.banda(g, S5, l.P, a0, a1, sd * 10, sd * 11); g.fillStyle = l.color; g.fill(); } }
+          const paso = 30; g.lineCap = 'butt';
+          for (let t = Math.ceil(R[0] / paso) * paso; t <= R[1]; t += paso) { const q0 = NET.at(l.P, t); if (q0.x < x0 - 30 || q0.x > x1 + 30 || q0.y < y0 - 30 || q0.y > y1 + 30) continue; const a = S(q0.x, q0.y), b = Se(q0.x, q0.y);
+            g.strokeStyle = 'rgba(0,0,0,.22)'; g.lineWidth = 2.4 * k; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(a.x + 2.2 * k, a.y + 1.4 * k); g.stroke();
+            g.strokeStyle = '#857f75'; g.lineWidth = 2.4 * k; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); g.strokeStyle = '#aaa398'; g.lineWidth = .8 * k; g.beginPath(); g.moveTo(a.x - .6 * k, a.y); g.lineTo(b.x - .6 * k, b.y); g.stroke(); }
+          path(l, 160); g.strokeStyle = 'rgba(0,0,0,.2)'; g.lineWidth = 9.6 * k; g.save(); g.translate(2.2 * k, 1.4 * k); g.stroke(); g.restore();
+        } else { path(l, 160); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 10.5 * k; g.save(); g.translate(1.5 * k, 2.5 * k); g.stroke(); g.restore(); }
+        path(l, 160, Se); g.strokeStyle = '#4f4b45'; g.lineWidth = 10 * k; g.stroke(); g.strokeStyle = '#9a9185'; g.lineWidth = 8.6 * k; g.stroke();
+        if (dz) { g.strokeStyle = 'rgba(60,56,50,.55)'; g.lineWidth = 1.1 * k; g.save(); g.translate(0, 5 * k); g.stroke(); g.restore(); }   // canto del tablero
+        if (k > .5) { g.strokeStyle = '#7d756a'; g.lineWidth = 2.6 * k; g.setLineDash([.35 * k, .55 * k]); for (const o of [-2, 2]) { g.beginPath(); for (let s = R[0]; s <= R[1] + 3; s += Math.max(3, 2.5 / k)) { const q0 = NET.at(l.P, Math.min(s, R[1]), o), q = Se(q0.x, q0.y); s === R[0] ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke(); } g.setLineDash([]); }
+        rieles(l, R, [-2.72, -1.28, 1.28, 2.72], '#2b2a28', Math.max(.8, .22 * k), Se);
+      } else if (l.kind === 'tram') { path(l, 160); g.strokeStyle = 'rgba(30,30,30,.45)'; g.lineWidth = 6.4 * k; g.stroke(); g.strokeStyle = '#6a6e74'; g.lineWidth = 6 * k; g.stroke(); rieles(l, R, [-1.9, -.5, .5, 1.9], '#2e3034', Math.max(.8, .2 * k)); g.strokeStyle = '#c9c9c4'; g.lineWidth = Math.max(.8, .22 * k); path(l, 160); g.stroke(); }
+      else { path(l, 160); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
+      // andenes: siguen la curva de su línea entre s − largo/2 y s + largo/2 (el tren se detiene dentro y los rieles salen por los extremos)
+      for (const s of l.st) {
+        if (s.x < x0 - 90 || s.x > x1 + 90 || s.y < y0 - 90 || s.y > y1 + 90) continue; const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), s1 = Math.min(l.P.len, s0 + K.plat);   // en las terminales el andén entero queda hacia adentro
+        if (l.kind === 'metro') {
+          for (const sd of [-1, 1]) {   // dos andenes laterales: piso, línea amarilla junto a la vía y franja del color de la línea
+            this.banda(g, Se, l.P, s0, s1, sd * 4.1, sd * 8.6); g.fillStyle = 'rgba(0,0,0,.28)'; g.save(); g.translate(1.5 * k, 2.5 * k); g.fill(); g.restore(); g.fillStyle = '#ece6d6'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.55)'; g.lineWidth = Math.max(1, .25 * k); g.stroke();
+            this.banda(g, Se, l.P, s0, s1, sd * 4.1, sd * 4.55); g.fillStyle = '#f2c400'; g.fill();
+            if (dz) {   // cubierta metálica sobre el andén (a 4 m), con su sombra, nervios y el borde del color de la línea
+              this.banda(g, Se, l.P, s0 + 6, s1 - 6, sd * 4.6, sd * 8.6); g.fillStyle = 'rgba(30,30,30,.16)'; g.fill();
+              this.banda(g, Sc, l.P, s0 + 6, s1 - 6, sd * 5.0, sd * 9.0); g.fillStyle = '#dde1e4'; g.fill(); g.strokeStyle = 'rgba(60,66,74,.6)'; g.lineWidth = Math.max(1, .2 * k); g.stroke();
+              this.banda(g, Sc, l.P, s0 + 6, s1 - 6, sd * 8.3, sd * 9.0); g.fillStyle = l.color; g.fill();
+              if (k > .6) { g.strokeStyle = 'rgba(120,126,134,.55)'; g.lineWidth = Math.max(1, .16 * k); g.beginPath(); for (let t = s0 + 10; t < s1 - 8; t += 6) { const A = NET.at(l.P, t, sd * 5.0), B2 = NET.at(l.P, t, sd * 8.3), qa = Sc(A.x, A.y), qb = Sc(B2.x, B2.y); g.moveTo(qa.x, qa.y); g.lineTo(qb.x, qb.y); } g.stroke(); }
+            } else {
+              this.banda(g, S, l.P, s0 + 6, s1 - 6, sd * 5.6, sd * 8.6); g.fillStyle = '#d4d0c6'; g.fill();
+              this.banda(g, S, l.P, s0 + 6, s1 - 6, sd * 7.8, sd * 8.6); g.fillStyle = l.color; g.fill();
+            }
+          }
+        } else if (l.kind === 'tram' || l.kind === 'brt') {
+          const o = l.kind === 'tram' ? 3.3 : 1.9, w = l.kind === 'tram' ? 2.8 : 3.2;
+          for (const sd of l.kind === 'tram' ? [-1, 1] : [-1]) { this.banda(g, S, l.P, s0, s1, sd * o, sd * (o + w)); g.fillStyle = 'rgba(0,0,0,.22)'; g.save(); g.translate(k, 1.6 * k); g.fill(); g.restore(); g.fillStyle = '#ece6d6'; g.fill(); g.strokeStyle = 'rgba(40,36,30,.5)'; g.lineWidth = Math.max(1, .2 * k); g.stroke(); this.banda(g, S, l.P, s0 + 3, s1 - 3, sd * (o + w * .45), sd * (o + w)); g.fillStyle = l.color; g.fill(); }
+        } else { const q = S(s.x, s.y); g.fillStyle = l.color; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y, Math.max(3, 2.2 * k), 0, TAU); g.fill(); g.stroke(); }
+      }
     }
     // metrocables: cable doble, torres cada ~260 m y estaciones
-    for (const l of NET.lines) { if (l.kind !== 'cable') continue; for (let i = 0; i < l.st.length - 1; i++) { const a = l.st[i], b = l.st[i + 1]; if (Math.max(a.x, b.x) < x0 - 100 || Math.min(a.x, b.x) > x1 + 100 || Math.max(a.y, b.y) < y0 - 100 || Math.min(a.y, b.y) > y1 + 100) continue; const qa = S(a.x, a.y), qb = S(b.x, b.y), L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1), ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang) * 1.5 * k, oy = Math.cos(ang) * 1.5 * k; g.strokeStyle = 'rgba(20,20,20,.8)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(qa.x + ox, qa.y + oy); g.lineTo(qb.x + ox, qb.y + oy); g.moveTo(qa.x - ox, qa.y - oy); g.lineTo(qb.x - ox, qb.y - oy); g.stroke(); for (let t = 1; t <= nt; t++) { const f = t / (nt + 1), tx = lerp(a.x, b.x, f), ty = lerp(a.y, b.y, f), q = S(tx, ty); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 1.5 * k + 2 * k, q.y - 1.5 * k + 3 * k, 3 * k, 3 * k); g.fillStyle = '#8f949a'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1; g.strokeRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); } }
-      for (const s of l.st) { if (s.x < x0 - 60 || s.x > x1 + 60 || s.y < y0 - 60 || s.y > y1 + 60) continue; const q = S(s.x, s.y); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 12 * k + 2.5 * k, q.y - 8 * k + 3.5 * k, 24 * k, 16 * k); g.fillStyle = '#d9d2c3'; g.fillRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); g.fillStyle = l.color; g.fillRect(q.x - 12 * k, q.y - 9 * k, 24 * k, 1.6 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.strokeRect(q.x - 12 * k, q.y - 8 * k, 24 * k, 16 * k); } }
+    for (const l of NET.lines) { if (l.kind !== 'cable') continue; const zc = VC.on ? 14 * VC.ob : 0, Sk = (x, y) => S(x, y - zc);
+      for (let i = 0; i < l.st.length - 1; i++) { const a = l.st[i], b = l.st[i + 1]; if (Math.max(a.x, b.x) < x0 - 100 || Math.min(a.x, b.x) > x1 + 100 || Math.max(a.y, b.y) < y0 - 100 || Math.min(a.y, b.y) > y1 + 100) continue;
+        const qa = Sk(a.x, a.y), qb = Sk(b.x, b.y), L = dist(a.x, a.y, b.x, b.y), nt = Math.max(0, Math.round(L / 260) - 1), ang = Math.atan2(b.y - a.y, b.x - a.x), ox = -Math.sin(ang) * 1.5 * k, oy = Math.cos(ang) * 1.5 * k;
+        for (let t = 1; t <= nt; t++) { const f = t / (nt + 1), tx = lerp(a.x, b.x, f), ty = lerp(a.y, b.y, f), q = S(tx, ty), qt = Sk(tx, ty);   // torres: poste del piso al cable, con su brazo
+          if (zc) { g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(q.x, q.y); g.lineTo(q.x + 4.5 * k, q.y + 2.8 * k); g.stroke(); g.strokeStyle = '#7c8188'; g.lineWidth = 1.6 * k; g.beginPath(); g.moveTo(q.x, q.y); g.lineTo(qt.x, qt.y); g.stroke(); g.strokeStyle = '#5b5f66'; g.lineWidth = Math.max(1, .5 * k); g.beginPath(); g.moveTo(qt.x - ox * 1.3, qt.y - oy * 1.3); g.lineTo(qt.x + ox * 1.3, qt.y + oy * 1.3); g.stroke(); }
+          else { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(q.x - 1.5 * k + 2 * k, q.y - 1.5 * k + 3 * k, 3 * k, 3 * k); g.fillStyle = '#8f949a'; g.fillRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1; g.strokeRect(q.x - 1.5 * k, q.y - 1.5 * k, 3 * k, 3 * k); } }
+        if (zc) { g.strokeStyle = 'rgba(0,0,0,.18)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); const sa = S(a.x, a.y), sb = S(b.x, b.y); g.moveTo(sa.x + 4.5 * k, sa.y + 2.8 * k); g.lineTo(sb.x + 4.5 * k, sb.y + 2.8 * k); g.stroke(); }   // sombra del cable
+        g.strokeStyle = 'rgba(20,20,20,.8)'; g.lineWidth = Math.max(1, .3 * k); g.beginPath(); g.moveTo(qa.x + ox, qa.y + oy); g.lineTo(qb.x + ox, qb.y + oy); g.moveTo(qa.x - ox, qa.y - oy); g.lineTo(qb.x - ox, qb.y - oy); g.stroke(); }
+      for (const s of l.st) { if (s.x < x0 - 60 || s.x > x1 + 60 || s.y < y0 - 60 || s.y > y1 + 60) continue; const q = S(s.x, s.y), a = NET.dirAt(l.P, s.s, 40), up = 7 * k * .45;   // estación girada con su cable: base, volumen y techo
+        g.save(); g.translate(q.x, q.y); g.rotate(a); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-14 * k + 2.5 * k, -9 * k + 3.5 * k, 28 * k, 18 * k); g.fillStyle = '#b9b2a4'; g.fillRect(-14 * k, -9 * k, 28 * k, 18 * k); g.restore();
+        g.save(); g.translate(q.x, q.y - up); g.rotate(a); g.fillStyle = '#e4ddcc'; g.fillRect(-14 * k, -9 * k, 28 * k, 18 * k); g.fillStyle = '#5b5f66'; g.fillRect(-9 * k, -2.2 * k, 18 * k, 4.4 * k); g.fillStyle = l.color; g.fillRect(-14 * k, -9 * k, 28 * k, 2 * k); g.fillRect(-14 * k, 7 * k, 28 * k, 2 * k); g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.strokeRect(-14 * k, -9 * k, 28 * k, 18 * k); g.restore(); } }
     g.setLineDash([]);
     for (const h of NET.stations) { if (h.x < x0 || h.x > x1 || h.y < y0 || h.y > y1 || !h.lines.some(l => l.kind !== 'future')) continue; const q = S(h.x, h.y), big = h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable'); if (!big && k < 1.4) continue; g.fillStyle = '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, big ? Math.max(5, 3 * k) : 3, 0, TAU); g.fill(); g.stroke(); if (k > .7 || big) { g.font = '700 ' + Math.max(10, Math.min(15, k * 5)) + 'px Cuerpo, sans-serif'; g.lineWidth = 3; g.strokeStyle = 'rgba(253,251,245,.92)'; g.strokeText(h.name, q.x + 7, q.y - 6); g.fillStyle = PAL.negro; g.fillText(h.name, q.x + 7, q.y - 6); } }
   },
@@ -6463,11 +7163,19 @@ const Libre = EM.modes.libre = {
   levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
   /* casilla transitable más cercana para parquear o aparecer */
+  /* punto libre para el jugador (con la ciudad vectorial, fuera de edificios y agua) */
+  libre(x, y, ok, maxR = 8) { return VC.on ? VC.despeja(x, y, .6, false, maxR * TM) : this.nearTile(x, y, ok, maxR); },
+  /* carros, bicis y anclajes de EnCicla se acomodan fuera de los edificios cuando el jugador se acerca (sin generar todo el valle al empezar) */
+  acomoda(st) {
+    if (!VC.on || (st._ac = (st._ac || 0) + 1) % 15) return;
+    st.docks.forEach((D, i) => { if (D.ok || dist(D.x, D.y, st.x, st.y) > 320) return; const q = VC.despeja(D.x, D.y, 2.2), dx = q.x - D.x, dy = q.y - D.y; D.x = q.x; D.y = q.y; D.ok = 1; for (const p of st.parked) if (p.dock === i && !p.ok) { p.x += dx; p.y += dy; p.ok = 1; } });
+    for (const p of st.parked) { if (p.ok || dist(p.x, p.y, st.x, st.y) > 320) continue; const q = VC.despeja(p.x, p.y, p.kind === 'bici' ? .5 : 1.4, p.kind !== 'bici'); p.x = q.x; p.y = q.y; p.ok = 1; }
+  },
   nearTile(x, y, ok, maxR = 8) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); for (let r = 0; r <= maxR; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; if (ok(MAP.tile(tx + dx, ty + dy))) return { x: (tx + dx + .5) * TM, y: (ty + dy + .5) * TM }; } return { x, y }; },
   create(lv, opts) {
     Ciudad.init((opts.seed | 0) || 1); const rng = new RNG((opts.seed | 0) + 3), sv = Save.d.libre || {};
     const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
-    let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.nearTile(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
+    let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.libre(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
     const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
     // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
     const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
@@ -6488,6 +7196,8 @@ const Libre = EM.modes.libre = {
     if (st.mode === 'veh' && st.veh.kind === 'taxi') { const c = Ciudad.peds.find(p => !p.client && !p.dog && dist(p.x, p.y, st.x, st.y) < 140 && dist(p.x, p.y, st.x, st.y) > 20); const d = pick(700, 3500); if (c && d) { c.client = true; c.tgt = null; c.wait = 99; Ciudad.say(c, '¡Taxi! ¡Taxi!'); J = { k: 'taxi', title: 'Un pasajero pide taxi', hint: 'Para junto a la persona que te llama y presiona ●', client: c, dest: d, stage: 0, pay: 0 }; } }
     else if (st.mode === 'veh' && st.veh.kind === 'camioneta') { const lines = NET.lines.filter(l => l.kind !== 'future' && l.kind !== 'escalator'), l = rng.pick(lines), s = rng.f() * l.P.len, p = NET.at(l.P, s), near = dist(p.x, p.y, st.x, st.y); if (near < 2600 && near > 200) J = { k: 'reparacion', title: 'Falla en ' + l.name, hint: 'Llega al punto marcado y mantén ● 3 s para repararla', x: p.x, y: p.y, name: l.name, limit: near / 7 + 70, pay: 120, stage: 0, hold: 0 }; }
     else if (st.mode === 'veh' && (st.veh.kind === 'alimentador' || st.veh.kind === 'metroplus')) { const line = NET.lines.find(l => (st.veh.kind === 'alimentador' ? l.kind === 'feeder' : l.kind === 'brt') && dist(l.st[0].x, l.st[0].y, st.x, st.y) < 120) || null; if (line) { J = { k: 'ruta', title: 'Ruta ' + line.name.replace(/^Alimentador\s*/, ''), hint: 'Para en cada parada (●) y lleva la gente a la estación', line, ni: 1, stops: line.st.length, pay: 0, stage: 0, limit: line.P.len / 5 + 60 * line.st.length }; } }
+    // domicilio por dirección (de El Metro 1.0.0): sin marca el primer minuto; las calles crecen hacia el norte y las carreras hacia el occidente
+    if (!J && st.mode !== 'ride' && rng.f() < .2) { const e = MAP.esquina(st.x, st.y, 500, 1800, rng); if (e) { const D = dist(e.x, e.y, st.x, st.y); J = { k: 'direccion', title: 'Domicilio a la ' + e.a + ' con ' + e.b, hint: 'Sin marca: las calles crecen hacia el norte y las carreras hacia el occidente', x: null, y: null, tx: e.x, ty: e.y, name: e.a + ' con ' + e.b, oculta: true, limit: D / 4 + 150, pay: 45 + Math.round(D / 45), stage: 0 }; } }
     if (!J && st.mode !== 'ride') { const r = rng.f(), d = pick(600, 2600);
       if (r < .3 && d) J = { k: 'encomienda', title: 'Encomienda para ' + d.name, hint: 'Lleva el paquete a la estación ' + d.name, x: d.x, y: d.y, name: d.name, limit: dist(d.x, d.y, st.x, st.y) / 7 + 80, pay: 40 + Math.round(dist(d.x, d.y, st.x, st.y) / 50), stage: 0 };
       else if (r < .55) { const far = pick(2200, 9000); if (far) J = { k: 'pasajero', title: 'Cita en ' + far.name, hint: 'Llega usando el metro, los cables o los buses (sin manejar)', x: far.x, y: far.y, name: far.name, limit: dist(far.x, far.y, st.x, st.y) / 6 + 150, pay: 60 + Math.round(dist(far.x, far.y, st.x, st.y) / 40), stage: 0 }; }
@@ -6501,6 +7211,7 @@ const Libre = EM.modes.libre = {
     J.t += dt; if (J.limit && J.t > J.limit) { this.fail(st, 'Se acabó el tiempo'); return; }
     if (J.k === 'taxi') { if (J.stage === 0) { if (!Ciudad.peds.includes(J.client)) { this.fail(st, 'El pasajero se fue'); return; } J.x = J.client.x; J.y = J.client.y; } else { J.x = J.dest.x; J.y = J.dest.y; if (dist(st.x, st.y, J.x, J.y) < 18 && Math.abs(st.vf) < .5) this.complete(st); } }
     else if (J.k === 'encomienda' || J.k === 'tinto') { if (dist(st.x, st.y, J.x, J.y) < 16 && Math.abs(st.vf) < 1) this.complete(st); }
+    else if (J.k === 'direccion') { if (J.oculta && J.t > 60) { J.oculta = false; J.x = J.tx; J.y = J.ty; this.msg(st, '📍 Pista: te marcamos la esquina', 'b'); } if (dist(st.x, st.y, J.tx, J.ty) < 26) { if (J.oculta) { J.pay += 20; this.msg(st, '🧭 ¡Sin mapa! La encontraste por la nomenclatura (+20)', 'b'); } this.complete(st); } }
     else if (J.k === 'pasajero') { if (dist(st.x, st.y, J.x, J.y) < 30 && st.mode !== 'veh') this.complete(st); }
     else if (J.k === 'reparacion') { if (dist(st.x, st.y, J.x, J.y) < 14 && Math.abs(st.vf) < .5 && st.act) { J.hold += dt; if (J.hold >= 3) this.complete(st); } else J.hold = Math.max(0, J.hold - dt); }
     else if (J.k === 'ruta') { const s = J.line.st[J.ni]; J.x = s.x; J.y = s.y; J.name = s.name; if (dist(st.x, st.y, s.x, s.y) < 16 && Math.abs(st.vf) < .5) { J.pay += 25; st.pay += 25; Save.d.wallet += 25; this.msg(st, 'Parada ' + s.name + ' +25 🎫', 'g'); this.sfx(st, 'coin'); for (let k = 0; k < 3; k++) Ciudad.parts.push({ x: st.x + (Math.random() - .5) * 6, y: st.y + (Math.random() - .5) * 6, vx: 0, vy: -2, t: 1, t0: 1, c: '#fff', r: .4 }); J.ni++; if (J.ni >= J.stops) this.complete(st); } }
@@ -6513,12 +7224,12 @@ const Libre = EM.modes.libre = {
   fail(st, why) { const J = st.job; if (J.k === 'taxi' && J.client) { J.client.client = false; J.client.wait = 1; if (J.stage === 1) { J.client.x = st.x + 3; J.client.y = st.y + 3; Ciudad.peds.push(J.client); } } this.msg(st, '✗ ' + J.title + ': ' + why, 'r'); this.sfx(st, 'bad'); st.job = null; st.jobT = 12; },
   /* ---------- acción (●) ---------- */
   action(st) {
-    if (st.mode === 'ride') { const v = st.ride; if (v.ph === 'dwell' && v.st) { st.mode = 'walk'; st.ride = null; const t = this.nearTile(v.st.x + 8, v.st.y + 8, q => q === TT.WALK || q === TT.PLAZA || q === TT.STATION, 6); st.x = t.x; st.y = t.y; st.vf = 0; this.msg(st, 'Bajas en ' + v.st.name, 'b'); this.sfx(st, 'door'); Album.estacion(v.st.name); } else this.msg(st, 'Espera a que pare en la estación', 'y'); return; }
+    if (st.mode === 'ride') { const v = st.ride; if (v.ph === 'dwell' && v.st) { st.mode = 'walk'; st.ride = null; const t = this.libre(v.st.x + 8, v.st.y + 8, q => q === TT.WALK || q === TT.PLAZA || q === TT.STATION, 6); st.x = t.x; st.y = t.y; st.vf = 0; this.msg(st, 'Bajas en ' + v.st.name, 'b'); this.sfx(st, 'door'); Album.estacion(v.st.name); } else this.msg(st, 'Espera a que pare en la estación', 'y'); return; }
     if (st.mode === 'veh') {
       const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
       if (st.veh.kind === 'bici' && st.prestamo) { if (this.devolver(st)) return; st.prestamo = null; this.msg(st, '⚠ Dejaste la bici EnCicla sola. En EnCicla eso se reporta: devuélvela siempre en un anclaje', 'y'); }
-      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.nearTile(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
+      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.libre(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
     }
     // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
     if (st.trama && Trama.onAction(st)) return;
@@ -6538,7 +7249,7 @@ const Libre = EM.modes.libre = {
     let bi = -1, bd = 12; st.docks.forEach((D, i) => { const d = dist(D.x, D.y, st.x, st.y); if (d < bd) { bd = d; bi = i; } }); if (bi < 0) return false;
     const P = st.prestamo, D = st.docks[bi], lejos = dist(P.x0, P.y0, D.x, D.y) > 400;
     st.parked.push({ kind: 'bici', x: D.x - 2.4 + (st.parked.length % 4) * 1.4, y: D.y + 1.6, a: Math.PI / 2, id: st.parked.length, dock: bi }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; st.prestamo = null;
-    const t = this.nearTile(D.x, D.y - 3, q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y;
+    const t = this.libre(D.x, D.y - 3, q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y;
     this.msg(st, '✓ Devuelves la bici en ' + D.n + ' (' + Math.max(1, Math.round(P.min)) + ' min)' + (lejos ? ' · «Nadie aplaude al anfitrión, pero todos llegan.»' : ''), 'g'); this.sfx(st, 'star');
     if (st.subio && lejos) { Vida.logro('intermodal'); Album.ganar('Metro + EnCicla'); }
     return true;
@@ -6561,7 +7272,7 @@ const Libre = EM.modes.libre = {
     else if (st.mode === 'veh') this.drive(st, dt);
     else this.walk(st, dt);
     Ciudad.tick(wdt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
-    this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
+    this.acomoda(st); this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
     if (st.shake > 0) st.shake -= dt;
     // cámara: sigue al jugador con adelanto y zoom según la velocidad
     const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
@@ -6573,18 +7284,19 @@ const Libre = EM.modes.libre = {
     if (!m) return; const a = Math.atan2(j.y, j.x), tile = MAP.tileM(st.x, st.y), spd = (st.run ? 3.6 : 1.6) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1);
     st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 10);
     const nx = st.x + Math.cos(a) * spd * dt, ny = st.y + Math.sin(a) * spd * dt; st.vf = spd;
-    if (!SOLID_W.has(MAP.tileM(nx, ny))) { st.x = nx; st.y = ny; } else if (!SOLID_W.has(MAP.tileM(nx, st.y))) st.x = nx; else if (!SOLID_W.has(MAP.tileM(st.x, ny))) st.y = ny;
+    const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
+    if (!bloq(nx, ny)) { st.x = nx; st.y = ny; } else if (!bloq(nx, st.y)) st.x = nx; else if (!bloq(st.x, ny)) st.y = ny;
     st.km += spd * dt / 1000;
   },
   drive(st, dt) {
     const V = this.V(st), j = st.joy, k = st.keys, thr = k.up ? 1 : j.y < -.2 ? -j.y : 0, br = k.down ? 1 : j.y > .25 ? j.y : 0, sIn = k.left ? -1 : k.right ? 1 : Math.abs(j.x) > .12 ? j.x : 0;
     const spdF = clamp(Math.abs(st.vf) / V.vmax, 0, 1), target = sIn * V.smax * (1 - .55 * spdF); st.steer += clamp(target - st.steer, -V.srate * dt, V.srate * dt);
-    const tile = MAP.tileM(st.x, st.y), soft = !(tile === TT.ROAD || tile === TT.AVE || tile === TT.AUTO || tile === TT.BRIDGE || tile === TT.DEPOT) && !(V.ciclo && tile === TT.CICLO), wet = Mundo.weather().rain;
+    const tile = MAP.tileM(st.x, st.y), ag = VC.on ? VC.agarre(st.x, st.y) : 1, soft = VC.on ? ag < .95 : !(tile === TT.ROAD || tile === TT.AVE || tile === TT.AUTO || tile === TT.BRIDGE || tile === TT.DEPOT) && !(V.ciclo && tile === TT.CICLO), wet = Mundo.weather().rain, capS = VC.on ? 4 + 6 * ag : 6;   // fuera del asfalto: más roce y menos velocidad (andén y plaza, pasto, monte)
     const c = Math.cos(st.h), s = Math.sin(st.h), gr = clamp((MAP.elevM(st.x + c * 8, st.y + s * 8) - MAP.elevM(st.x - c * 8, st.y - s * 8)) / 16, -.2, .2);
     if (thr > 0) { if (st.vf < -.3) st.vf = Math.min(0, st.vf + V.brk * dt); else st.vf += thr * V.acc * (1 - .55 * spdF) * dt * (soft && !V.campo ? .5 : 1); }
     if (br > 0) { if (st.vf > .3) st.vf = Math.max(0, st.vf - V.brk * br * dt); else st.vf = Math.max(-5, st.vf - V.acc * .6 * dt); }
     if (!thr && !br) st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), (.4 + .003 * st.vf * st.vf + (soft ? 2.5 : 0)) * dt);
-    st.vf -= 9.81 * gr * (V.walk ? .5 : .22) * dt; if (soft && !V.campo && Math.abs(st.vf) > 6) st.vf = Math.sign(st.vf) * 6; if (Math.abs(st.vf) > V.vmax * 1.05) st.vf = Math.sign(st.vf) * V.vmax * 1.05;
+    st.vf -= 9.81 * gr * (V.walk ? .5 : .22) * dt; if (soft && !V.campo && Math.abs(st.vf) > capS) st.vf = Math.sign(st.vf) * capS; if (Math.abs(st.vf) > V.vmax * 1.05) st.vf = Math.sign(st.vf) * V.vmax * 1.05;
     // giro (modelo bicicleta) y derrape: la velocidad lateral se apaga según el agarre
     const hb = st.hb && !V.walk, rot = st.vf / V.wb * Math.tan(st.steer) * (hb ? 1.4 : 1) * dt, oh = st.h; st.h += rot;
     const vx = st.vf * Math.cos(oh) - st.vs * Math.sin(oh), vy = st.vf * Math.sin(oh) + st.vs * Math.cos(oh), c2 = Math.cos(st.h), s2 = Math.sin(st.h); st.vf = vx * c2 + vy * s2; st.vs = -vx * s2 + vy * c2;
@@ -6596,7 +7308,9 @@ const Libre = EM.modes.libre = {
     if (!hit(nx, ny)) { st.x = nx; st.y = ny; } else if (!hit(nx, st.y)) { st.x = nx; st.vs *= .5; } else if (!hit(st.x, ny)) { st.y = ny; st.vs *= .5; } else { const imp = Math.abs(st.vf); st.vf *= -.2; st.vs *= .3; if (imp > 2) { st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = .3; this.sfx(st, 'crash'); vib(80); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r'); for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: nx, y: ny, vx: (Ciudad.rng.f() - .5) * 8, vy: (Ciudad.rng.f() - .5) * 8, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); } }
     st.km += Math.abs(st.vf) * dt / 1000; st.engine = thr;
   },
-  hitV(x, y, h, V) { const c = Math.cos(h), s = Math.sin(h), l = V.len / 2, w = V.wid / 2; for (const [u, v] of [[l, w], [l, -w], [-l, w], [-l, -w], [0, 0]]) { const t = MAP.tileM(x + c * u - s * v, y + s * u + c * v); if (SOLID_V.has(t) && !(V.campo && t === TT.MOUNT)) return true; } return false; },
+  hitV(x, y, h, V) { const c = Math.cos(h), s = Math.sin(h), l = V.len / 2, w = V.wid / 2;
+    if (VC.on) { const n = Math.max(1, Math.ceil(V.len / 3)); for (let i = 0; i <= n; i++) { const u = -l + 2 * l * i / n; for (const v of [w, -w]) if (VC.solid(x + c * u - s * v, y + s * u + c * v, 0)) return true; } return VC.solid(x, y, 0); }
+    for (const [u, v] of [[l, w], [l, -w], [-l, w], [-l, -w], [0, 0]]) { const t = MAP.tileM(x + c * u - s * v, y + s * u + c * v); if (SOLID_V.has(t) && !(V.campo && t === TT.MOUNT)) return true; } return false; },
   persist(st) { const L = Save.d.libre || (Save.d.libre = {}); L.x = st.x; L.y = st.y; L.h = st.h; L.veh = st.mode === 'veh' ? st.veh.kind : null; L.visited = st.visited; L.km = (L.km || 0) + st.km; st.km = 0; Save.write(); },
   unmount(st) { this.persist(st); if (this._eng) { try { this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .05); this._eng.o.stop(Snd.ac.currentTime + .2); } catch (e) { } this._eng = null; } },
   result(st) { return { done: false, win: false, score: st.pay, stars: 0, lines: [] }; },
@@ -6642,7 +7356,7 @@ const Libre = EM.modes.libre = {
   /* ---------- dibujo ---------- */
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir();
-    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1); Ciudad.marksDraw(g, S, k);
     // estaciones de EnCicla: anclaje azul con postes verdes y tótem
@@ -6670,6 +7384,7 @@ const Libre = EM.modes.libre = {
     const J = st.goal || st.job; if (J && J.x != null) { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.strokeStyle = PAL.mostaza; g.lineWidth = 3; g.beginPath(); g.arc(q.x, q.y, 10 + 4 * Math.sin(st.t * 5), 0, TAU); g.stroke(); g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 26); g.lineTo(q.x - 7, q.y - 38); g.lineTo(q.x + 7, q.y - 38); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4, ax = cx + Math.cos(a) * r, ay = cy + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     if (st.flash > 0) { st.flash -= .016; g.fillStyle = 'rgba(255,255,255,' + st.flash * 2 + ')'; g.fillRect(0, 0, W, H); }
     this.minimap(g, st, W, H);
+    if (MAP.ready && k >= .3) VC.prefetch(W, H, mx, my, k, st.mode === 'walk' ? 0 : Math.cos(st.h) * st.vf, st.mode === 'walk' ? 0 : Math.sin(st.h) * st.vf);
   },
   minimap(g, st, W, H) {
     const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), R = 58 * dpr, cx = R + 12 * dpr, cy = H - R - 12 * dpr, km = st.far ? 1 / 90 : 1 / 45;
@@ -6827,7 +7542,7 @@ const Trama = EM.trama = {
   walkable(q) { return q === TT.WALK || q === TT.PLAZA || q === TT.STATION || q === TT.STEPS || q === TT.GRASS; },
   npcPos(S, i = 0) {
     const p = this.stPos(S.at, S.line); if (!p) return null; const a = h2(hashStr((S.who || 'p') + i), 3, 11) * TAU, r = 12 + i * 7;
-    const t = Libre.nearTile(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
+    const t = Libre.libre(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, q => this.walkable(q), 6); return { x: t.x, y: t.y, a: a + Math.PI };
   },
   /* ---------- ciclo de vida ---------- */
   init(st) { st.trama = { npcs: [], talk: null, key: '', talked: 0, warned: 0, rode: 0, ok: 0 }; this.enter(st); },
@@ -6918,7 +7633,7 @@ const Trama = EM.trama = {
     return false;
   },
   /* ---------- módulos: manejar y volver a la ciudad ---------- */
-  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.nearTile(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
+  place(name, line) { const p = this.stPos(name, line); if (!p) return; const t = Libre.libre(p.x + 10, p.y + 10, q => this.walkable(q), 6); const L = Save.d.libre || (Save.d.libre = {}); L.x = t.x; L.y = t.y; L.veh = null; Save.write(); },
   launch(st, S) {
     if (EM.headless || st.auto) { this.next(st); return; }
     const T = this.save(), C = this.cap(), M = EM.modes[S.m], lvl = M.levels().find(l => l.id === S.lv) || M.levels()[0];
@@ -7078,7 +7793,7 @@ const Bus = EM.modes.bus = {
   key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if ((m === 'left' || m === 'right') && down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado', 'b'); } if (!st.assist) st.joy = { x: (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), y: 0, m: 1 }; return; } if (!down) return; if (k === ' ' || k === 'e') this.doors(st); if (k === 'g') st.assist = !st.assist; if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') Snd.play('horn'); },
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st);
-    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = st.cam.x, my = st.cam.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); } if (MAP.ready && k >= .3) MAP.drawLabels(g, W, H, mx, my, k, W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), Mundo.light().night);
     // ruta: carril exclusivo o recorrido del alimentador
     g.strokeStyle = st.kind === 'metroplus' ? 'rgba(14,111,118,.45)' : line.color + '66'; g.lineWidth = (st.kind === 'metroplus' ? 7 : 5) * k; g.lineJoin = 'round'; g.beginPath(); let on = false; for (const p of line.P.pts) { if (p.x < x0 - 200 || p.x > x1 + 200 || p.y < y0 - 200 || p.y > y1 + 200) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.stroke();
@@ -7813,7 +8528,7 @@ const RedView = EM.red = {
     if (this.iso) { this.drawIso(); return; }
     const cv = $('#rcv'), { w, h, dpr } = fitCanvas(cv), g = cv.getContext('2d'), k = this.cam.k; this.t = now();
     g.fillStyle = PAL.gris; g.fillRect(0, 0, w, h);
-    if (MAP.ready) { if (k > .55) { MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
+    if (MAP.ready) { if (k > .55) { MAP.prisa = now() + .014; MAP._hechos = 0; MAP.drawTop(g, w, h, this.cam.x, this.cam.y, k); MAP.drawLabels(g, w, h, this.cam.x, this.cam.y, k, dpr); MAP.prisa = 0; } else { const m = MAP.mini(), s = k * MAP.miniK, o = this.S(0, 0); g.imageSmoothingEnabled = k * MAP.miniK > 1.5 ? false : true; g.drawImage(m, o.x, o.y, m.width * s, m.height * s); } }
     const lw = clamp(k * 60, 2.5, 9) * dpr / 1.5;
     for (const l of NET.lines) {
       if (!this.on[l.kind]) continue; g.setLineDash(l.status && l.status !== 'operativa' ? [lw * 2, lw * 1.5] : []);
@@ -8520,7 +9235,7 @@ const BotT = EM.test = {
       if (typeof AJUSTES !== 'undefined' && !window.__sinAjustes) {
         if (!MAP.ajustado) E('ajustes: no se aplicaron'); if (!MAP.techos || MAP.techos.length < 49) E('ajustes: faltan huellas de estación (' + (MAP.techos || []).length + ')');
         const bl = NET.stations.find(q => q.name === 'Bello'); if (!MAP.barrioAt(bl.x, bl.y)) E('ajustes: Bello sin barrio');
-        let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')');
+        if (AJUSTES.calles) { let nm = 0; for (let k = 0; k < (MAP.rE || []).length; k++) if (MAP.rE[k]) nm++; if (nm < 50000) E('ajustes: pocos nombres de calle nuevos (' + nm + ')'); }
       }
       if (typeof ENCICLA !== 'undefined') { if (ENCICLA.estaciones.length < 100) E('encicla: faltan estaciones'); const L = EM.modes.libre.create('lb:San Antonio', { seed: 3 }); if (L.docks.length !== ENCICLA.estaciones.length || !L.parked.some(p => p.dock != null)) E('encicla: anclajes sin bicis'); }
     } catch (e) { E('ajustes: ' + e.message); }
@@ -8536,12 +9251,31 @@ const BotT = EM.test = {
     // Medellín reconocible: parche de casillas, barrios y nombres de calle (datos oficiales)
     let nBa = 0, nCa = 0; try {
       if (typeof CIUDAD === 'undefined') E('ciudad: falta src/data/ciudad.js'); else {
-        nBa = CIUDAD.barrios.length; nCa = CIUDAD.calles.length - 1; if (!(MAP.parcheN > 80000)) E('ciudad: parche no aplicado (' + MAP.parcheN + ')');
+        nBa = CIUDAD.barrios.length; nCa = CIUDAD.calles.length - 1; if (!(MAP.parcheN > 60000)) E('ciudad: parche no aplicado (' + MAP.parcheN + ')');
         const cerca = (est, txt) => { const s = NET.stations.find(q => q.name === est); if (!s) return false; for (let r = 0; r <= 140; r += 10) for (let a = 0; a < TAU; a += .4) { const c = MAP.calleAt(s.x + Math.cos(a) * r, s.y + Math.sin(a) * r); if (c && (c.n + '|' + c.p).includes(txt)) return true; } return false; };
         const B = NET.stations.find(q => q.name === 'Parque Berrío'), bb = B && MAP.barrioAt(B.x, B.y); if (!bb || bb[0] !== 'La Candelaria') E('ciudad: Parque Berrío debería quedar en La Candelaria (' + (bb && bb[0]) + ')');
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    // ciudad vectorial (1.1.0): calles con curva, edificios fuera de las vías, andenes sobre su línea, giros suaves y buses sobre el asfalto
+    let nVias = 0; try {
+      if (typeof VIAS !== 'undefined') {
+        if (!VC.on || VC.ch.length < 20000) E('ciudad vectorial: no cargó las vías (' + VC.ch.length + ')'); nVias = VC.ch.length;
+        const asfalto = (x, y, m = -.3) => { for (const c of VC.near(x - 20, y - 20, x + 20, y + 20)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < c.w / 2 + m) return true; } } return false; };
+        let nb = 0, mal = 0; for (const n of ['Parque Berrío', 'Estadio', 'Santo Domingo Savio']) { const h = NET.stations.find(q => q.name === n); if (!h) continue; const R = VC.regionAt(h.x, h.y); for (const b of R.bs) { nb++; if (asfalto(b.x, b.y)) mal++; } }
+        if (nb < 500) E('ciudad vectorial: pocos edificios generados (' + nb + ')'); if (mal) E('ciudad vectorial: ' + mal + ' edificios sobre el asfalto');
+        for (const l of NET.lines) { if (l.kind !== 'metro' && l.kind !== 'tram') continue; const P = l.P.pts; let giro = 0; for (let i = 2; i < P.length; i++) { let d = Math.abs(Math.atan2(P[i].y - P[i - 1].y, P[i].x - P[i - 1].x) - Math.atan2(P[i - 1].y - P[i - 2].y, P[i - 1].x - P[i - 2].x)); if (d > Math.PI) d = TAU - d; giro = Math.max(giro, d); }
+          if (l.kind === 'metro' && giro > .2) E(l.id + ': la vía tiene un quiebre de ' + Math.round(giro * 57.3) + '° (debe ser curva)');
+          for (const s of l.st) { if (NET.project(l.P, s.x, s.y).d > 1) E(l.id + ': el andén de ' + s.name + ' no está sobre su línea'); if (Math.hypot(s.ox - s.x, s.oy - s.y) > 30) Wn(l.id + ': ' + s.name + ' quedó a ' + Math.round(Math.hypot(s.ox - s.x, s.oy - s.y)) + ' m de su punto');
+            const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), a0 = NET.dirAt(l.P, s0 + 5, 4), a1 = NET.dirAt(l.P, s0 + K.plat - 5, 4); let da = Math.abs(a1 - a0); if (da > Math.PI) da = TAU - da; if (l.kind === 'metro' && da > .44) Wn(l.id + ': el andén de ' + s.name + ' gira ' + Math.round(da * 57.3) + '°'); } }
+        let n = 0, f = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); n++; if (!asfalto(q.x, q.y, 4)) f++; } }
+        if (n && f / n > .04) E('buses: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        // arquitectura icónica: cargada, sin edificios genéricos encima y sólida (las plazas se caminan)
+        if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
+        for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
+        const B0 = VC.HT.find(q => q.id === 'botero'); if (B0 && VC.solid(B0.cx + 6, B0.cy + 6, .3) && VC.solid(B0.cx - 6, B0.cy - 6, .3)) Wn('arquitectura: la Plaza Botero no se deja caminar');
+      }
+    } catch (e) { E('ciudad vectorial: ' + e.message); }
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
@@ -8591,6 +9325,7 @@ async function boot() {
   $('#gPause').onclick = () => Game.pause(true);
   Menu.cover();
   try { await MAP.load(); } catch (e) { EM.errors.push('mapa: ' + e.message); }
+  try { await VC.init(); } catch (e) { EM.errors.push('ciudad vectorial: ' + e.message); console.error(e); }
   try { NET.build(); } catch (e) { EM.errors.push('red: ' + e.message); console.error(e); }
   try { MAP.estaciones(); } catch (e) { EM.errors.push('estaciones: ' + e.message); console.error(e); }
   play.disabled = false; playTx.textContent = 'Ciudad Libre y todos los modos';
@@ -8795,8 +9530,8 @@ const LUGARES = [
 
 ### `src/data/rutas.js`
 ~~~~js
-/* Recorridos por calles reales (A* sobre el mapa OSM), generados por tools/rutas.mjs */
-const RUTAS = {"MP1":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3188,4376,3192,4372,3188,4364,3160,4364,3148,4356,3096,4352,3084,4344,2936,4328,2928,4340,2928,4352,2920,4368,2904,4388,2904,4396,2860,4452,2860,4464,2832,4492,2808,4508,2772,4548,2772,4600,2764,4620,2760,4888,2748,4904,2748,4960,2740,4968,2740,5072,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MP2":[3172,3868,3168,3872,3184,3884,3184,3900,3192,3908,3248,3908,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3228,4140,3220,4160,3216,4208,3212,4212,3212,4228,3204,4236,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3180,4388,3144,4392,3128,4408,3116,4408,3092,4432,3088,4448,3068,4480,3072,4504,3052,4532,3048,4568,3040,4576,3040,4588,3032,4604,3008,4628,3000,4652,2980,4672,2964,4708,2924,4752,2920,4768,2900,4804,2900,4816,2880,4848,2880,4860,2872,4876,2876,5108,2880,5116,2872,5124,2860,5124,2788,5072,2780,5076,2740,5076,2732,5080,2736,5076,2728,5068,2716,5068,2692,5044,2292,5052,2288,5056,2104,5060,2100,5064,2096,5060,2040,5056,2012,5072],"MPO":[2872,4020,2876,4024,2876,4036,2848,4060,2812,4060,2796,4068,2780,4084,2736,4096,2700,4112,2692,4108,2680,4120,2572,4120,2532,4140,2508,4140,2496,4132,2448,4132,2420,4144,2396,4144,2376,4132,2368,4132,2356,4140,2356,4148,2324,4184,2316,4224,2312,4228,2312,4244,2304,4260,2304,4280,2296,4300,2296,4316,2292,4320,2292,4348,2284,4356,2284,4368,2276,4380,2276,4404,2264,4440,2264,4460,2260,4464,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2160,4620,2160,4716,2156,4720,2152,4848,2148,4852,2148,4916,2144,4920,2144,4932,2164,4968,2164,5024],"AL-C6-001":[3420,3360,3412,3360,3388,3348,3368,3348,3364,3352,3336,3348,3332,3352,3308,3352,3296,3360,3272,3360,3264,3356,3264,3360,3248,3372,3208,3380,3196,3392,3188,3416,3180,3496,3168,3512,3148,3556],"AL-C6-002A":[3472,4288,3448,4284,3428,4300,3396,4300,3392,4296,3380,4304,3380,4316,3376,4320,3364,4316,3364,4356,3372,4372,3372,4384,3368,4388,3368,4408,3344,4432,3344,4440,3320,4464,3308,4456,3296,4468,3280,4460,3264,4472,3256,4464,3248,4476,3232,4488,3208,4468,3208,4452,3176,4424,3168,4412,3160,4416,3156,4412,3156,4392,3160,4388,3140,4368,3136,4356,3112,4352,3092,4340,3052,4340,3040,4328,3036,4316],"AL-C6-003":[3088,3936,3100,3952,3100,3968,3120,3980,3124,3992,3136,4000,3136,4008,3144,4020,3144,4036,3152,4044,3148,4096,3140,4116,3140,4144,3132,4160,3132,4188,3124,4204,3124,4240,3112,4252,3100,4256,3088,4336,3084,4340,3040,4340,3028,4344,3020,4356],"AL-C6-004":[3376,5148,3348,5128,3364,5108,3348,5096,3348,5088,3340,5080,3340,5056,3336,5052,3300,5052,3292,5032,3284,5024,3272,5024,3268,5020,3264,4996,3252,4984,3252,4976,3232,4964,3216,4960,3204,4972,3188,4972,3168,4996,3152,5000,3148,5012,3128,5036,3108,5036,3100,5044,3100,5056,3092,5064,3092,5072,3072,5088,3072,5108,3064,5116,3064,5124,3052,5132,3052,5148,3068,5168,3056,5152,3040,5156,3028,5148,3012,5152,2996,5164,2952,5116,2956,5108,2960,5048,2944,5020,2924,5000,2924,4980,2916,4960,2896,4936,2864,4932,2840,4908,2812,4896],"AL-C6-005":[3492,5192,3480,5188,3476,5180,3484,5172,3484,5164,3468,5152,3468,5144,3484,5120,3484,5100,3504,5084,3504,5076,3492,5068,3488,5044,3476,5028,3452,5028,3440,5012,3424,5004,3384,4968,3380,4960,3384,4940,3372,4928,3372,4912,3356,4896,3344,4896,3324,4876,3308,4876,3276,4856,3264,4868,3252,4868,3248,4864,3228,4868,3216,4860,3192,4864,3172,4852,3164,4852,3156,4844,3148,4844,3136,4832,3120,4832,3116,4836,3088,4808,3060,4796,3040,4780,3024,4780,3016,4772,2980,4776,2940,4740],"AL-C6-008":[3480,4860,3476,4848,3464,4840,3432,4804,3436,4784,3416,4764,3416,4752,3412,4748,3416,4744,3404,4708,3396,4696,3376,4684,3360,4664,3340,4664,3332,4656,3260,4664,3228,4652,3212,4652,3196,4644,3172,4644,3132,4604,3104,4588,3036,4524,3020,4516,3004,4516,2964,4492,2952,4492],"AL-C6-010":[3532,4780,3540,4788,3540,4820,3548,4824,3552,4836,3560,4844,3568,4844,3572,4852,3564,4860,3560,4888,3548,4904,3548,4916,3532,4912,3520,4920,3516,4908,3492,4884,3468,4872,3460,4872,3452,4864,3432,4868,3424,4852,3412,4852,3400,4844,3392,4844,3360,4812,3332,4808,3328,4804,3252,4800,3232,4788,3220,4788,3208,4776,3200,4776,3184,4760,3168,4752,3152,4764,3144,4764,3132,4752,3088,4732,3080,4724,3032,4708,3008,4684,2996,4664,2988,4664,2960,4648,2940,4628,2932,4612],"AL-C6-013":[3408,3508,3400,3520,3400,3528,3392,3536,3392,3548,3380,3560,3372,3608,3364,3616,3336,3628,3316,3620,3296,3632,3284,3628,3276,3636,3260,3636,3244,3648,3232,3680,3220,3684,3208,3684,3204,3680,3188,3700,3176,3704,3168,3720,3168,3732,3156,3744,3160,3752,3140,3748,3136,3752,3096,3756,3084,3744,3056,3744,3048,3736,3040,3736],"AL-C6-019":[3464,4216,3456,4212,3444,4220,3416,4216,3408,4224,3396,4224,3372,4204,3360,4208,3352,4200,3336,4200,3332,4196,3332,4184,3324,4192,3300,4192,3292,4188,3280,4208,3220,4200,3212,4212,3212,4228,3200,4244],"AL-C6-020":[3476,3868,3476,3876,3460,3888,3448,3884,3440,3888,3440,3908,3428,3928,3408,3948,3396,3948,3396,3960,3388,3976,3368,3996,3368,4004,3340,4028,3336,4056,3324,4060,3320,4072,3292,4096,3292,4104,3276,4112,3276,4124,3268,4128,3256,4144,3108,4116,3060,4148,3028,4144,3008,4136,2988,4140,2972,4156,2972,4168,2960,4192],"AL-C6-022":[3580,4144,3580,4148,3568,4148,3564,4152,3564,4164,3544,4176,3520,4180,3512,4204,3508,4204,3488,4180,3484,4184,3484,4216,3476,4228,3472,4224,3468,4228,3432,4228,3428,4224,3412,4228,3408,4224,3396,4224,3372,4204,3360,4208,3356,4212,3356,4240,3352,4244,3344,4240,3332,4244,3288,4292,3288,4312,3232,4364,3224,4364,3212,4352,3092,4348,3084,4340,3040,4340,3028,4344,3012,4360,2996,4392,2992,4404,2992,4436,2984,4444,2972,4476,2952,4492],"AL-C6-025":[3928,5144,3908,5160,3888,5136,3864,5124,3844,5128,3824,5120,3804,5140,3796,5132,3784,5132,3776,5140,3768,5140,3756,5128,3748,5128,3736,5140,3724,5140,3716,5148,3708,5140,3708,5132,3680,5104,3668,5104,3656,5092,3644,5088,3624,5088,3616,5084,3600,5064,3564,5064,3552,5060,3532,5040,3532,5020],"AL-C3-001":[2148,4912,2144,4936,2164,4964,2168,5136,2172,5140,2172,5152,2220,5200,2224,5304,2260,5380,2268,5388,2268,5416,2292,5444,2292,5460,2316,5488,2316,5504,2348,5536,2364,5560,2392,5564,2400,5572,2432,5572,2456,5596,2464,5628,2488,5652,2512,5656,2556,5696,2556,5752,2548,5772,2548,5784,2560,5796,2556,5816,2600,5860,2624,5876],"AL-C3-005":[1320,5008,1320,5024,1308,5064,1312,5072,1340,5048,1356,5048,1376,5040,1452,5040,1456,5044,1468,5044,1472,5040,1484,5040,1488,5036,1492,5040,1500,5036,1516,5048,1524,5048,1536,5036,1544,5036,1560,5024,1568,5024,1576,5012,1596,5016,1616,5004,1636,5004,1648,4992,1672,4988,1692,4964,1708,4964,1728,4952,1740,4952,1744,4956,1780,4956,1788,4952,1796,4960,1808,4956,1828,4972,1864,4984,1892,4984,1896,4988,1928,4988,1940,4980,1952,4980,1960,4972,1964,4980,1976,4988,1976,5008,1996,5016,1996,5044,2008,5048],"AL-C3-008":[2120,5412,2132,5420,2132,5436,2144,5440,2156,5452,2156,5468,2176,5488,2176,5500,2184,5508,2216,5508,2220,5504,2220,5492,2212,5480,2220,5468,2220,5460,2236,5452,2236,5440,2252,5424,2260,5424,2268,5416,2288,5416,2312,5384,2332,5372,2340,5372,2344,5360,2368,5344,2372,5304,2380,5292,2380,5284,2388,5276,2388,5220,2396,5196,2396,5176,2408,5156,2404,5064],"F-80":[2868,4032,2864,4028,2836,4028,2816,4048,2808,4048,2776,4088,2760,4088,2700,4112,2692,4108,2680,4120,2580,4120,2532,4140,2504,4140,2496,4132,2448,4132,2420,4144,2408,4144,2396,4136,2368,4132,2324,4184,2320,4208,2312,4216,2312,4244,2304,4264,2304,4280,2296,4300,2296,4316,2292,4320,2292,4336,2288,4340,2280,4384,2272,4400,2272,4420,2268,4424,2256,4492,2248,4508,2248,4524,2244,4532,2184,4588,2172,4604,2164,4628,2160,4716,2156,4720,2156,4748,2152,4752,2152,4848,2148,4852,2148,4916,2144,4920,2144,4936,2164,4964,2164,5036,2168,5040,2172,5144,2216,5184,2216,5196,2220,5200,2220,5280,2224,5284,2228,5316,2236,5324,2236,5344,2260,5372,2260,5384,2292,5436,2292,5452,2308,5468,2308,5488,2340,5520,2340,5528,2356,5552,2376,5564,2424,5564,2452,5588,2452,5612,2456,5620,2472,5636,2500,5648,2508,5656,2516,5656,2560,5700,2564,5720,2560,5724,2540,5816,2556,5832,2564,5832,2588,5856,2592,5864,2588,5872]};
+/* Recorridos de bus por calles reales (A* sobre el mapa v3), generados por tools/rutas.mjs (El Metro 1.0.0: 137 tramos por calles, ninguno en línea recta) */
+const RUTAS = {"MP1":[3172,3868,3168,3872,3172,3880,3232,3880,3236,3884,3236,3904,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3232,4120,3224,4144,3212,4232,3204,4240,3208,4248,3204,4252,3204,4292,3200,4296,3200,4324,3196,4328,3192,4372,3188,4364,3172,4364,3140,4352,3088,4348,3080,4340,3036,4340,3032,4336,3000,4336,2996,4332,2972,4332,2968,4328,2936,4324,2928,4348,2912,4372,2892,4416,2860,4452,2860,4464,2772,4544,2768,4552,2768,4620,2764,4624,2764,4716,2760,4720,2760,4888,2748,4904,2748,4920,2728,4944,2736,4972,2736,4996,2728,5016,2728,5068,2732,5080,2728,5052,2724,5048,2700,5048,2696,5044,2648,5044,2644,5048,2512,5048,2508,5052,2292,5052,2288,5056,2200,5056,2196,5060,2172,5060,2164,5056,2160,5060,2104,5060,2100,5064,2096,5060,2084,5064,2060,5056,2040,5056,2012,5072],"MP2":[3172,3868,3168,3872,3172,3880,3232,3880,3236,3884,3236,3904,3256,3916,3252,3928,3260,3944,3256,3988,3252,3992,3252,4008,3240,4048,3236,4100,3232,4104,3232,4120,3224,4144,3212,4232,3204,4240,3208,4248,3204,4252,3204,4292,3200,4296,3192,4380,3184,4388,3144,4392,3128,4412,3112,4408,3100,4420,3100,4428,3088,4440,3088,4448,3068,4476,3068,4484,3076,4496,3048,4536,3048,4568,3040,4576,3040,4584,3020,4604,3020,4612,3000,4652,2980,4672,2964,4708,2924,4752,2920,4768,2912,4776,2912,4784,2888,4832,2888,4840,2880,4848,2868,4888,2868,4968,2876,4996,2876,5092,2880,5096,2880,5120,2876,5124,2864,5124,2836,5096,2824,5096,2784,5056,2748,5056,2720,5076,2696,5044,2648,5044,2644,5048,2512,5048,2508,5052,2292,5052,2288,5056,2200,5056,2196,5060,2172,5060,2164,5056,2160,5060,2104,5060,2100,5064,2096,5060,2084,5064,2060,5056,2040,5056,2012,5072],"MPO":[2872,4024,2876,4028,2876,4056,2868,4064,2828,4064,2824,4068,2812,4068,2804,4076,2796,4068,2784,4084,2740,4096,2704,4112,2692,4108,2672,4124,2652,4124,2648,4120,2576,4120,2556,4132,2520,4144,2480,4128,2464,4128,2412,4148,2368,4128,2328,4172,2316,4196,2312,4236,2300,4272,2300,4288,2292,4308,2288,4348,2276,4380,2268,4432,2260,4444,2260,4468,2256,4472,2244,4532,2208,4572,2196,4576,2176,4596,2168,4616,2160,4624,2156,4740,2152,4744,2152,4788,2156,4796,2148,4820,2148,4888,2152,4896,2144,4904,2144,4928,2164,4968,2164,5024],"AL-C6-001":[3420,3360,3412,3360,3388,3348,3368,3348,3364,3352,3336,3348,3332,3352,3308,3352,3296,3360,3272,3360,3264,3356,3260,3372,3248,3384,3232,3388,3224,3400,3212,3408,3200,3436,3184,3444,3180,3452,3180,3492,3148,3556],"AL-C6-002A":[3472,4288,3436,4284,3432,4280,3400,4280,3388,4296,3368,4296,3364,4300,3364,4356,3368,4368,3360,4376,3360,4416,3308,4480,3292,4484,3276,4496,3264,4492,3252,4480,3240,4480,3232,4488,3224,4484,3208,4468,3208,4452,3176,4424,3168,4412,3160,4416,3156,4412,3156,4396,3128,4384,3124,4356,3120,4352,3100,4344,3052,4340,3036,4316],"AL-C6-003":[3088,3936,3100,3960,3116,3968,3120,3988,3136,4000,3136,4008,3144,4020,3144,4036,3156,4044,3148,4092,3144,4096,3144,4116,3140,4120,3140,4144,3132,4164,3132,4184,3128,4188,3128,4208,3124,4212,3120,4244,3100,4256,3088,4336,3084,4340,3036,4340,3016,4352],"AL-C6-004":[3376,5148,3348,5136,3348,5128,3364,5108,3348,5096,3348,5088,3340,5076,3340,5060,3336,5056,3300,5052,3296,5040,3280,5024,3268,5020,3264,4996,3252,4976,3232,4964,3216,4960,3188,4984,3180,4984,3168,4996,3152,5000,3148,5012,3128,5036,3108,5036,3100,5044,3092,5056,3092,5072,3072,5088,3072,5108,3064,5116,3064,5124,3052,5132,3052,5152,3068,5168,3052,5152,3048,5140,3032,5128,3020,5136,3004,5120,3000,5108,2996,5108,2984,5124,3008,5144,3008,5156,2996,5164,2952,5120,2952,5084,2964,5068,2964,5052,2952,5028,2928,5004,2928,4992,2920,4980,2916,4960,2896,4936,2860,4916,2848,4916,2828,4904,2820,4904,2812,4900,2808,4892],"AL-C6-005":[3492,5192,3480,5188,3476,5180,3484,5172,3484,5164,3468,5152,3468,5144,3472,5132,3484,5120,3484,5100,3504,5084,3504,5076,3492,5068,3488,5044,3480,5032,3452,5028,3440,5012,3384,4968,3380,4956,3364,4940,3372,4920,3368,4908,3352,4892,3340,4892,3328,4880,3312,4876,3276,4856,3264,4868,3252,4868,3248,4864,3228,4868,3216,4860,3192,4864,3172,4852,3164,4852,3156,4844,3148,4844,3136,4832,3120,4832,3116,4836,3088,4808,3052,4792,3040,4780,3024,4780,2980,4752,2968,4752,2964,4748,2952,4752,2940,4740],"AL-C6-008":[3480,4860,3476,4848,3464,4840,3432,4804,3436,4784,3416,4764,3416,4744,3404,4708,3396,4696,3384,4684,3376,4684,3360,4664,3340,4664,3332,4652,3312,4660,3292,4660,3288,4664,3252,4664,3232,4652,3212,4652,3196,4644,3172,4644,3044,4532,2968,4492,2952,4492],"AL-C6-010":[3532,4780,3540,4788,3540,4820,3568,4852,3564,4856,3560,4888,3548,4904,3548,4916,3532,4912,3520,4920,3516,4908,3492,4884,3468,4872,3460,4872,3452,4864,3432,4868,3424,4852,3412,4852,3400,4844,3392,4844,3360,4812,3344,4812,3332,4804,3276,4804,3272,4800,3240,4796,3232,4788,3220,4788,3200,4776,3172,4748,3152,4768,3136,4756,3120,4752,3108,4740,3024,4700,3016,4692,3004,4696,2988,4680,2988,4668,2972,4652,2960,4648,2940,4632,2932,4612],"AL-C6-013":[3408,3508,3400,3528,3392,3536,3392,3548,3380,3560,3372,3608,3364,3616,3336,3628,3316,3620,3296,3632,3284,3628,3276,3636,3260,3636,3248,3648,3248,3656,3236,3668,3232,3680,3220,3684,3208,3684,3204,3680,3188,3700,3176,3704,3168,3720,3168,3732,3156,3744,3160,3752,3140,3748,3136,3752,3096,3756,3084,3744,3056,3744,3048,3736,3040,3736],"AL-C6-019":[3464,4216,3456,4212,3444,4220,3416,4216,3408,4224,3396,4224,3372,4204,3360,4208,3352,4200,3332,4200,3328,4196,3332,4184,3324,4192,3300,4192,3292,4188,3280,4208,3220,4200,3212,4212,3212,4232,3200,4244],"AL-C6-020":[3476,3868,3476,3876,3460,3888,3448,3884,3440,3888,3440,3908,3420,3924,3420,3936,3404,3948,3412,3952,3408,3968,3392,3984,3384,3984,3372,3996,3372,4004,3352,4020,3348,4036,3336,4044,3336,4056,3324,4060,3320,4072,3292,4096,3292,4104,3276,4112,3276,4124,3268,4128,3256,4144,3204,4136,3200,4132,3180,4132,3140,4120,3112,4120,3108,4116,3060,4148,3008,4140,3004,4136,2988,4140,2972,4156,2960,4192],"AL-C6-022":[3580,4144,3580,4148,3568,4148,3564,4152,3564,4164,3544,4176,3520,4180,3512,4208,3504,4204,3504,4196,3488,4180,3484,4184,3488,4200,3476,4228,3472,4224,3468,4228,3424,4232,3408,4224,3396,4224,3372,4204,3360,4208,3356,4212,3356,4240,3352,4244,3336,4244,3292,4288,3288,4316,3280,4324,3272,4324,3240,4360,3228,4360,3220,4352,3196,4352,3188,4356,3176,4348,3148,4348,3144,4352,3092,4348,3084,4340,3036,4340,3024,4344,3012,4356,3012,4364,3000,4384,3000,4408,2976,4456,2972,4476,2964,4488,2952,4492],"AL-C6-025":[3928,5144,3908,5160,3884,5132,3868,5124,3844,5128,3836,5120,3828,5120,3804,5140,3796,5132,3788,5132,3772,5144,3752,5128,3736,5144,3712,5148,3704,5124,3688,5108,3672,5104,3660,5092,3612,5084,3608,5076,3620,5072,3624,5068,3620,5064,3568,5064,3564,5060,3552,5060,3532,5044,3532,5020],"AL-C3-001":[2144,4908,2144,4932,2160,4956,2160,5012,2164,5016,2164,5056,2160,5068,2164,5072,2168,5136,2172,5148,2224,5204,2224,5304,2232,5328,2252,5368,2260,5376,2264,5404,2272,5412,2276,5428,2292,5444,2292,5456,2300,5472,2316,5488,2324,5508,2336,5520,2348,5544,2368,5564,2392,5564,2396,5568,2436,5572,2452,5588,2460,5624,2476,5640,2484,5640,2504,5656,2512,5656,2532,5676,2540,5676,2556,5692,2560,5700,2560,5728,2540,5796,2540,5820,2556,5832,2568,5832,2592,5856,2612,5860,2624,5876],"AL-C3-005":[1320,5008,1320,5024,1308,5064,1312,5072,1340,5048,1360,5048,1376,5040,1448,5040,1452,5044,1468,5044,1472,5040,1500,5036,1508,5044,1524,5048,1536,5036,1552,5032,1564,5016,1584,5016,1588,5012,1620,5008,1640,4992,1660,4992,1668,4988,1692,4964,1708,4964,1716,4956,1744,4952,1748,4956,1804,4956,1828,4972,1864,4984,1892,4984,1896,4988,1936,4984,1940,4980,1952,4980,1960,4972,1964,4980,1976,4988,1976,5008,1996,5016,1996,5044,2008,5048],"AL-C3-008":[2120,5412,2132,5420,2132,5436,2136,5440,2144,5440,2176,5464,2188,5460,2196,5472,2204,5472,2212,5480,2220,5500,2220,5492,2212,5480,2220,5468,2220,5460,2236,5452,2236,5440,2244,5432,2244,5424,2252,5412,2264,5404,2280,5420,2288,5420,2316,5380,2340,5372,2352,5352,2364,5352,2368,5348,2372,5316,2376,5312,2376,5292,2384,5272,2384,5248,2388,5244,2388,5228,2392,5224,2392,5208,2400,5184,2400,5164,2408,5148,2404,5144,2404,5104,2400,5100,2400,5068,2404,5064],"F-80":[2868,4032,2864,4060,2860,4064,2812,4068,2804,4076,2792,4076,2784,4084,2740,4096,2728,4104,2704,4112,2692,4108,2672,4124,2652,4124,2648,4120,2576,4120,2556,4132,2520,4144,2512,4144,2480,4128,2464,4128,2412,4148,2368,4128,2344,4152,2344,4160,2320,4188,2312,4236,2300,4272,2300,4288,2292,4308,2288,4348,2276,4380,2268,4432,2260,4444,2260,4468,2256,4472,2244,4532,2208,4572,2196,4576,2176,4596,2164,4620,2164,4640,2160,4644,2156,4740,2152,4744,2152,4788,2156,4796,2148,4820,2148,4888,2152,4896,2144,4904,2144,4932,2164,4964,2164,5056,2160,5068,2164,5072,2168,5132,2172,5144,2216,5184,2216,5192,2224,5204,2224,5300,2232,5320,2232,5340,2248,5356,2256,5380,2268,5392,2268,5400,2288,5432,2288,5448,2304,5464,2308,5488,2332,5516,2332,5528,2368,5564,2396,5564,2400,5568,2428,5568,2436,5572,2452,5588,2452,5612,2456,5620,2476,5640,2492,5644,2504,5656,2516,5656,2556,5692,2560,5700,2560,5728,2540,5796,2540,5820,2556,5832,2568,5832,2588,5852,2592,5864]};
 ~~~~
 
 ### `src/data/encicla.js`
@@ -9435,7 +10170,7 @@ fs.mkdirSync(dist, { recursive: true });
 // /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/hitos.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -9847,11 +10582,170 @@ fs.writeFileSync(path.join(root, 'src/data/encicla.js'), txt);
 console.log(est.length, 'estaciones · src/data/encicla.js', Math.round(txt.length / 1024), 'KB · tipos', [...new Set(est.map(e => e[4]))].join(','));
 ~~~~
 
+### `tools/hitos_datos.py`
+~~~~
+#!/usr/bin/env python3
+"""Arquitectura icónica de Medellín con su huella real -> src/data/hitos.js
+
+Fuente: huellas de edificios de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), por la API 0.6
+(map por cuadro pequeño alrededor de cada hito y relation/{id}/full para las multipolígono).
+
+Uso:
+  python3 tools/hitos_datos.py --descargar CARPETA   # baja los datos de OSM a CARPETA (una vez)
+  python3 tools/hitos_datos.py CARPETA               # genera src/data/hitos.js
+
+Cada hito: id, nombre, estilo de dibujo, altura aproximada (m) y su(s) polígono(s) en metros del mapa del valle.
+Las alturas son aproximadas (pisos conocidos o proporción con la ciudad); la forma en planta es la de OSM.
+"""
+import json, math, os, re, sys, time, urllib.request
+import xml.etree.ElementTree as ET
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+UA = {'User-Agent': 'juego-offline-mapa/1.0'}
+CUADROS = {'centro': (6.2505, -75.5690, .004), 'catedral': (6.2541, -75.5636, .0025), 'estadio': (6.2566, -75.5903, .004),
+           'bibespana': (6.2944, -75.5435, .0025), 'alpujarra': (6.2450, -75.5750, .004), 'explora': (6.2702, -75.5662, .003),
+           'memoria': (6.2466, -75.5576, .0025), 'mamm': (6.2232, -75.5735, .0025), 'sanantonio': (6.2457, -75.5700, .0025)}
+RELACIONES = [7460245, 10597561, 6160599]
+
+# (id, nombre, estilo, altura en m, fuentes [('w', way) | ('r', relación) | ('dentro', way del parque)], extras)
+HITOS = [
+    ('coltejer', 'Edificio Coltejer', 'aguja', 150, [('w', 31973359)], {'corona': 25}),
+    ('catedral', 'Basílica Metropolitana', 'basilica', 30, [('w', 366050226)], {'torres': 2, 'cupula': 1}),
+    ('palacio', 'Palacio de la Cultura Rafael Uribe Uribe', 'palacio', 24, [('r', 7460245)], {}),
+    ('museo', 'Museo de Antioquia', 'republicano', 20, [('w', 28770080)], {'col': '#c9a46a'}),
+    ('botero', 'Plaza Botero', 'botero', 0, [('r', 10597561)], {}),
+    ('candelaria', 'Iglesia de La Candelaria', 'iglesia', 16, [('w', 129724092)], {'torres': 1}),
+    ('veracruz', 'Iglesia de la Veracruz', 'iglesia', 15, [('w', 128815232)], {'torres': 1}),
+    ('sanjose', 'Iglesia de San José', 'iglesia', 16, [('w', 124826817)], {'torres': 1}),
+    ('sanantonio', 'Iglesia de San Antonio', 'iglesia', 20, [('w', 551093008)], {'torres': 2, 'cupula': 1}),
+    ('estadio', 'Estadio Atanasio Girardot', 'estadio', 22, [('w', 28669265)], {'cancha': 28669268}),
+    ('bibespana', 'Parque Biblioteca España', 'rocas', 20, [('r', 6160599)], {}),
+    ('epm', 'Edificio EPM', 'vidrio', 85, [('w', 28669194)], {}),
+    ('teatro', 'Teatro Metropolitano', 'ladrillo', 24, [('w', 32473064)], {}),
+    ('pies', 'Parque de los Pies Descalzos', 'pies', 0, [('w', 32473520)], {}),
+    ('luces', 'Parque de las Luces', 'luces', 0, [('w', 32474547)], {}),
+    ('vasquez', 'Edificio Vásquez', 'republicano', 16, [('w', 32474590)], {'col': '#e8d9b5'}),
+    ('carre', 'Edificio Carré', 'republicano', 16, [('w', 32474597)], {'col': '#e9c9a0'}),
+    ('bibepm', 'Biblioteca EPM', 'ladrillo', 22, [('w', 32474558)], {}),
+    ('ferrocarril', 'Estación del Ferrocarril de Antioquia', 'republicano', 12, [('w', 32470267)], {'col': '#e3c99a'}),
+    ('alcaldia', 'Alcaldía de Medellín', 'moderno', 48, [('w', 32469824)], {}),
+    ('gobernacion', 'Gobernación de Antioquia', 'moderno', 48, [('w', 32469791)], {}),
+    ('concejo', 'Concejo de Medellín', 'moderno', 18, [('w', 230296296)], {}),
+    ('justicia', 'Palacio de Justicia', 'moderno', 32, [('w', 32470439)], {}),
+    ('nacional', 'Palacio Nacional', 'republicano', 24, [('w', 31973366)], {'col': '#d8c8a8'}),
+    ('banrep', 'Banco de la República', 'republicano', 20, [('w', 129724091)], {'col': '#d9d4c8'}),
+    ('planetario', 'Planetario de Medellín', 'cupula', 10, [('w', 93329440)], {}),
+    ('explora', 'Parque Explora', 'cubos', 16, [('dentro', 141166140)], {}),
+    ('pablotobon', 'Teatro Pablo Tobón Uribe', 'republicano', 14, [('w', 109028606)], {'col': '#d8b48a'}),
+    ('memoria', 'Museo Casa de la Memoria', 'moderno', 12, [('w', 262219971)], {}),
+    ('mamm', 'Museo de Arte Moderno de Medellín', 'ladrillo', 18, [('w', 191782365)], {}),
+]
+
+
+def descargar(carpeta):
+    os.makedirs(carpeta, exist_ok=True)
+    for k, (la, lo, r) in CUADROS.items():
+        url = f'https://api.openstreetmap.org/api/0.6/map?bbox={lo - r},{la - r},{lo + r},{la + r}'
+        open(os.path.join(carpeta, f'map-{k}.osm'), 'wb').write(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120).read())
+        print('ok', k, file=sys.stderr); time.sleep(1.2)
+    for rid in RELACIONES:
+        url = f'https://api.openstreetmap.org/api/0.6/relation/{rid}/full'
+        open(os.path.join(carpeta, f'rel-{rid}.osm'), 'wb').write(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120).read())
+        print('ok relación', rid, file=sys.stderr); time.sleep(1.2)
+
+
+def leer(carpeta):
+    nodos, vias, rels = {}, {}, {}
+    for f in sorted(os.listdir(carpeta)):
+        if not f.endswith('.osm'):
+            continue
+        root = ET.parse(os.path.join(carpeta, f)).getroot()
+        for n in root.iter('node'):
+            nodos[n.get('id')] = (float(n.get('lat')), float(n.get('lon')))
+        for w in root.iter('way'):
+            vias[w.get('id')] = ({g.get('k'): g.get('v') for g in w.iter('tag')}, [nd.get('ref') for nd in w.iter('nd')])
+        for r in root.iter('relation'):
+            rels[r.get('id')] = [m.get('ref') for m in r.iter('member') if m.get('type') == 'way' and m.get('role') in ('outer', '')]
+    return nodos, vias, rels
+
+
+def main():
+    if sys.argv[1:2] == ['--descargar']:
+        return descargar(sys.argv[2])
+    carpeta = sys.argv[1]
+    vm = json.loads(re.search(r'const VALLE_META = (\{.*?\});\n', open(os.path.join(ROOT, 'src/data/valle.js'), encoding='utf8').read(), re.S).group(1))
+    TM = vm['tile']
+    geo = lambda la, lo: ((lo - vm['lon0']) * vm['kx'] * TM, (vm['latN'] - la) * vm['ky'] * TM)
+    nodos, vias, rels = leer(carpeta)
+
+    def poli(wid):
+        t, refs = vias[str(wid)]
+        P = [geo(*nodos[r]) for r in refs if r in nodos]
+        if len(P) > 2 and P[0] == P[-1]:
+            P = P[:-1]
+        return P
+
+    def dentro(P, x, y):
+        c = False
+        for i in range(len(P)):
+            (ax, ay), (bx, by) = P[i], P[i - 1]
+            if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax:
+                c = not c
+        return c
+
+    def rdp(P, eps):
+        if len(P) < 4:
+            return P
+        keep = [False] * len(P); keep[0] = keep[-1] = True; st = [(0, len(P) - 1)]
+        while st:
+            a, b = st.pop(); (ax, ay), (bx, by) = P[a], P[b]; L = math.hypot(bx - ax, by - ay) or 1; md, mi = -1, -1
+            for i in range(a + 1, b):
+                d = abs((bx - ax) * (ay - P[i][1]) - (ax - P[i][0]) * (by - ay)) / L
+                if d > md:
+                    md, mi = d, i
+            if md > eps:
+                keep[mi] = True; st += [(a, mi), (mi, b)]
+        return [p for p, k in zip(P, keep) if k]
+
+    out, falta = [], []
+    for hid, nombre, estilo, h, fuentes, extra in HITOS:
+        polis = []
+        for tipo, ref in fuentes:
+            if tipo == 'w' and str(ref) in vias:
+                polis.append(poli(ref))
+            elif tipo == 'r' and str(ref) in rels:
+                polis += [poli(w) for w in rels[str(ref)] if w in vias]
+            elif tipo == 'dentro' and str(ref) in vias:
+                parque = poli(ref)
+                for wid, (t, refs) in vias.items():
+                    if 'building' not in t or wid == str(ref):
+                        continue
+                    P = poli(wid)
+                    if len(P) > 2 and dentro(parque, sum(p[0] for p in P) / len(P), sum(p[1] for p in P) / len(P)):
+                        polis.append(P)
+        polis = [rdp(P, .3) for P in polis if len(P) > 2]
+        if not polis:
+            falta.append(hid); continue
+        o = {'id': hid, 'n': nombre, 'k': estilo, 'h': h, 'P': [[round(v, 1) for p in P for v in p] for P in polis]}
+        for k, v in extra.items():
+            o[k] = [round(v2, 1) for p in poli(v) for v2 in p] if k == 'cancha' else v
+        out.append(o)
+    txt = ('/* Arquitectura icónica de Medellín con su huella real (© colaboradores de OpenStreetMap, ODbL), en metros del mapa del valle.\n'
+           '   Alturas aproximadas. Generado por tools/hitos_datos.py (no editar a mano). */\n'
+           'const HITOS = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n')
+    open(os.path.join(ROOT, 'src/data/hitos.js'), 'w', encoding='utf8').write(txt)
+    print(len(out), 'hitos', 'faltan:', falta, '·', round(len(txt) / 1024), 'KB')
+
+
+if __name__ == '__main__':
+    main()
+~~~~
+
 ### `tools/mapa_ajustes.mjs`
 ~~~~js
 #!/usr/bin/env node
 /* Ajustes del mapa base → src/data/ajustes.js. Se calculan con el propio juego (Chromium + Playwright) sobre el mapa sin ajustes.
-   Uso: node tools/build.mjs && node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA && node tools/build.mjs
+   Uso: node tools/build.mjs && node tools/mapa_ajustes.mjs [RUTA_DEL_REPO_DE_JUEGA_ENCICLA v1.2, de 20 m] [--sin-nombres] && node tools/build.mjs
    1) Nombres de calle y barrios donde la capa oficial de Medellín no llega: vías y barrios del mapa de Juega EnCicla
       (misma cuadrícula de 20 m; OpenStreetMap vía Overture, ODbL). Los barrios son aproximados: punto con nombre más cercano.
    2) Río Medellín continuo (puentes donde una vía corta el cauce) y relieve que siempre baja por el cauce (regresión isotónica).
@@ -9860,10 +10754,10 @@ console.log(est.length, 'estaciones · src/data/encicla.js', Math.round(txt.leng
    5) Patio-taller del Metro en Bello y talleres del antiguo Ferrocarril de Antioquia (polígonos de OpenStreetMap). */
 import { createRequire } from 'node:module'; import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
 const { chromium } = createRequire(import.meta.url)('playwright');
-const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/mapa_ajustes.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA'); process.exit(1); }
+const ENC = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : null;   // sin repo de EnCicla: solo río, relieve, escaleras, tranvía y patio (el mapa v3 ya trae nombres y barrios)
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), rd = f => fs.readFileSync(path.join(ENC, f));
-const vjson = JSON.parse(rd('src/data/valle.json')), versionE = (String(rd('src/js/00-core.js')).match(/version: '([\d.]+)'/) || [])[1] || '?';
-const D = { vias: rd('src/data/vias.bin').toString('base64'), valle: rd('src/data/valle.bin').toString('base64'), barrios: vjson.barrios, calles: vjson.calles, W: vjson.W, H: vjson.H, eW: vjson.eW, eH: vjson.eH, mW: vjson.mW, mH: vjson.mH };
+const vjson = ENC ? JSON.parse(rd('src/data/valle.json')) : null, versionE = ENC ? (String(rd('src/js/00-core.js')).match(/version: '([\d.]+)'/) || [])[1] || '?' : null;
+const D = ENC ? { nombres: !process.argv.includes('--sin-nombres'), vias: rd('src/data/vias.bin').toString('base64'), valle: rd('src/data/valle.bin').toString('base64'), barrios: vjson.barrios, calles: vjson.calles, W: vjson.W, H: vjson.H, eW: vjson.eW, eH: vjson.eH, mW: vjson.mW, mH: vjson.mH } : null;
 /* OpenStreetMap (© colaboradores, ODbL), consultado el 17-nov-2026: way 52513116 (landuse=railway), 52513115 (building) y 142453569 (landuse=railway) */
 const OSM = {
   patio: [[6.33083, -75.55306], [6.33083, -75.55296], [6.32991, -75.55141], [6.32983, -75.55145], [6.32965, -75.55112], [6.32951, -75.55103], [6.32942, -75.55103], [6.3282, -75.55187], [6.32751, -75.55234], [6.32692, -75.55271], [6.32604, -75.55321], [6.325, -75.55382], [6.32443, -75.55411], [6.32399, -75.55428], [6.32338, -75.55444], [6.3216, -75.55473], [6.32107, -75.55483], [6.31968, -75.5552], [6.31924, -75.55535], [6.31995, -75.55547], [6.32059, -75.55549], [6.32069, -75.55557], [6.32166, -75.55563], [6.32208, -75.55565], [6.32245, -75.55559], [6.32336, -75.55546], [6.32415, -75.55533], [6.3252, -75.55517], [6.32669, -75.55494], [6.32781, -75.55468], [6.32858, -75.55437]],
@@ -9877,10 +10771,11 @@ await page.addInitScript(() => { window.__sinAjustes = true; });
 await page.goto('file://' + path.join(root, 'dist/index.html')); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 });
 const R = await page.evaluate(async ({ D, OSM }) => {
   const M = EM.map, t = M.t, VM = VALLE_META, W = VM.W, H = VM.H, TM = VM.tile, N = W * H, inf = {};
-  if (D.W !== W || D.H !== H) throw new Error('el mapa de EnCicla no tiene la misma cuadrícula');
+  if (D && (D.W !== W || D.H !== H)) throw new Error('el mapa de EnCicla no tiene la misma cuadrícula');
   const unz = async b64 => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); };
   const via = v => v === 4 || v === 5 || v === 14 || v === 11, casa = v => v === 2 || v === 3, varint = (a, v) => { while (v > 127) { a.push((v & 127) | 128); v = Math.floor(v / 128); } a.push(v); };
 
+  const extras = async () => {
   // ---- 1a) nombres de calle de EnCicla por casilla (calle, carrera, avenida y autopista con nombre), ensanchados una casilla ----
   const vb = await unz(D.vias), dv = new DataView(vb.buffer); let o = 4; const nomE = new Uint16Array(N);
   for (let v = 0, nV = dv.getUint32(0, true); v < nV; v++) {
@@ -9917,6 +10812,9 @@ const R = await page.evaluate(async ({ D, OSM }) => {
   bl.forEach((B, i) => { const A = acc[i], mu = Object.entries(A.mu).sort((p, q) => q[1] - p[1])[0][0]; B[1] = mu; B[2] = mu; B[3] = Math.round((A.x / A.n + .5) * 32); B[4] = Math.round((A.y / A.n + .5) * 32); B[5] = Math.round(A.n * 2.56); });
   inf.barrios = { nombres: bl.length, celdas: acc.reduce((s, A) => s + A.n, 0) };
 
+    return { cod, calles, bl, bg8 };
+  };
+  const ex = D ? await extras() : { cod: [], calles: [], bl: [], bg8: new Uint16Array(0) }, { bl, bg8 } = ex, cod = D && D.nombres ? ex.cod : [], calles = D && D.nombres ? ex.calles : [];
   // ---- 2) río: recorrido por el agua de Caldas a Barbosa (puntos de paso junto a la línea A) ----
   const cerca = (x, y, Rr) => { const tx = x / TM | 0, ty = y / TM | 0; let best = -1, bd = 1e9; for (let dy = -Rr; dy <= Rr; dy++) for (let dx = -Rr; dx <= Rr; dx++) { const i = (ty + dy) * W + tx + dx; if (t[i] === 8 && dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = i; } } return best; };
   const c0 = geoM(6.0905, -75.636), pasos = [cerca(c0.x, c0.y, 80)];
@@ -9968,7 +10866,7 @@ const R = await page.evaluate(async ({ D, OSM }) => {
   for (const i of pa) patio.push(i, 15); for (const i of ta) patio.push(i, 3);
   const lugares = [['Patio-taller del Metro', 'metro', ...cen(OSM.patio), Math.round(pa.length * .04)], ['Talleres del antiguo Ferrocarril de Antioquia', 'historia', ...cen(OSM.ferrocarril), 16]];
   inf.patio = pa.length;
-  return { inf, cod, calles, bl, bg8: Array.from(bg8), puentes, agua, relieve, escaleras, tranvia: [...tranvia], patio, lugares, GW: D.mW, GH: D.mH };
+  return { inf, cod, calles, bl, bg8: Array.from(bg8), puentes, agua, relieve, escaleras, tranvia: [...tranvia], patio, lugares, GW: D ? D.mW : 0, GH: D ? D.mH : 0 };
 }, { D, OSM });
 if (errores.length) { console.error('errores en la página:', errores); process.exit(1); }
 
@@ -9976,13 +10874,13 @@ const b64 = buf => zlib.deflateRawSync(Buffer.from(buf), { level: 9 }).toString(
 const bg = Buffer.alloc(R.bg8.length * 2); R.bg8.forEach((v, i) => bg.writeUInt16LE(v, i * 2));
 const AJ = {
   v: 1, encicla: versionE,
-  calles: { lista: R.calles, n: R.cod.length, d: b64(R.cod) },
-  barrios: { lista: R.bl, GW: R.GW, GH: R.GH, d: b64(bg) },
+  calles: R.cod.length ? { lista: R.calles, n: R.cod.length, d: b64(R.cod) } : null,
+  barrios: R.bl.length ? { lista: R.bl, GW: R.GW, GH: R.GH, d: b64(bg) } : null,
   tiles: { puente: R.puentes, agua: R.agua, calle: R.tranvia, pares: [...R.escaleras, ...R.patio] },
   relieve: R.relieve, lugares: R.lugares
 };
 const txt = `/* Ajustes del mapa base, generados por tools/mapa_ajustes.mjs (no editar a mano).
-   Nombres de calle y barrios fuera de la capa oficial: mapa de Juega EnCicla v${versionE} (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps); barrios aproximados por el punto con nombre más cercano.
+   ${versionE ? `Nombres de calle y barrios fuera de la capa oficial: mapa de Juega EnCicla v${versionE} (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps); barrios aproximados por el punto con nombre más cercano.` : 'Sobre el mapa v3, que ya trae nombres y barrios: solo río continuo, relieve del cauce, escaleras, calle del tranvía y patio-taller.'}
    Patio-taller del Metro y talleres del Ferrocarril de Antioquia: © colaboradores de OpenStreetMap (ODbL). Río y relieve: calculados sobre el propio mapa. */
 const AJUSTES = ${JSON.stringify(AJ)};
 `;
@@ -10094,6 +10992,58 @@ for zi, z in enumerate(V):
 print(json.dumps(res, ensure_ascii=False, indent=1))
 ~~~~
 
+### `tools/rieles_datos.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Eje real de las líneas A, B y del tranvía (T) → src/data/rieles.js
+   Fuente: vías férreas de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), descargadas con Overpass:
+     [out:json];way["railway"~"^(subway|light_rail|tram|rail)$"](6.14,-75.66,6.37,-75.50);out geom tags;
+   Cada línea tiene dos rieles (uno por sentido) dibujados como vías aparte; el eje es el punto medio entre los dos,
+   guiado por el trazado simplificado del mapa base (VALLE_META.metro), suavizado y simplificado a 0,35 m.
+   Uso: node tools/rieles_datos.mjs RUTA_DEL_JSON_DE_OVERPASS */
+import fs from 'node:fs'; import path from 'node:path';
+const IN = process.argv[2]; if (!IN) { console.error('Uso: node tools/rieles_datos.mjs RUTA_DEL_JSON_DE_OVERPASS'); process.exit(1); }
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const VM = JSON.parse(fs.readFileSync(path.join(root, 'src/data/valle.js'), 'utf8').match(/const VALLE_META = (\{.*?\});\n/s)[1]);
+const TM = VM.tile, P = (lat, lon) => [(lon - VM.lon0) * VM.kx * TM, (VM.latN - lat) * VM.ky * TM];
+const osm = JSON.parse(fs.readFileSync(IN, 'utf8')).elements.filter(e => e.type === 'way' && !e.tags.service && e.geometry && e.geometry.length > 1);
+const ways = osm.map(e => ({ id: e.id, rw: e.tags.railway, pts: e.geometry.map(g => P(g.lat, g.lon)) }));
+const guia = id => { const p = VM.metro[id].p, out = []; for (let i = 0; i < p.length; i += 2) out.push([p[i] * TM / 4, p[i + 1] * TM / 4]); return out; };
+const near = (pts, x, y) => { let bd = 1e18, bx = 0, by = 0, bt = 0; for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [cx, cy] = pts[i], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / L2)), px = ax + dx * t, py = ay + dy * t, d = (px - x) ** 2 + (py - y) ** 2; if (d < bd) { bd = d; bx = px; by = py; bt = Math.atan2(dy, dx); } } return { d: Math.sqrt(bd), x: bx, y: by, a: bt }; };
+const remuestrea = (G, paso) => { const out = [G[0]]; let acc = 0; for (let i = 1; i < G.length; i++) { const [ax, ay] = G[i - 1], [bx, by] = G[i], L = Math.hypot(bx - ax, by - ay); let t = paso - acc; while (t <= L) { out.push([ax + (bx - ax) * t / L, ay + (by - ay) * t / L]); t += paso; } acc = (acc + L) % paso; } out.push(G[G.length - 1]); return out; };
+const rdp = (Q, eps) => { const n = Q.length; if (n < 3) return Q; const keep = new Uint8Array(n); keep[0] = keep[n - 1] = 1; const st = [[0, n - 1]];
+  while (st.length) { const [a, b] = st.pop(), [ax, ay] = Q[a], [bx, by] = Q[b], L = Math.hypot(bx - ax, by - ay) || 1; let md = -1, mi = -1; for (let i = a + 1; i < b; i++) { const d = Math.abs((bx - ax) * (ay - Q[i][1]) - (ax - Q[i][0]) * (by - ay)) / L; if (d > md) { md = d; mi = i; } } if (md > eps) { keep[mi] = 1; st.push([a, mi], [mi, b]); } }
+  return Q.filter((_, i) => keep[i]); };
+const lineas = { A: 'subway', B: 'subway', T: 'tram' }, G = {}, R = {}, info = {};
+for (const id in lineas) G[id] = guia(id);
+// cada vía se asigna a la línea cuyo trazado guía le queda más cerca (mediana de distancias < 40 m)
+const asig = new Map(); for (const w of ways) { let best = null, bm = 40; for (const id in lineas) { if (lineas[id] !== w.rw) continue; const ds = w.pts.map(([x, y]) => near(G[id], x, y).d).sort((a, b) => a - b), m = ds[ds.length >> 1]; if (m < bm) { bm = m; best = id; } } if (best) asig.set(w, best); }
+// eje: dos pasadas. 1) cada muestra del trazado guía se lleva al riel más cercano de su línea (hasta 150 m: el trazado
+// simplificado se mete por el patio de Bello); 2) sobre ese resultado, punto medio entre los dos rieles (hasta 25 m)
+const limpia = C => { const F = [C[0]]; for (let i = 1; i < C.length; i++) { const a = F[F.length - 1], b = C[i]; if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 1.5) continue; if (F.length > 1) { const z = F[F.length - 2], dot = (a[0] - z[0]) * (b[0] - a[0]) + (a[1] - z[1]) * (b[1] - a[1]); if (dot < 0) continue; } F.push(b); } return F; };
+const suave = (C, r) => C.map((p, i) => { if (i === 0 || i === C.length - 1) return p; let sx = 0, sy = 0, n = 0; for (let j = Math.max(0, i - r); j <= Math.min(C.length - 1, i + r); j++) { sx += C[j][0]; sy += C[j][1]; n++; } return [sx / n, sy / n]; });
+for (const id in lineas) {
+  const W = ways.filter(w => asig.get(w) === id); let dos = 0, uno = 0, nada = 0;
+  const pasada = (guia, Rmax, medio) => { const S = remuestrea(guia, 6), C = []; dos = uno = nada = 0;
+    S.forEach(([x, y], i) => {
+      const c = W.map(w => near(w.pts, x, y)).filter(q => q.d < Rmax).sort((a, b) => a.d - b.d); if (!c.length) { nada++; if (i === 0 || i === S.length - 1) C.push([x, y]); return; }
+      const p1 = c[0], p2 = medio && c.slice(1).find(q => { const s = Math.hypot(q.x - p1.x, q.y - p1.y); return s > 2.5 && s < 16 && Math.abs(Math.cos(q.a - p1.a)) > .9; });
+      if (p2) { C.push([(p1.x + p2.x) / 2, (p1.y + p2.y) / 2]); dos++; } else { C.push([p1.x, p1.y]); uno++; }
+    });
+    return C; };
+  const C1 = suave(limpia(pasada(G[id], 150, false)), 4), C2 = limpia(suave(limpia(pasada(C1, 25, true)), 3));
+  const Z = rdp(C2, .35); R[id] = Z.flatMap(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+  let L = 0, giro = 0; for (let i = 1; i < Z.length; i++) { L += Math.hypot(Z[i][0] - Z[i - 1][0], Z[i][1] - Z[i - 1][1]); if (i > 1) { let d = Math.abs(Math.atan2(Z[i][1] - Z[i - 1][1], Z[i][0] - Z[i - 1][0]) - Math.atan2(Z[i - 1][1] - Z[i - 2][1], Z[i - 1][0] - Z[i - 2][0])); if (d > Math.PI) d = 2 * Math.PI - d; giro = Math.max(giro, d); } }
+  info[id] = { vias: W.length, dos_rieles: dos, un_riel: uno, sin_dato: nada, puntos: Z.length, km: +(L / 1000).toFixed(2), giro_max: Math.round(giro * 180 / Math.PI) + '°' };
+}
+const txt = `/* Eje de las líneas A, B y del tranvía de Ayacucho (T), en metros del mapa del valle: punto medio entre los dos rieles de
+   OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), suavizado. Generado por tools/rieles_datos.mjs (no editar a mano). */
+const RIELES = ${JSON.stringify(R)};
+`;
+fs.writeFileSync(path.join(root, 'src/data/rieles.js'), txt);
+console.log(JSON.stringify(info), '· src/data/rieles.js', Math.round(txt.length / 1024), 'KB');
+~~~~
+
 ### `tools/rutas.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -10140,6 +11090,94 @@ for (const L of RED.lines) {
 }
 fs.writeFileSync(path.join(root, 'src/data/rutas.js'), '/* Recorridos por calles reales (A* sobre el mapa OSM), generados por tools/rutas.mjs */\nconst RUTAS = ' + JSON.stringify(RUTAS) + ';\n');
 console.log(`tramos: ${ok} por calles, ${bad} en línea recta`);
+~~~~
+
+### `tools/rutas_calles.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Recorridos de bus (Metroplús y alimentadores) POR LAS CALLES dibujadas → src/data/rutas_calles.js
+   Toma el trazado aproximado de cada ruta (src/data/rutas.js, RUTAS) y lo rehace sobre la red de calles vectoriales
+   (src/data/vias.js, VIAS: calles, avenidas, autopistas y carreras): camino más corto entre puntos de paso cada ~250 m,
+   con castigo por alejarse del trazado original (así sigue su corredor), sin lazos y con las esquinas redondeadas (radio ~6 m).
+   Uso: node tools/rutas_calles.mjs */
+import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const VIAS = JSON.parse(fs.readFileSync(path.join(root, 'src/data/vias.js'), 'utf8').match(/const VIAS = (\{.*\});/s)[1]);
+const RUTAS = JSON.parse(fs.readFileSync(path.join(root, 'src/data/rutas.js'), 'utf8').match(/const RUTAS = (\{.*?\});/s)[1]);
+const RED = JSON.parse(fs.readFileSync(path.join(root, 'src/data/red.js'), 'utf8').match(/const RED = (\{[\s\S]*?\});\s*\n/)[1]);
+const VM = JSON.parse(fs.readFileSync(path.join(root, 'src/data/valle.js'), 'utf8').match(/const VALLE_META = (\{.*?\});\n/s)[1]);
+const TM = 20, U = VIAS.u, geo = (lat, lon) => [(lon - VM.lon0) * VM.kx * TM, (VM.latN - lat) * VM.ky * TM];
+const paradas = {}; for (const l of RED.lines) if (l.stations && (l.kind === 'brt' || l.kind === 'feeder')) paradas[l.id] = l.stations.map(([n, la, lo]) => geo(la, lo));
+// ---------- 1. vías vehiculares en metros ----------
+const b = zlib.inflateRawSync(Buffer.from(VIAS.d, 'base64')); let o = 0, px = 0, py = 0;
+const rv = () => { let v = 0, sh = 0, c; do { c = b[o++]; v += (c & 127) * 2 ** sh; sh += 7; } while (c & 128); return v; }, uz = v => v % 2 ? -(v + 1) / 2 : v / 2;
+const vias = []; for (let i = 0; i < VIAS.n; i++) { const k = rv(), nm = rv(), w2 = rv(), np = rv(), P = []; for (let j = 0; j < np; j++) { px += uz(rv()); py += uz(rv()); P.push([px, py]); } if (k >= 1 && k <= 4) vias.push({ k, P }); }
+// ---------- 2. grafo: nodos por coordenada (unidades de 2,5 m), aristas entre vértices seguidos ----------
+const nodes = [], idx = new Map(), adj = []; const nodo = (x, y) => { const key = x * 1e5 + y; let id = idx.get(key); if (id == null) { id = nodes.length; idx.set(key, id); nodes.push([x * U, y * U]); adj.push([]); } return id; };
+const FACT = { 1: 1.15, 2: .85, 3: .8, 4: 1 };
+const arista = (a, c, f) => { if (a === c) return; const L = Math.hypot(nodes[a][0] - nodes[c][0], nodes[a][1] - nodes[c][1]); adj[a].push([c, L * f]); adj[c].push([a, L * f]); };
+// segmentos indexados en celdas de 40 m (para empalmar las puntas sueltas en T)
+const segs = [], cel = new Map(), CK = 40; const addSeg = s => { const i = segs.length; segs.push(s); const [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c]; for (let gy = Math.floor(Math.min(ay, cy) / CK); gy <= Math.floor(Math.max(ay, cy) / CK); gy++) for (let gx = Math.floor(Math.min(ax, cx) / CK); gx <= Math.floor(Math.max(ax, cx) / CK); gx++) { const key = gx * 1e5 + gy; let l = cel.get(key); if (!l) cel.set(key, l = []); l.push(i); } };
+const deg = new Map(); for (const v of vias) { const ids = v.P.map(([x, y]) => nodo(x, y)); for (let i = 1; i < ids.length; i++) addSeg({ a: ids[i - 1], c: ids[i], f: FACT[v.k], cortes: [] }); for (const e of [ids[0], ids[ids.length - 1]]) deg.set(e, (deg.get(e) || 0) + 1); }
+// puntas que solo tocan una vía: si caen a menos de 3 m del interior de otro segmento, se parte ese segmento ahí
+let empalmes = 0;
+for (const [e, d] of deg) { if (d > 1) continue; const [x, y] = nodes[e]; let best = null, bd = 3;
+  for (let gy = Math.floor((y - 3) / CK); gy <= Math.floor((y + 3) / CK); gy++) for (let gx = Math.floor((x - 3) / CK); gx <= Math.floor((x + 3) / CK); gx++) for (const i of cel.get(gx * 1e5 + gy) || []) { const s = segs[i]; if (s.a === e || s.c === e) continue; const [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = ((x - ax) * dx + (y - ay) * dy) / L2; if (t <= .02 || t >= .98) continue; const dd = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (dd < bd) { bd = dd; best = [i, t]; } }
+  if (best) { segs[best[0]].cortes.push([best[1], e]); empalmes++; } }
+for (const s of segs) { if (!s.cortes.length) { arista(s.a, s.c, s.f); continue; } s.cortes.sort((p, q) => p[0] - q[0]); let prev = s.a; for (const [, e] of s.cortes) { arista(prev, e, s.f); prev = e; } arista(prev, s.c, s.f); }
+// componente principal de la red (los puntos de paso solo se toman de ahí: nada de arrancar en un parqueadero aislado)
+const comp = new Int32Array(nodes.length).fill(-1); let ncomp = 0, mayor = 0, tam = 0;
+for (let i = 0; i < nodes.length; i++) { if (comp[i] >= 0 || !adj[i].length) continue; const pila = [i]; comp[i] = ncomp; let n = 0; while (pila.length) { const u = pila.pop(); n++; for (const [v] of adj[u]) if (comp[v] < 0) { comp[v] = ncomp; pila.push(v); } } if (n > tam) { tam = n; mayor = ncomp; } ncomp++; }
+// índice de nodos por celda (puntos de paso)
+const ncel = new Map(); nodes.forEach(([x, y], i) => { if (!adj[i].length || comp[i] !== mayor) return; const key = Math.floor(x / CK) * 1e5 + Math.floor(y / CK); let l = ncel.get(key); if (!l) ncel.set(key, l = []); l.push(i); });
+const cercano = (x, y, R) => { let best = -1, bd = R; for (let gy = Math.floor((y - R) / CK); gy <= Math.floor((y + R) / CK); gy++) for (let gx = Math.floor((x - R) / CK); gx <= Math.floor((x + R) / CK); gx++) for (const i of ncel.get(gx * 1e5 + gy) || []) { const d = Math.hypot(nodes[i][0] - x, nodes[i][1] - y); if (d < bd) { bd = d; best = i; } } return best; };
+// ---------- 3. A* con castigo por alejarse del corredor de la ruta ----------
+const dPoli = (Q, x, y) => { let bd = 1e18; for (let i = 1; i < Q.length; i++) { const [ax, ay] = Q[i - 1], [cx, cy] = Q[i], dx = cx - ax, dy = cy - ay, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1))), d = (ax + dx * t - x) ** 2 + (ay + dy * t - y) ** 2; if (d < bd) bd = d; } return Math.sqrt(bd); };
+const astar = (s, t, pen) => {
+  const g = new Map([[s, 0]]), prev = new Map(), H = [[Math.hypot(nodes[s][0] - nodes[t][0], nodes[s][1] - nodes[t][1]) * .8, s]], done = new Set();
+  const push = e => { H.push(e); let i = H.length - 1; while (i) { const p = (i - 1) >> 1; if (H[p][0] <= H[i][0]) break; [H[p], H[i]] = [H[i], H[p]]; i = p; } };
+  const pop = () => { const top = H[0], last = H.pop(); if (H.length) { H[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < H.length && H[l][0] < H[m][0]) m = l; if (r < H.length && H[r][0] < H[m][0]) m = r; if (m === i) break; [H[m], H[i]] = [H[i], H[m]]; i = m; } } return top; };
+  let n = 0; while (H.length && n++ < 200000) { const [, u] = pop(); if (u === t) break; if (done.has(u)) continue; done.add(u);
+    for (const [v, w] of adj[u]) { const c = g.get(u) + w * pen(v); if (c < (g.get(v) ?? Infinity)) { g.set(v, c); prev.set(v, u); push([c + Math.hypot(nodes[v][0] - nodes[t][0], nodes[v][1] - nodes[t][1]) * .8, v]); } } }
+  if (!prev.has(t) && s !== t) return null; const out = [t]; let u = t; while (u !== s) { u = prev.get(u); out.push(u); } return out.reverse();
+};
+// ---------- 4. cada ruta ----------
+const remuestrea = (Q, paso) => { const out = [Q[0]]; let acc = 0; for (let i = 1; i < Q.length; i++) { const [ax, ay] = Q[i - 1], [cx, cy] = Q[i], L = Math.hypot(cx - ax, cy - ay); let t = paso - acc; while (t <= L) { out.push([ax + (cx - ax) * t / L, ay + (cy - ay) * t / L]); t += paso; } acc = (acc + L) % paso; } const z = Q[Q.length - 1], w = out[out.length - 1]; if (Math.hypot(z[0] - w[0], z[1] - w[1]) > 1) out.push(z); return out; };
+const rdp = (Q, eps) => { const n = Q.length; if (n < 3) return Q; const keep = new Uint8Array(n); keep[0] = keep[n - 1] = 1; const st = [[0, n - 1]]; while (st.length) { const [a, c] = st.pop(), [ax, ay] = Q[a], [cx, cy] = Q[c], L = Math.hypot(cx - ax, cy - ay) || 1; let md = -1, mi = -1; for (let i = a + 1; i < c; i++) { const d = Math.abs((cx - ax) * (ay - Q[i][1]) - (ax - Q[i][0]) * (cy - ay)) / L; if (d > md) { md = d; mi = i; } } if (md > eps) { keep[mi] = 1; st.push([a, mi], [mi, c]); } } return Q.filter((_, i) => keep[i]); };
+// esquina redondeada: en cada giro de más de 20°, una curva de Bézier de hasta 6 m a cada lado del vértice
+const redondea = Q => { const out = [Q[0]]; for (let i = 1; i < Q.length - 1; i++) { const [ax, ay] = Q[i - 1], [bx, by] = Q[i], [cx, cy] = Q[i + 1], L1 = Math.hypot(bx - ax, by - ay), L2 = Math.hypot(cx - bx, cy - by); let d = Math.abs(Math.atan2(cy - by, cx - bx) - Math.atan2(by - ay, bx - ax)); if (d > Math.PI) d = 2 * Math.PI - d; if (d < .35 || L1 < 1 || L2 < 1) { out.push(Q[i]); continue; }
+  const r = Math.min(6, L1 * .45, L2 * .45), p0 = [bx - (bx - ax) / L1 * r, by - (by - ay) / L1 * r], p2 = [bx + (cx - bx) / L2 * r, by + (cy - by) / L2 * r]; for (let t = 0; t <= 1.001; t += .25) { const u = 1 - t; out.push([u * u * p0[0] + 2 * u * t * bx + t * t * p2[0], u * u * p0[1] + 2 * u * t * by + t * t * p2[1]]); } }
+  out.push(Q[Q.length - 1]); return out; };
+const OUT = {}, info = {};
+for (const [id, flat] of Object.entries(RUTAS)) {
+  const Q = []; for (let i = 0; i < flat.length; i += 2) Q.push([flat[i] * TM / 4, flat[i + 1] * TM / 4]); if (Q.length < 2) continue;
+  // puntos de paso cada ~400 m, solo donde el trazado pasa sobre una calle real (a menos de 15 m de un nodo); los extremos siempre
+  const A = remuestrea(Q, 400), memo = new Map(), pen = v => { let p = memo.get(v); if (p == null) { const d = dPoli(Q, nodes[v][0], nodes[v][1]); p = 1 + (d / 20) ** 2; memo.set(v, p); } return p; };
+  // las paradas son puntos de paso obligatorios (ordenados a lo largo del trazado): la ruta pasa por todas
+  const sAlong = ([x, y]) => { let bd = 1e18, bs = 0, acc = 0; for (let i = 1; i < Q.length; i++) { const [ax, ay] = Q[i - 1], [cx, cy] = Q[i], dx = cx - ax, dy = cy - ay, L = Math.hypot(dx, dy) || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (L * L))), d = (ax + dx * t - x) ** 2 + (ay + dy * t - y) ** 2; if (d < bd) { bd = d; bs = acc + L * t; } acc += L; } return bs; };
+  const pts = A.map((p, i) => ({ p, s: sAlong(p), r: i === 0 || i === A.length - 1 ? 45 : 15, ob: false })).concat((paradas[id] || []).map(p => ({ p, s: sAlong(p), r: 60, ob: true }))).sort((a, b) => a.s - b.s);
+  const anc = [], obl = []; for (const q of pts) { const v = cercano(q.p[0], q.p[1], q.r); if (v < 0 || v === anc[anc.length - 1]) { if (q.ob && v >= 0) obl[obl.length - 1] = true; continue; } anc.push(v); obl.push(q.ob); }
+  // de punto de paso en punto de paso desde el último nodo alcanzado (si uno no se alcanza, se salta: nunca hay saltos en línea recta)
+  // un punto de paso que obliga a un rodeo (más de 2,5 veces la distancia directa) también se salta
+  const largo = c => { let L = 0; for (let i = 1; i < c.length; i++) L += Math.hypot(nodes[c[i]][0] - nodes[c[i - 1]][0], nodes[c[i]][1] - nodes[c[i - 1]][1]); return L; };
+  let camino = [anc[0]], fallos = 0; for (let i = 1; i < anc.length; i++) { const u = camino[camino.length - 1], c = astar(u, anc[i], pen); if (!c || (!obl[i] && largo(c) > 2.5 * Math.hypot(nodes[u][0] - nodes[anc[i]][0], nodes[u][1] - nodes[anc[i]][1]) + 80)) { fallos++; continue; } camino.push(...c.slice(1)); }
+  // sin lazos: si un nodo se repite, se corta lo que hay entre las dos visitas (callejones de ida y vuelta)
+  const pos = new Map(), lim = []; for (const v of camino) { if (pos.has(v)) { const j = pos.get(v); for (const w of lim.splice(j + 1)) pos.delete(w); continue; } pos.set(v, lim.length); lim.push(v); }
+  // sin vueltas cortas: si el camino vuelve a pasar a menos de 8 m de un punto anterior tras un rodeo (glorieta, manzana), se corta el rodeo
+  const C = remuestrea(lim.map(v => nodes[v]), 4), Z = []; for (let i = 0; i < C.length; i++) { Z.push(C[i]); let corte = -1; for (let j = i + 4; j < Math.min(C.length, i + 120); j++) if (Math.hypot(C[j][0] - C[i][0], C[j][1] - C[i][1]) < 8) corte = j; if (corte > 0) i = corte; }
+  const P = redondea(rdp(Z, .4)); let L = 0; for (let i = 1; i < P.length; i++) L += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+  let lejos = 0; for (const [x, y] of remuestrea(P, 20)) if (dPoli(Q, x, y) > 60) lejos++;
+  OUT[id] = P.flatMap(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+  let L0 = 0; for (let i = 1; i < Q.length; i++) L0 += Math.hypot(Q[i][0] - Q[i - 1][0], Q[i][1] - Q[i - 1][1]);
+  info[id] = { km: +(L / 1000).toFixed(2), km_antes: +(L0 / 1000).toFixed(2), puntos: P.length, fallos, lejos_60m: lejos };
+}
+const txt = `/* Recorridos de bus por las calles dibujadas (Metroplús y alimentadores), en metros del mapa del valle: el trazado de
+   src/data/rutas.js rehecho sobre la red de calles de src/data/vias.js (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps).
+   Generado por tools/rutas_calles.mjs (no editar a mano). */
+const RUTAS_CALLES = ${JSON.stringify(OUT)};
+`;
+fs.writeFileSync(path.join(root, 'src/data/rutas_calles.js'), txt);
+console.log('nodos', nodes.length, 'empalmes en T', empalmes, 'red principal', tam, 'de', ncomp, 'piezas'); for (const [id, v] of Object.entries(info)) console.log(id, JSON.stringify(v)); console.log('src/data/rutas_calles.js', Math.round(txt.length / 1024), 'KB');
 ~~~~
 
 ### `tools/server.mjs`
@@ -10689,6 +11727,60 @@ await ctx.setOffline(true); await p.reload({ waitUntil: 'load' }); await p.waitF
 await ctx.setOffline(false);
 R.erroresConsola = errs;
 console.log(JSON.stringify(R, null, 1)); await b.close();
+~~~~
+
+### `tools/vias_datos.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Vías como vectores para dibujar la ciudad con curvas → src/data/vias.js
+   Fuente: src/data/vias.bin y valle.json de Juega EnCicla 1.3.1 (misma proyección del valle; casillas de 10 m), con nomenclatura
+   oficial de Medellín y ancho de la malla vial cuando existe (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps; Alcaldía de Medellín).
+   Uso: node tools/vias_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3
+   Guarda: tipo (1 calle, 2 avenida, 3 autopista, 4 carrera, 5 ciclorruta, 6 peatonal, 7 escalas; los senderos de monte no van), nombre
+   (nomenclatura oficial o nombre de OSM), ancho en medios metros y puntos en unidades de 2,5 m (delta + varint con signo + deflate). */
+import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
+const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/vias_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3'); process.exit(1); }
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const meta = JSON.parse(fs.readFileSync(path.join(ENC, 'src/data/valle.json'), 'utf8'));
+if (meta.v < 3) throw new Error('hace falta el formato v3 de Juega EnCicla 1.3 o posterior');
+const vb = zlib.inflateRawSync(fs.readFileSync(path.join(ENC, 'src/data/vias.bin'))), dv = new DataView(vb.buffer, vb.byteOffset, vb.byteLength);
+const U = meta.tile / meta.vq;   // metros por unidad de coordenada (10 m / 4 = 2,5 m)
+const out = [], usados = new Map(), nombres = [], idNom = s => { if (!s) return 0; if (!usados.has(s)) { usados.set(s, nombres.length + 1); nombres.push(s); } return usados.get(s); };
+const zz = v => v >= 0 ? v * 2 : -v * 2 - 1, varint = v => { while (v > 127) { out.push((v & 127) | 128); v = Math.floor(v / 128); } out.push(v); };
+let n = dv.getUint32(0, true), o = 4, kept = 0, pts = 0; const cuenta = {};
+const lote = [];
+/* Ramer-Douglas-Peucker en unidades de coordenada (tolerancia 0,5 u = 1,25 m: invisible con calles de 7 m o más) */
+const rdp = (P, eps) => {
+  const n2 = P.length / 2; if (n2 < 3) return P; const keep = new Uint8Array(n2); keep[0] = keep[n2 - 1] = 1; const st = [[0, n2 - 1]];
+  while (st.length) { const [a, b] = st.pop(); const ax = P[2 * a], ay = P[2 * a + 1], bx = P[2 * b], by = P[2 * b + 1], L = Math.hypot(bx - ax, by - ay) || 1; let md = -1, mi = -1;
+    for (let i = a + 1; i < b; i++) { const d = Math.abs((bx - ax) * (ay - P[2 * i + 1]) - (ax - P[2 * i]) * (by - ay)) / L; if (d > md) { md = d; mi = i; } }
+    if (md > eps) { keep[mi] = 1; st.push([a, mi], [mi, b]); } }
+  const R = []; for (let i = 0; i < n2; i++) if (keep[i]) R.push(P[2 * i], P[2 * i + 1]); return R;
+};
+for (let i = 0; i < n; i++) {
+  const k = dv.getUint8(o), nm = dv.getUint16(o + 1, true), nom = dv.getUint16(o + 3, true), w2 = dv.getUint8(o + 5), np = dv.getUint16(o + 6, true); o += 8;
+  const P = []; let x = 0, y = 0; for (let j = 0; j < np; j++, o += 4) { x += dv.getInt16(o, true); y += dv.getInt16(o + 2, true); P.push(x, y); }
+  if (k < 1 || k > 7 || P.length < 4) continue;
+  lote.push({ k, name: (nom && meta.calles[nom - 1]) || (nm && meta.calles[nm - 1]) || '', w2, P: rdp(P, .5) });
+}
+// orden por tipo y, dentro del tipo, por celda de 640 m (el primer punto de cada vía se guarda respecto al anterior)
+const celda = v => Math.floor(v.P[1] / 256) * 1000 + Math.floor(v.P[0] / 256);
+lote.sort((a, b) => a.k - b.k || celda(a) - celda(b) || a.P[0] - b.P[0]);
+const hdr = []; let px = 0, py = 0;   // el primer punto de cada vía va respecto al último de la anterior
+for (const v of lote) {
+  varint(v.k); varint(idNom(v.name)); varint(v.w2); varint(v.P.length / 2);
+  for (let j = 0; j < v.P.length; j += 2) { varint(zz(v.P[j] - px)); varint(zz(v.P[j + 1] - py)); px = v.P[j]; py = v.P[j + 1]; }
+  kept++; pts += v.P.length / 2; cuenta[v.k] = (cuenta[v.k] || 0) + 1;
+}
+const d = zlib.deflateRawSync(Buffer.from(out), { level: 9 }).toString('base64');
+const txt = `/* Vías como vectores (calles con su curva y su ancho) de Juega EnCicla ${meta.version || '1.3'}: © colaboradores de OpenStreetMap (ODbL) vía Overture Maps;
+   nomenclatura y ancho de la malla vial oficial de Medellín cuando existe. Generado por tools/vias_datos.mjs (no editar a mano).
+   Formato: por vía, varint tipo, nombre, ancho (medios metros), puntos y, por punto, deltas con signo en unidades de ${U} m
+   (el primero respecto al último punto de la vía anterior). */
+const VIAS = ${JSON.stringify({ v: 1, u: U, n: kept, bytes: out.length, nombres, d })};
+`;
+fs.writeFileSync(path.join(root, 'src/data/vias.js'), txt);
+console.log(kept, 'vías ·', pts, 'puntos ·', nombres.length, 'nombres · por tipo', JSON.stringify(cuenta), '· src/data/vias.js', Math.round(txt.length / 1024), 'KB');
 ~~~~
 
 ### `android/README.md`
