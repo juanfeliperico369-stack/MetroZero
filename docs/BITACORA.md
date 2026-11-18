@@ -30,6 +30,8 @@
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O, lejos de su andén real); 100 partidas del bot (368 mil pasos) con 0 errores y 0 errores de consola. Partidas a mano con capturas: charla con Don Abelardo, ficha del personaje, ayuda con taxi, guía y destino, manejo fácil, articulado y tren en sus curvas más cerradas, y la cámara en Bus, Al volante y Metro.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.3.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.3.0-409eac0a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 23, **6,6 MB**).
+
 ### v1.2.0 "Medellín tal cual"
 **Novedad de v1.2.0:** se investigó a Medellín desde el aire: fotos aéreas, desde el avión, el metrocable, drones y satélite, todas con licencia libre y sin imágenes de Google. Con eso la ciudad se dibuja con sus **casas y edificios reales**:
 - **Casas y edificios:** 639.457 en todo el valle, de Caldas a Barbosa, con su huella real (posición, forma y orientación).
