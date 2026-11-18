@@ -31,6 +31,8 @@
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O); 100 partidas del bot (365 mil pasos) con 0 errores y 0 errores de consola. Capturas de las tres vistas 3D en el Parque Berrío, Santo Domingo, El Poblado y Estadio (a pie y en taxi), del mapa (elegir dónde empezar, tocar una estación, ir allá) y del personaje con su anillo.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.4.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.4.0-993beff4`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 24, **6,6 MB**).
+
 ### v1.3.0 "La ciudad con altura y con gente"
 **Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).
 - **Puentes y niveles** (`src/js/11-puentes.js`, `src/data/puentes.js`, `tools/puentes_datos.py`):
