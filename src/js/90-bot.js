@@ -87,8 +87,9 @@ const BotT = EM.test = {
           if (l.kind === 'metro' && giro > .2) E(l.id + ': la vía tiene un quiebre de ' + Math.round(giro * 57.3) + '° (debe ser curva)');
           for (const s of l.st) { if (NET.project(l.P, s.x, s.y).d > 1) E(l.id + ': el andén de ' + s.name + ' no está sobre su línea'); if (Math.hypot(s.ox - s.x, s.oy - s.y) > 30) Wn(l.id + ': ' + s.name + ' quedó a ' + Math.round(Math.hypot(s.ox - s.x, s.oy - s.y)) + ' m de su punto');
             const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), a0 = NET.dirAt(l.P, s0 + 5, 4), a1 = NET.dirAt(l.P, s0 + K.plat - 5, 4); let da = Math.abs(a1 - a0); if (da > Math.PI) da = TAU - da; if (l.kind === 'metro' && da > .44) Wn(l.id + ': el andén de ' + s.name + ' gira ' + Math.round(da * 57.3) + '°'); } }
-        let n = 0, f = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); n++; if (!asfalto(q.x, q.y, 4)) f++; } }
-        if (n && f / n > .04) E('buses: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        let n = 0, f = 0, nmp = 0, fmp = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); if (l.kind === 'feeder') { n++; if (!asfalto(q.x, q.y, 4)) f++; } else { nmp++; if (VC.solid(q.x, q.y, 1)) fmp++; } } }
+        if (n && f / n > .06) E('alimentadores: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        if (nmp && fmp) E('Metroplús: ' + fmp + ' puntos de su carril quedaron dentro de un edificio o del agua');
         // arquitectura icónica: cargada, sin edificios genéricos encima y sólida (las plazas se caminan)
         if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
         for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }

@@ -654,7 +654,10 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-#### Estado al 2026-11-18 · v1.1.0 "Ciudad con curvas"
+#### Estado al 2026-11-18 · v1.1.1 "Ciudad con curvas" (retoque)
+**Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
+
+##### v1.1.0 "Ciudad con curvas"
 **Novedad de v1.1.0** (une la línea de 1.0.0 de la otra IA con v0.10.0 y redibuja la ciudad):
 - **Mapa base de 1.0.0:** manzanas oficiales, huellas, pisos y barrios en todo el valle (formato v3: `ba`, `hg`, `lt`), con `CIUDAD` y `RUTAS` de 1.0.0 y lo de v0.10.0 encima (EnCicla, calendario, ajustes, accesibilidad).
 - **Motor de ciudad vectorial** (`src/js/11-ciudad2.js`, `VC`): reemplaza el dibujo por casillas en todas las vistas cenitales.
@@ -671,6 +674,12 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 - **Autotest nuevo:** vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
 Herramientas nuevas: `tools/vias_datos.mjs`, `tools/rieles_datos.mjs`, `tools/rutas_calles.mjs` y `tools/hitos_datos.py` (cómo regenerar en `docs/FUENTES.md`).
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 0 avisos (26.919 vías, 30 piezas de arquitectura, andenes sobre su línea, sin quiebres, buses sobre las calles), 100 partidas del bot (368 mil pasos) con 0 errores y 0 errores de consola. Cuadros de 2–7 ms de JavaScript caminando y manejando; un trozo cercano se arma en 10–20 ms (las regiones de 640 m en 10–25 ms, por adelantado).
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.1.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.1.0-d0a6e2db`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 20, **3,4 MB**).
+
+**Qué falta:** el Orquideorama y otros edificios que OpenStreetMap no tiene como huella; alturas por edificio con el catastro; afinar el recorrido de los Metroplús donde su carril exclusivo no está en las vías vectoriales.
 
 ##### v0.10.0 "Valle completo y EnCicla"
 **Novedad de v0.10.0:**

@@ -52,9 +52,9 @@ const VC = EM.vcity = {
     // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
     if (typeof NET !== 'undefined') for (const l of NET.lines) {
       if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
-      if (l.kind !== 'metro' && l.kind !== 'tram') continue; const r = l.kind === 'metro' ? 7 : 4.5, P = l.P.pts;
+      if (l.kind !== 'metro' && l.kind !== 'tram' && l.kind !== 'brt') continue; const r = l.kind === 'metro' ? 7 : l.kind === 'brt' ? 5 : 4.5, P = l.P.pts;   // el carril del Metroplús también queda libre
       for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i]; if (Math.max(a.x, b.x) < X0 - 20 || Math.min(a.x, b.x) > X0 + SZ + 20 || Math.max(a.y, b.y) < Y0 - 20 || Math.min(a.y, b.y) > Y0 + SZ + 20) continue; stampSeg(a.x, a.y, b.x, b.y, r, 1); }
-      for (const s of l.st) { const pl = KIND[l.kind].plat; if (s.x < X0 - pl || s.x > X0 + SZ + pl || s.y < Y0 - pl || s.y > Y0 + SZ + pl) continue; const s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl)); for (let t = s0; t < s0 + pl; t += 10) { const a = NET.at(l.P, t), b = NET.at(l.P, Math.min(t + 10, s0 + pl)); stampSeg(a.x, a.y, b.x, b.y, l.kind === 'metro' ? 13 : 8, 1); } }
+      for (const s of l.st) { const pl = KIND[l.kind].plat; if (s.x < X0 - pl || s.x > X0 + SZ + pl || s.y < Y0 - pl || s.y > Y0 + SZ + pl) continue; const s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl)); for (let t = s0; t < s0 + pl; t += 10) { const a = NET.at(l.P, t), b = NET.at(l.P, Math.min(t + 10, s0 + pl)); stampSeg(a.x, a.y, b.x, b.y, l.kind === 'metro' ? 13 : l.kind === 'brt' ? 7 : 8, 1); } }
     }
     // arquitectura icónica: su huella (con 1,5 m de margen) queda reservada; nada genérico se monta encima
     const hits = this.HT ? this.hitosEn(X0, Y0, X0 + SZ, Y0 + SZ) : [];
