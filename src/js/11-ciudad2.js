@@ -231,6 +231,14 @@ const VC = EM.vcity = {
     g.setTransform(1, 0, 0, 1, 0, 0);
     return c;
   },
+  /* piso de las vistas 3D (1.4.0): suelo, suelos especiales y calles de un cuadro de S m desde (X0, Y0), a sc píxeles por metro,
+     sin edificios ni árboles (en 3D los edificios son cajas de verdad). Se arma por CPU, una vez por ventana */
+  piso3D(X0, Y0, S, sc) {
+    const n = Math.round(S * sc), c = mkCanvas(n, n), g = c.getContext('2d', { willReadFrequently: this.sw });
+    this.suelo(g, n, X0, Y0, S, sc, 1); g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); if (this.suelosEsp) this.suelosEsp(g, X0, Y0, S, sc, 1); this.calles(g, X0, Y0, S, sc, 1); g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'multiply'; g.fillStyle = '#bdbab4'; g.fillRect(0, 0, n, n); g.globalCompositeOperation = 'source-over';   // en 3D el sol aclara: el piso va un poco más oscuro
+    return c;
+  },
   /* suelo con bordes suaves y sin leer píxeles: cada clase se rellena con su contorno de cuadrados marchantes sobre los centros
      de las casillas (las escaleras de 20 m quedan como diagonales y esquinas biseladas). El agua y los parques llevan borde. */
   // cuadrados marchantes: por caso, los vértices del polígono interior (0 esq. sup. izq., 1 arriba, 2 esq. sup. der., 3 derecha, 4 esq. inf. der., 5 abajo, 6 esq. inf. izq., 7 izquierda)

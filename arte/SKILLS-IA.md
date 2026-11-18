@@ -112,6 +112,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `30-conduce.js` / `31-cabina.js` | Metro y tranvía (panorámica, cabina, ATP, procedimiento) |
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
 | `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad. Desde 1.3.0: manejo «fácil» (el joystick apunta hacia donde se va) o «clásico», giro limitado por la aceleración lateral de cada vehículo (`VEH.lat`, `giroMax`), pedal con peso, asistencia de carril, articulado con rótula (`VEH.art`, `st.h2`), ritmo ⏩ (`RITMOS`), 🆘 ayuda (`ayuda`, `llevar`, `salida`, `vigila`) y niveles (`nivel`, `nivelV`) |
+| `22-gl.js` (1.4.0) | El motor 3D `G3` arma la ventana cercana con el piso de calles reales (`VC.piso3D`), los edificios reales (`edifReales`), los hitos y los puentes; Ciudad Libre lo usa en sus vistas tercera persona, dron y cine (`Libre.draw3D`, `dyn3D`, `hud3D`, `joyMundo`) |
 | `39-gente.js` | **Gente de la ciudad** (`GENTE`, `Gente`): 20 personajes con nombre y oficio en su lugar real que cuentan lo que todos saben y lo que pocos saben, turistas que piden compañía (`turista`) y 📍 qué hay cerca (`guia`, `LUGAR_INFO`) |
 | `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
@@ -165,6 +166,13 @@ Datos en `src/data/`:
 - **Nada que se calcule cada pocos segundos debe armar regiones:** el aviso de «¿perdido?» usaba `VC.agarre` a 48 m y armaba regiones vecinas (tirones de medio segundo); se hace con las casillas de 20 m.
 - **Los personajes se ubican una vez y cerca de su lugar real**; lo que dicen se marca «lo que todos saben» o «lo que pocos saben» y no lleva cifras dudosas. Revisa cada dato antes de ponerlo.
 - **En este servidor, el navegador sin pantalla con la GPU emulada (swiftshader) deja de dar cuadros por segundos**, también con la 1.2.0: para medir, congela el bucle (`Game.freeze(true)`) y llama `Game.frame()` a mano, o usa `--disable-gpu`. Las capturas de página salen con el bucle congelado.
+
+### Reglas aprendidas (vistas 3D y mapa, 1.4.0)
+- **En los sombreadores, nada de coordenadas grandes en el fragmento:** en muchos celulares (y en el navegador de pruebas) el fragmento trabaja en precisión media: hasta ~16.384 y con saltos de 16 m a 27 km. Las coordenadas de textura (`vuv`), el hueco del piso lejano (`vh`) y los patrones de ventanas y luces (`vw`, con `mod`) se calculan en el vértice. Los síntomas son un piso en cuadros de 16 m, rayas y puntitos.
+- **Un uniforme que usan los dos sombreadores tiene que tener la misma precisión:** por eso el vértice usa `Rv` y `Hv` propios.
+- **Piso con detalle fino = mipmaps:** la textura del piso 3D (`VC.piso3D`) es de 2048 px (potencia de 2), con `generateMipmap` y filtro anisótropo; sin eso, las líneas de andén parpadean de lado.
+- **Nada de comentarios `//` en medio de una línea larga que sigue después:** se tragan el resto (pasó dos veces).
+- **El mapa grande congela el juego** (`Game.freeze`) y dibuja con su propio bucle; al cerrar, se descongela.
 
 ### Comandos
 ```

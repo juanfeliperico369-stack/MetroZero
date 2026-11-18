@@ -2,7 +2,36 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-## Estado al 2026-11-18 · v1.3.0 "La ciudad con altura y con gente"
+## Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
+**Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
+- **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.
+  - Están las líneas, las estaciones, los lugares famosos y los personajes.
+  - Tocar uno, o cualquier punto, ofrece «🚶 Ir aquí» (te lleva) o «📍 Marcar destino» (flecha y distancia).
+  - Nuevo comienzo «🗺 Elegir en el mapa»: muestra todo el valle para escoger dónde empezar.
+- **Vistas 3D en Ciudad Libre** (👁 cambia entre las cuatro):
+  - desde arriba (la de siempre, con sus tres ángulos);
+  - tercera persona, detrás de ti, con el joystick relativo a la cámara (arriba es hacia donde mira);
+  - dron: alto y lejos, gira despacio cuando estás quieto, para contemplar;
+  - cine: una cámara a la altura de un poste, en la calle, que te ve pasar.
+  - En 3D, un dedo gira la cámara y dos acercan o alejan.
+  - Necesitan «Calidad gráfica: Normal»; en «Celular modesto» se queda la vista desde arriba.
+- **El 3D con la ciudad real** (`src/js/22-gl.js`):
+  - a 700 m alrededor, las casas y los edificios reales son cajas orientadas con su altura y los colores de su zona;
+  - las piezas de arquitectura van con su planta real y los puentes con su tablero;
+  - el piso es el de calles de la ciudad vectorial (`VC.piso3D`), con mipmaps y filtro anisótropo;
+  - se ven el tráfico, la gente, los personajes, los vehículos parqueados y los trenes, cables y buses de la ciudad en su sitio, además de ti (con tu ropa) y un rombo naranja encima.
+  - Antes, la vista 3D del bus y del metro usaba bloques de 20 m sacados de las casillas.
+- **Tu personaje se ve más:**
+  - en pantalla nunca queda más chico de lo legible;
+  - lleva un disco naranja bajo los pies, un anillo con flecha de rumbo y su silueta encima de todo, aunque un edificio lo tape.
+- **Lo aprendido en 3D:**
+  - en muchos celulares el sombreador de fragmentos solo maneja números hasta ~16.000 y con precisión de 16 m, y el valle pasa de 27.000 m;
+  - por eso las coordenadas de la textura, el hueco del piso lejano y el dibujo de ventanas y luces se calculan en el sombreador de vértices;
+  - el piso lejano se arma con hueco y lo pegado al piso (andenes, plazas) va un poco delante.
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O); 100 partidas del bot (365 mil pasos) con 0 errores y 0 errores de consola. Capturas de las tres vistas 3D en el Parque Berrío, Santo Domingo, El Poblado y Estadio (a pie y en taxi), del mapa (elegir dónde empezar, tocar una estación, ir allá) y del personaje con su anillo.
+
+### v1.3.0 "La ciudad con altura y con gente"
 **Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).
 - **Puentes y niveles** (`src/js/11-puentes.js`, `src/data/puentes.js`, `tools/puentes_datos.py`):
   - 2.150 puentes reales del valle (1.436 vehiculares y 714 peatonales), de OpenStreetMap vía Overture Maps (bandera `is_bridge` y nivel); 1.002 calles del juego pasan por uno. Tablero con rampas, pilas, canto, barandas y sombra.

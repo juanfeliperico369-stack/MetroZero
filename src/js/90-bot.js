@@ -124,6 +124,10 @@ const BotT = EM.test = {
         if (typeof GENTE !== 'undefined') { if (GENTE.length < 18) E('gente: solo ' + GENTE.length + ' personajes'); for (const G of GENTE) { const [t, a] = G.en; if (t === 'hito' && !VC.HT.some(h => h.id === a)) E('gente: ' + G.n + ' no tiene su lugar (' + a + ')'); if (t === 'est' && !NET.stations.some(s => s.name === a)) E('gente: ' + G.n + ' no tiene su estación (' + a + ')'); if (!G.f.some(f => f[0] === 1)) Wn('gente: ' + G.n + ' no cuenta nada poco conocido'); } }
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
+        // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
+        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos'); { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
+        if (typeof G3 === 'undefined' || typeof G3.edifReales !== 'function' || typeof VC.piso3D !== 'function') E('vistas 3D: faltan los edificios reales o el piso con calles'); else { const c = VC.piso3D(14000, 23000, 200, .5); if (!c || c.width !== 100) E('vistas 3D: el piso no se arma'); }
+        { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
         // cámara (1.3.0): tres ángulos distintos y el del guardado aplicado
         if (!VC.ANGULOS || VC.ANGULOS.length < 3 || new Set(VC.ANGULOS.map(A => A.ob)).size !== VC.ANGULOS.length) E('cámara: faltan ángulos');
         else if (VC.ob !== VC.ANGULOS[clamp(Save.d.settings.angulo | 0, 0, VC.ANGULOS.length - 1)].ob) E('cámara: el ángulo guardado no se aplicó');

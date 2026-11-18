@@ -39,16 +39,21 @@ const SKY = {
   },
   hex(c) { return 'rgb(' + c.map(v => Math.round(v * 255)).join(',') + ')'; }
 };
-const VS = `attribute vec3 p;attribute vec3 n;attribute vec3 c;attribute float k;uniform mat4 M;uniform mat4 VP;varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;
-void main(){vec4 w=M*vec4(p,1.);wp=w.xyz;vn=mat3(M)*n;vc=c;vk=k;gl_Position=VP*w;vd=gl_Position.w;}`;
-const FS = `precision mediump float;uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;
-varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;
+const VS = `attribute vec3 p;attribute vec3 n;attribute vec3 c;attribute float k;uniform mat4 M;uniform mat4 VP;uniform vec4 Rv;uniform vec4 Hv;varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;varying vec2 vuv;varying float vh;varying vec3 vw;
+void main(){vec4 w=M*vec4(p,1.);wp=w.xyz;vuv=(w.xz-Rv.xy)/Rv.zw-.5;vh=(w.x>Hv.x&&w.x<Hv.z&&w.z>Hv.y&&w.z<Hv.w)?1.:0.;vw=vec3(mod(w.x,340.),mod(w.y,310.),mod(w.z,340.));vn=mat3(M)*n;vc=c;vk=k;gl_Position=VP*w;vd=gl_Position.w;}`;
+const FS = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;
+varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;varying vec2 vuv;varying float vh;varying vec3 vw;
 float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
 void main(){vec3 base=mix(vc,tint.rgb,tint.a);
-if(vk>=2.&&vk<3.){if(wp.x>hole.x&&wp.x<hole.z&&wp.z>hole.y&&wp.z<hole.w)discard;base=texture2D(T,(wp.xz-R.xy)/R.zw).rgb;}
+if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;}
 vec3 N=normalize(vn);float d=max(dot(N,sun),0.);vec3 col=base*(amb+sunc*d);
-if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(wp.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
-if(vk>.5&&vk<1.5){vec2 q=vec2((wp.x+wp.z)/3.4,wp.y/3.1);vec2 f=fract(q);float w=step(.22,f.x)*step(f.x,.78)*step(.28,f.y)*step(f.y,.82);float lit=step(.42,h(floor(q)+floor(wp.xz*.02)));col=mix(col,mix(col*.55,vec3(1.,.84,.48),night*lit),w*.85);}
+if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
+if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.22,f.x)*step(f.x,.78)*step(.28,f.y)*step(f.y,.82);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));col=mix(col,mix(col*.55,vec3(1.,.84,.48),night*lit),w*.85);}
 if(vk>3.5)col=base*(.8+.2*night);
 float fg=clamp(1.-exp(-vd*fogd),0.,1.);gl_FragColor=vec4(mix(col,fogc,fg),1.);}`;
 const SVS = `attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,.9999,1.);}`;
@@ -104,22 +109,24 @@ const G3 = EM.g3 = {
     return this.ok;
   },
   buf(arr) { const gl = this.gl, b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW); b.n = arr.length / 10; return b; },
-  tex(cv) { const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv); for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; },
+  tex(cv, suave) { const gl = this.gl, t = gl.createTexture(), pot = suave && !(cv.width & (cv.width - 1)) && !(cv.height & (cv.height - 1)), F = suave ? gl.LINEAR : gl.NEAREST; gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv);
+    if (pot) { gl.generateMipmap(gl.TEXTURE_2D); const an = gl.getExtension('EXT_texture_filter_anisotropic'); if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT))); }   // piso de calles: mipmaps y filtro anisótropo
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, pot ? gl.LINEAR_MIPMAP_LINEAR : F], [gl.TEXTURE_MAG_FILTER, F], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; },
   urban(x, y, r) { let n = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = MAP.tileM(x + i * r, y + j * r); c++; if (v === TT.BRICK || v === TT.BLDG) n++; } return n / c; },
   /* casillas del corredor de metro y tranvía (sin edificios encima de la vía) */
   railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
   /* malla lejana: todo el valle cada 320 m */
-  buildFar() {
+  buildFar(hx0, hz0, hx1, hz1) {   // con hueco (1.4.0): las celdas que caen enteras dentro de la ventana cercana no se arman (no hay piso doble que parpadee)
     const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => [i * S, MAP.elevM(i * S, j * S), j * S];
-    const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90));
-    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; mb.tri(a, d, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
-    this.far = mb.done().map(a => this.buf(a));
+    const U = this._U || (this._U = (() => { const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90)); return U; })());
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; mb.tri(a, d, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
+    if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); this.far = mb.done().map(a => this.buf(a));
   },
   /* ventana cercana (4,8 km) con textura de 4 px por casilla y edificios en 3D */
   buildNear(cx, cz) {
-    const gl = this.gl, half = 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
-    const cv = mkCanvas(nt * P, nt * P), g = cv.getContext('2d'), img = g.createImageData(nt * P, nt * P), d = img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
-    for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
+    const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
+    const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    if (!real) for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
       const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y); let base = TRGB[v] || TRGB[0]; const ht = h2(X, Y, v), nN = road(MAP.tile(X, Y - 1)), nS = road(MAP.tile(X, Y + 1)), nW = road(MAP.tile(X - 1, Y)), nE = road(MAP.tile(X + 1, Y)), vert = nN || nS, horz = nW || nE;
       if (v === TT.BRICK || v === TT.BLDG) base = [92, 104, 72];
       for (let py = 0; py < P; py++) for (let px = 0; px < P; px++) {
@@ -133,16 +140,17 @@ const G3 = EM.g3 = {
         const o = ((ty * P + py) * nt * P + tx * P + px) * 4; d[o] = clamp(col[0] * m, 0, 255); d[o + 1] = clamp(col[1] * m, 0, 255); d[o + 2] = clamp(col[2] * m, 0, 255); d[o + 3] = 255;
       }
     }
-    g.putImageData(img, 0, 0);
-    if (this.texNear) gl.deleteTexture(this.texNear); this.texNear = this.tex(cv);
+    if (!real) g.putImageData(img, 0, 0);
+    if (this.texNear) gl.deleteTexture(this.texNear); this.texNear = this.tex(cv, real);   // las calles reales, suavizadas
     for (const b of this.near.concat(this.bld)) gl.deleteBuffer(b);
     const S = 40, n = 2 * half / S, mb = new MB(), E = (i, j) => [x0 + i * S, MAP.elevM(x0 + i * S, z0 + j * S), z0 + j * S];
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), dd = E(i, j + 1), u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; mb.tri(a, dd, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
     // edificios: bloques de 2×2 casillas dentro de 1,5 km (0,9 km en celulares modestos)
-    const R = Save.d.settings.q === 'low' ? 600 : 1100, bm = new MB();
+    const R = Save.d.settings.q === 'low' ? 600 : 1100, bm = new MB(), RR = real && VC.ED ? (Save.d.settings.q === 'low' ? 380 : 700) : 0;
+    if (RR) this.edifReales(bm, cx, cz, RR);
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
-      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R) continue;
+      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (RR && (X - cx) ** 2 + (Z - cz) ** 2 < RR * RR)) continue;
       const v = MAP.tileM(X + 10, Z + 10); if (v !== TT.BLDG && v !== TT.BRICK) continue; if (this.railMask().has((Z / TM | 0) * MW + (X / TM | 0))) continue;
       const r = h2(X, Z, 5), brick = v === TT.BRICK, hgt = brick ? 4 + r * 6 : MAP.bHeight(X + 10, Z + 10, X ^ Z), w = 11 + r * 4, l = 12 + h2(X, Z, 6) * 5, y = MAP.elevM(X + 10, Z + 10) - 2, a = h2(X, Z, 9) < .5 ? 0 : Math.PI / 2;
       // casas: ladrillo a la vista o pintadas en tonos pastel (como las laderas de Medellín); edificios: concreto y vidrio
@@ -164,7 +172,25 @@ const G3 = EM.g3 = {
       const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14; bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[(r * 53 | 0) % TREE_COL.length]);
     }
     this.bld = bm.done().map(a => this.buf(a));
-    this.win = { cx, cz, x0, z0, s: 2 * half };
+    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
+  },
+  /* las casas y los edificios reales en 3D (1.4.0): cada huella como caja orientada con su altura y los colores de su zona
+     (muros y techo de VC.estilo), sin las que caen en la calle; las piezas de arquitectura icónica con su planta real; y los puentes */
+  edifReales(bm, cx, cz, R) {
+    const RG = VC.R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; };
+    for (let ry = Math.floor((cz - R) / RG); ry <= Math.floor((cz + R) / RG); ry++) for (let rx = Math.floor((cx - R) / RG); rx <= Math.floor((cx + R) / RG); rx++) {
+      const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
+      for (const b of L) { if (b.rec === false || (b.x - cx) ** 2 + (b.y - cz) ** 2 > R * R) continue; if (!Rg && b.rec === undefined && VC.enSegs(VC.segsCerca(b.x, b.y, 1), b.x, b.y)) continue;
+        VC.estilo(b); const y = MAP.elevM(b.x, b.y) - 1.2, a = Math.atan2(b.uy, b.ux); bm.box(b.x, y, b.y, a, b.hw * 2, b.hd * 2, Math.max(2.6, b.h) + 1.2, C(b.cw && b.cw[0] === '#' ? b.cw : '#d9d2c3'), C(b.cr && b.cr[0] === '#' ? b.cr : '#b4583a'), 1, 0); } }
+    // arquitectura icónica: muros por cada lado de su planta y tapa en abanico
+    const HC = { aguja: '#d9dde2', basilica: '#a65a3c', iglesia: '#ece2cf', palacio: '#eeeeea', estadio: '#d7d3cb', rocas: '#2c2e33', vidrio: '#9fb7c9', ladrillo: '#a85b3d', republicano: '#e9dfc6', moderno: '#d0d4d8', cupula: '#e3ddd0', cubos: '#c9c3b6', luces: '#cfd2d6', botero: '#d8cfbd', pies: '#d8cfbd', alpujarra: '#e4e4e0' };
+    for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (R + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
+      for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
+        for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
+    // puentes: tablero por tramos a la altura de su rampa
+    if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
+      for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
+        bm.box(mx, MAP.elevM(mx, my) + h - .9, my, Math.atan2(by - ay, bx - ax), L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); } }
   },
   /* red de transporte estática: viaductos, rieles, postes, estaciones, torres de cable y carriles de bus */
   netZ: {},
@@ -236,10 +262,10 @@ const G3 = EM.g3 = {
   },
   /* ---------- dibujo ---------- */
   draw(cam, opts = {}) {
-    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .4 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : .55);
+    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .4 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : opts.escala || .55), ir = opts.suave ? 'auto' : 'pixelated'; if (cv.style.imageRendering !== ir) cv.style.imageRendering = ir;
     const w = Math.max(64, Math.round(cv.clientWidth * q)), h = Math.max(64, Math.round(cv.clientHeight * q)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-    if (!this.win || dist(cam.eye[0], cam.eye[2], this.win.cx, this.win.cz) > 1000) this.buildNear(cam.eye[0], cam.eye[2]);
-    const sky = SKY.at(opts.hour != null ? opts.hour : 12), V = M4.look(cam.eye, cam.at), Pm = M4.persp(cam.fov || 1.05, w / h, 1.2, 26000), VP = M4.mul(Pm, V); this.VP = VP; this.vw = w; this.vh = h;
+    if (!this.win || dist(cam.eye[0], cam.eye[2], this.win.cx, this.win.cz) > Math.min(1000, this.win.s * .2)) this.buildNear(cam.eye[0], cam.eye[2]);
+    const sky = SKY.at(opts.hour != null ? opts.hour : 12), V = M4.look(cam.eye, cam.at), Pm = M4.persp(cam.fov || 1.05, w / h, opts.cerca || 1.2, 26000), VP = M4.mul(Pm, V); this.VP = VP; this.vw = w; this.vh = h;
     gl.viewport(0, 0, w, h); gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
     // cielo con gradiente y sol
     const S = this.S, sd = sky.sun.dir, sp = M4.xf(VP, cam.eye[0] + sd[0] * 2e4, cam.eye[1] + sd[1] * 2e4, cam.eye[2] + sd[2] * 2e4);
@@ -253,10 +279,12 @@ const G3 = EM.g3 = {
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
-    const W = this.win; gl.bindTexture(gl.TEXTURE_2D, this.texFar); gl.uniform4fv(u.R, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.hole, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]);
+    const W = this.win; gl.bindTexture(gl.TEXTURE_2D, this.texFar); gl.uniform4fv(u.R, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.Rv, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.hole, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]); gl.uniform4fv(u.Hv, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]);
+    gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1.5, 6);   // el piso un poco atrás: lo que va pegado encima (andenes, plazas, carriles) no parpadea
     for (const b of this.far) run(b);
-    gl.bindTexture(gl.TEXTURE_2D, this.texNear); gl.uniform4fv(u.R, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.hole, [0, 0, 0, 0]);
+    gl.bindTexture(gl.TEXTURE_2D, this.texNear); gl.uniform4fv(u.R, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.Rv, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.hole, [0, 0, 0, 0]); gl.uniform4fv(u.Hv, [0, 0, 0, 0]);
     for (const b of this.near) run(b);
+    gl.disable(gl.POLYGON_OFFSET_FILL);
     for (const b of this.bld) run(b);
     for (const b of this.stat) run(b);
     if (this.wires) run(this.wires, gl.LINES);
