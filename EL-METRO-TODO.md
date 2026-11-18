@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v1.1.0 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v1.1.1 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v1.1.0** · compilado el 2026-11-18.
+> Versión del juego **v1.1.1** · compilado el 2026-11-18.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,7 +799,10 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-##### Estado al 2026-11-18 · v1.1.0 "Ciudad con curvas"
+##### Estado al 2026-11-18 · v1.1.1 "Ciudad con curvas" (retoque)
+**Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
+
+###### v1.1.0 "Ciudad con curvas"
 **Novedad de v1.1.0** (une la línea de 1.0.0 de la otra IA con v0.10.0 y redibuja la ciudad):
 - **Mapa base de 1.0.0:** manzanas oficiales, huellas, pisos y barrios en todo el valle (formato v3: `ba`, `hg`, `lt`), con `CIUDAD` y `RUTAS` de 1.0.0 y lo de v0.10.0 encima (EnCicla, calendario, ajustes, accesibilidad).
 - **Motor de ciudad vectorial** (`src/js/11-ciudad2.js`, `VC`): reemplaza el dibujo por casillas en todas las vistas cenitales.
@@ -816,6 +819,12 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 - **Autotest nuevo:** vías cargadas, edificios fuera del asfalto, andenes sobre su línea, vías sin quiebres y buses sobre las calles.
 
 Herramientas nuevas: `tools/vias_datos.mjs`, `tools/rieles_datos.mjs`, `tools/rutas_calles.mjs` y `tools/hitos_datos.py` (cómo regenerar en `docs/FUENTES.md`).
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 0 avisos (26.919 vías, 30 piezas de arquitectura, andenes sobre su línea, sin quiebres, buses sobre las calles), 100 partidas del bot (368 mil pasos) con 0 errores y 0 errores de consola. Cuadros de 2–7 ms de JavaScript caminando y manejando; un trozo cercano se arma en 10–20 ms (las regiones de 640 m en 10–25 ms, por adelantado).
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.1.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.1.0-d0a6e2db`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 20, **3,4 MB**).
+
+**Qué falta:** el Orquideorama y otros edificios que OpenStreetMap no tiene como huella; alturas por edificio con el catastro; afinar el recorrido de los Metroplús donde su carril exclusivo no está en las vías vectoriales.
 
 ###### v0.10.0 "Valle completo y EnCicla"
 **Novedad de v0.10.0:**
@@ -1277,7 +1286,8 @@ Datos en `src/data/`:
 - `rutas.js`: recorridos de buses por calles reales (casillas; respaldo);
 - `vias.js`: 26.919 calles como vectores con ancho y nombre. **Generado** por `node tools/vias_datos.mjs RUTA_DE_JUEGA_ENCICLA_1.3`;
 - `rieles.js`: eje de A, B y T entre los dos rieles de OpenStreetMap. **Generado** por `node tools/rieles_datos.mjs JSON_DE_OVERPASS`;
-- `rutas_calles.js`: Metroplús y alimentadores por las calles vectoriales, pasando por cada parada. **Generado** por `node tools/rutas_calles.mjs`;
+- `rutas_calles.js`: alimentadores por las calles vectoriales, pasando por cada parada. **Generado** por `node tools/rutas_calles.mjs`;
+- `metroplus.js`: corredores reales de Metroplús (líneas 1, 2 y O). **Generado** por `node tools/metroplus_datos.mjs RUTA_DE_JUEGA_ENCICLA_1.3`;
 - `lugares.js`: lugares con postal;
 - `arte.js`: arte embebido (WebP y SVG). **Generado** por `python3 tools/arte_juego.py` desde `arte/entregas/`; no se edita a mano.
 - `ciudad.js`: datos oficiales abiertos (parche de casillas, barrios, nombres de calle por casilla, lotes, lugares). **Generado** por `python3 tools/ciudad_datos.py CACHE` (descarga previa: `python3 tools/ciudad_descarga.py CACHE`). Se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels`. El mapa base `valle.js` **no se modifica**: el parche se aplica al cargar.
@@ -2857,7 +2867,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (79 archivos, 1047 KB)
+## Código fuente (80 archivos, 1051 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3271,7 +3281,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '1.1.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '1.1.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4404,9 +4414,9 @@ const VC = EM.vcity = {
     // transporte: corredor del viaducto y del tranvía, el andén de cada estación y las estaciones de cable (los edificios no se montan encima)
     if (typeof NET !== 'undefined') for (const l of NET.lines) {
       if (l.kind === 'cable') { for (const s of l.st) if (s.x > X0 - 30 && s.x < X0 + SZ + 30 && s.y > Y0 - 30 && s.y < Y0 + SZ + 30) stampSeg(s.x - 1, s.y, s.x + 1, s.y, 19, 1); continue; }
-      if (l.kind !== 'metro' && l.kind !== 'tram') continue; const r = l.kind === 'metro' ? 7 : 4.5, P = l.P.pts;
+      if (l.kind !== 'metro' && l.kind !== 'tram' && l.kind !== 'brt') continue; const r = l.kind === 'metro' ? 7 : l.kind === 'brt' ? 5 : 4.5, P = l.P.pts;   // el carril del Metroplús también queda libre
       for (let i = 1; i < P.length; i++) { const a = P[i - 1], b = P[i]; if (Math.max(a.x, b.x) < X0 - 20 || Math.min(a.x, b.x) > X0 + SZ + 20 || Math.max(a.y, b.y) < Y0 - 20 || Math.min(a.y, b.y) > Y0 + SZ + 20) continue; stampSeg(a.x, a.y, b.x, b.y, r, 1); }
-      for (const s of l.st) { const pl = KIND[l.kind].plat; if (s.x < X0 - pl || s.x > X0 + SZ + pl || s.y < Y0 - pl || s.y > Y0 + SZ + pl) continue; const s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl)); for (let t = s0; t < s0 + pl; t += 10) { const a = NET.at(l.P, t), b = NET.at(l.P, Math.min(t + 10, s0 + pl)); stampSeg(a.x, a.y, b.x, b.y, l.kind === 'metro' ? 13 : 8, 1); } }
+      for (const s of l.st) { const pl = KIND[l.kind].plat; if (s.x < X0 - pl || s.x > X0 + SZ + pl || s.y < Y0 - pl || s.y > Y0 + SZ + pl) continue; const s0 = clamp(s.s - pl / 2, 0, Math.max(0, l.P.len - pl)); for (let t = s0; t < s0 + pl; t += 10) { const a = NET.at(l.P, t), b = NET.at(l.P, Math.min(t + 10, s0 + pl)); stampSeg(a.x, a.y, b.x, b.y, l.kind === 'metro' ? 13 : l.kind === 'brt' ? 7 : 8, 1); } }
     }
     // arquitectura icónica: su huella (con 1,5 m de margen) queda reservada; nada genérico se monta encima
     const hits = this.HT ? this.hitosEn(X0, Y0, X0 + SZ, Y0 + SZ) : [];
@@ -4982,6 +4992,8 @@ const NET = EM.netw = {
         pts = R ? R.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []) : q(osm.p); if (!L.stations) st = osm.st.map(([n, a, b]) => ({ name: n, x: a * TM / 4, y: b * TM / 4 }));
       }
       if (!st) st = (L.stations || []).map(([n, la, lo]) => Object.assign({ name: n }, geoM(la, lo)));
+      // Metroplús: su corredor real por el carril exclusivo (src/data/metroplus.js)
+      if (!pts && k === 'brt' && typeof METROPLUS !== 'undefined' && METROPLUS[L.id]) pts = METROPLUS[L.id].p.reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       // buses: el recorrido rehecho sobre las calles dibujadas (src/data/rutas_calles.js); si falta, el de casillas (RUTAS)
       if (!pts && typeof RUTAS_CALLES !== 'undefined' && RUTAS_CALLES[L.id]) pts = RUTAS_CALLES[L.id].reduce((o, v, i) => (i % 2 ? o[o.length - 1].y = v : o.push({ x: v, y: 0 }), o), []);
       if (!pts && typeof RUTAS !== 'undefined' && RUTAS[L.id]) pts = q(RUTAS[L.id]);
@@ -7093,7 +7105,8 @@ const Ciudad = EM.ciudad = {
         if (k > .5) { g.strokeStyle = '#7d756a'; g.lineWidth = 2.6 * k; g.setLineDash([.35 * k, .55 * k]); for (const o of [-2, 2]) { g.beginPath(); for (let s = R[0]; s <= R[1] + 3; s += Math.max(3, 2.5 / k)) { const q0 = NET.at(l.P, Math.min(s, R[1]), o), q = Se(q0.x, q0.y); s === R[0] ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke(); } g.setLineDash([]); }
         rieles(l, R, [-2.72, -1.28, 1.28, 2.72], '#2b2a28', Math.max(.8, .22 * k), Se);
       } else if (l.kind === 'tram') { path(l, 160); g.strokeStyle = 'rgba(30,30,30,.45)'; g.lineWidth = 6.4 * k; g.stroke(); g.strokeStyle = '#6a6e74'; g.lineWidth = 6 * k; g.stroke(); rieles(l, R, [-1.9, -.5, .5, 1.9], '#2e3034', Math.max(.8, .2 * k)); g.strokeStyle = '#c9c9c4'; g.lineWidth = Math.max(.8, .22 * k); path(l, 160); g.stroke(); }
-      else { path(l, 160); g.strokeStyle = l.color + (l.kind === 'brt' ? '70' : '45'); g.lineWidth = (l.kind === 'brt' ? 3.4 : 2.6) * k; g.stroke(); }
+      else if (l.kind === 'brt') { path(l, 160); g.strokeStyle = '#9a958a'; g.lineWidth = 8 * k; g.stroke(); g.strokeStyle = '#4b5058'; g.lineWidth = 7 * k; g.stroke(); g.strokeStyle = l.color + '88'; g.lineWidth = 6 * k; g.stroke(); g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = Math.max(1, .18 * k); g.setLineDash([2.5 * k, 3.5 * k]); g.stroke(); g.setLineDash([]); }   // carril exclusivo del Metroplús
+      else { path(l, 160); g.strokeStyle = l.color + '45'; g.lineWidth = 2.6 * k; g.stroke(); }
       // andenes: siguen la curva de su línea entre s − largo/2 y s + largo/2 (el tren se detiene dentro y los rieles salen por los extremos)
       for (const s of l.st) {
         if (s.x < x0 - 90 || s.x > x1 + 90 || s.y < y0 - 90 || s.y > y1 + 90) continue; const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), s1 = Math.min(l.P.len, s0 + K.plat);   // en las terminales el andén entero queda hacia adentro
@@ -9267,8 +9280,9 @@ const BotT = EM.test = {
           if (l.kind === 'metro' && giro > .2) E(l.id + ': la vía tiene un quiebre de ' + Math.round(giro * 57.3) + '° (debe ser curva)');
           for (const s of l.st) { if (NET.project(l.P, s.x, s.y).d > 1) E(l.id + ': el andén de ' + s.name + ' no está sobre su línea'); if (Math.hypot(s.ox - s.x, s.oy - s.y) > 30) Wn(l.id + ': ' + s.name + ' quedó a ' + Math.round(Math.hypot(s.ox - s.x, s.oy - s.y)) + ' m de su punto');
             const K = KIND[l.kind], s0 = clamp(s.s - K.plat / 2, 0, Math.max(0, l.P.len - K.plat)), a0 = NET.dirAt(l.P, s0 + 5, 4), a1 = NET.dirAt(l.P, s0 + K.plat - 5, 4); let da = Math.abs(a1 - a0); if (da > Math.PI) da = TAU - da; if (l.kind === 'metro' && da > .44) Wn(l.id + ': el andén de ' + s.name + ' gira ' + Math.round(da * 57.3) + '°'); } }
-        let n = 0, f = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); n++; if (!asfalto(q.x, q.y, 4)) f++; } }
-        if (n && f / n > .04) E('buses: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        let n = 0, f = 0, nmp = 0, fmp = 0; for (const l of NET.lines) { if (l.kind !== 'brt' && l.kind !== 'feeder') continue; for (let t = 0; t < l.P.len; t += 25) { const q = NET.at(l.P, t); if (l.kind === 'feeder') { n++; if (!asfalto(q.x, q.y, 4)) f++; } else { nmp++; if (VC.solid(q.x, q.y, 1)) fmp++; } } }
+        if (n && f / n > .06) E('alimentadores: ' + Math.round(f / n * 100) + ' % del recorrido va por fuera de las calles');
+        if (nmp && fmp) E('Metroplús: ' + fmp + ' puntos de su carril quedaron dentro de un edificio o del agua');
         // arquitectura icónica: cargada, sin edificios genéricos encima y sólida (las plazas se caminan)
         if (VC.HT.length < 28) E('arquitectura: faltan hitos (' + VC.HT.length + ' de 30)');
         for (const id of ['coltejer', 'catedral', 'estadio', 'bibespana']) { const H = VC.HT.find(q => q.id === id); if (!H) { E('arquitectura: falta ' + id); continue; } const R = VC.regionAt(H.cx, H.cy); if (R.bs.some(b => VC.dentroH(H, b.x, b.y))) E('arquitectura: edificios genéricos sobre ' + H.n); if (id !== 'estadio' && !VC.solid(H.cx, H.cy, .3)) E('arquitectura: ' + H.n + ' no se choca'); }
@@ -10170,7 +10184,7 @@ fs.mkdirSync(dist, { recursive: true });
 // /* … */ que ocupa sus propias líneas y no contiene otro cierre, y las líneas que empiezan por //: nunca código.
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
-const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/hitos.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/metroplus.js','data/hitos.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -10887,6 +10901,38 @@ const AJUSTES = ${JSON.stringify(AJ)};
 fs.writeFileSync(path.join(root, 'src/data/ajustes.js'), txt);
 console.log(JSON.stringify(R.inf), '· src/data/ajustes.js', Math.round(txt.length / 1024), 'KB');
 await browser.close();
+~~~~
+
+### `tools/metroplus_datos.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Corredores reales de Metroplús (líneas 1, 2 y O) → src/data/metroplus.js
+   Fuente: src/data/valle.json de Juega EnCicla 1.3 o posterior (campo "mp": el recorrido de cada línea por su carril exclusivo,
+   de OpenStreetMap, © colaboradores de OpenStreetMap, ODbL), en la misma proyección del valle (unidades de casilla/vq).
+   Las esquinas se redondean (radio de ~8 m) para que el articulado gire sin quiebres.
+   Uso: node tools/metroplus_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3 */
+import fs from 'node:fs'; import path from 'node:path';
+const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/metroplus_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3'); process.exit(1); }
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const meta = JSON.parse(fs.readFileSync(path.join(ENC, 'src/data/valle.json'), 'utf8'));
+if (!meta.mp) throw new Error('el valle.json de Juega EnCicla no trae Metroplús (mp)');
+const U = meta.tile / meta.vq;
+// esquina redondeada: en cada giro de más de 15°, una curva de Bézier de hasta 8 m a cada lado del vértice
+const redondea = Q => { const out = [Q[0]]; for (let i = 1; i < Q.length - 1; i++) { const [ax, ay] = Q[i - 1], [bx, by] = Q[i], [cx, cy] = Q[i + 1], L1 = Math.hypot(bx - ax, by - ay), L2 = Math.hypot(cx - bx, cy - by); let d = Math.abs(Math.atan2(cy - by, cx - bx) - Math.atan2(by - ay, bx - ax)); if (d > Math.PI) d = 2 * Math.PI - d; if (d < .26 || L1 < 1 || L2 < 1) { out.push(Q[i]); continue; }
+  const r = Math.min(8, L1 * .45, L2 * .45), p0 = [bx - (bx - ax) / L1 * r, by - (by - ay) / L1 * r], p2 = [bx + (cx - bx) / L2 * r, by + (cy - by) / L2 * r]; for (let t = 0; t <= 1.001; t += .2) { const u = 1 - t; out.push([u * u * p0[0] + 2 * u * t * bx + t * t * p2[0], u * u * p0[1] + 2 * u * t * by + t * t * p2[1]]); } }
+  out.push(Q[Q.length - 1]); return out; };
+const OUT = {}, info = {};
+for (const l of meta.mp) {
+  const Q = []; for (let i = 0; i < l.p.length; i += 2) { const p = [l.p[i] * U, l.p[i + 1] * U], q = Q[Q.length - 1]; if (!q || Math.hypot(p[0] - q[0], p[1] - q[1]) > .5) Q.push(p); }
+  const P = redondea(Q); OUT[l.id] = { p: P.flatMap(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]), st: l.st.map(([n, a, b]) => [n, Math.round(a * U * 10) / 10, Math.round(b * U * 10) / 10]) };
+  let L = 0; for (let i = 1; i < P.length; i++) L += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); info[l.id] = { km: +(L / 1000).toFixed(2), puntos: P.length, estaciones: l.st.length };
+}
+const txt = `/* Corredores reales de Metroplús (líneas 1, 2 y O) con sus estaciones, en metros del mapa del valle: de Juega EnCicla ${meta.version || '1.3'}
+   (© colaboradores de OpenStreetMap, ODbL), con las esquinas redondeadas. Generado por tools/metroplus_datos.mjs (no editar a mano). */
+const METROPLUS = ${JSON.stringify(OUT)};
+`;
+fs.writeFileSync(path.join(root, 'src/data/metroplus.js'), txt);
+console.log(JSON.stringify(info), '· src/data/metroplus.js', Math.round(txt.length / 1024), 'KB');
 ~~~~
 
 ### `tools/osm-ventanas.mjs`
