@@ -32,6 +32,20 @@ if (!Array.isArray(LINE_META.trivia)) LINE_META.trivia = [];
 
 const NET = EM.netw = {
   lines: [], byId: {}, stations: [],
+  /* esquinas de un recorrido de bus con radio de giro real: un arco (Bézier) tangente a los dos tramos, de hasta R m o el 45 % de cada tramo */
+  redondea(P, R) {
+    P = P.filter((q, i) => i === 0 || i === P.length - 1 || Math.hypot(q.x - P[i - 1].x, q.y - P[i - 1].y) > 2.5);   // sin tramos de menos de 2,5 m (no dejan redondear)
+    if (P.length < 3) return P; const out = [P[0]];
+    for (let i = 1; i < P.length - 1; i++) {
+      const a = P[i - 1], b = P[i], c = P[i + 1], L1 = Math.hypot(b.x - a.x, b.y - a.y), L2 = Math.hypot(c.x - b.x, c.y - b.y);
+      if (L1 < .5 || L2 < .5) { out.push(b); continue; }
+      const ux = (b.x - a.x) / L1, uy = (b.y - a.y) / L1, vx = (c.x - b.x) / L2, vy = (c.y - b.y) / L2, th = Math.atan2(Math.abs(ux * vy - uy * vx), ux * vx + uy * vy);
+      if (th < .18) { out.push(b); continue; }
+      const t = Math.min(R * Math.tan(th / 2), L1 * .45, L2 * .45), n = Math.max(2, Math.ceil(th / .18)), p0x = b.x - ux * t, p0y = b.y - uy * t, p2x = b.x + vx * t, p2y = b.y + vy * t;
+      for (let j = 0; j <= n; j++) { const q = j / n, w = 1 - q; out.push({ x: w * w * p0x + 2 * w * q * b.x + q * q * p2x, y: w * w * p0y + 2 * w * q * b.y + q * q * p2y }); }
+    }
+    out.push(P[P.length - 1]); return out;
+  },
   poly(pts) { const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + dist(pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y)); return { pts, cum, len: cum[cum.length - 1] || 0 }; },
   at(P, s, off = 0) {
     const c = P.cum, n = c.length; s = clamp(s, 0, P.len); let lo = 0, hi = n - 1;
@@ -70,6 +84,7 @@ const NET = EM.netw = {
       if (!pts && typeof RUTAS !== 'undefined' && RUTAS[L.id]) pts = q(RUTAS[L.id]);
       if (!pts) { const via = (L.via || []).map(([la, lo]) => geoM(la, lo)); pts = via.length && k !== "cable" ? this.orderAlong(st, via) : st.map(s => ({ x: s.x, y: s.y })); }
       if (pts.length < 2) continue;
+      if (k === 'feeder' || k === 'brt') pts = this.redondea(pts, k === 'brt' ? 14 : 11);
       line.P = this.poly(pts);
       // una línea de metro que termina sobre otra (la B en San Antonio) llega hasta el borde del viaducto de la otra, no encima
       if (k === 'metro') for (const o of this.lines) if (o.kind === 'metro') for (const fin of [0, 1]) {

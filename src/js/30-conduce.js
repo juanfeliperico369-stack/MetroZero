@@ -32,7 +32,7 @@ function trackOf(line) {
   TRACKS.set(line.id, T); return T;
 }
 const Conduce = EM.modes.conduce = {
-  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
+  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, camara: {}, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
   _lv: null,
   levels() {
     if (this._lv) return this._lv; const L = [];
@@ -443,6 +443,7 @@ const Conduce = EM.modes.conduce = {
     let k = pan ? Math.min(W, H) / (Math.max(2000, Math.abs(st.tgt[st.tgt.length - 1] - st.tgt[0]) * 1.3)) : Math.min(W, H) / 420;
     let mx = p.x, my = p.y;
     if (pan) { const a = NET.at(line.P, st.tgt[0]), b = NET.at(line.P, st.tgt[st.tgt.length - 1]); mx = (a.x + b.x) / 2; my = (a.y + b.y) / 2; k = Math.min(W / (Math.abs(b.x - a.x) + 1500), H / (Math.abs(b.y - a.y) + 1500)); }
+    { const co = CamUI.off(st); k *= CamUI.zoom(st); mx += co.x; my += co.y; st._k = k * (($('#gcv') || { clientWidth: W }).clientWidth || W) / W; }   // pellizco y cámara libre
     if (MAP.ready) { if (pan) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     const S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H / 2 + (y - my) * k });
     for (const l of NET.lines) { if (!pan && l !== line) continue; g.strokeStyle = PAL.negro; g.lineWidth = Math.max(3, (pan ? 5 : 7) * Math.min(1, k * 2)); g.beginPath(); l.P.pts.forEach((q, i) => { const s = S(q.x, q.y); i ? g.lineTo(s.x, s.y) : g.moveTo(s.x, s.y); }); g.stroke(); g.strokeStyle = l.color; g.lineWidth = Math.max(2, (pan ? 3 : 4.5) * Math.min(1, k * 2)); g.stroke(); }

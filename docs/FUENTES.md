@@ -58,6 +58,17 @@ Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** a
 
 **Transformaciones** (las licencias piden declararlas): proyección al mapa del valle; se descartan las huellas de menos de 12 m² y las que quedan bajo una pieza de arquitectura icónica; las casi rectangulares (relleno ≥ 0,78 de su rectángulo orientado) se guardan como rectángulo y las demás como polígono simplificado a 1 m; centros a 0,5 m, medidas a 0,5 m y ángulo a 1,4°. En el juego, cada edificio se **recorta contra la calle** (asfalto con medio andén, peatonales y escaleras), porque huellas y vías vienen de fuentes distintas y se corren uno o dos metros: la calle queda siempre libre. Regenerar: `python3 tools/edificios_datos.py --descargar CARPETA` y luego `python3 tools/edificios_datos.py CARPETA` (necesita `duckdb`, `shapely`, `pyarrow`).
 
+## Puentes, niveles y Metroplús (v1.3.0)
+| Dato | Fuente | Archivo |
+|---|---|---|
+| 2.150 puentes (1.436 vehiculares y 714 peatonales) con su nivel | Overture Maps Foundation, tema `transportation/segment`, release 2026-10-21.0: bandera `is_bridge` de `road_flags` y nivel de `level_rules` (© colaboradores de OpenStreetMap, ODbL) | `src/data/puentes.js` (de `tools/puentes_datos.py`) |
+| Corredores de Metroplús líneas 1 y 2 | Relaciones de ruta de OpenStreetMap 5458501 y 5393696 (Línea 1), 5401998 y 5401999 (Línea 2), API 0.6 (ODbL) | `src/data/metroplus.js` (de `tools/metroplus_osm.py`) |
+| Andenes de las estaciones de Metroplús | OpenStreetMap, API 0.6 (`public_transport=platform`, `highway=platform` o `bus_stop` con el nombre de la estación), ODbL | `src/data/metroplus_andenes.js` (de `tools/metroplus_andenes.py`) |
+| Línea O de Metroplús | Rehecha por las calles dibujadas, pasando por cada andén | `src/data/rutas_calles.js` (de `tools/rutas_calles.mjs`) |
+| Lo que cuentan los personajes de la ciudad | Conocimiento general sobre Medellín, revisado dato por dato; sin cifras dudosas | `src/js/39-gente.js` |
+
+**Transformaciones:** los tramos de cada puente se unen por nivel, se pasan a metros del mapa del valle y se enlazan con las calles del juego (los tramos de calle que van sobre un puente no se dibujan a ras de piso). La altura del tablero es de 6 m por nivel (3 m en los puentes vehiculares cortos, de menos de 24 m, sobre quebradas), con rampas de hasta 22 m (9 m en los peatonales).
+
 ## Coordenadas
 
 | Datos | Fuente |

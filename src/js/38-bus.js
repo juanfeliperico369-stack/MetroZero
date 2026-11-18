@@ -5,7 +5,7 @@
    (tú manejas la velocidad); apágalo para girar con el joystick.
    ===================================================================== */
 const Bus = EM.modes.bus = {
-  id: 'bus', name: 'Bus', sub: 'Metroplús y alimentadores', music: 'ciudad', fullCanvas: true, endless: false,
+  id: 'bus', name: 'Bus', sub: 'Metroplús y alimentadores', music: 'ciudad', fullCanvas: true, endless: false, camara: {},
   tip: '▲ acelera, ▼ frena. Para en cada parada (dentro de la zona), abre las puertas con ● para que suba la gente, ciérralas y sigue. Respeta los semáforos y no te pases de velocidad.',
   levels() {
     if (this._lv) return this._lv; const L = [];
@@ -113,8 +113,8 @@ const Bus = EM.modes.bus = {
   },
   key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if ((m === 'left' || m === 'right') && down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado', 'b'); } if (!st.assist) st.joy = { x: (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), y: 0, m: 1 }; return; } if (!down) return; if (k === ' ' || k === 'e') this.doors(st); if (k === 'g') st.assist = !st.assist; if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') Snd.play('horn'); },
   draw(g, st, vp) {
-    const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st);
-    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
+    const W = vp.w, H = vp.h, cw = ($('#gcv') || { clientWidth: W }).clientWidth || W, W_ = W, k = st.cam.k * CamUI.zoom(st) * (W / Math.max(1, cw)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st), co = CamUI.off(st); st._k = k * cw / W_;
+    const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round((st.cam.x + co.x) * k) / k, my = Math.round((st.cam.y + co.y) * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); } if (MAP.ready && k >= .3) MAP.drawLabels(g, W, H, mx, my, k, W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), Mundo.light().night);
     // ruta: carril exclusivo o recorrido del alimentador
     g.strokeStyle = st.kind === 'metroplus' ? 'rgba(14,111,118,.45)' : line.color + '66'; g.lineWidth = (st.kind === 'metroplus' ? 7 : 5) * k; g.lineJoin = 'round'; g.beginPath(); let on = false; for (const p of line.P.pts) { if (p.x < x0 - 200 || p.x > x1 + 200 || p.y < y0 - 200 || p.y > y1 + 200) { on = false; continue; } const q = S(p.x, p.y); if (on) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); on = true; } g.stroke();
@@ -129,7 +129,7 @@ const Bus = EM.modes.bus = {
     for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) Ciudad.ped(g, p, S, k, sh);
     // el bus del jugador (articulado: dos secciones), en el puente si su recorrido va por uno (tablero en la misma dirección)
     let bz = 0, bh = 0; if (VC.PG) { const P = VC.puenteEn(st.x, st.y, null, .5); if (P && !P.B.pe) { const u = VC.puAt(P.B, P.s); if (Math.abs(u.ux * Math.cos(st.h) + u.uy * Math.sin(st.h)) > .86) { bz = P.B.z; bh = P.h; } } }
-    const Sb = SZ(bh), bus = () => { if (st.kind === 'metroplus') Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'brt', Sb, k, sh, night, true, { doors: 'left', sign: 1 }); else Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'feeder', Sb, k, sh, night, true, { doors: 'right', sign: 1 }); };
+    const Sb = SZ(bh), bus = () => { if (st.kind === 'metroplus') Ciudad.articulado(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, st.h2 == null ? st.h : st.h2, V, Sb, k, sh, night, true, { doors: 'left', sign: 1 }); else Ciudad.car(g, st.x + Math.cos(st.h) * 2.4, st.y + Math.sin(st.h) * 2.4, st.h, V.len, V.wid, V.col, 'feeder', Sb, k, sh, night, true, { doors: 'right', sign: 1 }); };
     if (bz) altos.push([bz, bus]); else bus();
     const nivelDib = z => { if (VC.PG) VC.puentesDib(g, S, k, x0, y0, x1, y1, z); for (const [lz, f] of altos) if (lz === z) f(); };
     nivelDib(1); if (VC.on) { Ciudad.stations(g, S, k, x0, y0, x1, y1, 'alto'); Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, 'alto'); } nivelDib(2); nivelDib(3);

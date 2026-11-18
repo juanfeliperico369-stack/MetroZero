@@ -29,7 +29,7 @@ const TRAF = {
   state(g, t) { const p = ((t + g.off) % 32 + 32) % 32; return p < 13 ? 'gr' : p < 16 ? 'yr' : p < 29 ? 'rg' : 'ry'; }
 };
 const Volante = EM.modes.volante = {
-  id: 'volante', name: 'Al volante', sub: 'Metroplús y alimentadores', music: 'conduce', fullCanvas: true,
+  id: 'volante', name: 'Al volante', sub: 'Metroplús y alimentadores', music: 'conduce', fullCanvas: true, camara: {},
   tip: 'Palanca: acelerar/frenar. Con el asistente de carril el bus gira solo; apágalo para manejar con el timón (×1,25 puntos). Para en cada parada, abre puertas y respeta los semáforos.',
   levels() {
     if (this._lv) return this._lv; const L = [];
@@ -237,7 +237,7 @@ const Volante = EM.modes.volante = {
     g.textAlign = 'left';
   },
   drawTop(g, st, W, H, line, B, pan) {
-    const k = pan ? Math.min(W, H) / 1400 : Math.min(W, H) / 150, mx = st.x + (pan ? 0 : Math.cos(st.h) * 25), my = st.y + (pan ? 0 : Math.sin(st.h) * 25);
+    const co = CamUI.off(st), k = (pan ? Math.min(W, H) / 1400 : Math.min(W, H) / 150) * CamUI.zoom(st), mx = st.x + (pan ? 0 : Math.cos(st.h) * 25) + co.x, my = st.y + (pan ? 0 : Math.sin(st.h) * 25) + co.y; st._k = k * (($('#gcv') || { clientWidth: W }).clientWidth || W) / W;
     g.fillStyle = PAL.noche; g.fillRect(0, 0, W, H); if (MAP.ready) { if (pan) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     const S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H / 2 + (y - my) * k });
     g.strokeStyle = line.color + 'aa'; g.lineWidth = Math.max(3, 7 * k); g.lineJoin = 'round'; g.beginPath(); line.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke();

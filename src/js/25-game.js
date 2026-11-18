@@ -15,20 +15,26 @@ const Game = EM.game = {
     UI.show('game'); $('#gctl').innerHTML = ''; $('#gmsg').innerHTML = '';
     const L = (M.levels().find(l => l.id === lv) || {}); $('#gTitle').textContent = M.name + (L.name ? ' · ' + L.name : ''); $('#gSub').textContent = this.duel ? 'Duelo de mesa · 2 jugadores' : (L.sub || M.sub || '');
     if (M.mount && !this.duel) M.mount(this.st, $('#gctl'));
+    if (M.camara && !this.duel && EM.camui) EM.camui.mount(this.st);   // pellizco, arrastre y ángulo en las vistas desde arriba
     Music.play(M.music || 'puzzle');
     this.last = now(); const loop = () => { this.raf = requestAnimationFrame(loop); this.frame(); }; this._loop = loop; this.raf = requestAnimationFrame(loop);
   },
   /* congela el bucle (capturas y pruebas) */
   freeze(on) { if (on) { cancelAnimationFrame(this.raf); this.raf = 0; } else if (!this.raf && this._loop && this.mode) { this.last = now(); this.raf = requestAnimationFrame(this._loop); } },
-  stop() { cancelAnimationFrame(this.raf); this.raf = 0; this._loop = null; if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; this._loop = null; if (EM.camui) EM.camui.unmount(); if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
   frame() {
-    const t = now(); let dt = Math.min(.05, t - this.last); this.last = t; if (this.paused) dt = 0;
-    const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const q = Save.d.settings.q, { w, h } = fitCanvas(cv, q === 'low' ? 1 : 2), g = cv.getContext('2d');
+    // tiempo real aunque el celular dé pocos cuadros: los modos con pasos cortos (substeps) avanzan lo que de verdad pasó, en pasos
+    // de 1/30 s, y con su ritmo (escala: ×1, ×2, ×3); los demás, como siempre, con un tope de 50 ms por cuadro
+    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.12, raw) : Math.min(.05, raw); if (this.paused) dt = 0;
+    // calidad automática: si los cuadros pasan de ~34 ms se baja la densidad de píxeles del lienzo (hasta 1); si sobran, se sube (hasta 2)
+    if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
+    const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
+    const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const { w, h } = fitCanvas(cv, q === 'low' ? 1 : q === 'auto' ? (this.dpr || 2) : 2), g = cv.getContext('2d');
     const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
     MAP.prisa = t + .012; MAP._hechos = 0;   // presupuesto del cuadro para armar trozos del mapa (12 ms; siempre al menos uno)
     try {
-      if (dt > 0) for (const vp of this.vps) this.mode.step(vp.st, dt);
+      if (dt > 0) for (const vp of this.vps) { if (M.substeps) { let r = dt * (M.escala ? M.escala(vp.st) : 1), n = 0; while (r > 1e-4 && n++ < 14) { const p = Math.min(r, 1 / 30); M.step(vp.st, p); r -= p; } } else M.step(vp.st, dt); }
       g.setTransform(1, 0, 0, 1, 0, 0); if (this.mode.gl && this.mode.gl(this.st) && !this.duel) g.clearRect(0, 0, w, h); else { g.fillStyle = PAL.noche; g.fillRect(0, 0, w, h); if (EM.g3 && EM.g3.cv) EM.g3.show(false); }
       for (const vp of this.vps) { g.save(); g.translate(vp.x, vp.y); if (vp.flip) { g.translate(vp.w, vp.h); g.rotate(Math.PI); } g.beginPath(); g.rect(0, 0, vp.w, vp.h); g.clip(); this.mode.draw(g, vp.st, vp); g.restore(); }
       if (this.duel) { g.fillStyle = PAL.negro; g.fillRect(0, this.vps[0].y - 3, w, 6); }

@@ -316,3 +316,27 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .fiesta-ban{position:relative;border-radius:var(--r);overflow:hidden;margin:0 0 12px;height:150px;background:var(--noche)}
 .fiesta-ban img{display:block;width:100%;height:100%;object-fit:cover}
 .fiesta-ban span{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 10px;background:linear-gradient(transparent,rgba(15,34,56,.92));color:#fff;font-weight:800;font-size:14px;line-height:1.3}
+
+/* ---------- 1.3.0: ritmo, guía, ayuda, tu personaje y charlas con la gente ---------- */
+.camui{position:absolute;left:8px;top:calc(112px + var(--sat));display:flex;flex-direction:column;gap:6px;z-index:4}
+.camui button{width:40px;height:38px;border-radius:12px;background:var(--anden);color:var(--tinta);font-weight:800;font-size:18px;box-shadow:var(--sh);line-height:1}
+.camui button.on{background:var(--lA);color:#fff}
+#game #lbView{flex-direction:column;flex-wrap:wrap-reverse;max-height:calc(100vh - 250px - var(--sat) - var(--sab));align-content:flex-start}
+#game #lbView button{position:relative}
+#game #lbView button small{position:absolute;right:3px;bottom:2px;font-size:9.5px;font-weight:800;line-height:1}
+#game .vsel button#lbAyuda.hot{background:var(--lM, #EC343A);color:#fff;animation:latido 1s ease-in-out infinite}
+@keyframes latido{50%{transform:scale(1.12)}}
+#game .jobbar{right:62px}
+#game .jobbar.guia{box-shadow:inset 6px 0 0 var(--lT),var(--sombra)}
+.campanel{right:62px}
+.ayuda .btn,.guia .btn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;white-space:normal}
+.ayuda .btn small,.guia .btn small{font-size:12px;font-weight:600;opacity:.78}
+.guia{max-height:52vh;overflow:auto}
+.pfvis{display:flex;gap:12px;justify-content:center;align-items:center;margin:4px 0 8px}
+.pfvis img{width:120px;height:120px;border-radius:50%;box-shadow:0 0 0 4px var(--anden),0 0 0 7px var(--lA)}
+.pfvis canvas{width:110px;height:110px;border-radius:18px;box-shadow:var(--sh)}
+.swt{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 6px}
+.swt button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.28)}
+.swt button.on{box-shadow:0 0 0 3px var(--lA);transform:scale(1.08)}
+.tg.wrap{flex-wrap:wrap}
+.pftabs{margin:8px 0 2px}

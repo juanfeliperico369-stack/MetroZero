@@ -41,6 +41,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `11-ciudad2.js` | **Ciudad vectorial `VC`** (1.1.0): calles con curva desde `VIAS`, suelo sin escalones (cuadrados marchantes), casas y edificios **reales** por regiones de 640 m (de `EDIFICIOS`; generados a lo largo de cada calle solo si faltan los datos), choques (`VC.solid`, `VC.agarre`, `VC.despeja`), 4 niveles de detalle con presupuesto por cuadro y trozos por adelantado (`VC.prefetch`), rótulos y postes sobre las calles |
 | `11-edificios.js` | **Casas y edificios reales** (1.2.0): lee `EDIFICIOS` por región (`VC.edifDe`), los recorta contra la calle (`VC.recorta` con `segsCerca`/`enSegs`), estilo por zona y uso (`VC.estilo`: muros, techos de teja a dos aguas, lámina, plancha con tanque, azotea), dibujo de cerca (`dibEd`) y de lejos en lote (`edifLejos`), y suelos especiales (`SUELOS`: canchas, pistas, piscinas, campus y sus rótulos) |
 | `11-hitos.js` | **Arquitectura icónica** (`HITOS`): huella real de OSM, estilos de dibujo propios (`aguja`, `basilica`, `iglesia`, `palacio`, `estadio`, `rocas`, `vidrio`, `ladrillo`, `republicano`, `moderno`, `cupula`, `cubos`, `luces`, `botero`, `pies`); reserva su huella en la región y es sólida |
+| `11-puentes.js` | **Puentes y niveles** (1.3.0): `PUENTES` (2.150 puentes de OSM vía Overture) con tablero, rampas (`puAlto`), pilas sólidas sin las que caerían en una calle (`pilas`), `puenteEn(x, y, z)`, `partes(c)` (la calle sin sus tramos sobre puente); el viaducto (`metroBase`: columnas cada 30 m y el acceso de cada estación en piezas que dejan libre la calle de abajo, `hallPiezas`), `tapado`, `carrilPuentes`/`carAlto` para el tráfico, `rumbo` (asistencia de carril) y los ángulos de cámara (`ANGULOS`, `angulo`) |
 | `12-red.js` | Red de transporte `NET` (líneas, estaciones, recorridos). A, B y T usan el eje real de `RIELES`; los buses, `RUTAS_CALLES`; cada estación queda sobre su línea |
 | `18-mundo.js` | Reloj del juego, clima y fechas de Medellín |
 | `19-atlas.js` | `Atlas`: arte de las IA (`src/data/arte.js`) con respaldo procedural: `has`, `url`, `img`, `tag`, `ico`, `retrato`, `fiesta`, `check` |
@@ -48,10 +49,13 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `22-gl.js` | Motor 3D WebGL1 propio `G3` |
 | `23-lado.js` | Panorámica lateral por capas |
 | `24-iso.js` | Maqueta 2:1: el valle en proyección dimétrica, dibujado por columnas con búfer de altura (`Iso.render`, `Iso.P`, `Iso.Pi`, `Iso.rot`) |
-| `25-game.js` | Bucle de juego, HUD, pausa, `Game.freeze()` |
+| `25-game.js` | Bucle de juego, HUD, pausa, `Game.freeze()`. Desde 1.3.0: los modos con `substeps` avanzan el tiempo real en pasos de 1/30 s con su `escala` (ritmo), la calidad automática baja o sube la densidad de píxeles según el tiempo de cuadro y los modos con `camara: {}` reciben `CamUI` |
+| `26-perfil.js` | **Tu personaje** (`Perfil`, `Save.d.perfil`): piel, peinado, ropa, gorro (gorra, sombrero aguadeño, casco, gorro de lana) y accesorio (mochila, carriel, ruana, cámara); `ped()` da los parámetros de `Spr.ped`, `retrato()` la cara de frente y `abrir()` la ficha |
+| `27-camara.js` | `CamUI`: pellizco, rueda, + y −, 📐 y 🎥 (arrastrar) en las vistas desde arriba de Bus, Al volante y Metro |
 | `30-conduce.js` / `31-cabina.js` | Metro y tranvía (panorámica, cabina, ATP, procedimiento) |
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
-| `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad |
+| `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad. Desde 1.3.0: manejo «fácil» (el joystick apunta hacia donde se va) o «clásico», giro limitado por la aceleración lateral de cada vehículo (`VEH.lat`, `giroMax`), pedal con peso, asistencia de carril, articulado con rótula (`VEH.art`, `st.h2`), ritmo ⏩ (`RITMOS`), 🆘 ayuda (`ayuda`, `llevar`, `salida`, `vigila`) y niveles (`nivel`, `nivelV`) |
+| `39-gente.js` | **Gente de la ciudad** (`GENTE`, `Gente`): 20 personajes con nombre y oficio en su lugar real que cuentan lo que todos saben y lo que pocos saben, turistas que piden compañía (`turista`) y 📍 qué hay cerca (`guia`, `LUGAR_INFO`) |
 | `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
 | `52-cableviaje.js` | Metrocable |
@@ -95,6 +99,15 @@ Datos en `src/data/`:
 - **Lo que se dibuja por miles va en lote:** árboles y casas de lejos se pintan por color con `Path2D` (un trozo de 640 m en la zona más densa pasó de 385 a ~140 ms).
 - **No recompiles `dist/` mientras corren las pruebas.**
 - **Cómo medir:** capturas por lugar (`geoM(lat, lon)` + `EM.map.drawTop`), tiempo de región y de trozo, y la fracción de calle bloqueada antes y después.
+
+## Reglas aprendidas (niveles, manejo y vida, 1.3.0)
+- **El mundo tiene niveles:** a ras de piso se dibuja el suelo, los andenes y lo que va abajo; luego la gente y los carros ordenados con los edificios que los tapan; luego los puentes de nivel 1, el viaducto y sus trenes, los niveles 2 y 3 y los cables. Al puente se sube por donde el tablero está bajo (< 0,9 m); de arriba solo se baja por las puntas (< 1,2 m); por la mitad se pasa por debajo.
+- **Lo sólido de abajo deja libre la calle:** columnas del viaducto, pilas de puente y accesos de las estaciones no se ponen sobre una calle, un peatonal, el carril del Metroplús ni el tranvía (en el Centro las estaciones están sobre Bolívar). El autotest mide la calle tapada bajo las estaciones.
+- **El tiempo no se frena con el celular:** `dt` máximo de 50 ms ponía el juego en cámara lenta bajo 20 cuadros por segundo. Los modos con `substeps` reparten el tiempo real en pasos de 1/30 s (hasta 14 por cuadro).
+- **El giro lo limita el agarre:** `giroMax(V, v)` = ángulo que da la aceleración lateral `V.lat`; a 80 km/h un toque no voltea el carro y en la esquina, despacio, gira cerrado. El autotest lo comprueba en todos los vehículos.
+- **Nada que se calcule cada pocos segundos debe armar regiones:** el aviso de «¿perdido?» usaba `VC.agarre` a 48 m y armaba regiones vecinas (tirones de medio segundo); se hace con las casillas de 20 m.
+- **Los personajes se ubican una vez y cerca de su lugar real**; lo que dicen se marca «lo que todos saben» o «lo que pocos saben» y no lleva cifras dudosas. Revisa cada dato antes de ponerlo.
+- **En este servidor, el navegador sin pantalla con la GPU emulada (swiftshader) deja de dar cuadros por segundos**, también con la 1.2.0: para medir, congela el bucle (`Game.freeze(true)`) y llama `Game.frame()` a mano, o usa `--disable-gpu`. Las capturas de página salen con el bucle congelado.
 
 ## Comandos
 ```

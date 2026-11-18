@@ -26,15 +26,15 @@ const Spr = EM.spr = {
     // contorno y carrocería
     g.fillStyle = dark; R(g, -L / 2 - 1, -W / 2 - 1, L + 2, W + 2, bus || rail ? 2 : 3);
     const body = rail ? (kind === 'metro' ? '#e9ecef' : '#eef2ee') : col; g.fillStyle = body; R(g, -L / 2, -W / 2, L, W, bus || rail ? 1.5 : 2.5);
-    if (kind === 'brt') { // articulado: dos secciones y fuelle
+    if (kind === 'brt' && !o.sec) { // articulado: dos secciones y fuelle
       const j = -L * .14; g.fillStyle = '#2a2a2a'; g.fillRect(j - L * .035, -W / 2 - 1, L * .07, W + 2); g.fillStyle = '#1a1a1a'; for (let x = j - L * .03; x < j + L * .035; x += 2) g.fillRect(x, -W / 2, 1, W);
     }
     if (bus) {
       g.fillStyle = Art.shade(body, 1.08); g.fillRect(-L / 2 + L * .06, -W * .18, L * .88, W * .36);                     // techo
       const stripe = kind === 'feeder' ? '#E38835' : kind === 'brt' ? '#f4f1ea' : '#59AB42'; g.fillStyle = stripe; g.fillRect(-L / 2 + 1, -W / 2 + 1, L - 2, Math.max(1, W * .1)); g.fillRect(-L / 2 + 1, W / 2 - 1 - Math.max(1, W * .1), L - 2, Math.max(1, W * .1));
-      g.fillStyle = glass; const n = Math.max(3, Math.floor(L / 7)); for (let i = 0; i < n; i++) { const x = -L / 2 + L * .1 + i * (L * .82 / n); if (kind === 'brt' && Math.abs(x + L * .14) < L * .05) continue; g.fillRect(x, -W / 2 + 1, L * .82 / n * .62, Math.max(1, W * .12)); g.fillRect(x, W / 2 - 1 - Math.max(1, W * .12), L * .82 / n * .62, Math.max(1, W * .12)); }
-      g.fillStyle = glass; g.fillRect(L / 2 - Math.max(2, L * .07), -W / 2 + 1, Math.max(2, L * .07), W - 2);                 // parabrisas
-      g.fillStyle = glassL; g.fillRect(-L / 2 + 1, -W / 2 + 1, Math.max(1.5, L * .04), W - 2);                                // vidrio trasero
+      g.fillStyle = glass; const n = Math.max(3, Math.floor(L / 7)); for (let i = 0; i < n; i++) { const x = -L / 2 + L * .1 + i * (L * .82 / n); if (kind === 'brt' && !o.sec && Math.abs(x + L * .14) < L * .05) continue; g.fillRect(x, -W / 2 + 1, L * .82 / n * .62, Math.max(1, W * .12)); g.fillRect(x, W / 2 - 1 - Math.max(1, W * .12), L * .82 / n * .62, Math.max(1, W * .12)); }
+      if (o.sec !== 'back') { g.fillStyle = glass; g.fillRect(L / 2 - Math.max(2, L * .07), -W / 2 + 1, Math.max(2, L * .07), W - 2); }                 // parabrisas
+      if (o.sec !== 'front') { g.fillStyle = glassL; g.fillRect(-L / 2 + 1, -W / 2 + 1, Math.max(1.5, L * .04), W - 2); }                                // vidrio trasero
       g.fillStyle = '#9aa0a6'; g.fillRect(-L * .3, -W * .1, L * .08, W * .2); g.fillRect(L * .12, -W * .1, L * .08, W * .2);   // escotillas / aire
       if (o.doors) { const side = o.doors === 'left' ? -1 : 1; g.fillStyle = Art.shade(body, .82); for (const f of (kind === 'brt' ? [.3, .02, -.3] : [.3, -.2])) g.fillRect(f * L - L * .03, side < 0 ? -W / 2 : W / 2 - Math.max(1, W * .1), L * .06, Math.max(1, W * .1)); }
       if (o.sign) { g.fillStyle = '#ffb000'; g.fillRect(L / 2 - Math.max(2, L * .07) - 1, -W * .22, 1.5, W * .44); }
@@ -79,11 +79,25 @@ const Spr = EM.spr = {
   ped(g, s, p, o = {}) {
     const skin = p.skin || '#f1c9a5', col = p.col || '#1C5C9C', hair = p.hair || (h2(p.seed || 1, 2, 2) < .5 ? '#2a1a12' : '#5a3a22'), sw = Math.sin(p.ph || 0) * s * .55;
     if (p.stun > 0) { g.fillStyle = col; g.fillRect(-s * 1.4, -s * .7, s * 2.8, s * 1.4); g.fillStyle = skin; g.beginPath(); g.arc(s * 1.5, 0, s * .6, 0, TAU); g.fill(); return; }
+    // piernas con pantalón y zapatos (tu personaje y la gente con nombre): asoman adelante y atrás al dar el paso
+    if (p.pants) { const lw = s * .34; for (const [y, d] of [[-s * .36, 1], [s * .36, -1]]) { const x = d * sw * 1.3; g.fillStyle = '#141414'; g.fillRect(x - s * .34, y - lw / 2 - s * .06, s * .8, lw + s * .12); g.fillStyle = p.pants; g.fillRect(x - s * .3, y - lw / 2, s * .52, lw); g.fillStyle = p.shoes || '#111'; g.fillRect(x + s * .22, y - lw / 2, s * .22, lw); } }
     g.fillStyle = '#141414'; g.beginPath(); g.ellipse(0, 0, s * .95, s * 1.15, 0, 0, TAU); g.fill();
     g.fillStyle = col; g.beginPath(); g.ellipse(0, 0, s * .8, s * 1, 0, 0, TAU); g.fill();
+    const ac = p.acc | 0;   // accesorio: 1 mochila, 2 carriel, 3 ruana, 4 cámara
+    if (ac === 3) { g.fillStyle = '#141414'; g.beginPath(); g.ellipse(0, 0, s * 1.05, s * 1.32, 0, 0, TAU); g.fill(); g.fillStyle = '#8a8274'; g.beginPath(); g.ellipse(0, 0, s * .92, s * 1.2, 0, 0, TAU); g.fill(); g.strokeStyle = '#5c564b'; g.lineWidth = Math.max(1, s * .12); g.beginPath(); g.moveTo(-s * .5, -s * 1.05); g.lineTo(-s * .5, s * 1.05); g.moveTo(s * .45, -s * 1.05); g.lineTo(s * .45, s * 1.05); g.stroke(); }
+    if (ac === 1) { g.fillStyle = '#141414'; g.fillRect(-s * 1.12, -s * .62, s * .62, s * 1.24); g.fillStyle = '#2b2f38'; g.fillRect(-s * 1.05, -s * .55, s * .5, s * 1.1); }
+    if (ac === 2) { g.strokeStyle = '#5a3a1c'; g.lineWidth = Math.max(1, s * .14); g.beginPath(); g.moveTo(s * .35, -s * .85); g.lineTo(-s * .2, s * .95); g.stroke(); g.fillStyle = '#141414'; g.fillRect(-s * .3, s * .86, s * .62, s * .5); g.fillStyle = '#7a4a22'; g.fillRect(-s * .24, s * .92, s * .5, s * .38); }
+    if (ac === 4) { g.fillStyle = '#141414'; g.fillRect(s * .5, -s * .3, s * .38, s * .6); g.fillStyle = '#9fb7c9'; g.fillRect(s * .62, -s * .12, s * .16, s * .24); }
     g.fillStyle = skin; g.fillRect(-s * .35 + sw, -s * 1.35, s * .55, s * .4); g.fillRect(-s * .35 - sw, s * .95, s * .55, s * .4);   // manos
-    g.fillStyle = hair; g.beginPath(); g.arc(0, 0, s * .6, 0, TAU); g.fill(); g.fillStyle = skin; g.beginPath(); g.arc(s * .16, 0, s * .4, 0, TAU); g.fill();
-    if (p.hat) { g.fillStyle = p.hat; g.beginPath(); g.arc(0, 0, s * .68, 0, TAU); g.fill(); g.fillStyle = Art.shade(p.hat, .85); g.beginPath(); g.arc(0, 0, s * .42, 0, TAU); g.fill(); }
+    const pe = p.peinado | 0; g.fillStyle = hair;   // peinado: 1 largo, 2 rapado, 3 crespo, 4 coleta, 5 trenzas
+    if (pe === 1) { g.beginPath(); g.ellipse(-s * .3, 0, s * .62, s * .66, 0, 0, TAU); g.fill(); } if (pe === 4) { g.beginPath(); g.arc(-s * .78, 0, s * .26, 0, TAU); g.fill(); } if (pe === 5) { g.fillRect(-s * 1.05, -s * .4, s * .5, s * .2); g.fillRect(-s * 1.05, s * .2, s * .5, s * .2); }
+    if (pe === 2) g.globalAlpha = .55; g.beginPath(); g.arc(0, 0, s * (pe === 3 ? .72 : .6), 0, TAU); g.fill(); g.globalAlpha = 1; g.fillStyle = skin; g.beginPath(); g.arc(s * .16, 0, s * .4, 0, TAU); g.fill();
+    const go = p.gorro | 0;   // gorro: 1 gorra, 2 sombrero aguadeño, 3 casco de bici, 4 gorro de lana
+    if (go === 1) { g.fillStyle = p.hatCol || '#EC343A'; g.beginPath(); g.arc(0, 0, s * .66, 0, TAU); g.fill(); g.fillStyle = Art.shade(p.hatCol || '#EC343A', .78); g.beginPath(); g.ellipse(s * .62, 0, s * .34, s * .46, 0, -Math.PI / 2, Math.PI / 2); g.fill(); }
+    else if (go === 2) { g.fillStyle = '#141414'; g.beginPath(); g.arc(0, 0, s * 1.34, 0, TAU); g.fill(); g.fillStyle = '#efe7d4'; g.beginPath(); g.arc(0, 0, s * 1.24, 0, TAU); g.fill(); g.strokeStyle = '#1a1a1a'; g.lineWidth = Math.max(1, s * .16); g.beginPath(); g.arc(0, 0, s * .66, 0, TAU); g.stroke(); g.fillStyle = '#f8f2e4'; g.beginPath(); g.arc(0, 0, s * .56, 0, TAU); g.fill(); }
+    else if (go === 3) { g.fillStyle = p.hatCol || '#1C5C9C'; g.beginPath(); g.ellipse(0, 0, s * .78, s * .68, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = Math.max(1, s * .12); g.beginPath(); g.moveTo(-s * .6, 0); g.lineTo(s * .6, 0); g.stroke(); }
+    else if (go === 4) { g.fillStyle = p.hatCol || '#59AB42'; g.beginPath(); g.arc(0, 0, s * .66, 0, TAU); g.fill(); g.fillStyle = Art.shade(p.hatCol || '#59AB42', 1.25); g.beginPath(); g.arc(0, 0, s * .24, 0, TAU); g.fill(); }
+    else if (p.hat) { g.fillStyle = p.hat; g.beginPath(); g.arc(0, 0, s * .68, 0, TAU); g.fill(); g.fillStyle = Art.shade(p.hat, .85); g.beginPath(); g.arc(0, 0, s * .42, 0, TAU); g.fill(); }
     if (p.umb) { const uc = p.umbCol || PED_COL[((p.seed || 1) * 7) % PED_COL.length]; g.fillStyle = '#141414'; g.beginPath(); g.arc(0, 0, s * 1.55, 0, TAU); g.fill(); g.fillStyle = uc; g.beginPath(); g.arc(0, 0, s * 1.4, 0, TAU); g.fill(); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; g.moveTo(0, 0); g.lineTo(Math.cos(a) * s * 1.4, Math.sin(a) * s * 1.4); } g.stroke(); g.fillStyle = 'rgba(255,255,255,.3)'; g.beginPath(); g.arc(-s * .4, -s * .4, s * .35, 0, TAU); g.fill(); }
   },
   /* vendedor ambulante con carrito (frutas, tintos, chontaduro) */

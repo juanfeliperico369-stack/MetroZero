@@ -230,7 +230,35 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
-#### Estado al 2026-11-18 · v1.2.0 "Medellín tal cual"
+#### Estado al 2026-11-18 · v1.3.0 "La ciudad con altura y con gente"
+**Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).
+- **Puentes y niveles** (`src/js/11-puentes.js`, `src/data/puentes.js`, `tools/puentes_datos.py`):
+  - 2.150 puentes reales del valle (1.436 vehiculares y 714 peatonales), de OpenStreetMap vía Overture Maps (bandera `is_bridge` y nivel); 1.002 calles del juego pasan por uno. Tablero con rampas, pilas, canto, barandas y sombra.
+  - Al puente se sube por sus rampas; por la mitad se pasa por debajo, entre las pilas; arriba, la baranda no deja caer. Los carros del tráfico suben a los puentes de su carril.
+  - El viaducto del metro va por encima: el jugador pasa por debajo y se ve su silueta a través del tablero. Las columnas (cada 30 m) y los accesos de cada estación son sólidos, pero no tapan la calle: en el Centro, sobre Bolívar, la calle sigue por debajo de la estación (el acceso solo toca alrededor del 5 % de la calle de abajo, en el borde del andén).
+  - Las pilas de puente no caen en una calle, en el carril del Metroplús ni en el tranvía.
+- **Metroplús sobre sus andenes:** las líneas 1 y 2 van por sus relaciones de ruta de OpenStreetMap (5458501, 5393696, 5401998, 5401999) y cada estación está en el centro de su andén real (`src/data/metroplus_andenes.js`, `tools/metroplus_andenes.py`). La Línea O va por las calles dibujadas. Las 53 estaciones quedan fuera de los edificios; las terminales Caribe (273 m) y La Palma (53 m) de la Línea O siguen lejos de su andén real.
+- **Buses y trenes que toman bien las curvas:** el articulado de Metroplús va en dos cuerpos con fuelle y el de atrás sigue al de adelante por la rótula (también el que manejas tú); cada vagón del metro y del tranvía y cada alimentador se apoya en sus dos ejes sobre la vía; las esquinas de las rutas de bus tienen radio de giro (11 m el alimentador, 14 m el articulado).
+- **Manejo con peso y más centrado** (todos los vehículos de Ciudad Libre):
+  - «Fácil» (de fábrica): el joystick apunta hacia donde quieres ir y el vehículo gira hacia allá con su radio de giro; si apuntas casi a lo largo de la calle, sigue la calle. «Clásico»: los lados giran y arriba acelera, con zona muerta y curva fina cerca del centro.
+  - El ángulo de las ruedas se limita por la aceleración lateral que aguanta cada vehículo (taxi 8,5 m/s², moto 9,5, bici 5,5, articulado 3,8): antes, a 70 km/h, el taxi giraba con unos 6 g; ahora con menos de 1 g. El volante vuelve solo al centro y el acelerador entra en unos 0,3 s.
+  - Asistencia al volante: sin girar, el vehículo se endereza con la calle. Se apaga en 🆘.
+  - A pie se arranca y se para con un poco de inercia.
+- **Ritmo ⏩ siempre a mano:** ×1, ×1,5 o ×2 a pie y manejando; en metro, cable, tranvía o bus, ×1, ×3 o ×6. Además el juego ya no se pone en cámara lenta cuando el celular da menos de 20 cuadros por segundo (el tiempo real se reparte en pasos de 1/30 s).
+- **🆘 Ayuda y rescate:** ir a la estación más cercana, salir a la calle más cercana (con tu vehículo), pedir un taxi o volver a donde empezaste. Si llevas rato lejos de toda calle o empujando sin moverte, el juego te lo ofrece. Al bajarte en una estación quedas en la calle o el andén más cercano, no en el monte (Arví y los cables de las lomas).
+- **Tu personaje** (como en Juega EnCicla): piel, peinado, color de pelo, camiseta, pantalón, zapatos, gorro (gorra, sombrero aguadeño, casco de bici, gorro de lana) y accesorio (mochila, carriel, ruana o cámara de turista). Se elige en 🆘 → Mi personaje y se ve en el juego (piernas y zapatos al caminar) y en tu retrato.
+- **Gente de la ciudad** (`src/js/39-gente.js`): 20 personajes con nombre y oficio en su lugar real (Doña Rocío en la Plaza Botero, Don Abelardo lustrabotas en el Parque Berrío, Don Otoniel silletero en Arví, Jhon en las escaleras de la Comuna 13, Patricia de Cultura Metro en Acevedo…). Cada uno cuenta «lo que todos saben» y «lo que pocos saben» de su sitio; conocerlos da 🎫 y se lleva la cuenta. Los turistas piden que los acompañes a pie a un lugar famoso cercano (+5 🎫).
+- **📍 Qué hay cerca:** los lugares famosos, las estaciones y los personajes más cercanos, con su dato; tocar uno lo vuelve destino (flecha y distancia).
+- **Cámara a voluntad:** en Ciudad Libre, 🎥 suelta la cámara (arrastrar), dos dedos o la rueda acercan y alejan, y 📐 cambia el ángulo (clásica, más inclinada o casi cenital; también en Ajustes). En Bus, Al volante y Metro, las vistas desde arriba tienen + y −, pellizco, 📐 y 🎥.
+- **Rendimiento:**
+  - un trozo de 640 m de lejos (al alejar la cámara) se arma con las huellas leídas del binario, sin armar la región entera: de ~135 ms (con la región ya armada) o varios cientos en frío a 10–25 ms en casi todo el valle (65–130 ms en Popular, la zona más densa);
+  - calidad automática: si los cuadros pasan de ~34 ms se baja la densidad de píxeles del lienzo (de 2 hasta 1) y se vuelve a subir cuando sobra;
+  - manejando un taxi, el cuadro tarda en JavaScript y dibujo 4–6 ms la mitad de las veces y menos de 17 ms el 99 % en Santo Domingo (medido con el dibujo por software; ver «Reglas aprendidas» de la skill de desarrollo).
+- **Autotest nuevo:** puentes, rampas, paso por debajo, baranda, columnas y accesos del metro, calle libre bajo las estaciones, estaciones de Metroplús, ángulos de cámara, giro de cada vehículo, ritmo, esquinas de bus, personajes y su lugar.
+
+**Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O, lejos de su andén real); 100 partidas del bot (368 mil pasos) con 0 errores y 0 errores de consola. Partidas a mano con capturas: charla con Don Abelardo, ficha del personaje, ayuda con taxi, guía y destino, manejo fácil, articulado y tren en sus curvas más cerradas, y la cámara en Bus, Al volante y Metro.
+
+##### v1.2.0 "Medellín tal cual"
 **Novedad de v1.2.0:** se investigó a Medellín desde el aire: fotos aéreas, desde el avión, el metrocable, drones y satélite, todas con licencia libre y sin imágenes de Google. Con eso la ciudad se dibuja con sus **casas y edificios reales**:
 - **Casas y edificios:** 639.457 en todo el valle, de Caldas a Barbosa, con su huella real (posición, forma y orientación).
   - Datos: `src/data/edificios.js`, generado por `tools/edificios_datos.py`, de Overture Maps (OpenStreetMap, Microsoft ML Buildings y Google Open Buildings).

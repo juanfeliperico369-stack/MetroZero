@@ -142,13 +142,27 @@ const Ciudad = EM.ciudad = {
     g.save(); g.translate(q.x, q.y); g.rotate(a); Spr.veh(g, kind, L, W, col, Object.assign({ lights, night: night > .3, doors: kind === 'brt' ? 'left' : kind === 'feeder' || kind === 'bus' ? 'right' : null }, o || {})); g.restore();
     if (night > .3 && lights && kind !== 'cable') { g.save(); g.translate(q.x, q.y); g.rotate(a); g.globalCompositeOperation = 'lighter'; const gr = g.createLinearGradient(L / 2, 0, L / 2 + 26 * k, 0); gr.addColorStop(0, 'rgba(255,240,180,' + (.45 * night) + ')'); gr.addColorStop(1, 'rgba(255,240,180,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(L / 2, -W / 2); g.lineTo(L / 2 + 26 * k, -W * 1.6); g.lineTo(L / 2 + 26 * k, W * 1.6); g.lineTo(L / 2, W / 2); g.fill(); g.restore(); }
   },
+  /* articulado (18 m): cuerpo de adelante de 11,3 m, fuelle y cuerpo de atrás de 6,4 m que sigue al de adelante por la rótula.
+     (x, y, a): centro y rumbo del conjunto como lo maneja la física; a2: rumbo del cuerpo de atrás */
+  articulado(g, x, y, a, a2, V, S, k, sh, night, lights, o) { const L = V.len || 18, F = L * .63; this.articuladoR(g, x + Math.cos(a) * (L / 2 - F), y + Math.sin(a) * (L / 2 - F), a, a2, V, S, k, sh, night, lights, o); },
+  /* lo mismo desde la rótula (hx, hy): para los articulados que van por su carril */
+  articuladoR(g, hx, hy, a, a2, V, S, k, sh, night, lights, o) {
+    const L = V.len || 18, F = L * .63, B = L - F - .9, c = Math.cos(a), s = Math.sin(a);
+    const fx = hx + c * F / 2, fy = hy + s * F / 2, c2 = Math.cos(a2), s2 = Math.sin(a2), bx = hx - c2 * (.9 + B / 2), by = hy - s2 * (.9 + B / 2);
+    this.car(g, bx, by, a2, B, V.wid, V.col, 'brt', S, k, sh, night, false, Object.assign({ sec: 'back' }, o || {}));
+    const q = S(hx - (c + c2) * .45, hy - (s + s2) * .45), W = Math.max(3.5, V.wid * k * (k < 2.5 ? 1.25 : 1)); g.save(); g.translate(q.x, q.y); g.rotate(Math.atan2(s + s2, c + c2)); g.fillStyle = '#1a1a1a'; g.fillRect(-1.1 * k, -W / 2 + .5, 2.2 * k, W - 1); g.fillStyle = '#3a3a3a'; for (let i = -1; i <= 1; i++) g.fillRect(i * .6 * k - .25 * k, -W / 2 + 1, .5 * k, W - 2); g.restore();
+    this.car(g, fx, fy, a, F, V.wid, V.col, 'brt', S, k, sh, night, lights, Object.assign({ sec: 'front' }, o || {}));
+  },
+  /* un cuerpo apoyado por sus dos ejes sobre la vía P (entre los puntos sa y sb, con desplazamiento lateral off): centro y rumbo de la cuerda */
+  cuerda(P, sa, sb, off) { const a = NET.at(P, sa, off), b = NET.at(P, sb, off); return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, a: Math.atan2(a.y - b.y, a.x - b.x) }; },
   transitDraw(g, S, k, sh, night, x0, y0, x1, y1, fase) {
     for (const v of this.transit) {
       const p = this.tpos(v); if (p.x < x0 - 100 || p.x > x1 + 100 || p.y < y0 - 100 || p.y > y1 + 100) continue; const K = KIND[v.line.kind], kind = v.line.kind, col = v.line.color;
       if (fase && fase !== (kind === 'metro' ? 'alto' : kind === 'cable' ? 'cable' : 'piso')) continue;
-      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2, T = kind === 'metro' && VC.on ? (x, y) => S(x, y - KIND.metro.deck * VC.ob) : S; for (let i = 0; i < n; i++) { const q = NET.at(v.line.P, v.s - v.dir * (i * (carL + 1) + carL / 2), v.dir * 2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), carL, 3, col, kind, T, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
+      if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2, T = kind === 'metro' && VC.on ? (x, y) => S(x, y - KIND.metro.deck * VC.ob) : S; for (let i = 0; i < n; i++) { const s0 = v.s - v.dir * i * (carL + 1), q = this.cuerda(v.line.P, s0 - v.dir * carL * .15, s0 - v.dir * carL * .85, v.dir * 2); this.car(g, q.x, q.y, q.a, carL, 3, col, kind, T, k, sh, night, true, { end: n === 1 ? 'both' : i === 0 ? 'front' : i === n - 1 ? 'back' : 'mid' }); } }
       else if (kind === 'cable') { const q = NET.at(v.line.P, v.s), T = VC.on ? (x, y) => S(x, y - 14 * VC.ob) : S; this.car(g, q.x, q.y, q.a, 2.6, 2.2, col, 'cable', T, k, sh, night, false); }
-      else { const q = NET.at(v.line.P, v.s - v.dir * K.len / 2, v.dir * 2.2); this.car(g, q.x, q.y, q.a + (v.dir < 0 ? Math.PI : 0), K.len, 2.5, col, kind, S, k, sh, night, true); }
+      else if (kind === 'brt') { const F = K.len * .63, B = K.len - F - .9, P = v.line.P, o = v.dir * 2.2, h = NET.at(P, v.s - v.dir * F, o), f = this.cuerda(P, v.s - v.dir * 1.4, v.s - v.dir * (F - 1.4), o), r = this.cuerda(P, v.s - v.dir * (F + 1.5), v.s - v.dir * (F + .9 + B - 1), o); this.articuladoR(g, h.x, h.y, f.a, r.a, { len: K.len, wid: 2.5, col }, S, k, sh, night, true, { doors: 'left' }); }
+      else { const q = this.cuerda(v.line.P, v.s - v.dir * 2.4, v.s - v.dir * (K.len - 2.6), v.dir * 2.2); this.car(g, q.x, q.y, q.a, K.len, 2.5, col, kind, S, k, sh, night, true); }
     }
   },
   /* luces de la ciudad de noche: postes en avenidas y plazas (aditivo) */

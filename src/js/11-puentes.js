@@ -101,6 +101,16 @@ Object.assign(VC, {
     const gx = Math.floor(x / this.CG), gy = Math.floor(y / this.CG); if (!this.trSeg) this.segsCelda(gx, gy);   // la rejilla del Metroplús y el tranvía
     const T = this.trSeg && this.trSeg.get(gx * 4096 + gy); return !!(T && this.enSegs(T, x, y));
   },
+  /* rumbo de la calle que pasa por (x, y), del lado más parecido a h (null si no hay calle): en el piso no cuentan los tramos
+     que van sobre un puente; arriba (z > 0), solo esos. Para la asistencia al volante de Ciudad Libre */
+  rumbo(x, y, h, z) {
+    let best = null, bd = 1e9;
+    for (const c of this.near(x - 12, y - 12, x + 12, y + 12)) { if (c.k > 4) continue; const P = c.P;
+      for (let i = 2; i < P.length; i += 2) { const enP = !!(c.pz && c.pz.has(i / 2)); if (z ? !enP : enP) continue;
+        const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, L2 = dx * dx + dy * dy || 1, t = clamp(((x - ax) * dx + (y - ay) * dy) / L2, 0, 1), d = Math.hypot(ax + dx * t - x, ay + dy * t - y);
+        if (d < c.w / 2 + .5 && d < bd) { bd = d; best = Math.atan2(dy, dx); } } }
+    if (best == null) return null; const d = Math.atan2(Math.sin(best - h), Math.cos(best - h)); return Math.abs(d) > Math.PI / 2 ? best + Math.PI : best;
+  },
   enBase(x, y, r) {
     const k = Math.floor(x / 160) * 4096 + Math.floor(y / 160);
     if (this.PG) for (const B of this.PG.get(k) || []) { if (x < B.x0 || x > B.x1 || y < B.y0 || y > B.y1) continue; const p = this.pilas(B), rr = (B.pe ? .45 : .8) + r; for (let i = 0; i < p.length; i += 2) { const dx = x - p[i], dy = y - p[i + 1]; if (dx * dx + dy * dy < rr * rr) return true; } }
