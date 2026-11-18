@@ -689,7 +689,7 @@ Herramienta nueva: `tools/edificios_datos.py` (cómo regenerar en `docs/FUENTES.
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 0 avisos (639.457 casas y edificios reales, calles libres, torres en El Poblado, la UdeA, campus y canchas); 100 partidas del bot (367 mil pasos) con 0 errores y 0 errores de consola. Capturas por lugar (La Alpujarra, la UdeA, la Nacional, EAFIT, la UPB, Popular, Santo Domingo, Laureles, El Poblado, el Centro, Guayabal, la Comuna 13 y la noche) comparadas con las fotos. Con un taxi en Santo Domingo y en Laureles se llega a 30 km/h, como en 1.1.1.
 
-**Publicado:** PENDIENTE_PUBLICACION
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.2.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.2.0-6f9df48f`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 22, **6,6 MB**).
 
 ##### v1.1.1 "Ciudad con curvas" (retoque)
 **Novedad de v1.1.1:** los tres Metroplús (líneas 1, 2 y O) van por su **corredor real**, el de su carril exclusivo (`src/data/metroplus.js`, de Juega EnCicla 1.3.1), y no por la ruta más corta entre calles, que se desviaba hasta 1 km y daba vueltas en glorietas. El carril queda libre de edificios en la ciudad vectorial y se dibuja como carril de bus (asfalto, franja del color de la línea y raya blanca). El autotest revisa que ningún punto del carril quede dentro de un edificio o del agua y que los alimentadores no salgan de las calles. Debajo sigue vigente lo de v1.1.0.
