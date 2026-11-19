@@ -53,6 +53,11 @@ const CAPS = [
     ['Tú', '¿Y usted qué va a hacer?'],
     ['Rosalba', 'Montarme de pasajera. Sentarme en la ventana, mirar el río y saber que el tren está en buenas manos.']
   ], go: ['conduce', 'A:0-20'], fin: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' },
+  { t: 'Ruedas que conectan el valle', scene: 'metroplus', lines: [   // 2.0.0: idea de la entrega de Gemini/Antigravity, con los datos revisados
+    ['Rosalba', 'Cuando uno se baja del tren, el viaje sigue: en bici de EnCicla, en patines o en monopatín.'],
+    ['Santi (anfitrión de EnCicla)', 'Por Floresta pasa la línea B: desde aquí llegas a San Antonio sin bajarte del tren. Y la bici te espera a la salida.'],
+    ['Rosalba', 'Escoja en qué rodar, mija: esquive los huecos, salte los charcos y recoja el dato de cada estación.']
+  ], go: ['carrera', 'cr:B'], fin: 'Santi chocó esos cinco en el anclaje: «¡Qué ritmo! El metro y las bicis andan al mismo compás».' },
   { t: 'Epílogo', scene: 'noche', lines: [
     ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
     ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],

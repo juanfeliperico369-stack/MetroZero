@@ -52,6 +52,14 @@ Los PDF no se guardan en el repositorio: pesan mucho y su contenido ya está ext
 | `vectorial/texturas` | C‑60 · 10 texturas | ⚠️ solo miniaturas de 183 px (los PNG de 1024 px venían en un ZIP que no llegó) |
 | `vectorial/scripts`, `vectorial/manifiestos` | Reproducibilidad | ✅ 8 scripts y 9 manifiestos, tal como se entregaron |
 
+## 3b. Plan único (2026-11-19) · entregas para El Metro
+| Archivo recibido | Tamaño | SHA‑256 (inicio) | Qué tenía | Dónde quedó |
+|---|---|---|---|---|
+| `EL-METRO-M1-M6.md` (ChatGPT/Codex, arte) | 112 KB | `e69abd4cc1c7212d` | Taller de arte procedural en código (6 módulos `28-taller-*.js`) y el guion «El pasaje doblado» | ✅ `src/js/28-taller-*.js` y `src/data/guion.js`; en el juego: vehículos y obstáculos 3D, manubrio en primera persona, escena del pasaje doblado. Sin usar todavía: `estacion`, `lugar`, `aguja`, `huella`, `tarjeta`, `rotulo` y `controles` |
+| `ENTREGA-EL-METRO.md` (Gemini/Antigravity, código) | 188 KB | `92fbf1976d7fdcd2` | Diferencias contra v1.4.0, el modo «Run Scooter» y 12 ideas | ✅ en su mayoría, con correcciones (ver la bitácora de 2.0.0); el ícono vectorial `ico_modo_carrera` está en `19-atlas.js` |
+
+Las copias están en `docs/entregas/2026-11-19/`.
+
 ## 4. Afirmaciones verificadas y corregidas
 
 - **“v0.5.1 Medellín Minimalista y Fiel” (Gemini):** no existe en el repositorio ni se publicó; era el nombre de su documento. El juego pasó de v0.5.0 a **v0.6.0**.

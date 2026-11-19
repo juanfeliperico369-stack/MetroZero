@@ -56,7 +56,9 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
 | `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad. Desde 1.3.0: manejo «fácil» (el joystick apunta hacia donde se va) o «clásico», giro limitado por la aceleración lateral de cada vehículo (`VEH.lat`, `giroMax`), pedal con peso, asistencia de carril, articulado con rótula (`VEH.art`, `st.h2`), ritmo ⏩ (`RITMOS`), 🆘 ayuda (`ayuda`, `llevar`, `salida`, `vigila`) y niveles (`nivel`, `nivelV`) |
 | `22-gl.js` (1.4.0) | El motor 3D `G3` arma la ventana cercana con el piso de calles reales (`VC.piso3D`), los edificios reales (`edifReales`), los hitos y los puentes; Ciudad Libre lo usa en sus vistas tercera persona, dron y cine (`Libre.draw3D`, `dyn3D`, `hud3D`, `joyMundo`) |
-| `47-carrera.js` (1.5.0) | **Carrera sin fin**, prototipo de la M4: patineta por la calle junto a una línea, 3 carriles, saltos, obstáculos (`CR_OBS`), pasajes y datos de estación; 3D con `G3` y respaldo desde arriba; `hud(st)` es la barra del juego y `marcador()` el dibujo |
+| `28-taller-*.js` (2.0.0) | **Taller de arte procedural** de ChatGPT/Codex (`EM.taller`): `Malla` (caras en metros, X al frente, Y arriba), `vehiculo(id, {persona})`, `pista(obstáculo)`, `primera` (manubrio y manos), `horizonte`, `escena` (pasaje doblado), `lienzo` (respaldo Canvas) y `malla(clave, hacer)`: caché de mallas subidas a G3 |
+| `src/data/guion.js` (2.0.0) | **Trama en datos**: los 6 personajes de EnCicla (`GUION.personajes`, con `frag`); `39-gente.js` los suma a `GENTE` |
+| `47-carrera.js` (1.5.0, 2.0.0) | **Carrera sin fin**, prototipo de la M4: patineta por la calle junto a una línea, 3 carriles, saltos, obstáculos (`CR_OBS`), pasajes y datos de estación; 3D con `G3` y respaldo desde arriba; `hud(st)` es la barra del juego y `marcador()` el dibujo |
 | `39-gente.js` | **Gente de la ciudad** (`GENTE`, `Gente`): 20 personajes con nombre y oficio en su lugar real que cuentan lo que todos saben y lo que pocos saben, turistas que piden compañía (`turista`) y 📍 qué hay cerca (`guia`, `LUGAR_INFO`) |
 | `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
@@ -123,6 +125,17 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+## Reglas aprendidas (entregas del Plan único, 2.0.0)
+- **Una entrega de otra IA es código no confiable**, aunque diga «probado»:
+  - antes de aplicarla, `git apply --check` contra la versión actual;
+  - busca llamadas a funciones que no existen (en la de Gemini, `G3.drawScene` o `b.teja`): el bot corre sin WebGL y no las ve;
+  - mira cada cambio en una captura.
+- **Mide antes de aceptar más geometría:** tiempo de `G3.buildNear` en el centro, El Poblado, Santo Domingo y Laureles, 3 pasadas, contra la versión anterior.
+- **Datos del mapa: nunca coordenadas a mano.** Los deprimidos salen de Overture (`is_tunnel`) con `tools/puentes_datos.py`. En `PUENTES.B` van con nivel −1 y el alto es la profundidad.
+- **Capítulos nuevos de la trama o de la historia: antes del Epílogo, nunca en medio.** El progreso se guarda por índice (`Save.d.trama.c`, `Save.d.story.ch`); también va `TRAMA_ART` en la misma posición.
+- **Mallas del taller en el 3D:** `EM.taller.malla('v:' + id, () => EM.taller.vehiculo(id))` y `EM.taller.mundo(buf, x, z, y, rumbo)`. `MALLA3` (en `36-libre.js`) dice qué pieza usa cada vehículo de `VEH`.
+- **`tools/build.mjs`:** la lista `data` ya trae el contenido de cada archivo; para agregar uno, empuja `limpia(read(src(…)))`, no su nombre.
 
 ## Comandos
 ```

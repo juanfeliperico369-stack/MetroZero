@@ -2,6 +2,66 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+## Estado al 2026-11-19 · v2.0.0 "La revolución"
+**Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
+- **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
+- **Gemini/Antigravity (código):** `ENTREGA-EL-METRO-gemini-antigravity.md`, con diferencias contra v1.4.0.
+
+**Qué entró de Gemini/Antigravity:**
+- **Terminales de la línea O en su andén:** `tools/rutas_calles.mjs` parte el tramo de calle frente a cada parada.
+  - Caribe y La Palma ya no dan aviso; el autotest queda con **0 avisos**.
+- **Laderas en 3D sin escalones:** `VC.piso3D` ya no estampa el relieve de 20 m; el terreno lleva normales suaves por vértice (`G3.normT`, `G3.quadT`) y filtro anisótropo hasta 8×.
+- **Cámara de cine que no se mete en las paredes:** `VC.camaraLibre` en Ciudad Libre, el metro y Al volante.
+  - Corregido aquí: la línea de vista se revisa cada 3 m, no en tres puntos; antes quedaba pegada a una fachada en Estadio.
+- **Techos en 3D:** teja a dos aguas, tanques de agua negros o azules sobre las planchas de ladera, y coronas con baliza roja en las torres.
+  - Corregido aquí: la entrega preguntaba por campos que no existen (`b.teja`, `b.s`), así que solo salían las coronas. Ahora usa `b.rt` (tipo de techo) y `b.z` (zona) de `VC.estilo`.
+- **Estaciones elevadas:** franja amarilla táctil, columnas, marquesina y escaleras.
+  - Se quitó el vestíbulo a ras de piso con torniquetes: quedaba enterrado (se veía como ruido blanco) y tapaba la calle de abajo.
+- **Calles:** separador verde en avenidas anchas, quebradas con canal de concreto, bancas y paraderos en el andén.
+- **Sprites de micromovilidad:** cenitales (`Spr.veh`) y laterales (`Lado.vehS`).
+- **Capítulo de Historia «Ruedas que conectan el valle»:** va a la carrera por la línea B, con los diálogos revisados.
+- **La idea de los fragmentos de EnCicla:** se guardan en `Save.d.fragsEncicla`.
+
+**Qué entró de ChatGPT/Codex:**
+- **El taller de arte procedural** (`src/js/28-taller-*.js`, `EM.taller`): mallas en metros con el formato de vértices de G3 y un respaldo en Canvas 2D.
+  - **Vehículos 3D:** bici, skate, patines, monopatín, patineta eléctrica, moto, carro, taxi, camioneta, bus y alimentador. En la bici y la moto el conductor va sentado.
+  - **Obstáculos 3D:** hueco, cono, moto, perro, chaza, charco y pasaje.
+  - **Manubrio y manos en primera persona** (`T.primera`).
+  - **Escena animada del pasaje doblado:** el tren al atardecer, el retrato y el papel que se abre. Sale al juntar los 6 fragmentos (+20 🎫).
+- **Los seis personajes de Juega EnCicla** (`src/data/guion.js`), con los oficios del juego de EnCicla:
+  - Doña Luz, usuaria desde 2011, en San Antonio;
+  - Santi, anfitrión, en Floresta;
+  - Don Jairo, mecánico, en Estadio;
+  - Wilson, de balance, en Caribe;
+  - Cata, de monitoreo, en Acevedo;
+  - Maryi, de pausas activas, en Universidad.
+  - Sus datos de la red se revisaron contra el juego.
+- **El capítulo «El pasaje doblado»** en la trama de Ciudad Libre: San Antonio → carrera → línea B → Floresta → Estadio → postal. Va antes del Epílogo para no descuadrar partidas guardadas.
+
+**Lo que se hizo distinto (y por qué):**
+- **Deprimidos:**
+  - La entrega traía 5 con coordenadas puestas a mano, y varios no coinciden con nada real.
+  - `tools/puentes_datos.py` ahora saca de OpenStreetMap (Overture: `is_tunnel`) **26 deprimidos reales** de 30 a 600 m. Entre ellos están el soterrado de Parques del Río (Carrera 62, 459 m), la Calle 58, la Calle 67 y la Transversal Inferior.
+  - Los túneles de montaña (Occidente, Oriente) quedan fuera.
+  - Los 2.150 puentes quedaron idénticos.
+  - En el deprimido se baja en rampa (nivel −1). Los carros del tramo cubierto no se pintan encima del parque.
+- **Anillo de edificios hasta 1.050 m:** medido, armar la ventana 3D en Santo Domingo pasaba de 0,38 s a 1,34 s (tirones al moverse). Queda apagado; los techos solos cuestan un 5–10 %.
+- **«Run Scooter» (`34-carrera.js`):**
+  - No entró tal cual: su 3D llama funciones que no existen en el motor (`G3.drawScene`, `G3.groundAt`, `G3.quad`, `G3.rgb`), así que nunca se había corrido con WebGL.
+  - De ahí se tomaron, para la carrera de 1.5.0 (ya probada en 3D), la **elección de vehículo** (🛹: skate, patines, monopatín, patineta eléctrica o bici EnCicla, guardada en `settings.vehCr`), los **poderes** (🧲 imán, ⚡ turbo, 🛡 escudo) y la **línea O por la 80**.
+- **Sus 6 vehículos para Ciudad Libre:** ya estaban desde 1.5.0 con su física; se quedaron los de 1.5.0.
+- **Mapa:** su `motor-valle` decía que la fuente de verdad era MetroZero (al revés). Se sincronizó el motor real **1.1.0** desde Juega EnCicla con `sincronizar.mjs`; el mapa base de El Metro no cambia.
+
+**Falla propia corregida:** desde 1.5.0, `tools/build.mjs` metía el *nombre* de `src/data/guion.js` en vez de su contenido. No se notaba porque el archivo no existía.
+
+**Para la IA de Juega EnCicla:** el Motor del Valle 1.1.0 trae 12 deprimidos escritos a mano en `geo/alturas.py`. Los reales salen de Overture con `is_tunnel` (ver `tools/puentes_datos.py` de El Metro); conviene pasarlos al motor.
+
+**Qué se probó:**
+- autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
+- 100 partidas del bot (ver abajo);
+- capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
+- la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
 ## Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
 - **Mapa único:** el mapa base sale del Motor del Valle 1.0.0, el mismo de Juega EnCicla.

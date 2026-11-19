@@ -58,7 +58,7 @@ const LUGAR_INFO = {
 /* personajes que llegan en datos (src/data/guion.js, formato de docs/PLAN-UNICO-IA.md 4b-6): se suman si traen lo necesario */
 if (typeof GUION !== 'undefined' && GUION && Array.isArray(GUION.personajes)) for (const P of GUION.personajes) {
   const ok = P && typeof P.id === 'string' && typeof P.n === 'string' && typeof P.o === 'string' && Array.isArray(P.en) && Array.isArray(P.f) && P.f.length && !GENTE.some(G => G.id === P.id);
-  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]) });
+  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]), frag: typeof P.frag === 'string' ? P.frag.slice(0, 200) : undefined });
 }
 const TURISTAS = [['Emma', 'de Francia'], ['Lukas', 'de Alemania'], ['Sofía', 'de Argentina'], ['Hiro', 'de Japón'], ['Ana', 'de Bogotá'], ['Tom', 'de Canadá'], ['Lucía', 'de España'], ['Diego', 'de México'], ['Amara', 'de Kenia'], ['Joana', 'de Brasil']];
 const Gente = EM.gente = {
@@ -114,9 +114,11 @@ const Gente = EM.gente = {
   hablar(st, p) {
     if (st.trama && st.trama.talk) return; const G = p.G, vis = Save.d.gente || (Save.d.gente = {});
     if (p.tur) { const T = st.tur; if (!T) return; if (T.ok) { Ciudad.say(p, 'Vamos a ' + T.D.n); return; } this.charla(st, p, [`¡Hola! Soy ${G.n}, ${G.o.replace('turista ', '')}. Me dijeron que no me puedo ir sin conocer ${T.D.n}. ¿Me acompañas?`], [['Claro, sígueme', () => { T.ok = true; st.guia = { x: T.D.cx, y: T.D.cy, title: 'Acompaña a ' + G.n + ' a ' + T.D.n, hint: LUGAR_INFO[T.D.id] || '' }; this.cerrar(st); Libre.msg(st, '🧳 ' + G.n + ' te sigue: llévala caminando', 'b'); }], ['Ahora no', () => { this.cerrar(st); }]]); return; }
-    const nuevo = !vis[G.id]; if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; Save.write(); }
+    const nuevo = !vis[G.id], fe = Save.d.fragsEncicla || (Save.d.fragsEncicla = {}), conF = GENTE.filter(q => q.frag); let pieF = '';
+    if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; if (G.frag && !fe[G.id]) { fe[G.id] = 1; const n = conF.filter(q => fe[q.id]).length; pieF = ' · 🚲 fragmento de EnCicla ' + n + ' de ' + conF.length; if (n === conF.length) { Save.d.wallet += 20; pieF += ' · ¡El pasaje doblado está completo! +20 🎫'; st._pasaje = 1; } } Save.write(); }
     const L = G.f.map(([t, x]) => (t === 1 ? '💡 Lo que pocos saben: ' : t === 0 ? '📌 Lo que todos saben: ' : '') + x);
-    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' : '');
+    if (G.frag) L.push('🚲 ' + G.frag);
+    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' + pieF : '');
   },
   charla(st, p, lines, opts, pie) {
     const el = $('#trTalk'); if (!el || EM.headless) { st.charla = null; return; } st.charla = { p, lines, i: 0, opts, pie };
@@ -126,7 +128,16 @@ const Gente = EM.gente = {
       el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => C.opts[+b.dataset.o][1]()); el.querySelector('[data-x]').onclick = () => this.cerrar(st); };
     this._pinta = pinta; pinta(); Snd.play('tap');
   },
-  cerrar(st) { st.charla = null; if (this._pinta) this._pinta(); },
+  cerrar(st) { st.charla = null; if (this._pinta) this._pinta(); if (st._pasaje) { st._pasaje = 0; this.escenaPasaje(); } },
+  /* con los seis fragmentos de EnCicla: la escena del pasaje doblado (tren al atardecer, retrato y el papel que se abre), del taller de arte de Codex */
+  escenaPasaje() {
+    const T = EM.taller; if (!T || !T.escena || EM.headless) return;
+    UI.modal(`<div class="pag">Juega EnCicla · 6 de 6</div><h2>El pasaje doblado</h2><canvas id="gpEsc" width="320" height="180" style="width:100%;border-radius:10px;background:#154a80"></canvas><p class="m">Los seis fragmentos eran el mapa de un viaje en metro y en bici, de San Antonio a Floresta y de ahí a Estadio.</p><button class="btn" id="gpX">Seguir</button>`);
+    const cv = $('#gpEsc'), g = cv && cv.getContext('2d'), M = GENTE.find(q => q.id === 'ec_maryi'), t0 = now(); let ret = null, raf = 0; if (!g) return;
+    if (M && T.retrato) T.retrato(M).then(im => { ret = im; }).catch(() => {});
+    const loop = () => { if (!document.body.contains(cv)) return; try { T.escena(g, 320, 180, Math.min(8, now() - t0), ret); } catch (e) { EM.errors.push('escena: ' + e.message); return; } raf = requestAnimationFrame(loop); }; loop();
+    const b = $('#gpX'); if (b) b.onclick = () => { cancelAnimationFrame(raf); UI.close(); };
+  },
   /* 📍 qué ver cerca: lugares famosos, estaciones y personajes, con lo que hay que saber; tocar uno lo vuelve destino (flecha y distancia) */
   guia(st) {
     if (EM.headless) return; const km = d => d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1).replace('.', ',') + ' km', L = [], vis = Save.d.gente || {};

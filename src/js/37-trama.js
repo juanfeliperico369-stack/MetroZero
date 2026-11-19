@@ -11,6 +11,7 @@ const TRAMA_WHO = {
   'Doña Marleny': { col: '#c8201f', hair: '#2a1a12', skin: '#b07a52' },
   'Wílmar': { col: '#f4f1ea', hat: '#1C5C9C', skin: '#8a5a3b' },
   'Agente de tránsito': { col: '#c7e000', hat: '#f4f1ea', skin: '#d9a77f' },
+  'Doña Luz': { col: '#b07cff', skin: '#e0ac7e' }, 'Santi': { col: '#9bd341', hat: '#9bd341', skin: '#c68a5c' }, 'Don Jairo': { col: '#143a6b', hat: '#0e2d55', skin: '#a86a3d' },
   'Pasajero': { col: '#7a5cc4', skin: '#d9a77f' }
 };
 const TRAMA = [
@@ -99,6 +100,28 @@ const TRAMA = [
       ['Rosalba', 'Vamos, mija. Sin afán y sin regar el tinto.']],
       ok: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' }
   ] },
+  { t: 'El pasaje doblado', steps: [   // 2.0.0: con los personajes de Juega EnCicla (entregas de ChatGPT/Codex y Gemini/Antigravity)
+    { k: 'ir', at: 'San Antonio', line: 'A', r: 40, txt: 'Ve a San Antonio: Doña Luz, usuaria de EnCicla desde 2011, tiene algo para ti' },
+    { k: 'hablar', who: 'Doña Luz', at: 'San Antonio', line: 'A', txt: 'Habla con Doña Luz junto a la estación', lines: [
+      ['Doña Luz', 'Mija, mire este pasaje: se le dobló la esquina y por dentro tiene el dibujo de una rueda.'],
+      ['Doña Luz', 'Póngalo contra la luz. ¿Sí ve el radio que le falta?'],
+      ['Rosalba', 'Eso es cosa de la gente de EnCicla. Arranquemos por la calle del viaducto, que es lo más rápido.']] },
+    { k: 'modulo', who: 'Doña Luz', at: 'San Antonio', line: 'A', m: 'carrera', lv: 'cr:A', fin: 'San Antonio', finLine: 'A', txt: 'Corre por la calle junto al viaducto: esquiva, salta y recoge pasajes', lines: [
+      ['Doña Luz', 'Con ◀ ▶ cambia de carril, con ▲ salta los huecos y con 🛹 escoge en qué rodar.']],
+      ok: 'Doña Luz guardó el pasaje en la libreta: «Ahora lléveselo a Santi, en Floresta».' },
+    { k: 'abordar', line: 'B', at: 'San Antonio', txt: 'Toma la línea B hacia San Javier' },
+    { k: 'bajar', line: 'B', at: 'Floresta', txt: 'Bájate en Floresta' },
+    { k: 'hablar', who: 'Santi', at: 'Floresta', line: 'B', txt: 'Muéstrale la esquina doblada a Santi, el anfitrión de EnCicla', lines: [
+      ['Santi', '¡Esa esquina la doblé yo, para que no se saliera de la libreta!'],
+      ['Santi', 'El dibujo es de Don Jairo, el mecánico. Está en Estadio, la estación anterior: vaya en bici o caminando.'],
+      ['Rosalba', 'Por Floresta pasa la línea B, mija. Desde acá uno llega a San Antonio sin bajarse del tren.']] },
+    { k: 'ir', at: 'Estadio', line: 'B', r: 40, txt: 'Ve hasta Estadio, la estación anterior, donde trabaja Don Jairo' },
+    { k: 'hablar', who: 'Don Jairo', at: 'Estadio', line: 'B', txt: 'Deja que Don Jairo termine la rueda', lines: [
+      ['Don Jairo', 'Cuando enseño a centrar un rin, empiezo con este dibujo: la rueda con un radio de menos.'],
+      ['Don Jairo', 'Si uno dobla la esquina, el radio que falta aparece. Mire.'],
+      ['Rosalba', 'Guardemos eso en la libreta, con una foto del estadio.']] },
+    { k: 'foto', lugar: 'estadio', txt: 'Toma la postal del Estadio Atanasio Girardot con 📷' }
+  ] },
   { t: 'Epílogo', steps: [
     { k: 'hablar', who: 'Rosalba', at: 'La Estrella', line: 'A', txt: 'Despídete de Rosalba en La Estrella', lines: [
       ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
@@ -108,7 +131,7 @@ const TRAMA = [
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
 /* arte de cada capítulo (src/data/arte.js) y el cielo que va detrás de las ilustraciones con fondo transparente */
-const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
+const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'esc_dia', 'portada'];
 TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
 const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
 const TRAMA_PREG = [

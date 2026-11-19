@@ -174,6 +174,15 @@ Los barrios de **Bello, Copacabana, Girardota, Barbosa, La Estrella y Caldas** a
   - Las 23 estaciones previstas (5 en Medellín, 6 en Envigado y 12 en Itagüí) siguen en estudios y diseños, sin fecha de operación.
   - Fuentes: https://es.wikipedia.org/wiki/Metropl%C3%BAs y https://www.elcolombiano.com/antioquia/retrasos-obras-metroplus-envigado-e-itagui-OG31261924
 
+## Deprimidos y personajes de EnCicla (2.0.0)
+- **Deprimidos y soterrados:** 26 tramos viales con `is_tunnel` de Overture Maps (datos de OpenStreetMap, ODbL), de 30 a 600 m, generados por `tools/puentes_datos.py`.
+  - Entre ellos: el soterrado de Parques del Río (Carrera 62), la Calle 58, la Calle 67 y la Transversal Inferior.
+  - Se dejan fuera los túneles de montaña (Occidente y Oriente).
+  - Los 5 deprimidos escritos a mano en la entrega de Gemini no se usaron.
+- **Personajes de EnCicla:** nombres y oficios de Juega EnCicla (`66-historia.js`, `72-oficios2.js` de ese juego): Doña Luz (usuaria desde 2011), Santi (anfitrión), Don Jairo (mecánico), Wilson (balance), Cata (monitoreo) y Maryi (pausas activas).
+  - Sus datos son de la red del propio juego: qué líneas pasan por cada estación y cuál es la siguiente.
+  - Se descartaron frases de la entrega de Gemini que no se pudieron confirmar: la fecha y el número de estaciones del piloto de EnCicla, y el «puente de cal y sangre».
+
 ## Notas sobre datos inciertos
 
 - **Alimentadores:**

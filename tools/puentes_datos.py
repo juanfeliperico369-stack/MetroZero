@@ -82,6 +82,11 @@ def generar(C):
         g = shapely.transform(shapely.from_wkb(w), proj)
         if g.geom_type != 'LineString' or g.length < 4: continue
         for f in rf:
+            if 'is_tunnel' in (f['values'] or []) and cl not in PEATONAL and cl not in ('service', 'track', 'unknown'):
+                # deprimidos y soterrados urbanos (nivel -1): la vía baja en rampa y pasa por debajo del cruce
+                a, b = (f['between'] or [0, 1]); seg = substring(g, a, b, normalized=True)
+                if seg.geom_type == 'LineString' and seg.length >= 4: piezas.append({'c': cl or 'unknown', 'z': -1, 'g': seg})
+                continue
             if 'is_bridge' not in (f['values'] or []): continue
             a, b = (f['between'] or [0, 1])
             seg = substring(g, a, b, normalized=True)
@@ -92,7 +97,7 @@ def generar(C):
                 if ra < b and rb > a and r['value'] and r['value'] > 0: nivel = max(nivel, int(r['value']))
             nivel = nivel or 1
             piezas.append({'c': cl or 'unknown', 'z': min(3, nivel), 'g': seg})
-    print('tramos de puente:', len(piezas))
+    print('tramos de puente:', sum(1 for p in piezas if p['z'] > 0), '· de túnel:', sum(1 for p in piezas if p['z'] < 0))
     # se unen los tramos seguidos del mismo nivel y del mismo tipo (vehicular o peatonal): un puente partido en varias vías de OSM no lleva rampas en la mitad
     grupos = {}
     for p in piezas: grupos.setdefault((p['z'], p['c'] in PEATONAL), []).append(p)
@@ -103,6 +108,7 @@ def generar(C):
         clases = shapely.STRtree([p['g'] for p in L])
         for g in geoms:
             if g.length < 6: continue
+            if z < 0 and not (30 <= g.length <= 600): continue   # los túneles de montaña (Occidente, Oriente) no son deprimidos de la ciudad
             idx = clases.query(g.centroid, predicate='dwithin', distance=6) if hasattr(clases, 'query') else []
             cl = L[idx[0]]['c'] if len(idx) else L[0]['c']
             gs = g.simplify(.6)
@@ -138,14 +144,14 @@ def generar(C):
                 S.append([vi, i, round(ta, 3), round(tb, 3), bi]); mejor = w if mejor is None else max(mejor, w)
         if mejor: ancho = max(ancho * .8, mejor)
         # alto del tablero: sobre otra vía o el río, 6 m por nivel; puentes cortos sobre quebradas, 3 m
-        alto = (6.0 * p['z']) if g.length > 24 or p['pe'] else 3.0
+        alto = 5.5 if p['z'] < 0 else (6.0 * p['z']) if g.length > 24 or p['pe'] else 3.0   # deprimido: 5,5 m de hondo
         B.append([1 if p['pe'] else 0, p['z'], round(ancho, 1), round(alto, 1)] + [round(v, 1) for xy in ba for v in xy])
-    txt = ('/* Puentes vehiculares y peatonales del valle con su nivel (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps: is_bridge y level),\n'
+    txt = ('/* Puentes vehiculares y peatonales del valle con su nivel y deprimidos (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps: is_bridge, is_tunnel y level),\n'
            '   enlazados con las calles del juego. Generado por tools/puentes_datos.py (no editar a mano). */\n'
            f'const PUENTES = {json.dumps({"v": 1, "B": B, "S": S}, separators=(",", ":"))};\n')
     open(os.path.join(ROOT, 'src/data/puentes.js'), 'w', encoding='utf8').write(txt)
-    nv = sum(1 for b in B if b[0] == 0); npe = len(B) - nv
-    print(f'puentes: {len(B)} ({nv} vehiculares, {npe} peatonales) · tramos de calle sobre puente: {len(S)} · {len(txt) // 1024} KB · {round(time.time() - t0)} s')
+    nv = sum(1 for b in B if b[0] == 0 and b[1] > 0); npe = sum(1 for b in B if b[0] == 1); nt = sum(1 for b in B if b[1] < 0)
+    print(f'puentes: {len(B)} ({nv} vehiculares, {npe} peatonales, {nt} deprimidos) · tramos de calle sobre puente: {len(S)} · {len(txt) // 1024} KB · {round(time.time() - t0)} s')
 
 
 if __name__ == '__main__':
