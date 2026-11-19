@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v1.5.0 · compilado el 2026-11-19.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v2.0.0 · compilado el 2026-11-19.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v1.5.0** · compilado el 2026-11-19.
+> Versión del juego **v2.0.0** · compilado el 2026-11-19.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,6 +799,66 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+##### Estado al 2026-11-19 · v2.0.0 "La revolución"
+**Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
+- **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
+- **Gemini/Antigravity (código):** `ENTREGA-EL-METRO-gemini-antigravity.md`, con diferencias contra v1.4.0.
+
+**Qué entró de Gemini/Antigravity:**
+- **Terminales de la línea O en su andén:** `tools/rutas_calles.mjs` parte el tramo de calle frente a cada parada.
+  - Caribe y La Palma ya no dan aviso; el autotest queda con **0 avisos**.
+- **Laderas en 3D sin escalones:** `VC.piso3D` ya no estampa el relieve de 20 m; el terreno lleva normales suaves por vértice (`G3.normT`, `G3.quadT`) y filtro anisótropo hasta 8×.
+- **Cámara de cine que no se mete en las paredes:** `VC.camaraLibre` en Ciudad Libre, el metro y Al volante.
+  - Corregido aquí: la línea de vista se revisa cada 3 m, no en tres puntos; antes quedaba pegada a una fachada en Estadio.
+- **Techos en 3D:** teja a dos aguas, tanques de agua negros o azules sobre las planchas de ladera, y coronas con baliza roja en las torres.
+  - Corregido aquí: la entrega preguntaba por campos que no existen (`b.teja`, `b.s`), así que solo salían las coronas. Ahora usa `b.rt` (tipo de techo) y `b.z` (zona) de `VC.estilo`.
+- **Estaciones elevadas:** franja amarilla táctil, columnas, marquesina y escaleras.
+  - Se quitó el vestíbulo a ras de piso con torniquetes: quedaba enterrado (se veía como ruido blanco) y tapaba la calle de abajo.
+- **Calles:** separador verde en avenidas anchas, quebradas con canal de concreto, bancas y paraderos en el andén.
+- **Sprites de micromovilidad:** cenitales (`Spr.veh`) y laterales (`Lado.vehS`).
+- **Capítulo de Historia «Ruedas que conectan el valle»:** va a la carrera por la línea B, con los diálogos revisados.
+- **La idea de los fragmentos de EnCicla:** se guardan en `Save.d.fragsEncicla`.
+
+**Qué entró de ChatGPT/Codex:**
+- **El taller de arte procedural** (`src/js/28-taller-*.js`, `EM.taller`): mallas en metros con el formato de vértices de G3 y un respaldo en Canvas 2D.
+  - **Vehículos 3D:** bici, skate, patines, monopatín, patineta eléctrica, moto, carro, taxi, camioneta, bus y alimentador. En la bici y la moto el conductor va sentado.
+  - **Obstáculos 3D:** hueco, cono, moto, perro, chaza, charco y pasaje.
+  - **Manubrio y manos en primera persona** (`T.primera`).
+  - **Escena animada del pasaje doblado:** el tren al atardecer, el retrato y el papel que se abre. Sale al juntar los 6 fragmentos (+20 🎫).
+- **Los seis personajes de Juega EnCicla** (`src/data/guion.js`), con los oficios del juego de EnCicla:
+  - Doña Luz, usuaria desde 2011, en San Antonio;
+  - Santi, anfitrión, en Floresta;
+  - Don Jairo, mecánico, en Estadio;
+  - Wilson, de balance, en Caribe;
+  - Cata, de monitoreo, en Acevedo;
+  - Maryi, de pausas activas, en Universidad.
+  - Sus datos de la red se revisaron contra el juego.
+- **El capítulo «El pasaje doblado»** en la trama de Ciudad Libre: San Antonio → carrera → línea B → Floresta → Estadio → postal. Va antes del Epílogo para no descuadrar partidas guardadas.
+
+**Lo que se hizo distinto (y por qué):**
+- **Deprimidos:**
+  - La entrega traía 5 con coordenadas puestas a mano, y varios no coinciden con nada real.
+  - `tools/puentes_datos.py` ahora saca de OpenStreetMap (Overture: `is_tunnel`) **26 deprimidos reales** de 30 a 600 m. Entre ellos están el soterrado de Parques del Río (Carrera 62, 459 m), la Calle 58, la Calle 67 y la Transversal Inferior.
+  - Los túneles de montaña (Occidente, Oriente) quedan fuera.
+  - Los 2.150 puentes quedaron idénticos.
+  - En el deprimido se baja en rampa (nivel −1). Los carros del tramo cubierto no se pintan encima del parque.
+- **Anillo de edificios hasta 1.050 m:** medido, armar la ventana 3D en Santo Domingo pasaba de 0,38 s a 1,34 s (tirones al moverse). Queda apagado; los techos solos cuestan un 5–10 %.
+- **«Run Scooter» (`34-carrera.js`):**
+  - No entró tal cual: su 3D llama funciones que no existen en el motor (`G3.drawScene`, `G3.groundAt`, `G3.quad`, `G3.rgb`), así que nunca se había corrido con WebGL.
+  - De ahí se tomaron, para la carrera de 1.5.0 (ya probada en 3D), la **elección de vehículo** (🛹: skate, patines, monopatín, patineta eléctrica o bici EnCicla, guardada en `settings.vehCr`), los **poderes** (🧲 imán, ⚡ turbo, 🛡 escudo) y la **línea O por la 80**.
+- **Sus 6 vehículos para Ciudad Libre:** ya estaban desde 1.5.0 con su física; se quedaron los de 1.5.0.
+- **Mapa:** su `motor-valle` decía que la fuente de verdad era MetroZero (al revés). Se sincronizó el motor real **1.1.0** desde Juega EnCicla con `sincronizar.mjs`; el mapa base de El Metro no cambia.
+
+**Falla propia corregida:** desde 1.5.0, `tools/build.mjs` metía el *nombre* de `src/data/guion.js` en vez de su contenido. No se notaba porque el archivo no existía.
+
+**Para la IA de Juega EnCicla:** el Motor del Valle 1.1.0 trae 12 deprimidos escritos a mano en `geo/alturas.py`. Los reales salen de Overture con `is_tunnel` (ver `tools/puentes_datos.py` de El Metro); conviene pasarlos al motor.
+
+**Qué se probó:**
+- autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
+- 100 partidas del bot (ver abajo);
+- capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
+- la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
 ##### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
 - **Mapa único:** el mapa base sale del Motor del Valle 1.0.0, el mismo de Juega EnCicla.
@@ -818,6 +878,8 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 - **Falla encontrada jugando y corregida:** la carrera usaba el nombre `hud` para su marcador, y el juego lo llama para la barra de arriba.
 
 **Qué se probó:** autotest con 0 errores; 100 partidas del bot (329 mil pasos, con la carrera sin fin) con 0 errores y 0 errores de consola; carrera en 3D en las líneas A y B; patineta eléctrica en Ciudad Libre; recorrido de los nueve modos con capturas.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.5.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v1.5.0-71a5b17e`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 25, **6,6 MB**).
 
 ##### 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
 - **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
@@ -1410,7 +1472,9 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
 | `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad. Desde 1.3.0: manejo «fácil» (el joystick apunta hacia donde se va) o «clásico», giro limitado por la aceleración lateral de cada vehículo (`VEH.lat`, `giroMax`), pedal con peso, asistencia de carril, articulado con rótula (`VEH.art`, `st.h2`), ritmo ⏩ (`RITMOS`), 🆘 ayuda (`ayuda`, `llevar`, `salida`, `vigila`) y niveles (`nivel`, `nivelV`) |
 | `22-gl.js` (1.4.0) | El motor 3D `G3` arma la ventana cercana con el piso de calles reales (`VC.piso3D`), los edificios reales (`edifReales`), los hitos y los puentes; Ciudad Libre lo usa en sus vistas tercera persona, dron y cine (`Libre.draw3D`, `dyn3D`, `hud3D`, `joyMundo`) |
-| `47-carrera.js` (1.5.0) | **Carrera sin fin**, prototipo de la M4: patineta por la calle junto a una línea, 3 carriles, saltos, obstáculos (`CR_OBS`), pasajes y datos de estación; 3D con `G3` y respaldo desde arriba; `hud(st)` es la barra del juego y `marcador()` el dibujo |
+| `28-taller-*.js` (2.0.0) | **Taller de arte procedural** de ChatGPT/Codex (`EM.taller`): `Malla` (caras en metros, X al frente, Y arriba), `vehiculo(id, {persona})`, `pista(obstáculo)`, `primera` (manubrio y manos), `horizonte`, `escena` (pasaje doblado), `lienzo` (respaldo Canvas) y `malla(clave, hacer)`: caché de mallas subidas a G3 |
+| `src/data/guion.js` (2.0.0) | **Trama en datos**: los 6 personajes de EnCicla (`GUION.personajes`, con `frag`); `39-gente.js` los suma a `GENTE` |
+| `47-carrera.js` (1.5.0, 2.0.0) | **Carrera sin fin**, prototipo de la M4: patineta por la calle junto a una línea, 3 carriles, saltos, obstáculos (`CR_OBS`), pasajes y datos de estación; 3D con `G3` y respaldo desde arriba; `hud(st)` es la barra del juego y `marcador()` el dibujo |
 | `39-gente.js` | **Gente de la ciudad** (`GENTE`, `Gente`): 20 personajes con nombre y oficio en su lugar real que cuentan lo que todos saben y lo que pocos saben, turistas que piden compañía (`turista`) y 📍 qué hay cerca (`guia`, `LUGAR_INFO`) |
 | `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
@@ -1477,6 +1541,17 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+#### Reglas aprendidas (entregas del Plan único, 2.0.0)
+- **Una entrega de otra IA es código no confiable**, aunque diga «probado»:
+  - antes de aplicarla, `git apply --check` contra la versión actual;
+  - busca llamadas a funciones que no existen (en la de Gemini, `G3.drawScene` o `b.teja`): el bot corre sin WebGL y no las ve;
+  - mira cada cambio en una captura.
+- **Mide antes de aceptar más geometría:** tiempo de `G3.buildNear` en el centro, El Poblado, Santo Domingo y Laureles, 3 pasadas, contra la versión anterior.
+- **Datos del mapa: nunca coordenadas a mano.** Los deprimidos salen de Overture (`is_tunnel`) con `tools/puentes_datos.py`. En `PUENTES.B` van con nivel −1 y el alto es la profundidad.
+- **Capítulos nuevos de la trama o de la historia: antes del Epílogo, nunca en medio.** El progreso se guarda por índice (`Save.d.trama.c`, `Save.d.story.ch`); también va `TRAMA_ART` en la misma posición.
+- **Mallas del taller en el 3D:** `EM.taller.malla('v:' + id, () => EM.taller.vehiculo(id))` y `EM.taller.mundo(buf, x, z, y, rumbo)`. `MALLA3` (en `36-libre.js`) dice qué pieza usa cada vehículo de `VEH`.
+- **`tools/build.mjs`:** la lista `data` ya trae el contenido de cada archivo; para agregar uno, empuja `limpia(read(src(…)))`, no su nombre.
 
 #### Comandos
 ```
@@ -3049,11 +3124,11 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/ajustes.js`** (39 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - **`src/data/vias.js`, `rieles.js`, `metroplus.js`, `rutas_calles.js` y `hitos.js`**: calles con su curva y su ancho, eje de los rieles, corredores de Metroplús, recorridos de los alimentadores y arquitectura icónica (ver `docs/FUENTES.md`).
-- **`src/data/puentes.js`** (173 KB): los 2.150 puentes del valle con su nivel y los tramos de calle que van sobre ellos (de `tools/puentes_datos.py`); y **`src/data/metroplus_andenes.js`**: el andén real de cada estación de Metroplús (de `tools/metroplus_andenes.py`).
+- **`src/data/puentes.js`** (177 KB): los 2.150 puentes del valle con su nivel y los tramos de calle que van sobre ellos (de `tools/puentes_datos.py`); y **`src/data/metroplus_andenes.js`**: el andén real de cada estación de Metroplús (de `tools/metroplus_andenes.py`).
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (90 archivos, 1283 KB)
+## Código fuente (96 archivos, 1339 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3511,7 +3586,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '1.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '2.0.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3558,7 +3633,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d' }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {} };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {} };
 }
 const Save = EM.save = {
   d: null,
@@ -4703,8 +4778,8 @@ const VC = EM.vcity = {
           }
         }
       }
-      // árboles de avenida a lado y lado, sobre el andén
-      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && asf[Math.floor((y - Y0) / RES) * NG + Math.floor((x - X0) / RES)] !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } }
+      // árboles de avenida a lado y lado, sobre el andén, y en el separador central cuando la avenida es ancha
+      if (c.k === 2) for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay); if (L < 8) continue; const ux = (bx - ax) / L, uy = (by - ay) / L; for (let t = 6; t < L - 4; t += 13) { for (const sd of [1, -1]) { const x = ax + ux * t - uy * (c.w / 2 + 1.3) * sd, y = ay + uy * t + ux * (c.w / 2 + 1.3) * sd; if (dentro(x, y) && occAt(x, y) !== 2 && asf[Math.floor((y - Y0) / RES) * NG + Math.floor((x - X0) / RES)] !== 2 && tileAt(x, y) !== TT.WATER) trees.push(x, y, 2.6 + h2(x | 0, y | 0, 3) * 1.6, h2(x | 0, y | 0, 4) < .12 ? 1 : 0); } if (c.w >= 14 && ((t / 13 | 0) % 2 === 0)) { const mx = ax + ux * t, my = ay + uy * t; if (dentro(mx, my) && occAt(mx, my) !== 2 && tileAt(mx, my) !== TT.WATER) trees.push(mx, my, 2.3 + h2(mx | 0, my | 0, 8) * 1.3, h2(mx | 0, my | 0, 9) < .18 ? 1 : 0); } } }
     }
     // 2 · interior de las manzanas: rejilla con desfase, alineada con la calle más cercana
     if (!reales) for (let y = cy0 + 3; y < cy0 + R; y += 7) for (let x = cx0 + 3; x < cx0 + R; x += 7) {
@@ -4745,6 +4820,23 @@ const VC = EM.vcity = {
     const ok = (px, py) => !this.solid(px, py, r) && (!calle || this.agarre(px, py) === 1); if (ok(x, y)) return { x, y };
     for (let d = 2; d <= R; d += 2) { const n = Math.ceil(d * TAU / 2.5); for (let i = 0; i < n; i++) { const a = i / n * TAU, px = x + Math.cos(a) * d, py = y + Math.sin(a) * d; if (ok(px, py)) return { x: px, y: py }; } }
     return { x, y };
+  },
+  /* punto libre para una cámara 3D (modo cine o tercera persona): fuera de edificios con margen de 2,4 m, con línea de vista hacia (tx, ty)
+     y, si ningún punto cercano está despejado, elevando la cámara por encima del techo del edificio que estorbe */
+  camaraLibre(x0, y0, tx, ty, z0) {
+    if (!this.on) return { x: x0, y: y0, z: z0 };
+    const vis = (px, py) => { const L = Math.hypot(tx - px, ty - py), n = Math.max(3, Math.ceil(L / 3)); for (let i = 1; i < n; i++) { const f = i / n; if (this.solid(lerp(px, tx, f), lerp(py, ty, f), f > .85 ? .6 : 1.2)) return false; } return true; };   // línea de vista muestreada cada 3 m
+    const busca = (calle, conVis, R) => {
+      const ok = (px, py) => !this.solid(px, py, 2.4) && (!calle || this.agarre(px, py) === 1) && (!conVis || vis(px, py));
+      if (ok(x0, y0)) return { x: x0, y: y0 };
+      for (let d = 2.5; d <= R; d += 2.5) { const n = Math.ceil(d * TAU / 3); for (let i = 0; i < n; i++) { const a = i / n * TAU, px = x0 + Math.cos(a) * d, py = y0 + Math.sin(a) * d; if (ok(px, py)) return { x: px, y: py }; } }
+      return null;
+    };
+    const q = busca(true, true, 45) || busca(false, true, 65) || busca(false, false, 80) || { x: x0, y: y0 };
+    let z = Math.max(z0, MAP.elevM(q.x, q.y) + 2.2);
+    const Rg = this.regionAt(q.x, q.y), k = Math.floor(q.x / 40) * 8192 + Math.floor(q.y / 40);
+    for (const i of Rg.bins.get(k) || []) { const b = (Rg.fis || Rg.bs)[i], dx = q.x - b.x, dy = q.y - b.y, a = dx * b.ux + dy * b.uy, d = -dx * b.uy + dy * b.ux; if (b.k !== 10 && Math.abs(a) < b.hw + 2.2 && Math.abs(d) < b.hd + 2.2) z = Math.max(z, MAP.elevM(b.x, b.y) + b.h + 2.5); }
+    return { x: q.x, y: q.y, z };
   },
   /* rótulos de calle sobre la vía dibujada: por celda de 320 m, un rótulo por nombre (en el tramo más largo), girado con la calle */
   rot: new Map(),
@@ -4816,10 +4908,11 @@ const VC = EM.vcity = {
   trozo(L, cx, cy) {
     // el trozo se dibuja por CPU (miles de figuras pequeñas: más rápido y parejo que en la tarjeta gráfica) y se pega como imagen
     const S = L.S, sc = L.sc, n = Math.round(S * sc), c = mkCanvas(n + 2, n + 2), g = c.getContext('2d', { willReadFrequently: this.sw }), X0 = cx * S - 1 / sc, Y0 = cy * S - 1 / sc;   // 1 px de margen alrededor
-    this.suelo(g, n + 2, X0, Y0, S + 2 / sc, sc, L.d);
+    this.suelo(g, n + 2, X0, Y0, S + 2 / sc, sc, L.d, false);
     g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc);
     if (L.d < 2 && this.suelosEsp) this.suelosEsp(g, X0, Y0, S + 2 / sc, sc, L.d);
     this.calles(g, X0, Y0, S + 2 / sc, sc, L.d);
+    if (L.d < 2 && this.PG) { const I = (x, y) => ({ x, y }); this.puentesDib(g, I, sc, X0, Y0, X0 + S + 2 / sc, Y0 + S + 2 / sc, -1); }
     if (L.d < 2) this.estructuras(g, X0, Y0, S + 2 / sc, sc, L.d, c);
     if (L.d < 2 && this.PG) { const I = (x, y) => ({ x, y }); for (const z of [1, 2, 3]) this.puentesDib(g, I, sc, X0, Y0, X0 + S + 2 / sc, Y0 + S + 2 / sc, z); }
     g.setTransform(1, 0, 0, 1, 0, 0);
@@ -4829,8 +4922,10 @@ const VC = EM.vcity = {
      sin edificios ni árboles (en 3D los edificios son cajas de verdad). Se arma por CPU, una vez por ventana */
   piso3D(X0, Y0, S, sc) {
     const n = Math.round(S * sc), c = mkCanvas(n, n), g = c.getContext('2d', { willReadFrequently: this.sw });
-    this.suelo(g, n, X0, Y0, S, sc, 1); g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); if (this.suelosEsp) this.suelosEsp(g, X0, Y0, S, sc, 1); this.calles(g, X0, Y0, S, sc, 1); g.setTransform(1, 0, 0, 1, 0, 0);
-    g.globalCompositeOperation = 'multiply'; g.fillStyle = '#bdbab4'; g.fillRect(0, 0, n, n); g.globalCompositeOperation = 'source-over';   // en 3D el sol aclara: el piso va un poco más oscuro
+    this.suelo(g, n, X0, Y0, S, sc, 1, true); g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); if (this.suelosEsp) this.suelosEsp(g, X0, Y0, S, sc, 1); this.calles(g, X0, Y0, S, sc, 1);
+    if (this.PG) { const I = (x, y) => ({ x, y }); this.puentesDib(g, I, sc, X0, Y0, X0 + S, Y0 + S, -1); }
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'multiply'; g.fillStyle = '#c4c1bb'; g.fillRect(0, 0, n, n); g.globalCompositeOperation = 'source-over';   // en 3D el sol aclara: el piso va con tono uniforme sin granulado
     return c;
   },
   /* suelo con bordes suaves y sin leer píxeles: cada clase se rellena con su contorno de cuadrados marchantes sobre los centros
@@ -4838,7 +4933,7 @@ const VC = EM.vcity = {
   // cuadrados marchantes: por caso, los vértices del polígono interior (0 esq. sup. izq., 1 arriba, 2 esq. sup. der., 3 derecha, 4 esq. inf. der., 5 abajo, 6 esq. inf. izq., 7 izquierda)
   MS: [null, [7, 5, 6], [5, 3, 4], [7, 3, 4, 6], [1, 2, 3], [1, 2, 3, 5, 6, 7], [1, 2, 4, 5], [1, 2, 4, 6, 7], [0, 1, 7], [0, 1, 5, 6], [0, 1, 3, 4, 5, 7], [0, 1, 3, 4, 6], [0, 2, 3, 7], [0, 2, 3, 5, 6], [0, 2, 4, 5, 7], [0, 2, 4, 6]],
   RGB: { 1: [74, 122, 66], 13: [74, 122, 66], 0: [124, 170, 92], 9: [124, 170, 92], 2: [196, 160, 138], 3: [168, 166, 164], 10: [219, 208, 182], 8: [56, 132, 182], 15: [138, 128, 112] },
-  suelo(g, n, X0, Y0, S, sc, lod) {
+  suelo(g, n, X0, Y0, S, sc, lod, es3D = false) {
     const tx0 = Math.floor(X0 / TM) - 1, ty0 = Math.floor(Y0 / TM) - 1, TN = Math.ceil(S / TM) + 3, H = TM / 2, MS = this.MS;
     const tiles = new Uint8Array(TN * TN); for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) tiles[j * TN + i] = MAP.tile(tx0 + i, ty0 + j);
     if (lod === 2) {   // de muy lejos (4 px por casilla): la imagen de casillas ampliada con suavizado, sin figuras
@@ -4884,20 +4979,24 @@ const VC = EM.vcity = {
       }
     }
     g.setTransform(1, 0, 0, 1, 0, 0);
-    // relieve: sombreado de laderas (luz del noroeste) desde la rejilla de elevación, ampliado con suavizado
-    { const ts = TM * sc, dx = (tx0 * TM - X0) * sc, dy = (ty0 * TM - Y0) * sc, E = (x, y) => MAP.elevM(x, y), sh = mkCanvas(TN, TN), shg = sh.getContext('2d'), im = shg.createImageData(TN, TN); let any = 0;
+    // relieve: sombreado de laderas (luz del noroeste) desde la rejilla de elevación en 2D; en 3D la malla ya sombrea con la normal suave del terreno
+    if (!es3D) { const ts = TM * sc, dx = (tx0 * TM - X0) * sc, dy = (ty0 * TM - Y0) * sc, E = (x, y) => MAP.elevM(x, y), sh = mkCanvas(TN, TN), shg = sh.getContext('2d'), im = shg.createImageData(TN, TN); let any = 0;
       for (let j = 0; j < TN; j++) for (let i = 0; i < TN; i++) { const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM, d = (E(x - 30, y - 30) - E(x + 30, y + 30)) * .012, o = (j * TN + i) * 4; if (Math.abs(d) < .02) continue; any = 1; if (d < 0) { im.data[o + 3] = Math.min(110, -d * 300); } else { im.data[o] = im.data[o + 1] = im.data[o + 2] = 255; im.data[o + 3] = Math.min(60, d * 160); } }
       if (any) { shg.putImageData(im, 0, 0); g.imageSmoothingEnabled = true; g.drawImage(sh, 0, 0, TN, TN, dx + ts / 2, dy + ts / 2, TN * ts, TN * ts); } }
-    // quebradas: un hilo de agua entre los centros de sus casillas, dentro de su retiro verde
-    g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); g.strokeStyle = '#3f8fc4'; g.lineWidth = 2.6; g.lineCap = g.lineJoin = 'round'; g.beginPath();
-    for (let j = 1; j < TN - 1; j++) for (let i = 1; i < TN - 1; i++) { if (tiles[j * TN + i] !== TT.CANAL) continue; const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM; let solo = 1;
-      for (const [a, b] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) { const u = tiles[(j + b) * TN + i + a]; if (u === TT.CANAL || u === TT.WATER) { if (a && b && (tiles[j * TN + i + a] === TT.CANAL || tiles[(j + b) * TN + i] === TT.CANAL)) continue; g.moveTo(x, y); g.lineTo(x + a * TM, y + b * TM); solo = 0; } }
-      if (solo) { g.moveTo(x - 4, y); g.lineTo(x + 4, y); } }
-    g.stroke(); g.setTransform(1, 0, 0, 1, 0, 0);
+    // quebradas: canal de concreto y lámina de agua entre los centros de sus casillas, dentro de su retiro verde
+    g.setTransform(sc, 0, 0, sc, -X0 * sc, -Y0 * sc); g.lineCap = g.lineJoin = 'round';
+    for (const [col, lw] of [['#989286', 4.2], ['#3f8fc4', 2.6]]) {
+      g.strokeStyle = col; g.lineWidth = lw; g.beginPath();
+      for (let j = 1; j < TN - 1; j++) for (let i = 1; i < TN - 1; i++) { if (tiles[j * TN + i] !== TT.CANAL) continue; const x = (tx0 + i + .5) * TM, y = (ty0 + j + .5) * TM; let solo = 1;
+        for (const [a, b] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) { const u = tiles[(j + b) * TN + i + a]; if (u === TT.CANAL || u === TT.WATER) { if (a && b && (tiles[j * TN + i + a] === TT.CANAL || tiles[(j + b) * TN + i] === TT.CANAL)) continue; g.moveTo(x, y); g.lineTo(x + a * TM, y + b * TM); solo = 0; } }
+        if (solo) { g.moveTo(x - 4, y); g.lineTo(x + 4, y); } }
+      g.stroke();
+    }
+    g.setTransform(1, 0, 0, 1, 0, 0);
   },
   /* desplaza una polilínea a un lado (normal promediada en cada vértice) */
   offset(P, d) { const n = P.length / 2, Q = new Float32Array(P.length); for (let i = 0; i < n; i++) { const a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1), dx = P[2 * b] - P[2 * a], dy = P[2 * b + 1] - P[2 * a + 1], L = Math.hypot(dx, dy) || 1; Q[2 * i] = P[2 * i] - dy / L * d; Q[2 * i + 1] = P[2 * i + 1] + dx / L * d; } return Q; },
-  /* calles: sardinel, andén, asfalto, carriles y cebras */
+  /* calles: sardinel, andén, asfalto, separadores arborizados, mobiliario y cebras */
   calles(g, X0, Y0, S, sc, lod) {
     const cs = this.near(X0 - 40, Y0 - 40, X0 + S + 40, Y0 + S + 40), path = P => { g.moveTo(P[0], P[1]); for (let i = 2; i < P.length; i += 2) g.lineTo(P[i], P[i + 1]); };
     const run = (f, wf, col, dash) => { g.strokeStyle = col; g.setLineDash(dash || []); for (const c of cs) { if (!f(c)) continue; g.lineWidth = wf(c); g.beginPath(); for (const Q of this.partes(c)) path(Q); g.stroke(); } g.setLineDash([]); };
@@ -4914,6 +5013,9 @@ const VC = EM.vcity = {
     // asfalto por jerarquía (las mayores encima); de muy lejos solo avenidas, autopistas y carreras, un poco más anchas para que se lean
     for (const k of lod === 2 ? [4, 2, 3] : [1, 4, 2, 3]) run(c => c.k === k, c => lod === 2 ? Math.max(c.w, 9) : c.w, k === 3 ? '#3e434b' : k === 2 ? '#454a52' : '#4d525a');
     if (lod === 2) return;
+    // separador central verde con sardinel en avenidas y autopistas de doble calzada
+    run(c => (c.k === 2 && c.w >= 13) || (c.k === 3 && c.w >= 14), () => 2.1, '#9a958a');
+    run(c => (c.k === 2 && c.w >= 13) || (c.k === 3 && c.w >= 14), () => 1.4, '#5e964b');
     // ciclorrutas
     run(c => c.k === 5, c => c.w + .6, '#e9e6dc'); run(c => c.k === 5, c => c.w, '#2e9d55');
     // marcas: borde y carriles en avenidas y autopistas, línea de centro en carreras, punteada en calles anchas
@@ -4924,9 +5026,22 @@ const VC = EM.vcity = {
         const nl = Math.max(2, Math.round(c.w / 3.5)); g.strokeStyle = '#efede5'; g.lineWidth = .22;
         for (const Q of this.partes(c)) { if (Q.length < 4) continue;
           for (const s of [-1, 1]) { g.beginPath(); path(this.offset(Q, s * (c.w / 2 - .5))); g.stroke(); }
-          g.setLineDash([3, 5]); for (let i = 1; i < nl; i++) { g.beginPath(); path(this.offset(Q, -c.w / 2 + i * c.w / nl)); g.stroke(); } g.setLineDash([]);
+          g.setLineDash([3, 5]); for (let i = 1; i < nl; i++) { if (((c.k === 2 && c.w >= 13) || (c.k === 3 && c.w >= 14)) && Math.abs(-c.w / 2 + i * c.w / nl) < 1.2) continue; g.beginPath(); path(this.offset(Q, -c.w / 2 + i * c.w / nl)); g.stroke(); } g.setLineDash([]);
           if (c.k === 3) { g.strokeStyle = '#e8c64a'; g.lineWidth = .25; g.beginPath(); path(this.offset(Q, -(c.w / 2 - .9))); g.stroke(); g.strokeStyle = '#efede5'; g.lineWidth = .22; } }
       } else if (c.k === 4 || c.w >= 8) { g.strokeStyle = c.k === 4 ? '#e8c64a' : '#e7e5dd'; g.lineWidth = .2; g.setLineDash(c.k === 4 ? [] : [2.5, 4]); g.beginPath(); for (const Q of this.partes(c)) path(Q); g.stroke(); g.setLineDash([]); }
+      // mobiliario de andén de cerca: bancas de madera y paraderos con techo en avenidas y carreras
+      if (lod === 0 && (c.k === 2 || c.k === 4)) {
+        for (const Q of this.partes(c)) for (let i = 2; i < Q.length; i += 2) {
+          const ax = Q[i - 2], ay = Q[i - 1], dx = Q[i] - ax, dy = Q[i + 1] - ay, L = Math.hypot(dx, dy); if (L < 36) continue;
+          const ux = dx / L, uy = dy / L, an = Math.atan2(uy, ux), sd = (c.i + i) % 2 ? 1 : -1, off = c.w / 2 + 1.65;
+          const mx = ax + dx * .5 - uy * off * sd, my = ay + dy * .5 + ux * off * sd;
+          if (mx < X0 || mx > X0 + S || my < Y0 || my > Y0 + S) continue;
+          g.save(); g.translate(mx, my); g.rotate(an);
+          if (c.k === 2 && L > 55 && (c.i % 3 === 0)) { g.fillStyle = 'rgba(20,28,38,.22)'; g.fillRect(-1.9, -.4, 4.2, 1.4); g.fillStyle = '#2d637f'; g.fillRect(-2.1, -.6, 4.2, 1.2); g.fillStyle = '#89b8d0'; g.fillRect(-1.8, -.4, 3.6, .35); }
+          else { g.fillStyle = '#7c5333'; g.fillRect(-.9, -.28, 1.8, .56); }
+          g.restore();
+        }
+      }
     }
     // cebras en los cruces con semáforo (VM.lights): a lado y lado del cruce, de borde a borde de cada calle
     if (lod === 0 && VM.lights) {
@@ -5565,13 +5680,13 @@ Object.assign(VC, {
   PU: null, PG: null,
   puentesInit() {
     if (typeof PUENTES === 'undefined') return; const out = [], G = this.PG = new Map(), C = 160;
-    for (const r of PUENTES.B) {
-      const pe = r[0], z = r[1], w = r[2], h = r[3], n = (r.length - 4) / 2; if (n < 2) continue;
+    for (const r of PUENTES.B) {   // con los deprimidos reales de OSM (nivel -1, is_tunnel) que trae tools/puentes_datos.py
+      const pe = r[0], z = r[1], w = r[2], h = r[3], n = (r.length - 4) / 2, is_tunnel = z < 0; if (n < 2) continue;
       const P = new Float32Array(n * 2), cum = new Float32Array(n); let L = 0, x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
       for (let i = 0; i < n; i++) { const x = r[4 + 2 * i], y = r[5 + 2 * i]; P[2 * i] = x; P[2 * i + 1] = y; if (i) L += Math.hypot(x - P[2 * i - 2], y - P[2 * i - 1]); cum[i] = L; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-      const B = { pe, z, w, h, P, cum, len: L, ramp: Math.min(L * .4, pe ? 9 : 22), x0: x0 - w, y0: y0 - w, x1: x1 + w, y1: y1 + w, i: out.length };
-      // pilas cada ~24 m entre las rampas: a los lados del tablero (en los peatonales, al centro)
-      const pil = []; for (let s = B.ramp + 3; s < L - B.ramp - 2; s += 24) { const q = this.puAt(B, s); if (pe) pil.push(q.x, q.y); else { const o = Math.max(.5, w / 2 - 1.3); pil.push(q.x - q.uy * o, q.y + q.ux * o, q.x + q.uy * o, q.y - q.ux * o); } }
+      const B = { pe, z, w, h, is_tunnel, P, cum, len: L, ramp: Math.min(L * .4, is_tunnel ? 26 : pe ? 9 : 22), x0: x0 - w, y0: y0 - w, x1: x1 + w, y1: y1 + w, i: out.length };
+      // pilas cada ~24 m entre las rampas: a los lados del tablero (en los peatonales, al centro; los deprimidos llevan muros, sin pilas)
+      const pil = []; if (!is_tunnel) for (let s = B.ramp + 3; s < L - B.ramp - 2; s += 24) { const q = this.puAt(B, s); if (pe) pil.push(q.x, q.y); else { const o = Math.max(.5, w / 2 - 1.3); pil.push(q.x - q.uy * o, q.y + q.ux * o, q.x + q.uy * o, q.y - q.ux * o); } }
       B.pil = Float32Array.from(pil); out.push(B);
       for (let gy = Math.floor(B.y0 / C); gy <= Math.floor(B.y1 / C); gy++) for (let gx = Math.floor(B.x0 / C); gx <= Math.floor(B.x1 / C); gx++) { const k = gx * 4096 + gy; let a = G.get(k); if (!a) G.set(k, a = []); a.push(B); }
     }
@@ -5585,7 +5700,7 @@ Object.assign(VC, {
     const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay) || 1, t = clamp((s - cum[i - 1]) / L, 0, 1);
     return { x: ax + (bx - ax) * t, y: ay + (by - ay) * t, ux: (bx - ax) / L, uy: (by - ay) / L };
   },
-  /* alto del tablero a s metros del comienzo: rampa suave en cada extremo */
+  /* alto (o profundidad si B.is_tunnel) del tablero a s metros del comienzo: rampa suave en cada extremo */
   puAlto(B, s) { const e = Math.min(s, B.len - s), t = clamp(e / (B.ramp || 1), 0, 1); return B.h * t * t * (3 - 2 * t); },
   puProy(B, x, y) {
     const P = B.P, n = P.length / 2; let bd = 1e18, bs = 0;
@@ -5593,12 +5708,12 @@ Object.assign(VC, {
     return { s: bs, d: Math.sqrt(bd) };
   },
   puentesEn(x0, y0, x1, y1) { if (!this.PG) return []; const out = new Set(), C = 160; for (let gy = Math.floor(y0 / C); gy <= Math.floor(y1 / C); gy++) for (let gx = Math.floor(x0 / C); gx <= Math.floor(x1 / C); gx++) for (const B of this.PG.get(gx * 4096 + gy) || []) if (B.x1 > x0 && B.x0 < x1 && B.y1 > y0 && B.y0 < y1) out.add(B); return [...out]; },
-  /* el tablero que pasa por (x, y), del nivel z si se pide (si no, el más alto), con su alto ahí */
+  /* el tablero o deprimido que pasa por (x, y), del nivel z si se pide (si no, el más alto o la rampa activa), con su alto ahí */
   puenteEn(x, y, z, m = 0) {
     if (!this.PG) return null; let best = null;
     for (const B of this.PG.get(Math.floor(x / 160) * 4096 + Math.floor(y / 160)) || []) {
       if (x < B.x0 || x > B.x1 || y < B.y0 || y > B.y1 || (z != null && B.z !== z)) continue; const pr = this.puProy(B, x, y); if (pr.d > B.w / 2 + m) continue;
-      const h = this.puAlto(B, pr.s); if (!best || B.z > best.B.z || (B.z === best.B.z && h > best.h)) best = { B, s: pr.s, d: pr.d, h };
+      const h = this.puAlto(B, pr.s); if (!best || Math.abs(B.z) > Math.abs(best.B.z) || (B.z === best.B.z && h > best.h)) best = { B, s: pr.s, d: pr.d, h };
     }
     return best;
   },
@@ -5678,6 +5793,20 @@ Object.assign(VC, {
     for (const B of L) {
       if (B.z !== z) continue; const st = Math.max(1.5, Math.min(6, 4 / k)), n = Math.max(2, Math.ceil(B.len / st) + 1), hw = B.w / 2, E = [];
       for (let i = 0; i < n; i++) { const s = Math.min(B.len, i * B.len / (n - 1)), q = this.puAt(B, s); q.h = this.puAlto(B, s); q.s = s; E.push(q); }
+      if (B.is_tunnel) {
+        // deprimido (z = -1): bocas en rampa con muros de contención en concreto y sombra profunda al entrar al tramo cubierto
+        for (const r0 of [[0, B.ramp], [B.len - B.ramp, B.len]]) {
+          const R = E.filter(q => q.s >= r0[0] - 2 && q.s <= r0[1] + 2); if (R.length < 2) continue;
+          const p = (q, o) => S(q.x - q.uy * o, q.y + q.ux * o);
+          g.beginPath(); R.forEach((q, i) => { const u = p(q, -hw); i ? g.lineTo(u.x, u.y) : g.moveTo(u.x, u.y); });
+          for (let i = R.length - 1; i >= 0; i--) { const u = p(R[i], hw); g.lineTo(u.x, u.y); } g.closePath();
+          g.fillStyle = '#2d3138'; g.fill();
+          if (k > .6) for (const o of [-hw, hw]) { g.strokeStyle = '#928c80'; g.lineWidth = Math.max(1, 1.1 * k); g.beginPath(); R.forEach((q, i) => { const u = p(q, o); i ? g.lineTo(u.x, u.y) : g.moveTo(u.x, u.y); }); g.stroke(); }
+          const portal = r0[0] === 0 ? R[R.length - 1] : R[0], a = p(portal, -hw - .6), b = p(portal, hw + .6);
+          g.strokeStyle = '#c4beb0'; g.lineWidth = Math.max(1.5, 1.8 * k); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
+        }
+        continue;
+      }
       const lado = (q, o, dh = 0) => T(q.x - q.uy * o, q.y + q.ux * o, q.h + dh);
       // 1 · sombra en el piso, corrida según el alto
       g.fillStyle = 'rgba(16,22,34,.2)'; g.beginPath();
@@ -5709,9 +5838,9 @@ Object.assign(VC, {
       if (B && cur && cur[2] === B) cur[1] = s; else if (B) { cur = [s, s, B]; out.push(cur); } else cur = null; }
     return (L._pu = out.filter(r => r[1] - r[0] >= 6));
   },
-  /* alto de un carro del tráfico sobre su puente (0 si va por el piso); deja su nivel en c.z */
-  carAlto(c) { const I = c.L ? this.carrilPuentes(c.L) : null; if (I && I.length) for (const [s0, s1, B] of I) if (c.p >= s0 - 1 && c.p <= s1 + 1) { c.z = B.z; return this.puAlto(B, this.puProy(B, c.x, c.y).s); } c.z = 0; return 0; },
-  /* ¿hay un tablero (de puente o del viaducto) sobre (x, y)? para mostrar al jugador a través de él */
+  /* alto de un carro del tráfico sobre su puente o deprimido (0 si va por el piso); deja su nivel en c.z */
+  carAlto(c) { const I = c.L ? this.carrilPuentes(c.L) : null; if (I && I.length) for (const [s0, s1, B] of I) if (c.p >= s0 - 1 && c.p <= s1 + 1) { c.z = B.z; const h = this.puAlto(B, this.puProy(B, c.x, c.y).s); return B.is_tunnel ? -h : h; } c.z = 0; return 0; },
+  /* ¿hay un tablero (de puente, deprimido o del viaducto) sobre (x, y)? para mostrar al jugador a través de él */
   tapado(x, y) { const P = this.puenteEn(x, y, null, .5); if (P && P.h > 2) return true; if (typeof NET === 'undefined') return false; for (const l of NET.lines) { if (l.kind !== 'metro') continue; const pr = NET.project(l.P, x, y); if (pr.d < 5.2) return true; } return false; }
 });
 ~~~~
@@ -5944,6 +6073,9 @@ const Mundo = EM.mundo = {
    Regla del proyecto: el arte nuevo SIEMPRE tiene respaldo. Si ARTE[id] no existe o no carga,
    cada módulo sigue dibujando su versión procedural de siempre.
    ===================================================================== */
+if (typeof ARTE !== 'undefined' && !ARTE.ico_modo_carrera) {
+  ARTE.ico_modo_carrera = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 55"><rect width="70" height="55" rx="10" fill="#1b3a2b"/><path d="M8 44 L24 20 L46 20 L62 44 Z" fill="#3a3d42"/><line x1="29" y1="20" x2="21" y2="44" stroke="#fff" stroke-width="1.2" stroke-dasharray="3,2"/><line x1="41" y1="20" x2="49" y2="44" stroke="#fff" stroke-width="1.2" stroke-dasharray="3,2"/><circle cx="25" cy="39" r="5" fill="#1b1b1b" stroke="#29b6f6" stroke-width="2"/><circle cx="46" cy="39" r="5" fill="#1b1b1b" stroke="#29b6f6" stroke-width="2"/><path d="M25 39 L43 39 L46 18 L41 18" fill="none" stroke="#9bd341" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="28" r="4" fill="#fdd835"/></svg>';
+}
 const Atlas = EM.atlas = {
   _u: {}, _i: {},
   has(id) { return typeof ARTE !== 'undefined' && Object.prototype.hasOwnProperty.call(ARTE, id); },
@@ -6123,10 +6255,45 @@ const Art = EM.art = {
    ===================================================================== */
 const Spr = EM.spr = {
   rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); if (g.roundRect) { g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); } else g.fillRect(x, y, w, h); },
-  /* kind: car taxi moto bus brt metro tram cable camioneta · o: {end:'front'|'back'|'both'|'mid', lights, night, doors:'left'|'right', sign}
+  /* kind: car carro taxi moto bici scooter monopatin skate patines bus brt metro tram cable camioneta · o: {end:'front'|'back'|'both'|'mid', lights, night, doors:'left'|'right', sign}
      L, W en píxeles */
   veh(g, kind, L, W, col, o = {}) {
     const dark = '#141414', glass = o.night ? '#263a4d' : '#1f2e3d', glassL = o.night ? '#355068' : '#2f4a60', R = this.rr.bind(this);
+    if (kind === 'bici') {
+      g.fillStyle = dark; g.fillRect(-L * .48, -W * .16, L * .3, W * .32); g.fillRect(L * .18, -W * .16, L * .3, W * .32);   // ruedas
+      g.fillStyle = col || '#9bd341'; g.fillRect(-L * .28, -W * .14, L * .56, W * .28);                                      // cuadro EnCicla
+      g.fillStyle = '#0e2d55'; g.fillRect(L * .16, -W * .38, L * .2, W * .76);                                               // canasta delantera azul
+      g.fillStyle = '#2b2b2b'; g.fillRect(L * .12, -W * .48, L * .08, W * .96);                                              // manubrio
+      g.fillStyle = '#1f1f1f'; R(g, -L * .24, -W * .22, L * .2, W * .44, W * .12);                                           // sillín
+      return;
+    }
+    if (kind === 'scooter' || kind === 'monopatin') {
+      const el = kind === 'monopatin';
+      g.fillStyle = dark; g.fillRect(-L * .48, -W * .2, L * .22, W * .4); g.fillRect(L * .26, -W * .2, L * .22, W * .4);     // ruedas
+      g.fillStyle = col || (el ? '#66bb6a' : '#29b6f6'); R(g, -L * .34, -W * .36, L * .68, W * .72, W * .22);                // tabla
+      g.fillStyle = '#242830'; R(g, -L * .26, -W * .24, L * .48, W * .48, W * .12);                                          // lija antideslizante
+      g.fillStyle = '#1a1d24'; g.fillRect(L * .2, -W * .48, L * .1, W * .96);                                                // manubrio en T
+      if (el) { g.fillStyle = '#fff6c0'; g.fillRect(L * .42, -W * .14, L * .08, W * .28); g.fillStyle = '#ff3b2f'; g.fillRect(-L * .46, -W * .14, L * .07, W * .28); }
+      return;
+    }
+    if (kind === 'skate') {
+      g.fillStyle = '#ff7043';
+      for (const x of [-L * .28, L * .2]) { g.fillRect(x, -W * .5, L * .12, W * .16); g.fillRect(x, W * .34, L * .12, W * .16); } // 4 ruedas naranjas
+      g.fillStyle = '#d99b52'; R(g, -L * .48, -W * .38, L * .96, W * .76, W * .36);                                          // tabla de madera
+      g.fillStyle = '#22252a'; R(g, -L * .38, -W * .28, L * .76, W * .56, W * .24);                                          // lija negra
+      g.fillStyle = col || '#ff7043'; g.fillRect(-L * .08, -W * .26, L * .16, W * .52);                                      // franja central
+      return;
+    }
+    if (kind === 'patines') {
+      for (const s of [-1, 1]) {
+        const y = s * W * .26;
+        g.fillStyle = '#ff80ab'; g.fillRect(-L * .42, y - W * .2, L * .84, W * .4);                                          // chasis y ruedas
+        g.fillStyle = dark; R(g, -L * .38, y - W * .18, L * .76, W * .36, W * .1);
+        g.fillStyle = col || '#ec407a'; R(g, -L * .32, y - W * .14, L * .64, W * .28, W * .08);                              // bota
+        g.fillStyle = '#f4f1ea'; g.fillRect(-L * .05, y - W * .1, L * .22, W * .2);                                          // cordones
+      }
+      return;
+    }
     if (kind === 'moto') {
       g.fillStyle = dark; g.fillRect(-L / 2, -W * .32, L * .28, W * .64); g.fillRect(L / 2 - L * .28, -W * .32, L * .28, W * .64);   // ruedas
       g.fillStyle = col; R(g, -L * .3, -W * .36, L * .6, W * .72, W * .2);
@@ -6337,19 +6504,27 @@ const G3 = EM.g3 = {
   },
   buf(arr) { const gl = this.gl, b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, arr, gl.STATIC_DRAW); b.n = arr.length / 10; return b; },
   tex(cv, suave) { const gl = this.gl, t = gl.createTexture(), pot = suave && !(cv.width & (cv.width - 1)) && !(cv.height & (cv.height - 1)), F = suave ? gl.LINEAR : gl.NEAREST; gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cv);
-    if (pot) { gl.generateMipmap(gl.TEXTURE_2D); const an = gl.getExtension('EXT_texture_filter_anisotropic'); if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT))); }   // piso de calles: mipmaps y filtro anisótropo
+    if (pot) { gl.generateMipmap(gl.TEXTURE_2D); const an = gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'); if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT))); }   // piso de calles: mipmaps y filtro anisótropo 8x
     for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, pot ? gl.LINEAR_MIPMAP_LINEAR : F], [gl.TEXTURE_MAG_FILTER, F], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v); return t; },
   urban(x, y, r) { let n = 0, c = 0; for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const v = MAP.tileM(x + i * r, y + j * r); c++; if (v === TT.BRICK || v === TT.BLDG) n++; } return n / c; },
+  /* normal suave del terreno en (x, z) para que las laderas empinadas (Santo Domingo, San Javier) no se vean facetadas ni granuladas */
+  normT(x, z, d = 24) {
+    const nx = MAP.elevM(x - d, z) - MAP.elevM(x + d, z), ny = 2 * d, nz = MAP.elevM(x, z - d) - MAP.elevM(x, z + d), L = Math.hypot(nx, ny, nz) || 1;
+    return [nx / L, ny / L, nz / L];
+  },
+  quadT(mb, a, b, c, d, col, u) {
+    for (const p of [a, d, c, a, c, b]) mb.v(p[0], p[1], p[2], p[3], p[4], p[5], col, u);
+  },
   /* casillas del corredor de metro y tranvía (sin edificios encima de la vía) */
   railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
-  /* malla lejana: todo el valle cada 320 m */
+  /* malla lejana: todo el valle cada 320 m con normales suaves por vértice */
   buildFar(hx0, hz0, hx1, hz1) {   // con hueco (1.4.0): las celdas que caen enteras dentro de la ventana cercana no se arman (no hay piso doble que parpadee)
-    const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => [i * S, MAP.elevM(i * S, j * S), j * S];
+    const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => { const x = i * S, z = j * S, n = this.normT(x, z, 80); return [x, MAP.elevM(x, z), z, n[0], n[1], n[2]]; };
     const U = this._U || (this._U = (() => { const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90)); return U; })());
-    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; mb.tri(a, d, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb, a, b, c, d, [1, 1, 1], u); }
     if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); this.far = mb.done().map(a => this.buf(a));
   },
-  /* ventana cercana (4,8 km) con textura de 4 px por casilla y edificios en 3D */
+  /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
     const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
     const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
@@ -6370,17 +6545,17 @@ const G3 = EM.g3 = {
     if (!real) g.putImageData(img, 0, 0);
     if (this.texNear) gl.deleteTexture(this.texNear); this.texNear = this.tex(cv, real);   // las calles reales, suavizadas
     for (const b of this.near.concat(this.bld)) gl.deleteBuffer(b);
-    const S = 40, n = 2 * half / S, mb = new MB(), E = (i, j) => [x0 + i * S, MAP.elevM(x0 + i * S, z0 + j * S), z0 + j * S];
-    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), dd = E(i, j + 1), u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; mb.tri(a, dd, c, [1, 1, 1], u); mb.tri(a, c, b, [1, 1, 1], u); }
+    const S = 40, n = 2 * half / S, mb = new MB(), E = (i, j) => { const x = x0 + i * S, z = z0 + j * S, nm = this.normT(x, z, 20); return [x, MAP.elevM(x, z), z, nm[0], nm[1], nm[2]]; };
+    const V = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(E(i, j)); V.push(row); }
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
-    // edificios: bloques de 2×2 casillas dentro de 1,5 km (0,9 km en celulares modestos)
-    const R = Save.d.settings.q === 'low' ? 600 : 1100, bm = new MB(), RR = real && VC.ED ? (Save.d.settings.q === 'low' ? 380 : 700) : 0;
-    if (RR) this.edifReales(bm, cx, cz, RR);
+    // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
+    const low = Save.d.settings.q === 'low', R = low ? 600 : 1100, bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
+    if (RR) this.edifReales(bm, cx, cz, RR, R2);
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
-      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (RR && (X - cx) ** 2 + (Z - cz) ** 2 < RR * RR)) continue;
+      const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (R2 && (X - cx) ** 2 + (Z - cz) ** 2 < R2 * R2)) continue;
       const v = MAP.tileM(X + 10, Z + 10); if (v !== TT.BLDG && v !== TT.BRICK) continue; if (this.railMask().has((Z / TM | 0) * MW + (X / TM | 0))) continue;
       const r = h2(X, Z, 5), brick = v === TT.BRICK, hgt = brick ? 4 + r * 6 : MAP.bHeight(X + 10, Z + 10, X ^ Z), w = 11 + r * 4, l = 12 + h2(X, Z, 6) * 5, y = MAP.elevM(X + 10, Z + 10) - 2, a = h2(X, Z, 9) < .5 ? 0 : Math.PI / 2;
-      // casas: ladrillo a la vista o pintadas en tonos pastel (como las laderas de Medellín); edificios: concreto y vidrio
       const wall = brick ? (r < .55 ? (r < .3 ? [.71, .35, .23] : [.62, .3, .2]) : HOUSE_COL[(r * 97 | 0) % HOUSE_COL.length]) : [[.55, .59, .64], [.64, .66, .69], [.72, .69, .63], [.85, .8, .68], [.62, .72, .8]][(r * 5) | 0];
       if (brick) { bm.box(X + 10, y, Z + 10, a, l, w, hgt + 2, wall, wall, 1, 0); bm.roof(X + 10, y + hgt + 2, Z + 10, a, l, w, w * .32, ROOF_COL[(r * 31 | 0) % ROOF_COL.length]); if (r < .3) bm.box(X + 10 + l * .3, y + hgt + 2 + w * .1, Z + 10, 0, 1.2, 1.2, 2.2, [.5, .3, .22], [.3, .2, .15]); }
       else {
@@ -6392,7 +6567,7 @@ const G3 = EM.g3 = {
       }
     }
     // árboles en parques y montes cercanos
-    const RT = Save.d.settings.q === 'low' ? 350 : 750;
+    const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
       const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .3) || (v === TT.MOUNT && r < .6))) continue;
@@ -6401,25 +6576,49 @@ const G3 = EM.g3 = {
     this.bld = bm.done().map(a => this.buf(a));
     this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
-  /* las casas y los edificios reales en 3D (1.4.0): cada huella como caja orientada con su altura y los colores de su zona
-     (muros y techo de VC.estilo), sin las que caen en la calle; las piezas de arquitectura icónica con su planta real; y los puentes */
-  edifReales(bm, cx, cz, R) {
-    const RG = VC.R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; };
-    for (let ry = Math.floor((cz - R) / RG); ry <= Math.floor((cz + R) / RG); ry++) for (let rx = Math.floor((cx - R) / RG); rx <= Math.floor((cx + R) / RG); rx++) {
+  /* las casas y los edificios reales en 3D (1.5.0):
+     · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
+       y coronas escalonadas con baliza roja nocturna en las torres altas.
+     · Entre R y R2 (700–1050 m): anillo exterior de edificios reales simplificados para ampliar el horizonte urbano sin perder fluidez. */
+  edifReales(bm, cx, cz, R, R2 = R) {
+    const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; };
+    for (let ry = Math.floor((cz - Rmax) / RG); ry <= Math.floor((cz + Rmax) / RG); ry++) for (let rx = Math.floor((cx - Rmax) / RG); rx <= Math.floor((cx + Rmax) / RG); rx++) {
       const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
-      for (const b of L) { if (b.rec === false || (b.x - cx) ** 2 + (b.y - cz) ** 2 > R * R) continue; if (!Rg && b.rec === undefined && VC.enSegs(VC.segsCerca(b.x, b.y, 1), b.x, b.y)) continue;
-        VC.estilo(b); const y = MAP.elevM(b.x, b.y) - 1.2, a = Math.atan2(b.uy, b.ux); bm.box(b.x, y, b.y, a, b.hw * 2, b.hd * 2, Math.max(2.6, b.h) + 1.2, C(b.cw && b.cw[0] === '#' ? b.cw : '#d9d2c3'), C(b.cr && b.cr[0] === '#' ? b.cr : '#b4583a'), 1, 0); } }
+      for (const b of L) {
+        const d2 = (b.x - cx) ** 2 + (b.y - cz) ** 2;
+        if (b.rec === false || d2 > R2sq || (d2 > Rsq && b.h < 5.5)) continue;
+        if (!Rg && b.rec === undefined && VC.enSegs(VC.segsCerca(b.x, b.y, 1), b.x, b.y)) continue;
+        VC.estilo(b); const y = MAP.elevM(b.x, b.y) - 1.2, a = Math.atan2(b.uy, b.ux), Lx = b.hw * 2, Wz = b.hd * 2, H = Math.max(2.6, b.h) + 1.2;
+        const cw = C(b.cw && b.cw[0] === '#' ? b.cw : '#d9d2c3'), cr = C(b.cr && b.cr[0] === '#' ? b.cr : '#b4583a');
+        bm.box(b.x, y, b.y, a, Lx, Wz, H, cw, cr, 1, 0);
+        if (d2 > Rsq) continue;   // anillo exterior (700–1050 m): caja limpia sin sub-mallas de techo
+        const yt = y + H;
+        const tq = h2(b.x | 0, b.y | 0, 41);
+        if (b.rt === 'teja' && b.h < 11 && Lx < 22 && Wz < 22) {
+          bm.roof(b.x, yt, b.y, a, Lx * .94, Wz * .94, Math.min(2.1, Math.min(Lx, Wz) * .26), cr);
+        } else if (b.h < 12 && b.z === 'ladera' && (b.rt === 'plancha' || b.rt === 'azotea') && tq < .55 && Lx >= 4.5 && Wz >= 4.5) {
+          // terraza o plancha de ladera con tanque de agua elevado
+          const tc = tq < .2 ? [.16, .34, .58] : [.18, .19, .22];
+          bm.box(b.x + b.ux * Lx * .22, yt, b.y + b.uy * Lx * .22, a, .95, .95, 1.15, tc, tc, 0, 0);
+        } else if (b.h >= 26) {
+          // torre escalonada con cuarto de máquinas y baliza nocturna en las más altas
+          bm.box(b.x, yt, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0);
+          if (b.h >= 42) bm.box(b.x, yt + 2.8, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4);
+        }
+      }
+    }
     // arquitectura icónica: muros por cada lado de su planta y tapa en abanico
     const HC = { aguja: '#d9dde2', basilica: '#a65a3c', iglesia: '#ece2cf', palacio: '#eeeeea', estadio: '#d7d3cb', rocas: '#2c2e33', vidrio: '#9fb7c9', ladrillo: '#a85b3d', republicano: '#e9dfc6', moderno: '#d0d4d8', cupula: '#e3ddd0', cubos: '#c9c3b6', luces: '#cfd2d6', botero: '#d8cfbd', pies: '#d8cfbd', alpujarra: '#e4e4e0' };
-    for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (R + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
+    for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes: tablero por tramos a la altura de su rampa
+    // puentes y deprimidos: tablero por tramos a la altura de su rampa, o muros de portal en los deprimidos
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
-        bm.box(mx, MAP.elevM(mx, my) + h - .9, my, Math.atan2(by - ay, bx - ax), L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); } }
+        if (B.is_tunnel) { const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .4), ny = Math.cos(an) * (B.w / 2 + .4), zm = MAP.elevM(mx, my); bm.box(mx + nx, zm - h, my + ny, an, L + .3, .7, h + .8, col, col); bm.box(mx - nx, zm - h, my - ny, an, L + .3, .7, h + .8, col, col); }
+        else bm.box(mx, MAP.elevM(mx, my) + h - .9, my, Math.atan2(by - ay, bx - ax), L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); } }
   },
-  /* red de transporte estática: viaductos, rieles, postes, estaciones, torres de cable y carriles de bus */
+  /* red de transporte estática: viaductos, rieles, postes, estaciones con interior (andén, línea amarilla, torniquetes y escaleras), torres de cable y carriles de bus */
   netZ: {},
   trackZ(line) {
     if (this.netZ[line.id]) return this.netZ[line.id];
@@ -6459,7 +6658,21 @@ const G3 = EM.g3 = {
           if (i % 4 === 0) { const q = E(a, sa, hw - .4, za); mb.box(q[0], za, q[2], a.a, .35, .35, 6.5, [.35, .37, .4], [.35, .37, .4]); const q2 = E(a, sa, 0, za); mb.box((q[0] + q2[0]) / 2, za + 6, (q[2] + q2[2]) / 2, a.a + Math.PI / 2, hw, .2, .25, [.35, .37, .4], [.35, .37, .4]); }
         }
         const K2 = KIND[K === 'future' ? 'tram' : K];
-        for (const s of l.st) { const p = NET.at(l.P, s.s), z = this.zOn(l, s.s); for (const sd of [-1, 1]) { const o = sd * (dk ? 7.5 : 5.5), x = p.x - Math.sin(p.a) * o, y = p.y + Math.cos(p.a) * o; mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]); mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col); } if (dk) mb.box(p.x, MAP.elevM(p.x, p.y) - 1, p.y, p.a, 30, 26, z - MAP.elevM(p.x, p.y) - 1.5, [.78, .75, .68], [.78, .75, .68], 1, 0); }
+        for (const s of l.st) {
+          const p = NET.at(l.P, s.s), z = this.zOn(l, s.s), ca = Math.cos(p.a), sa = Math.sin(p.a), nx = -sa, ny = ca, gz = MAP.elevM(p.x, p.y);
+          for (const sd of [-1, 1]) {
+            const o = sd * (dk ? 7.5 : 5.5), x = p.x + nx * o, y = p.y + ny * o, zp = z + (dk ? 1 : .9);
+            // andén con su franja amarilla táctil de seguridad, columnas de cubierta y marquesina
+            mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]);
+            const yo = sd * (dk ? 5.35 : 4.25); mb.box(p.x + nx * yo, zp, p.y + ny * yo, p.a, K2.plat * .96, .32, .06, [.96, .77, .22], [.96, .77, .22], 4, 4);
+            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col);
+            for (let u = -K2.plat * .38; u <= K2.plat * .38; u += K2.plat * .38) mb.box(x + ca * u, zp, y + sa * u, p.a, .35, .35, 3.6, [.38, .42, .46], [.38, .42, .46]);
+          }
+          if (dk) {
+            // escaleras de acceso de la calle a cada andén (el vestíbulo a ras de piso se quitó: quedaba enterrado y tapaba la calle de abajo)
+            for (const sd of [-1, 1]) for (let k = 0; k < 5; k++) { const f = (k + .5) / 5, sx = p.x + ca * (14 + k * 2.2) + nx * sd * 7.5, sy = p.y + sa * (14 + k * 2.2) + ny * sd * 7.5; mb.box(sx, gz - .4 + f * (z - gz), sy, p.a, 2.4, 2.2, .5, [.78, .75, .68], [.88, .84, .74]); }
+          }
+        }
       } else if (K === 'cable' || (K === 'future' && /cable/i.test(l.name))) {
         const C = this.cableGeo(l);
         for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1, 0); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
@@ -6467,7 +6680,7 @@ const G3 = EM.g3 = {
       } else if (K === 'brt' || K === 'feeder') {
         const w = K === 'brt' ? 3.2 : 1.6, dark = col.map(v => v * .85);
         for (let s = 0; s < l.P.len - 10; s += 10) { const a = NET.at(l.P, s), b = NET.at(l.P, s + 10), za = MAP.elevM(a.x, a.y) + .45, zb = MAP.elevM(b.x, b.y) + .45, sa = [-Math.sin(a.a), Math.cos(a.a)]; mb.quad([a.x + sa[0] * -w, za, a.y + sa[1] * -w], [a.x + sa[0] * w, za, a.y + sa[1] * w], [b.x + sa[0] * w, zb, b.y + sa[1] * w], [b.x + sa[0] * -w, zb, b.y + sa[1] * -w], dark, 4); }
-        for (const s of l.st) { const z = MAP.elevM(s.x, s.y); mb.box(s.x, z, s.y, NET.at(l.P, s.s).a, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); }
+        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
       }
     }
     this.decor(mb);
@@ -6541,6 +6754,39 @@ const G3 = EM.g3 = {
         const col = PED_COL[(r * 97 | 0) % PED_COL.length]; this.box(px, zz, py, p.a, .55, .5, 1.1, rgb(col)); this.box(px, zz + 1.1, py, p.a, .4, .4, .4, rgb(SKIN[(r2 * 5) | 0])); } } }
   },
   vehicle(x, z, y, a, len, kind, c) {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    if (kind === 'scooter' || kind === 'monopatin') {
+      this.box(x, z + .14, y, a, 1.15, .28, .08, kind === 'monopatin' ? [.18, .2, .24] : [.75, .78, .82]);
+      this.box(x + ca * .44, z + .18, y + sa * .44, a, .08, .08, .86, c);
+      this.box(x + ca * .44, z + 1.02, y + sa * .44, a, .08, .54, .07, [.18, .18, .2]);
+      for (const u of [-.46, .46]) this.box(x + ca * u, z + .04, y + sa * u, a, .22, .12, .22, [.14, .14, .16]);
+      return;
+    }
+    if (kind === 'skate') {
+      this.box(x, z + .14, y, a, .88, .26, .06, c);
+      for (const u of [-.28, .28]) this.box(x + ca * u, z + .04, y + sa * u, a, .12, .32, .12, [.92, .38, .18]);
+      return;
+    }
+    if (kind === 'patines') {
+      for (const v of [-.14, .14]) this.box(x - sa * v, z + .06, y + ca * v, a, .38, .12, .14, c);
+      return;
+    }
+    if (kind === 'bici') {
+      this.box(x, z + .35, y, a, 1.7, .14, .58, c);
+      this.box(x + ca * .58, z + .62, y + sa * .58, a, .1, .58, .08, [.2, .2, .22]);
+      for (const u of [-.56, .56]) this.box(x + ca * u, z + .05, y + sa * u, a, .52, .09, .52, [.15, .15, .18]);
+      return;
+    }
+    if (kind === 'moto') {
+      this.box(x, z + .28, y, a, 1.95, .58, .65, c);
+      this.box(x + ca * .55, z + .72, y + sa * .55, a, .18, .74, .32, [.16, .18, .22]);
+      return;
+    }
+    if (kind === 'carro' || kind === 'taxi') {
+      this.box(x, z + .28, y, a, len || 4.4, 1.82, .76, c);
+      this.box(x - ca * .2, z + 1.04, y - sa * .2, a, (len || 4.4) * .54, 1.66, .56, [.15, .22, .3]);
+      return;
+    }
     const body = kind === 'metro' || kind === 'tram' ? [.86, .88, .9] : c, H = kind === 'metro' ? 3.7 : 3.2, W = kind === 'metro' ? 2.9 : 2.55;
     this.box(x, z + .5, y, a, len, W, H * .55, body); this.box(x, z + .5 + H * .55, y, a, len * .98, W * .98, H * .3, [.12, .2, .28]); this.box(x, z + .5 + H * .85, y, a, len, W, H * .15, kind === 'metro' || kind === 'tram' ? c : [.95, .95, .93]);
   },
@@ -6690,7 +6936,18 @@ const Lado = EM.lado = {
         } else if (hv < .9) { g.fillStyle = this.css(this.mix(fgb, [.2, .4, .22], .5)); g.beginPath(); g.arc(x + fw / 2, H - 8 * k - tall * .3, 9 * k, 0, TAU); g.fill(); g.fillRect(x + fw / 2 - k, H - 8 * k - tall * .3, 2 * k, 8 * k + tall * .3); }
       } }
     const carS = (g, x, y, L, c, dir, lit) => { g.fillStyle = '#141414'; g.fillRect(x - L / 2 - 1, y - L * .42 - 1, L + 2, L * .42 + 1); g.fillStyle = c; g.fillRect(x - L / 2, y - L * .4, L, L * .4); g.fillStyle = Art.shade(c, 1.15); g.fillRect(x - L * .3, y - L * .62, L * .55, L * .24); g.fillStyle = lit ? '#ffe7a0' : '#8fc4dc'; g.fillRect(x - L * .26 + (dir > 0 ? L * .3 : 0), y - L * .58, L * .22, L * .16); g.fillStyle = '#141414'; g.beginPath(); g.arc(x - L * .3, y, L * .12, 0, TAU); g.arc(x + L * .3, y, L * .12, 0, TAU); g.fill(); if (lit) { g.fillStyle = '#fff6c0'; g.fillRect(dir > 0 ? x + L / 2 - 2 : x - L / 2, y - L * .2, 2, 2); } };
+    const microS = (g, x, y, k, kind, c, dir) => {
+      g.save(); g.translate(x, y); if (dir < 0) g.scale(-1, 1);
+      g.fillStyle = '#141414';
+      if (kind === 'bici') { g.beginPath(); g.arc(-.6 * k, -.3 * k, .32 * k, 0, TAU); g.arc(.6 * k, -.3 * k, .32 * k, 0, TAU); g.fill(); g.strokeStyle = c || '#9bd341'; g.lineWidth = Math.max(1, .16 * k); g.beginPath(); g.moveTo(-.6 * k, -.3 * k); g.lineTo(0, -.75 * k); g.lineTo(.55 * k, -.3 * k); g.moveTo(0, -.75 * k); g.lineTo(-.25 * k, -.95 * k); g.moveTo(.45 * k, -.75 * k); g.lineTo(.58 * k, -1.05 * k); g.stroke(); }
+      else if (kind === 'scooter' || kind === 'monopatin') { g.beginPath(); g.arc(-.48 * k, -.18 * k, .18 * k, 0, TAU); g.arc(.48 * k, -.18 * k, .18 * k, 0, TAU); g.fill(); g.fillStyle = c || '#29b6f6'; g.fillRect(-.48 * k, -.26 * k, .96 * k, .12 * k); g.fillStyle = '#1f242c'; g.fillRect(.38 * k, -1.1 * k, .1 * k, .88 * k); }
+      else if (kind === 'skate') { g.beginPath(); g.arc(-.32 * k, -.12 * k, .12 * k, 0, TAU); g.arc(.32 * k, -.12 * k, .12 * k, 0, TAU); g.fill(); g.fillStyle = c || '#ff7043'; g.fillRect(-.46 * k, -.24 * k, .92 * k, .1 * k); }
+      else { g.beginPath(); g.arc(-.18 * k, -.1 * k, .1 * k, 0, TAU); g.arc(.18 * k, -.1 * k, .1 * k, 0, TAU); g.fill(); g.fillStyle = c || '#ec407a'; g.fillRect(-.24 * k, -.38 * k, .48 * k, .24 * k); }
+      g.restore();
+    };
+    this.vehS = microS;
     for (const lane of [1, -1]) for (let i = 0; i < 14; i++) { const spd = 9 + (i % 3) * 2, pos = ((o.t * spd + i * 97 + (lane > 0 ? 0 : 48)) % (R.n * R.st + 300)) - 150, s = lane > 0 ? pos : R.n * R.st - pos; if (s < s0 - 10 || s > s1 + 10) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; carS(g, X(s), Y(this.sample(R.near, R, s)) + (lane > 0 ? 5 * k : 8.6 * k), (i % 4 === 0 ? 7 : 4.4) * k, i % 5 === 0 ? '#f2c400' : ['#c43a26', '#2a5a92', '#e9eef3', '#1d1f24', '#9aa7b8', '#3d6b3a', '#d98a3a'][i % 7], lane * (dir || 1), sky.night > .4); }
+    for (let i = 0; i < 6; i++) { const mk = ['bici', 'scooter', 'monopatin', 'skate', 'patines'][i % 5], mc = ['#9bd341', '#29b6f6', '#66bb6a', '#ff7043', '#ec407a'][i % 5], pos = ((o.t * 4.5 + i * 113) % (R.n * R.st + 160)) - 80, s = i % 2 ? pos : R.n * R.st - pos; if (s < s0 || s > s1) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; microS(g, X(s), Y(this.sample(R.near, R, s)) + 2.2 * k, Math.max(1.2, k * .85), mk, mc, (i % 2 ? 1 : -1) * (dir || 1)); }
     for (let i = 0; i < 10; i++) { const pos = ((o.t * 1.3 + i * 61) % (R.n * R.st + 100)) - 50, s = i % 2 ? pos : R.n * R.st - pos; if (s < s0 || s > s1) continue; const idx = clamp(Math.round(s / R.st), 0, R.n - 1); if (!R.urb[idx]) continue; Art.person(g, X(s), Y(this.sample(R.near, R, s)) + .2 * k, Math.max(1, k * .3), i * 13, true); }
     if (o.fg) o.fg(g, X, Y, cNear, sky);
     // título de estación (tipografía grande y translúcida)
@@ -6997,6 +7254,460 @@ const CamUI = EM.camui = {
 };
 ~~~~
 
+### `src/js/28-taller-00.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+(() => {
+  const T = EM.taller = {};
+  T.rotulo = (g, texto, x, y, ancho, alto, ocupados) => {
+    g.save();
+    g.font = 'bold 13px Cuerpo, sans-serif';
+    const w = Math.ceil(g.measureText(texto).width) + 12, h = 22;
+    for (const [dx, dy] of [[14,-h-6],[-w-14,-h-6],[14,8],[-w-14,8]]) {
+      const l = x + dx, t = y + dy, r = l + w, b = t + h;
+      if (l < 0 || t < 0 || r > ancho || b > alto ||
+          ocupados.some(q => q[0] < r && q[2] > l && q[1] < b && q[3] > t)) continue;
+      g.fillStyle = '#f1ece0'; g.fillRect(l,t,w,h);
+      g.fillStyle = '#154a80'; g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.fillText(texto,l+6,t+h/2); ocupados.push([l,t,r,b]); g.restore(); return true;
+    }
+    g.restore(); return false;
+  };
+  T.controles = (vista) => {
+    for (const [id,titulo,nombre] of [['lbVista','Vista','Cambiar vista. Actual: '+vista],
+      ['lbFoto','Foto','Tomar una foto'],['lbCam','Mirar','Mover la cámara libre']]) {
+      const b=document.getElementById(id); if (!b) continue;
+      let etiqueta=b.querySelector('.taller-etiqueta');
+      if (!etiqueta) {
+        etiqueta=document.createElement('span'); etiqueta.className='taller-etiqueta';
+        etiqueta.style.cssText='display:block;font:700 11px/13px Cuerpo,sans-serif';
+        b.append(etiqueta);
+      }
+      const original=b.querySelector('small'); if (original) original.hidden=true;
+      etiqueta.textContent=titulo; b.setAttribute('aria-label',nombre);
+    }
+  };
+
+  // Malla local en metros. X apunta al frente, Y hacia arriba, Z al costado.
+  const tonos = new Map();
+  function color(hex) {
+    if (!tonos.has(hex)) tonos.set(hex,[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255));
+    return tonos.get(hex);
+  }
+  const resta=(a,b)=>a.map((n,i)=>n-b[i]);
+  const cruz=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const unidad=v=>{const l=Math.hypot(...v);return v.map(n=>n/(l||1));};
+  class Malla {
+    constructor(){this.caras=[];}
+    cara(p,c,luz=false){this.caras.push({p,c,luz,n:unidad(cruz(resta(p[1],p[0]),resta(p[2],p[0])))});}
+    // Secciones convexas, recorridas en sentido antihorario en XY.
+    perfil(xy,z0,z1,c,luz=false){
+      const a=xy.map(([x,y])=>[x,y,z0]), b=xy.map(([x,y])=>[x,y,z1]);
+      this.cara([...a].reverse(),c,luz); this.cara(b,c,luz);
+      a.forEach((v,i)=>{const j=(i+1)%a.length;this.cara([v,a[j],b[j],b[i]],c,luz);});
+    }
+    caja(x,y,z,l,h,w,c,luz=false){
+      this.perfil([[x-l/2,y],[x+l/2,y],[x+l/2,y+h],[x-l/2,y+h]],z-w/2,z+w/2,c,luz);
+    }
+    barra(a,b,r,c,lados=6){
+      const eje=unidad(resta(b,a)), u=unidad(cruz(eje,Math.abs(eje[1])<.9?[0,1,0]:[1,0,0])), v=cruz(eje,u);
+      const aro=p=>Array.from({length:lados},(_,i)=>p.map((q,k)=>q+r*(u[k]*Math.cos(2*Math.PI*i/lados)+v[k]*Math.sin(2*Math.PI*i/lados))));
+      const ini=aro(a),fin=aro(b);this.cara([...ini].reverse(),c);this.cara(fin,c);
+      ini.forEach((p,i)=>{const j=(i+1)%lados;this.cara([p,ini[j],fin[j],fin[i]],c);});
+    }
+    datos(){
+      const datos=[];
+      for (const {p,c,luz,n} of this.caras) for(let j=1;j+1<p.length;j++)
+        for(const v of [p[0],p[j],p[j+1]]) datos.push(...v,...n,...color(c),luz?4:0);
+      return new Float32Array(datos);
+    }
+  }
+  T.Malla=Malla;
+  // Respaldo Canvas: el llamador coloca el origen al pie del modelo.
+  // yaw=0, alzado=0: perfil mirando a la derecha. PI/2 de alzado: planta.
+  T.lienzo=(g,m,px,yaw=0,alzado=0,noche=false)=>{
+    const ca=Math.cos(yaw),sa=Math.sin(yaw),ce=Math.cos(alzado),se=Math.sin(alzado);
+    const proyecta=([x,y,z])=>{const d=x*sa+z*ca;return [(x*ca-z*sa)*px,(d*se-y*ce)*px,d*ce+y*se];};
+    // Caché del último sprite por modelo. Volver a usar la misma instancia al animar.
+    const clave=[px,yaw,alzado,noche].join('/');
+    if(m.sprite?.clave===clave){const {cv,x,y,w,h}=m.sprite;g.drawImage(cv,x,y,w,h);return;}
+    const caras=[];let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
+    for(const f of m.caras){
+      if((f.n[0]*sa+f.n[2]*ca)*ce+f.n[1]*se<.001) continue;
+      const p=f.p.map(proyecta), luz=f.luz?1:(noche?.44:.82)+.16*f.n[1]-.09*f.n[0];
+      for(const [x,y] of p){xmin=Math.min(xmin,x);xmax=Math.max(xmax,x);ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);}
+      caras.push([p,color(f.c).map(c=>Math.round(255*c*luz))]);
+    }
+    if(!caras.length)return;
+    const x=Math.floor(xmin)-1,y=Math.floor(ymin)-1,w=Math.ceil(xmax)-x+1,h=Math.ceil(ymax)-y+1;
+    const escala=Math.min(1,512/Math.max(w,h)),cv=document.createElement('canvas');
+    cv.width=Math.ceil(w*escala);cv.height=Math.ceil(h*escala);
+    const ctx=cv.getContext('2d'),im=ctx.createImageData(cv.width,cv.height);
+    const zbuf=new Float32Array(cv.width*cv.height).fill(-Infinity);
+    for(const [p,c] of caras){
+      const q=p.map(([u,v,d])=>[(u-x)*escala,(v-y)*escala,d]);
+      for(let j=1;j+1<q.length;j++){
+        const [a,b,e]=[q[0],q[j],q[j+1]],bx=b[0]-a[0],by=b[1]-a[1],ex=e[0]-a[0],ey=e[1]-a[1];
+        const det=bx*ey-by*ex;if(Math.abs(det)<1e-9)continue;
+        const iz=Math.max(0,Math.floor(Math.min(a[0],b[0],e[0]))),der=Math.min(cv.width-1,Math.ceil(Math.max(a[0],b[0],e[0])));
+        const sup=Math.max(0,Math.floor(Math.min(a[1],b[1],e[1]))),inf=Math.min(cv.height-1,Math.ceil(Math.max(a[1],b[1],e[1])));
+        for(let v=sup;v<=inf;v++)for(let u=iz;u<=der;u++){
+          const dx=u+.5-a[0],dy=v+.5-a[1],s=(dx*ey-dy*ex)/det,t=(bx*dy-by*dx)/det;
+          if(s<0||t<0||s+t>1)continue;
+          const d=a[2]+s*(b[2]-a[2])+t*(e[2]-a[2]),i=v*cv.width+u;
+          if(d<zbuf[i])continue;zbuf[i]=d;
+          im.data[4*i]=c[0];im.data[4*i+1]=c[1];im.data[4*i+2]=c[2];im.data[4*i+3]=255;
+        }
+      }
+    }
+    ctx.putImageData(im,0,0);m.sprite={clave,cv,x,y,w,h};g.drawImage(cv,x,y,w,h);
+  };
+  // Caché de mallas ya subidas al contexto de G3 (se vacía si el contexto cambia); null si no hay WebGL o la pieza falla.
+  T.malla=(clave,hacer)=>{const g3=EM.g3;if(!g3||!g3.gl)return null;if(T._gl!==g3.gl){T._gl=g3.gl;T._buf={};}
+    if(!(clave in T._buf)){try{T._buf[clave]=T.subir(hacer());}catch(e){T._buf[clave]=null;EM.errors.push('taller: '+e.message);}}return T._buf[clave];};
+  // Una subida por modelo/contexto. Dibujar en el pase de objetos, después de G3.draw().
+  T.subir=(m,g3=EM.g3)=>g3.buf(m.datos());
+  T.mundo=(buffer,x,altura,z,rumbo,g3=EM.g3)=>{
+    const gl=g3.gl,u=g3.P.u;
+    gl.uniformMatrix4fv(u.M,false,M4.trs(x,altura,z,-rumbo,1,1,1));
+    try {g3._run(buffer);} finally {gl.uniformMatrix4fv(u.M,false,g3._I);}
+  };
+})();
+~~~~
+
+### `src/js/28-taller-ciudad.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+// Este módulo requiere 28-taller-00.js.
+(() => {
+ const T=EM.taller;
+ T.lugar=(tipo,{l=7,w=5,h=5,noche=false,lluvia=false,lejos=false}={})=>{
+   const m=new T.Malla(), caja=(...a)=>m.caja(...a), hoja='#2f6b35', losa='#9e9a92';
+   function arbol(x,z,palma){
+     m.barra([x,0,z],[x,3.8,z],.18,'#9a4630');
+     if(palma){for(let i=0;i<6;i++){const a=i*Math.PI/3;m.cara([[x,4.4,z],[x+Math.cos(a+.5),4.1,z+Math.sin(a+.5)],[x+2.1*Math.cos(a),3.4,z+2.1*Math.sin(a)]].reverse(),hoja);}}
+     else {m.barra([x,2.4,z],[x,4.4,z],1.55,hoja,7);m.barra([x,4.4,z],[x,5,z],1,'#4f8a3c',7);}
+   }
+   function banca(x,z){caja(x,.44,z,1.8,.12,.45,'#9a4630');for(const s of [-.65,.65])caja(x+s,0,z,.12,.45,.4,losa);}
+   if(['casa','terraza','torre'].includes(tipo)){
+     const alto=tipo==='torre'?h*.7:h;caja(0,0,0,l,alto,w,'#b4583a');
+     if(tipo==='casa'){
+       const a=l/2+.2,b=w/2+.18,cresta=h+w*.24;
+       for(const s of [-1,1]){const panel=[[-a,h,s*b],[-a,cresta,0],[a,cresta,0],[a,h,s*b]];
+         m.cara(s<0?panel:panel.reverse(),s<0?'#a8452f':'#9a4630');}
+       for(const s of [-1,1]){const p=[[s*a,h,-b],[s*a,cresta,0],[s*a,h,b]];m.cara(s>0?p:p.reverse(),'#b4583a');}
+     }else if(tipo==='torre'){caja(0,alto,0,l*.82,h*.2,w*.82,'#9a4630');caja(0,h*.9,0,l*.62,h*.1,w*.62,losa);}
+     else {caja(0,h,0,l+.16,.16,w+.16,'#8f9497');if(!lejos)m.barra([l*.27,h+.16,0],[l*.27,h+1.2,0],.55,'#1d1f24',8);}
+     if(!lejos)for(let i=0;i<3;i++)caja((i-1)*l*.27,h*.36,w/2+.02,.8,1,.04,noche&&i!==1?'#ffd27a':'#9fd3e6',noche&&i!==1);
+   }else if(tipo==='quebrada'){
+     caja(0,-.55,0,12,.12,2.4,'#5f7f73');
+     for(const s of [-1,1]){caja(0,-.6,s*1.55,12,.65,.7,losa);caja(0,.05,s*2.25,12,.12,.7,hoja);}
+   }else if(tipo==='tunel'){
+     for(const s of [-1,1])caja(0,0,s*3.25,4,4.2,.5,'#a9a59b');
+     caja(0,4.2,0,4,.65,7,'#a9a59b');caja(0,-.08,0,4,.08,6,'#3b3f45');
+     for(const s of [-1,1])caja(-1,2.6,s*2.98,.55,.16,.08,'#ffd27a',true);
+   }else if(tipo==='parque'||tipo==='separador'){
+     caja(0,0,0,10,.18,tipo==='parque'?8:2,'#4f8a3c');
+     arbol(-2,0,tipo==='separador');arbol(2,0,tipo==='separador');
+     if(tipo==='parque'){caja(0,.18,2.2,10,.03,1.6,'#c9c1ad');banca(1,3.4);}
+   }else if(tipo==='anden'){
+     caja(0,-.1,0,10,.18,3,'#c9c1ad');banca(0,0);
+     for(const x of [-1.35,1.35])caja(x,0,-.42,.1,2.5,.1,losa);
+     caja(0,2.5,0,3.2,.14,1.4,'#0E6F76');caja(3,0,.42,.14,4,.14,losa);
+     caja(3,4,.42,.7,.12,.35,noche?'#ffd27a':'#f1ece0',noche);
+     if(lluvia)caja(2,.09,.6,1.1,.012,.25,'#9fd3e6');
+   }else throw Error('Pieza de ciudad desconocida: '+tipo);
+   return m;
+ };
+ // Corona del Coltejer sobre su contorno y eje reales, también en la silueta lejana.
+ T.aguja=H=>{
+   const m=new T.Malla(),p=[];
+   for(let i=0;i<H.P[0].length;i+=2)p.push([H.P[0][i]-H.cx,H.P[0][i+1]-H.cy]);
+   if(p.reduce((a,[x,z],i)=>{const q=p[(i+1)%p.length];return a+x*q[1]-z*q[0];},0)<0)p.reverse();
+   const cima=[0,H.h+(H.o.corona||25),0];
+   for(let i=0;i<p.length;i++){const [x,z]=p[i],[u,v]=p[(i+1)%p.length];
+     if(x===u&&z===v)continue;
+     m.cara([[x,0,z],[x,H.h,z],[u,H.h,v],[u,0,v]],'#a9a59b');
+     m.cara([[x,H.h,z],cima,[u,H.h,v]],'#9fd3e6');}
+   return m;
+ };
+ // LOD para huellas reales: pared por arista y cubierta siguiendo la misma planta.
+ // La cubierta usa los índices triangulados de la huella (incluidos patios, si los hay).
+ T.huella=(aro,triangulos,h,material='#b4583a')=>{
+   const m=new T.Malla();
+   for(let i=0;i<aro.length;i++){const [x,z]=aro[i],[u,v]=aro[(i+1)%aro.length];
+     m.cara([[x,0,z],[x,h,z],[u,h,v],[u,0,v]],material);}
+   for(const indices of triangulos){const p=indices.map(i=>[aro[i][0],h,aro[i][1]]);
+     if((p[1][2]-p[0][2])*(p[2][0]-p[0][0])<(p[1][0]-p[0][0])*(p[2][2]-p[0][2]))p.reverse();
+     m.cara(p,'#9e9a92');}
+   return m;
+ };
+})();
+~~~~
+
+### `src/js/28-taller-corredor.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+(() => {
+ const T=EM.taller;
+ T.obstaculos=['hueco','cono','moto','perro','chaza','charco','rampa','pasaje','dato'];
+ T.pista=id=>{
+   if(id==='moto')return T.vehiculo('moto');
+   const m=new T.Malla(),b=(...a)=>m.caja(...a), tubo=(...a)=>m.barra(...a);
+   if(id==='hueco'||id==='charco'){
+     const r=id==='hueco'?.48:.75;
+     m.cara([[-r,.015,-.21],[-r*.7,.015,.26],[.18,.015,.36],[r,.015,.07],[r*.61,.015,-.28]],id==='hueco'?'#1d1f24':'#5f7f73');
+     b(.07,.018,.07,.38,.01,.045,id==='hueco'?'#9e9a92':'#9fd3e6');
+   }else if(id==='cono'){
+     b(0,0,0,.38,.055,.38,'#3b3f45');
+     for(const [y,r,h,c] of [[.05,.16,.18,'#E38835'],[.23,.115,.11,'#f1ece0'],[.34,.075,.16,'#E38835']])
+       tubo([0,y,0],[0,y+h,0],r,c);
+   }else if(id==='chaza'){
+     b(0,.38,0,1.45,.48,.84,'#9a4630');b(0,.87,0,1.55,.09,.96,'#fbe7b0');
+     for(const x of [-.64,.64])tubo([x,.93,0],[x,1.85,0],.036,'#a9a59b');
+     for(let i=0;i<5;i++)b(i*.34-.68,1.85,0,.34,.09,1.2,i%2?'#fbe7b0':'#0E6F76');
+     for(const z of [-.38,.38])tubo([0,.23,z-.04],[0,.23,z+.04],.23,'#1d1f24',10);
+   }else if(id==='perro'){
+     b(0,.29,0,.57,.28,.23,'#9a4630');b(.29,.49,0,.23,.21,.19,'#b4583a');b(.43,.49,0,.15,.09,.15,'#3b3f45');
+     for(const s of [-1,1]){tubo([.28,.66,s*.07],[.22,.77,s*.11],.047,'#9a4630');
+       for(const x of [-.21,.22])tubo([x,.34,s*.08],[x+s*.04,.02,s*.10],.042,'#9a4630');}
+     tubo([-.26,.48,0],[-.47,.63,0],.038,'#b4583a');
+   }else if(id==='rampa')m.perfil([[-1.4,0],[1.4,0],[1.4,.48]],-.7,.7,'#9a4630');
+   else if(id==='pasaje'||id==='dato'){
+     m.perfil([[-.24,.45],[.24,.45],[.24,.74],[.12,.85],[-.24,.85]],-.035,.035,id==='dato'?'#9fd3e6':'#fbe7b0');
+     for(const z of [-.039,.039]){b(-.12,.49,z,.028,.31,.01,'#154a80');b(.05,.59,z,.14,.035,.01,'#154a80');
+       if(id==='dato')b(.05,.67,z,.14,.035,.01,'#154a80');}
+   }else throw Error('Objeto desconocido: '+id);
+   return m;
+ };
+ // Perfil normalizado de la cordillera. El integrador puede pasar tres series
+ // de muestras normalizadas del relieve real en el rumbo de la cámara.
+ T.horizonte=(g,w,h,hora,t,velocidad,lluvia=false,perfiles)=>{
+   const alturas=perfiles||[[.2,.36,.58,.44,.65,.57,.47,.61,.48,.55,.38],
+     [.1,.21,.39,.31,.52,.36,.30,.49,.28,.24,.33],[.16,.1,.25,.22,.13,.29,.18,.22,.11,.25,.19]];
+   const noche=hora<5||hora>=19,oro=hora<7||hora>=17;
+   const p=noche?['#08122a','#1a2b4f','#32455d','#24364d','#18293c']:
+     oro?['#3d2e5f','#f4d9a8','#8e5b7a','#875766','#543e55']:['#3f8bd0','#d6ecf3','#7f9fbf','#5f8f86','#3f7f4a'];
+   g.save();const cielo=g.createLinearGradient(0,0,0,h);cielo.addColorStop(0,p[0]);cielo.addColorStop(.72,p[1]);
+   g.fillStyle=cielo;g.fillRect(0,0,w,h);
+   alturas.forEach((serie,j)=>{g.fillStyle=p[j+2];g.beginPath();g.moveTo(0,h);
+     serie.forEach((v,i)=>g.lineTo(i*w/(serie.length-1),h*(.88-.63*v)));g.lineTo(w,h);g.closePath();g.fill();});
+   if(lluvia){g.strokeStyle='rgba(159,211,230,.45)';for(let i=0;i<20;i++){const x=(i*71+t*23)%w,y=(i*43+t*180)%h;
+     g.beginPath();g.moveTo(x,y);g.lineTo(x-3,y+9);g.stroke();}}
+   if(velocidad>.65){g.strokeStyle='rgba(241,236,224,.46)';for(const s of [-1,1])for(let i=0;i<3;i++){
+     const x=w*(s<0?.1:.9),y=h*(.68+i*.095);g.beginPath();g.moveTo(x,y);g.lineTo(x+s*velocidad*18,y+6);g.stroke();}}
+   g.restore();
+ };
+})();
+~~~~
+
+### `src/js/28-taller-estacion.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+(() => {
+ const T=EM.taller;
+ T.estacion=(linea='#1C5C9C')=>{
+   const m=new T.Malla(), b=(...a)=>m.caja(...a);
+   b(0,-.35,0,24,.35,5,'#c9c1ad'); b(0,.012,2.12,24,.025,.24,'#F6C538');
+   for(const x of [-9,-3,3,9]){
+     b(x,0,-1.9,.32,3.6,.32,'#a9a59b');
+     b(x,3.38,0,.18,.12,4.4,'#9aa1a8');
+     b(x,3.42,.2,.9,.04,.12,'#fbe7b0',true);
+   }
+   b(0,3.63,0,24,.16,5.2,'#8f9497');
+   for(const x of [-8,-6.8]){
+     b(x,0,-.2,.38,.96,1.25,'#9e9a92');b(x,.96,.18,.29,.08,.37,linea);
+     b(x,.99,.19,.14,.06,.22,'#9fd3e6');
+     for(let i=0;i<3;i++){const a=i*2*Math.PI/3;
+       m.barra([x+.2,.7,0],[x+.65,.7+.3*Math.sin(a),.3*Math.cos(a)],.035,'#a9a59b');}
+   }
+   for(let i=0;i<8;i++)b(5+i*.3,0,-.6,.3,(i+1)*.17,1.35,'#9e9a92');
+   m.barra([5,1.05,-1.33],[7.1,2.24,-1.33],.045,linea);
+   for(const z of [3.6,5.05]) b(0,-.92,z,25,.12,.1,'#3b3f45');
+   return m;
+ };
+ const claves={
+   conduce:['Metro','#1C5C9C','riel'],volante:['Al volante','#0E6F76','via'],
+   bus:['Bus','#65A9AC','via'],libre:['Ciudad Libre','#2f6b35','barrio'],
+   maqueta:['Maqueta','#9a4630','barrio'],red:['La Red','#154a80','nodo'],
+   cableviaje:['Viaje en cable','#8E612A','cable'],cable:['Metrocable','#743D90','cable'],
+   despacho:['Despacho','#1C5C9C','aguja'],alim:['Alimentadores','#59AB42','via'],
+   metroplus:['Metroplús','#0E6F76','cruce'],album:['Álbum','#9a4630','postal'],
+   historia:['La última vuelta','#743D90','postal'],carrera:['Carrera sin fin','#0E6F76','riel']
+ };
+ T.modos=Object.keys(claves);
+ T.tarjeta=(g,id,fin,valor,w=320)=>{
+   const [titulo,tinta,figura]=claves[id]; g.save();
+   g.fillStyle='#f1ece0';g.fillRect(0,0,w,112);g.fillStyle=tinta;g.fillRect(0,0,7,112);
+   // Viñeta de 84 × 80 con motivo específico.
+   g.save();g.translate(16,13);g.strokeStyle=tinta;g.fillStyle=tinta;g.lineWidth=4;
+   const trazo=(...pts)=>{g.beginPath();g.moveTo(...pts[0]);pts.slice(1).forEach(p=>g.lineTo(...p));g.stroke();};
+   const punto=(x,y,r)=>{g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();};
+   if(figura==='riel'||figura==='via'){trazo([3,77],[38,20]);trazo([76,77],[47,20]);
+     if(figura==='riel')for(let k=0;k<4;k++)trazo([13+k*6,65-k*10],[66-k*5,65-k*10]);
+     else {g.fillRect(26,34,30,26);g.fillStyle='#f1ece0';g.fillRect(30,37,22,8);}}
+   if(figura==='barrio'){for(let i=0;i<3;i++){const x=7+21*i,y=46-7*i;g.fillRect(x,y,17,24);trazo([x-2,y],[x+8,y-8],[x+19,y]);}}
+   if(figura==='nodo'||figura==='aguja'){trazo([5,67],[38,48],[74,20]);trazo([38,48],[72,65]);for(const p of [[5,67],[74,20],[72,65]])punto(...p,6);}
+   if(figura==='cable'){trazo([2,40],[77,14]);trazo([41,28],[41,40]);g.fillRect(25,41,33,23);g.fillStyle='#9fd3e6';g.fillRect(29,44,25,9);}
+   if(figura==='cruce'){trazo([5,48],[73,48]);trazo([37,14],[37,79]);g.fillRect(49,19,14,20);g.fillStyle='#fbe7b0';punto(56,25,3);}
+   if(figura==='postal'){g.strokeRect(8,22,62,44);trazo([8,62],[30,42],[45,53],[60,37]);}
+   if(fin){g.fillStyle='#fbe7b0';punto(65,68,13);g.strokeStyle='#154a80';trazo([58,68],[63,73],[73,61]);}
+   g.restore();g.fillStyle='#154a80';g.textAlign='left';
+   g.font='bold 22px Titulos,sans-serif';g.fillText(titulo,109,47,w-117);
+   g.font='16px Cuerpo,sans-serif';g.fillText(String(valor || (fin?'Recorrido completo':'Comenzar')),109,77,w-117);g.restore();
+ };
+})();
+~~~~
+
+### `src/js/28-taller-ruedas.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+(() => {
+ const T=EM.taller, goma='#1d1f24',metal='#a9a59b',piel='#b07a52',verde='#59AB42';
+ const ligeros=['bici','scooter','electrico','skate','patines','moto'];
+ const flota={
+   carro:[4.2,1.8,1.45,'#b4583a'],taxi:[4.2,1.8,1.45,'#f2c400'],camioneta:[4.6,1.8,1.7,'#1C5C9C'],
+   bus:[9,2.5,3,'#b4583a'],alimentador:[10,2.5,3,'#59AB42'],articulado:[18,2.5,3.2,'#0E6F76'],
+   tranvia:[9,2.4,3.1,'#59AB42'],metro:[22,3,3.4,'#1C5C9C']
+ };
+ T.vehiculos=[...ligeros,...Object.keys(flota)];
+ function rueda(m,x,y,z,r,ancho,abierta){
+   if(!abierta){m.barra([x,y,z-ancho/2],[x,y,z+ancho/2],r,goma,10);return;}
+   const punto=a=>[x+r*Math.cos(a),y+r*Math.sin(a),z];
+   for(let i=0;i<12;i++){const p=punto(i*Math.PI/6);m.barra(p,punto((i+1)*Math.PI/6),.025,goma,4);
+     if(i%3===0)m.barra([x,y,z],p,.012,metal,3);}
+ }
+ T.vehiculo=(id,{noche=false,persona=true}={})=>{
+   const m=new T.Malla(),b=(...a)=>m.caja(...a),bar=(...a)=>m.barra(...a);
+   const blanco=noche?'#ffd27a':'#f1ece0';
+   if(flota[id]){
+     const [l,w,h,c]=flota[id],bus=l>5;const base=.33;
+     b(0,base,0,l,bus?h*.84:h*.42,w,bus?'#f1ece0':c);
+     b(0,bus?h*.43:.52,0,l*.99,bus?.29:.12,w+.018,c);
+     if(bus){
+       for(let i=0,n=Math.floor(l/1.55);i<n;i++)for(const s of [-1,1])
+         b((i+.5)*l/n-l/2,h*.54,s*w*.5,l/n-.16,h*.29,.025,'#154a80');
+       b(l/2,h*.46,0,.03,h*.36,w*.86,'#9fd3e6');
+       b(0,h*.84+base,0,l*.72,.13,w*.58,'#9e9a92');
+       if(id==='articulado')for(let i=-2;i<=2;i++)b(i*.14,.4,0,.08,h*.85,w+.07,goma);
+       if(id==='metro'||id==='tranvia')b(0,h*.84+base+.13,0,l*.23,.19,.28,metal);
+     }else{
+       const cab=id==='camioneta'?.55:0,cap=id==='camioneta'?1.55:2.25;
+       m.perfil([[cab-cap*.65,.9],[cab+cap*.65,.9],[cab+cap*.35,h],[cab-cap*.4,h]],-w*.43,w*.43,'#154a80');
+       b(cab,h,0,cap*.76,.06,w*.86,c);
+       if(id==='taxi')b(0,h+.06,0,.4,.17,.25,blanco,noche);
+       if(id==='camioneta')b(-1.2,.99,0,1.45,.07,1.45,goma);
+     }
+     for(const s of [-1,1]){
+       for(const ax of [-.32,.32])rueda(m,l*ax,bus?.43:.32,s*w*.48,bus?.43:.32,.15,false);
+       b(l/2,.56,s*w*.34,.055,.14,.28,blanco,noche);
+       b(-l/2,.57,s*w*.34,.055,.12,.22,'#EC343A',noche);
+     }
+    return m;
+   }
+   if(!ligeros.includes(id))throw Error('Vehículo desconocido: '+id);
+   let manos=.9,frente=.32,sillin=.91;
+   if(id==='bici'||id==='moto'){
+     const moto=id==='moto',r=moto?.31:.32,dx=moto?.66:.55,al=moto?.8:.91;
+     for(const x of [-dx,dx])rueda(m,x,r,0,r,moto?.19:.05,!moto);
+     const A=[-dx,r,0],B=[-.16,al,0],C=[0,.34,0],D=[.37,.86,0],E=[dx,r,0];
+     for(const [a,c] of [[A,B],[A,C],[B,C],[C,D],[B,D],[D,E]])bar(a,c,moto?.07:.034,moto?'#9a4630':verde);
+     b(-.18,al,0,.32,.07,.19,goma);bar(D,[.40,1.04,0],.035,metal);
+     bar([.4,1.04,-.30],[.4,1.04,.30],.03,goma);
+     if(moto)b(.11,.68,0,.56,.2,.36,'#EC343A');
+     else {b(.54,.87,0,.29,.055,.34,verde);for(const z of [-.16,.16])b(.54,.91,z,.29,.13,.025,verde);}
+     manos=1.04;frente=.4;sillin=al;
+   }else if(id==='patines'){
+     for(const s of [-1,1]){const x=.11*s,z=.16*s;
+       for(let i=0;i<4;i++)rueda(m,x+(i-1.5)*.07,.04,z,.04,.045,false);
+       b(x,.08,z,.29,.11,.115,'#154a80');b(x-.07,.18,z,.14,.08,.11,'#fbe7b0');}
+   }else{
+     const skate=id==='skate',elec=id==='electrico',l=skate?.78:elec?1.16:.94,r=skate?.044:elec?.105:.072;
+     b(0,2*r,0,l*.8,elec?.105:.045,skate?.22:.16,skate?'#c3952f':elec?goma:'#0E6F76');
+     for(const s of [-1,1])for(const z of skate?[-.09,.09]:[0])rueda(m,s*(l/2-r),r,z,r,.055,false);
+     if(!skate){bar([l*.38,r,0],[.33,.98,0],elec?.043:.028,metal);bar([.33,.98,-.23],[.33,.98,.23],.026,goma);
+       b(-l*.38,r*2,0,.045,.04,.09,'#EC343A',noche);manos=.98;frente=.33;}
+   }
+   if(persona){
+     const sentado=id==='bici'||id==='moto',libres=id==='skate'||id==='patines';
+     const cadera=sentado?sillin+.1:1, pecho=cadera+.42,ante=sentado?.15:.03;
+     for(const s of [-1,1]){
+       const pie=[sentado?.06*s:.14*s,sentado?.42+.10*s:.20,s*.15];
+       const rodilla=[sentado?.22:.12*s,.68+.06*s,s*.14];
+       bar([-.12,cadera,s*.11],rodilla,.082,'#154a80');bar(rodilla,pie,.065,'#154a80');
+       bar([ante,pecho,s*.16],[ante+.1,pecho-.18,s*.26],.058,'#0E6F76');
+       bar([ante+.1,pecho-.18,s*.26],[libres?-.1:frente,libres?pecho-.16:manos,s*(libres?.48:.23)],.048,piel);
+     }
+     bar([-.12,cadera,0],[ante,pecho,0],.17,'#0E6F76');bar([ante,pecho+.04,0],[ante,pecho+.23,0],.12,piel);
+     bar([ante,pecho+.20,0],[ante,pecho+.30,0],.14,'#fbe7b0');
+   }
+   if(!['skate','patines'].includes(id))b(frente+.05,manos-.055,0,.08,.06,.12,blanco,noche);
+   return m;
+ };
+ // HUD en primera persona; el corredor, los carriles y el cielo quedan detrás.
+ T.primera=(g,id,w,h,inclinacion=0)=>{
+   const mano=(x,y)=>{g.fillStyle=piel;g.beginPath();g.ellipse(x,y,11,8,-.25,0,Math.PI*2);g.fill();};
+   g.save();g.translate(w/2,h);const k=Math.min(w/320,h/260);g.scale(k,k);g.rotate(inclinacion);
+   if(flota[id]){
+     g.fillStyle='#0f2a45';g.fillRect(-w/k/2,-34,w/k,36);g.strokeStyle=metal;g.lineWidth=6;
+     g.beginPath();g.arc(-44,1,32,Math.PI,2*Math.PI);g.stroke();
+     g.fillStyle='#9fd3e6';g.fillRect(17,-23,43,11);mano(-70,-17);mano(-18,-17);
+   }else if(id==='skate'||id==='patines'){
+     g.fillStyle=id==='skate'?'#c3952f':'#154a80';
+     if(id==='skate')g.fillRect(-14,-65,28,65);
+     for(const s of [-1,1]){g.fillStyle=goma;g.fillRect(s*(id==='skate'?6:20)-7,-28+s*12,14,27);mano(s*112,-60+s*8);}
+   }else{
+     g.strokeStyle=goma;g.lineWidth=7;g.lineJoin='round';g.beginPath();g.moveTo(-82,-50);
+     g.lineTo(-43,-57);g.lineTo(0,-45);g.lineTo(43,-57);g.lineTo(82,-50);g.stroke();
+     g.fillStyle=id==='bici'?verde:metal;g.fillRect(-4,-45,8,46);
+     if(id==='bici'){g.strokeStyle=verde;g.lineWidth=3;g.strokeRect(-31,-82,62,22);for(let x=-20;x<=20;x+=10)g.strokeRect(x,-82,1,22);}
+     if(id==='electrico'){g.fillStyle='#9fd3e6';g.fillRect(-9,-55,18,11);}
+     mano(-75,-50);mano(75,-50);
+   }
+   g.restore();
+ };
+ T.sombra=(g,l,w,px)=>{g.save();g.scale(px,px);g.fillStyle='rgba(20,20,20,.19)';
+   for(const s of [1,.8]){g.beginPath();g.ellipse(0,0,l*.52*s,w*.64*s,0,0,Math.PI*2);g.fill();}g.restore();};
+})();
+~~~~
+
+### `src/js/28-taller-trama.js`
+~~~~js
+/* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
+(() => {
+ const T=EM.taller;
+ T.marca=(g,x,y,s,abierto=false)=>{
+   g.save();g.translate(x,y);g.scale(s/24,s/24);
+   g.fillStyle=abierto?'#fbe7b0':'#f1ece0';g.strokeStyle='#154a80';g.lineWidth=2;
+   g.beginPath();g.moveTo(-11,-8);g.lineTo(5,-8);g.lineTo(11,-2);g.lineTo(11,8);g.lineTo(-11,8);
+   g.lineTo(-11,3);g.lineTo(-8,0);g.lineTo(-11,-3);g.closePath();g.fill();g.stroke();
+   g.beginPath();g.moveTo(5,-8);g.lineTo(5,-2);g.lineTo(11,-2);g.stroke();
+   if(abierto){g.beginPath();g.arc(-1,1,4,0,Math.PI*2);g.moveTo(-1,-3);g.lineTo(-1,5);g.stroke();}
+   g.restore();
+ };
+ // Preparar el retrato una vez al abrir conversación o cargar el reparto.
+ T.retrato=async personaje=>{
+   const im=new Image();im.src=EM.perfil.retrato(EM.perfil.ped(personaje.look),96);
+   await im.decode();return im;
+ };
+ T.escena=(g,w,h,t,retrato)=>{
+   const n=t<3?0:t<5?1:2;
+   if(n===0){
+     T.horizonte(g,w,h,17,0,0);g.save();g.translate(w*.5,h*.75);g.scale(w/380,w/380);
+     g.fillStyle='#9e9a92';g.fillRect(-220,-5,440,18);g.fillStyle='#F6C538';g.fillRect(-220,-3,440,3);
+     g.translate(-260+200*(1-(1-Math.max(0,t)/3)**2),-5);
+     T.lienzo(g,T.trenEscena||(T.trenEscena=T.vehiculo('metro')),9);g.restore();
+   }else{
+     g.fillStyle=n===1?'#154a80':'#f1ece0';g.fillRect(0,0,w,h);
+     if(retrato)g.drawImage(retrato,w*.10,h*.12,h*.58,h*.58);
+     g.save();g.translate(w*.67,h*.53);
+     if(n===1){g.fillStyle='#b07a52';for(const s of [-1,1]){g.beginPath();g.ellipse(s*25,11,18,8,s*.35,0,Math.PI*2);g.fill();}}
+     T.marca(g,0,0,n===1?14+17*(t-3):64,n===2);g.restore();
+   }
+ };
+})();
+~~~~
+
 ### `src/js/30-conduce.js`
 ~~~~js
 /* =====================================================================
@@ -7232,7 +7943,7 @@ const Conduce = EM.modes.conduce = {
   zLine(line, s) { return line.kind === 'metro' || line.kind === 'tram' || line.kind === 'future' ? G3.zOn(line, s) : MAP.elevM(NET.at(line.P, s).x, NET.at(line.P, s).y) + .3; },
   drawGL(g, st, W, H, tps) {
     G3.show(true); const line = NET.byId[st.line], K = KIND[st.kind], dir = st.dir, p = NET.at(line.P, st.s), a = p.a + (dir < 0 ? Math.PI : 0), z = this.zLine(line, st.s), col = rgb(line.color);
-    let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 1.7 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
+    let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q0 = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)), q = typeof VC !== 'undefined' && VC.camaraLibre ? VC.camaraLibre(q0.x, q0.y, p.x, p.y, MAP.elevM(q0.x, q0.y) + 2.6 + (st.kind === 'metro' ? 6 : 0)) : { x: q0.x, y: q0.y, z: MAP.elevM(q0.x, q0.y) + 2.6 }; st._cine = { s: sa, x: q.x, y: q.y, z: q.z }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
     else if (tps) { const sb = st.s - dir * (K.len + 30), q = NET.at(line.P, sb, dir * 6); cam = { eye: [q.x, this.zLine(line, sb) + 12, q.y], at: [p.x + Math.cos(a) * 16, z + 2.5, p.y + Math.sin(a) * 16], fov: .95 }; }
     else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
     G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
@@ -7821,7 +8532,7 @@ const Volante = EM.modes.volante = {
   },
   draw3D(g, st, W, H, line, B) {
     const c = Math.cos(st.h), s = Math.sin(st.h), z = this.elev(st.x, st.y), sh = st.shake > 0 ? (Math.random() - .5) * st.shake * 2 : 0; let cam;
-    if (st.view === 'cine') { if (!st._cine || st._cine.s - st.sR < -25) { const sa = Math.min(line.P.len, st.sR + 110 + h2(st.t | 0, 1, 2) * 60), sd = h2(st.t | 0, 2, 2) < .5 ? -1 : 1, q = NET.at(line.P, sa, sd * 13); st._cine = { s: sa, x: q.x, y: q.y, z: this.elev(q.x, q.y) + 1.6 }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x + c * 6, z + 2, st.y + s * 6], fov: .95 }; }
+    if (st.view === 'cine') { if (!st._cine || st._cine.s - st.sR < -25) { const sa = Math.min(line.P.len, st.sR + 110 + h2(st.t | 0, 1, 2) * 60), sd = h2(st.t | 0, 2, 2) < .5 ? -1 : 1, q0 = NET.at(line.P, sa, sd * 13), q = typeof VC !== 'undefined' && VC.camaraLibre ? VC.camaraLibre(q0.x, q0.y, st.x, st.y, this.elev(q0.x, q0.y) + 2.2) : { x: q0.x, y: q0.y, z: this.elev(q0.x, q0.y) + 2.2 }; st._cine = { s: sa, x: q.x, y: q.y, z: q.z }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x + c * 6, z + 2, st.y + s * 6], fov: .95 }; }
     else if (st.view === 'cab') cam = { eye: [st.x + c * (B.wb + 1.6), z + 2.9 + sh, st.y + s * (B.wb + 1.6)], at: [st.x + c * 60, z + 1.5 + (this.elev(st.x + c * 60, st.y + s * 60) - z) * .6, st.y + s * 60], fov: 1.15 };
     else { const bk = B.len2 ? 30 : 25, ex = st.x - c * bk, ey = st.y - s * bk, ez = Math.max(z, this.elev(ex, ey)) + 12; if (!st._cam) st._cam = { x: ex, y: ey, z: ez }; st._cam.x += (ex - st._cam.x) * .18; st._cam.y += (ey - st._cam.y) * .18; st._cam.z += (ez - st._cam.z) * .18; cam = { eye: [st._cam.x, st._cam.z + sh, st._cam.y], at: [st.x + c * 14, z + 2.5, st.y + s * 14], fov: .95 }; }
     G3.draw(cam, { hour: st.hourNow, rain: st.rain, dyn: G => {
@@ -8163,6 +8874,8 @@ const VEH = {
   bus: { n: 'Bus de ruta', len: 10.5, wid: 2.45, wb: 5.4, vmax: 60 / 3.6, acc: 1.3, brk: 3.2, smax: .55, srate: 1.4, grip: 5, lat: 4.4, col: '#f6c538', icon: '🚌', soft: 0 },
   metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, lat: 3.8, art: 5.6, col: '#0E6F76', icon: '🚌', soft: 0 }
 };
+/* pieza del taller de arte para cada vehículo, alto de los pies del que va de pie encima (null: va sentado o adentro) y 1 si la pieza trae su conductor sentado */
+const MALLA3 = { skate: ['skate', .16], patines: ['patines', .2], monopatin: ['scooter', .16], scooter: ['electrico', .24], bici: ['bici', null, 1], moto: ['moto', null, 1], taxi: ['taxi', null], carro: ['carro', null], camioneta: ['camioneta', null], bus: ['bus', null], alimentador: ['alimentador', null] };
 const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]), SOLID_W = new Set([TT.BRICK, TT.BLDG, TT.LAND, TT.WATER, TT.CANAL]);
 Music.SONGS.ciudad = { bpm: 100, root: 55, sc: [0, 2, 3, 5, 7, 9, 10], prog: [0, 3, 4, 3], bass: [1, 0, 0, 1, 0, 0, 1, 0], mel: .4, w: 'triangle' };
 const Libre = EM.modes.libre = {
@@ -8414,14 +9127,14 @@ const Libre = EM.modes.libre = {
      está bajo; encima, la baranda no deja caer; por debajo se pasa entre las pilas (lo sólido del piso lo dice bloq) */
   nivel(st, x, y, bloq, pie) {
     if (!VC.PG) return [!bloq(x, y), 0];
-    if (st.z > 0) { if (VC.puenteEn(x, y, st.z, .1)) return [true, st.z]; const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!bloq(x, y), 0]; return [false, st.z]; }
+    if (st.z) { if (VC.puenteEn(x, y, st.z, .1)) return [true, st.z]; const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!bloq(x, y), 0]; return [false, st.z]; }
     const P = VC.puenteEn(x, y, null, 0); if (P && P.h < .9 && (pie || !P.B.pe)) return [true, P.B.z];
     return [!bloq(x, y), 0];
   },
   /* lo mismo para un vehículo: en el tablero, ninguna esquina puede salirse de la baranda (salvo en las rampas) */
   nivelV(st, x, y, V, piso) {
     if (!VC.PG) return [!piso(x, y), 0]; const pie = !!V.walk;
-    if (st.z > 0) {
+    if (st.z) {   // en un puente (z > 0) o en un deprimido (z = -1)
       const P = VC.puenteEn(x, y, st.z, .1);
       if (P) { if (P.h > 1.2) { const c = Math.cos(st.h), s = Math.sin(st.h), l = V.len / 2, w = V.wid / 2; for (const [u, v] of [[l, w], [l, -w], [-l, w], [-l, -w]]) if (!VC.puenteEn(x + c * u - s * v, y + s * u + c * v, st.z, .45)) return [false, st.z]; } return [true, st.z]; }
       const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!piso(x, y), 0]; return [false, st.z];
@@ -8527,10 +9240,11 @@ const Libre = EM.modes.libre = {
     const dibJug = () => { if (st.mode === 'veh') { const V = this.V(st); if (V.monta) { this.tabla(g, Sj(st.x, st.y), st.h, V, k, sh); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: 0, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (st.veh.kind === 'bici') { const q = Sj(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * 8, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (V.art) Ciudad.articulado(g, st.x, st.y, st.h, st.h2 == null ? st.h : st.h2, V, Sj, k, sh, night, true); else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'bus' ? 'bus' : st.veh.kind === 'moto' ? 'moto' : 'car', Sj, k, sh, night, true); } if (st.mode === 'walk') Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.wv > .2 ? 1 : 0), seed: 7, stun: 0, umb: L.w.rain && !yo.gorro }, yo), Sj, kj, sh); };
     if (st.mode !== 'ride') { const q = Sj(st.x, st.y), r = Math.max(10 * dprL, (st.mode === 'veh' ? this.V(st).len * .55 : 1.5) * k); g.fillStyle = 'rgba(255,160,30,.26)'; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); }   // disco naranja bajo los pies
     const altos = [], items = [];
-    for (const c of Ciudad.cars) { const h = VC.PG ? VC.carAlto(c) : 0, Sc = SZ(h); if (h > .4) { altos.push([c.z || 1, () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); }]); continue; } items.push({ x: c.x, y: c.y, r: c.kind === 'bus' ? 6 : 2.5, a: c.kind === 'bus' ? 3.2 : 1.6, f: () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); } }); }
+    for (const c of Ciudad.cars) { const h = VC.PG ? VC.carAlto(c) : 0, Sc = SZ(h); if (h < -2.5) continue;   // bajo tierra, en el tramo cubierto de un deprimido
+      if (h > .4) { altos.push([c.z || 1, () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); }]); continue; } items.push({ x: c.x, y: c.y, r: c.kind === 'bus' ? 6 : 2.5, a: c.kind === 'bus' ? 3.2 : 1.6, f: () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); } }); }
     for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) items.push({ x: p.x, y: p.y, r: .5, a: 1.8, f: () => { Ciudad.ped(g, p, S, k, sh); if (p.client) { const q = S(p.x, p.y); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y - 12 * Math.max(.6, k * .4) - 6, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = PAL.negro; g.font = '700 11px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('!', q.x, q.y - 12 * Math.max(.6, k * .4) - 2); g.textAlign = 'left'; } } });
     if (typeof Gente !== 'undefined') Gente.items(st, items, g, S, k, sh, x0, y0, x1, y1);
-    if (st.mode !== 'ride') { if (!pz) items.push({ x: st.x, y: st.y, r: st.mode === 'veh' ? this.V(st).len / 2 : .6, a: st.mode === 'veh' ? 1.6 : 1.8, f: dibJug }); else altos.push([pz, dibJug]); }
+    if (st.mode !== 'ride') { if (pz <= 0) items.push({ x: st.x, y: st.y, r: st.mode === 'veh' ? this.V(st).len / 2 : .6, a: st.mode === 'veh' ? 1.6 : 1.8, f: dibJug }); else altos.push([pz, dibJug]); }
     for (const it of items) it.y = it.y == null ? 0 : it.y;
     const delante = VC.on && VC.ocluir ? VC.ocluir(items) : [];
     for (const b of delante) items.push({ y: b.ym + .01, b });
@@ -8612,10 +9326,12 @@ const Libre = EM.modes.libre = {
     if (V.n === 'Patineta eléctrica') { g.strokeStyle = '#23272f'; g.lineWidth = Math.max(1.5, .08 * k); g.beginPath(); g.moveTo(L * .42, -W * 1.1); g.lineTo(L * .42, W * 1.1); g.stroke(); }   // el manubrio
     g.restore();
   },
+  /* malla 3D del taller de arte para un vehículo de VEH (null sin taller o sin WebGL: se dibuja con cajas) */
+  malla3(kind, monta) { const M = MALLA3[kind], p = !!(monta && M && M[2]); return M && EM.taller && EM.taller.malla ? EM.taller.malla('v:' + M[0] + (p ? '+p' : ''), () => EM.taller.vehiculo(M[0], { persona: p })) : null; },
   /* ---------- vistas 3D (1.4.0) ---------- */
   alto3(st) {   // altura del jugador en 3D: el piso, el tablero del puente, la vía del metro o la línea del cable
     let z = MAP.elevM(st.x, st.y); if (st.mode === 'ride') { const v = st.ride, l = v.line; if (l.kind === 'metro' || l.kind === 'tram') z = G3.zOn(l, v.s) + 1.2; else if (l.kind === 'cable') { const C = G3.cableGeo(l); z = C.zAt(NET.project(C.P, st.x, st.y).s) - 3.2; } }
-    else if (st.z && VC.PG) { const P = VC.puenteEn(st.x, st.y, st.z, .8); if (P) z += P.h; } return z;
+    else if (st.z && VC.PG) { const P = VC.puenteEn(st.x, st.y, st.z, .8); if (P) z += st.z < 0 ? -P.h : P.h; } return z;
   },
   _rgb: new Map(),
   rgb3(h) { let c = this._rgb.get(h); if (!c) { c = typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h) ? rgb(h) : typeof h === 'string' && /^#[0-9a-f]{3}$/i.test(h) ? rgb('#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3]) : [.8, .8, .8]; this._rgb.set(h, c); } return c; },
@@ -8632,7 +9348,7 @@ const Libre = EM.modes.libre = {
     let cam;
     if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
       const C0 = st._cine, ad = C0 ? (C0.x - st.x) * Math.cos(st.h) + (C0.y - st.y) * Math.sin(st.h) : -1;
-      if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, q = VC.on ? VC.despeja(px0, py0, 1, true, 30) : { x: px0, y: py0 }, px = q.x, py = q.y; st._cine = { x: px, y: py, z: Math.max(MAP.elevM(px, py), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), t: st.t }; }   // en la calle, a la altura de un poste
+      if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, z0 = Math.max(MAP.elevM(px0, py0), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), q = VC.on && VC.camaraLibre ? VC.camaraLibre(px0, py0, st.x, st.y, z0) : { x: px0, y: py0, z: z0 }; st._cine = { x: q.x, y: q.y, z: q.z, t: st.t }; }   // en la calle, a la altura de un poste
       cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2, st.y], fov: .9 / Math.sqrt(zu) };
     } else {
       const D = (st.vista3 === 'dron' ? 95 : largo) / zu, Hh = (st.vista3 === 'dron' ? 70 : st.mode === 'walk' ? 3.4 : 4.2 + (V ? V.len * .25 : 3)) / zu * (1 + po * 1.6) + (st.vista3 === 'dron' ? 0 : 1.2);
@@ -8647,7 +9363,7 @@ const Libre = EM.modes.libre = {
     for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G.box(k.x, zk + .3, k.y, k.a, L, Wd, Hh * .62, C(k.col)); G.box(k.x, zk + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
     for (const p of Ciudad.peds) { if (!cerca(p.x, p.y, 90) || p.dog) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p, 1, p.ph || 0); }
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { if (!cerca(p.x, p.y, 130)) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p.look, 1.05, p.v > .1 ? p.ph : 0); }
-    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y); const chico = p.kind === 'bici' || V.monta; G.box(p.x, zp + (V.monta ? .05 : .3), p.y, p.a, V.len, V.wid, V.monta ? .12 : chico ? .9 : 1, C(V.col)); if (!chico && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
+    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y), m3 = this.malla3(p.kind); if (m3) { EM.taller.mundo(m3, p.x, zp, p.y, p.a); continue; } const chico = p.kind === 'bici' || V.monta; G.box(p.x, zp + (V.monta ? .05 : .3), p.y, p.a, V.len, V.wid, V.monta ? .12 : chico ? .9 : 1, C(V.col)); if (!chico && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
     // el transporte de la ciudad en su sitio: trenes por vagones sobre su vía, articulados en dos cuerpos, cabinas en su cable
     for (const v of Ciudad.transit) { const p = Ciudad.tpos(v); if (!cerca(p.x, p.y, 700)) continue; const l = v.line, kind = l.kind, col = C(l.color);
       if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const s0 = v.s - v.dir * (i * (carL + 1) + carL / 2), q = Ciudad.cuerda(l.P, s0 + v.dir * carL * .35, s0 - v.dir * carL * .35, v.dir * 2); G3.vehicle(q.x, G3.zOn(l, s0), q.y, q.a, carL, kind, col); } }
@@ -8657,6 +9373,7 @@ const Libre = EM.modes.libre = {
     if (st.mode !== 'ride') { const V = this.V(st);
       if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
       else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zj, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zj, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
+      else if (this.malla3(st.veh.kind, 1)) { EM.taller.mundo(this.malla3(st.veh.kind, 1), st.x, zj, st.y, st.h); const pie = MALLA3[st.veh.kind][1]; if (pie != null) this.persona3(G, st.x, zj + pie, st.y, st.h, Perfil.ped(), 1, 0); }   // mallas del taller de arte (Codex)
       else if (V.monta) { G.box(st.x, zj + .06, st.y, st.h, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(st.h) * V.len * .42, zj + .1, st.y + Math.sin(st.h) * V.len * .42, st.h, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zj + .18, st.y, st.h, Perfil.ped(), 1, 0); }
       else if (st.veh.kind === 'bici') { G.box(st.x, zj + .35, st.y, st.h, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zj + .55, st.y, st.h, Perfil.ped(), 1, 0); }
       else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zj + .3, st.y, st.h, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zj + .3 + Hh * .62, st.y, st.h, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); } }
@@ -8708,6 +9425,7 @@ const TRAMA_WHO = {
   'Doña Marleny': { col: '#c8201f', hair: '#2a1a12', skin: '#b07a52' },
   'Wílmar': { col: '#f4f1ea', hat: '#1C5C9C', skin: '#8a5a3b' },
   'Agente de tránsito': { col: '#c7e000', hat: '#f4f1ea', skin: '#d9a77f' },
+  'Doña Luz': { col: '#b07cff', skin: '#e0ac7e' }, 'Santi': { col: '#9bd341', hat: '#9bd341', skin: '#c68a5c' }, 'Don Jairo': { col: '#143a6b', hat: '#0e2d55', skin: '#a86a3d' },
   'Pasajero': { col: '#7a5cc4', skin: '#d9a77f' }
 };
 const TRAMA = [
@@ -8796,6 +9514,28 @@ const TRAMA = [
       ['Rosalba', 'Vamos, mija. Sin afán y sin regar el tinto.']],
       ok: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' }
   ] },
+  { t: 'El pasaje doblado', steps: [   // 2.0.0: con los personajes de Juega EnCicla (entregas de ChatGPT/Codex y Gemini/Antigravity)
+    { k: 'ir', at: 'San Antonio', line: 'A', r: 40, txt: 'Ve a San Antonio: Doña Luz, usuaria de EnCicla desde 2011, tiene algo para ti' },
+    { k: 'hablar', who: 'Doña Luz', at: 'San Antonio', line: 'A', txt: 'Habla con Doña Luz junto a la estación', lines: [
+      ['Doña Luz', 'Mija, mire este pasaje: se le dobló la esquina y por dentro tiene el dibujo de una rueda.'],
+      ['Doña Luz', 'Póngalo contra la luz. ¿Sí ve el radio que le falta?'],
+      ['Rosalba', 'Eso es cosa de la gente de EnCicla. Arranquemos por la calle del viaducto, que es lo más rápido.']] },
+    { k: 'modulo', who: 'Doña Luz', at: 'San Antonio', line: 'A', m: 'carrera', lv: 'cr:A', fin: 'San Antonio', finLine: 'A', txt: 'Corre por la calle junto al viaducto: esquiva, salta y recoge pasajes', lines: [
+      ['Doña Luz', 'Con ◀ ▶ cambia de carril, con ▲ salta los huecos y con 🛹 escoge en qué rodar.']],
+      ok: 'Doña Luz guardó el pasaje en la libreta: «Ahora lléveselo a Santi, en Floresta».' },
+    { k: 'abordar', line: 'B', at: 'San Antonio', txt: 'Toma la línea B hacia San Javier' },
+    { k: 'bajar', line: 'B', at: 'Floresta', txt: 'Bájate en Floresta' },
+    { k: 'hablar', who: 'Santi', at: 'Floresta', line: 'B', txt: 'Muéstrale la esquina doblada a Santi, el anfitrión de EnCicla', lines: [
+      ['Santi', '¡Esa esquina la doblé yo, para que no se saliera de la libreta!'],
+      ['Santi', 'El dibujo es de Don Jairo, el mecánico. Está en Estadio, la estación anterior: vaya en bici o caminando.'],
+      ['Rosalba', 'Por Floresta pasa la línea B, mija. Desde acá uno llega a San Antonio sin bajarse del tren.']] },
+    { k: 'ir', at: 'Estadio', line: 'B', r: 40, txt: 'Ve hasta Estadio, la estación anterior, donde trabaja Don Jairo' },
+    { k: 'hablar', who: 'Don Jairo', at: 'Estadio', line: 'B', txt: 'Deja que Don Jairo termine la rueda', lines: [
+      ['Don Jairo', 'Cuando enseño a centrar un rin, empiezo con este dibujo: la rueda con un radio de menos.'],
+      ['Don Jairo', 'Si uno dobla la esquina, el radio que falta aparece. Mire.'],
+      ['Rosalba', 'Guardemos eso en la libreta, con una foto del estadio.']] },
+    { k: 'foto', lugar: 'estadio', txt: 'Toma la postal del Estadio Atanasio Girardot con 📷' }
+  ] },
   { t: 'Epílogo', steps: [
     { k: 'hablar', who: 'Rosalba', at: 'La Estrella', line: 'A', txt: 'Despídete de Rosalba en La Estrella', lines: [
       ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
@@ -8805,7 +9545,7 @@ const TRAMA = [
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
 /* arte de cada capítulo (src/data/arte.js) y el cielo que va detrás de las ilustraciones con fondo transparente */
-const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
+const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'esc_dia', 'portada'];
 TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
 const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
 const TRAMA_PREG = [
@@ -9179,7 +9919,7 @@ const LUGAR_INFO = {
 /* personajes que llegan en datos (src/data/guion.js, formato de docs/PLAN-UNICO-IA.md 4b-6): se suman si traen lo necesario */
 if (typeof GUION !== 'undefined' && GUION && Array.isArray(GUION.personajes)) for (const P of GUION.personajes) {
   const ok = P && typeof P.id === 'string' && typeof P.n === 'string' && typeof P.o === 'string' && Array.isArray(P.en) && Array.isArray(P.f) && P.f.length && !GENTE.some(G => G.id === P.id);
-  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]) });
+  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]), frag: typeof P.frag === 'string' ? P.frag.slice(0, 200) : undefined });
 }
 const TURISTAS = [['Emma', 'de Francia'], ['Lukas', 'de Alemania'], ['Sofía', 'de Argentina'], ['Hiro', 'de Japón'], ['Ana', 'de Bogotá'], ['Tom', 'de Canadá'], ['Lucía', 'de España'], ['Diego', 'de México'], ['Amara', 'de Kenia'], ['Joana', 'de Brasil']];
 const Gente = EM.gente = {
@@ -9235,9 +9975,11 @@ const Gente = EM.gente = {
   hablar(st, p) {
     if (st.trama && st.trama.talk) return; const G = p.G, vis = Save.d.gente || (Save.d.gente = {});
     if (p.tur) { const T = st.tur; if (!T) return; if (T.ok) { Ciudad.say(p, 'Vamos a ' + T.D.n); return; } this.charla(st, p, [`¡Hola! Soy ${G.n}, ${G.o.replace('turista ', '')}. Me dijeron que no me puedo ir sin conocer ${T.D.n}. ¿Me acompañas?`], [['Claro, sígueme', () => { T.ok = true; st.guia = { x: T.D.cx, y: T.D.cy, title: 'Acompaña a ' + G.n + ' a ' + T.D.n, hint: LUGAR_INFO[T.D.id] || '' }; this.cerrar(st); Libre.msg(st, '🧳 ' + G.n + ' te sigue: llévala caminando', 'b'); }], ['Ahora no', () => { this.cerrar(st); }]]); return; }
-    const nuevo = !vis[G.id]; if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; Save.write(); }
+    const nuevo = !vis[G.id], fe = Save.d.fragsEncicla || (Save.d.fragsEncicla = {}), conF = GENTE.filter(q => q.frag); let pieF = '';
+    if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; if (G.frag && !fe[G.id]) { fe[G.id] = 1; const n = conF.filter(q => fe[q.id]).length; pieF = ' · 🚲 fragmento de EnCicla ' + n + ' de ' + conF.length; if (n === conF.length) { Save.d.wallet += 20; pieF += ' · ¡El pasaje doblado está completo! +20 🎫'; st._pasaje = 1; } } Save.write(); }
     const L = G.f.map(([t, x]) => (t === 1 ? '💡 Lo que pocos saben: ' : t === 0 ? '📌 Lo que todos saben: ' : '') + x);
-    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' : '');
+    if (G.frag) L.push('🚲 ' + G.frag);
+    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' + pieF : '');
   },
   charla(st, p, lines, opts, pie) {
     const el = $('#trTalk'); if (!el || EM.headless) { st.charla = null; return; } st.charla = { p, lines, i: 0, opts, pie };
@@ -9247,7 +9989,16 @@ const Gente = EM.gente = {
       el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => C.opts[+b.dataset.o][1]()); el.querySelector('[data-x]').onclick = () => this.cerrar(st); };
     this._pinta = pinta; pinta(); Snd.play('tap');
   },
-  cerrar(st) { st.charla = null; if (this._pinta) this._pinta(); },
+  cerrar(st) { st.charla = null; if (this._pinta) this._pinta(); if (st._pasaje) { st._pasaje = 0; this.escenaPasaje(); } },
+  /* con los seis fragmentos de EnCicla: la escena del pasaje doblado (tren al atardecer, retrato y el papel que se abre), del taller de arte de Codex */
+  escenaPasaje() {
+    const T = EM.taller; if (!T || !T.escena || EM.headless) return;
+    UI.modal(`<div class="pag">Juega EnCicla · 6 de 6</div><h2>El pasaje doblado</h2><canvas id="gpEsc" width="320" height="180" style="width:100%;border-radius:10px;background:#154a80"></canvas><p class="m">Los seis fragmentos eran el mapa de un viaje en metro y en bici, de San Antonio a Floresta y de ahí a Estadio.</p><button class="btn" id="gpX">Seguir</button>`);
+    const cv = $('#gpEsc'), g = cv && cv.getContext('2d'), M = GENTE.find(q => q.id === 'ec_maryi'), t0 = now(); let ret = null, raf = 0; if (!g) return;
+    if (M && T.retrato) T.retrato(M).then(im => { ret = im; }).catch(() => {});
+    const loop = () => { if (!document.body.contains(cv)) return; try { T.escena(g, 320, 180, Math.min(8, now() - t0), ret); } catch (e) { EM.errors.push('escena: ' + e.message); return; } raf = requestAnimationFrame(loop); }; loop();
+    const b = $('#gpX'); if (b) b.onclick = () => { cancelAnimationFrame(raf); UI.close(); };
+  },
   /* 📍 qué ver cerca: lugares famosos, estaciones y personajes, con lo que hay que saber; tocar uno lo vuelve destino (flecha y distancia) */
   guia(st) {
     if (EM.headless) return; const km = d => d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1).replace('.', ',') + ' km', L = [], vis = Save.d.gente || {};
@@ -9703,36 +10454,53 @@ const MPlus = EM.modes.metroplus = {
 ### `src/js/47-carrera.js`
 ~~~~js
 /* =====================================================================
-   CARRERA SIN FIN (1.5.0) · prototipo de la misión M4 del Plan único (docs/PLAN-UNICO-IA.md)
+   CARRERA SIN FIN (2.0.0) · la misión M4 del Plan único (docs/PLAN-UNICO-IA.md), con lo mejor de las dos entregas:
+   de Gemini/Antigravity la elección de vehículo y los poderes (🧲 imán, ⚡ turbo, 🛡 escudo); de ChatGPT/Codex las mallas 3D
+   de los vehículos y los obstáculos (EM.taller.vehiculo y EM.taller.pista) y el manubrio con las manos en primera persona.
    En patineta por la calle real que va junto a una línea del metro, del tranvía o del Metroplús: en 3D con el motor G3 y las
    casas y edificios reales (primera o tercera persona) y, si no hay WebGL, desde arriba. Tres carriles, saltos, obstáculos de
    Medellín (huecos, conos, motos, perros, chazas y charcos), pasajes 🎫 y, en cada estación, su dato. El ritmo acelera.
    Cuando lleguen el motor de carrera de Run Scooter y su arte (Gemini y ChatGPT), se cambian la pista, los obstáculos y el
    dibujo; el contrato de modos (create, step, draw, levels, result, ai, act) se queda igual para que el bot lo siga jugando.
    ===================================================================== */
+/* los vehículos de la carrera son los mismos de Ciudad Libre (VEH); spd: tope (m/s), sal: impulso del salto (m/s), mesh: pieza del taller */
+const CR_VEH = [
+  { id: 'skate', ico: '🛹', spd: 20, sal: 8, mesh: 'skate', pie: .16 }, { id: 'patines', ico: '🛼', spd: 20.5, sal: 7.8, mesh: 'patines', pie: .2 },
+  { id: 'monopatin', ico: '🛴', spd: 21, sal: 7.5, mesh: 'scooter', pie: .16 }, { id: 'scooter', ico: '⚡', spd: 23, sal: 7.2, mesh: 'electrico', pie: .24 },
+  { id: 'bici', ico: '🚲', spd: 22, sal: 7, mesh: 'bici', pie: .55 }
+];
+const CR_POD = { iman: ['🧲', 'Imán: los pasajes de los otros carriles llegan solos', 8, [.86, .2, .2]], turbo: ['⚡', 'Turbo: más rápido y atraviesas lo que venga', 5, [.98, .8, .15]], escudo: ['🛡', 'Escudo: el próximo golpe no cuenta', 0, [.25, .55, .95]] };
 const CR_OBS = {   // [largo (m), alto (m), color, 0 = se salta (está en el piso) · 1 = se esquiva o se salta si es bajo]
   hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1], moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1]
 };
 const Carrera = EM.modes.carrera = {
   id: 'carrera', name: 'Carrera sin fin', sub: 'Junto al metro, al tranvía y al Metroplús', music: 'conduce', fullCanvas: true,
-  tip: 'Desliza a los lados (o ◀ ▶) para cambiar de carril y hacia arriba (o ▲) para saltar. Los huecos y los charcos se saltan; los conos, los perros, las motos y las chazas se esquivan. Recoge pasajes 🎫 y el dato de cada estación. 👁 cambia entre primera y tercera persona.',
-  LINEAS: [['A', 'Línea A del metro'], ['B', 'Línea B del metro'], ['T', 'Tranvía de Ayacucho'], ['MP1', 'Metroplús Línea 1'], ['MP2', 'Metroplús Línea 2']],
-  levels() { return this.LINEAS.filter(([id]) => NET.byId[id]).map(([id, n]) => ({ id: 'cr:' + id, name: n, sub: 'En patineta, por la calle junto a la vía' })); },
+  tip: 'Desliza a los lados (o ◀ ▶) para cambiar de carril y hacia arriba (o ▲) para saltar. Los huecos y los charcos se saltan; los conos, los perros, las motos y las chazas se esquivan. Recoge pasajes 🎫, poderes (🧲 imán, ⚡ turbo, 🛡 escudo) y el dato de cada estación. 🛹 cambia de vehículo y 👁 entre primera y tercera persona.',
+  LINEAS: [['A', 'Línea A del metro'], ['B', 'Línea B del metro'], ['T', 'Tranvía de Ayacucho'], ['MP1', 'Metroplús Línea 1'], ['MP2', 'Metroplús Línea 2'], ['MPO', 'Línea O por la 80']],
+  levels() { return this.LINEAS.filter(([id]) => NET.byId[id]).map(([id, n]) => ({ id: 'cr:' + id, name: n, sub: 'En skate, patines, monopatín o bici, por la calle junto a la vía' })); },
+  V(st) { return CR_VEH[st.vi | 0] || CR_VEH[0]; },
   create(lv, opts = {}) {
     const id = String(lv || 'cr:A').slice(3), l = NET.byId[id] || NET.byId.A, rng = new RNG((opts.seed | 0) + 17), obs = [];
-    for (let s = 70; s < l.P.len - 30; s += 9 + rng.f() * 16) { const tipos = Object.keys(CR_OBS); obs.push(rng.f() < .6 ? { s, c: rng.i(0, 2), k: rng.pick(tipos) } : { s, c: rng.i(0, 2), k: 'pasaje' }); }
-    return { lvId: lv, line: l.id, off: l.kind === 'metro' ? 13 : 0, s: 30, v: 8, c: 1, cx: 1, y: 0, vy: 0, t: 0, obs, pts: 0, pasajes: 0, vidas: 3, inv: 0, done: false, primera: false, est: -1, dato: '', datoT: 0, auto: !!opts.auto };
+    const tipos = Object.keys(CR_OBS), pods = Object.keys(CR_POD);
+    for (let s = 70; s < l.P.len - 30; s += 9 + rng.f() * 16) { const r = rng.f(), c = rng.i(0, 2); obs.push(r < .58 ? { s, c, k: rng.pick(tipos) } : r < .955 ? { s, c, k: 'pasaje' } : { s, c, k: rng.pick(pods) }); }
+    return { lvId: lv, line: l.id, off: l.kind === 'metro' ? 13 : 0, s: 30, v: 8, c: 1, cx: 1, y: 0, vy: 0, t: 0, obs, pts: 0, pasajes: 0, vidas: 3, inv: 0, done: false, primera: false, est: -1, dato: '', datoT: 0, auto: !!opts.auto,
+      vi: clamp(Save.d.settings.vehCr | 0, 0, CR_VEH.length - 1), iman: 0, turbo: 0, escudo: 0, poderes: 0 };
   },
   /* punto del carril c (0, 1 o 2; 2,6 m uno del otro) a s metros del comienzo de la línea */
   pos(st, s, c) { const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), st.off + (c - 1) * 2.6); },
   step(st, dt) {
-    if (st.done) return; const l = NET.byId[st.line]; st.t += dt; st.v = Math.min(22, st.v + dt * .12);   // el ritmo acelera hasta 80 km/h
-    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt;
+    if (st.done) return; const l = NET.byId[st.line], V = this.V(st), top = V.spd * (st.turbo > 0 ? 1.3 : 1); st.t += dt;
+    st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));   // el ritmo acelera hasta el tope del vehículo (unos 75 a 85 km/h)
+    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt; if (st.iman > 0) st.iman -= dt; if (st.turbo > 0) st.turbo -= dt;
     if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.y === 0) st.vy = 0; }
-    for (const o of st.obs) { if (o.hecho || Math.abs(o.s - st.s) > 1.2 || Math.abs(o.c - st.cx) > .5) continue;
+    for (const o of st.obs) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
+      if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;   // con el imán, los pasajes de los otros carriles llegan solos
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
+      if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; continue; }
       const T = CR_OBS[o.k]; if (st.y > Math.max(.3, T[1]) || st.inv > 0) continue;   // saltando por encima, o recién golpeado
-      o.hecho = 1; st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); if (st.vidas <= 0) st.done = true; }
+      o.hecho = 1; if (st.turbo > 0) { st.pts += 5; continue; }   // con el turbo se atraviesa
+      if (st.escudo) { st.escudo = 0; st.inv = 1; st.dato = '🛡 El escudo aguantó el golpe'; st.datoT = 2.5; continue; }
+      st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); if (st.vidas <= 0) st.done = true; }
     for (const e of l.st) { if (e.i <= st.est || e.s > st.s) continue; st.est = e.i; st.pts += 25; const f = NET.fact ? NET.fact(e.name) : ''; st.dato = '🚉 ' + e.name + (f ? ' · ' + f : ''); st.datoT = 6; }
     if (st.datoT > 0) st.datoT -= dt; st.pts += st.v * dt * .5;
     if (st.s >= l.P.len - 10) st.done = true;   // llegaste al final de la línea
@@ -9740,15 +10508,19 @@ const Carrera = EM.modes.carrera = {
   },
   /* el bot: mira 9 m adelante; salta lo bajo y esquiva lo alto */
   ai(st) {
-    const o = st.obs.find(q => !q.hecho && q.k !== 'pasaje' && q.s > st.s && q.s < st.s + 9 && q.c === st.c); if (!o) return null; const T = CR_OBS[o.k];
-    if (T[3] === 0 || T[1] < .9) return 'salta'; const libre = [0, 1, 2].filter(c => !st.obs.some(q => !q.hecho && q.k !== 'pasaje' && q.c === c && q.s > st.s && q.s < st.s + 11));
+    if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }   // el bot prueba otro vehículo una vez
+    const o = st.obs.find(q => !q.hecho && CR_OBS[q.k] && q.s > st.s && q.s < st.s + 9 && q.c === st.c); if (!o || st.turbo > 0) return null; const T = CR_OBS[o.k];
+    if (T[3] === 0 || T[1] < .9) return 'salta'; const libre = [0, 1, 2].filter(c => !st.obs.some(q => !q.hecho && CR_OBS[q.k] && q.c === c && q.s > st.s && q.s < st.s + 11));
     return libre.length ? (libre[0] < st.c ? 'izq' : 'der') : 'salta';
   },
-  act(st, a) { if (a === 'izq') st.c = Math.max(0, st.c - 1); else if (a === 'der') st.c = Math.min(2, st.c + 1); else if (a === 'salta' && st.y === 0) st.vy = 7.5; else if (a === 'vista') st.primera = !st.primera; },
-  key(st, k, down) { if (!down) return; const m = { ArrowLeft: 'izq', a: 'izq', ArrowRight: 'der', d: 'der', ArrowUp: 'salta', w: 'salta', ' ': 'salta', v: 'vista' }[k]; if (m) this.act(st, m); },
+  act(st, a) {
+    if (a === 'izq') st.c = Math.max(0, st.c - 1); else if (a === 'der') st.c = Math.min(2, st.c + 1); else if (a === 'salta' && st.y === 0) st.vy = this.V(st).sal; else if (a === 'vista') st.primera = !st.primera;
+    else if (a === 'vehiculo') { st.vi = (st.vi + 1) % CR_VEH.length; const V = this.V(st); if (!st.auto) { Save.d.settings.vehCr = st.vi; Save.write(); } st.dato = V.ico + ' ' + ((VEH[V.id] || {}).n || V.id); st.datoT = 2.5; const b = $('#crVe'); if (b) b.textContent = V.ico; }
+  },
+  key(st, k, down) { if (!down) return; const m = { ArrowLeft: 'izq', a: 'izq', ArrowRight: 'der', d: 'der', ArrowUp: 'salta', w: 'salta', ' ': 'salta', v: 'vista', c: 'vehiculo' }[k]; if (m) this.act(st, m); },
   mount(st, el) {
-    el.innerHTML = `<div class="crbtns"><button id="crIz" aria-label="Carril a la izquierda">◀</button><button id="crSa" aria-label="Saltar">▲</button><button id="crDe" aria-label="Carril a la derecha">▶</button></div><div class="vsel"><button id="crVi" title="Primera o tercera persona">👁</button></div>`;
-    $('#crIz').onclick = () => this.act(st, 'izq'); $('#crDe').onclick = () => this.act(st, 'der'); $('#crSa').onclick = () => this.act(st, 'salta'); $('#crVi').onclick = () => this.act(st, 'vista');
+    el.innerHTML = `<div class="crbtns"><button id="crIz" aria-label="Carril a la izquierda">◀</button><button id="crSa" aria-label="Saltar">▲</button><button id="crDe" aria-label="Carril a la derecha">▶</button></div><div class="vsel"><button id="crVe" title="Cambiar de vehículo">${this.V(st).ico}</button><button id="crVi" title="Primera o tercera persona">👁</button></div>`;
+    $('#crIz').onclick = () => this.act(st, 'izq'); $('#crDe').onclick = () => this.act(st, 'der'); $('#crSa').onclick = () => this.act(st, 'salta'); $('#crVi').onclick = () => this.act(st, 'vista'); $('#crVe').onclick = () => this.act(st, 'vehiculo');
     const cv = $('#gcv'); let p0 = null; this.unmount();   // deslizar: a los lados cambia de carril, hacia arriba salta
     this._pd = e => { p0 = { x: e.clientX, y: e.clientY }; }; this._pu = e => { if (!p0) return; const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null; if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) this.act(st, dx < 0 ? 'izq' : 'der'); else if (dy < -30) this.act(st, 'salta'); };
     cv.addEventListener('pointerdown', this._pd); cv.addEventListener('pointerup', this._pu);
@@ -9758,31 +10530,41 @@ const Carrera = EM.modes.carrera = {
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, p = this.pos(st, st.s, st.cx), z = MAP.elevM(p.x, p.y) + st.y;
     if (this.gl(st)) { G3.show(true); const c = Math.cos(p.a), s = Math.sin(p.a), cam = st.primera ? { eye: [p.x + c * .3, z + 1.55, p.y + s * .3], at: [p.x + c * 20, z + 1.2, p.y + s * 20], fov: 1.2 } : { eye: [p.x - c * 6.5, z + 3.2, p.y - s * 6.5], at: [p.x + c * 8, z + 1, p.y + s * 8], fov: 1.05 };
-      G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: .8, suave: true, cerca: 1.5, dyn: G => this.dyn3D(G, st, p, z) }); }
+      G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: .8, suave: true, cerca: 1.5, dyn: G => this.dyn3D(G, st, p, z) });
+      if (st.primera && EM.taller) EM.taller.primera(g, this.V(st).mesh, W, H, (st.cx - st.c) * .22 + (st.y > 0 ? -.03 : 0)); }   // el manubrio (o la tabla y los pies) con las manos, del taller de arte
     else {   // desde arriba (sin WebGL, en «Celular modesto» o en las pruebas)
       if (typeof G3 !== 'undefined' && G3.cv) G3.show(false); const k = 4 * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), mx = p.x, my = p.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H * .62 + (y - my) * k });
       g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, mx, my - (H * .12) / k, k);
-      for (const o of st.obs) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y); g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
+      for (const o of st.obs) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
       const q = S(p.x, p.y); g.fillStyle = '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
     }
     this.marcador(g, st, W, H);
   },
+  /* malla del taller de arte subida una vez por contexto de WebGL (null si el taller no está: se dibuja con cajas) */
+  malla(clave, hacer) { const T = EM.taller; return T && T.malla ? T.malla(clave, () => hacer(T)) : null; },
   dyn3D(G, st, p, z) {
-    for (const o of st.obs) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y);
+    const T = EM.taller;
+    for (const o of st.obs) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
+      if (P) { G.box(q.x, zq + .9 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2.5, .55, .55, .55, P[3]); continue; }
+      const m = this.malla('o:' + o.k, T => T.pista(o.k));
+      if (m) { T.mundo(m, q.x, zq + (o.k === 'pasaje' ? .45 + Math.sin(st.t * 3 + o.s) * .15 : 0), q.y, o.k === 'pasaje' ? st.t * 2 : q.a + (o.k === 'moto' || o.k === 'perro' ? Math.PI : 0)); continue; }
       if (o.k === 'pasaje') { G.box(q.x, zq + 1 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2, .5, .08, .35, [.98, .78, .2]); continue; }
-      const T = CR_OBS[o.k]; G.box(q.x, zq, q.y, q.a, T[0], o.k === 'moto' ? .7 : 1.1, Math.max(.06, T[1]), rgb(T[2])); }
-    if (st.primera) G.box(p.x + Math.cos(p.a) * .75, z + 1.05, p.y + Math.sin(p.a) * .75, p.a + Math.PI / 2, .7, .05, .05, [.15, .15, .17]);   // el manubrio
-    else if (!(st.inv > 0 && Math.floor(st.t * 10) % 2)) { G.box(p.x, z + .08, p.y, p.a, 1.1, .5, .12, rgb('#2ec4b6')); Libre.persona3(G, p.x, z + .2, p.y, p.a, Perfil.ped(), 1, st.t * 9); }
+      const C = CR_OBS[o.k]; G.box(q.x, zq, q.y, q.a, C[0], o.k === 'moto' ? .7 : 1.1, Math.max(.06, C[1]), rgb(C[2])); }
+    if (st.primera || (st.inv > 0 && Math.floor(st.t * 10) % 2)) return;   // en primera persona el manubrio va encima, en el lienzo
+    const V = this.V(st), m = this.malla('v:' + V.mesh, T => T.vehiculo(V.mesh, { persona: false }));
+    if (m) T.mundo(m, p.x, z, p.y, p.a); else G.box(p.x, z + .08, p.y, p.a, 1.1, .5, .12, rgb('#2ec4b6'));
+    Libre.persona3(G, p.x, z + V.pie, p.y, p.a, Perfil.ped(), 1, V.id === 'bici' ? 0 : st.t * 9);
+    if (st.escudo || st.turbo > 0) G.box(p.x, z + 2.3 + Math.sin(st.t * 4) * .1, p.y, st.t * 2, .3, .3, .3, st.turbo > 0 ? CR_POD.turbo[3] : CR_POD.escudo[3]);
   },
   /* la barra de arriba del juego (Game.hud) */
-  hud(st) { return [['🎫', st.pasajes], ['❤', Math.max(0, st.vidas)], ['', Math.round(st.v * 3.6) + ' km/h']]; },
+  hud(st) { return [['🎫', st.pasajes], ['❤', Math.max(0, st.vidas)], [this.V(st).ico, Math.round(st.v * 3.6) + ' km/h']]; },
   /* el marcador sobre el lienzo: puntos, pasajes, vidas, velocidad y el dato de la última estación */
   marcador(g, st, W, H) {
     const d = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), f = n => Math.round(n * d) + 'px Cuerpo, sans-serif', km = Math.round(st.v * 3.6);
-    g.textAlign = 'left'; g.fillStyle = 'rgba(15,34,56,.82)'; g.fillRect(8 * d, 56 * d, 168 * d, 52 * d); g.fillStyle = '#fff'; g.font = '800 ' + f(17); g.fillText(Math.round(st.pts) + ' puntos', 16 * d, 77 * d); g.font = '700 ' + f(12.5); g.fillText('🎫 ' + st.pasajes + '   ' + '❤'.repeat(Math.max(0, st.vidas)) + '   ' + km + ' km/h', 16 * d, 98 * d);
+    g.textAlign = 'left'; g.fillStyle = 'rgba(15,34,56,.82)'; g.fillRect(8 * d, 56 * d, 168 * d, 52 * d); g.fillStyle = '#fff'; g.font = '800 ' + f(17); g.fillText(Math.round(st.pts) + ' puntos', 16 * d, 77 * d); g.font = '700 ' + f(12.5); g.fillText('🎫 ' + st.pasajes + '   ' + '❤'.repeat(Math.max(0, st.vidas)) + '   ' + km + ' km/h' + (st.iman > 0 ? '  🧲' : '') + (st.turbo > 0 ? '  ⚡' : '') + (st.escudo ? '  🛡' : ''), 16 * d, 98 * d);
     if (st.datoT > 0 && st.dato) { g.globalAlpha = clamp(st.datoT, 0, 1); g.fillStyle = 'rgba(255,255,255,.94)'; g.fillRect(8 * d, H - 120 * d, W - 16 * d, 44 * d); g.fillStyle = '#0f2238'; g.font = '700 ' + f(12.5); const t = st.dato.length > 70 ? st.dato.slice(0, 68) + '…' : st.dato; g.fillText(t, 16 * d, H - 94 * d); g.globalAlpha = 1; }
   },
-  result(st) { const pts = Math.round(st.pts); return { done: st.done, win: st.done && st.vidas > 0, score: pts, stars: st.done ? (pts > 1500 ? 3 : pts > 800 ? 2 : pts > 300 ? 1 : 0) : 0, lines: [['Puntos', pts], ['Pasajes', st.pasajes], ['Estaciones', st.est + 1]], fact: st.dato || '' }; }
+  result(st) { const pts = Math.round(st.pts); return { done: st.done, win: st.done && st.vidas > 0, score: pts, stars: st.done ? (pts > 1500 ? 3 : pts > 800 ? 2 : pts > 300 ? 1 : 0) : 0, lines: [['Puntos', pts], ['Pasajes', st.pasajes], ['Estaciones', st.est + 1], ['Poderes', st.poderes], ['Vehículo', this.V(st).ico + ' ' + ((VEH[this.V(st).id] || {}).n || '')]], fact: st.dato || '' }; }
 };
 ~~~~
 
@@ -10131,11 +10913,11 @@ const RedView = EM.red = {
    MENÚS: inicio (la línea), elige tu viaje, niveles, ajustes y créditos
    ===================================================================== */
 const MODECARDS = [
-  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.' },
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en bici, skate, patines, monopatín, carro, taxi o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio y la gente de EnCicla.' },
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
-  { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En patineta por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
+  { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En skate, patines, monopatín o bici EnCicla (🛹 para cambiar), con imán, turbo y escudo; por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
@@ -10533,6 +11315,11 @@ const CAPS = [
     ['Tú', '¿Y usted qué va a hacer?'],
     ['Rosalba', 'Montarme de pasajera. Sentarme en la ventana, mirar el río y saber que el tren está en buenas manos.']
   ], go: ['conduce', 'A:0-20'], fin: 'En cada estación alguien la reconoció y la saludó. Rosalba lloró en silencio, con el tinto entre las manos, sin regar ni una gota.' },
+  { t: 'Ruedas que conectan el valle', scene: 'metroplus', lines: [   // 2.0.0: idea de la entrega de Gemini/Antigravity, con los datos revisados
+    ['Rosalba', 'Cuando uno se baja del tren, el viaje sigue: en bici de EnCicla, en patines o en monopatín.'],
+    ['Santi (anfitrión de EnCicla)', 'Por Floresta pasa la línea B: desde aquí llegas a San Antonio sin bajarte del tren. Y la bici te espera a la salida.'],
+    ['Rosalba', 'Escoja en qué rodar, mija: esquive los huecos, salte los charcos y recoja el dato de cada estación.']
+  ], go: ['carrera', 'cr:B'], fin: 'Santi chocó esos cinco en el anclaje: «¡Qué ritmo! El metro y las bicis andan al mismo compás».' },
   { t: 'Epílogo', scene: 'noche', lines: [
     ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
     ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],
@@ -10843,6 +11630,13 @@ const BotT = EM.test = {
         for (const kd of ['scooter', 'monopatin', 'skate', 'patines', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd);
         if (typeof Carrera === 'undefined' || Carrera.levels().length < 4) E('carrera sin fin: faltan líneas'); else { const c = Carrera.create('cr:A', { seed: 3 }); for (let i = 0; i < 600; i++) Carrera.step(c, 1 / 20); if (!isFinite(c.s) || c.s < 100) E('carrera sin fin: no avanza'); } { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
         if (typeof G3 === 'undefined' || typeof G3.edifReales !== 'function' || typeof VC.piso3D !== 'function') E('vistas 3D: faltan los edificios reales o el piso con calles'); else { const c = VC.piso3D(14000, 23000, 200, .5); if (!c || c.width !== 100) E('vistas 3D: el piso no se arma'); }
+        // 2.0.0 · entregas del Plan único: taller de arte (Codex), carrera con vehículos y poderes, deprimidos reales, cámara de cine y personajes de EnCicla
+        { const T = EM.taller; if (!T || !T.Malla) E('taller de arte: no cargó'); else { for (const id of T.vehiculos) { const d = T.vehiculo(id).datos(); if (!d.length || d.length % 30 || d.some(v => !isFinite(v))) E('taller: malla mala de ' + id); } for (const id of T.obstaculos) if (!T.pista(id).caras.length) E('taller: obstáculo vacío ' + id); for (const k of Object.keys(MALLA3)) if (!T.vehiculos.includes(MALLA3[k][0])) E('taller: no hay pieza para ' + k); for (const k of Object.keys(CR_OBS)) if (!T.obstaculos.includes(k)) E('taller: no hay pieza para el obstáculo ' + k); } }
+        { const c = Carrera.create('cr:B', { seed: 5 }); c.obs.unshift({ s: 31, c: 1, k: 'turbo' }, { s: 34, c: 1, k: 'cono' }, { s: 40, c: 1, k: 'escudo' }, { s: 44, c: 1, k: 'perro' }); c.v = 8; for (let i = 0; i < 160 && c.s < 47; i++) Carrera.step(c, 1 / 20);
+          if (c.vidas !== 3) E('carrera: el turbo o el escudo no protegen (' + c.vidas + ' vidas)'); if (c.poderes < 2) E('carrera: no recoge poderes'); Carrera.act(c, 'vehiculo'); if (c.vi !== 1) E('carrera: no cambia de vehículo'); if (!Carrera.levels().some(l => l.id === 'cr:MPO')) E('carrera: falta la línea O'); }
+        { const D = PUENTES.B.filter(r => r[1] < 0); if (D.length < 10) E('deprimidos: solo ' + D.length); else { const B = VC.PU.find(b => b.is_tunnel && b.len > 100), q = VC.puAt(B, B.len / 2), P = VC.puenteEn(q.x, q.y, -1, 0); if (!P || P.h < 3) E('deprimidos: el tramo cubierto no baja'); if (Libre.alto3({ x: q.x, y: q.y, z: -1, mode: 'walk' }) > MAP.elevM(q.x, q.y) - 3) E('deprimidos: en 3D el jugador no baja'); } }
+        { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }
+        { const ec = GENTE.filter(g => g.frag); if (ec.length !== 6) E('EnCicla: ' + ec.length + ' de 6 personajes'); for (const g of ec) if (!NET.stations.some(s => s.name === g.en[1])) E('EnCicla: no existe la estación ' + g.en[1]); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
         // cámara (1.3.0): tres ángulos distintos y el del guardado aplicado
         if (!VC.ANGULOS || VC.ANGULOS.length < 3 || new Set(VC.ANGULOS.map(A => A.ob)).size !== VC.ANGULOS.length) E('cámara: faltan ángulos');
@@ -11763,7 +12557,7 @@ fs.mkdirSync(dist, { recursive: true });
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
 const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/metroplus.js','data/hitos.js', 'data/edificios.js', 'data/puentes.js', 'data/metroplus_andenes.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
-if (fs.existsSync(src('data/guion.js'))) data.push('data/guion.js');   // la trama en datos (Plan único, M6), si ya llegó
+if (fs.existsSync(src('data/guion.js'))) data.push(limpia(read(src('data/guion.js'))));   // la trama en datos (Plan único, M6), si ya llegó
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)
@@ -13266,6 +14060,11 @@ def generar(C):
         g = shapely.transform(shapely.from_wkb(w), proj)
         if g.geom_type != 'LineString' or g.length < 4: continue
         for f in rf:
+            if 'is_tunnel' in (f['values'] or []) and cl not in PEATONAL and cl not in ('service', 'track', 'unknown'):
+                # deprimidos y soterrados urbanos (nivel -1): la vía baja en rampa y pasa por debajo del cruce
+                a, b = (f['between'] or [0, 1]); seg = substring(g, a, b, normalized=True)
+                if seg.geom_type == 'LineString' and seg.length >= 4: piezas.append({'c': cl or 'unknown', 'z': -1, 'g': seg})
+                continue
             if 'is_bridge' not in (f['values'] or []): continue
             a, b = (f['between'] or [0, 1])
             seg = substring(g, a, b, normalized=True)
@@ -13276,7 +14075,7 @@ def generar(C):
                 if ra < b and rb > a and r['value'] and r['value'] > 0: nivel = max(nivel, int(r['value']))
             nivel = nivel or 1
             piezas.append({'c': cl or 'unknown', 'z': min(3, nivel), 'g': seg})
-    print('tramos de puente:', len(piezas))
+    print('tramos de puente:', sum(1 for p in piezas if p['z'] > 0), '· de túnel:', sum(1 for p in piezas if p['z'] < 0))
     # se unen los tramos seguidos del mismo nivel y del mismo tipo (vehicular o peatonal): un puente partido en varias vías de OSM no lleva rampas en la mitad
     grupos = {}
     for p in piezas: grupos.setdefault((p['z'], p['c'] in PEATONAL), []).append(p)
@@ -13287,6 +14086,7 @@ def generar(C):
         clases = shapely.STRtree([p['g'] for p in L])
         for g in geoms:
             if g.length < 6: continue
+            if z < 0 and not (30 <= g.length <= 600): continue   # los túneles de montaña (Occidente, Oriente) no son deprimidos de la ciudad
             idx = clases.query(g.centroid, predicate='dwithin', distance=6) if hasattr(clases, 'query') else []
             cl = L[idx[0]]['c'] if len(idx) else L[0]['c']
             gs = g.simplify(.6)
@@ -13322,14 +14122,14 @@ def generar(C):
                 S.append([vi, i, round(ta, 3), round(tb, 3), bi]); mejor = w if mejor is None else max(mejor, w)
         if mejor: ancho = max(ancho * .8, mejor)
         # alto del tablero: sobre otra vía o el río, 6 m por nivel; puentes cortos sobre quebradas, 3 m
-        alto = (6.0 * p['z']) if g.length > 24 or p['pe'] else 3.0
+        alto = 5.5 if p['z'] < 0 else (6.0 * p['z']) if g.length > 24 or p['pe'] else 3.0   # deprimido: 5,5 m de hondo
         B.append([1 if p['pe'] else 0, p['z'], round(ancho, 1), round(alto, 1)] + [round(v, 1) for xy in ba for v in xy])
-    txt = ('/* Puentes vehiculares y peatonales del valle con su nivel (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps: is_bridge y level),\n'
+    txt = ('/* Puentes vehiculares y peatonales del valle con su nivel y deprimidos (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps: is_bridge, is_tunnel y level),\n'
            '   enlazados con las calles del juego. Generado por tools/puentes_datos.py (no editar a mano). */\n'
            f'const PUENTES = {json.dumps({"v": 1, "B": B, "S": S}, separators=(",", ":"))};\n')
     open(os.path.join(ROOT, 'src/data/puentes.js'), 'w', encoding='utf8').write(txt)
-    nv = sum(1 for b in B if b[0] == 0); npe = len(B) - nv
-    print(f'puentes: {len(B)} ({nv} vehiculares, {npe} peatonales) · tramos de calle sobre puente: {len(S)} · {len(txt) // 1024} KB · {round(time.time() - t0)} s')
+    nv = sum(1 for b in B if b[0] == 0 and b[1] > 0); npe = sum(1 for b in B if b[0] == 1); nt = sum(1 for b in B if b[1] < 0)
+    print(f'puentes: {len(B)} ({nv} vehiculares, {npe} peatonales, {nt} deprimidos) · tramos de calle sobre puente: {len(S)} · {len(txt) // 1024} KB · {round(time.time() - t0)} s')
 
 
 if __name__ == '__main__':
@@ -13472,6 +14272,19 @@ let empalmes = 0;
 for (const [e, d] of deg) { if (d > 1) continue; const [x, y] = nodes[e]; let best = null, bd = 3;
   for (let gy = Math.floor((y - 3) / CK); gy <= Math.floor((y + 3) / CK); gy++) for (let gx = Math.floor((x - 3) / CK); gx <= Math.floor((x + 3) / CK); gx++) for (const i of cel.get(gx * 1e5 + gy) || []) { const s = segs[i]; if (s.a === e || s.c === e) continue; const [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = ((x - ax) * dx + (y - ay) * dy) / L2; if (t <= .02 || t >= .98) continue; const dd = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (dd < bd) { bd = dd; best = [i, t]; } }
   if (best) { segs[best[0]].cortes.push([best[1], e]); empalmes++; } }
+// paradas y cabeceras sobre tramos rectos largos: parte el segmento vial más cercano para que la parada tenga nodo propio en el eje de la vía
+const _ptsAncla = [...Object.values(paradas).flat()];
+for (const flat of Object.values(RUTAS)) if (flat.length >= 4) _ptsAncla.push([flat[0] * TM / 4, flat[1] * TM / 4], [flat[flat.length - 2] * TM / 4, flat[flat.length - 1] * TM / 4]);
+for (const [x, y] of _ptsAncla) {
+  let best = null, bd = 35;
+  for (let gy = Math.floor((y - 35) / CK); gy <= Math.floor((y + 35) / CK); gy++) for (let gx = Math.floor((x - 35) / CK); gx <= Math.floor((x + 35) / CK); gx++) for (const i of cel.get(gx * 1e5 + gy) || []) {
+    const s = segs[i], [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = ((x - ax) * dx + (y - ay) * dy) / L2;
+    if (t <= .02 || t >= .98) continue;
+    const px = ax + dx * t, py = ay + dy * t, dd = Math.hypot(px - x, py - y);
+    if (dd < bd) { bd = dd; best = [i, t, px, py]; }
+  }
+  if (best) { const [i, t, px, py] = best, e = nodo(Math.round(px / U), Math.round(py / U)); if (e !== segs[i].a && e !== segs[i].c) segs[i].cortes.push([t, e]); }
+}
 for (const s of segs) { if (!s.cortes.length) { arista(s.a, s.c, s.f); continue; } s.cortes.sort((p, q) => p[0] - q[0]); let prev = s.a; for (const [, e] of s.cortes) { arista(prev, e, s.f); prev = e; } arista(prev, s.c, s.f); }
 // componente principal de la red (los puntos de paso solo se toman de ahí: nada de arrancar en un parqueadero aislado)
 const comp = new Int32Array(nodes.length).fill(-1); let ncomp = 0, mayor = 0, tam = 0;
