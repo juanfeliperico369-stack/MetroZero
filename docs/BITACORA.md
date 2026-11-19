@@ -2,6 +2,15 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+## 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
+- **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
+  - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.
+- **Plan único** (`docs/PLAN-UNICO-IA.md`) para Gemini con Antigravity y ChatGPT con Codex:
+  - misiones M1 a M6, que son las mismas en los dos trabajos (código y arte);
+  - la sección 4 trae las peticiones para Juega EnCicla y la 4b, las de El Metro;
+  - todo se entrega en un solo documento.
+- **Lo que sigue:** con las dos entregas, la IA de El Metro revisa, prueba, integra y publica la revolución de El Metro.
+
 ## Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
 **Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
 - **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.

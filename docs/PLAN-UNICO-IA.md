@@ -2,6 +2,8 @@
 
 **Para Gemini (con Antigravity) y ChatGPT (con Codex) · 19‑nov‑2026 · Escrito por Claude, a pedido del autor (OneZero).**
 
+*Las peticiones para Juega EnCicla (sección 4) las escribió la IA de EnCicla y las de El Metro (sección 4b), la IA de El Metro. Las misiones, las reglas y el formato de entrega son los mismos para los dos juegos.*
+
 > ## REGLA DE ENTREGA (obligatoria)
 > **Entrega ABSOLUTAMENTE TODO en UN SOLO DOCUMENTO** (un archivo Markdown).
 > - Ahí va el reporte de pruebas, las fallas, las ideas, el código y el arte.
@@ -13,7 +15,7 @@
 | | Juega EnCicla | El Metro |
 |---|---|---|
 | De qué trata | Arcade de acción por actividades: los oficios reales de EnCicla, la bici pública del Valle de Aburrá | Juego contemplativo del Metro de Medellín, que sirve de guía para turistas: manejar, operar y pasear por la ciudad |
-| Repositorio | `juanfeliperico369-stack/BicicletasUno` (la rama de trabajo más reciente) | `juanfeliperico369-stack/MetroZero` (rama `motor-valle`, que es la v1.4.0 más el motor) |
+| Repositorio | `juanfeliperico369-stack/BicicletasUno` (la rama de trabajo más reciente) | `juanfeliperico369-stack/MetroZero` (rama `ccr-2a67f935-oat714`, igual a `motor-valle`: la v1.4.0 más el motor) |
 | Jugar | https://juanfeliperico369-stack.github.io/BicicletasUno/ | https://juanfeliperico369-stack.github.io/MetroZero/ |
 | Código | `src/js/NN-nombre.js` (se juntan en orden) y `tools/build.js` → `dist/juega-encicla.html` | `src/js/NN-nombre.js` y `tools/build.mjs` → `dist/index.html` |
 | Pruebas | `node tests/run.js` | `node tools/test.mjs` |
@@ -124,6 +126,136 @@ Se toma la jugabilidad de *endless runner* de **Run Scooter** (`juanfeliperico36
    - la guía de estilo de la ciudad 3D de EnCicla para la noche, la lluvia y la niebla;
    - los interiores de las estaciones EnCicla;
    - mejores casas de ladera.
+
+## 4b. Lo que pide Claude para El Metro (que es lo que la IA de El Metro va a armar)
+
+> **Recuerda la regla de entrega:** todo lo de El Metro va en el **mismo documento único** de la sección 6, marcado **[El Metro]**. No mandes archivos sueltos.
+
+**Punto de partida, para no rehacer nada:** El Metro 1.4.0 con el Motor del Valle 1.0.0.
+- **Repositorio y rama:** `juanfeliperico369-stack/MetroZero`, rama `ccr-2a67f935-oat714` (igual a `motor-valle`). Se juega en https://juanfeliperico369-stack.github.io/MetroZero/.
+- **Pruebas:** con el mapa del motor único, el autotest da 0 errores y las 100 partidas del bot también.
+- **Lo que ya existe en Ciudad Libre** (`src/js/36-libre.js`):
+  - manejo «fácil» y «clásico», con el giro limitado por el agarre de cada vehículo;
+  - ritmo ⏩ (×1, ×1,5 y ×2; en metro y cable, hasta ×6);
+  - ayuda 🆘, guía 📍 y el mapa del valle para «Ir aquí» o «Marcar destino»;
+  - tu personaje (`26-perfil.js`) y 20 personajes de la ciudad (`39-gente.js`);
+  - puentes y viaducto con niveles (`11-puentes.js`);
+  - 639.457 casas y edificios reales (`11-edificios.js`);
+  - vistas desde arriba (con 3 ángulos) y en 3D: tercera persona, dron y cine, con el motor `G3` de `22-gl.js`.
+
+### 1. Fallas (M1): lo que más importa probar en El Metro
+- **Vistas 3D en celulares reales:**
+  - cuadros por segundo;
+  - que el piso no salga en cuadros, rayas ni puntitos;
+  - que la cámara de cine no quede dentro de un edificio;
+  - que el joystick vaya con la cámara.
+- **Gestos:** pellizco, arrastre y rueda en Ciudad Libre, Bus, Al volante y Metro, y el mapa grande (se abre tocando el minimapa o con la tecla M).
+- **Niveles:**
+  - subir a un puente por su rampa;
+  - pasar por debajo de un puente y del viaducto;
+  - que la calle siga libre bajo las estaciones del Centro;
+  - los carros del tráfico sobre los puentes.
+- **Manejo y tiempo:**
+  - los modos fácil y clásico, y la asistencia;
+  - el ritmo;
+  - que el juego vaya en tiempo real aunque el celular dé pocos cuadros;
+  - la calidad automática.
+- **Lo nuevo de la 1.3 y la 1.4:**
+  - las opciones de 🆘 (estación, calle, taxi, inicio);
+  - las charlas con los 20 personajes y los turistas;
+  - «Ir aquí» en el mapa.
+- **Guardado:** una partida guardada con una versión vieja (`elmetro.v1`) tiene que abrir sin perder nada.
+- **Fallas conocidas** (confirmar y proponer el arreglo):
+  - las terminales Caribe (273 m) y La Palma (53 m) de la Línea O quedan lejos de su andén real;
+  - el piso de ladera sale granulado (Santo Domingo);
+  - en un navegador sin pantalla con GPU emulada, el bucle se detiene por segundos. Para medir, congela el juego con `Game.freeze(true)` y llama `Game.frame()` a mano.
+
+### 2. Mapa único (M2): lo que necesita El Metro
+- **Pasar al motor los generadores de El Metro** (fase F2 de `motor-valle/MOTOR.md`), sin cambiar los formatos que leen `11-ciudad2.js`, `11-edificios.js`, `11-puentes.js` y `12-red.js`:
+  - `tools/vias_datos.mjs`: calles con curva y ancho;
+  - `tools/edificios_datos.py`: casas y edificios, pisos y usos;
+  - `tools/puentes_datos.py`: puentes con nivel;
+  - `tools/metroplus_osm.py` y `tools/metroplus_andenes.py`: corredores y andenes;
+  - `tools/rutas_calles.mjs`: alimentadores y Línea O;
+  - `src/data/hitos.js`: arquitectura icónica.
+- **Túneles y deprimidos** (`is_tunnel`), también en El Metro: con física por nivel (como `VC.puenteEn`) y dibujados en 2D y en 3D.
+- **Corregir en la fuente** las terminales Caribe y La Palma de la Línea O.
+- **Arte del mapa:**
+  - piso de ladera limpio;
+  - quebradas con su cauce;
+  - separadores con árboles;
+  - andenes con bancas, postes y paraderos;
+  - noche y lluvia en 2D y en 3D.
+
+### 3. Gráficos (M3) en los modos de El Metro
+- **3D de Ciudad Libre:**
+  - techos de verdad: teja a dos aguas en las casas, terrazas con tanque en las laderas y torres escalonadas (hoy todo es caja con techo plano);
+  - edificios reales también más allá de 700 m, con menos detalle;
+  - sombras suaves y luces de ventana de noche, iguales a las del 2D.
+- **Interiores de estación** para entrar caminando en 3D: andén, torniquetes con la Cívica, escaleras y el tren llegando.
+- **Guía de estilo para cada modo:**
+  - Metro: cabina, tercera persona, cine, panorámica y paseo;
+  - Al volante y Bus;
+  - Ciudad Libre: desde arriba con sus 3 ángulos, y en 3D;
+  - Maqueta 2:1, La Red, Metrocable, Despacho, Alimentadores, Metroplús y Álbum.
+- **Pantallas de inicio y de resultado** de cada modo.
+
+### 4. Run Scooter en El Metro (M4)
+- **El modo:** «Carrera sin fin» a lo largo de las líneas del metro y de los corredores del Metroplús, por las calles reales junto al viaducto.
+  - En 3D con el motor `G3` y los edificios reales.
+  - Vista en primera persona (manubrio y manos) y en tercera persona.
+- **Qué se recoge:**
+  - pasajes 🎫;
+  - **datos de la ciudad**: lo que todos saben y lo que pocos saben;
+  - cada estación es un punto de control con su dato.
+- **Obstáculos de Medellín:** huecos, conos, motos, perros, chazas y charcos.
+- **Vehículos de la carrera:** bici EnCicla, scooter, skate, patines y monopatín eléctrico (los de Run Scooter).
+- **Contrato de modos** de `25-game.js`: `create`, `step`, `draw`, `levels`, `result` y `ai`, para que el bot de pruebas lo juegue. Usa `substeps` y `escala`, como Ciudad Libre.
+
+### 5. Vehículos (M5) en El Metro
+- **Hoy** están en la tabla `VEH` de `36-libre.js` (campos `lat`, `smax`, `wb`, `vmax`, `acc` y `art`): taxi, moto, camioneta del Metro, bici EnCicla, alimentador y articulado.
+- **Los que se piden:**
+  - scooter, skate, patines y monopatín eléctrico (de Run Scooter);
+  - carro particular y bus convencional.
+- **De cada uno:**
+  - su física en la misma tabla y su sonido;
+  - por dónde puede ir: calle, ciclorruta, andén o carril exclusivo.
+- **Arte de cada vehículo, como funciones de dibujo:**
+  - desde arriba, como las de `21-sprites.js`;
+  - en 3D, con cajas o mallas para `G3`;
+  - de lado, para `23-lado.js`;
+  - con luces de noche.
+
+### 6. Trama (M6) de El Metro
+- **Capítulos nuevos** de «La última vuelta» (`37-trama.js`) que usen la carrera y los vehículos nuevos.
+- **Más gente de la ciudad:**
+  - Hoy son 20 personajes en `39-gente.js`.
+  - Se suman los de EnCicla en su papel: Santi, Doña Luz, Don Jairo, Wilson, Cata y Maryi.
+  - Los fragmentos de EnCicla van escondidos como Easter eggs.
+- **Cada personaje cuenta lo que todos saben y lo que pocos saben de su lugar**, revisado dato por dato y sin cifras dudosas.
+- **El guion en datos (JSON).** Este es el formato que ya lee El Metro:
+  - **Personaje:** `{ "id", "n": nombre, "o": oficio, "en": ["hito", id] | ["est", estación] | ["geo", lat, lon], "look": { piel, peinado, colPelo, camisa, pantalon, zapatos, gorro, colGorro, accesorio }, "f": [[0 | 1 | 2, "texto"]] }`. En `f`, 0 es lo que todos saben, 1 lo que pocos saben y 2 algo de su vida.
+  - **Capítulo:** `{ "id", "titulo", "pasos": [{ "k": "ir" | "hablar" | "subir" | "foto" | "carrera", "donde", "texto", "premio" }] }`.
+- **Arte de la trama:**
+  - retratos de frente (como `Perfil.retrato` o WebP pequeños);
+  - escenas;
+  - las señales de los Easter eggs en el mapa.
+
+### Reglas técnicas de El Metro (para el código)
+- **Un solo HTML**, sin librerías ni internet:
+  - `node tools/build.mjs` lo compila;
+  - `node tools/test.mjs 100` lo prueba y tiene que dar 0 errores;
+  - los módulos de `src/js/` se juntan en el orden de su nombre.
+- **El guardado `elmetro.v1` no se rompe:** un campo nuevo va en `newSave()` con su valor por defecto.
+- **En los sombreadores de `G3`, nada de coordenadas grandes en el fragmento:** las coordenadas de textura, el hueco del piso lejano, las ventanas y las luces se calculan en el vértice. En muchos celulares el fragmento solo llega a unos 16.000 y el valle mide más de 27.000 m.
+- **Fluidez en un celular medio:** el cuadro en JavaScript tarda menos de 8 ms la mitad de las veces y ninguno pasa de 50 ms después de calentar.
+- **Texto:** español de Colombia, para todo público, sin tono de revista.
+- **Fuentes:** citar OpenStreetMap, Overture y las capas oficiales. Nada de imágenes de Google Maps ni de Google Earth.
+
+### Reglas de arte de El Metro
+- **Se siguen** `arte/06-guia-unica-ia.md` (paletas, vistas, escalas y personajes), la skill `el-metro-arte` y `arte/entregas/INVENTARIO.md` (lo que ya existe).
+- **Formato del arte:** se entrega como código de dibujo (Canvas 2D, SVG en línea o mallas para `G3`) y siempre con su respaldo procedural. Las imágenes van solo como WebP pequeño en base64.
+- **Prohibido en las imágenes:** texto y logos (salvo que el encargo los pida).
 
 ## 5. Después de la entrega
 Claude arma lo entregado en Juega EnCicla: revisa, prueba, integra y publica la «revolución» (v2.0): HTML, APK y enlace. La IA de El Metro hace lo mismo en El Metro. El mapa sigue siendo uno solo, en `motor-valle/`.
