@@ -3,6 +3,11 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 19‑nov‑2026 · Motor City 2.4 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.4: terreno y límites verosímiles (agua con profundidad, pendientes, obstáculos reales), naturaleza y lagos generados.
+- **El juego no cambia** y sus pruebas siguen en verde.
+- Qué sigue: `motor-city/docs/DOCUMENTO-UNICO.md`, §9.
+
 ## 19‑nov‑2026 · Motor City 2.3 en `motor-city/` (Claude, la IA del motor)
 - **Qué se hizo:** sincronizar el motor 2.3 (sombras del sol, mobiliario urbano, fachadas por reglas, `MC.Urbe` con capas de datos, objetos inteligentes y sonido ambiente).
 - **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. El juego no cambia.
