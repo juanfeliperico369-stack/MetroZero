@@ -11,6 +11,7 @@ const TRAMA_WHO = {
   'Doña Marleny': { col: '#c8201f', hair: '#2a1a12', skin: '#b07a52' },
   'Wílmar': { col: '#f4f1ea', hat: '#1C5C9C', skin: '#8a5a3b' },
   'Agente de tránsito': { col: '#c7e000', hat: '#f4f1ea', skin: '#d9a77f' },
+  'Santi': { col: '#59AB42', hat: '#0e2d55', skin: '#d9a77f' },
   'Pasajero': { col: '#7a5cc4', skin: '#d9a77f' }
 };
 const TRAMA = [
@@ -78,6 +79,18 @@ const TRAMA = [
       ['Rosalba', 'Vamos, que la loma no se sube sola.']],
       ok: 'Una señora le dijo adiós desde un balcón con una ruana en la mano.' }
   ] },
+  { t: 'Ruedas que conectan el valle', steps: [
+    { k: 'ir', at: 'San Antonio', line: 'B', r: 38, txt: 'Regresa a San Antonio para tomar la Línea B hacia el occidente' },
+    { k: 'abordar', line: 'B', at: 'San Antonio', txt: 'Sube a la Línea B hacia San Javier' },
+    { k: 'bajar', line: 'B', at: 'Floresta', txt: 'Bájate en la estación Floresta' },
+    { k: 'hablar', who: 'Santi', at: 'Floresta', line: 'B', txt: 'Santi, anfitrión de EnCicla, te espera junto a los anclajes', lines: [
+      ['Santi', '¡Bienvenida a Floresta! Aquí donde termina el andén del metro empieza la ciclorruta: bicis de EnCicla, monopatines, tablas y patines.'],
+      ['Santi', 'Doña Luz, Don Jairo, Wilson, Cata, Maryi y yo cuidamos las bicis azules y verdes del valle. «Una sonrisa también se presta.»'],
+      ['Rosalba', 'Mija, el viaje no termina en el torniquete. Elija en qué quiere rodar por el corredor de San Juan y la 70.']] },
+    { k: 'modulo', who: 'Santi', at: 'Floresta', line: 'B', m: 'carrera', lv: 'cr:B-occidente', fin: 'San Antonio', finLine: 'A', txt: 'Recorre el bulevar de San Juan en Run Scooter (monopatín, bici o patines)', lines: [
+      ['Santi', 'Con ◀ ▶ cambias de carril, con ▲ saltas huecos y charcos, y con 🛴 eliges entre monopatín, eléctrico, bici EnCicla, skate o patines.']],
+      ok: 'Santi te saludó con el timbre desde la estación: “¡Tremendo ritmo! El metro y las ciclorrutas laten al mismo tiempo”.' }
+  ] },
   { t: 'La hora pico', steps: [
     { k: 'ir', at: 'San Antonio', line: 'A', r: 40, txt: 'Vuelve a la estación San Antonio: Don Efraín necesita ayuda' },
     { k: 'hablar', who: 'Don Efraín', at: 'San Antonio', line: 'A', txt: 'Habla con Don Efraín', lines: [
@@ -101,14 +114,14 @@ const TRAMA = [
   ] },
   { t: 'Epílogo', steps: [
     { k: 'hablar', who: 'Rosalba', at: 'La Estrella', line: 'A', txt: 'Despídete de Rosalba en La Estrella', lines: [
-      ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, los trenes y los que vienen.'],
+      ['Tú', 'Ahora la red es nuestra: los cables, los buses, el tranvía, las bicis, los trenes y los que vienen.'],
       ['Rosalba', 'La red no es de hierro, mija. Es de la gente que la cuida. Cultura Metro, ¿sí o qué?'],
       ['', 'FIN DE LA HISTORIA · La ciudad sigue abierta: oficios, postales y todas las líneas.']] }
   ] }
 ];
 /* preguntas de orientación (la primera opción es la correcta; el último dato es la estación de destino) */
 /* arte de cada capítulo (src/data/arte.js) y el cielo que va detrás de las ilustraciones con fondo transparente */
-const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'carga', 'portada'];
+const TRAMA_ART = ['esc_noche', 'esc_ladera_atardecer', 'esc_aguacero', 'esc_tango', 'iso_centro', 'esc_dia', 'esc_dia', 'carga', 'portada'];
 TRAMA.forEach((c, i) => { c.art = TRAMA_ART[i]; });
 const TRAMA_SKY = { esc_noche: 'linear-gradient(#0b1630,#23365c 70%,#3a4d73)', esc_dia: 'linear-gradient(#7fb6df,#d6ecfb)', esc_ladera_atardecer: 'linear-gradient(#3d2e5f,#c97b78 55%,#f4d9a8)', iso_centro: 'linear-gradient(#f4ecd0,#d9cdae)' };
 const TRAMA_PREG = [

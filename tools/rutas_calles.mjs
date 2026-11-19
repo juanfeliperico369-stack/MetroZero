@@ -30,6 +30,19 @@ let empalmes = 0;
 for (const [e, d] of deg) { if (d > 1) continue; const [x, y] = nodes[e]; let best = null, bd = 3;
   for (let gy = Math.floor((y - 3) / CK); gy <= Math.floor((y + 3) / CK); gy++) for (let gx = Math.floor((x - 3) / CK); gx <= Math.floor((x + 3) / CK); gx++) for (const i of cel.get(gx * 1e5 + gy) || []) { const s = segs[i]; if (s.a === e || s.c === e) continue; const [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = ((x - ax) * dx + (y - ay) * dy) / L2; if (t <= .02 || t >= .98) continue; const dd = Math.hypot(ax + dx * t - x, ay + dy * t - y); if (dd < bd) { bd = dd; best = [i, t]; } }
   if (best) { segs[best[0]].cortes.push([best[1], e]); empalmes++; } }
+// paradas y cabeceras sobre tramos rectos largos: parte el segmento vial más cercano para que la parada tenga nodo propio en el eje de la vía
+const _ptsAncla = [...Object.values(paradas).flat()];
+for (const flat of Object.values(RUTAS)) if (flat.length >= 4) _ptsAncla.push([flat[0] * TM / 4, flat[1] * TM / 4], [flat[flat.length - 2] * TM / 4, flat[flat.length - 1] * TM / 4]);
+for (const [x, y] of _ptsAncla) {
+  let best = null, bd = 35;
+  for (let gy = Math.floor((y - 35) / CK); gy <= Math.floor((y + 35) / CK); gy++) for (let gx = Math.floor((x - 35) / CK); gx <= Math.floor((x + 35) / CK); gx++) for (const i of cel.get(gx * 1e5 + gy) || []) {
+    const s = segs[i], [ax, ay] = nodes[s.a], [cx, cy] = nodes[s.c], dx = cx - ax, dy = cy - ay, L2 = dx * dx + dy * dy || 1, t = ((x - ax) * dx + (y - ay) * dy) / L2;
+    if (t <= .02 || t >= .98) continue;
+    const px = ax + dx * t, py = ay + dy * t, dd = Math.hypot(px - x, py - y);
+    if (dd < bd) { bd = dd; best = [i, t, px, py]; }
+  }
+  if (best) { const [i, t, px, py] = best, e = nodo(Math.round(px / U), Math.round(py / U)); if (e !== segs[i].a && e !== segs[i].c) segs[i].cortes.push([t, e]); }
+}
 for (const s of segs) { if (!s.cortes.length) { arista(s.a, s.c, s.f); continue; } s.cortes.sort((p, q) => p[0] - q[0]); let prev = s.a; for (const [, e] of s.cortes) { arista(prev, e, s.f); prev = e; } arista(prev, s.c, s.f); }
 // componente principal de la red (los puntos de paso solo se toman de ahí: nada de arrancar en un parqueadero aislado)
 const comp = new Int32Array(nodes.length).fill(-1); let ncomp = 0, mayor = 0, tam = 0;

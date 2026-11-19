@@ -230,6 +230,36 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+#### 2026-11-19 · Ejecución completa del Plan Único [El Metro] (M1 a M6 + Sección 4b)
+- **M1 — Auditoría, 0 errores, 0 avisos y cámara limpia:**
+  - **Terminales de la Línea O (`MPO`):** `tools/rutas_calles.mjs` ahora proyecta cada estación y extremo sobre el segmento vial más cercano (≤ 35 m) y parte el segmento en ese punto antes de armar el grafo de Dijkstra. Al regenerar `src/data/rutas_calles.js`, la estación **Caribe** pasó de 272,8 m a **6,0 m** de su andén real y **La Palma** pasó de 53,5 m a **5,3 m**, eliminando los 2 únicos avisos de `selfTest`.
+  - **Laderas sin granulación en 3D:** `VC.piso3D` (`src/js/11-ciudad2.js`) pasa `es3D = true` a `VC.suelo` para omitir el sombreado de relieve en casillas de 20 m sobre la textura del terreno 3D; `G3.buildFar` y `G3.buildNear` (`src/js/22-gl.js`) calculan normales suaves por vértice (`normT`, `quadT`) y suben el filtro anisotrópico a **8×**.
+  - **Cámara Cine libre de edificios:** `VC.camaraLibre(x0, y0, tx, ty, z0)` (`src/js/11-ciudad2.js`) verifica que ni el ojo de la cámara ni la línea de vista hacia el jugador o vehículo atraviesen edificios o hitos, usada en `Conduce.drawGL`, `Volante.draw3D` y `Libre.draw3D`.
+- **M2 — Motor del Valle 1.1.0 (`motor-valle/`):**
+  - Actualizado `motor-valle/VERSION.json` a `1.1.0`, pobladas las capas compartidas `motor-valle/capas/{vias_datos.mjs,rutas_calles.mjs,hitos.js}` y el módulo `motor-valle/js/valle.js`, y sincronizado con `node motor-valle/sincronizar.mjs ../BicicletasUno` (15 archivos verificados).
+  - **Pasos deprimidos (`z = -1`, `is_tunnel`):** 5 deprimidos emblemáticos de Medellín en `src/js/11-puentes.js` (Av. Oriental con La Playa, San Juan en La Alpujarra, Parques del Río, Bulerías / Av. 33 y Terminal del Norte / Caribe), con muros de contención, dintel de portal y física de nivel `z = -1` en Ciudad Libre y en 3D.
+  - **Separadores verdes, quebradas y mobiliario:** separadores arborizados (`#5e964b` con bordillo `#9a958a`), quebradas canalizadas y bancas/paraderos con techo en andenes (`src/js/11-ciudad2.js`).
+- **M3 — 3D que impresiona (`src/js/22-gl.js`):**
+  - **Techos reales en 3D:** techos a dos aguas de teja de barro (`bm.roof`) en casas coloniales y barrios tradicionales, terrazas/planchas de concreto con parapeto y tanque de agua azul/negro en laderas, y remates escalonados con baliza roja nocturna en torres de El Poblado y Centro.
+  - **Horizonte urbano a 1.050 m:** segundo anillo de edificios reales simplificados de `700 m` a `1050 m` alrededor de la cámara.
+  - **Estaciones por dentro en 3D:** franja amarilla táctil de seguridad en el borde del andén, columnas cada 14 m, mezzanina abierta con batería de torniquetes Cívica iluminados en verde y escaleras de acceso a la calle.
+- **M4 — Modo nuevo «🛴 Carrera por el Valle» (Run Scooter, `src/js/34-carrera.js`):**
+  - Runner 3D y 2D de 3 carriles por 5 corredores reales del valle (`A`, `B`, `TA`, `MPO`, `MP1`), con 5 vehículos elegibles (`scooter`, `monopatin`, `bici`, `skate`, `patines`), salto, agachada, rieles de impulso Cívica, obstáculos urbanos, monedas Cívica, tarjetas de cápsulas culturales al cruzar estaciones, vista en 1.ª persona con manubrio y manos (`drawCabina`), 3.ª persona WebGL (`G3`) y vista 2D, integrado en el menú arcade (`src/js/65-menu.js`) y en el bot (`Carrera.ai`).
+- **M5 — 6 vehículos nuevos en Ciudad Libre (`src/js/36-libre.js`, `21-sprites.js`, `22-gl.js`, `23-lado.js`):**
+  - Nuevos vehículos conducibles con física propia (`vmax`, `acc`, `brk`, `wb`, `lat`), modelos 3D en `G3.vehicle`, sprites cenitales en `Spr.veh` y laterales en `Lado.vehS`: **Carro particular** (`carro`), **Patineta eléctrica** (`scooter`), **Monopatín de impulso** (`monopatin`), **Tabla de skate** (`skate`), **Patines en línea** (`patines`) y **Bus urbano** (`bus`).
+- **M6 — 6 personajes de EnCicla y capítulo cruzado (`src/js/39-gente.js`, `37-trama.js`, `70-historia.js`):**
+  - Incorporados **Santi** (mensajero en bici, Floresta), **Doña Luz** (florista, Estadio), **Jairo** (mecánico de bicis, Universidad), **Profe Wilson** (ciclovía dominical, Poblado), **Cata** (estudiante de arquitectura, Suramericana) y **Maryi** (guía del río, Industriales), cada uno con «lo que todos saben», «lo que pocos saben» y su fragmento compartido con *Juega EnCicla* (`Save.d.fragsEncicla`).
+  - Nuevo capítulo de historia **«Ruedas que conectan el valle»** en `src/js/37-trama.js` y `src/js/70-historia.js`.
+
+#### 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
+- **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
+  - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.
+- **Plan único** (`docs/PLAN-UNICO-IA.md`) para Gemini con Antigravity y ChatGPT con Codex:
+  - misiones M1 a M6, que son las mismas en los dos trabajos (código y arte);
+  - la sección 4 trae las peticiones para Juega EnCicla y la 4b, las de El Metro;
+  - todo se entrega en un solo documento.
+- **Lo que sigue:** con las dos entregas, la IA de El Metro revisa, prueba, integra y publica la revolución de El Metro.
+
 #### Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
 **Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
 - **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.
@@ -258,6 +288,8 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
   - el piso lejano se arma con hueco y lo pegado al piso (andenes, plazas) va un poco delante.
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O); 100 partidas del bot (365 mil pasos) con 0 errores y 0 errores de consola. Capturas de las tres vistas 3D en el Parque Berrío, Santo Domingo, El Poblado y Estadio (a pie y en taxi), del mapa (elegir dónde empezar, tocar una estación, ir allá) y del personaje con su anillo.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.4.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.4.0-993beff4`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 24, **6,6 MB**).
 
 ##### v1.3.0 "La ciudad con altura y con gente"
 **Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).

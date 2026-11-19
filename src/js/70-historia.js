@@ -44,6 +44,11 @@ const CAPS = [
     ['Rosalba', 'El tranvía de Ayacucho rueda sobre llantas y lo guía un riel en el centro. Sube lomas que un tren normal no se atrevería.'],
     ['Rosalba', 'Aquí hay semáforos y gente cruzando. Despacio y con cariño.']
   ], go: ['conduce', 'T:0-2'], fin: 'Una señora le dijo adiós desde un balcón con una ruana en la mano.' },
+  { t: 'Ruedas que conectan el valle', scene: 'metroplus', lines: [
+    ['Rosalba', 'Cuando uno se baja del tren, el viaje sigue: en bicicleta de EnCicla, en monopatín o en patines por las ciclorrutas del valle.'],
+    ['Santi (anfitrión EnCicla)', 'Una sonrisa también se presta. Con la misma Cívica sacas la bici en Floresta o Estadio y ruedas por San Juan.'],
+    ['Rosalba', 'Elija en qué quiere rodar, mija: esquive los huecos, salte los charcos y recoja los datos del valle.']
+  ], go: ['carrera', 'cr:B-occidente'], fin: 'Santi chocó esos cinco en el anclaje: “¡Tremendo ritmo por la ciclorruta de San Juan!”.' },
   { t: 'La hora pico', scene: 'control', lines: [
     ['Don Efraín', 'Llegó la hora pico. Las cinco y media de la tarde, cuando todo el valle quiere volver a casa.'],
     ['Rosalba', 'Respire. Ya sabe hacerlo. Lo difícil no es mover los trenes: es no perder la calma.']

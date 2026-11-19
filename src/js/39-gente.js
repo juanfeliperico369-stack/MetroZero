@@ -45,7 +45,25 @@ const GENTE = [
   { id: 'nelly', n: 'Nelly', o: 'vendedora de mango biche', en: ['est', 'Estadio'], look: { piel: 3, peinado: 1, colPelo: 0, camisa: 9, pantalon: 3, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 },
     f: [[0, 'El mango biche con sal y limón es de las frutas de la calle más queridas de Medellín.'], [1, 'En Medellín se habla de «parce» y «¿qué hubo pues?»; y el «pues» al final de la frase no significa nada: es cariño.'], [2, 'Los días de partido vendo todo antes del himno.']] },
   { id: 'arturo', n: 'Profe Arturo', o: 'divulgador del Planetario', en: ['hito', 'planetario'], look: { piel: 1, peinado: 2, colPelo: 5, camisa: 5, pantalon: 1, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 },
-    f: [[0, 'El Planetario, el Parque Explora y el Jardín Botánico quedan juntos, en el norte: se pueden visitar en un mismo día.'], [1, 'Medellín está a unos 1.500 metros sobre el mar, en un valle angosto: por eso el clima es templado todo el año y le dicen la ciudad de la eterna primavera.'], [2, 'Mi pregunta favorita de los niños: «¿y las estrellas también se montan en el metro?»']] }
+    f: [[0, 'El Planetario, el Parque Explora y el Jardín Botánico quedan juntos, en el norte: se pueden visitar en un mismo día.'], [1, 'Medellín está a unos 1.500 metros sobre el mar, en un valle angosto: por eso el clima es templado todo el año y le dicen la ciudad de la eterna primavera.'], [2, 'Mi pregunta favorita de los niños: «¿y las estrellas también se montan en el metro?»']] },
+  { id: 'santi', n: 'Santi', o: 'anfitrión de EnCicla en Floresta', en: ['est', 'Floresta'], look: { piel: 2, peinado: 3, colPelo: 0, camisa: 2, pantalon: 0, zapatos: 1, gorro: 1, colGorro: 2, accesorio: 1 },
+    frag: 'Fragmento EnCicla 1/6 · Santi anota en su planilla a los viajeros que llegan en la Línea B y salen pedaleando por San Juan.',
+    f: [[0, 'EnCicla es el sistema de bicicletas públicas del Área Metropolitana: el préstamo es gratuito con la tarjeta Cívica.'], [1, 'En las estaciones manuales los anfitriones revisamos frenos, llantas y sillín antes de entregar cada bicicleta.'], [2, '«Una sonrisa también se presta.» Cuando alguien sale de la estación Floresta en bici, siento que el metro sigue rodando por el barrio.']] },
+  { id: 'donaluz', n: 'Doña Luz', o: 'usuaria fundadora de EnCicla (2011)', en: ['est', 'Estadio'], look: { piel: 1, peinado: 4, colPelo: 5, camisa: 6, pantalon: 3, zapatos: 0, gorro: 3, colGorro: 2, accesorio: 0 },
+    frag: 'Fragmento EnCicla 2/6 · Doña Luz recuerda el primer préstamo de 2011 entre Estadio y la UPB con seis estaciones y cien bicicletas.',
+    f: [[0, 'EnCicla nació en octubre de 2011 como un proyecto entre el Área Metropolitana y la Universidad EAFIT.'], [1, 'Empezó con apenas seis estaciones y cien bicicletas entre Estadio y la UPB; hoy conecta más de cien puntos en el valle.'], [2, '«Del afán no queda sino el cansancio.» Yo combino la Línea B con la ciclorruta de la 70 todos los días desde hace más de diez años.']] },
+  { id: 'jairo', n: 'Don Jairo', o: 'mecánico de taller de EnCicla', en: ['est', 'Universidad'], look: { piel: 3, peinado: 2, colPelo: 1, camisa: 3, pantalon: 1, zapatos: 0, gorro: 1, colGorro: 1, accesorio: 1 },
+    frag: 'Fragmento EnCicla 3/6 · Don Jairo conoce por el sonido de los radios qué bicicleta bajó desde Robledo o cruzó el río por Barranquilla.',
+    f: [[0, 'Las bicicletas de EnCicla tienen marco reforzado, luces alimentadas por dínamo en la rueda y canasta delantera.'], [1, 'Sus tornillos y piezas usan medidas especiales de seguridad para que solo puedan desarmarse con las llaves del taller oficial.'], [2, '«Toda bici avisa lo que le duele.» Con solo oír la cadena al llegar a Universidad ya sé si viene desde el centro o desde Carlos E. Restrepo.']] },
+  { id: 'wilson', n: 'Wilson', o: 'conductor de balanceo de EnCicla', en: ['est', 'Caribe'], look: { piel: 2, peinado: 0, colPelo: 0, camisa: 4, pantalon: 3, zapatos: 0, gorro: 1, colGorro: 2, accesorio: 0 },
+    frag: 'Fragmento EnCicla 4/6 · Wilson redistribuye las bicicletas al amanecer para que quien baje del Metro siempre encuentre un anclaje listo.',
+    f: [[0, 'En la mañana todo el mundo baja hacia el río y las universidades; por la tarde las bicis regresan a las estaciones del Metro.'], [1, 'Los camiones de balanceo mueven decenas de bicicletas cada hora para que ninguna estación se quede vacía ni sin anclajes libres.'], [2, '«Por las vías, nunca por la ciclorruta.» Aquí en Caribe nos cruzamos los trenes, los buses del Norte, la Línea O y los camiones de EnCicla.']] },
+  { id: 'cata', n: 'Cata', o: 'sala de control de EnCicla', en: ['est', 'Suramericana'], look: { piel: 1, peinado: 1, colPelo: 2, camisa: 3, pantalon: 0, zapatos: 2, gorro: 0, colGorro: 0, accesorio: 1 },
+    frag: 'Fragmento EnCicla 5/6 · Desde las pantallas de control, Cata ve latir al mismo ritmo los trenes de la Línea A y las ciclorrutas del valle.',
+    f: [[0, 'Los tótems automáticos de EnCicla leen la tarjeta Cívica y liberan el anclaje eléctrico en segundos.'], [1, 'Desde la sala de control monitoreamos en tiempo real cuántas bicicletas y cuántos anclajes libres tiene cada estación del valle.'], [2, '«El mapa habla.» Cuando llega un tren lleno a Suramericana o Industriales, a los dos minutos se mueve la ola verde en nuestro mapa.']] },
+  { id: 'maryi', n: 'Maryi', o: 'promotora de movilidad activa', en: ['est', 'Miraflores'], look: { piel: 3, peinado: 5, colPelo: 0, camisa: 2, pantalon: 5, zapatos: 1, gorro: 3, colGorro: 2, accesorio: 0 },
+    frag: 'Fragmento EnCicla 6/6 · Maryi enseña que el viaje intermodal —cable, tranvía, metro y pedal— es la columna vertebral del Valle de Aburrá.',
+    f: [[0, 'En el Valle de Aburrá conviven peatones, bicicletas, monopatines, patines, buses, tranvía, cables y metro.'], [1, 'En las ciclorrutas la prioridad es siempre del peatón en los cruces, y los monopatines eléctricos deben moderar su velocidad junto a las estaciones.'], [2, '«Un cuerpo que se mueve trabaja mejor.» Bajar del Metrocable M en Miraflores, tomar el tranvía y seguir rodando es mi rutina favorita.']] }
 ];
 /* lo que se dice de cada lugar en la guía (📍): una línea corta, sin cifras dudosas */
 const LUGAR_INFO = {
@@ -109,9 +127,10 @@ const Gente = EM.gente = {
   hablar(st, p) {
     if (st.trama && st.trama.talk) return; const G = p.G, vis = Save.d.gente || (Save.d.gente = {});
     if (p.tur) { const T = st.tur; if (!T) return; if (T.ok) { Ciudad.say(p, 'Vamos a ' + T.D.n); return; } this.charla(st, p, [`¡Hola! Soy ${G.n}, ${G.o.replace('turista ', '')}. Me dijeron que no me puedo ir sin conocer ${T.D.n}. ¿Me acompañas?`], [['Claro, sígueme', () => { T.ok = true; st.guia = { x: T.D.cx, y: T.D.cy, title: 'Acompaña a ' + G.n + ' a ' + T.D.n, hint: LUGAR_INFO[T.D.id] || '' }; this.cerrar(st); Libre.msg(st, '🧳 ' + G.n + ' te sigue: llévala caminando', 'b'); }], ['Ahora no', () => { this.cerrar(st); }]]); return; }
-    const nuevo = !vis[G.id]; if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; Save.write(); }
+    const nuevo = !vis[G.id]; if (nuevo) { vis[G.id] = 1; Save.d.wallet += 2; if (G.frag) { const fe = Save.d.fragsEncicla || (Save.d.fragsEncicla = {}); fe[G.id] = 1; } Save.write(); }
     const L = G.f.map(([t, x]) => (t === 1 ? '💡 Lo que pocos saben: ' : t === 0 ? '📌 Lo que todos saben: ' : '') + x);
-    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' : '');
+    if (G.frag) L.push('🚲 ' + G.frag);
+    this.charla(st, p, L, null, nuevo ? '+2 🎫 por conocer a ' + G.n + ' · ' + Object.keys(vis).length + ' de ' + GENTE.length + ' personajes' + (G.frag ? ' · Fragmento EnCicla desbloqueado' : '') : '');
   },
   charla(st, p, lines, opts, pie) {
     const el = $('#trTalk'); if (!el || EM.headless) { st.charla = null; return; } st.charla = { p, lines, i: 0, opts, pie };

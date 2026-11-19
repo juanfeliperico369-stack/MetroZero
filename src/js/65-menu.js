@@ -2,7 +2,8 @@
    MENÚS: inicio (la línea), elige tu viaje, niveles, ajustes y créditos
    ===================================================================== */
 const MODECARDS = [
-  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en taxi, bici o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio.' },
+  { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en bici, monopatín, skate, patines, carro, taxi, moto o bus, o de pasajero en el metro, tranvía y cables.' },
+  { id: 'carrera', cls: 'c-alim', t: 'Run Scooter', d: 'Carrera 3D por los corredores del valle: elige monopatín, eléctrico, bici EnCicla, skate o patines en 1ª o 3ª persona.' },
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
@@ -10,7 +11,7 @@ const MODECARDS = [
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
   { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.' },
-  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable y bus en 3D.' }
+  { id: 'arcade', cls: 'c-despacho', t: 'Arcade', d: 'Retos rápidos: agujas del Puesto de Control, semáforos, reparto de buses, armar el cable, Run Scooter y bus en 3D.' }
 ];
 const Menu = EM.menu = {
   mode: null,
@@ -58,12 +59,13 @@ const Menu = EM.menu = {
     this.levels(id);
   },
   arcade() {
-    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa.</p><div class="col">${[['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
+    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa.</p><div class="col">${[['carrera', 'Run Scooter · carrera 3D en monopatín, bici o patines'], ['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
     $$('#mBody [data-a]').forEach(b => b.onclick = () => { UI.close(); this.levels(b.dataset.a); }); $('#arX').onclick = () => UI.close();
   },
   miniArt(g, id) {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
     if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
+    else if (id === 'carrera') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 22); g.fillStyle = '#2f9b57'; g.fillRect(0, 20, 70, 3); g.fillRect(0, 44, 70, 3); g.save(); g.translate(22, 33); Spr.veh(g, 'monopatin', 22, 11, '#66bb6a'); g.restore(); g.save(); g.translate(50, 33); Spr.veh(g, 'skate', 18, 9, '#ff7043'); g.restore(); }
     else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
     else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
     else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }

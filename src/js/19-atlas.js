@@ -5,6 +5,9 @@
    Regla del proyecto: el arte nuevo SIEMPRE tiene respaldo. Si ARTE[id] no existe o no carga,
    cada módulo sigue dibujando su versión procedural de siempre.
    ===================================================================== */
+if (typeof ARTE !== 'undefined' && !ARTE.ico_modo_carrera) {
+  ARTE.ico_modo_carrera = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 55"><rect width="70" height="55" rx="10" fill="#1b3a2b"/><path d="M8 44 L24 20 L46 20 L62 44 Z" fill="#3a3d42"/><line x1="29" y1="20" x2="21" y2="44" stroke="#fff" stroke-width="1.2" stroke-dasharray="3,2"/><line x1="41" y1="20" x2="49" y2="44" stroke="#fff" stroke-width="1.2" stroke-dasharray="3,2"/><circle cx="25" cy="39" r="5" fill="#1b1b1b" stroke="#29b6f6" stroke-width="2"/><circle cx="46" cy="39" r="5" fill="#1b1b1b" stroke="#29b6f6" stroke-width="2"/><path d="M25 39 L43 39 L46 18 L41 18" fill="none" stroke="#9bd341" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="28" r="4" fill="#fdd835"/></svg>';
+}
 const Atlas = EM.atlas = {
   _u: {}, _i: {},
   has(id) { return typeof ARTE !== 'undefined' && Object.prototype.hasOwnProperty.call(ARTE, id); },

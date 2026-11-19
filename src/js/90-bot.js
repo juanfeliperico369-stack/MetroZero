@@ -77,7 +77,7 @@ const BotT = EM.test = {
         for (const [est, txt] of [['Parque Berrío', 'Carrera 50'], ['Floresta', 'Carrera 80'], ['Hospital', 'Calle 67'], ['Industriales', 'Sistema Vial del Rio']]) if (!cerca(est, txt)) E('ciudad: cerca de ' + est + ' no aparece ' + txt);
       } } catch (e) { E('ciudad: ' + e.message); }
     // ciudad vectorial (1.1.0): calles con curva, edificios fuera de las vías, andenes sobre su línea, giros suaves y buses sobre el asfalto
-    let nVias = 0, nEd = 0; try {
+    let nVias = 0, nEd = 0, nCr = 0; try {
       if (typeof VIAS !== 'undefined') {
         if (!VC.on || VC.ch.length < 20000) E('ciudad vectorial: no cargó las vías (' + VC.ch.length + ')'); nVias = VC.ch.length;
         const asfalto = (x, y, m = -.3) => { for (const c of VC.near(x - 20, y - 20, x + 20, y + 20)) { if (c.k > 4) continue; const P = c.P; for (let i = 2; i < P.length; i += 2) { const ax = P[i - 2], ay = P[i - 1], dx = P[i] - ax, dy = P[i + 1] - ay, t = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1), 0, 1); if (Math.hypot(ax + dx * t - x, ay + dy * t - y) < c.w / 2 + m) return true; } } return false; };
@@ -115,13 +115,25 @@ const BotT = EM.test = {
             for (let t = s0 + 22; t <= s0 + pl - 22; t += 3) for (let o = -10; o <= 10; o += 2.5) { const q = NET.at(l.P, t, o); if (!asfalto(q.x, q.y)) continue; na++; if (VC.enBase(q.x, q.y, .3)) ba++; } } }
           if (na > 200 && ba / na > .03) E('estaciones del metro: ' + (ba / na * 100).toFixed(1) + ' % de la calle que pasa por debajo quedó tapada'); else if (na > 200 && ba / na > .01) Wn('estaciones del metro: ' + (ba / na * 100).toFixed(1) + ' % de la calle de abajo tocada por un acceso');
         }
-        // manejo (1.3.0): a ninguna velocidad el giro pasa de la aceleración lateral que aguanta cada vehículo; el ritmo elige ×1, ×1,5 y ×2
+        // manejo (1.3.0) y 6 vehículos nuevos (M5): a ninguna velocidad el giro pasa de la aceleración lateral que aguanta cada vehículo; el ritmo elige ×1, ×1,5 y ×2
+        for (const kd of ['bici', 'scooter', 'monopatin', 'skate', 'patines', 'moto', 'taxi', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd + ' en Ciudad Libre');
         for (const kd in VEH) { const V = VEH[kd]; for (const v of [6, 12, 20, V.vmax]) { const a = v * v / V.wb * Math.tan(Libre.giroMax(V, v, false)); if (a > (V.lat || 8) * 1.02 + .01) E('manejo: ' + V.n + ' gira con ' + a.toFixed(1) + ' m/s² a ' + Math.round(v * 3.6) + ' km/h (tope ' + V.lat + ')'); } }
         { const s0 = Save.d.settings.ritmo; const E3 = [0, 1, 2].map(r => { Save.d.settings.ritmo = r; return [Libre.escala({ mode: 'walk' }), Libre.escala({ mode: 'ride' })]; }); Save.d.settings.ritmo = s0; if (E3[0][0] !== 1 || E3[2][0] !== 2 || E3[2][1] !== 6) E('ritmo: escalas ' + JSON.stringify(E3)); }
+        // deprimidos / pasos a desnivel z = -1 (M2)
+        if (VC.PU && VC.PU.filter(p => p.z === -1 && p.is_tunnel).length < 5) E('deprimidos: faltan pasos a desnivel z = -1');
+        // modo Run Scooter / Carrera por el Valle (M4)
+        if (!EM.modes.carrera) E('carrera: falta el modo Run Scooter (34-carrera.js)'); else {
+          for (const lv of Carrera.levels()) { try { const st = Carrera.create(lv.id, { seed: 1, auto: true }); nCr++; if (!st.line || !st.obs || !st.obs.length || !isFinite(st.v)) E('carrera inválida ' + lv.id); } catch (e) { E('carrera ' + lv.id + ': ' + e.message); } }
+          if ((Carrera.VEHS || []).length < 5) E('carrera: faltan vehículos elegibles');
+        }
         // buses (1.3.0): las esquinas de cada recorrido tienen radio de giro (ningún quiebre de más de 25° en menos de 2 m)
         { let peor = 0, cual = ''; for (const l of NET.lines) { if (l.kind !== 'feeder' && l.kind !== 'brt') continue; const P = l.P.pts; for (let i = 2; i < P.length; i++) { const L1 = dist(P[i - 1].x, P[i - 1].y, P[i - 2].x, P[i - 2].y), L2 = dist(P[i].x, P[i].y, P[i - 1].x, P[i - 1].y); if (L1 < .3 || L2 < .3) continue; let d = Math.abs(Math.atan2(P[i].y - P[i - 1].y, P[i].x - P[i - 1].x) - Math.atan2(P[i - 1].y - P[i - 2].y, P[i - 1].x - P[i - 2].x)); if (d > Math.PI) d = TAU - d; if (d > .44 && Math.min(L1, L2) < 2 && d > peor) { peor = d; cual = l.id; } } } if (peor) Wn('buses: ' + cual + ' gira ' + Math.round(peor * 57.3) + '° en una esquina sin curva'); }
-        // gente de la ciudad (1.3.0): cada personaje tiene dónde estar, cara y qué contar
-        if (typeof GENTE !== 'undefined') { if (GENTE.length < 18) E('gente: solo ' + GENTE.length + ' personajes'); for (const G of GENTE) { const [t, a] = G.en; if (t === 'hito' && !VC.HT.some(h => h.id === a)) E('gente: ' + G.n + ' no tiene su lugar (' + a + ')'); if (t === 'est' && !NET.stations.some(s => s.name === a)) E('gente: ' + G.n + ' no tiene su estación (' + a + ')'); if (!G.f.some(f => f[0] === 1)) Wn('gente: ' + G.n + ' no cuenta nada poco conocido'); } }
+        // gente de la ciudad (1.3.0) + 6 personajes de EnCicla (M6): cada personaje tiene dónde estar, cara y qué contar
+        if (typeof GENTE !== 'undefined') {
+          if (GENTE.length < 24) E('gente: solo ' + GENTE.length + ' personajes (deben ser 24 con EnCicla)');
+          for (const id of ['santi', 'donaluz', 'jairo', 'wilson', 'cata', 'maryi']) { const g = GENTE.find(q => q.id === id); if (!g || !g.frag) E('gente EnCicla: falta ' + id + ' o su fragmento compartido'); }
+          for (const G of GENTE) { const [t, a] = G.en; if (t === 'hito' && !VC.HT.some(h => h.id === a)) E('gente: ' + G.n + ' no tiene su lugar (' + a + ')'); if (t === 'est' && !NET.stations.some(s => s.name === a)) E('gente: ' + G.n + ' no tiene su estación (' + a + ')'); if (!G.f.some(f => f[0] === 1)) Wn('gente: ' + G.n + ' no cuenta nada poco conocido'); }
+        }
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
         // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
@@ -151,32 +163,38 @@ const BotT = EM.test = {
         }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
-    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
+    const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nCr} carreras por el valle · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes y deprimidos · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
-    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    const h0 = EM.headless; EM.headless = true; if (typeof Game !== 'undefined' && Game.freeze) Game.freeze(true);
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'carrera', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
-    for (let k = 0; k < n; k++) {
-      const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
-      let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
-      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : 4800;
-      try {
-        for (let i = 0; i < max; i++) {
-          M.step(st, dt); steps++;
-          if (id === 'libre') { if (i % 25 === 0) st.joy = { x: rng.f() * 2 - 1, y: rng.f() * 2 - 1, m: rng.f() }; if (i % 90 === 0) { st.keys.up = rng.f() < .7; st.hb = rng.f() < .2; M.action(st); } if (i % 300 === 0) { M.offer(st); M.photo(st); } if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('jugador inválido'); }
-          else if (id === 'bus') { if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('bus inválido'); }
-          else if (id === 'volante' || id === 'cableviaje') { if (id === 'cableviaje' && i % 200 === 0) M.photo(st); if (id === 'volante' && (!isFinite(st.x) || !isFinite(st.v))) throw new Error('bus inválido'); }
-          else if (id !== 'conduce') { if (i % 5 === 0) { const a = M.ai(st); if (a) M.act(st, a); } if (rng.f() < .01) { const a = this.randomAct(id, st, rng); if (a) M.act(st, a); } }
-          else if (st.ph === 'dwell' && st.trivia) M.answer(st, 0);
-          if (i % 400 === 0 && g) { g.setTransform(1, 0, 0, 1, 0, 0); if (id === 'conduce') st.view = ['cab', 'tps', 'lado', 'top', 'pan'][(i / 400) % 5 | 0]; if (id === 'volante') st.view = ['top', 'pan'][(i / 400) % 2 | 0]; if (id === 'cableviaje') st.view = ['lado', 'top'][(i / 400) % 2 | 0]; if (id === 'libre' || id === 'bus') st.far = (i / 400) % 2 === 1; M.draw(g, st, { x: 0, y: 0, w: 360, h: 640 }); }
-          const r = M.result(st); if (!isFinite(r.score)) throw new Error('puntaje no numérico');
-          if (id === 'conduce' && (!isFinite(st.v) || !isFinite(st.s) || st.v < 0)) throw new Error('física inválida v=' + st.v + ' s=' + st.s);
-          if (st.ents && st.ents.length > 300) throw new Error('demasiados vehículos');
-          if (st.veh && st.veh.length > 400) throw new Error('demasiados carros');
-          if (r.done) { if (r.win) wins++; break; }
-        }
-      } catch (e) { errors.push(id + ' ' + lv.id + ': ' + e.message); }
+    try {
+      for (let k = 0; k < n; k++) {
+        const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
+        let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
+        games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : id === 'carrera' ? 3200 : 4800;
+        try {
+          for (let i = 0; i < max; i++) {
+            M.step(st, dt); steps++;
+            if (id === 'libre') { if (i % 25 === 0) st.joy = { x: rng.f() * 2 - 1, y: rng.f() * 2 - 1, m: rng.f() }; if (i % 90 === 0) { st.keys.up = rng.f() < .7; st.hb = rng.f() < .2; M.action(st); } if (i % 300 === 0) { M.offer(st); M.photo(st); } if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('jugador inválido'); }
+            else if (id === 'carrera') { if (i % 3 === 0) M.ai(st); if (!isFinite(st.s) || !isFinite(st.v)) throw new Error('carrera inválida'); }
+            else if (id === 'bus') { if (!isFinite(st.x) || !isFinite(st.vf)) throw new Error('bus inválido'); }
+            else if (id === 'volante' || id === 'cableviaje') { if (id === 'cableviaje' && i % 200 === 0) M.photo(st); if (id === 'volante' && (!isFinite(st.x) || !isFinite(st.v))) throw new Error('bus inválido'); }
+            else if (id !== 'conduce') { if (i % 5 === 0) { const a = M.ai(st); if (a && M.act) M.act(st, a); } if (rng.f() < .01) { const a = this.randomAct(id, st, rng); if (a && M.act) M.act(st, a); } }
+            else if (st.ph === 'dwell' && st.trivia) M.answer(st, 0);
+            if (i % 1200 === 0 && g) { g.setTransform(1, 0, 0, 1, 0, 0); if (id === 'conduce') st.view = ['cab', 'tps', 'lado', 'top', 'pan'][(i / 1200) % 5 | 0]; if (id === 'volante') st.view = ['top', 'pan'][(i / 1200) % 2 | 0]; if (id === 'cableviaje') st.view = ['lado', 'top'][(i / 1200) % 2 | 0]; if (id === 'carrera') st.view = ['1p', '3p', '2d'][(i / 1200) % 3 | 0]; if (id === 'libre' || id === 'bus') st.far = (i / 1200) % 2 === 1; M.draw(g, st, { x: 0, y: 0, w: 360, h: 640 }); }
+            const r = M.result(st); if (!isFinite(r.score)) throw new Error('puntaje no numérico');
+            if (id === 'conduce' && (!isFinite(st.v) || !isFinite(st.s) || st.v < 0)) throw new Error('física inválida v=' + st.v + ' s=' + st.s);
+            if (st.ents && st.ents.length > 300) throw new Error('demasiados vehículos');
+            if (st.veh && st.veh.length > 400) throw new Error('demasiados carros');
+            if (r.done) { if (r.win) wins++; break; }
+          }
+        } catch (e) { errors.push(id + ' ' + lv.id + ': ' + e.message); }
+      }
+    } finally {
+      EM.headless = h0; if (typeof Game !== 'undefined' && Game.freeze) Game.freeze(false);
     }
     return { games, steps, wins, errors };
   },

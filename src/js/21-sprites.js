@@ -5,10 +5,45 @@
    ===================================================================== */
 const Spr = EM.spr = {
   rr(g, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); if (g.roundRect) { g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); } else g.fillRect(x, y, w, h); },
-  /* kind: car taxi moto bus brt metro tram cable camioneta · o: {end:'front'|'back'|'both'|'mid', lights, night, doors:'left'|'right', sign}
+  /* kind: car carro taxi moto bici scooter monopatin skate patines bus brt metro tram cable camioneta · o: {end:'front'|'back'|'both'|'mid', lights, night, doors:'left'|'right', sign}
      L, W en píxeles */
   veh(g, kind, L, W, col, o = {}) {
     const dark = '#141414', glass = o.night ? '#263a4d' : '#1f2e3d', glassL = o.night ? '#355068' : '#2f4a60', R = this.rr.bind(this);
+    if (kind === 'bici') {
+      g.fillStyle = dark; g.fillRect(-L * .48, -W * .16, L * .3, W * .32); g.fillRect(L * .18, -W * .16, L * .3, W * .32);   // ruedas
+      g.fillStyle = col || '#9bd341'; g.fillRect(-L * .28, -W * .14, L * .56, W * .28);                                      // cuadro EnCicla
+      g.fillStyle = '#0e2d55'; g.fillRect(L * .16, -W * .38, L * .2, W * .76);                                               // canasta delantera azul
+      g.fillStyle = '#2b2b2b'; g.fillRect(L * .12, -W * .48, L * .08, W * .96);                                              // manubrio
+      g.fillStyle = '#1f1f1f'; R(g, -L * .24, -W * .22, L * .2, W * .44, W * .12);                                           // sillín
+      return;
+    }
+    if (kind === 'scooter' || kind === 'monopatin') {
+      const el = kind === 'monopatin';
+      g.fillStyle = dark; g.fillRect(-L * .48, -W * .2, L * .22, W * .4); g.fillRect(L * .26, -W * .2, L * .22, W * .4);     // ruedas
+      g.fillStyle = col || (el ? '#66bb6a' : '#29b6f6'); R(g, -L * .34, -W * .36, L * .68, W * .72, W * .22);                // tabla
+      g.fillStyle = '#242830'; R(g, -L * .26, -W * .24, L * .48, W * .48, W * .12);                                          // lija antideslizante
+      g.fillStyle = '#1a1d24'; g.fillRect(L * .2, -W * .48, L * .1, W * .96);                                                // manubrio en T
+      if (el) { g.fillStyle = '#fff6c0'; g.fillRect(L * .42, -W * .14, L * .08, W * .28); g.fillStyle = '#ff3b2f'; g.fillRect(-L * .46, -W * .14, L * .07, W * .28); }
+      return;
+    }
+    if (kind === 'skate') {
+      g.fillStyle = '#ff7043';
+      for (const x of [-L * .28, L * .2]) { g.fillRect(x, -W * .5, L * .12, W * .16); g.fillRect(x, W * .34, L * .12, W * .16); } // 4 ruedas naranjas
+      g.fillStyle = '#d99b52'; R(g, -L * .48, -W * .38, L * .96, W * .76, W * .36);                                          // tabla de madera
+      g.fillStyle = '#22252a'; R(g, -L * .38, -W * .28, L * .76, W * .56, W * .24);                                          // lija negra
+      g.fillStyle = col || '#ff7043'; g.fillRect(-L * .08, -W * .26, L * .16, W * .52);                                      // franja central
+      return;
+    }
+    if (kind === 'patines') {
+      for (const s of [-1, 1]) {
+        const y = s * W * .26;
+        g.fillStyle = '#ff80ab'; g.fillRect(-L * .42, y - W * .2, L * .84, W * .4);                                          // chasis y ruedas
+        g.fillStyle = dark; R(g, -L * .38, y - W * .18, L * .76, W * .36, W * .1);
+        g.fillStyle = col || '#ec407a'; R(g, -L * .32, y - W * .14, L * .64, W * .28, W * .08);                              // bota
+        g.fillStyle = '#f4f1ea'; g.fillRect(-L * .05, y - W * .1, L * .22, W * .2);                                          // cordones
+      }
+      return;
+    }
     if (kind === 'moto') {
       g.fillStyle = dark; g.fillRect(-L / 2, -W * .32, L * .28, W * .64); g.fillRect(L / 2 - L * .28, -W * .32, L * .28, W * .64);   // ruedas
       g.fillStyle = col; R(g, -L * .3, -W * .36, L * .6, W * .72, W * .2);

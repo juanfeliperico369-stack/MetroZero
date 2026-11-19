@@ -5,13 +5,20 @@
    tráfico y peatones vivos, día y noche, clima, y oficios que llegan por la radio.
    ===================================================================== */
 const VEH = {
-  taxi: { n: 'Taxi', len: 4.4, wid: 1.8, wb: 2.6, vmax: 100 / 3.6, acc: 3.4, brk: 7, smax: .62, srate: 2.4, grip: 6, lat: 8.5, col: '#f2c400', icon: '🚕', soft: 1 },
-  moto: { n: 'Moto', len: 2.1, wid: .8, wb: 1.4, vmax: 115 / 3.6, acc: 4.2, brk: 7, smax: .7, srate: 3.2, grip: 7, lat: 9.5, col: '#EC343A', icon: '🏍', soft: 1, ciclo: 1 },
-  camioneta: { n: 'Camioneta del Metro', len: 5.3, wid: 1.95, wb: 3.1, vmax: 95 / 3.6, acc: 2.9, brk: 6.5, smax: .58, srate: 2.1, grip: 5.5, lat: 7.5, col: '#1C5C9C', icon: '🛻', soft: 1, campo: 1 },
-  bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, lat: 5.5, col: '#9bd341', icon: '🚲', soft: 1, ciclo: 1, walk: 1 },
-  alimentador: { n: 'Bus alimentador', len: 12, wid: 2.5, wb: 6, vmax: 55 / 3.6, acc: 1.2, brk: 3, smax: .55, srate: 1.3, grip: 5, lat: 4.2, col: '#f4f1ea', icon: '🚐', soft: 0 },
-  metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, lat: 3.8, art: 5.6, col: '#0E6F76', icon: '🚌', soft: 0 }
+  taxi: { n: 'Taxi', len: 4.4, wid: 1.8, wb: 2.6, vmax: 100 / 3.6, acc: 3.4, brk: 7, smax: .62, srate: 2.4, grip: 6, lat: 8.5, col: '#f2c400', icon: '🚕', ico: '🚕', soft: 1 },
+  carro: { n: 'Carro particular', len: 4.4, wid: 1.85, wb: 2.6, vmax: 75 / 3.6, acc: 4.8, brk: 10.5, smax: .52, srate: 3, grip: 8.5, lat: 6.8, col: '#1C5C9C', icon: '🚗', ico: '🚗', soft: 1 },
+  moto: { n: 'Moto', len: 2.1, wid: .8, wb: 1.4, vmax: 115 / 3.6, acc: 4.2, brk: 7, smax: .7, srate: 3.2, grip: 7, lat: 9.5, col: '#EC343A', icon: '🏍', ico: '🏍', soft: 1, ciclo: 1 },
+  camioneta: { n: 'Camioneta del Metro', len: 5.3, wid: 1.95, wb: 3.1, vmax: 95 / 3.6, acc: 2.9, brk: 6.5, smax: .58, srate: 2.1, grip: 5.5, lat: 7.5, col: '#1C5C9C', icon: '🛻', ico: '🛻', soft: 1, campo: 1 },
+  bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, lat: 5.5, col: '#9bd341', icon: '🚲', ico: '🚲', soft: 1, ciclo: 1, walk: 1 },
+  scooter: { n: 'Monopatín', len: 1.15, wid: .45, wb: .85, vmax: 20 / 3.6, acc: 3.4, brk: 7.5, smax: .68, srate: 4.2, grip: 11, lat: 6.2, col: '#29b6f6', icon: '🛴', ico: '🛴', soft: 1, ciclo: 1, walk: 1 },
+  monopatin: { n: 'Monopatín eléctrico', len: 1.25, wid: .52, wb: .95, vmax: 28 / 3.6, acc: 4.5, brk: 8.5, smax: .64, srate: 4, grip: 10.5, lat: 6.2, col: '#66bb6a', icon: '⚡', ico: '⚡', soft: 1, ciclo: 1, walk: 0 },
+  skate: { n: 'Tabla (Skate)', len: .88, wid: .32, wb: .65, vmax: 22 / 3.6, acc: 3.1, brk: 6.2, smax: .62, srate: 4, grip: 9.5, lat: 5.8, col: '#ff7043', icon: '🛹', ico: '🛹', soft: 1, ciclo: 1, walk: 1 },
+  patines: { n: 'Patines', len: .55, wid: .48, wb: .55, vmax: 24 / 3.6, acc: 3.8, brk: 7, smax: .72, srate: 4.5, grip: 11.5, lat: 6.5, col: '#ec407a', icon: '🛼', ico: '🛼', soft: 1, ciclo: 1, walk: 1 },
+  bus: { n: 'Bus urbano', len: 10.8, wid: 2.5, wb: 5.4, vmax: 55 / 3.6, acc: 2.4, brk: 7.2, smax: .45, srate: 2.2, grip: 7.2, lat: 4.8, col: '#2f9b57', icon: '🚍', ico: '🚍', soft: 0, bus: 1 },
+  alimentador: { n: 'Bus alimentador', len: 12, wid: 2.5, wb: 6, vmax: 55 / 3.6, acc: 1.2, brk: 3, smax: .55, srate: 1.3, grip: 5, lat: 4.2, col: '#f4f1ea', icon: '🚐', ico: '🚐', soft: 0 },
+  metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, lat: 3.8, art: 5.6, col: '#0E6F76', icon: '🚌', ico: '🚌', soft: 0 }
 };
+const MICRO_V = new Set(['bici', 'scooter', 'monopatin', 'skate', 'patines']);
 const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]), SOLID_W = new Set([TT.BRICK, TT.BLDG, TT.LAND, TT.WATER, TT.CANAL]);
 Music.SONGS.ciudad = { bpm: 100, root: 55, sc: [0, 2, 3, 5, 7, 9, 10], prog: [0, 3, 4, 3], bass: [1, 0, 0, 1, 0, 0, 1, 0], mel: .4, w: 'triangle' };
 const Libre = EM.modes.libre = {
@@ -37,7 +44,7 @@ const Libre = EM.modes.libre = {
   acomoda(st) {
     if (!VC.on || (st._ac = (st._ac || 0) + 1) % 15) return;
     st.docks.forEach((D, i) => { if (D.ok || dist(D.x, D.y, st.x, st.y) > 320) return; const q = VC.despeja(D.x, D.y, 2.2), dx = q.x - D.x, dy = q.y - D.y; D.x = q.x; D.y = q.y; D.ok = 1; for (const p of st.parked) if (p.dock === i && !p.ok) { p.x += dx; p.y += dy; p.ok = 1; } });
-    for (const p of st.parked) { if (p.ok || dist(p.x, p.y, st.x, st.y) > 320) continue; const q = VC.despeja(p.x, p.y, p.kind === 'bici' ? .5 : 1.4, p.kind !== 'bici'); p.x = q.x; p.y = q.y; p.ok = 1; }
+    for (const p of st.parked) { if (p.ok || dist(p.x, p.y, st.x, st.y) > 320) continue; const mc = MICRO_V.has(p.kind), q = VC.despeja(p.x, p.y, mc ? .5 : 1.4, !mc); p.x = q.x; p.y = q.y; p.ok = 1; }
   },
   nearTile(x, y, ok, maxR = 8) { const tx = Math.floor(x / TM), ty = Math.floor(y / TM); for (let r = 0; r <= maxR; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; if (ok(MAP.tile(tx + dx, ty + dy))) return { x: (tx + dx + .5) * TM, y: (ty + dy + .5) * TM }; } return { x, y }; },
   create(lv, opts) {
@@ -45,11 +52,21 @@ const Libre = EM.modes.libre = {
     const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
     let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv === 'lb:mapa' ? 'San Antonio' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.libre(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
     const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, z: 0, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
-    // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
-    const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
+    // vehículos parqueados: taxis, carros, buses y micromovilidad (bicis, monopatines, skates, patines) en las estaciones
+    const park = (kind, x, y, a) => { const mc = MICRO_V.has(kind), p = this.nearTile(x, y, v => mc ? (v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.ROAD) : (v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK), 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
     // estaciones de EnCicla (src/data/encicla.js, de Juega EnCicla): anclajes con 2 a 4 bicis
     st.docks = []; if (typeof ENCICLA !== 'undefined') ENCICLA.estaciones.forEach(([n, mu, la, lo, tp], i) => { const q = geoM(la, lo), p = this.nearTile(q.x, q.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS, 5); st.docks.push({ n, mu, tp, x: p.x, y: p.y }); for (let b = 0, nb = 2 + (h2(i, 7, 5) * 3 | 0); b < nb; b++) st.parked.push({ kind: 'bici', x: p.x - 2.4 + b * 1.4, y: p.y + 1.6, a: Math.PI / 2, id: st.parked.length, dock: i }); });
-    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (!st.docks.length && rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
+    const micros = ['scooter', 'monopatin', 'skate', 'patines'];
+    NET.stations.forEach((h, idx) => {
+      if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) return;
+      park('taxi', h.x + 30, h.y + 14);
+      park(micros[idx % micros.length], h.x - 14, h.y - 10, 0);
+      if (idx % 2 === 0) park(micros[(idx + 1) % micros.length], h.x + 12, h.y - 12, Math.PI / 4);
+      if (rng.f() < .45) park('carro', h.x - 28, h.y + 18);
+      if (idx % 4 === 0) park('bus', h.x + 42, h.y - 22);
+      if (!st.docks.length && rng.f() < .7) park('bici', h.x - 24, h.y + 10);
+      if (rng.f() < .25) park('moto', h.x + 18, h.y - 26);
+    });
     const bello = this.hub('Bello'); park('camioneta', bello.x + 60, bello.y + 40); park('camioneta', bello.x - 50, bello.y + 70); const sa = this.hub('San Antonio'); park('camioneta', sa.x + 60, sa.y - 50);
     for (const l of NET.lines) { if (l.kind === 'feeder') park('alimentador', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); if (l.kind === 'brt') { park('metroplus', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); park('metroplus', l.st[l.st.length - 1].x, l.st[l.st.length - 1].y, NET.at(l.P, l.P.len - 5).a + Math.PI); } }
     if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
@@ -260,14 +277,14 @@ const Libre = EM.modes.libre = {
      está bajo; encima, la baranda no deja caer; por debajo se pasa entre las pilas (lo sólido del piso lo dice bloq) */
   nivel(st, x, y, bloq, pie) {
     if (!VC.PG) return [!bloq(x, y), 0];
-    if (st.z > 0) { if (VC.puenteEn(x, y, st.z, .1)) return [true, st.z]; const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!bloq(x, y), 0]; return [false, st.z]; }
+    if (st.z !== 0) { if (VC.puenteEn(x, y, st.z, .1)) return [true, st.z]; const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!bloq(x, y), 0]; return [false, st.z]; }
     const P = VC.puenteEn(x, y, null, 0); if (P && P.h < .9 && (pie || !P.B.pe)) return [true, P.B.z];
     return [!bloq(x, y), 0];
   },
-  /* lo mismo para un vehículo: en el tablero, ninguna esquina puede salirse de la baranda (salvo en las rampas) */
+  /* lo mismo para un vehículo: en el tablero o deprimido, ninguna esquina puede salirse de la baranda o muro (salvo en las rampas) */
   nivelV(st, x, y, V, piso) {
     if (!VC.PG) return [!piso(x, y), 0]; const pie = !!V.walk;
-    if (st.z > 0) {
+    if (st.z !== 0) {
       const P = VC.puenteEn(x, y, st.z, .1);
       if (P) { if (P.h > 1.2) { const c = Math.cos(st.h), s = Math.sin(st.h), l = V.len / 2, w = V.wid / 2; for (const [u, v] of [[l, w], [l, -w], [-l, w], [-l, -w]]) if (!VC.puenteEn(x + c * u - s * v, y + s * u + c * v, st.z, .45)) return [false, st.z]; } return [true, st.z]; }
       const cur = VC.puenteEn(st.x, st.y, st.z, .8); if (!cur || cur.h < 1.2) return [!piso(x, y), 0]; return [false, st.z];
@@ -366,17 +383,17 @@ const Libre = EM.modes.libre = {
       if (k > 2.2 && !st.far) { g.font = '700 ' + Math.round(clamp(k * 3, 10, 13)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.9)'; g.strokeText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.fillStyle = '#0e2d55'; g.fillText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.textAlign = 'left'; }
     }
     // vehículos parqueados
-    for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (p.kind === 'bici') { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.5 * k, 2.2 * k, 1 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.3 * k, 1.8 * k, .6 * k); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, false); }
+    for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (MICRO_V.has(p.kind)) { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); Spr.veh(g, p.kind, Math.max(1.3, V.len) * k, Math.max(.65, V.wid) * k, V.col); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind === 'bus' ? 'bus' : p.kind === 'moto' ? 'moto' : p.kind === 'taxi' ? 'taxi' : p.kind === 'camioneta' ? 'camioneta' : 'car', S, k, sh, night, false); }
     Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, VC.on ? 'piso' : null);
     // a ras de piso: gente, carros y el jugador, en orden de pintura con los edificios que les quedan delante (así los tapan)
-    const dprL = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), kj = Math.max(k, 3.2 * dprL), yo = typeof Perfil !== 'undefined' ? Perfil.ped() : { col: '#1C5C9C', skin: SKIN[1] }, pz = st.z || 0, ob = VC.ob, SZ = h => h ? (x, y) => S(x, y - h * ob) : S, hz = pz && VC.PG ? ((VC.puenteEn(st.x, st.y, pz, .8) || { h: 0 }).h) : 0, Sj = SZ(hz);
-    const dibJug = () => { if (st.mode === 'veh') { const V = this.V(st); if (st.veh.kind === 'bici') { const q = Sj(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * 8, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (V.art) Ciudad.articulado(g, st.x, st.y, st.h, st.h2 == null ? st.h : st.h2, V, Sj, k, sh, night, true); else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'moto' ? 'moto' : 'car', Sj, k, sh, night, true); } if (st.mode === 'walk') Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.wv > .2 ? 1 : 0), seed: 7, stun: 0, umb: L.w.rain && !yo.gorro }, yo), Sj, kj, sh); };
+    const dprL = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), kj = Math.max(k, 3.2 * dprL), yo = typeof Perfil !== 'undefined' ? Perfil.ped() : { col: '#1C5C9C', skin: SKIN[1] }, pz = st.z || 0, ob = VC.ob, SZ = h => h ? (x, y) => S(x, y - h * ob) : S, hz = pz && VC.PG ? ((VC.puenteEn(st.x, st.y, pz, .8) || { h: 0 }).h) * (pz < 0 ? -1 : 1) : 0, Sj = SZ(hz);
+    const dibJug = () => { if (st.mode === 'veh') { const V = this.V(st), vk = st.veh.kind; if (MICRO_V.has(vk)) { const q = Sj(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(-.9 * k + sh.dx * k, -.36 * k + sh.dy * k, 1.8 * k, .72 * k); Spr.veh(g, vk, Math.max(1.3, V.len) * k, Math.max(.65, V.wid) * k, V.col); g.restore(); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * 8 * (Math.abs(st.vf) > .3 ? 1 : 0), seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (V.art) Ciudad.articulado(g, st.x, st.y, st.h, st.h2 == null ? st.h : st.h2, V, Sj, k, sh, night, true); else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, vk === 'alimentador' ? 'feeder' : vk === 'bus' ? 'bus' : vk === 'moto' ? 'moto' : vk === 'taxi' ? 'taxi' : vk === 'camioneta' ? 'camioneta' : 'car', Sj, k, sh, night, true); } if (st.mode === 'walk') Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.wv > .2 ? 1 : 0), seed: 7, stun: 0, umb: L.w.rain && !yo.gorro }, yo), Sj, kj, sh); };
     if (st.mode !== 'ride') { const q = Sj(st.x, st.y), r = Math.max(10 * dprL, (st.mode === 'veh' ? this.V(st).len * .55 : 1.5) * k); g.fillStyle = 'rgba(255,160,30,.26)'; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); }   // disco naranja bajo los pies
     const altos = [], items = [];
     for (const c of Ciudad.cars) { const h = VC.PG ? VC.carAlto(c) : 0, Sc = SZ(h); if (h > .4) { altos.push([c.z || 1, () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); }]); continue; } items.push({ x: c.x, y: c.y, r: c.kind === 'bus' ? 6 : 2.5, a: c.kind === 'bus' ? 3.2 : 1.6, f: () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); } }); }
     for (const p of Ciudad.peds) if (p.x > x0 - 5 && p.x < x1 + 5 && p.y > y0 - 5 && p.y < y1 + 5) items.push({ x: p.x, y: p.y, r: .5, a: 1.8, f: () => { Ciudad.ped(g, p, S, k, sh); if (p.client) { const q = S(p.x, p.y); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(q.x, q.y - 12 * Math.max(.6, k * .4) - 6, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = PAL.negro; g.font = '700 11px Cuerpo, sans-serif'; g.textAlign = 'center'; g.fillText('!', q.x, q.y - 12 * Math.max(.6, k * .4) - 2); g.textAlign = 'left'; } } });
     if (typeof Gente !== 'undefined') Gente.items(st, items, g, S, k, sh, x0, y0, x1, y1);
-    if (st.mode !== 'ride') { if (!pz) items.push({ x: st.x, y: st.y, r: st.mode === 'veh' ? this.V(st).len / 2 : .6, a: st.mode === 'veh' ? 1.6 : 1.8, f: dibJug }); else altos.push([pz, dibJug]); }
+    if (st.mode !== 'ride') { if (pz <= 0) items.push({ x: st.x, y: st.y, r: st.mode === 'veh' ? this.V(st).len / 2 : .6, a: st.mode === 'veh' ? 1.6 : 1.8, f: dibJug }); else altos.push([pz, dibJug]); }
     for (const it of items) it.y = it.y == null ? 0 : it.y;
     const delante = VC.on && VC.ocluir ? VC.ocluir(items) : [];
     for (const b of delante) items.push({ y: b.ym + .01, b });
@@ -450,9 +467,9 @@ const Libre = EM.modes.libre = {
     c.querySelector('[data-c=dest]').onclick = () => { st.guia = { x: o.x, y: o.y, title: o.n, hint: o.s }; this.mapaCierra(); this.msg(st, '📍 Rumbo a ' + o.n + ' · ' + km(dist(o.x, o.y, st.x, st.y)), 'b'); };
   },
   /* ---------- vistas 3D (1.4.0) ---------- */
-  alto3(st) {   // altura del jugador en 3D: el piso, el tablero del puente, la vía del metro o la línea del cable
+  alto3(st) {   // altura del jugador en 3D: el piso, el tablero del puente o deprimido, la vía del metro o la línea del cable
     let z = MAP.elevM(st.x, st.y); if (st.mode === 'ride') { const v = st.ride, l = v.line; if (l.kind === 'metro' || l.kind === 'tram') z = G3.zOn(l, v.s) + 1.2; else if (l.kind === 'cable') { const C = G3.cableGeo(l); z = C.zAt(NET.project(C.P, st.x, st.y).s) - 3.2; } }
-    else if (st.z && VC.PG) { const P = VC.puenteEn(st.x, st.y, st.z, .8); if (P) z += P.h; } return z;
+    else if (st.z && VC.PG) { const P = VC.puenteEn(st.x, st.y, st.z, .8); if (P) z += st.z < 0 ? -P.h : P.h; } return z;
   },
   _rgb: new Map(),
   rgb3(h) { let c = this._rgb.get(h); if (!c) { c = typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h) ? rgb(h) : typeof h === 'string' && /^#[0-9a-f]{3}$/i.test(h) ? rgb('#' + h[1] + h[1] + h[2] + h[2] + h[3] + h[3]) : [.8, .8, .8]; this._rgb.set(h, c); } return c; },
@@ -467,9 +484,9 @@ const Libre = EM.modes.libre = {
     const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
     const largo = st.mode === 'ride' ? (st.ride.line.kind === 'metro' ? 34 : st.ride.line.kind === 'cable' ? 12 : 26) : st.mode === 'veh' ? 8 + V.len * 1.1 : 9;
     let cam;
-    if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
+    if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar sin quedar dentro ni detrás de edificios
       const C0 = st._cine, ad = C0 ? (C0.x - st.x) * Math.cos(st.h) + (C0.y - st.y) * Math.sin(st.h) : -1;
-      if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, q = VC.on ? VC.despeja(px0, py0, 1, true, 30) : { x: px0, y: py0 }, px = q.x, py = q.y; st._cine = { x: px, y: py, z: Math.max(MAP.elevM(px, py), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), t: st.t }; }   // en la calle, a la altura de un poste
+      if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, z0 = Math.max(MAP.elevM(px0, py0), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), q = VC.on && VC.camaraLibre ? VC.camaraLibre(px0, py0, st.x, st.y, z0) : { x: px0, y: py0, z: z0 }; st._cine = { x: q.x, y: q.y, z: q.z, t: st.t }; }
       cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2, st.y], fov: .9 / Math.sqrt(zu) };
     } else {
       const D = (st.vista3 === 'dron' ? 95 : largo) / zu, Hh = (st.vista3 === 'dron' ? 70 : st.mode === 'walk' ? 3.4 : 4.2 + (V ? V.len * .25 : 3)) / zu * (1 + po * 1.6) + (st.vista3 === 'dron' ? 0 : 1.2);
@@ -481,10 +498,10 @@ const Libre = EM.modes.libre = {
   },
   dyn3D(G, st, zj) {
     const C = h => this.rgb3(h), E = (x, y) => MAP.elevM(x, y), cerca = (x, y, r) => Math.abs(x - st.x) < r && Math.abs(y - st.y) < r;
-    for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G.box(k.x, zk + .3, k.y, k.a, L, Wd, Hh * .62, C(k.col)); G.box(k.x, zk + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
+    for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 11.2 : k.kind === 'moto' ? 2 : 4.4, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G3.vehicle(k.x, zk, k.y, k.a, L, k.kind, C(k.col)); }
     for (const p of Ciudad.peds) { if (!cerca(p.x, p.y, 90) || p.dog) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p, 1, p.ph || 0); }
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { if (!cerca(p.x, p.y, 130)) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p.look, 1.05, p.v > .1 ? p.ph : 0); }
-    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y); G.box(p.x, zp + .3, p.y, p.a, V.len, V.wid, p.kind === 'bici' ? .9 : 1, C(V.col)); if (p.kind !== 'bici' && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
+    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y); G3.vehicle(p.x, zp, p.y, p.a, V.len, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind, C(V.col)); }
     // el transporte de la ciudad en su sitio: trenes por vagones sobre su vía, articulados en dos cuerpos, cabinas en su cable
     for (const v of Ciudad.transit) { const p = Ciudad.tpos(v); if (!cerca(p.x, p.y, 700)) continue; const l = v.line, kind = l.kind, col = C(l.color);
       if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const s0 = v.s - v.dir * (i * (carL + 1) + carL / 2), q = Ciudad.cuerda(l.P, s0 + v.dir * carL * .35, s0 - v.dir * carL * .35, v.dir * 2); G3.vehicle(q.x, G3.zOn(l, s0), q.y, q.a, carL, kind, col); } }
@@ -494,8 +511,8 @@ const Libre = EM.modes.libre = {
     if (st.mode !== 'ride') { const V = this.V(st);
       if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
       else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zj, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zj, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
-      else if (st.veh.kind === 'bici') { G.box(st.x, zj + .35, st.y, st.h, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zj + .55, st.y, st.h, Perfil.ped(), 1, 0); }
-      else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zj + .3, st.y, st.h, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zj + .3 + Hh * .62, st.y, st.h, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); } }
+      else if (MICRO_V.has(st.veh.kind)) { G3.vehicle(st.x, zj, st.y, st.h, V.len, st.veh.kind, C(V.col)); this.persona3(G, st.x, zj + (st.veh.kind === 'bici' ? .55 : .22), st.y, st.h, Perfil.ped(), 1, st.veh.kind === 'patines' && Math.abs(st.vf) > .3 ? st.t * 10 : 0); }
+      else G3.vehicle(st.x, zj, st.y, st.h, V.len, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind, C(V.col)); }
     const tope = zj + (st.mode === 'veh' ? 3.6 : st.mode === 'ride' ? 6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78);
     // el destino: un poste alto que se ve de lejos
     const J = st.goal || st.job || st.guia; if (J && J.x != null && cerca(J.x, J.y, 1500)) { const zg = E(J.x, J.y); G.box(J.x, zg, J.y, 0, .7, .7, 16 + Math.sin(st.t * 4), [.98, .78, .2]); G.box(J.x, zg + 16, J.y, st.t, 2.4, 2.4, 2.4, [1, .9, .4]); }

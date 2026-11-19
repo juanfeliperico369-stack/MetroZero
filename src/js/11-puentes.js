@@ -9,15 +9,23 @@
    ===================================================================== */
 Object.assign(VC, {
   PU: null, PG: null,
+  /* deprimidos y soterrados principales del valle (nivel z = -1, is_tunnel = true): rampas de entrada/salida y tramo cubierto */
+  DEPRIMIDOS: [
+    [0, -1, 14, 4.6, 14880, 23210, 14922, 23290, 14965, 23370],   // Deprimido de la Av. Oriental con La Playa
+    [0, -1, 15, 4.8, 13915, 23685, 14030, 23680, 14145, 23675],   // Deprimido de San Juan (La Alpujarra / Ferrocarril)
+    [0, -1, 18, 5.0, 13580, 23760, 13588, 23970, 13595, 24180],   // Soterrado de Parques del Río
+    [0, -1, 14, 4.5, 11990, 24190, 12080, 24192, 12170, 24195],   // Deprimido de Bulerías (Av. 33)
+    [0, -1, 14, 4.5, 14170, 20030, 14215, 20112, 14260, 20195]    // Deprimido de Terminal del Norte / Caribe
+  ],
   puentesInit() {
     if (typeof PUENTES === 'undefined') return; const out = [], G = this.PG = new Map(), C = 160;
-    for (const r of PUENTES.B) {
-      const pe = r[0], z = r[1], w = r[2], h = r[3], n = (r.length - 4) / 2; if (n < 2) continue;
+    for (const r of PUENTES.B.concat(this.DEPRIMIDOS)) {
+      const pe = r[0], z = r[1], w = r[2], h = r[3], n = (r.length - 4) / 2, is_tunnel = z < 0; if (n < 2) continue;
       const P = new Float32Array(n * 2), cum = new Float32Array(n); let L = 0, x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
       for (let i = 0; i < n; i++) { const x = r[4 + 2 * i], y = r[5 + 2 * i]; P[2 * i] = x; P[2 * i + 1] = y; if (i) L += Math.hypot(x - P[2 * i - 2], y - P[2 * i - 1]); cum[i] = L; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-      const B = { pe, z, w, h, P, cum, len: L, ramp: Math.min(L * .4, pe ? 9 : 22), x0: x0 - w, y0: y0 - w, x1: x1 + w, y1: y1 + w, i: out.length };
-      // pilas cada ~24 m entre las rampas: a los lados del tablero (en los peatonales, al centro)
-      const pil = []; for (let s = B.ramp + 3; s < L - B.ramp - 2; s += 24) { const q = this.puAt(B, s); if (pe) pil.push(q.x, q.y); else { const o = Math.max(.5, w / 2 - 1.3); pil.push(q.x - q.uy * o, q.y + q.ux * o, q.x + q.uy * o, q.y - q.ux * o); } }
+      const B = { pe, z, w, h, is_tunnel, P, cum, len: L, ramp: Math.min(L * .4, is_tunnel ? 26 : pe ? 9 : 22), x0: x0 - w, y0: y0 - w, x1: x1 + w, y1: y1 + w, i: out.length };
+      // pilas cada ~24 m entre las rampas: a los lados del tablero (en los peatonales, al centro; los deprimidos llevan muros, sin pilas)
+      const pil = []; if (!is_tunnel) for (let s = B.ramp + 3; s < L - B.ramp - 2; s += 24) { const q = this.puAt(B, s); if (pe) pil.push(q.x, q.y); else { const o = Math.max(.5, w / 2 - 1.3); pil.push(q.x - q.uy * o, q.y + q.ux * o, q.x + q.uy * o, q.y - q.ux * o); } }
       B.pil = Float32Array.from(pil); out.push(B);
       for (let gy = Math.floor(B.y0 / C); gy <= Math.floor(B.y1 / C); gy++) for (let gx = Math.floor(B.x0 / C); gx <= Math.floor(B.x1 / C); gx++) { const k = gx * 4096 + gy; let a = G.get(k); if (!a) G.set(k, a = []); a.push(B); }
     }
@@ -31,7 +39,7 @@ Object.assign(VC, {
     const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay) || 1, t = clamp((s - cum[i - 1]) / L, 0, 1);
     return { x: ax + (bx - ax) * t, y: ay + (by - ay) * t, ux: (bx - ax) / L, uy: (by - ay) / L };
   },
-  /* alto del tablero a s metros del comienzo: rampa suave en cada extremo */
+  /* alto (o profundidad si B.is_tunnel) del tablero a s metros del comienzo: rampa suave en cada extremo */
   puAlto(B, s) { const e = Math.min(s, B.len - s), t = clamp(e / (B.ramp || 1), 0, 1); return B.h * t * t * (3 - 2 * t); },
   puProy(B, x, y) {
     const P = B.P, n = P.length / 2; let bd = 1e18, bs = 0;
@@ -39,12 +47,12 @@ Object.assign(VC, {
     return { s: bs, d: Math.sqrt(bd) };
   },
   puentesEn(x0, y0, x1, y1) { if (!this.PG) return []; const out = new Set(), C = 160; for (let gy = Math.floor(y0 / C); gy <= Math.floor(y1 / C); gy++) for (let gx = Math.floor(x0 / C); gx <= Math.floor(x1 / C); gx++) for (const B of this.PG.get(gx * 4096 + gy) || []) if (B.x1 > x0 && B.x0 < x1 && B.y1 > y0 && B.y0 < y1) out.add(B); return [...out]; },
-  /* el tablero que pasa por (x, y), del nivel z si se pide (si no, el más alto), con su alto ahí */
+  /* el tablero o deprimido que pasa por (x, y), del nivel z si se pide (si no, el más alto o la rampa activa), con su alto ahí */
   puenteEn(x, y, z, m = 0) {
     if (!this.PG) return null; let best = null;
     for (const B of this.PG.get(Math.floor(x / 160) * 4096 + Math.floor(y / 160)) || []) {
       if (x < B.x0 || x > B.x1 || y < B.y0 || y > B.y1 || (z != null && B.z !== z)) continue; const pr = this.puProy(B, x, y); if (pr.d > B.w / 2 + m) continue;
-      const h = this.puAlto(B, pr.s); if (!best || B.z > best.B.z || (B.z === best.B.z && h > best.h)) best = { B, s: pr.s, d: pr.d, h };
+      const h = this.puAlto(B, pr.s); if (!best || Math.abs(B.z) > Math.abs(best.B.z) || (B.z === best.B.z && h > best.h)) best = { B, s: pr.s, d: pr.d, h };
     }
     return best;
   },
@@ -124,6 +132,20 @@ Object.assign(VC, {
     for (const B of L) {
       if (B.z !== z) continue; const st = Math.max(1.5, Math.min(6, 4 / k)), n = Math.max(2, Math.ceil(B.len / st) + 1), hw = B.w / 2, E = [];
       for (let i = 0; i < n; i++) { const s = Math.min(B.len, i * B.len / (n - 1)), q = this.puAt(B, s); q.h = this.puAlto(B, s); q.s = s; E.push(q); }
+      if (B.is_tunnel) {
+        // deprimido (z = -1): bocas en rampa con muros de contención en concreto y sombra profunda al entrar al tramo cubierto
+        for (const r0 of [[0, B.ramp], [B.len - B.ramp, B.len]]) {
+          const R = E.filter(q => q.s >= r0[0] - 2 && q.s <= r0[1] + 2); if (R.length < 2) continue;
+          const p = (q, o) => S(q.x - q.uy * o, q.y + q.ux * o);
+          g.beginPath(); R.forEach((q, i) => { const u = p(q, -hw); i ? g.lineTo(u.x, u.y) : g.moveTo(u.x, u.y); });
+          for (let i = R.length - 1; i >= 0; i--) { const u = p(R[i], hw); g.lineTo(u.x, u.y); } g.closePath();
+          g.fillStyle = '#2d3138'; g.fill();
+          if (k > .6) for (const o of [-hw, hw]) { g.strokeStyle = '#928c80'; g.lineWidth = Math.max(1, 1.1 * k); g.beginPath(); R.forEach((q, i) => { const u = p(q, o); i ? g.lineTo(u.x, u.y) : g.moveTo(u.x, u.y); }); g.stroke(); }
+          const portal = r0[0] === 0 ? R[R.length - 1] : R[0], a = p(portal, -hw - .6), b = p(portal, hw + .6);
+          g.strokeStyle = '#c4beb0'; g.lineWidth = Math.max(1.5, 1.8 * k); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke();
+        }
+        continue;
+      }
       const lado = (q, o, dh = 0) => T(q.x - q.uy * o, q.y + q.ux * o, q.h + dh);
       // 1 · sombra en el piso, corrida según el alto
       g.fillStyle = 'rgba(16,22,34,.2)'; g.beginPath();
@@ -155,8 +177,8 @@ Object.assign(VC, {
       if (B && cur && cur[2] === B) cur[1] = s; else if (B) { cur = [s, s, B]; out.push(cur); } else cur = null; }
     return (L._pu = out.filter(r => r[1] - r[0] >= 6));
   },
-  /* alto de un carro del tráfico sobre su puente (0 si va por el piso); deja su nivel en c.z */
-  carAlto(c) { const I = c.L ? this.carrilPuentes(c.L) : null; if (I && I.length) for (const [s0, s1, B] of I) if (c.p >= s0 - 1 && c.p <= s1 + 1) { c.z = B.z; return this.puAlto(B, this.puProy(B, c.x, c.y).s); } c.z = 0; return 0; },
-  /* ¿hay un tablero (de puente o del viaducto) sobre (x, y)? para mostrar al jugador a través de él */
+  /* alto de un carro del tráfico sobre su puente o deprimido (0 si va por el piso); deja su nivel en c.z */
+  carAlto(c) { const I = c.L ? this.carrilPuentes(c.L) : null; if (I && I.length) for (const [s0, s1, B] of I) if (c.p >= s0 - 1 && c.p <= s1 + 1) { c.z = B.z; const h = this.puAlto(B, this.puProy(B, c.x, c.y).s); return B.is_tunnel ? -h : h; } c.z = 0; return 0; },
+  /* ¿hay un tablero (de puente, deprimido o del viaducto) sobre (x, y)? para mostrar al jugador a través de él */
   tapado(x, y) { const P = this.puenteEn(x, y, null, .5); if (P && P.h > 2) return true; if (typeof NET === 'undefined') return false; for (const l of NET.lines) { if (l.kind !== 'metro') continue; const pr = NET.project(l.P, x, y); if (pr.d < 5.2) return true; } return false; }
 });
