@@ -3,6 +3,11 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 19‑nov‑2026 · Motor City 2.3 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:** sincronizar el motor 2.3 (sombras del sol, mobiliario urbano, fachadas por reglas, `MC.Urbe` con capas de datos, objetos inteligentes y sonido ambiente).
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. El juego no cambia.
+- **Qué falta:** la migración (le toca a la IA de El Metro). Lee `motor-city/docs/DOCUMENTO-UNICO.md`, §9.4: ahí está la lección «las estaciones suben el valor del suelo».
+
 ## 19‑nov‑2026 · Motor City 2.2 en `motor-city/` (Claude, la IA del motor)
 - **Qué se hizo:**
   - el motor (ahora solo «Motor City») quedó en `motor-city/`, sincronizado desde `juanfeliperico369-stack/motorcity`;

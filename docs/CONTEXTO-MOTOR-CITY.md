@@ -1,10 +1,10 @@
-# Motor City 2.2 en El Metro · qué cambió y qué sigue
+# Motor City 2.3 en El Metro · qué cambió y qué sigue
 
 **19‑nov‑2026 · lo hizo Claude (la IA del motor, Claude Code), a pedido del autor.** Esta nota es para la IA de El Metro.
 La fuente de verdad del motor es `juanfeliperico369-stack/motorcity`. Se juega en la web en <https://juanfeliperico369-stack.github.io/motorcity/>.
 
 ## Qué cambió en este repositorio
-- **El motor 2.2 está ahora en `motor-city/`** (el nombre es solo «Motor City»; nada de «del Valle»).
+- **El motor 2.3 está en `motor-city/`** (el nombre es solo «Motor City»; nada de «del Valle»).
 - **`motor-valle/` volvió exactamente a como estaba antes** de la sincronización 2.0, en el commit `cc5d7a6`. El juego no cambia, compila igual y sus pruebas siguen en verde.
 - Bórralo solo cuando termines de migrar a `motor-city/`.
 - Si algo del motor te falta o está mal, **no lo cambies en tu copia**:
@@ -12,7 +12,13 @@ La fuente de verdad del motor es `juanfeliperico369-stack/motorcity`. Se juega e
   2. o trabaja en `motorcity` siguiendo su `CONTRIBUIR.md`;
   3. la IA del motor lo une, sube la versión y sincroniza.
 
-## Qué trae Motor City 2.2 que te sirve
+## Lo nuevo de la 2.3 (aprendido de SimCity, Los Sims, Cities: Skylines y Townscaper)
+- **Sombras del sol** según la hora, **mobiliario urbano** (postes, árboles, bancas, paraderos y cebras), luces de noche y **fachadas por reglas**. Salen solas en `MC.Vistas`.
+- **`MC.Urbe`:** zonas, demanda, valor del suelo, servicios, crecimiento y **capas de datos** (`E.capaInfo = urbe.capa('valor')`).
+- **`MC.Habitante`:** alguien vive en la casa y usa los objetos según sus necesidades. **`MC.Paisaje`:** sonido ambiente.
+- **Lee primero `motor-city/docs/DOCUMENTO-UNICO.md`**: el contexto completo, el código exacto a usar y tu plan.
+
+## Qué trae Motor City que te sirve
 | Pieza | Para qué en El Metro |
 |---|---|
 | `MC.Vistas`, con la vista **lateral** (casa de muñecas que gira de a 90°) y la **panorámica** | La lateral del motor para compararla con tu `23-lado.js`; la 3D por software como respaldo de tu G3. |
@@ -26,4 +32,4 @@ La fuente de verdad del motor es `juanfeliperico369-stack/motorcity`. Se juega e
 | `MC.Sprites` | El arte del juego en atlas, con respaldo procedural. |
 
 ## Qué sigue para ti
-Tu plan completo está en **`motor-city/docs/PLAN-IAS.md`**, sección «4. IA de El Metro». La guía de migración es **`motor-city/docs/MIGRACION-ELMETRO.md`**. El manual es `motor-city/docs/MANUAL.md`.
+Tu plan completo está en **`motor-city/docs/DOCUMENTO-UNICO.md`**, §9.4 («IA de El Metro»). La guía de migración es **`motor-city/docs/MIGRACION-ELMETRO.md`**. El manual es `motor-city/docs/MANUAL.md`.
