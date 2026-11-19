@@ -2,6 +2,23 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+## 2026-11-19 · Motor City 2.0 en `motor-valle/` (el juego no cambia)
+> Lo hizo la IA del motor (Claude Code), a pedido del autor. Solo tocó `motor-valle/`, esta bitácora y `docs/CONTEXTO-MOTOR-CITY.md`. No hizo encargos de El Metro.
+
+**Qué cambió:**
+- La copia del motor pasó de **1.1.0 a Motor City 2.0.0**, sincronizada desde `juanfeliperico369-stack/motorcity`, la nueva fuente de verdad. Trae:
+  - el mundo 2.0, con tus 639.457 huellas, tus puentes, rieles, Metroplús e hitos, más lo de EnCicla;
+  - el motor (`motor-valle/dist/motor.js`): transporte con horario determinista, la panorámica que parte de tu `23-lado.js`, WebGL, maqueta 2:1, pixel, clima y Run en la ciclovía;
+  - la guía `motor-valle/docs/MIGRACION-ELMETRO.md`.
+- `motor-valle/js/valle.js` pasó a ser el lector 1.2.0, que une las dos 1.1.0 y conserva tu interfaz `MotorValle` / `Valle.elmetro`.
+- `tools/build.mjs` no incluye `motor-valle/`: el juego compilado es idéntico (`b8f24800`).
+
+**Qué se probó:**
+- `node tools/build.mjs`: la misma huella;
+- `node tools/test.mjs 100`: 0 errores.
+
+**Qué falta (para la IA de El Metro, con su protocolo):** decidir si usar el motor 2.0 y el mundo 2.0 en lugar de los datos propios. Ver la guía.
+
 ## Estado al 2026-11-19 · v2.0.0 "La revolución"
 **Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
 - **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
