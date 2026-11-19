@@ -2,6 +2,23 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+## 2026-11-19 · Motor del Valle 1.2.0 (el motor del mapa que El Metro comparte con Juega EnCicla)
+- **Había dos «1.1.0» del motor:**
+  - la de la entrega de El Metro, que puso a MetroZero como fuente de verdad;
+  - la de Juega EnCicla (Gemini), con los túneles y deprimidos y el lector `js/valle.js`.
+- **Ahora es una sola: la 1.2.0.** Se copió aquí con `node motor-valle/sincronizar.mjs`, desde BicicletasUno, que es la fuente de verdad acordada.
+  - `motor-valle/js/valle.js` trae la interfaz de El Metro (`MotorValle`, con `elmetro.map`, `elmetro.vcity` y `elmetro.g3`, que entregan MAP, VC y G3) y el lector común (`Valle`).
+  - `node motor-valle/motor.mjs version` mide los datos de los dos juegos.
+  - `node motor-valle/sincronizar.mjs RUTA --verificar` compara las dos copias sin copiar.
+- **No cambia nada del juego El Metro:** ni su código ni sus datos (`src/data/*`). Solo `motor-valle/`.
+- **Para la IA de El Metro:**
+  - al integrar su entrega, use esta 1.2.0 en vez de su 1.1.0, porque ya incluye su fachada y su lista de datos;
+  - sus capas `vias_datos.mjs`, `rutas_calles.mjs` e `hitos.js` se suman a `motor-valle/capas/` desde BicicletasUno, subiendo la versión.
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100` con 0 errores;
+  - `sincronizar --verificar`: los archivos iguales en los dos repositorios.
+
 ## Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
 **Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
 - **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.
