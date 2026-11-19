@@ -2,6 +2,15 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+
+## 19‑nov‑2026 · Motor City 2.2 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:**
+  - el motor (ahora solo «Motor City») quedó en `motor-city/`, sincronizado desde `juanfeliperico369-stack/motorcity`;
+  - `motor-valle/` volvió a como estaba en `cc5d7a6`.
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. **El juego no cambia.**
+- **Qué aprendí:** que cada juego reciba el motor en su propia carpeta, sin pisar la que usa.
+- **Qué falta:** la migración, que le toca a la IA de El Metro. Ver `docs/CONTEXTO-MOTOR-CITY.md` y `motor-city/docs/PLAN-IAS.md`, sección 4.
+
 ## 2026-11-19 · Motor City 2.0 en `motor-valle/` (el juego no cambia)
 > Lo hizo la IA del motor (Claude Code), a pedido del autor. Solo tocó `motor-valle/`, esta bitácora y `docs/CONTEXTO-MOTOR-CITY.md`. No hizo encargos de El Metro.
 

@@ -1,26 +1,29 @@
-# Motor City 2.0 en El Metro · qué cambió y qué sigue
+# Motor City 2.2 en El Metro · qué cambió y qué sigue
 
-**19‑nov‑2026 · lo hizo Claude (la IA del motor, Claude Code), a pedido del autor.** Esta nota es para la IA de El Metro. **Sigue tu `CLAUDE.md`** antes de tocar algo.
+**19‑nov‑2026 · lo hizo Claude (la IA del motor, Claude Code), a pedido del autor.** Esta nota es para la IA de El Metro.
+La fuente de verdad del motor es `juanfeliperico369-stack/motorcity`. Se juega en la web en <https://juanfeliperico369-stack.github.io/motorcity/>.
 
 ## Qué cambió en este repositorio
-**Solo la carpeta `motor-valle/`.** Tenías la copia 1.1.0; ahora está el motor **2.0.0**, sincronizado desde `juanfeliperico369-stack/motorcity`, que es la nueva **fuente de verdad** del motor. Ya no lo es BicicletasUno ni MetroZero.
+- **El motor 2.2 está ahora en `motor-city/`** (el nombre es solo «Motor City»; nada de «del Valle»).
+- **`motor-valle/` volvió exactamente a como estaba antes** de la sincronización 2.0, en el commit `cc5d7a6`. El juego no cambia, compila igual y sus pruebas siguen en verde.
+- Bórralo solo cuando termines de migrar a `motor-city/`.
+- Si algo del motor te falta o está mal, **no lo cambies en tu copia**:
+  1. pídelo con `node motor-city/motor.mjs reporte "título" --juego elmetro` (queda en `motorcity/reportes/`);
+  2. o trabaja en `motorcity` siguiendo su `CONTRIBUIR.md`;
+  3. la IA del motor lo une, sube la versión y sincroniza.
 
-- **El juego no cambió:**
-  - `tools/build.mjs` no incluye nada de `motor-valle/`;
-  - el HTML compilado tiene la misma huella (`b8f24800`);
-  - `node tools/test.mjs 100` sigue en 0 errores.
-- `motor-valle/js/valle.js` pasó de tu 1.1.0 al lector 1.2.0, que une las dos y conserva tu interfaz `Valle.elmetro` / `MotorValle`.
-- **Lo nuevo:**
-  - el motor en fuente (`js/00-…` a `js/50-…`) y compilado (`dist/motor.js`);
-  - el mundo 2.0 (`datos/medellin/mundo.mc4`), que ya trae **tus** 639.457 huellas, tus puentes, tus rieles, tu Metroplús y tus hitos;
-  - `run/` (Run Scooter), `herramientas/`, `pruebas/`, `sandbox/` y `docs/`, con **`docs/MIGRACION-ELMETRO.md`**.
+## Qué trae Motor City 2.2 que te sirve
+| Pieza | Para qué en El Metro |
+|---|---|
+| `MC.Vistas`, con la vista **lateral** (casa de muñecas que gira de a 90°) y la **panorámica** | La lateral del motor para compararla con tu `23-lado.js`; la 3D por software como respaldo de tu G3. |
+| **GPU virtual:** `MC.GPU`, `MC.ResDinamica` y `MC.Raster` (3D por software) | Que la 3D ande en celulares sin GPU buena. |
+| **Física de niveles por superficies** y cámara con resortes | Puentes, viaducto y deprimidos sin trampas; la cámara no atraviesa edificios. |
+| `MC.Manejo` | Curvas de respuesta, giro según la velocidad, asistencias y esquemas (un pulgar, tocar para ir, inclinar…). |
+| `MC.UI` | El centro libre, lo que no cambia se atenúa y un aviso a la vez. `MC.UI.verificar(ui)` lo prueba. |
+| `MC.Lugares` y `MC.Desgaste` | Estaciones y Metrocables como lugares jugables, con interiores (taquilla, torniquetes y andén). |
+| `MC.Hogar` y `MC.Direccion` | La casa del jugador desde su dirección real, sin internet; se diseña con muebles. |
+| `MC.Historias`, `MC.Director` y `MC.Ocurrencias` | Cultura metro, Rosalba y los usuarios con rutinas (`MC.Poblacion`). |
+| `MC.Sprites` | El arte del juego en atlas, con respaldo procedural. |
 
 ## Qué sigue para ti
-Lee **`motor-valle/docs/MIGRACION-ELMETRO.md`**. En corto:
-1. **Conserva** tu cabina, tu maqueta, tu Metrocable, tu vista lateral (`23-lado.js`) y tu trama contemplativa.
-2. Usa el motor 2.0 en lugar de tu 1.1.0. Pasa al mundo 2.0: los mismos datos en una sola fuente, y el HTML baja de tamaño.
-3. **Transporte con horario determinista** (`MC.Transporte`): tus trenes y los de Juega EnCicla coinciden a la misma hora.
-4. **La panorámica del motor** parte de tu `23-lado.js` (con crédito) y suma la fila real de edificios, las siluetas de los emblemáticos y el viaducto con sus trenes. Pruébala en Ciudad Libre.
-5. Integra Run en la ciclovía con tu piel si quieres (`MC.Run`). Tu «🛴 Run Scooter» puede pasar a ser este.
-
-**Si algo del mapa está mal, pídelo en `motorcity`.** Tus herramientas `tools/*_datos.*` siguen siendo la referencia de cómo se hicieron tus capas.
+Tu plan completo está en **`motor-city/docs/PLAN-IAS.md`**, sección «4. IA de El Metro». La guía de migración es **`motor-city/docs/MIGRACION-ELMETRO.md`**. El manual es `motor-city/docs/MANUAL.md`.
