@@ -11,6 +11,7 @@ android/.idea/
 android/captures/
 android/app/src/main/assets/www/
 *.iml
-dist/
+/dist/
+motor-valle/dist/
 .cache/
 __pycache__/

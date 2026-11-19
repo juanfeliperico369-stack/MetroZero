@@ -3,6 +3,16 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 19‑nov‑2026 · Motor City 2.5.1 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5.1:
+  - controles que se ven (joystick, botones de acción y flecha al objetivo);
+  - modo libre en Mandados;
+  - el arte de Gemini integrado con `MC.Pieles` (`motor-city/dist/arte/gemini.js`);
+  - leyenda en las capas de datos;
+  - la lista de pedidos.
+- `.gitignore`: `dist/` pasó a `/dist/` (más `motor-valle/dist/`), para que `motor-city/dist/` quede en git.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 ## 19‑nov‑2026 · Motor City 2.5 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.5: entrar al agua (dejar el vehículo en la orilla, nadar, bucear con aire, volver a subirse, lancha).
 - **El juego no cambia** y sus pruebas siguen en verde.
