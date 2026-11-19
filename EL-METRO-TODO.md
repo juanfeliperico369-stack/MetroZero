@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v1.4.0 · compilado el 2026-11-18.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v1.5.0 · compilado el 2026-11-19.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -116,7 +116,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v1.4.0** · compilado el 2026-11-18.
+> Versión del juego **v1.5.0** · compilado el 2026-11-19.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -799,6 +799,35 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+##### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
+**Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
+- **Mapa único:** el mapa base sale del Motor del Valle 1.0.0, el mismo de Juega EnCicla.
+- **Carrera sin fin** (`src/js/47-carrera.js`, prototipo de la misión M4):
+  - en patineta, por la calle real junto a la línea A, la B, el tranvía o el Metroplús;
+  - en 3D (primera o tercera persona) con los edificios reales; si no hay WebGL, desde arriba;
+  - tres carriles y saltos; se esquivan conos, perros, motos y chazas y se saltan huecos y charcos;
+  - se recogen pasajes 🎫 y el dato de cada estación, y el ritmo acelera.
+  - El bot de pruebas la juega.
+  - Cuando lleguen el motor de Run Scooter y su arte, se cambian la pista, los obstáculos y el dibujo; el contrato de modos se queda igual.
+- **Vehículos nuevos en Ciudad Libre** (terreno de la M5):
+  - patineta eléctrica, monopatín eléctrico, skate y patines (se montan, con su tabla dibujada en 2D y en 3D);
+  - carro particular y bus de ruta;
+  - cada uno con su física (giro limitado por su agarre) y parqueados por el valle: patinetas en las estaciones, skates y patines en las plazas, buses de ruta en los barrios.
+- **Trama en datos** (terreno de la M6): los personajes que lleguen en `src/data/guion.js` (`GUION.personajes`, con el formato de la sección 4b del Plan único) se suman solos a la gente de la ciudad. El archivo se compila solo si existe.
+- **Arte pendiente:** el ícono de la carrera queda como encargo (Plan único, M4); mientras llega, el respaldo procedural.
+- **Falla encontrada jugando y corregida:** la carrera usaba el nombre `hud` para su marcador, y el juego lo llama para la barra de arriba.
+
+**Qué se probó:** autotest con 0 errores; 100 partidas del bot (329 mil pasos, con la carrera sin fin) con 0 errores y 0 errores de consola; carrera en 3D en las líneas A y B; patineta eléctrica en Ciudad Libre; recorrido de los nueve modos con capturas.
+
+##### 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
+- **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
+  - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.
+- **Plan único** (`docs/PLAN-UNICO-IA.md`) para Gemini con Antigravity y ChatGPT con Codex:
+  - misiones M1 a M6, que son las mismas en los dos trabajos (código y arte);
+  - la sección 4 trae las peticiones para Juega EnCicla y la 4b, las de El Metro;
+  - todo se entrega en un solo documento.
+- **Lo que sigue:** con las dos entregas, la IA de El Metro revisa, prueba, integra y publica la revolución de El Metro.
+
 ##### Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
 **Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
 - **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.
@@ -827,6 +856,8 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
   - el piso lejano se arma con hueco y lo pegado al piso (andenes, plazas) va un poco delante.
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O); 100 partidas del bot (365 mil pasos) con 0 errores y 0 errores de consola. Capturas de las tres vistas 3D en el Parque Berrío, Santo Domingo, El Poblado y Estadio (a pie y en taxi), del mapa (elegir dónde empezar, tocar una estación, ir allá) y del personaje con su anillo.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.4.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.4.0-993beff4`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 24, **6,6 MB**).
 
 ###### v1.3.0 "La ciudad con altura y con gente"
 **Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).
@@ -1379,6 +1410,7 @@ Antes de trabajar, sigue el **PROTOCOLO PARA TODA IA** (`arte/PROTOCOLO-IA.md`, 
 | `35-ciudad.js` | Tráfico, peatones, perros, transporte en la ciudad |
 | `36-libre.js` / `37-trama.js` | Ciudad Libre e historia jugable en la ciudad. Desde 1.3.0: manejo «fácil» (el joystick apunta hacia donde se va) o «clásico», giro limitado por la aceleración lateral de cada vehículo (`VEH.lat`, `giroMax`), pedal con peso, asistencia de carril, articulado con rótula (`VEH.art`, `st.h2`), ritmo ⏩ (`RITMOS`), 🆘 ayuda (`ayuda`, `llevar`, `salida`, `vigila`) y niveles (`nivel`, `nivelV`) |
 | `22-gl.js` (1.4.0) | El motor 3D `G3` arma la ventana cercana con el piso de calles reales (`VC.piso3D`), los edificios reales (`edifReales`), los hitos y los puentes; Ciudad Libre lo usa en sus vistas tercera persona, dron y cine (`Libre.draw3D`, `dyn3D`, `hud3D`, `joyMundo`) |
+| `47-carrera.js` (1.5.0) | **Carrera sin fin**, prototipo de la M4: patineta por la calle junto a una línea, 3 carriles, saltos, obstáculos (`CR_OBS`), pasajes y datos de estación; 3D con `G3` y respaldo desde arriba; `hud(st)` es la barra del juego y `marcador()` el dibujo |
 | `39-gente.js` | **Gente de la ciudad** (`GENTE`, `Gente`): 20 personajes con nombre y oficio en su lugar real que cuentan lo que todos saben y lo que pocos saben, turistas que piden compañía (`turista`) y 📍 qué hay cerca (`guia`, `LUGAR_INFO`) |
 | `68-album.js` | Álbum de postales: lugares reales con vista aérea del mapa y postales especiales (`Album.ganar`, `Album.open`) |
 | `38-bus.js` | Simulador de bus (Metroplús y alimentadores) |
@@ -1439,6 +1471,12 @@ Datos en `src/data/`:
 - **Piso con detalle fino = mipmaps:** la textura del piso 3D (`VC.piso3D`) es de 2048 px (potencia de 2), con `generateMipmap` y filtro anisótropo; sin eso, las líneas de andén parpadean de lado.
 - **Nada de comentarios `//` en medio de una línea larga que sigue después:** se tragan el resto (pasó dos veces).
 - **El mapa grande congela el juego** (`Game.freeze`) y dibuja con su propio bucle; al cerrar, se descongela.
+
+#### Reglas aprendidas (terreno para el Plan único, 1.5.0)
+- **Un modo nuevo:** se registra en `EM.modes`, va en `MODECARDS` (`65-menu.js`), en la lista del bot (`monkey`, `90-bot.js`) y con su ícono `ico_modo_<id>` en el arte. Mientras el ícono no llega, se agrega a `pend` en `19-atlas.js`.
+- **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
+- **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
+- **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
 #### Comandos
 ```
@@ -3006,7 +3044,7 @@ Un solo `index.html` sin librerías, armado por `node tools/build.mjs`. Concaten
 Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos están en la skill **el-metro-desarrollo** (parte 3 de este documento).
 
 ## Datos que no van como texto
-- **`src/data/valle.js`** (1163 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
+- **`src/data/valle.js`** (1189 KB): el mapa del Valle de Aburrá en binario comprimido (casillas de 20 m con tipo de suelo y relieve de 80 m), tomado de “Juega EnCicla”. No es texto legible; se usa con `MAP.tile`, `MAP.tileM` y `MAP.elevM` (ver `src/js/10-map.js`).
 - **`src/data/ciudad.js`** (372 KB): datos oficiales abiertos de Medellín, Itagüí, Envigado y Sabaneta (parche de casillas, barrios, nombres de calle por casilla, lotes y lugares). Lo genera `python3 tools/ciudad_datos.py`; se usa con `MAP.barrioAt`, `MAP.calleAt`, `MAP.lotT` y `MAP.drawLabels` (`src/js/10-map.js`).
 - **`src/data/ajustes.js`** (39 KB): ajustes del mapa base generados por `node tools/mapa_ajustes.mjs`: nombres de calle y barrios fuera de la capa oficial (de Juega EnCicla), puentes y relieve del río, escaleras sueltas, calle del tranvía y patio-taller del Metro.
 - **`src/data/arte.js`** (534 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
@@ -3015,7 +3053,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (89 archivos, 1268 KB)
+## Código fuente (90 archivos, 1283 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3427,6 +3465,9 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .fiesta-ban img{display:block;width:100%;height:100%;object-fit:cover}
 .fiesta-ban span{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 10px;background:linear-gradient(transparent,rgba(15,34,56,.92));color:#fff;font-weight:800;font-size:14px;line-height:1.3}
 
+/* ---------- 1.5.0: carrera sin fin ---------- */
+.crbtns{position:absolute;left:0;right:0;bottom:calc(14px + var(--sab));display:flex;justify-content:center;gap:14px;touch-action:none}
+.crbtns button{width:74px;height:64px;border-radius:18px;background:var(--anden);color:var(--tinta);font-size:26px;font-weight:900;box-shadow:var(--sh)}
 /* ---------- 1.4.0: mapa grande y minimapa que se toca ---------- */
 .lbmini{position:absolute;left:12px;bottom:calc(12px + var(--sab));width:116px;height:116px;border-radius:50%;background:transparent;z-index:4}
 .mapagr{position:absolute;inset:0;z-index:20;background:#1b2a39;display:flex;flex-direction:column}
@@ -3470,7 +3511,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '1.4.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '1.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -5945,10 +5986,10 @@ const Atlas = EM.atlas = {
   check(E) {
     if (typeof ARTE === 'undefined') { E('atlas: falta src/data/arte.js'); return 0; }
     for (const [k, v] of Object.entries(ARTE)) if (!/^data:image\/webp;base64,/.test(v) && !/^<svg[\s>]/.test(v)) E('atlas: ' + k + ' no es WebP ni SVG');
-    const pend = new Set(['logro_intermodal', 'logro_ciclista']);   // medallas encargadas a ChatGPT (C-12, 21 y 22): mientras llegan, la libreta usa el emoji
+    const pend = new Set(['logro_intermodal', 'logro_ciclista', 'ico_modo_carrera']);   // medallas encargadas a ChatGPT (C-12, 21 y 22) y el ícono de la carrera sin fin (Plan único, M4): mientras llegan, el respaldo procedural
     const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]).filter(id => !pend.has(id)), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
     for (const w of Object.keys(TRAMA_WHO)) if (this.WHO[w] && !this.retrato(w)) E('atlas: sin retrato de ' + w);
-    for (const k of need) if (!this.has(k)) E('atlas: falta ' + k);
+    for (const k of need) if (!this.has(k) && !pend.has(k)) E('atlas: falta ' + k);
     return Object.keys(ARTE).length;
   }
 };
@@ -8114,6 +8155,12 @@ const VEH = {
   camioneta: { n: 'Camioneta del Metro', len: 5.3, wid: 1.95, wb: 3.1, vmax: 95 / 3.6, acc: 2.9, brk: 6.5, smax: .58, srate: 2.1, grip: 5.5, lat: 7.5, col: '#1C5C9C', icon: '🛻', soft: 1, campo: 1 },
   bici: { n: 'Bici EnCicla', len: 1.8, wid: .6, wb: 1.05, vmax: 30 / 3.6, acc: 1.6, brk: 4, smax: .8, srate: 4, grip: 9, lat: 5.5, col: '#9bd341', icon: '🚲', soft: 1, ciclo: 1, walk: 1 },
   alimentador: { n: 'Bus alimentador', len: 12, wid: 2.5, wb: 6, vmax: 55 / 3.6, acc: 1.2, brk: 3, smax: .55, srate: 1.3, grip: 5, lat: 4.2, col: '#f4f1ea', icon: '🚐', soft: 0 },
+  scooter: { n: 'Patineta eléctrica', len: 1.1, wid: .5, wb: .8, vmax: 25 / 3.6, acc: 2.2, brk: 4.5, smax: .7, srate: 4, grip: 8, lat: 5, col: '#2ec4b6', icon: '🛴', soft: 1, ciclo: 1, monta: 1 },
+  monopatin: { n: 'Monopatín eléctrico', len: 1, wid: .32, wb: .62, vmax: 28 / 3.6, acc: 2.4, brk: 4, smax: .55, srate: 3.5, grip: 7, lat: 5, col: '#3f6fd8', icon: '🛹', soft: 1, ciclo: 1, monta: 1 },
+  skate: { n: 'Skate', len: .85, wid: .26, wb: .5, vmax: 18 / 3.6, acc: 1.4, brk: 2.5, smax: .6, srate: 3.5, grip: 7, lat: 4.5, col: '#f08a4b', icon: '🛹', soft: 1, ciclo: 1, walk: 1, monta: 1 },
+  patines: { n: 'Patines', len: .5, wid: .42, wb: .35, vmax: 17 / 3.6, acc: 1.5, brk: 2.8, smax: .9, srate: 5, grip: 7, lat: 4.5, col: '#ff8fc7', icon: '🛼', soft: 1, ciclo: 1, walk: 1, monta: 1 },
+  carro: { n: 'Carro particular', len: 4.2, wid: 1.75, wb: 2.5, vmax: 90 / 3.6, acc: 3, brk: 7, smax: .6, srate: 2.3, grip: 6, lat: 8, col: '#c0392b', icon: '🚗', soft: 1 },
+  bus: { n: 'Bus de ruta', len: 10.5, wid: 2.45, wb: 5.4, vmax: 60 / 3.6, acc: 1.3, brk: 3.2, smax: .55, srate: 1.4, grip: 5, lat: 4.4, col: '#f6c538', icon: '🚌', soft: 0 },
   metroplus: { n: 'Articulado Metroplús', len: 18, wid: 2.55, wb: 6.5, vmax: 65 / 3.6, acc: 1.05, brk: 2.8, smax: .5, srate: 1.15, grip: 5, lat: 3.8, art: 5.6, col: '#0E6F76', icon: '🚌', soft: 0 }
 };
 const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]), SOLID_W = new Set([TT.BRICK, TT.BLDG, TT.LAND, TT.WATER, TT.CANAL]);
@@ -8154,6 +8201,9 @@ const Libre = EM.modes.libre = {
     // estaciones de EnCicla (src/data/encicla.js, de Juega EnCicla): anclajes con 2 a 4 bicis
     st.docks = []; if (typeof ENCICLA !== 'undefined') ENCICLA.estaciones.forEach(([n, mu, la, lo, tp], i) => { const q = geoM(la, lo), p = this.nearTile(q.x, q.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION || v === TT.GRASS, 5); st.docks.push({ n, mu, tp, x: p.x, y: p.y }); for (let b = 0, nb = 2 + (h2(i, 7, 5) * 3 | 0); b < nb; b++) st.parked.push({ kind: 'bici', x: p.x - 2.4 + b * 1.4, y: p.y + 1.6, a: Math.PI / 2, id: st.parked.length, dock: i }); });
     for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram')) continue; park('taxi', h.x + 30, h.y + 14); if (!st.docks.length && rng.f() < .7) park('bici', h.x - 24, h.y + 10); if (rng.f() < .25) park('moto', h.x + 18, h.y - 26); }
+    for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'brt')) continue; if (rng.f() < .4) park('scooter', h.x - 22, h.y - 16); if (rng.f() < .16) park('monopatin', h.x + 26, h.y - 10); if (rng.f() < .2) park('carro', h.x - 34, h.y + 24); }
+    for (const H of (VC.HT || [])) if (rng.f() < .55) park(rng.f() < .5 ? 'skate' : 'patines', H.cx + 12, H.y1 + 10);
+    for (const l of NET.lines) if (l.kind === 'feeder' && rng.f() < .45) { const e = l.st[l.st.length - 1]; park('bus', e.x + 14, e.y + 12, NET.at(l.P, Math.max(0, l.P.len - 5)).a); }
     const bello = this.hub('Bello'); park('camioneta', bello.x + 60, bello.y + 40); park('camioneta', bello.x - 50, bello.y + 70); const sa = this.hub('San Antonio'); park('camioneta', sa.x + 60, sa.y - 50);
     for (const l of NET.lines) { if (l.kind === 'feeder') park('alimentador', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); if (l.kind === 'brt') { park('metroplus', l.st[0].x, l.st[0].y, NET.at(l.P, 5).a); park('metroplus', l.st[l.st.length - 1].x, l.st[l.st.length - 1].y, NET.at(l.P, l.P.len - 5).a + Math.PI); } }
     if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
@@ -8470,11 +8520,11 @@ const Libre = EM.modes.libre = {
       if (k > 2.2 && !st.far) { g.font = '700 ' + Math.round(clamp(k * 3, 10, 13)) + 'px Cuerpo, sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.9)'; g.strokeText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.fillStyle = '#0e2d55'; g.fillText('EnCicla · ' + D.n, q.x, q.y - 1.8 * k); g.textAlign = 'left'; }
     }
     // vehículos parqueados
-    for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (p.kind === 'bici') { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.5 * k, 2.2 * k, 1 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.3 * k, 1.8 * k, .6 * k); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'metroplus' ? 'brt' : p.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, false); }
+    for (const p of st.parked) { if (p.x < x0 - 20 || p.x > x1 + 20 || p.y < y0 - 20 || p.y > y1 + 20) continue; const V = VEH[p.kind]; if (V.monta) this.tabla(g, S(p.x, p.y), p.a, V, k, sh); else if (p.kind === 'bici') { const q = S(p.x, p.y); g.save(); g.translate(q.x, q.y); g.rotate(p.a); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.5 * k, 2.2 * k, 1 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.3 * k, 1.8 * k, .6 * k); g.restore(); } else Ciudad.car(g, p.x, p.y, p.a, V.len, V.wid, V.col, p.kind === 'alimentador' ? 'feeder' : p.kind === 'bus' ? 'bus' : p.kind === 'metroplus' ? 'brt' : p.kind === 'moto' ? 'moto' : 'car', S, k, sh, night, false); }
     Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, VC.on ? 'piso' : null);
     // a ras de piso: gente, carros y el jugador, en orden de pintura con los edificios que les quedan delante (así los tapan)
     const dprL = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), kj = Math.max(k, 3.2 * dprL), yo = typeof Perfil !== 'undefined' ? Perfil.ped() : { col: '#1C5C9C', skin: SKIN[1] }, pz = st.z || 0, ob = VC.ob, SZ = h => h ? (x, y) => S(x, y - h * ob) : S, hz = pz && VC.PG ? ((VC.puenteEn(st.x, st.y, pz, .8) || { h: 0 }).h) : 0, Sj = SZ(hz);
-    const dibJug = () => { if (st.mode === 'veh') { const V = this.V(st); if (st.veh.kind === 'bici') { const q = Sj(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * 8, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (V.art) Ciudad.articulado(g, st.x, st.y, st.h, st.h2 == null ? st.h : st.h2, V, Sj, k, sh, night, true); else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'moto' ? 'moto' : 'car', Sj, k, sh, night, true); } if (st.mode === 'walk') Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.wv > .2 ? 1 : 0), seed: 7, stun: 0, umb: L.w.rain && !yo.gorro }, yo), Sj, kj, sh); };
+    const dibJug = () => { if (st.mode === 'veh') { const V = this.V(st); if (V.monta) { this.tabla(g, Sj(st.x, st.y), st.h, V, k, sh); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: 0, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (st.veh.kind === 'bici') { const q = Sj(st.x, st.y); g.save(); g.translate(q.x, q.y); g.rotate(st.h); g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(-1 * k + sh.dx * k, -.4 * k + sh.dy * k, 2 * k, .8 * k); g.fillStyle = PAL.negro; g.fillRect(-1.1 * k, -.45 * k, 2.2 * k, .9 * k); g.fillStyle = V.col; g.fillRect(-.9 * k, -.25 * k, 1.8 * k, .5 * k); g.restore(); Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * 8, seed: 7, stun: 0 }, yo), Sj, kj, sh); } else if (V.art) Ciudad.articulado(g, st.x, st.y, st.h, st.h2 == null ? st.h : st.h2, V, Sj, k, sh, night, true); else Ciudad.car(g, st.x, st.y, st.h, V.len, V.wid, V.col, st.veh.kind === 'alimentador' ? 'feeder' : st.veh.kind === 'bus' ? 'bus' : st.veh.kind === 'moto' ? 'moto' : 'car', Sj, k, sh, night, true); } if (st.mode === 'walk') Ciudad.ped(g, Object.assign({ x: st.x, y: st.y, a: st.h, ph: st.t * (st.run ? 14 : 8) * (st.wv > .2 ? 1 : 0), seed: 7, stun: 0, umb: L.w.rain && !yo.gorro }, yo), Sj, kj, sh); };
     if (st.mode !== 'ride') { const q = Sj(st.x, st.y), r = Math.max(10 * dprL, (st.mode === 'veh' ? this.V(st).len * .55 : 1.5) * k); g.fillStyle = 'rgba(255,160,30,.26)'; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); }   // disco naranja bajo los pies
     const altos = [], items = [];
     for (const c of Ciudad.cars) { const h = VC.PG ? VC.carAlto(c) : 0, Sc = SZ(h); if (h > .4) { altos.push([c.z || 1, () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); }]); continue; } items.push({ x: c.x, y: c.y, r: c.kind === 'bus' ? 6 : 2.5, a: c.kind === 'bus' ? 3.2 : 1.6, f: () => { Ciudad.car(g, c.x, c.y, c.a, c.kind === 'bus' ? 12 : c.kind === 'moto' ? 2 : 4.4, c.kind === 'moto' ? .8 : c.kind === 'bus' ? 2.5 : 1.8, c.col, c.kind, Sc, k, sh, night, true); } }); }
@@ -8553,6 +8603,15 @@ const Libre = EM.modes.libre = {
     c.querySelector('[data-c=ir]').onclick = () => { const t = o.t === 'est' ? this.salida(NET.stations.find(h => h.name === o.n) || o) : VC.on ? VC.despeja(o.x, o.y, .6, true, 220) : this.libre(o.x, o.y, v => WALK_OK.has(v), 12); this.mapaCierra(); this.llevar(st, t.x, t.y, false); st.inicio = st.inicio || { x: t.x, y: t.y }; this.msg(st, '🚶 Estás en ' + o.n, 'b'); };
     c.querySelector('[data-c=dest]').onclick = () => { st.guia = { x: o.x, y: o.y, title: o.n, hint: o.s }; this.mapaCierra(); this.msg(st, '📍 Rumbo a ' + o.n + ' · ' + km(dist(o.x, o.y, st.x, st.y)), 'b'); };
   },
+  /* tabla de los vehículos que se montan (patineta, monopatín, skate y patines), vista desde arriba, con su sombra y la ruedas */
+  tabla(g, q, a, V, k, sh) {
+    const L = Math.max(5, V.len * k * 1.15), W = Math.max(2.5, V.wid * k * 1.3); g.save(); g.translate(q.x, q.y); g.rotate(a);
+    g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(-L / 2 + sh.dx * 2, -W / 2 + sh.dy * 2, L, W); g.fillStyle = '#141414'; g.fillRect(-L / 2 - 1, -W / 2 - 1, L + 2, W + 2); g.fillStyle = V.col; g.fillRect(-L / 2, -W / 2, L, W);
+    if (V.n === 'Patines') { g.fillStyle = '#141414'; g.fillRect(-L / 2, -1, L, 2); }   // dos patines, uno al lado del otro
+    else { g.fillStyle = '#141414'; for (const u of [-.38, .38]) g.fillRect(u * L - 1, -W / 2 - 1.5, 2, W + 3); }   // los ejes
+    if (V.n === 'Patineta eléctrica') { g.strokeStyle = '#23272f'; g.lineWidth = Math.max(1.5, .08 * k); g.beginPath(); g.moveTo(L * .42, -W * 1.1); g.lineTo(L * .42, W * 1.1); g.stroke(); }   // el manubrio
+    g.restore();
+  },
   /* ---------- vistas 3D (1.4.0) ---------- */
   alto3(st) {   // altura del jugador en 3D: el piso, el tablero del puente, la vía del metro o la línea del cable
     let z = MAP.elevM(st.x, st.y); if (st.mode === 'ride') { const v = st.ride, l = v.line; if (l.kind === 'metro' || l.kind === 'tram') z = G3.zOn(l, v.s) + 1.2; else if (l.kind === 'cable') { const C = G3.cableGeo(l); z = C.zAt(NET.project(C.P, st.x, st.y).s) - 3.2; } }
@@ -8588,7 +8647,7 @@ const Libre = EM.modes.libre = {
     for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G.box(k.x, zk + .3, k.y, k.a, L, Wd, Hh * .62, C(k.col)); G.box(k.x, zk + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
     for (const p of Ciudad.peds) { if (!cerca(p.x, p.y, 90) || p.dog) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p, 1, p.ph || 0); }
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { if (!cerca(p.x, p.y, 130)) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p.look, 1.05, p.v > .1 ? p.ph : 0); }
-    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y); G.box(p.x, zp + .3, p.y, p.a, V.len, V.wid, p.kind === 'bici' ? .9 : 1, C(V.col)); if (p.kind !== 'bici' && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
+    for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y); const chico = p.kind === 'bici' || V.monta; G.box(p.x, zp + (V.monta ? .05 : .3), p.y, p.a, V.len, V.wid, V.monta ? .12 : chico ? .9 : 1, C(V.col)); if (!chico && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
     // el transporte de la ciudad en su sitio: trenes por vagones sobre su vía, articulados en dos cuerpos, cabinas en su cable
     for (const v of Ciudad.transit) { const p = Ciudad.tpos(v); if (!cerca(p.x, p.y, 700)) continue; const l = v.line, kind = l.kind, col = C(l.color);
       if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const s0 = v.s - v.dir * (i * (carL + 1) + carL / 2), q = Ciudad.cuerda(l.P, s0 + v.dir * carL * .35, s0 - v.dir * carL * .35, v.dir * 2); G3.vehicle(q.x, G3.zOn(l, s0), q.y, q.a, carL, kind, col); } }
@@ -8598,6 +8657,7 @@ const Libre = EM.modes.libre = {
     if (st.mode !== 'ride') { const V = this.V(st);
       if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
       else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zj, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zj, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
+      else if (V.monta) { G.box(st.x, zj + .06, st.y, st.h, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(st.h) * V.len * .42, zj + .1, st.y + Math.sin(st.h) * V.len * .42, st.h, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zj + .18, st.y, st.h, Perfil.ped(), 1, 0); }
       else if (st.veh.kind === 'bici') { G.box(st.x, zj + .35, st.y, st.h, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zj + .55, st.y, st.h, Perfil.ped(), 1, 0); }
       else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zj + .3, st.y, st.h, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zj + .3 + Hh * .62, st.y, st.h, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); } }
     const tope = zj + (st.mode === 'veh' ? 3.6 : st.mode === 'ride' ? 6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78);
@@ -9116,6 +9176,11 @@ const LUGAR_INFO = {
   bibepm: 'La Biblioteca EPM, de techo inclinado.', ferrocarril: 'La vieja estación del Ferrocarril de Antioquia.', alcaldia: 'Centro Administrativo La Alpujarra.', gobernacion: 'Centro Administrativo La Alpujarra.', concejo: 'Centro Administrativo La Alpujarra.', justicia: 'En La Alpujarra.', nacional: 'Antiguo palacio de juzgados, hoy centro comercial.',
   banrep: 'Frente a La Gorda de Botero.', planetario: 'El cielo de Medellín, bajo techo.', explora: 'Ciencia para tocar, con acuario.', pablotobon: 'Teatro de conciertos, títeres y cine.', memoria: 'Museo Casa de la Memoria.', mamm: 'Museo de Arte Moderno, en Ciudad del Río.'
 };
+/* personajes que llegan en datos (src/data/guion.js, formato de docs/PLAN-UNICO-IA.md 4b-6): se suman si traen lo necesario */
+if (typeof GUION !== 'undefined' && GUION && Array.isArray(GUION.personajes)) for (const P of GUION.personajes) {
+  const ok = P && typeof P.id === 'string' && typeof P.n === 'string' && typeof P.o === 'string' && Array.isArray(P.en) && Array.isArray(P.f) && P.f.length && !GENTE.some(G => G.id === P.id);
+  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]) });
+}
 const TURISTAS = [['Emma', 'de Francia'], ['Lukas', 'de Alemania'], ['Sofía', 'de Argentina'], ['Hiro', 'de Japón'], ['Ana', 'de Bogotá'], ['Tom', 'de Canadá'], ['Lucía', 'de España'], ['Diego', 'de México'], ['Amara', 'de Kenia'], ['Joana', 'de Brasil']];
 const Gente = EM.gente = {
   /* los personajes de la partida: se ubican la primera vez que hay ciudad (cerca de su lugar, en un punto libre) */
@@ -9635,6 +9700,92 @@ const MPlus = EM.modes.metroplus = {
 };
 ~~~~
 
+### `src/js/47-carrera.js`
+~~~~js
+/* =====================================================================
+   CARRERA SIN FIN (1.5.0) · prototipo de la misión M4 del Plan único (docs/PLAN-UNICO-IA.md)
+   En patineta por la calle real que va junto a una línea del metro, del tranvía o del Metroplús: en 3D con el motor G3 y las
+   casas y edificios reales (primera o tercera persona) y, si no hay WebGL, desde arriba. Tres carriles, saltos, obstáculos de
+   Medellín (huecos, conos, motos, perros, chazas y charcos), pasajes 🎫 y, en cada estación, su dato. El ritmo acelera.
+   Cuando lleguen el motor de carrera de Run Scooter y su arte (Gemini y ChatGPT), se cambian la pista, los obstáculos y el
+   dibujo; el contrato de modos (create, step, draw, levels, result, ai, act) se queda igual para que el bot lo siga jugando.
+   ===================================================================== */
+const CR_OBS = {   // [largo (m), alto (m), color, 0 = se salta (está en el piso) · 1 = se esquiva o se salta si es bajo]
+  hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1], moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1]
+};
+const Carrera = EM.modes.carrera = {
+  id: 'carrera', name: 'Carrera sin fin', sub: 'Junto al metro, al tranvía y al Metroplús', music: 'conduce', fullCanvas: true,
+  tip: 'Desliza a los lados (o ◀ ▶) para cambiar de carril y hacia arriba (o ▲) para saltar. Los huecos y los charcos se saltan; los conos, los perros, las motos y las chazas se esquivan. Recoge pasajes 🎫 y el dato de cada estación. 👁 cambia entre primera y tercera persona.',
+  LINEAS: [['A', 'Línea A del metro'], ['B', 'Línea B del metro'], ['T', 'Tranvía de Ayacucho'], ['MP1', 'Metroplús Línea 1'], ['MP2', 'Metroplús Línea 2']],
+  levels() { return this.LINEAS.filter(([id]) => NET.byId[id]).map(([id, n]) => ({ id: 'cr:' + id, name: n, sub: 'En patineta, por la calle junto a la vía' })); },
+  create(lv, opts = {}) {
+    const id = String(lv || 'cr:A').slice(3), l = NET.byId[id] || NET.byId.A, rng = new RNG((opts.seed | 0) + 17), obs = [];
+    for (let s = 70; s < l.P.len - 30; s += 9 + rng.f() * 16) { const tipos = Object.keys(CR_OBS); obs.push(rng.f() < .6 ? { s, c: rng.i(0, 2), k: rng.pick(tipos) } : { s, c: rng.i(0, 2), k: 'pasaje' }); }
+    return { lvId: lv, line: l.id, off: l.kind === 'metro' ? 13 : 0, s: 30, v: 8, c: 1, cx: 1, y: 0, vy: 0, t: 0, obs, pts: 0, pasajes: 0, vidas: 3, inv: 0, done: false, primera: false, est: -1, dato: '', datoT: 0, auto: !!opts.auto };
+  },
+  /* punto del carril c (0, 1 o 2; 2,6 m uno del otro) a s metros del comienzo de la línea */
+  pos(st, s, c) { const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), st.off + (c - 1) * 2.6); },
+  step(st, dt) {
+    if (st.done) return; const l = NET.byId[st.line]; st.t += dt; st.v = Math.min(22, st.v + dt * .12);   // el ritmo acelera hasta 80 km/h
+    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt;
+    if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.y === 0) st.vy = 0; }
+    for (const o of st.obs) { if (o.hecho || Math.abs(o.s - st.s) > 1.2 || Math.abs(o.c - st.cx) > .5) continue;
+      if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
+      const T = CR_OBS[o.k]; if (st.y > Math.max(.3, T[1]) || st.inv > 0) continue;   // saltando por encima, o recién golpeado
+      o.hecho = 1; st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); if (st.vidas <= 0) st.done = true; }
+    for (const e of l.st) { if (e.i <= st.est || e.s > st.s) continue; st.est = e.i; st.pts += 25; const f = NET.fact ? NET.fact(e.name) : ''; st.dato = '🚉 ' + e.name + (f ? ' · ' + f : ''); st.datoT = 6; }
+    if (st.datoT > 0) st.datoT -= dt; st.pts += st.v * dt * .5;
+    if (st.s >= l.P.len - 10) st.done = true;   // llegaste al final de la línea
+    if (st.auto) { const a = this.ai(st); if (a) this.act(st, a); }
+  },
+  /* el bot: mira 9 m adelante; salta lo bajo y esquiva lo alto */
+  ai(st) {
+    const o = st.obs.find(q => !q.hecho && q.k !== 'pasaje' && q.s > st.s && q.s < st.s + 9 && q.c === st.c); if (!o) return null; const T = CR_OBS[o.k];
+    if (T[3] === 0 || T[1] < .9) return 'salta'; const libre = [0, 1, 2].filter(c => !st.obs.some(q => !q.hecho && q.k !== 'pasaje' && q.c === c && q.s > st.s && q.s < st.s + 11));
+    return libre.length ? (libre[0] < st.c ? 'izq' : 'der') : 'salta';
+  },
+  act(st, a) { if (a === 'izq') st.c = Math.max(0, st.c - 1); else if (a === 'der') st.c = Math.min(2, st.c + 1); else if (a === 'salta' && st.y === 0) st.vy = 7.5; else if (a === 'vista') st.primera = !st.primera; },
+  key(st, k, down) { if (!down) return; const m = { ArrowLeft: 'izq', a: 'izq', ArrowRight: 'der', d: 'der', ArrowUp: 'salta', w: 'salta', ' ': 'salta', v: 'vista' }[k]; if (m) this.act(st, m); },
+  mount(st, el) {
+    el.innerHTML = `<div class="crbtns"><button id="crIz" aria-label="Carril a la izquierda">◀</button><button id="crSa" aria-label="Saltar">▲</button><button id="crDe" aria-label="Carril a la derecha">▶</button></div><div class="vsel"><button id="crVi" title="Primera o tercera persona">👁</button></div>`;
+    $('#crIz').onclick = () => this.act(st, 'izq'); $('#crDe').onclick = () => this.act(st, 'der'); $('#crSa').onclick = () => this.act(st, 'salta'); $('#crVi').onclick = () => this.act(st, 'vista');
+    const cv = $('#gcv'); let p0 = null; this.unmount();   // deslizar: a los lados cambia de carril, hacia arriba salta
+    this._pd = e => { p0 = { x: e.clientX, y: e.clientY }; }; this._pu = e => { if (!p0) return; const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null; if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) this.act(st, dx < 0 ? 'izq' : 'der'); else if (dy < -30) this.act(st, 'salta'); };
+    cv.addEventListener('pointerdown', this._pd); cv.addEventListener('pointerup', this._pu);
+  },
+  unmount() { const cv = $('#gcv'); if (cv && this._pd) { cv.removeEventListener('pointerdown', this._pd); cv.removeEventListener('pointerup', this._pu); this._pd = null; } },
+  gl(st) { return !st.auto && !EM.headless && Save.d.settings.q !== 'low' && typeof G3 !== 'undefined' && G3.init(); },
+  draw(g, st, vp) {
+    const W = vp.w, H = vp.h, p = this.pos(st, st.s, st.cx), z = MAP.elevM(p.x, p.y) + st.y;
+    if (this.gl(st)) { G3.show(true); const c = Math.cos(p.a), s = Math.sin(p.a), cam = st.primera ? { eye: [p.x + c * .3, z + 1.55, p.y + s * .3], at: [p.x + c * 20, z + 1.2, p.y + s * 20], fov: 1.2 } : { eye: [p.x - c * 6.5, z + 3.2, p.y - s * 6.5], at: [p.x + c * 8, z + 1, p.y + s * 8], fov: 1.05 };
+      G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: .8, suave: true, cerca: 1.5, dyn: G => this.dyn3D(G, st, p, z) }); }
+    else {   // desde arriba (sin WebGL, en «Celular modesto» o en las pruebas)
+      if (typeof G3 !== 'undefined' && G3.cv) G3.show(false); const k = 4 * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), mx = p.x, my = p.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H * .62 + (y - my) * k });
+      g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, mx, my - (H * .12) / k, k);
+      for (const o of st.obs) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y); g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
+      const q = S(p.x, p.y); g.fillStyle = '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
+    }
+    this.marcador(g, st, W, H);
+  },
+  dyn3D(G, st, p, z) {
+    for (const o of st.obs) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y);
+      if (o.k === 'pasaje') { G.box(q.x, zq + 1 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2, .5, .08, .35, [.98, .78, .2]); continue; }
+      const T = CR_OBS[o.k]; G.box(q.x, zq, q.y, q.a, T[0], o.k === 'moto' ? .7 : 1.1, Math.max(.06, T[1]), rgb(T[2])); }
+    if (st.primera) G.box(p.x + Math.cos(p.a) * .75, z + 1.05, p.y + Math.sin(p.a) * .75, p.a + Math.PI / 2, .7, .05, .05, [.15, .15, .17]);   // el manubrio
+    else if (!(st.inv > 0 && Math.floor(st.t * 10) % 2)) { G.box(p.x, z + .08, p.y, p.a, 1.1, .5, .12, rgb('#2ec4b6')); Libre.persona3(G, p.x, z + .2, p.y, p.a, Perfil.ped(), 1, st.t * 9); }
+  },
+  /* la barra de arriba del juego (Game.hud) */
+  hud(st) { return [['🎫', st.pasajes], ['❤', Math.max(0, st.vidas)], ['', Math.round(st.v * 3.6) + ' km/h']]; },
+  /* el marcador sobre el lienzo: puntos, pasajes, vidas, velocidad y el dato de la última estación */
+  marcador(g, st, W, H) {
+    const d = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), f = n => Math.round(n * d) + 'px Cuerpo, sans-serif', km = Math.round(st.v * 3.6);
+    g.textAlign = 'left'; g.fillStyle = 'rgba(15,34,56,.82)'; g.fillRect(8 * d, 56 * d, 168 * d, 52 * d); g.fillStyle = '#fff'; g.font = '800 ' + f(17); g.fillText(Math.round(st.pts) + ' puntos', 16 * d, 77 * d); g.font = '700 ' + f(12.5); g.fillText('🎫 ' + st.pasajes + '   ' + '❤'.repeat(Math.max(0, st.vidas)) + '   ' + km + ' km/h', 16 * d, 98 * d);
+    if (st.datoT > 0 && st.dato) { g.globalAlpha = clamp(st.datoT, 0, 1); g.fillStyle = 'rgba(255,255,255,.94)'; g.fillRect(8 * d, H - 120 * d, W - 16 * d, 44 * d); g.fillStyle = '#0f2238'; g.font = '700 ' + f(12.5); const t = st.dato.length > 70 ? st.dato.slice(0, 68) + '…' : st.dato; g.fillText(t, 16 * d, H - 94 * d); g.globalAlpha = 1; }
+  },
+  result(st) { const pts = Math.round(st.pts); return { done: st.done, win: st.done && st.vidas > 0, score: pts, stars: st.done ? (pts > 1500 ? 3 : pts > 800 ? 2 : pts > 300 ? 1 : 0) : 0, lines: [['Puntos', pts], ['Pasajes', st.pasajes], ['Estaciones', st.est + 1]], fact: st.dato || '' }; }
+};
+~~~~
+
 ### `src/js/50-cable.js`
 ~~~~js
 /* =====================================================================
@@ -9984,6 +10135,7 @@ const MODECARDS = [
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
+  { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En patineta por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
@@ -10686,7 +10838,10 @@ const BotT = EM.test = {
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
         // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
-        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos'); { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
+        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos');
+        // terreno para el Plan único (1.5.0): vehículos que se montan, carro y bus de ruta; la carrera sin fin con sus líneas
+        for (const kd of ['scooter', 'monopatin', 'skate', 'patines', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd);
+        if (typeof Carrera === 'undefined' || Carrera.levels().length < 4) E('carrera sin fin: faltan líneas'); else { const c = Carrera.create('cr:A', { seed: 3 }); for (let i = 0; i < 600; i++) Carrera.step(c, 1 / 20); if (!isFinite(c.s) || c.s < 100) E('carrera sin fin: no avanza'); } { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
         if (typeof G3 === 'undefined' || typeof G3.edifReales !== 'function' || typeof VC.piso3D !== 'function') E('vistas 3D: faltan los edificios reales o el piso con calles'); else { const c = VC.piso3D(14000, 23000, 200, .5); if (!c || c.width !== 100) E('vistas 3D: el piso no se arma'); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
         // cámara (1.3.0): tres ángulos distintos y el del guardado aplicado
@@ -10716,12 +10871,12 @@ const BotT = EM.test = {
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
-    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
-      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : 4800;
+      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : id === 'carrera' ? 3000 : 4800;
       try {
         for (let i = 0; i < max; i++) {
           M.step(st, dt); steps++;
@@ -11608,6 +11763,7 @@ fs.mkdirSync(dist, { recursive: true });
 const limpia = t => t.replace(/^[ \t]*\/\*(?:(?!\*\/)[\s\S])*\*\/[ \t]*\r?\n/gm, '').replace(/^[ \t]*\/\/[^\n]*\r?\n/gm, '');
 const limpiaCss = t => t.replace(/\/\*(?:(?!\*\/)[\s\S])*\*\//g, '');
 const data = ['data/valle.js', 'data/red.js', 'data/rutas.js', 'data/lugares.js', 'data/arte.js', 'data/ciudad.js', 'data/ajustes.js', 'data/encicla.js', 'data/vias.js','data/rieles.js','data/rutas_calles.js','data/metroplus.js','data/hitos.js', 'data/edificios.js', 'data/puentes.js', 'data/metroplus_andenes.js'].filter(p => fs.existsSync(src(p))).map(p => limpia(read(src(p))));
+if (fs.existsSync(src('data/guion.js'))) data.push('data/guion.js');   // la trama en datos (Plan único, M6), si ya llegó
 const mods = fs.readdirSync(src('js')).filter(f => f.endsWith('.js')).sort().map(f => limpia(read(src('js/' + f))));
 const js = mods.join('\n');
 // verificación de sintaxis (el bot interno revisa la lógica)

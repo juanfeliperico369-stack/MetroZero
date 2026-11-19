@@ -230,6 +230,35 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+#### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
+**Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
+- **Mapa único:** el mapa base sale del Motor del Valle 1.0.0, el mismo de Juega EnCicla.
+- **Carrera sin fin** (`src/js/47-carrera.js`, prototipo de la misión M4):
+  - en patineta, por la calle real junto a la línea A, la B, el tranvía o el Metroplús;
+  - en 3D (primera o tercera persona) con los edificios reales; si no hay WebGL, desde arriba;
+  - tres carriles y saltos; se esquivan conos, perros, motos y chazas y se saltan huecos y charcos;
+  - se recogen pasajes 🎫 y el dato de cada estación, y el ritmo acelera.
+  - El bot de pruebas la juega.
+  - Cuando lleguen el motor de Run Scooter y su arte, se cambian la pista, los obstáculos y el dibujo; el contrato de modos se queda igual.
+- **Vehículos nuevos en Ciudad Libre** (terreno de la M5):
+  - patineta eléctrica, monopatín eléctrico, skate y patines (se montan, con su tabla dibujada en 2D y en 3D);
+  - carro particular y bus de ruta;
+  - cada uno con su física (giro limitado por su agarre) y parqueados por el valle: patinetas en las estaciones, skates y patines en las plazas, buses de ruta en los barrios.
+- **Trama en datos** (terreno de la M6): los personajes que lleguen en `src/data/guion.js` (`GUION.personajes`, con el formato de la sección 4b del Plan único) se suman solos a la gente de la ciudad. El archivo se compila solo si existe.
+- **Arte pendiente:** el ícono de la carrera queda como encargo (Plan único, M4); mientras llega, el respaldo procedural.
+- **Falla encontrada jugando y corregida:** la carrera usaba el nombre `hud` para su marcador, y el juego lo llama para la barra de arriba.
+
+**Qué se probó:** autotest con 0 errores; 100 partidas del bot (329 mil pasos, con la carrera sin fin) con 0 errores y 0 errores de consola; carrera en 3D en las líneas A y B; patineta eléctrica en Ciudad Libre; recorrido de los nueve modos con capturas.
+
+#### 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
+- **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
+  - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.
+- **Plan único** (`docs/PLAN-UNICO-IA.md`) para Gemini con Antigravity y ChatGPT con Codex:
+  - misiones M1 a M6, que son las mismas en los dos trabajos (código y arte);
+  - la sección 4 trae las peticiones para Juega EnCicla y la 4b, las de El Metro;
+  - todo se entrega en un solo documento.
+- **Lo que sigue:** con las dos entregas, la IA de El Metro revisa, prueba, integra y publica la revolución de El Metro.
+
 #### Estado al 2026-11-18 · v1.4.0 "La ciudad desde todos los ángulos"
 **Novedad de v1.4.0:** Ciudad Libre se mira y se juega desde varios estilos de vista, y el mapa deja elegir dónde estar.
 - **Mapa del valle** (como en Juega EnCicla): se toca el minimapa (o la tecla M) y se abre el mapa grande, con arrastre, pellizco y rueda.
@@ -258,6 +287,8 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
   - el piso lejano se arma con hueco y lo pegado al piso (andenes, plazas) va un poco delante.
 
 **Qué se probó:** `node tools/test.mjs 100` → autotest con 0 errores y 2 avisos (las terminales Caribe y La Palma de la Línea O); 100 partidas del bot (365 mil pasos) con 0 errores y 0 errores de consola. Capturas de las tres vistas 3D en el Parque Berrío, Santo Domingo, El Poblado y Estadio (a pie y en taxi), del mapa (elegir dónde empezar, tocar una estación, ir allá) y del personaje con su anillo.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.4.0 verificada el 2026-11-18**: carga, service worker con caché `el-metro-v1.4.0-993beff4`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 24, **6,6 MB**).
 
 ##### v1.3.0 "La ciudad con altura y con gente"
 **Novedad de v1.3.0:** el mundo tiene **niveles**, el manejo tiene **peso**, la ciudad tiene **gente con historias** y la cámara se mueve a voluntad. Es un juego para contemplar la ciudad y moverse en ella, para turistas (que la conocen) y para la gente de acá (que se reconoce en ella).
