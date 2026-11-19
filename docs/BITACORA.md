@@ -58,9 +58,11 @@
 
 **Qué se probó:**
 - autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
-- 100 partidas del bot (ver abajo);
+- 100 partidas del bot: 343.504 pasos y 40 victorias, con 0 errores y 0 errores de consola;
 - capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
 - la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v2.0.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v2.0.0-b8f24800`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 26, **6,7 MB**), igual byte a byte a la construida.
 
 ## Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
