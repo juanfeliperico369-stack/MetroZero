@@ -22,6 +22,8 @@
 
 **Qué se probó:** autotest con 0 errores; 100 partidas del bot (329 mil pasos, con la carrera sin fin) con 0 errores y 0 errores de consola; carrera en 3D en las líneas A y B; patineta eléctrica en Ciudad Libre; recorrido de los nueve modos con capturas.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v1.5.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v1.5.0-71a5b17e`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 25, **6,6 MB**).
+
 ## 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
 - **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
   - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.
