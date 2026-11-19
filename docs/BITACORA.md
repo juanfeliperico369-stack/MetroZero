@@ -2,6 +2,26 @@
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+## Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
+**Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
+- **Mapa único:** el mapa base sale del Motor del Valle 1.0.0, el mismo de Juega EnCicla.
+- **Carrera sin fin** (`src/js/47-carrera.js`, prototipo de la misión M4):
+  - en patineta, por la calle real junto a la línea A, la B, el tranvía o el Metroplús;
+  - en 3D (primera o tercera persona) con los edificios reales; si no hay WebGL, desde arriba;
+  - tres carriles y saltos; se esquivan conos, perros, motos y chazas y se saltan huecos y charcos;
+  - se recogen pasajes 🎫 y el dato de cada estación, y el ritmo acelera.
+  - El bot de pruebas la juega.
+  - Cuando lleguen el motor de Run Scooter y su arte, se cambian la pista, los obstáculos y el dibujo; el contrato de modos se queda igual.
+- **Vehículos nuevos en Ciudad Libre** (terreno de la M5):
+  - patineta eléctrica, monopatín eléctrico, skate y patines (se montan, con su tabla dibujada en 2D y en 3D);
+  - carro particular y bus de ruta;
+  - cada uno con su física (giro limitado por su agarre) y parqueados por el valle: patinetas en las estaciones, skates y patines en las plazas, buses de ruta en los barrios.
+- **Trama en datos** (terreno de la M6): los personajes que lleguen en `src/data/guion.js` (`GUION.personajes`, con el formato de la sección 4b del Plan único) se suman solos a la gente de la ciudad. El archivo se compila solo si existe.
+- **Arte pendiente:** el ícono de la carrera queda como encargo (Plan único, M4); mientras llega, el respaldo procedural.
+- **Falla encontrada jugando y corregida:** la carrera usaba el nombre `hud` para su marcador, y el juego lo llama para la barra de arriba.
+
+**Qué se probó:** autotest con 0 errores; 100 partidas del bot (329 mil pasos, con la carrera sin fin) con 0 errores y 0 errores de consola; carrera en 3D en las líneas A y B; patineta eléctrica en Ciudad Libre; recorrido de los nueve modos con capturas.
+
 ## 2026-11-19 · Mapa único y plan para Gemini y ChatGPT
 - **Mapa único:** El Metro se une a la rama `motor-valle` y su mapa base (`src/data/valle.js`) sale ahora del **Motor del Valle 1.0.0**, el mismo de Juega EnCicla. El autotest da 0 errores.
   - El mapa solo se cambia en `motor-valle/` y se copia con `node motor-valle/sincronizar.mjs`.

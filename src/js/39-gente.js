@@ -55,6 +55,11 @@ const LUGAR_INFO = {
   bibepm: 'La Biblioteca EPM, de techo inclinado.', ferrocarril: 'La vieja estación del Ferrocarril de Antioquia.', alcaldia: 'Centro Administrativo La Alpujarra.', gobernacion: 'Centro Administrativo La Alpujarra.', concejo: 'Centro Administrativo La Alpujarra.', justicia: 'En La Alpujarra.', nacional: 'Antiguo palacio de juzgados, hoy centro comercial.',
   banrep: 'Frente a La Gorda de Botero.', planetario: 'El cielo de Medellín, bajo techo.', explora: 'Ciencia para tocar, con acuario.', pablotobon: 'Teatro de conciertos, títeres y cine.', memoria: 'Museo Casa de la Memoria.', mamm: 'Museo de Arte Moderno, en Ciudad del Río.'
 };
+/* personajes que llegan en datos (src/data/guion.js, formato de docs/PLAN-UNICO-IA.md 4b-6): se suman si traen lo necesario */
+if (typeof GUION !== 'undefined' && GUION && Array.isArray(GUION.personajes)) for (const P of GUION.personajes) {
+  const ok = P && typeof P.id === 'string' && typeof P.n === 'string' && typeof P.o === 'string' && Array.isArray(P.en) && Array.isArray(P.f) && P.f.length && !GENTE.some(G => G.id === P.id);
+  if (ok) GENTE.push({ id: P.id, n: P.n.slice(0, 40), o: P.o.slice(0, 60), en: P.en, look: P.look || {}, f: P.f.filter(x => Array.isArray(x) && typeof x[1] === 'string').map(x => [x[0] | 0, x[1].slice(0, 400)]) });
+}
 const TURISTAS = [['Emma', 'de Francia'], ['Lukas', 'de Alemania'], ['Sofía', 'de Argentina'], ['Hiro', 'de Japón'], ['Ana', 'de Bogotá'], ['Tom', 'de Canadá'], ['Lucía', 'de España'], ['Diego', 'de México'], ['Amara', 'de Kenia'], ['Joana', 'de Brasil']];
 const Gente = EM.gente = {
   /* los personajes de la partida: se ubican la primera vez que hay ciudad (cerca de su lugar, en un punto libre) */

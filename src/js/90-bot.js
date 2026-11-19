@@ -125,7 +125,10 @@ const BotT = EM.test = {
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
         // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
-        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos'); { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
+        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos');
+        // terreno para el Plan único (1.5.0): vehículos que se montan, carro y bus de ruta; la carrera sin fin con sus líneas
+        for (const kd of ['scooter', 'monopatin', 'skate', 'patines', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd);
+        if (typeof Carrera === 'undefined' || Carrera.levels().length < 4) E('carrera sin fin: faltan líneas'); else { const c = Carrera.create('cr:A', { seed: 3 }); for (let i = 0; i < 600; i++) Carrera.step(c, 1 / 20); if (!isFinite(c.s) || c.s < 100) E('carrera sin fin: no avanza'); } { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
         if (typeof G3 === 'undefined' || typeof G3.edifReales !== 'function' || typeof VC.piso3D !== 'function') E('vistas 3D: faltan los edificios reales o el piso con calles'); else { const c = VC.piso3D(14000, 23000, 200, .5); if (!c || c.width !== 100) E('vistas 3D: el piso no se arma'); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
         // cámara (1.3.0): tres ángulos distintos y el del guardado aplicado
@@ -155,12 +158,12 @@ const BotT = EM.test = {
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
-    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
-      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : 4800;
+      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : id === 'carrera' ? 3000 : 4800;
       try {
         for (let i = 0; i < max; i++) {
           M.step(st, dt); steps++;
