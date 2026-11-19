@@ -3,6 +3,10 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 19‑nov‑2026 · Motor City 2.5 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5: entrar al agua (dejar el vehículo en la orilla, nadar, bucear con aire, volver a subirse, lancha).
+- **El juego no cambia** y sus pruebas siguen en verde.
+
 ## 19‑nov‑2026 · Motor City 2.4 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.4: terreno y límites verosímiles (agua con profundidad, pendientes, obstáculos reales), naturaleza y lagos generados.
 - **El juego no cambia** y sus pruebas siguen en verde.
