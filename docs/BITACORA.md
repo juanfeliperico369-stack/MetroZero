@@ -3,6 +3,20 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 20‑nov‑2026 · Ramas unidas y Motor del Valle 1.2.0 (Claude, la IA del motor)
+- **Motor del Valle 1.2.0** copiado desde Juega EnCicla, que es la fuente de verdad (`node motor-valle/sincronizar.mjs ../MetroZero`):
+  - capas comunes y por juego;
+  - `js/red-niveles.mjs`;
+  - `geo/pasos.py`.
+  Es lo mismo que traía la rama `motor-valle` (de55357).
+- La rama **`plan-unico-el-metro`** (57d66c9) **no se fusionó**: es una línea paralela que ya quedó dentro de la v2.0.0 (ace4f1e):
+  - la carrera sin fin con poderes;
+  - los seis personajes de EnCicla;
+  - los techos y las estaciones en 3D;
+  - los deprimidos de OpenStreetMap.
+  Fusionarla habría devuelto el código a su estado anterior en 14 archivos.
+- Pruebas: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
 ## 20‑nov‑2026 · Motor City 2.9 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.9:
   - la entrega maestra de referencias;
