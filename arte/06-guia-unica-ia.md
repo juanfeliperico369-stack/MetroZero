@@ -10,7 +10,9 @@
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 
@@ -654,6 +656,56 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+
+#### 19‑nov‑2026 · Motor City 2.5.1 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5.1:
+  - controles que se ven (joystick, botones de acción y flecha al objetivo);
+  - modo libre en Mandados;
+  - el arte de Gemini integrado con `MC.Pieles` (`motor-city/dist/arte/gemini.js`);
+  - leyenda en las capas de datos;
+  - la lista de pedidos.
+- `.gitignore`: `dist/` pasó a `/dist/` (más `motor-valle/dist/`), para que `motor-city/dist/` quede en git.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 19‑nov‑2026 · Motor City 2.5 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5: entrar al agua (dejar el vehículo en la orilla, nadar, bucear con aire, volver a subirse, lancha).
+- **El juego no cambia** y sus pruebas siguen en verde.
+
+#### 19‑nov‑2026 · Motor City 2.4 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.4: terreno y límites verosímiles (agua con profundidad, pendientes, obstáculos reales), naturaleza y lagos generados.
+- **El juego no cambia** y sus pruebas siguen en verde.
+- Qué sigue: `motor-city/docs/DOCUMENTO-UNICO.md`, §9.
+
+#### 19‑nov‑2026 · Motor City 2.3 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:** sincronizar el motor 2.3 (sombras del sol, mobiliario urbano, fachadas por reglas, `MC.Urbe` con capas de datos, objetos inteligentes y sonido ambiente).
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. El juego no cambia.
+- **Qué falta:** la migración (le toca a la IA de El Metro). Lee `motor-city/docs/DOCUMENTO-UNICO.md`, §9.4: ahí está la lección «las estaciones suben el valor del suelo».
+
+#### 19‑nov‑2026 · Motor City 2.2 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:**
+  - el motor (ahora solo «Motor City») quedó en `motor-city/`, sincronizado desde `juanfeliperico369-stack/motorcity`;
+  - `motor-valle/` volvió a como estaba en `cc5d7a6`.
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. **El juego no cambia.**
+- **Qué aprendí:** que cada juego reciba el motor en su propia carpeta, sin pisar la que usa.
+- **Qué falta:** la migración, que le toca a la IA de El Metro. Ver `docs/CONTEXTO-MOTOR-CITY.md` y `motor-city/docs/PLAN-IAS.md`, sección 4.
+
+#### 2026-11-19 · Motor City 2.0 en `motor-valle/` (el juego no cambia)
+> Lo hizo la IA del motor (Claude Code), a pedido del autor. Solo tocó `motor-valle/`, esta bitácora y `docs/CONTEXTO-MOTOR-CITY.md`. No hizo encargos de El Metro.
+
+**Qué cambió:**
+- La copia del motor pasó de **1.1.0 a Motor City 2.0.0**, sincronizada desde `juanfeliperico369-stack/motorcity`, la nueva fuente de verdad. Trae:
+  - el mundo 2.0, con tus 639.457 huellas, tus puentes, rieles, Metroplús e hitos, más lo de EnCicla;
+  - el motor (`motor-valle/dist/motor.js`): transporte con horario determinista, la panorámica que parte de tu `23-lado.js`, WebGL, maqueta 2:1, pixel, clima y Run en la ciclovía;
+  - la guía `motor-valle/docs/MIGRACION-ELMETRO.md`.
+- `motor-valle/js/valle.js` pasó a ser el lector 1.2.0, que une las dos 1.1.0 y conserva tu interfaz `MotorValle` / `Valle.elmetro`.
+- `tools/build.mjs` no incluye `motor-valle/`: el juego compilado es idéntico (`b8f24800`).
+
+**Qué se probó:**
+- `node tools/build.mjs`: la misma huella;
+- `node tools/test.mjs 100`: 0 errores.
+
+**Qué falta (para la IA de El Metro, con su protocolo):** decidir si usar el motor 2.0 y el mundo 2.0 en lugar de los datos propios. Ver la guía.
+
 #### Estado al 2026-11-19 · v2.0.0 "La revolución"
 **Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
 - **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
@@ -710,9 +762,11 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 **Qué se probó:**
 - autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
-- 100 partidas del bot (ver abajo);
+- 100 partidas del bot: 343.504 pasos y 40 victorias, con 0 errores y 0 errores de consola;
 - capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
 - la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v2.0.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v2.0.0-b8f24800`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 26, **6,7 MB**), igual byte a byte a la construida.
 
 #### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.

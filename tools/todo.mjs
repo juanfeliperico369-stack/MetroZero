@@ -129,13 +129,14 @@ fs.writeFileSync(path.join(root, 'dist', 'EL-METRO-TODO.md'), TODO);
 // ---------- AGENTS.md / CLAUDE.md / GEMINI.md ----------
 const agentes = name => `# ${name} · El Metro
 
-> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“argon”), Claude Code, Cursor y otros. **Archivo generado** por \`node tools/todo.mjs\` a partir de \`arte/PROTOCOLO-IA.md\`. No lo edites a mano: edita el protocolo y vuelve a compilar.
+> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“hydrogen”), Claude Code, Cursor y otros. **Archivo generado** por \`node tools/todo.mjs\` a partir de \`arte/PROTOCOLO-IA.md\`. No lo edites a mano: edita el protocolo y vuelve a compilar.
 
 ${demote(PROTO, 1)}
 
 ## Qué leer en este repositorio (paso 1 del protocolo)
 | Archivo | Qué es |
 |---|---|
+| \`TAREAS-IA.md\` | **La lista corta de tu IA** («mira el repositorio y haz tu parte») |
 | \`docs/BITACORA.md\` | Estado, historial y pendientes |
 | \`docs/PLAN.md\` | Fases, incluida la 1b: Medellín fiel e isométrica |
 | \`arte/06-guia-unica-ia.md\` | Contexto, roles, encargos y skills |

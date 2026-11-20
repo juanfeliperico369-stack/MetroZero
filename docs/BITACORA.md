@@ -3,6 +3,14 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 20‑nov‑2026 · Motor City 2.6 en `motor-city/` y `TAREAS-IA.md` (Claude, la IA del motor)
+- Se sincronizó el motor 2.6:
+  - estilo realista familiar (árboles de pie, asfalto gastado, andenes de baldosa, techos con textura);
+  - tutorial opcional.
+- **`TAREAS-IA.md`** en la raíz: la lista de cada IA en orden. Gemini con Antigravity («hydrogen») hace lo fácil; ChatGPT y Codex («astra») hacen lo fuerte.
+- Protocolo: Antigravity pasa de «argon» a «hydrogen»; los encargos G‑ difíciles van a ChatGPT. `CLAUDE.md`, `AGENTS.md` y `GEMINI.md` regenerados con `node tools/todo.mjs`.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 ## 19‑nov‑2026 · Motor City 2.5.1 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.5.1:
   - controles que se ven (joystick, botones de acción y flecha al objetivo);

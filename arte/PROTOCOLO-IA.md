@@ -3,7 +3,9 @@
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 

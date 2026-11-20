@@ -1,13 +1,15 @@
 # AGENTS.md · El Metro
 
-> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“argon”), Claude Code, Cursor y otros. **Archivo generado** por `node tools/todo.mjs` a partir de `arte/PROTOCOLO-IA.md`. No lo edites a mano: edita el protocolo y vuelve a compilar.
+> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“hydrogen”), Claude Code, Cursor y otros. **Archivo generado** por `node tools/todo.mjs` a partir de `arte/PROTOCOLO-IA.md`. No lo edites a mano: edita el protocolo y vuelve a compilar.
 
 ## PROTOCOLO PARA TODA IA · léelo antes que nada
 
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 
@@ -86,6 +88,7 @@
 ## Qué leer en este repositorio (paso 1 del protocolo)
 | Archivo | Qué es |
 |---|---|
+| `TAREAS-IA.md` | **La lista corta de tu IA** («mira el repositorio y haz tu parte») |
 | `docs/BITACORA.md` | Estado, historial y pendientes |
 | `docs/PLAN.md` | Fases, incluida la 1b: Medellín fiel e isométrica |
 | `arte/06-guia-unica-ia.md` | Contexto, roles, encargos y skills |

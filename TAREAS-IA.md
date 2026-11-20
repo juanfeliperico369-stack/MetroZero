@@ -1,0 +1,43 @@
+# Tareas de cada IA · El Metro
+
+> **Si te dijeron «mira el repositorio y haz tu parte», empieza aquí**, y sigue el **protocolo de 7 pasos** (`CLAUDE.md`, `AGENTS.md` o `GEMINI.md`): lee todo, reflexiona, comprueba, prueba en pequeño, ajústate, haz solo lo tuyo, entrega y registra.
+> - Lo del motor está en `motor-city/docs/DOCUMENTO-UNICO.md`, y lo que cambió en `docs/CONTEXTO-MOTOR-CITY.md`.
+> - Al terminar, actualiza `docs/BITACORA.md`.
+
+**Reparto (nov‑2026, del autor):**
+- **Antigravity** trabaja ahora con **«hydrogen»** (ya no con «argon»): a Gemini le tocan las **tareas fáciles**.
+- **Codex** sigue con **«astra»** y **ChatGPT genera mejores imágenes**: le tocan las **fuertes**.
+- **En los encargos de arte:** si un encargo **G‑** es difícil (personajes, vehículos, escenas completas, mosaicos isométricos), hazlo con **ChatGPT**, con las mismas reglas, paleta y nombre de archivo. Gemini se queda con los G‑ sencillos (íconos, texturas simples, revisiones y referencias).
+
+## La IA de El Metro (Codex «astra» o Claude): lo fuerte
+1. **Migrar a `motor-city/`** (`motor-city/docs/MIGRACION-ELMETRO.md`). Hoy `tools/build.mjs` sigue leyendo `src/data/valle.js`.
+2. **Estilo realista familiar** del motor 2.6 en las vistas cenital, isométrica y lateral:
+   - árboles de pie;
+   - asfalto gastado;
+   - andenes de baldosa;
+   - techos con textura.
+3. **Lección de ciudad:**
+   - las estaciones suben el valor del suelo (`urbe.capa('transporte')` y `'valor'`);
+   - un modo «¿dónde va la próxima estación?».
+4. **La interfaz en 412 px:**
+   - que los botones `+`, `−`, regla y cámara no tapen la velocidad;
+   - que el aviso azul no tape la barra de ruta;
+   - que «Espera en el andén» no corte «Carrera 51».
+
+   Lo vio la auditoría de Gemini.
+5. **Tutoriales opcionales:** un botón, nunca una ventana que salga sola.
+6. `node tools/assets.mjs` antes de `node tools/test.mjs` (sin eso da 404), o mejor: que `test.mjs` lo llame solo.
+7. `node tools/test.mjs 100` con 0 errores.
+
+## Gemini con Antigravity («hydrogen»): lo fácil
+1. `node tools/build.mjs` y `node tools/test.mjs 10`: pega el resultado en `docs/BITACORA.md`.
+2. Capturas en 412 × 860 (portada, metro, cable, lateral y mapa) y una tabla foto → hallazgo → gravedad.
+3. Los encargos **G‑** sencillos de `arte/06-guia-unica-ia.md`, con su lista de control.
+
+## ChatGPT (imágenes): el arte difícil
+Los encargos **C‑** de `arte/06-guia-unica-ia.md`, más los **G‑** difíciles que pasan a ti (ver arriba), con las reglas del protocolo:
+- vista y proyección exactas;
+- paleta, con el color de cada línea;
+- fondo transparente o magenta;
+- sin sombra proyectada ni texto;
+- nombre exacto del encargo.
