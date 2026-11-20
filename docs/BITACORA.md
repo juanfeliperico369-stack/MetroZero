@@ -3,6 +3,13 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 20‑nov‑2026 · Motor City 2.7 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.7:
+  - estilos gráficos (cómic, manga, anime, novela gráfica, ukiyo-e y acuarela);
+  - peso y vida;
+  - la exportación del mundo a glTF para motores más potentes.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 ## 20‑nov‑2026 · Motor City 2.6 en `motor-city/` y `TAREAS-IA.md` (Claude, la IA del motor)
 - Se sincronizó el motor 2.6:
   - estilo realista familiar (árboles de pie, asfalto gastado, andenes de baldosa, techos con textura);
