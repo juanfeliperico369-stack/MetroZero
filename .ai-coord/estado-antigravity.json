@@ -1,0 +1,27 @@
+{
+  "agente": "antigravity-gemini",
+  "rama": "ia/antigravity/fases-1-2-3",
+  "base": "origin/claude/motor-city-engine-xu7p4y",
+  "actualizado": "2026-11-20T20:57:00Z",
+  "fase_actual": "Fase 1 — Auditoría, arreglos, optimización y narrativa",
+  "claims_activos": [
+    "Z1 (UI 412px, bucle 25-game.js, desbloqueo Ciudad Libre 65-menu.js, 70-historia.js, 60-mapa.js, 27-camara.js, 90-bot.js)",
+    "Z2 (47-carrera.js cursor O(1) + game feel + audio, 38-bus.js, 32-volante.js, 30-conduce.js)",
+    "Z3 (37-cronicas.js aditivo inspirado en UnoCero)",
+    "Z4 (15-mc-puente.js puente Motor City 4.0 sin duplicar MC4)",
+    "Z5 (48-planificador.js con MC.Urbe y 49-guatape.js con MC.Planeta)"
+  ],
+  "archivos_nuevos_planeados": [
+    "docs/COORDINACION-IA.md",
+    "src/js/15-mc-puente.js",
+    "src/js/37-cronicas.js",
+    "src/js/48-planificador.js",
+    "src/js/49-guatape.js",
+    "docs/REPORTE-FASES-1-2-3-EL-METRO.md"
+  ],
+  "skills_creadas": [
+    "el-metro-calidad-movil",
+    "coordinacion-multi-ia"
+  ],
+  "estado_pruebas": "baseline 20 partidas + 22 capturas ejecutado; 6 bugs reales + defectos visuales 412px catalogados"
+}
