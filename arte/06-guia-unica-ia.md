@@ -657,6 +657,17 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+
+#### 20-nov-2026 · Motor City 4.0.0 en `motor-city/`
+- Llegó el motor 4.0. Trae:
+  - el planeta (`MC.Planeta`);
+  - la búsqueda 0–5 (`MC.Busqueda`);
+  - el lector GLB (`MC.Modelos`);
+  - los juegos con varios mundos.
+- *Turno Cero*, el juego adulto de Motor City, queda aislado en `motor-city/juegos/getaway/` y no se mezcla con este juego. Manhattan no se copia aquí.
+- `TAREAS-IA.md` tiene la nota de la 4.0 y un pedido adaptado a este juego.
+- Pruebas en verde.
+
 #### 20‑nov‑2026 · Tutorial opcional (lo del motor 3.0, adaptado a El Metro) (Claude, la IA del motor)
 - **`src/js/69-tutorial.js`: «❓ Cómo se juega» opcional.**
   - Nunca sale solo ni bloquea: es un botón al final del menú.
