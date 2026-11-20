@@ -1,5 +1,16 @@
 # Tareas de cada IA · El Metro
 
+> **Motor City 3.0 (20‑nov‑2026):** antes de tu encargo, lee **las 10 reglas que dejó el feedback del autor** en `motor-city/docs/PROXIMO-NUEVA-YORK.md` §3:
+> - un solo mundo con varias cámaras;
+> - volumen en lo que se levanta;
+> - fachadas con detalle;
+> - cámara con topes y un mapa para ver todo;
+> - tutoriales opcionales;
+> - fluidez medida;
+> - probar en un celular real con GPU.
+>
+> Lo que sigue después de los encargos de Gemini y ChatGPT es «Getaway Nueva York».
+
 > **Si te dijeron «mira el repositorio y haz tu parte», empieza aquí**, y sigue el **protocolo de 7 pasos** (`CLAUDE.md`, `AGENTS.md` o `GEMINI.md`): lee todo, reflexiona, comprueba, prueba en pequeño, ajústate, haz solo lo tuyo, entrega y registra.
 > - Lo del motor está en `motor-city/docs/DOCUMENTO-UNICO.md`, y lo que cambió en `docs/CONTEXTO-MOTOR-CITY.md`.
 > - Al terminar, actualiza `docs/BITACORA.md`.
