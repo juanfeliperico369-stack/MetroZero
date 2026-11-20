@@ -657,6 +657,14 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+#### 20‑nov‑2026 · Motor City 3.0 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 3.0:
+  - un solo mundo 3D con varias cámaras (la cenital, la ciudad y la maqueta sobre el mismo mundo);
+  - fachadas y árboles low-poly;
+  - `MC.Objetos`;
+  - topes de zoom y el mapa grande.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 #### 20‑nov‑2026 · Motor City 2.10 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.10:
   - las skills y plugins de los videos del autor: Hallmark, Modern Web Guidance, find-skills y HyperFrames (`.claude/settings.json`, y `CLAUDE.md` vía `tools/todo.mjs`);
