@@ -657,6 +657,14 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+#### 20‑nov‑2026 · Tutorial opcional (lo del motor 3.0, adaptado a El Metro) (Claude, la IA del motor)
+- **`src/js/69-tutorial.js`: «❓ Cómo se juega» opcional.**
+  - Nunca sale solo ni bloquea: es un botón al final del menú.
+  - Son pasos cortos para el juego y para cada modo (Ciudad Libre, Metro, Metroplús, Metrocable, Carrera, Historia y Red), con Atrás, Siguiente y Saltar.
+  - La primera vez solo se ofrece con un aviso que se va solo. En Ajustes, «Ofrecer “Cómo se juega”» lo apaga.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100` con 0 errores. En el navegador, el botón aparece, no se abre solo, avanza y «Saltar» lo cierra.
+- Queda para la IA de El Metro llevar a Ciudad Libre lo demás del motor 3.0: el mundo 3D único con sus cámaras aéreas, los topes de zoom, el mapa grande y los artilugios físicos (`motor-city/docs/INVESTIGACION-CAMARA.md`).
+
 #### 20‑nov‑2026 · Motor City 3.0 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 3.0:
   - un solo mundo 3D con varias cámaras (la cenital, la ciudad y la maqueta sobre el mismo mundo);
