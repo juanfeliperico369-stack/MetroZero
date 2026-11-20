@@ -1,5 +1,14 @@
 # Tareas de cada IA · El Metro
 
+> **Motor City 4.0 (20‑nov‑2026): el planeta y *Turno Cero*.**
+> - El motor une Manhattan, Medellín y el Valle y Guatapé en un planeta (`MC.Planeta`), con carreteras de la nada entre ellas.
+> - Trae la búsqueda 0–5 (`MC.Busqueda`) y lee modelos GLB (`MC.Modelos`).
+> - *Turno Cero* es el juego adulto de Motor City y vive aislado en `motor-city/juegos/getaway/`: **su violencia y su lenguaje no entran a este juego**.
+> - Lee `motor-city/docs/TURNO-CERO.md` y `motor-city/TAREAS-IA.md` § 4.0.
+>
+> **Para El Metro (Codex, C‑EM40):** «El bus intermunicipal a Guatapé». Usa el modo bus actual y `MC.Planeta`: sales de la Terminal del Norte, recorres la Autopista del Embalse con sus paradas y llegas a Guatapé. **Gemini (G‑EM40):** busca los horarios y las paradas reales de la ruta Medellín–Guatapé, con su fuente.
+
+
 > **Motor City 3.0 (20‑nov‑2026):** antes de tu encargo, lee **las 10 reglas que dejó el feedback del autor** en `motor-city/docs/PROXIMO-NUEVA-YORK.md` §3:
 > - un solo mundo con varias cámaras;
 > - volumen en lo que se levanta;
