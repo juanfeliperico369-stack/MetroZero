@@ -3,6 +3,20 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 20‑nov‑2026 · Motor City 2.9 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.9:
+  - la entrega maestra de referencias;
+  - la entrega de Gemini;
+  - la de ChatGPT y Codex (arte a escala, lluvia, 1 bit, agua precalculada y adaptadores).
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+## 20‑nov‑2026 · Motor City 2.8 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.8, con lo que se pudo hacer ya de la entrega maestra de referencias del autor:
+  - fauna que reacciona, huellas, faros y luces de freno;
+  - los estilos vintage, CRT y térmico;
+  - accesibilidad, telemetría en percentiles y contratos de datos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 ## 20‑nov‑2026 · Motor City 2.7 en `motor-city/` (Claude, la IA del motor)
 - Se sincronizó el motor 2.7:
   - estilos gráficos (cómic, manga, anime, novela gráfica, ukiyo-e y acuarela);
