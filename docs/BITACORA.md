@@ -3,6 +3,15 @@
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+## 20‑nov‑2026 · Motor City 2.10 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.10:
+  - las skills y plugins de los videos del autor: Hallmark, Modern Web Guidance, find-skills y HyperFrames (`.claude/settings.json`, y `CLAUDE.md` vía `tools/todo.mjs`);
+  - el público simulado;
+  - rutas por la calle;
+  - el cómic y el 1 bit más rápidos;
+  - atlas más livianos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
 ## 20‑nov‑2026 · Ramas unidas y Motor del Valle 1.2.0 (Claude, la IA del motor)
 - **Motor del Valle 1.2.0** copiado desde Juega EnCicla, que es la fuente de verdad (`node motor-valle/sincronizar.mjs ../MetroZero`):
   - capas comunes y por juego;

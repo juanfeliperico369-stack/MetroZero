@@ -9,6 +9,15 @@
 - **Codex** sigue con **«astra»** y **ChatGPT genera mejores imágenes**: le tocan las **fuertes**.
 - **En los encargos de arte:** si un encargo **G‑** es difícil (personajes, vehículos, escenas completas, mosaicos isométricos), hazlo con **ChatGPT**, con las mismas reglas, paleta y nombre de archivo. Gemini se queda con los G‑ sencillos (íconos, texturas simples, revisiones y referencias).
 
+
+**Nuevo (20‑nov‑2026, Motor City 2.10):**
+- **Skills y plugins de los videos del autor:** Hallmark, Modern Web Guidance y HyperFrames, en `.claude/settings.json`. Las demás IA las instalan con `node motor-city/motor.mjs skills --instalar --agente codex` (o `antigravity`).
+- **Codex («astra»):**
+  - antes de tocar la interfaz (`src/js/65-menu.js`, CSS), consulta **Modern Web Guidance** y corre `legacy-scan src/js --json`; aplica solo lo verificado;
+  - haz un **tráiler** de El Metro con **HyperFrames**, con capturas reales.
+- **Gemini («hydrogen»):** corre `node motor-city/motor.mjs publico` y anota qué perfil se atasca.
+- La rama `plan-unico-el-metro` ya está dentro de la v2.0.0. No la fusiones.
+
 ## La IA de El Metro (Codex «astra» o Claude): lo fuerte
 1. **Migrar a `motor-city/`** (`motor-city/docs/MIGRACION-ELMETRO.md`). Hoy `tools/build.mjs` sigue leyendo `src/data/valle.js`.
 2. **Estilo realista familiar** del motor 2.6 en las vistas cenital, isométrica y lateral:
