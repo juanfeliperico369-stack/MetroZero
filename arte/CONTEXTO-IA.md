@@ -7,7 +7,9 @@
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 
@@ -230,6 +232,260 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+
+
+#### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
+**Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
+
+**Cómo se adaptó el motor:**
+- **Decisión:** El Metro sigue con su motor (mapa, G3, ciudad vectorial, modos y guardado) y toma de Motor City 4.5 lo que más le sirve, adaptado:
+  - portado («manera A»): el manejo y la regla de los árboles;
+  - como módulo suelto («manera B»): los rostros.
+  Así se conservan la fidelidad del mapa, el guardado `elmetro.v1` y las 100 partidas del bot.
+- **Base:** la rama de trabajo se adelantó a `main` (Motor City 4.5 en `motor-city/`, mundo abierto primero, relevo Z1/Z2, tutorial opcional).
+
+**Lo nuevo para quien juega** (§ 5 del informe 4.5):
+1. **Manejo que no se traba** (`src/js/36-libre.js`; motor: `js/32-fisica.js`):
+   - el choque desliza a lo largo de la pared (la normal sale de 8 tanteos) y pierde velocidad según el ángulo;
+   - solo cuenta como golpe si va contra la pared a más de 2,5 m/s;
+   - si empuja y no avanza en 0,85 s, se desatasca solo (y, metido en un edificio, busca el hueco libre más cercano);
+   - la asistencia mira adelante y esquiva la pared (se apaga con la asistencia al volante);
+   - el giro va amortiguado y el giro del cuadro no lo monta en la pared;
+   - el bordillo da un tumbo a la cámara, y a pie también se desliza por los muros en diagonal.
+2. **Rostros detallados** (`src/js/29-rostros.js`, de `js/71-rostros.js`):
+   - la gente de la ciudad, la trama, la historia, las crónicas y tu ficha tienen cara con volumen, edad y gesto según la frase;
+   - van encima el sombrero aguadeño (crema con cinta negra), la ruana, el carriel, la mochila y la cámara.
+3. **Árboles con lógica** (`VC.sembrable`; regla de `js/29-arboleda.js`): nada en canchas, pistas, piscinas, la cancha del estadio ni en medio de una plaza dura.
+4. **El sistema en 3D con la paleta oficial** (`src/js/28-taller-sistema.js`):
+   - vagones de A y B plateados con la franja de su línea, puertas dobles, frente con faros y pantógrafo;
+   - el tranvía, las cabinas de los cables y los articulados de Metroplús en dos cuerpos;
+   - chispas del pantógrafo, más con lluvia;
+   - sin WebGL quedan las cajas de antes.
+5. **Vista de lejos clara** (la idea de lectura de *Hunter Assassin*, sin su arte): al alejar la cámara en Ciudad Libre la ciudad se aclara y encima quedan las líneas con su color, las estaciones y cada tren, cable o bus. Ajuste `settings.claro`.
+6. **Crónicas del sistema** (Z3, `src/js/37-cronicas.js`):
+   - 13 crónicas: la primera vez que llegas a una estación de una línea, alguien del barrio te cuenta su historia;
+   - todos los datos son los ya verificados de `src/data/red.js`;
+   - +3 🎫 cada una, una por visita a cada estación, guardadas en `Save.d.cronicas`.
+7. **Interfaz 412 × 860:** la charla ya no tapa el botón de acción ni el acelerador.
+
+**Guardado:** los campos nuevos (`settings.claro`, `cronicas`) tienen su valor por defecto en `newSave`.
+
+**Probado:**
+- autotest con 0 errores y 0 avisos, con pruebas nuevas:
+  - roce en diagonal y choque de frente contra un muro recto;
+  - salir de un edificio enorme;
+  - árboles alrededor del estadio;
+  - las 13 crónicas con narrador;
+- 100 partidas del bot (ver abajo);
+- capturas a 412 × 860 sin solapes;
+- 3D del tren en Niquía, el viaducto y el articulado;
+- retratos de 16 personajes.
+
+**Sigue:**
+- el bus a Guatapé (C‑EM40, «manera C»: suma ≈ 1,4 MB con el motor y el mundo MC4);
+- `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
+- techos a cuatro aguas;
+- probarlo en un celular real.
+
+#### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
+- **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
+- **Publicado:** `main` al día con la rama de Claude y `gh-pages` con el `dist/` nuevo.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100` (0 errores).
+- **Falta:** el informe, § 4 y § 5 (crónicas Z3, bus a Guatapé, manejo, modelos, rostros, mapa fiel).
+
+#### 21‑nov‑2026 · Motor City 4.4.0 en `motor-city/` (Claude)
+- El autor confirmó que las otras IA ya no siguen: Claude lleva todo. Lo pendiente de este juego está en `motor-city/CONTEXTO-RELEVO.md` § 5:
+  - el bus a Guatapé con el lector MC4 del motor (zonas Z4 y Z5);
+  - las crónicas (Z3).
+- Las tarjetas de MODOS que señaló la auditoría ya no se cruzan con el texto en la versión actual (se comprobó a 412 × 860).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+#### 21‑nov‑2026 · Mundo abierto primero y los íconos (Claude, a partir de la auditoría G‑H28 de Antigravity)
+- **Regla del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales.
+- **`src/js/97-abierto.js`**, aditivo (envuelve `Menu.bind`):
+  - **▶ Jugar entra directo a Ciudad Libre**: donde quedaste o, la primera vez, San Antonio. 1 toque y 0,4 s (antes, 3 toques: MODOS, la grilla y el inicio);
+  - el botón nuevo **«Todos los modos»** queda justo debajo;
+  - la historia y la guía siguen opcionales en la portada;
+  - al salir de Ciudad Libre se vuelve a la portada.
+- **Íconos:**
+  - `favicon.svg`, `favicon-32.png`, `icon-*.png` y `apple-touch-icon.png` estaban solo en `gh-pages`, así que en local daban 404 y el service worker podía fallar al instalar;
+  - ahora viven en `src/iconos/` y `tools/build.mjs` los copia a `dist/`.
+- **`tools/test.mjs`:** comprueba que ▶ Jugar entra directo a Ciudad Libre. Las capturas ahora son `02-ciudad-libre` y `02b-modos`.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores y 0 errores de consola.
+
+#### 21‑nov‑2026 · Motor City 4.2.0 en `motor-city/` (Claude)
+- Llegó el motor 4.2:
+  - recorte por región en el 3D;
+  - IA que no se tranca en el borde de la calle;
+  - el vuelo sin pausa;
+  - las entregas de ChatGPT y de Antigravity unidas.
+
+  Turno Cero sigue aislado.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+#### 21‑nov‑2026 · Motor City 4.1.0 en `motor-city/` (Claude)
+- Llegó el motor 4.1. Trae técnicas de motores clásicos, rehechas desde cero:
+  - 🏁 Arcade (la carretera de OutRun), que podría servir para un modo de bus por la Autopista del Embalse;
+  - ⛰️ Vuelo (el Voxel Space de Comanche), que podría servir para ver el valle desde el Metrocable;
+  - la gema y el ruido de Thief;
+  - el DDA de Wolfenstein;
+  - las semillas de Elite.
+
+  Ver `motor-city/docs/INVESTIGACION-MOTORES-CLASICOS.md`. Turno Cero sigue aislado.
+- **Regla nueva del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales y nunca bloquean (`motor-city/CONTEXTO-RELEVO.md` § 7). Gemini lo revisa en este juego (G‑H28).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+#### 21‑nov‑2026 · Relevo Z1 y Z2: los 6 errores que halló Antigravity, terminados (Claude)
+- Antigravity reclamó Z1 y Z2 (`.ai-coord/estado-antigravity.json`) y catalogó 6 errores a `412 × 860`, pero se quedó sin uso antes de subir los arreglos. El autor pidió terminarlos.
+- **Arreglos** (casi todo en el archivo aditivo `src/js/98-relevo-z1.js`, con ganchos sobre `Menu`, `Game` y `EM.modes.carrera`):
+  1. **Ciudad Libre:** todos los inicios abiertos. Son puntos de partida, no niveles con estrellas; antes solo se abría el primero.
+  2. **`#ghud`:** las fichas se recortan y ya no empujan el botón de pausa fuera de la pantalla.
+  3. **`.camui`:** la columna de cámara baja sola bajo el tablero de la cabina, la barra del trabajo (también la del tutorial y la de la trama) y el mensaje.
+  4. **Historia:** el lienzo conserva su 16:9; antes se estiraba 2,5× en alto.
+  5. **Carrera:**
+     - suenan el pasaje, el poder, el golpe, el escudo, la estación y el salto;
+     - `47-carrera.js` recorre solo la ventana de obstáculos cercana con un cursor (`crVentana`), no todos los de la línea en cada cuadro.
+  6. **`25-game.js`:**
+     - `--sat` se lee solo al cambiar el tamaño, no con `getComputedStyle` en cada cuadro;
+     - `pointercancel` suelta el dedo.
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 100 partidas, 0 errores, 0 errores de consola;
+  - medición en Chromium `412 × 860`:
+    - 0 inicios bloqueados;
+    - pausa dentro de la pantalla en todos los modos;
+    - la cámara no se cruza con la barra ni con el mensaje;
+    - historia con proporción 1,00.
+- **Motor:** `motor-city/` pasa a la 4.0.3, con las entregas de ChatGPT y Antigravity unidas. Turno Cero sigue aislado y no se mezcla con este juego.
+- **Falta (de Antigravity, sin reclamar por nadie más):** Z3 (`37-cronicas.js`), Z4 (`15-mc-puente.js`) y Z5 (`48-planificador.js`, `49-guatape.js`). Están en `.ai-coord/estado-antigravity.json`.
+
+#### 20-nov-2026 · Motor City 4.0.0 en `motor-city/`
+- Llegó el motor 4.0. Trae:
+  - el planeta (`MC.Planeta`);
+  - la búsqueda 0–5 (`MC.Busqueda`);
+  - el lector GLB (`MC.Modelos`);
+  - los juegos con varios mundos.
+- *Turno Cero*, el juego adulto de Motor City, queda aislado en `motor-city/juegos/getaway/` y no se mezcla con este juego. Manhattan no se copia aquí.
+- `TAREAS-IA.md` tiene la nota de la 4.0 y un pedido adaptado a este juego.
+- Pruebas en verde.
+
+#### 20‑nov‑2026 · Tutorial opcional (lo del motor 3.0, adaptado a El Metro) (Claude, la IA del motor)
+- **`src/js/69-tutorial.js`: «❓ Cómo se juega» opcional.**
+  - Nunca sale solo ni bloquea: es un botón al final del menú.
+  - Son pasos cortos para el juego y para cada modo (Ciudad Libre, Metro, Metroplús, Metrocable, Carrera, Historia y Red), con Atrás, Siguiente y Saltar.
+  - La primera vez solo se ofrece con un aviso que se va solo. En Ajustes, «Ofrecer “Cómo se juega”» lo apaga.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100` con 0 errores. En el navegador, el botón aparece, no se abre solo, avanza y «Saltar» lo cierra.
+- Queda para la IA de El Metro llevar a Ciudad Libre lo demás del motor 3.0: el mundo 3D único con sus cámaras aéreas, los topes de zoom, el mapa grande y los artilugios físicos (`motor-city/docs/INVESTIGACION-CAMARA.md`).
+
+#### 20‑nov‑2026 · Motor City 3.0 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 3.0:
+  - un solo mundo 3D con varias cámaras (la cenital, la ciudad y la maqueta sobre el mismo mundo);
+  - fachadas y árboles low-poly;
+  - `MC.Objetos`;
+  - topes de zoom y el mapa grande.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 20‑nov‑2026 · Motor City 2.10 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.10:
+  - las skills y plugins de los videos del autor: Hallmark, Modern Web Guidance, find-skills y HyperFrames (`.claude/settings.json`, y `CLAUDE.md` vía `tools/todo.mjs`);
+  - el público simulado;
+  - rutas por la calle;
+  - el cómic y el 1 bit más rápidos;
+  - atlas más livianos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 20‑nov‑2026 · Ramas unidas y Motor del Valle 1.2.0 (Claude, la IA del motor)
+- **Motor del Valle 1.2.0** copiado desde Juega EnCicla, que es la fuente de verdad (`node motor-valle/sincronizar.mjs ../MetroZero`):
+  - capas comunes y por juego;
+  - `js/red-niveles.mjs`;
+  - `geo/pasos.py`.
+  Es lo mismo que traía la rama `motor-valle` (de55357).
+- La rama **`plan-unico-el-metro`** (57d66c9) **no se fusionó**: es una línea paralela que ya quedó dentro de la v2.0.0 (ace4f1e):
+  - la carrera sin fin con poderes;
+  - los seis personajes de EnCicla;
+  - los techos y las estaciones en 3D;
+  - los deprimidos de OpenStreetMap.
+  Fusionarla habría devuelto el código a su estado anterior en 14 archivos.
+- Pruebas: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+#### 20‑nov‑2026 · Motor City 2.9 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.9:
+  - la entrega maestra de referencias;
+  - la entrega de Gemini;
+  - la de ChatGPT y Codex (arte a escala, lluvia, 1 bit, agua precalculada y adaptadores).
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 20‑nov‑2026 · Motor City 2.8 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.8, con lo que se pudo hacer ya de la entrega maestra de referencias del autor:
+  - fauna que reacciona, huellas, faros y luces de freno;
+  - los estilos vintage, CRT y térmico;
+  - accesibilidad, telemetría en percentiles y contratos de datos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 20‑nov‑2026 · Motor City 2.7 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.7:
+  - estilos gráficos (cómic, manga, anime, novela gráfica, ukiyo-e y acuarela);
+  - peso y vida;
+  - la exportación del mundo a glTF para motores más potentes.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 20‑nov‑2026 · Motor City 2.6 en `motor-city/` y `TAREAS-IA.md` (Claude, la IA del motor)
+- Se sincronizó el motor 2.6:
+  - estilo realista familiar (árboles de pie, asfalto gastado, andenes de baldosa, techos con textura);
+  - tutorial opcional.
+- **`TAREAS-IA.md`** en la raíz: la lista de cada IA en orden. Gemini con Antigravity («hydrogen») hace lo fácil; ChatGPT y Codex («astra») hacen lo fuerte.
+- Protocolo: Antigravity pasa de «argon» a «hydrogen»; los encargos G‑ difíciles van a ChatGPT. `CLAUDE.md`, `AGENTS.md` y `GEMINI.md` regenerados con `node tools/todo.mjs`.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 19‑nov‑2026 · Motor City 2.5.1 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5.1:
+  - controles que se ven (joystick, botones de acción y flecha al objetivo);
+  - modo libre en Mandados;
+  - el arte de Gemini integrado con `MC.Pieles` (`motor-city/dist/arte/gemini.js`);
+  - leyenda en las capas de datos;
+  - la lista de pedidos.
+- `.gitignore`: `dist/` pasó a `/dist/` (más `motor-valle/dist/`), para que `motor-city/dist/` quede en git.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+#### 19‑nov‑2026 · Motor City 2.5 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5: entrar al agua (dejar el vehículo en la orilla, nadar, bucear con aire, volver a subirse, lancha).
+- **El juego no cambia** y sus pruebas siguen en verde.
+
+#### 19‑nov‑2026 · Motor City 2.4 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.4: terreno y límites verosímiles (agua con profundidad, pendientes, obstáculos reales), naturaleza y lagos generados.
+- **El juego no cambia** y sus pruebas siguen en verde.
+- Qué sigue: `motor-city/docs/DOCUMENTO-UNICO.md`, §9.
+
+#### 19‑nov‑2026 · Motor City 2.3 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:** sincronizar el motor 2.3 (sombras del sol, mobiliario urbano, fachadas por reglas, `MC.Urbe` con capas de datos, objetos inteligentes y sonido ambiente).
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. El juego no cambia.
+- **Qué falta:** la migración (le toca a la IA de El Metro). Lee `motor-city/docs/DOCUMENTO-UNICO.md`, §9.4: ahí está la lección «las estaciones suben el valor del suelo».
+
+#### 19‑nov‑2026 · Motor City 2.2 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:**
+  - el motor (ahora solo «Motor City») quedó en `motor-city/`, sincronizado desde `juanfeliperico369-stack/motorcity`;
+  - `motor-valle/` volvió a como estaba en `cc5d7a6`.
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. **El juego no cambia.**
+- **Qué aprendí:** que cada juego reciba el motor en su propia carpeta, sin pisar la que usa.
+- **Qué falta:** la migración, que le toca a la IA de El Metro. Ver `docs/CONTEXTO-MOTOR-CITY.md` y `motor-city/docs/PLAN-IAS.md`, sección 4.
+
+#### 2026-11-19 · Motor City 2.0 en `motor-valle/` (el juego no cambia)
+> Lo hizo la IA del motor (Claude Code), a pedido del autor. Solo tocó `motor-valle/`, esta bitácora y `docs/CONTEXTO-MOTOR-CITY.md`. No hizo encargos de El Metro.
+
+**Qué cambió:**
+- La copia del motor pasó de **1.1.0 a Motor City 2.0.0**, sincronizada desde `juanfeliperico369-stack/motorcity`, la nueva fuente de verdad. Trae:
+  - el mundo 2.0, con tus 639.457 huellas, tus puentes, rieles, Metroplús e hitos, más lo de EnCicla;
+  - el motor (`motor-valle/dist/motor.js`): transporte con horario determinista, la panorámica que parte de tu `23-lado.js`, WebGL, maqueta 2:1, pixel, clima y Run en la ciclovía;
+  - la guía `motor-valle/docs/MIGRACION-ELMETRO.md`.
+- `motor-valle/js/valle.js` pasó a ser el lector 1.2.0, que une las dos 1.1.0 y conserva tu interfaz `MotorValle` / `Valle.elmetro`.
+- `tools/build.mjs` no incluye `motor-valle/`: el juego compilado es idéntico (`b8f24800`).
+
+**Qué se probó:**
+- `node tools/build.mjs`: la misma huella;
+- `node tools/test.mjs 100`: 0 errores.
+
+**Qué falta (para la IA de El Metro, con su protocolo):** decidir si usar el motor 2.0 y el mundo 2.0 en lugar de los datos propios. Ver la guía.
+
 #### Estado al 2026-11-19 · v2.0.0 "La revolución"
 **Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
 - **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
@@ -286,9 +542,11 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Qué se probó:**
 - autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
-- 100 partidas del bot (ver abajo);
+- 100 partidas del bot: 343.504 pasos y 40 victorias, con 0 errores y 0 errores de consola;
 - capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
 - la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v2.0.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v2.0.0-b8f24800`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 26, **6,7 MB**), igual byte a byte a la construida.
 
 #### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
