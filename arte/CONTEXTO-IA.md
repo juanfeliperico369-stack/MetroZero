@@ -234,6 +234,19 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### 21‑nov‑2026 · Mundo abierto primero y los íconos (Claude, a partir de la auditoría G‑H28 de Antigravity)
+- **Regla del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales.
+- **`src/js/97-abierto.js`**, aditivo (envuelve `Menu.bind`):
+  - **▶ Jugar entra directo a Ciudad Libre**: donde quedaste o, la primera vez, San Antonio. 1 toque y 0,4 s (antes, 3 toques: MODOS, la grilla y el inicio);
+  - el botón nuevo **«Todos los modos»** queda justo debajo;
+  - la historia y la guía siguen opcionales en la portada;
+  - al salir de Ciudad Libre se vuelve a la portada.
+- **Íconos:**
+  - `favicon.svg`, `favicon-32.png`, `icon-*.png` y `apple-touch-icon.png` estaban solo en `gh-pages`, así que en local daban 404 y el service worker podía fallar al instalar;
+  - ahora viven en `src/iconos/` y `tools/build.mjs` los copia a `dist/`.
+- **`tools/test.mjs`:** comprueba que ▶ Jugar entra directo a Ciudad Libre. Las capturas ahora son `02-ciudad-libre` y `02b-modos`.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores y 0 errores de consola.
+
 #### 21‑nov‑2026 · Motor City 4.2.0 en `motor-city/` (Claude)
 - Llegó el motor 4.2:
   - recorte por región en el 3D;
