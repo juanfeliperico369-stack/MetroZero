@@ -159,15 +159,15 @@ const Libre = EM.modes.libre = {
     if (st.shake > 0) st.shake -= dt;
     // cámara: sigue al jugador con adelanto y zoom según la velocidad
     const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
-    if (!st.camLibre) { st.cam.k += (kT * (st.zoomU || 1) - st.cam.k) * Math.min(1, dt * 2); const lead = st.mode === 'walk' ? 3 : clamp(.45 * st.vf, -3, 14); st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 6); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 6); /* 4.6: mira menos adelante y sigue más rápido (EnCicla: 0,22·v, tope 1/6 de la vista) */ }
+    if (!st.camLibre) { st.cam.k += (kT * (st.zoomU || 1) - st.cam.k) * Math.min(1, dt * 2); const lead = st.mode === 'walk' ? 6 : 1.1 * st.vf; st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 4); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 4); }
     if (st.vista3) { const mov = st.mode === 'ride' || Math.abs(st.vf) > .6, d = Math.atan2(Math.sin(st.h - (st.cy || 0)), Math.cos(st.h - (st.cy || 0))); if (st.cy == null) st.cy = st.h; if (mov) st.cy += d * Math.min(1, dt * (st.vista3 === 'dron' ? .5 : st.mode === 'walk' ? 1.3 : 2)); else if (st.vista3 === 'dron') st.cy += dt * .07; }
     if ((st._sv = (st._sv || 0) + dt) > 5) { st._sv = 0; this.persist(st); }
   },
   walk(st, dt) {
     // a pie con algo de peso: arranca y para en un instante corto y gira hacia donde apunta el joystick
-    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5 : lerp(1.6, 3.9, clamp((j.m - .35) / .55, 0, 1))) * (tile === TT.MOUNT ? .55 : tile === TT.GRASS ? .9 : tile === TT.STEPS ? .7 : 1) : 0;   // 4.6: con el joystick a fondo se trota (como en EnCicla); antes caminaba a 1,6 m/s
-    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 18); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * Math.min(1, dt * (spd > w0 ? 12 : 16)); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 3.6 : 1.6) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
+    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 12); }
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * Math.min(1, dt * (spd > w0 ? 7 : 11)); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
@@ -176,7 +176,6 @@ const Libre = EM.modes.libre = {
   },
   drive(st, dt) {
     const V = this.V(st), j = st.joy, k = st.keys, S = Save.d.settings, libre = String(st.lvId || '').startsWith('lb:'), facil = libre && !st.auto && S.manejo !== 'clasico';
-    if (libre && S.manejo !== 'simulacion') return this.driveArcade(st, dt);   // 4.6: el manejo de Juega EnCicla (abajo); el de antes queda para los buses y para «simulación»
     let thrIn = k.up ? 1 : 0, br = k.down ? 1 : 0, sIn = k.left ? -1 : k.right ? 1 : 0, thr, spdF;
     if (libre) {
       // mandos. Teclas y botones: ▲ acelera, ▼ frena, ◀ ▶ giran. Joystick en «fácil»: se apunta hacia donde se quiere ir; el vehículo gira
@@ -217,54 +216,6 @@ const Libre = EM.modes.libre = {
     if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else if (!hit(nx, st.y)) { st.x = nx; st.z = st._nz; st.vs *= .5; } else if (!hit(st.x, ny)) { st.y = ny; st.z = st._nz; st.vs *= .5; } else { const imp = Math.abs(st.vf); st.vf *= -.2; st.vs *= .3; if (imp > 2) { st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = .3; this.sfx(st, 'crash'); vib(80); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r'); for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: nx, y: ny, vx: (Ciudad.rng.f() - .5) * 8, vy: (Ciudad.rng.f() - .5) * 8, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); } }
     if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = Math.atan2(Math.sin(st.h - h2), Math.cos(st.h - h2)); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2)); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
     st.km += Math.abs(st.vf) * dt / 1000; st.engine = thr;
-  },
-  /* ---------- 4.6 · el manejo de Juega EnCicla (30-ride.js), el mismo que ahora usa Motor City ----------
-     El autor: «el manejo es tosco como el de GTA IV: derrapa por nada, arranca lento, avanza lento y retoma lento… básate en EnCicla».
-     Antes: modelo de bicicleta con agarre lateral; el giro lo limitaba la aceleración lateral (a 70 km/h el radio pasaba de 50 m) y el
-     acelerador tardaba 0,3 s en entrar. Ahora: el vehículo gira hacia donde apunta el joystick con una velocidad de giro que baja con la
-     velocidad (w0 → w1); la velocidad persigue un objetivo (empuje × (0,3 + 0,7·cos Δ)) con aceleración y frenado firmes; las llantas
-     agarran (sin derrape) salvo con el freno de mano; en una esquina prueba girar ±0,35 y ±0,7 rad antes de chocar (asistencia de
-     esquinas de EnCicla). «Clásico» (los lados giran, arriba acelera) usa los mismos números. Por tipo: [accK, brkK, coastK, arrastre,
-     w0, w1, tw, accMín, brkMín] como en js/31-vehiculos.js del motor. */
-  ARC: { ligero: [.5, 1.2, .67, .35, 5, 2.7, .09, 2.5, 6], moto: [.42, .9, .18, .12, 4.2, 2.3, .08, 7, 14], auto: [.34, .85, .14, .1, 3.4, 1.75, .11, 7.5, 18], pesado: [.32, .9, .3, .1, 2.4, 1.2, .2, 3.5, 10] },
-  arc(V) { if (V._arc) return V._arc; const c = V.soft === 0 ? 'pesado' : V.ciclo && !V.walk && !V.monta ? 'moto' : V.ciclo || V.walk ? 'ligero' : 'auto', B = this.ARC[c], mx = V.vmax; return (V._arc = { acc: Math.max(B[7], B[0] * mx), brk: Math.max(B[8], B[1] * mx), coast: B[2] * mx, arr: B[3], w0: B[4], w1: B[5], tw: B[6], motor: c !== 'ligero' }); },
-  driveArcade(st, dt) {
-    const V = this.V(st), A = this.arc(V), j = st.joy, k = st.keys, S = Save.d.settings, facil = !st.auto && S.manejo !== 'clasico', mx = V.vmax, v0 = st.vf, av = Math.abs(v0), ang = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
-    const hbOn = st.hb && !V.walk, deriva = hbOn && A.motor && av > 7, wm = (A.w1 + (A.w0 - A.w1) * (1 - clamp(av / mx, 0, 1))) * (deriva ? 1.6 : 1), reversa = Math.min(5, mx * .3);
-    const kIn = (k.up ? 1 : 0) - (k.down ? 1 : 0), sK = k.left ? -1 : k.right ? 1 : 0; let wT = 0, tv = null;
-    if (kIn || sK) { wT = sK * wm; if (kIn > 0) tv = mx; else if (kIn < 0) tv = v0 > .5 ? 0 : -reversa; }
-    else if (j.m > .15) {
-      if (facil) { const jw = this.joyMundo(st); let a = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && av > 2 ? this.rumbo(st, a) : null; if (R != null && Math.abs(ang(R, a)) < .3) a = R;
-        const d = ang(st.h, a); if (Math.abs(d) > 2.4 && v0 < 2 && A.motor) { wT = clamp(ang(st.h + Math.PI, a) * 6.5, -wm, wm); tv = -reversa * j.m; }
-        else { wT = clamp(d * 6.5, -wm, wm); tv = mx * clamp(j.m, 0, 1) * (.3 + .7 * Math.max(0, Math.cos(d))); } }
-      else { const ax = Math.abs(j.x); wT = ax > .1 ? Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.2) * wm : 0; if (j.y < -.2) tv = mx * Math.min(1, (-j.y - .2) / .65); else if (j.y > .25) tv = v0 > .5 ? 0 : -reversa * Math.min(1, (j.y - .25) / .6); }
-    }
-    /* giro amortiguado (tw) y, en los de motor, casi nada quieto */
-    st.w = (st.w || 0) + (wT - (st.w || 0)) * (1 - Math.exp(-dt / A.tw)); st.h += st.w * (A.motor ? Math.min(1, .3 + av / 4) : 1) * dt;
-    /* la velocidad persigue el objetivo: arranca y frena firme, rueda suelta si no se pide nada */
-    if (tv == null) st.vf = Math.sign(v0) * Math.max(0, av - (A.coast + av * A.arr) * dt);
-    else { const dv = tv - v0; if (dv > 0) st.vf = v0 + Math.min(dv, (v0 < -.3 ? A.brk : Math.min(A.acc, dv * 2 + .8)) * dt); else st.vf = v0 + Math.max(dv, -(v0 > .3 ? Math.min(A.brk, -dv * 3.5 + 6) : Math.min(A.acc, -dv * 2 + .8)) * dt); }
-    if (hbOn) { if (deriva) st.vf *= 1 - .22 * dt; else st.vf = Math.sign(st.vf) * Math.max(0, Math.abs(st.vf) - A.brk * dt); }
-    /* el suelo y la loma, como antes: fuera del asfalto más roce y tope; la pendiente empuja */
-    const tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), ag = st.z ? 1 : VC.on ? VC.agarre(st.x, st.y) : 1, soft = VC.on ? ag < .95 : !(tile === TT.ROAD || tile === TT.AVE || tile === TT.AUTO || tile === TT.BRIDGE || tile === TT.DEPOT) && !(V.ciclo && tile === TT.CICLO), wet = Mundo.weather().rain, capS = VC.on ? 4 + 6 * ag : 6;
-    const c = Math.cos(st.h), s = Math.sin(st.h), gr = st.z ? 0 : clamp((MAP.elevM(st.x + c * 8, st.y + s * 8) - MAP.elevM(st.x - c * 8, st.y - s * 8)) / 16, -.2, .2);
-    st.vf -= 9.81 * gr * (V.walk ? .35 : .15) * dt; if (soft && !V.campo && Math.abs(st.vf) > capS) st.vf = Math.sign(st.vf) * capS; if (Math.abs(st.vf) > mx * 1.05) st.vf = Math.sign(st.vf) * mx * 1.05;
-    /* rumbo de las llantas: pegado a la trompa; se queda atrás solo con el freno de mano (o en mojado y destapado, un poco) */
-    const hr0 = st.hr == null ? st.h : st.hr, kR = deriva ? 3 : (wet || soft) ? 9 : 40; st.hr = hr0 + ang(hr0, st.h) * (1 - Math.exp(-dt * kR)); if (Math.abs(ang(st.hr, st.h)) > 1.2) st.hr = st.h - Math.sign(ang(st.hr, st.h)) * 1.2;
-    const slip = ang(st.hr, st.h); st.vs = st.vf * Math.sin(slip); st.steer = clamp(Math.atan(st.w * V.wb / Math.max(2, Math.abs(st.vf))), -V.smax, V.smax);
-    const vx = Math.cos(st.hr) * st.vf, vy = Math.sin(st.hr) * st.vf, c2 = Math.cos(st.h), s2 = Math.sin(st.h);
-    if ((Math.abs(st.vs) > 2.2 && Math.abs(st.vf) > 2) || (deriva)) { for (const o of [-1, 1]) { const rx = st.x - c2 * V.len * .38 - s2 * o * V.wid * .42, ry = st.y - s2 * V.len * .38 + c2 * o * V.wid * .42; Ciudad.marks.push({ x1: rx, y1: ry, x2: rx - (vx * dt), y2: ry - (vy * dt), t: 1 }); } if (Ciudad.rng.f() < .5) Ciudad.parts.push({ x: st.x - c2 * V.len * .4, y: st.y - s2 * V.len * .4, vx: (Ciudad.rng.f() - .5) * 3, vy: (Ciudad.rng.f() - .5) * 3, t: .6, t0: .6, c: wet ? 'rgba(200,220,235,.8)' : 'rgba(190,180,160,.8)', r: .35 + Ciudad.rng.f() * .4 }); if (!st._drT) { st._drT = 1; this.sfx(st, 'brake'); } } else st._drT = 0;
-    if (wet && Math.abs(st.vf) > 8 && Ciudad.rng.f() < .4) Ciudad.parts.push({ x: st.x - c2 * V.len * .3 + (Ciudad.rng.f() - .5) * V.wid, y: st.y - s2 * V.len * .3, vx: -vx * .1, vy: -vy * .1 - 1, t: .4, t0: .4, c: 'rgba(210,230,245,.9)', r: .2 });
-    /* moverse: derecho; si no cabe, la asistencia de esquinas de EnCicla (±0,35 y ±0,7 rad, primero hacia donde ya gira); luego deslizar por un eje; si no, golpe */
-    const piso = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y)), hit = (x, y) => { const r = this.nivelV(st, x, y, V, piso); st._nz = r[1]; return !r[0]; };
-    const nx = st.x + vx * dt, ny = st.y + vy * dt, paso = st.vf * dt;
-    if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; }
-    else { let movio = false; const sg = st.w >= 0 ? 1 : -1;
-      for (const da of [.35 * sg, -.35 * sg, .7 * sg, -.7 * sg]) { const ax = st.x + Math.cos(st.hr + da) * paso, ay = st.y + Math.sin(st.hr + da) * paso; if (!hit(ax, ay)) { st.x = ax; st.y = ay; st.z = st._nz; st.h += da * Math.min(1, dt * 7.5); st.hr = st.h; st.vf *= Math.exp(-(Math.abs(da) > .5 ? 3.2 : 1.6) * dt); st.w *= .5; movio = true; break; } }
-      if (!movio) { if (!hit(nx, st.y)) { st.x = nx; st.z = st._nz; st.vf *= Math.exp(-2 * dt); } else if (!hit(st.x, ny)) { st.y = ny; st.z = st._nz; st.vf *= Math.exp(-2 * dt); }
-        else { const imp = Math.abs(st.vf); st.vf *= -.12; st.vs = 0; if (imp > 2) { st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = .3; this.sfx(st, 'crash'); vib(80); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r'); for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: nx, y: ny, vx: (Ciudad.rng.f() - .5) * 8, vy: (Ciudad.rng.f() - .5) * 8, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); } } } }
-    if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = ang(h2, st.h); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = ang(st.h2, st.h); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
-    st.km += Math.abs(st.vf) * dt / 1000; st.engine = tv != null && tv > 0 ? clamp(tv / mx, 0, 1) : 0; st.thr = st.engine;
   },
   /* ángulo máximo de las ruedas a la velocidad v: el que da la aceleración lateral que aguanta el vehículo (V.lat), sin pasar del tope mecánico */
   giroMax(V, v, hb) { return Math.min(V.smax, Math.atan((V.lat || 8) * (hb ? 1.8 : 1) * V.wb / Math.max(9, v * v))); },
