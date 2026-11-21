@@ -15,4 +15,4 @@ android/app/src/main/assets/www/
 motor-valle/dist/
 .cache/
 __pycache__/
-vc/
+vc

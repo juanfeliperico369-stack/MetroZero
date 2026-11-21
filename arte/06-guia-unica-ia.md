@@ -658,6 +658,59 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+#### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
+**Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
+
+**Cómo se adaptó el motor:**
+- **Decisión:** El Metro sigue con su motor (mapa, G3, ciudad vectorial, modos y guardado) y toma de Motor City 4.5 lo que más le sirve, adaptado:
+  - portado («manera A»): el manejo y la regla de los árboles;
+  - como módulo suelto («manera B»): los rostros.
+  Así se conservan la fidelidad del mapa, el guardado `elmetro.v1` y las 100 partidas del bot.
+- **Base:** la rama de trabajo se adelantó a `main` (Motor City 4.5 en `motor-city/`, mundo abierto primero, relevo Z1/Z2, tutorial opcional).
+
+**Lo nuevo para quien juega** (§ 5 del informe 4.5):
+1. **Manejo que no se traba** (`src/js/36-libre.js`; motor: `js/32-fisica.js`):
+   - el choque desliza a lo largo de la pared (la normal sale de 8 tanteos) y pierde velocidad según el ángulo;
+   - solo cuenta como golpe si va contra la pared a más de 2,5 m/s;
+   - si empuja y no avanza en 0,85 s, se desatasca solo (y, metido en un edificio, busca el hueco libre más cercano);
+   - la asistencia mira adelante y esquiva la pared (se apaga con la asistencia al volante);
+   - el giro va amortiguado y el giro del cuadro no lo monta en la pared;
+   - el bordillo da un tumbo a la cámara, y a pie también se desliza por los muros en diagonal.
+2. **Rostros detallados** (`src/js/29-rostros.js`, de `js/71-rostros.js`):
+   - la gente de la ciudad, la trama, la historia, las crónicas y tu ficha tienen cara con volumen, edad y gesto según la frase;
+   - van encima el sombrero aguadeño (crema con cinta negra), la ruana, el carriel, la mochila y la cámara.
+3. **Árboles con lógica** (`VC.sembrable`; regla de `js/29-arboleda.js`): nada en canchas, pistas, piscinas, la cancha del estadio ni en medio de una plaza dura.
+4. **El sistema en 3D con la paleta oficial** (`src/js/28-taller-sistema.js`):
+   - vagones de A y B plateados con la franja de su línea, puertas dobles, frente con faros y pantógrafo;
+   - el tranvía, las cabinas de los cables y los articulados de Metroplús en dos cuerpos;
+   - chispas del pantógrafo, más con lluvia;
+   - sin WebGL quedan las cajas de antes.
+5. **Vista de lejos clara** (la idea de lectura de *Hunter Assassin*, sin su arte): al alejar la cámara en Ciudad Libre la ciudad se aclara y encima quedan las líneas con su color, las estaciones y cada tren, cable o bus. Ajuste `settings.claro`.
+6. **Crónicas del sistema** (Z3, `src/js/37-cronicas.js`):
+   - 13 crónicas: la primera vez que llegas a una estación de una línea, alguien del barrio te cuenta su historia;
+   - todos los datos son los ya verificados de `src/data/red.js`;
+   - +3 🎫 cada una, una por visita a cada estación, guardadas en `Save.d.cronicas`.
+7. **Interfaz 412 × 860:** la charla ya no tapa el botón de acción ni el acelerador.
+
+**Guardado:** los campos nuevos (`settings.claro`, `cronicas`) tienen su valor por defecto en `newSave`.
+
+**Probado:**
+- autotest con 0 errores y 0 avisos, con pruebas nuevas:
+  - roce en diagonal y choque de frente contra un muro recto;
+  - salir de un edificio enorme;
+  - árboles alrededor del estadio;
+  - las 13 crónicas con narrador;
+- 100 partidas del bot (ver abajo);
+- capturas a 412 × 860 sin solapes;
+- 3D del tren en Niquía, el viaducto y el articulado;
+- retratos de 16 personajes.
+
+**Sigue:**
+- el bus a Guatapé (C‑EM40, «manera C»: suma ≈ 1,4 MB con el motor y el mundo MC4);
+- `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
+- techos a cuatro aguas;
+- probarlo en un celular real.
+
 #### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
 - **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
 - **Publicado:** `main` al día con la rama de Claude y `gh-pages` con el `dist/` nuevo.

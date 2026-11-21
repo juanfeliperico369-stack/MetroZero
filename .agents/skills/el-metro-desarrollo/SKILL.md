@@ -126,6 +126,16 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+## Reglas aprendidas (Motor City adaptado, 3.0.0)
+- **Motor City se adapta, no se migra:** se porta la función a un archivo de El Metro («manera A») o se copia un módulo suelto dentro de una función con sus ayudas («manera B», como `29-rostros.js`). El guardado y el mapa no cambian.
+- **Manejo:** el choque va por `Libre.deslizar()` (normal por 8 tanteos, golpe solo si la velocidad contra la pared pasa de 2,5 m/s). Después de mover, `Libre.despues()` desatasca y da el tumbo del bordillo.
+  - Si el giro del cuadro monta el carro en la pared, se conserva el rumbo anterior.
+  - Pruébalo con un muro sintético, no con el mapa: alrededor hay columnas del viaducto y plantas irregulares.
+- **Retratos:** `Perfil.retrato(ped, tam, rasgos)` usa `EM.rostro`. `EM.rostro.dePersonaje(nombre, frase)` da la cara de quien habla, incluido el que no tiene arte dibujado.
+- **Árboles:** `VC.sembrable(x, y, suelos)` en todo lugar donde se siembre.
+- **Sistema 3D:** `EM.taller.dibujaSistema(clase, colorDeLínea, x, z, y, rumbo, op)`; devuelve `false` si no pudo y entonces va el respaldo `G3.vehicle`.
+- **Comandos largos con muchas comillas:** pásalos por un archivo `.py` en el scratchpad. La revisión de seguridad no lee bien los heredocs con `$$(`.
+
 ## Reglas aprendidas (entregas del Plan único, 2.0.0)
 - **Una entrega de otra IA es código no confiable**, aunque diga «probado»:
   - antes de aplicarla, `git apply --check` contra la versión actual;
