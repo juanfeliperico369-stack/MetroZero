@@ -165,9 +165,9 @@ const Libre = EM.modes.libre = {
   },
   walk(st, dt) {
     // a pie con algo de peso: arranca y para en un instante corto y gira hacia donde apunta el joystick
-    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 3.6 : 1.6) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
-    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 12); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * Math.min(1, dt * (spd > w0 ? 7 : 11)); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5.2 : 2.4) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
+    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * (1 - Math.exp(-dt * 16)); }
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16)));   // 3.1 · igual a cualquier ritmo de cuadros if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
@@ -177,7 +177,57 @@ const Libre = EM.modes.libre = {
       if (!ok) mov(nx, st.y) || mov(st.x, ny); }
     st.km += spdN * dt / 1000;
   },
+  /* ---------- 3.1 · manejo de Juega EnCicla (BicicletasUno, src/js/30-ride.js: Ride.update), adaptado a Ciudad Libre ----------
+     El autor: «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; que se sienta fluido, rápido y que no
+     difiera con el tiempo». Como allá: el vehículo apunta hacia donde va el dedo con un giro que sigue al joystick, limitado por la
+     velocidad (w0 parado, w1 a toda marcha) y con una inercia corta (tw); arranca rápido hasta la velocidad pedida, frena para tomar
+     la curva si el dedo apunta lejos del rumbo y, al soltar, rueda y se detiene solo. Todo con exponenciales del paso de tiempo:
+     igual a 30 o a 60 cuadros por segundo. Se queda lo de El Metro: el choque que desliza, el desatascador, la asistencia de carril
+     y de paredes, el suelo (andén, pasto, monte), la pendiente real, la lluvia, el freno de mano y los niveles (puentes y deprimidos). */
+  ARC: { micro: [5.2, 3, .08, 2.2, .9, .18], bici: [5, 2.7, .09, 2.4, .9, .2], moto: [4.2, 2.2, .1, 4.5, 2.2, .1], carro: [3, 1.45, .13, 5.5, 2.6, .06], bus: [1.9, .85, .2, 9, 3.5, .05] },   // [w0, w1, tw, s hasta la punta, s para frenar, rodada]
+  arc(V, kind) { const A = this.ARC[V.monta ? 'micro' : kind === 'bici' ? 'bici' : kind === 'moto' ? 'moto' : (V.art || kind === 'bus' || kind === 'alimentador') ? 'bus' : 'carro'];
+    return { w0: A[0], w1: A[1], tw: A[2], max: V.vmax, acc: V.vmax / A[3], brk: V.vmax / A[4], coast: V.vmax * A[5] }; },
+  driveArcade(st, dt) {
+    const V = this.V(st), kind = st.veh.kind, A = this.arc(V, kind), j = st.joy, k = st.keys, S = Save.d.settings, facil = !st.auto && S.manejo !== 'clasico', wet = Mundo.weather().rain;
+    const c0 = Math.cos(st.h), s0 = Math.sin(st.h), gr = st.z ? 0 : clamp((MAP.elevM(st.x + c0 * 8, st.y + s0 * 8) - MAP.elevM(st.x - c0 * 8, st.y - s0 * 8)) / 16, -.2, .2);
+    const ag = st.z ? 1 : VC.on ? VC.agarre(st.x, st.y) : 1, blando = ag < .95 && !V.campo;
+    const loma = (kind === 'scooter' || kind === 'monopatin') && gr > 0 ? 1 : clamp(1 - (kind === 'bici' || V.monta ? 2.2 : V.art || kind === 'bus' || kind === 'alimentador' ? .9 : 1.1) * gr, .5, 1.3);
+    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, tope = A.max * suelo * loma, kw = 1 - Math.exp(-dt / A.tw);
+    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1);
+    let wT = 0, tv = 0, hay = false;
+    if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
+      const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
+      const da = Math.atan2(Math.sin(ta - st.h), Math.cos(ta - st.h)); hay = true;
+      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
+      else { wT = clamp(da * 6.5, -wm, wm); tv = tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da))); }
+      st._quiere = ta;
+    } else {   // teclas, o el joystick clásico (los lados giran, arriba acelera, abajo frena y luego reversa)
+      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : 0, fr = k.down ? 1 : 0;
+      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); }
+      hay = !!(giro || ac || fr); wT = giro * wm; tv = ac ? tope * ac : fr ? (st.vf > .5 ? 0 : -A.max * .3 * fr) : 0; st._quiere = st.h + (fr > ac ? Math.PI : 0);
+    }
+    if (S.asist !== 0 && !st.auto && hay) { const As = this.asistencia(st, V, dt, wT / Math.max(.01, wm), st._quiere); if (As.giro && Math.abs(wT) < wm * .7) wT = clamp(wT + As.giro * wm * .6, -wm, wm); if (As.freno && Math.abs(st.vf) > 9) tv = Math.min(tv, A.max * .5); }
+    if (blando && !V.walk && !V.monta && kind !== 'bici' && Math.abs(tv) > 4 + 6 * ag) tv = Math.sign(tv) * (4 + 6 * ag);   // carros y buses, despacio fuera del asfalto
+    st._w = (st._w || 0) + ((hay ? wT : 0) - (st._w || 0)) * kw;
+    if (hay && tv !== 0) { if (tv > st.vf) st.vf = Math.min(tv, st.vf + Math.min(A.acc, (tv - st.vf) * 2 + .5) * dt); else st.vf = Math.max(tv, st.vf - Math.min(A.brk * (wet ? .7 : 1), (st.vf - tv) * 3.5 + 1) * dt); }
+    else if (hay && tv === 0) st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), A.brk * (wet ? .7 : 1) * dt);
+    else st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), (A.coast * (wet ? .6 : 1) + Math.abs(st.vf) * (V.walk || V.monta || kind === 'bici' ? .35 : .08)) * dt);   // al soltar: rueda y se detiene solo
+    if (gr && !(kind === 'scooter' || kind === 'monopatin')) st.vf -= 9.81 * gr * (V.monta || kind === 'bici' ? .35 : .12) * dt;   // la bajada empuja y la subida frena
+    const hb = st.hb && !V.walk && Math.abs(st.vf) > 3; if (hb) st.vf *= Math.exp(-.9 * dt);
+    const oh = st.h; st.h += st._w * dt * (st.vf < -.2 ? -1 : 1) * Math.min(1, .35 + Math.abs(st.vf) / 3); st._yaw = st._w; st.steer = clamp(Math.atan(st._w * V.wb / Math.max(1.5, Math.abs(st.vf))), -V.smax, V.smax); st.vs = 0;
+    const c2 = Math.cos(st.h), s2 = Math.sin(st.h), vx = st.vf * c2, vy = st.vf * s2;
+    if (hb) { for (const o of [-1, 1]) { const rx = st.x - c2 * V.len * .38 - s2 * o * V.wid * .42, ry = st.y - s2 * V.len * .38 + c2 * o * V.wid * .42; Ciudad.marks.push({ x1: rx, y1: ry, x2: rx - vx * dt, y2: ry - vy * dt, t: 1 }); } if (!st._drT) { st._drT = 1; this.sfx(st, 'brake'); } } else st._drT = 0;
+    if (wet && Math.abs(st.vf) > 8 && Ciudad.rng.f() < .4) Ciudad.parts.push({ x: st.x - c2 * V.len * .3 + (Ciudad.rng.f() - .5) * V.wid, y: st.y - s2 * V.len * .3, vx: -vx * .1, vy: -vy * .1 - 1, t: .4, t0: .4, c: 'rgba(210,230,245,.9)', r: .2 });
+    const nx = st.x + vx * dt, ny = st.y + vy * dt, piso = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y)), hit = (x, y) => { const r = this.nivelV(st, x, y, V, piso); st._nz = r[1]; return !r[0]; };
+    const x0m = st.x, y0m = st.y; if (st._chT > 0) st._chT -= dt;
+    if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else this.deslizar(st, V, nx - st.x, ny - st.y, dt, hit);
+    if (st.h !== oh && hit(st.x, st.y)) { const hN = st.h; st.h = oh; if (hit(st.x, st.y)) st.h = hN; else st._w *= .5; }
+    this.despues(st, V, dt, hit, x0m, y0m, hay && (Math.abs(tv) > .5), st._quiere != null ? st._quiere : st.h);
+    if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = Math.atan2(Math.sin(st.h - h2), Math.cos(st.h - h2)); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2)); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
+    st.km += Math.abs(st.vf) * dt / 1000; st.engine = tv > st.vf ? 1 : 0; st.thr = st.engine;
+  },
   drive(st, dt) {
+    if (String(st.lvId || '').startsWith('lb:')) return this.driveArcade(st, dt);   // 3.1 · Ciudad Libre maneja como Juega EnCicla; los demás modos (bus) siguen con su modelo
     const V = this.V(st), j = st.joy, k = st.keys, S = Save.d.settings, libre = String(st.lvId || '').startsWith('lb:'), facil = libre && !st.auto && S.manejo !== 'clasico';
     let thrIn = k.up ? 1 : 0, br = k.down ? 1 : 0, sIn = k.left ? -1 : k.right ? 1 : 0, thr, spdF;
     if (libre) {
