@@ -171,7 +171,10 @@ const Libre = EM.modes.libre = {
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
-    mov(nx, ny) || mov(nx, st.y) || mov(st.x, ny);
+    if (!mov(nx, ny)) { const dx = nx - st.x, dy = ny - st.y, L = Math.hypot(dx, dy); let bx = 0, by = 0;   // 3.0 · a lo largo del muro (Motor City 4.5)
+      for (let k = 0; k < 8; k++) { const q = k * Math.PI / 4; if (bloq(nx + Math.cos(q) * .5, ny + Math.sin(q) * .5)) { bx += Math.cos(q); by += Math.sin(q); } }
+      const bl = Math.hypot(bx, by); let ok = false; if (bl > .01 && L > 1e-6) { const Nx = -bx / bl, Ny = -by / bl, ux = dx / L, uy = dy / L, d = ux * Nx + uy * Ny; let tx = ux - d * Nx, ty = uy - d * Ny; const tl = Math.hypot(tx, ty); if (tl > .1) ok = mov(st.x + tx / tl * L * tl, st.y + ty / tl * L * tl); }
+      if (!ok) mov(nx, st.y) || mov(st.x, ny); }
     st.km += spdN * dt / 1000;
   },
   drive(st, dt) {
@@ -185,12 +188,13 @@ const Libre = EM.modes.libre = {
         if (facil) { const jw = this.joyMundo(st); let a = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, a) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - a), Math.cos(R - a))) < .3) a = R;
           const d = Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h));
           if (Math.abs(d) > 2.35) { br = Math.max(br, j.m); if (st.vf < 1.2) { const d2 = Math.atan2(Math.sin(a - st.h - Math.PI), Math.cos(a - st.h - Math.PI)); sIn = clamp(-d2 / .6, -1, 1); } }
-          else { sIn = clamp(d / .6, -1, 1); thrIn = Math.max(thrIn, j.m * clamp(1.2 - Math.abs(d) / 1.9, .25, 1)); } }
+          else { sIn = clamp(d / .6 - (st._yaw || 0) * .12, -1, 1); thrIn = Math.max(thrIn, j.m * clamp(1.2 - Math.abs(d) / 1.9, .25, 1)); } }   // 3.0 · amortiguado (Motor City 4.5)
         else { const ax = Math.abs(j.x); if (ax > .1) sIn = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.4); if (j.y < -.2) thrIn = Math.max(thrIn, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) br = Math.max(br, Math.min(1, (j.y - .25) / .6)); } }
       // pedal con peso: el acelerador entra en ~0,3 s y se suelta más rápido
       st.thr = (st.thr || 0) + (thrIn - (st.thr || 0)) * Math.min(1, dt * (thrIn > (st.thr || 0) ? 3.5 : 7)); thr = st.thr < .02 ? 0 : st.thr;
       // dirección según la velocidad: las ruedas giran solo lo que aguanta el agarre (la aceleración lateral del vehículo), así a 80 km/h
       // un toque no lo voltea, y en la esquina, despacio, gira cerrado; el volante vuelve solo al centro
+      if (S.asist !== 0 && !st.auto) { const A = this.asistencia(st, V, dt, sIn, j.m > .15 && facil ? Math.atan2(this.joyMundo(st).y, this.joyMundo(st).x) : null); if (A.giro && Math.abs(sIn) < .7) sIn = clamp(sIn + A.giro, -1, 1); if (A.freno && st.thr > .5 && Math.abs(st.vf) > 9) st.thr = .5; }
       const v = Math.abs(st.vf), target = sIn * this.giroMax(V, v, st.hb && !V.walk);
       spdF = clamp(v / V.vmax, 0, 1); st.steer += (target - st.steer) * Math.min(1, dt * (sIn ? 6 : 9)); st.steer = clamp(st.steer, -V.smax, V.smax);
       // asistencia de carril: sin mandos de giro, el vehículo se endereza solo con la calle
@@ -206,16 +210,60 @@ const Libre = EM.modes.libre = {
     if (!thr && !br) st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), (.4 + .003 * st.vf * st.vf + (soft ? 2.5 : 0)) * dt);
     st.vf -= 9.81 * gr * (V.walk ? .5 : .22) * dt; if (soft && !V.campo && Math.abs(st.vf) > capS) st.vf = Math.sign(st.vf) * capS; if (Math.abs(st.vf) > V.vmax * 1.05) st.vf = Math.sign(st.vf) * V.vmax * 1.05;
     // giro (modelo bicicleta) y derrape: la velocidad lateral se apaga según el agarre
-    const hb = st.hb && !V.walk, rot = st.vf / V.wb * Math.tan(st.steer) * (hb ? 1.4 : 1) * dt, oh = st.h; st.h += rot;
+    const hb = st.hb && !V.walk, rot = st.vf / V.wb * Math.tan(st.steer) * (hb ? 1.4 : 1) * dt, oh = st.h; st.h += rot; st._yaw = dt > 0 ? rot / dt : 0;
     const vx = st.vf * Math.cos(oh) - st.vs * Math.sin(oh), vy = st.vf * Math.sin(oh) + st.vs * Math.cos(oh), c2 = Math.cos(st.h), s2 = Math.sin(st.h); st.vf = vx * c2 + vy * s2; st.vs = -vx * s2 + vy * c2;
     const grip = (hb ? 1.1 : V.grip) * (wet ? .6 : 1) * (soft ? .7 : 1); st.vs *= Math.exp(-grip * dt); if (hb) st.vf *= Math.exp(-.9 * dt);
     const drifting = Math.abs(st.vs) > 2.2 && Math.abs(st.vf) > 2; if (drifting || (hb && Math.abs(st.vf) > 3)) { for (const o of [-1, 1]) { const rx = st.x - c2 * V.len * .38 - s2 * o * V.wid * .42, ry = st.y - s2 * V.len * .38 + c2 * o * V.wid * .42; Ciudad.marks.push({ x1: rx, y1: ry, x2: rx - (vx * dt), y2: ry - (vy * dt), t: 1 }); } if (Ciudad.rng.f() < .5) Ciudad.parts.push({ x: st.x - c2 * V.len * .4, y: st.y - s2 * V.len * .4, vx: (Ciudad.rng.f() - .5) * 3, vy: (Ciudad.rng.f() - .5) * 3, t: .6, t0: .6, c: wet ? 'rgba(200,220,235,.8)' : 'rgba(190,180,160,.8)', r: .35 + Ciudad.rng.f() * .4 }); if (!st._drT) { st._drT = 1; this.sfx(st, 'brake'); } } else st._drT = 0;
     if (wet && Math.abs(st.vf) > 8 && Ciudad.rng.f() < .4) Ciudad.parts.push({ x: st.x - c2 * V.len * .3 + (Ciudad.rng.f() - .5) * V.wid, y: st.y - s2 * V.len * .3, vx: -vx * .1, vy: -vy * .1 - 1, t: .4, t0: .4, c: 'rgba(210,230,245,.9)', r: .2 });
     // movimiento y choques con lo sólido (esquinas del vehículo); desliza por paredes
     const nx = st.x + vx * dt, ny = st.y + vy * dt, piso = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y)), hit = (x, y) => { const r = this.nivelV(st, x, y, V, piso); st._nz = r[1]; return !r[0]; };
-    if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else if (!hit(nx, st.y)) { st.x = nx; st.z = st._nz; st.vs *= .5; } else if (!hit(st.x, ny)) { st.y = ny; st.z = st._nz; st.vs *= .5; } else { const imp = Math.abs(st.vf); st.vf *= -.2; st.vs *= .3; if (imp > 2) { st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = .3; this.sfx(st, 'crash'); vib(80); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r'); for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: nx, y: ny, vx: (Ciudad.rng.f() - .5) * 8, vy: (Ciudad.rng.f() - .5) * 8, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); } }
+    const x0m = st.x, y0m = st.y; if (st._chT > 0) st._chT -= dt;
+    if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else this.deslizar(st, V, nx - st.x, ny - st.y, dt, hit);   // 3.0 · desliza por la pared (Motor City 4.5)
+    this.despues(st, V, dt, hit, x0m, y0m, thr > .3 || br > .3 || (j.m > .3 && libre), facil && j.m > .15 ? Math.atan2(this.joyMundo(st).y, this.joyMundo(st).x) : st.h + (st.vf < 0 || br > thr ? Math.PI : 0));
     if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = Math.atan2(Math.sin(st.h - h2), Math.cos(st.h - h2)); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2)); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
     st.km += Math.abs(st.vf) * dt / 1000; st.engine = thr;
+  },
+  /* ---------- 3.0 · manejo que no se traba (portado de Motor City 4.5: js/32-fisica.js _mover, _asistencia, _despues, _desatascar) ----------
+     · deslizar: si el paso está bloqueado, la normal de la pared se estima tanteando 8 puntos alrededor; el vehículo sigue a lo largo de
+       la pared y pierde velocidad según el ángulo del golpe (rasante: casi nada; de frente: casi toda) y se alinea con ella. Solo cuenta
+       como golpe si la parte de la velocidad que va contra la pared pasa de 2,5 m/s (antes cualquier roce en diagonal trababa el carro).
+     · asistencia: cada 0,08 s mira adelante (0,45 s de camino, de 3 a 12 m); si viene pared y no se está girando fuerte, empuja el
+       volante hacia el lado libre más parecido a lo que se pide y no deja ir a fondo hacia ella. Se apaga con la asistencia al volante.
+     · desatascar: si empuja y no avanza en 0,85 s, busca el hueco libre más cercano hacia donde se quiere ir (anillos de 0,8 a 3,2 m)
+       y sale con un empujón suave; el bordillo (de la calzada al andén) da un tumbo a la cámara. */
+  deslizar(st, V, dx, dy, dt, hit) {
+    const L = Math.hypot(dx, dy); if (L < 1e-7) return false;
+    const r = clamp(V.wid * .65, .5, 1.4), px = st.x + dx, py = st.y + dy; let bx = 0, by = 0;
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, cx = Math.cos(a), cy = Math.sin(a); if (hit(px + cx * r, py + cy * r)) { bx += cx; by += cy; } }
+    const bl = Math.hypot(bx, by), Nx = bl > .01 ? -bx / bl : -dx / L, Ny = bl > .01 ? -by / bl : -dy / L, ux = dx / L, uy = dy / L, dot = ux * Nx + uy * Ny, impacto = clamp(-dot, 0, 1);
+    let tx = ux - dot * Nx, ty = uy - dot * Ny; const tl = Math.hypot(tx, ty); let movio = false;
+    if (tl > .05) { tx /= tl; ty /= tl; const s = L * tl; if (!hit(st.x + tx * s, st.y + ty * s)) { st.x += tx * s; st.y += ty * s; st.z = st._nz; movio = true; } }
+    if (!movio) { if (!hit(st.x + dx, st.y)) { st.x += dx; st.z = st._nz; movio = true; } else if (!hit(st.x, st.y + dy)) { st.y += dy; st.z = st._nz; movio = true; } }
+    const sp = Math.hypot(st.vf, st.vs), imp = sp * impacto;
+    if (imp > 2.5 && !(st._chT > 0)) { st._chT = .4; st.crashes++; st.crashesJ = 1; st.dmg += imp; st.shake = Math.min(.3, .08 + imp * .025); this.sfx(st, 'crash'); vib(imp > 8 ? 80 : 30); this.msg(st, imp > 8 ? '¡Golpe duro!' : 'Golpe', 'r');
+      for (let q = 0; q < 6; q++) Ciudad.parts.push({ x: px - Nx * r, y: py - Ny * r, vx: (Nx + (Ciudad.rng.f() - .5)) * 5, vy: (Ny + (Ciudad.rng.f() - .5)) * 5, t: .5, t0: .5, c: '#fbe7b0', r: .3 }); }
+    if (movio) { const f = 1 - Math.min(.95, impacto * impacto * .9 + dt * .6); st.vf *= f; st.vs *= f;
+      if (!V.walk && tl > .05) { const dir = st.vf >= 0 ? Math.atan2(ty, tx) : Math.atan2(-ty, -tx); st.h += Math.atan2(Math.sin(dir - st.h), Math.cos(dir - st.h)) * Math.min(1, dt * 7) * (1 - impacto * .6); } }
+    else { st.vf *= V.walk || V.monta ? 0 : -.18; st.vs *= .3; if (!hit(st.x + Nx * .06, st.y + Ny * .06)) { st.x += Nx * .06; st.y += Ny * .06; st.z = st._nz; } }
+    return movio;
+  },
+  asistencia(st, V, dt, sIn, quiere) {
+    const A = st._asis || (st._asis = { t: 0, giro: 0, freno: 0 }); if (Math.abs(st.vf) < 3 || st.mode !== 'veh') { A.giro = A.freno = 0; return A; }
+    if ((A.t -= dt) > 0) return A; A.t = .08; A.giro = 0; A.freno = 0;
+    const la = clamp(Math.abs(st.vf) * .45, 3, 12), sg = st.vf >= 0 ? 1 : -1, piso = (x, y) => this.hitV(x, y, st.h, V), libre = da => !piso(st.x + Math.cos(st.h + da) * la * sg, st.y + Math.sin(st.h + da) * la * sg);
+    if (st.z || libre(0)) return A;   // en puentes y deprimidos manda la baranda
+    const pide = quiere != null ? Math.atan2(Math.sin(quiere - st.h), Math.cos(quiere - st.h)) : sIn;
+    for (const da of pide >= 0 ? [.3, -.3, .6, -.6] : [-.3, .3, -.6, .6]) if (libre(da)) { A.giro = Math.sign(da) * sg * (Math.abs(da) > .4 ? .75 : .5); break; }
+    A.freno = 1; return A;
+  },
+  despues(st, V, dt, hit, x0m, y0m, empuja, quiere) {
+    if (empuja && Math.hypot(st.x - x0m, st.y - y0m) < .015) st._atasco = (st._atasco || 0) + dt; else st._atasco = Math.max(0, (st._atasco || 0) - dt * 2);
+    if (st._atasco > .85) { st._atasco = 0; let mejor = null, md = 1e9;
+      for (const d of hit(st.x, st.y) ? [.8, 1.4, 2.2, 3.2, 4.5, 6, 8, 10.5, 13.5, 17, 22, 28] : [.8, 1.4, 2.2, 3.2]) { for (let k = 0; k < 16; k++) { const a = k / 16 * TAU, x = st.x + Math.cos(a) * d, y = st.y + Math.sin(a) * d; if (hit(x, y)) continue; const pen = d * .6 + Math.abs(Math.atan2(Math.sin(quiere - a), Math.cos(quiere - a))) * 1.2; if (pen < md) { md = pen; mejor = { x: x - st.x, y: y - st.y, a }; } } if (mejor) break; }   // metido en un edificio grande: busca más lejos
+      if (!mejor && VC.on && VC.despeja && hit(st.x, st.y)) { const q = VC.despeja(st.x, st.y, Math.max(V.len, V.wid) / 2 + .3, !V.walk, 90); if (q && !hit(q.x, q.y)) mejor = { x: q.x - st.x, y: q.y - st.y, a: Math.atan2(q.y - st.y, q.x - st.x) }; }   // un edificio enorme: el hueco libre más cercano
+      if (mejor) { st._empujon = { x: mejor.x, y: mejor.y }; if (!V.walk) st.h += Math.atan2(Math.sin(mejor.a - st.h), Math.cos(mejor.a - st.h)) * .5; st.vf = st.vs = 0; st.desatascos = (st.desatascos || 0) + 1; } }
+    if (st._empujon) { const q = st._empujon, f = Math.min(1, dt * 8), metido = hit(st.x, st.y); if (metido || !hit(st.x + q.x * f, st.y + q.y * f)) { st.x += q.x * f; st.y += q.y * f; } q.x *= 1 - f; q.y *= 1 - f; if (Math.hypot(q.x, q.y) < .02) st._empujon = null; }
+    if (VC.on && !st.z) { const ag = VC.agarre(st.x, st.y) >= .95; if (st._agP != null && ag !== st._agP && Math.abs(st.vf) > 2 && !V.walk) st.shake = Math.max(st.shake || 0, Math.min(.1, Math.abs(st.vf) / 120)); st._agP = ag; }   // el bordillo
   },
   /* ángulo máximo de las ruedas a la velocidad v: el que da la aceleración lateral que aguanta el vehículo (V.lat), sin pasar del tope mecánico */
   giroMax(V, v, hb) { return Math.min(V.smax, Math.atan((V.lat || 8) * (hb ? 1.8 : 1) * V.wb / Math.max(9, v * v))); },
@@ -255,7 +303,7 @@ const Libre = EM.modes.libre = {
       <button class="btn" data-a="taxi">🚕 Pedir un taxi<small>llega a la calle más cercana</small></button>
       <button class="btn" data-a="ini">🏠 Volver a donde empecé<small>a ${km(dist(ini.x, ini.y, st.x, st.y))}</small></button></div>`}
       <div class="pag">Manejo</div><div class="tg" data-mj><button data-v="facil" class="${S.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${S.manejo === 'clasico' ? 'on' : ''}">Clásico: izquierda y derecha giran</button></div>
-      <div class="pag">Asistencia al volante (se endereza con la calle)</div><div class="tg" data-as><button data-v="1" class="${S.asist !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.asist === 0 ? 'on' : ''}">No</button></div>
+      <div class="pag">Asistencia al volante (se endereza con la calle y esquiva las paredes)</div><div class="tg" data-as><button data-v="1" class="${S.asist !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.asist === 0 ? 'on' : ''}">No</button></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="ayPf">🧑 Mi personaje</button><button class="btn pri" id="ayOk">Seguir</button></div>`);
     const fin = t => { UI.close(); if (t) this.msg(st, t, 'b'); };
     $$('#mBody [data-a]').forEach(b => b.onclick = () => { const a = b.dataset.a;
