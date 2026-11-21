@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v2.0.0 · compilado el 2026-11-19.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v2.0.0 · compilado el 2026-11-21.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -34,7 +34,9 @@
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 
@@ -116,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v2.0.0** · compilado el 2026-11-19.
+> Versión del juego **v2.0.0** · compilado el 2026-11-21.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -157,7 +159,9 @@ Aquí está **todo** el proyecto:
 > Este protocolo aplica a **cualquier IA** que trabaje en *El Metro*:
 > - Gemini (Nano Banana), Artista 1;
 > - ChatGPT, Artista 2;
-> - Codex (“astra”), Antigravity (“argon”), Claude Code y cualquier otro agente.
+> - Codex (“astra”), Antigravity (“hydrogen”, desde nov‑2026; antes “argon”), Claude Code y cualquier otro agente.
+>
+> **Reparto vigente (del autor, nov‑2026):** Gemini y Antigravity hacen las tareas **fáciles**; ChatGPT (mejores imágenes) y Codex hacen las **fuertes**. La lista corta de cada IA está en **`TAREAS-IA.md`**.
 >
 > El autor del proyecto pide **precisión**. Para lograrla, cada IA debe **leer todo, reflexionar, comprobar que entendió, probar y auto‑ajustarse** antes de hacer su parte, y debe hacer **solo** su parte.
 
@@ -799,6 +803,207 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
+
+
+##### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
+- **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
+- **Publicado:** `main` al día con la rama de Claude y `gh-pages` con el `dist/` nuevo.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100` (0 errores).
+- **Falta:** el informe, § 4 y § 5 (crónicas Z3, bus a Guatapé, manejo, modelos, rostros, mapa fiel).
+
+##### 21‑nov‑2026 · Motor City 4.4.0 en `motor-city/` (Claude)
+- El autor confirmó que las otras IA ya no siguen: Claude lleva todo. Lo pendiente de este juego está en `motor-city/CONTEXTO-RELEVO.md` § 5:
+  - el bus a Guatapé con el lector MC4 del motor (zonas Z4 y Z5);
+  - las crónicas (Z3).
+- Las tarjetas de MODOS que señaló la auditoría ya no se cruzan con el texto en la versión actual (se comprobó a 412 × 860).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+##### 21‑nov‑2026 · Mundo abierto primero y los íconos (Claude, a partir de la auditoría G‑H28 de Antigravity)
+- **Regla del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales.
+- **`src/js/97-abierto.js`**, aditivo (envuelve `Menu.bind`):
+  - **▶ Jugar entra directo a Ciudad Libre**: donde quedaste o, la primera vez, San Antonio. 1 toque y 0,4 s (antes, 3 toques: MODOS, la grilla y el inicio);
+  - el botón nuevo **«Todos los modos»** queda justo debajo;
+  - la historia y la guía siguen opcionales en la portada;
+  - al salir de Ciudad Libre se vuelve a la portada.
+- **Íconos:**
+  - `favicon.svg`, `favicon-32.png`, `icon-*.png` y `apple-touch-icon.png` estaban solo en `gh-pages`, así que en local daban 404 y el service worker podía fallar al instalar;
+  - ahora viven en `src/iconos/` y `tools/build.mjs` los copia a `dist/`.
+- **`tools/test.mjs`:** comprueba que ▶ Jugar entra directo a Ciudad Libre. Las capturas ahora son `02-ciudad-libre` y `02b-modos`.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores y 0 errores de consola.
+
+##### 21‑nov‑2026 · Motor City 4.2.0 en `motor-city/` (Claude)
+- Llegó el motor 4.2:
+  - recorte por región en el 3D;
+  - IA que no se tranca en el borde de la calle;
+  - el vuelo sin pausa;
+  - las entregas de ChatGPT y de Antigravity unidas.
+
+  Turno Cero sigue aislado.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+##### 21‑nov‑2026 · Motor City 4.1.0 en `motor-city/` (Claude)
+- Llegó el motor 4.1. Trae técnicas de motores clásicos, rehechas desde cero:
+  - 🏁 Arcade (la carretera de OutRun), que podría servir para un modo de bus por la Autopista del Embalse;
+  - ⛰️ Vuelo (el Voxel Space de Comanche), que podría servir para ver el valle desde el Metrocable;
+  - la gema y el ruido de Thief;
+  - el DDA de Wolfenstein;
+  - las semillas de Elite.
+
+  Ver `motor-city/docs/INVESTIGACION-MOTORES-CLASICOS.md`. Turno Cero sigue aislado.
+- **Regla nueva del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales y nunca bloquean (`motor-city/CONTEXTO-RELEVO.md` § 7). Gemini lo revisa en este juego (G‑H28).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+##### 21‑nov‑2026 · Relevo Z1 y Z2: los 6 errores que halló Antigravity, terminados (Claude)
+- Antigravity reclamó Z1 y Z2 (`.ai-coord/estado-antigravity.json`) y catalogó 6 errores a `412 × 860`, pero se quedó sin uso antes de subir los arreglos. El autor pidió terminarlos.
+- **Arreglos** (casi todo en el archivo aditivo `src/js/98-relevo-z1.js`, con ganchos sobre `Menu`, `Game` y `EM.modes.carrera`):
+  1. **Ciudad Libre:** todos los inicios abiertos. Son puntos de partida, no niveles con estrellas; antes solo se abría el primero.
+  2. **`#ghud`:** las fichas se recortan y ya no empujan el botón de pausa fuera de la pantalla.
+  3. **`.camui`:** la columna de cámara baja sola bajo el tablero de la cabina, la barra del trabajo (también la del tutorial y la de la trama) y el mensaje.
+  4. **Historia:** el lienzo conserva su 16:9; antes se estiraba 2,5× en alto.
+  5. **Carrera:**
+     - suenan el pasaje, el poder, el golpe, el escudo, la estación y el salto;
+     - `47-carrera.js` recorre solo la ventana de obstáculos cercana con un cursor (`crVentana`), no todos los de la línea en cada cuadro.
+  6. **`25-game.js`:**
+     - `--sat` se lee solo al cambiar el tamaño, no con `getComputedStyle` en cada cuadro;
+     - `pointercancel` suelta el dedo.
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 100 partidas, 0 errores, 0 errores de consola;
+  - medición en Chromium `412 × 860`:
+    - 0 inicios bloqueados;
+    - pausa dentro de la pantalla en todos los modos;
+    - la cámara no se cruza con la barra ni con el mensaje;
+    - historia con proporción 1,00.
+- **Motor:** `motor-city/` pasa a la 4.0.3, con las entregas de ChatGPT y Antigravity unidas. Turno Cero sigue aislado y no se mezcla con este juego.
+- **Falta (de Antigravity, sin reclamar por nadie más):** Z3 (`37-cronicas.js`), Z4 (`15-mc-puente.js`) y Z5 (`48-planificador.js`, `49-guatape.js`). Están en `.ai-coord/estado-antigravity.json`.
+
+##### 20-nov-2026 · Motor City 4.0.0 en `motor-city/`
+- Llegó el motor 4.0. Trae:
+  - el planeta (`MC.Planeta`);
+  - la búsqueda 0–5 (`MC.Busqueda`);
+  - el lector GLB (`MC.Modelos`);
+  - los juegos con varios mundos.
+- *Turno Cero*, el juego adulto de Motor City, queda aislado en `motor-city/juegos/getaway/` y no se mezcla con este juego. Manhattan no se copia aquí.
+- `TAREAS-IA.md` tiene la nota de la 4.0 y un pedido adaptado a este juego.
+- Pruebas en verde.
+
+##### 20‑nov‑2026 · Tutorial opcional (lo del motor 3.0, adaptado a El Metro) (Claude, la IA del motor)
+- **`src/js/69-tutorial.js`: «❓ Cómo se juega» opcional.**
+  - Nunca sale solo ni bloquea: es un botón al final del menú.
+  - Son pasos cortos para el juego y para cada modo (Ciudad Libre, Metro, Metroplús, Metrocable, Carrera, Historia y Red), con Atrás, Siguiente y Saltar.
+  - La primera vez solo se ofrece con un aviso que se va solo. En Ajustes, «Ofrecer “Cómo se juega”» lo apaga.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100` con 0 errores. En el navegador, el botón aparece, no se abre solo, avanza y «Saltar» lo cierra.
+- Queda para la IA de El Metro llevar a Ciudad Libre lo demás del motor 3.0: el mundo 3D único con sus cámaras aéreas, los topes de zoom, el mapa grande y los artilugios físicos (`motor-city/docs/INVESTIGACION-CAMARA.md`).
+
+##### 20‑nov‑2026 · Motor City 3.0 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 3.0:
+  - un solo mundo 3D con varias cámaras (la cenital, la ciudad y la maqueta sobre el mismo mundo);
+  - fachadas y árboles low-poly;
+  - `MC.Objetos`;
+  - topes de zoom y el mapa grande.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 20‑nov‑2026 · Motor City 2.10 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.10:
+  - las skills y plugins de los videos del autor: Hallmark, Modern Web Guidance, find-skills y HyperFrames (`.claude/settings.json`, y `CLAUDE.md` vía `tools/todo.mjs`);
+  - el público simulado;
+  - rutas por la calle;
+  - el cómic y el 1 bit más rápidos;
+  - atlas más livianos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 20‑nov‑2026 · Ramas unidas y Motor del Valle 1.2.0 (Claude, la IA del motor)
+- **Motor del Valle 1.2.0** copiado desde Juega EnCicla, que es la fuente de verdad (`node motor-valle/sincronizar.mjs ../MetroZero`):
+  - capas comunes y por juego;
+  - `js/red-niveles.mjs`;
+  - `geo/pasos.py`.
+  Es lo mismo que traía la rama `motor-valle` (de55357).
+- La rama **`plan-unico-el-metro`** (57d66c9) **no se fusionó**: es una línea paralela que ya quedó dentro de la v2.0.0 (ace4f1e):
+  - la carrera sin fin con poderes;
+  - los seis personajes de EnCicla;
+  - los techos y las estaciones en 3D;
+  - los deprimidos de OpenStreetMap.
+  Fusionarla habría devuelto el código a su estado anterior en 14 archivos.
+- Pruebas: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
+##### 20‑nov‑2026 · Motor City 2.9 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.9:
+  - la entrega maestra de referencias;
+  - la entrega de Gemini;
+  - la de ChatGPT y Codex (arte a escala, lluvia, 1 bit, agua precalculada y adaptadores).
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 20‑nov‑2026 · Motor City 2.8 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.8, con lo que se pudo hacer ya de la entrega maestra de referencias del autor:
+  - fauna que reacciona, huellas, faros y luces de freno;
+  - los estilos vintage, CRT y térmico;
+  - accesibilidad, telemetría en percentiles y contratos de datos.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 20‑nov‑2026 · Motor City 2.7 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.7:
+  - estilos gráficos (cómic, manga, anime, novela gráfica, ukiyo-e y acuarela);
+  - peso y vida;
+  - la exportación del mundo a glTF para motores más potentes.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 20‑nov‑2026 · Motor City 2.6 en `motor-city/` y `TAREAS-IA.md` (Claude, la IA del motor)
+- Se sincronizó el motor 2.6:
+  - estilo realista familiar (árboles de pie, asfalto gastado, andenes de baldosa, techos con textura);
+  - tutorial opcional.
+- **`TAREAS-IA.md`** en la raíz: la lista de cada IA en orden. Gemini con Antigravity («hydrogen») hace lo fácil; ChatGPT y Codex («astra») hacen lo fuerte.
+- Protocolo: Antigravity pasa de «argon» a «hydrogen»; los encargos G‑ difíciles van a ChatGPT. `CLAUDE.md`, `AGENTS.md` y `GEMINI.md` regenerados con `node tools/todo.mjs`.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 19‑nov‑2026 · Motor City 2.5.1 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5.1:
+  - controles que se ven (joystick, botones de acción y flecha al objetivo);
+  - modo libre en Mandados;
+  - el arte de Gemini integrado con `MC.Pieles` (`motor-city/dist/arte/gemini.js`);
+  - leyenda en las capas de datos;
+  - la lista de pedidos.
+- `.gitignore`: `dist/` pasó a `/dist/` (más `motor-valle/dist/`), para que `motor-city/dist/` quede en git.
+- **El juego no cambia** y sus pruebas siguen en verde (100 partidas, 0 errores).
+
+##### 19‑nov‑2026 · Motor City 2.5 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.5: entrar al agua (dejar el vehículo en la orilla, nadar, bucear con aire, volver a subirse, lancha).
+- **El juego no cambia** y sus pruebas siguen en verde.
+
+##### 19‑nov‑2026 · Motor City 2.4 en `motor-city/` (Claude, la IA del motor)
+- Se sincronizó el motor 2.4: terreno y límites verosímiles (agua con profundidad, pendientes, obstáculos reales), naturaleza y lagos generados.
+- **El juego no cambia** y sus pruebas siguen en verde.
+- Qué sigue: `motor-city/docs/DOCUMENTO-UNICO.md`, §9.
+
+##### 19‑nov‑2026 · Motor City 2.3 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:** sincronizar el motor 2.3 (sombras del sol, mobiliario urbano, fachadas por reglas, `MC.Urbe` con capas de datos, objetos inteligentes y sonido ambiente).
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. El juego no cambia.
+- **Qué falta:** la migración (le toca a la IA de El Metro). Lee `motor-city/docs/DOCUMENTO-UNICO.md`, §9.4: ahí está la lección «las estaciones suben el valor del suelo».
+
+##### 19‑nov‑2026 · Motor City 2.2 en `motor-city/` (Claude, la IA del motor)
+- **Qué se hizo:**
+  - el motor (ahora solo «Motor City») quedó en `motor-city/`, sincronizado desde `juanfeliperico369-stack/motorcity`;
+  - `motor-valle/` volvió a como estaba en `cc5d7a6`.
+- **Cómo se probó:** `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores. **El juego no cambia.**
+- **Qué aprendí:** que cada juego reciba el motor en su propia carpeta, sin pisar la que usa.
+- **Qué falta:** la migración, que le toca a la IA de El Metro. Ver `docs/CONTEXTO-MOTOR-CITY.md` y `motor-city/docs/PLAN-IAS.md`, sección 4.
+
+##### 2026-11-19 · Motor City 2.0 en `motor-valle/` (el juego no cambia)
+> Lo hizo la IA del motor (Claude Code), a pedido del autor. Solo tocó `motor-valle/`, esta bitácora y `docs/CONTEXTO-MOTOR-CITY.md`. No hizo encargos de El Metro.
+
+**Qué cambió:**
+- La copia del motor pasó de **1.1.0 a Motor City 2.0.0**, sincronizada desde `juanfeliperico369-stack/motorcity`, la nueva fuente de verdad. Trae:
+  - el mundo 2.0, con tus 639.457 huellas, tus puentes, rieles, Metroplús e hitos, más lo de EnCicla;
+  - el motor (`motor-valle/dist/motor.js`): transporte con horario determinista, la panorámica que parte de tu `23-lado.js`, WebGL, maqueta 2:1, pixel, clima y Run en la ciclovía;
+  - la guía `motor-valle/docs/MIGRACION-ELMETRO.md`.
+- `motor-valle/js/valle.js` pasó a ser el lector 1.2.0, que une las dos 1.1.0 y conserva tu interfaz `MotorValle` / `Valle.elmetro`.
+- `tools/build.mjs` no incluye `motor-valle/`: el juego compilado es idéntico (`b8f24800`).
+
+**Qué se probó:**
+- `node tools/build.mjs`: la misma huella;
+- `node tools/test.mjs 100`: 0 errores.
+
+**Qué falta (para la IA de El Metro, con su protocolo):** decidir si usar el motor 2.0 y el mundo 2.0 en lugar de los datos propios. Ver la guía.
+
 ##### Estado al 2026-11-19 · v2.0.0 "La revolución"
 **Novedad de v2.0.0:** llegaron las entregas del Plan único para El Metro y entró lo mejor de las dos, revisado, medido y corregido. Las copias quedan en `docs/entregas/2026-11-19/`:
 - **ChatGPT/Codex (arte):** `EL-METRO-M1-M6-chatgpt-codex.md`, un taller de arte procedural en código.
@@ -855,9 +1060,11 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 **Qué se probó:**
 - autotest con 0 errores y 0 avisos, con comprobaciones nuevas: mallas del taller, poderes y vehículos de la carrera, deprimidos, cámara de cine y los 6 personajes con su estación;
-- 100 partidas del bot (ver abajo);
+- 100 partidas del bot: 343.504 pasos y 40 victorias, con 0 errores y 0 errores de consola;
 - capturas 3D en Santo Domingo, Laureles, El Poblado, Exposiciones, Industriales, la Calle 58 y Parques del Río;
 - la carrera con cada vehículo en primera y tercera persona, y la escena del pasaje doblado.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v2.0.0 verificada el 2026-11-19**: carga, service worker con caché `el-metro-v2.0.0-b8f24800`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 26, **6,7 MB**), igual byte a byte a la construida.
 
 ##### Estado al 2026-11-19 · v1.5.0 "Preparando la revolución"
 **Novedad de v1.5.0:** mientras Gemini y ChatGPT trabajan en el Plan único, El Metro ya juega con el mapa del motor único y deja listo el terreno para integrar lo que entreguen.
@@ -3128,7 +3335,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (96 archivos, 1339 KB)
+## Código fuente (99 archivos, 1352 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -7071,7 +7278,8 @@ const Game = EM.game = {
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const { w, h } = fitCanvas(cv, q === 'low' ? 1 : q === 'auto' ? (this.dpr || 2) : 2), g = cv.getContext('2d');
-    const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
+    if (this._sat == null || this._satW !== innerWidth || this._satH !== innerHeight) { this._sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0; this._satW = innerWidth; this._satH = innerHeight; }   // relevo Z1: se lee al cambiar el tamaño, no en cada cuadro
+    const top = (46 + this._sat) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
     MAP.prisa = t + .012; MAP._hechos = 0;   // presupuesto del cuadro para armar trozos del mapa (12 ms; siempre al menos uno)
     try {
@@ -10470,6 +10678,8 @@ const CR_VEH = [
   { id: 'bici', ico: '🚲', spd: 22, sal: 7, mesh: 'bici', pie: .55 }
 ];
 const CR_POD = { iman: ['🧲', 'Imán: los pasajes de los otros carriles llegan solos', 8, [.86, .2, .2]], turbo: ['⚡', 'Turbo: más rápido y atraviesas lo que venga', 5, [.98, .8, .15]], escudo: ['🛡', 'Escudo: el próximo golpe no cuenta', 0, [.25, .55, .95]] };
+/* relevo Z1: los obstáculos están ordenados por s; solo se recorre la ventana [s0, s1] con un cursor (antes, todos en cada cuadro) */
+const crVentana = (st, s0, s1) => { const O = st.obs; let i = st._ci || 0; while (i > 0 && O[i - 1].s >= s0) i--; while (i < O.length && O[i].s < s0) i++; st._ci = i; const R = []; for (let j = i; j < O.length && O[j].s <= s1; j++) R.push(O[j]); return R; };
 const CR_OBS = {   // [largo (m), alto (m), color, 0 = se salta (está en el piso) · 1 = se esquiva o se salta si es bajo]
   hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1], moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1]
 };
@@ -10493,7 +10703,7 @@ const Carrera = EM.modes.carrera = {
     st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));   // el ritmo acelera hasta el tope del vehículo (unos 75 a 85 km/h)
     st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt; if (st.iman > 0) st.iman -= dt; if (st.turbo > 0) st.turbo -= dt;
     if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.y === 0) st.vy = 0; }
-    for (const o of st.obs) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
+    for (const o of crVentana(st, st.s - 1.2, st.s + 7)) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
       if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;   // con el imán, los pasajes de los otros carriles llegan solos
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; continue; }
@@ -10535,7 +10745,7 @@ const Carrera = EM.modes.carrera = {
     else {   // desde arriba (sin WebGL, en «Celular modesto» o en las pruebas)
       if (typeof G3 !== 'undefined' && G3.cv) G3.show(false); const k = 4 * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), mx = p.x, my = p.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H * .62 + (y - my) * k });
       g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, mx, my - (H * .12) / k, k);
-      for (const o of st.obs) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
+      for (const o of crVentana(st, st.s - 8, st.s + 70)) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
       const q = S(p.x, p.y); g.fillStyle = '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
     }
     this.marcador(g, st, W, H);
@@ -10544,7 +10754,7 @@ const Carrera = EM.modes.carrera = {
   malla(clave, hacer) { const T = EM.taller; return T && T.malla ? T.malla(clave, () => hacer(T)) : null; },
   dyn3D(G, st, p, z) {
     const T = EM.taller;
-    for (const o of st.obs) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
+    for (const o of crVentana(st, st.s - 3, st.s + 90)) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
       if (P) { G.box(q.x, zq + .9 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2.5, .55, .55, .55, P[3]); continue; }
       const m = this.malla('o:' + o.k, T => T.pista(o.k));
       if (m) { T.mundo(m, q.x, zq + (o.k === 'pasaje' ? .45 + Math.sin(st.t * 3 + o.s) * .15 : 0), q.y, o.k === 'pasaje' ? st.t * 2 : q.a + (o.k === 'moto' || o.k === 'perro' ? Math.PI : 0)); continue; }
@@ -11258,6 +11468,58 @@ const Album = EM.album = {
 };
 ~~~~
 
+### `src/js/69-tutorial.js`
+~~~~js
+/* =====================================================================
+   TUTORIAL OPCIONAL (motor 3.0, pedido del autor: «haz el tutorial opcional»)
+   - Nunca sale solo ni bloquea: se abre con «❓ Cómo se juega» al final del menú (o con Tutorial.abrir(modo)).
+   - La primera vez solo se ofrece con un aviso que se va solo; en Ajustes se apaga («Ofrecer “Cómo se juega”»).
+   - Pasos cortos por modo, con Atrás, Siguiente y Saltar en cada paso.
+   ===================================================================== */
+const Tutorial = EM.tutorial = {
+  PASOS: {
+    general: [['Bienvenido a El Metro', 'Un juego sobre el Metro de Medellín y el Valle de Aburrá. Elige un modo en el menú: cada uno se juega solo, sin orden obligatorio.'],
+      ['Moverse', 'En los modos con mapa: arrastra el dedo para moverte o usa los botones. Pellizca para acercar o alejar.'],
+      ['Ayuda en el juego', 'En Ciudad Libre, 🆘 te lleva a una estación, a la calle o al inicio. Nunca quedas atrapado.'],
+      ['Aprender del Metro', '«Aprende a usar el Metro» explica la Cívica, los transbordos, los horarios y la Cultura Metro.']],
+    libre: [['Ciudad Libre', 'Recorre el valle real a pie, en bici, en patines o manejando. Los trabajos aparecen en la barra de arriba.'],
+      ['Subir al metro', 'Acércate a una estación y toca el botón para entrar; te bajas en la próxima con ●.'],
+      ['Si te pierdes', '🆘 Ayuda: vuelve a una estación, a la calle o al inicio, o pide un taxi.']],
+    conduce: [['Conducir el metro', 'Acelera y frena para parar justo en el andén. Las señales en rojo obligan a esperar.'],
+      ['Puntos', 'Ganas estrellas por llegar a tiempo, parar en la marca y no frenar en seco.']],
+    bus: [['Metroplús y alimentadores', 'Conduce de estación en estación por las calles reales, recoge pasajeros y respeta los semáforos.']],
+    cableviaje: [['Metrocable', 'Opera la línea sobre la loma. Con viento fuerte o tormenta, baja la velocidad.']],
+    carrera: [['Carrera sin fin', 'Desliza para cambiar de carril y salta los obstáculos. 🧲 imán, ⚡ turbo y 🛡 escudo te ayudan.']],
+    historia: [['La última vuelta', 'Rosalba y su nieta: la historia se juega en el mapa tomando el metro, los cables y los buses.']],
+    red: [['La Red', 'La panorámica del valle: toca una línea para ver sus datos y tu flota.']]
+  },
+  abrir(modo = 'general') {
+    const P = this.PASOS[modo] || this.PASOS.general; let i = 0;
+    const pinta = () => {
+      const [t, x] = P[i]; UI.modal(`<div class="pag">Cómo se juega · ${i + 1}/${P.length}</div><h2>${esc(t)}</h2><p>${esc(x)}</p><div class="row" style="gap:8px;margin-top:10px">${i > 0 ? '<button class="btn" id="tuAtras">Atrás</button>' : ''}<button class="btn pri" id="tuSig">${i < P.length - 1 ? 'Siguiente' : 'Listo'}</button></div>${i < P.length - 1 ? '<button class="btn" id="tuSaltar" style="margin-top:8px">Saltar</button>' : ''}`);
+      const a = $('#tuAtras'), s = $('#tuSig'), k = $('#tuSaltar'); if (a) a.onclick = () => { i--; pinta(); }; if (s) s.onclick = () => { if (i < P.length - 1) { i++; pinta(); } else UI.close(); }; if (k) k.onclick = () => UI.close();
+    };
+    pinta(); return P.length;
+  },
+  /* se ofrece una sola vez, sin abrir nada */
+  ofrecer() { const S = Save.d && Save.d.settings; if (!S || EM.headless) return; if (S.tuto == null) S.tuto = 1; if (!S.tuto || Save.d.tutoOfrecido) return; Save.d.tutoOfrecido = 1; Save.write(); UI.toast('¿Primera vez? Abajo en el menú está «❓ Cómo se juega» (opcional).'); }
+};
+/* el botón al final del menú y el aviso de la primera vez */
+const _modes69 = Menu.modes;
+Menu.modes = function () {
+  const r = _modes69.apply(this, arguments), L = $('#mList');
+  if (L && !L.querySelector('[data-tuto]')) { const b = document.createElement('button'); b.className = 'modo c-guia'; b.dataset.tuto = '1'; b.innerHTML = '<span class="nodo" style="font-size:30px;display:grid;place-items:center">❓</span><span class="tx"><b>Cómo se juega</b><small>Opcional: pasos cortos para cada modo. Se puede saltar.</small></span>'; b.onclick = () => Tutorial.abrir('general'); L.appendChild(b); }
+  Tutorial.ofrecer(); return r;
+};
+/* Ajustes: ofrecer o no el «Cómo se juega» */
+const _set69 = Menu.settings;
+Menu.settings = function () {
+  const r = _set69.apply(this, arguments), S = Save.d.settings, box = $('#mBody .col'); if (S.tuto == null) S.tuto = 1;
+  if (box && !box.querySelector('[data-k="tuto"]')) { const lab = document.createElement('div'); lab.className = 'pag'; lab.textContent = 'Ofrecer «Cómo se juega» (nunca sale solo)'; const tg = document.createElement('div'); tg.className = 'tg'; tg.dataset.k = 'tuto'; tg.innerHTML = `<button data-v="1" class="${S.tuto ? 'on' : ''}">Sí</button><button data-v="0" class="${S.tuto ? '' : 'on'}">No</button>`; box.appendChild(lab); box.appendChild(tg); tg.querySelectorAll('button').forEach(b => b.onclick = () => { S.tuto = +b.dataset.v; Save.write(); tg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }); }
+  return r;
+};
+~~~~
+
 ### `src/js/70-historia.js`
 ~~~~js
 /* =====================================================================
@@ -11697,6 +11959,74 @@ const BotT = EM.test = {
     return null;
   }
 };
+~~~~
+
+### `src/js/97-abierto.js`
+~~~~js
+/* =====================================================================
+   MUNDO ABIERTO PRIMERO (Claude, 21‑nov‑2026) · regla del autor para todos los juegos de Motor City:
+   «mundo abierto desde el principio; el tutorial y el contexto de la historia son opcionales y nunca bloquean».
+   Antigravity lo midió en su auditoría G‑H28 (motorcity/reportes/2026-11-21-gemini-clasicos-4.1.md): aquí ▶ Jugar
+   abría la pantalla de MODOS, luego una grilla y luego el inicio (3 toques).
+   - ▶ Jugar entra DIRECTO a Ciudad Libre: donde quedaste o, la primera vez, San Antonio (1 toque).
+   - Un botón nuevo, «Todos los modos», queda justo debajo: Metro, Metroplús, Metrocable, bus, carrera, historia…
+   - La historia («La última vuelta») y «Aprende a usar el Metro» siguen ahí, opcionales.
+   Archivo aditivo: envuelve Menu.bind sin reescribir 65-menu.js.
+   ===================================================================== */
+(function () {
+  if (typeof Menu === 'undefined' || !Menu.bind) return;
+  const _bind = Menu.bind;
+  Menu.bind = function () {
+    const r = _bind.apply(this, arguments), play = document.getElementById('bPlay'); if (!play) return r;
+    /* «Todos los modos», debajo de Jugar, con el mismo estilo de parada */
+    if (!document.getElementById('bModos')) { const b = document.createElement('button'); b.className = 'parada'; b.id = 'bModos'; b.style.setProperty('--c', 'var(--lB, #f39200)'); b.innerHTML = '<i></i><span><b>Todos los modos</b><small>Metro, Metroplús, Metrocable, bus, carrera y más</small></span>'; play.insertAdjacentElement('afterend', b);
+      b.onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(() => this.modes(), ms); }; }
+    play.onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(() => { const sv = Save.d.libre || {}; Game.start('libre', sv.x ? 'lb:ultimo' : 'lb:San Antonio', { back: 'cover' }); }, ms); };
+    return r;
+  };
+  /* el arranque cambia el texto de Jugar al terminar de cargar: se ajusta después */
+  const t = setInterval(() => { if (!EM.ready) return; clearInterval(t); const s = document.querySelector('#bPlay small'); if (s) { const sv = (Save.d && Save.d.libre) || {}; s.textContent = sv.x ? 'Ciudad Libre: donde quedaste' : 'Ciudad Libre: camina, monta y maneja por el valle'; } }, 200);
+})();
+~~~~
+
+### `src/js/98-relevo-z1.js`
+~~~~js
+/* =====================================================================
+   RELEVO Z1 (Claude, 21-nov-2026) · los 6 errores que encontró Antigravity en su auditoría a 412 × 860
+   Antigravity reclamó la zona Z1 (.ai-coord/estado-antigravity.json) pero no alcanzó a subir los arreglos antes de
+   quedarse sin uso; el autor pidió terminarlos. Van en este archivo aditivo (ganchos sobre Menu, Game y CR) para no
+   reescribir sus módulos, como pide docs/COORDINACION-IA.md. Mensaje en .ai-coord/buzon/.
+   1) Ciudad Libre: todos los inicios abiertos (eran puntos de partida, no niveles con estrellas).
+   2) #ghud: las fichas ya no empujan el botón de pausa fuera de la pantalla.
+   3) .camui: ya no tapa el tablero de la cabina, la barra del trabajo (.jobbar) ni el mensaje del juego.
+   4) #story: el lienzo de la historia conserva su proporción 16:9 (antes se estiraba 2,5× en alto).
+   5) Carrera: sonidos (pasaje, poder, golpe, estación, salto, escudo) y recorrido por ventana de obstáculos
+      (47-carrera.js usa crVentana: ya no recorre todos los obstáculos de la línea en cada cuadro).
+   6) Juego: --sat se lee una sola vez por cambio de tamaño (25-game.js) y pointercancel suelta el dedo.
+   ===================================================================== */
+(function () {
+  /* 2, 3 y 4: estilos */
+  const css = document.createElement('style'); css.id = 'relevoZ1';
+  css.textContent = '#ghud .chips{flex:0 1 auto;min-width:0;overflow:hidden;flex-wrap:nowrap}#ghud .chips>*{flex:none}#ghud .ib{flex:none}'
+    + '#story canvas{flex:none;width:100%;height:auto;aspect-ratio:16/9;max-height:calc(100% - 170px);object-fit:contain;margin:auto 0}';
+  document.head.appendChild(css);
+  /* 3: la columna de cámara (+ − regla cámara) baja hasta quedar libre: bajo el tablero de la cabina (dibujado en el lienzo),
+     bajo la barra del trabajo (.jobbar, también la del tutorial y la de la trama) y bajo el mensaje (#gmsg) cuando están a su altura */
+  const CABINA = ['conduce'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
+    if (Game.mode && CABINA.some(k => EM.modes[k] === Game.mode)) top = Math.max(top, 196 + sat);
+    for (let pasada = 0; pasada < 2; pasada++) for (const e of document.querySelectorAll('#game .jobbar, #game #gmsg')) { if (e.classList.contains('hide')) continue; const r = e.getBoundingClientRect(); if (r.height < 4 || r.left > 52) continue; if (r.top < top + h && r.bottom > top - 4) top = Math.max(top, r.bottom + 8); }
+    const t = Math.round(top) + 'px'; if (c.style.top !== t) c.style.top = t; };
+  setInterval(ubicar, 300);
+  /* 1: Ciudad Libre sin candados */
+  if (typeof Menu !== 'undefined' && Menu.levels) { const _lv = Menu.levels; Menu.levels = function (id) { const r = _lv.apply(this, arguments); if (id === 'libre') document.querySelectorAll('#lBody [data-l].lock').forEach(b => b.classList.remove('lock')); return r; }; }
+  /* 6: pointercancel (el sistema cancela el gesto: se suelta como si se levantara el dedo) */
+  const cv = document.getElementById('gcv'); if (cv && typeof Game !== 'undefined') cv.addEventListener('pointercancel', e => { try { Game.pointer('up', e); } catch (err) { /* sin modo activo */ } });
+  /* 5: sonidos de la carrera, comparando el estado antes y después de cada paso */
+  const C = EM.modes && EM.modes.carrera; if (C && C.step && typeof Snd !== 'undefined') { const _st = C.step;
+    C.step = function (st, dt) { const a = { p: st.pasajes, w: st.poderes, v: st.vidas, e: st.est, y: st.y, es: st.escudo }; const r = _st.apply(this, arguments);
+      if (!EM.headless) { if (st.vidas < a.v) Snd.play('crash'); else if (a.es && !st.escudo) Snd.play('ok'); if (st.pasajes > a.p) Snd.play('coin'); if (st.poderes > a.w) Snd.play('star'); if (st.est !== a.e && a.e >= 0) Snd.play('bell'); if (a.y === 0 && st.y > 0) Snd.play('whoosh'); }
+      return r; }; }
+})();
 ~~~~
 
 ### `src/js/99-boot.js`
@@ -12581,6 +12911,8 @@ self.addEventListener('fetch', e => {
 });
 `);
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
+/* los íconos (favicon, PWA) viven en src/iconos/: se copian a dist para que el servidor local y el service worker no den 404 (auditoría G-H28) */
+for (const f of fs.existsSync(src('iconos')) ? fs.readdirSync(src('iconos')) : []) fs.copyFileSync(src('iconos/' + f), path.join(dist, f));
 fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.mjs'));
 console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);
 ~~~~
@@ -14538,7 +14870,9 @@ console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victori
 if (shots) fs.mkdirSync(shots, { recursive: true });
 const shot = async n => { if (!shots) return; await page.evaluate(() => EM.game.freeze(true)); await page.waitForTimeout(150); try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 20000 }); } catch (e) { try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 60000 }); } catch (e2) { console.log('captura falló:', n); } } await page.evaluate(() => EM.game.freeze(false)); };
 await shot('01-portada');
-await page.click('#bPlay'); await page.waitForTimeout(300); await shot('02-modos');
+/* mundo abierto primero: ▶ Jugar entra directo a Ciudad Libre; los modos están en «Todos los modos» */
+await page.click('#bPlay'); await page.waitForTimeout(1500); { const ok = await page.evaluate(() => EM.game.mode === EM.modes.libre); if (!ok) cons.push('mundo abierto primero: ▶ Jugar no entró directo a Ciudad Libre'); } await shot('02-ciudad-libre');
+await page.evaluate(() => EM.game.exit()); await page.waitForTimeout(400); await page.click('#bModos'); await page.waitForTimeout(300); await shot('02b-modos');
 for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
   await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) }); }, [m, lv, extra]);
   await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) ? 3500 : 4000);
@@ -14810,13 +15144,14 @@ fs.writeFileSync(path.join(root, 'dist', 'EL-METRO-TODO.md'), TODO);
 // ---------- AGENTS.md / CLAUDE.md / GEMINI.md ----------
 const agentes = name => `# ${name} · El Metro
 
-> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“argon”), Claude Code, Cursor y otros. **Archivo generado** por \`node tools/todo.mjs\` a partir de \`arte/PROTOCOLO-IA.md\`. No lo edites a mano: edita el protocolo y vuelve a compilar.
+> Instrucciones para **agentes de código**: Codex de ChatGPT (“astra”), Antigravity y Gemini CLI (“hydrogen”), Claude Code, Cursor y otros. **Archivo generado** por \`node tools/todo.mjs\` a partir de \`arte/PROTOCOLO-IA.md\`. No lo edites a mano: edita el protocolo y vuelve a compilar.
 
 ${demote(PROTO, 1)}
 
 ## Qué leer en este repositorio (paso 1 del protocolo)
 | Archivo | Qué es |
 |---|---|
+| \`TAREAS-IA.md\` | **La lista corta de tu IA** («mira el repositorio y haz tu parte») |
 | \`docs/BITACORA.md\` | Estado, historial y pendientes |
 | \`docs/PLAN.md\` | Fases, incluida la 1b: Medellín fiel e isométrica |
 | \`arte/06-guia-unica-ia.md\` | Contexto, roles, encargos y skills |
@@ -14835,6 +15170,12 @@ node tools/build.mjs        # compila dist/index.html (un solo HTML)
 node tools/test.mjs 100     # autotest + 100 partidas + pantallas: debe dar 0 errores
 node tools/todo.mjs         # documento único + archivo con todo + este archivo
 ~~~~
+
+## Skills y plugins externos (motor 2.10)
+- Hallmark, Modern Web Guidance, find-skills y HyperFrames.
+- Claude Code las recibe por \`.claude/settings.json\`.
+- Las demás IA corren \`node motor-city/motor.mjs skills --instalar --agente codex\` (o \`antigravity\`).
+- Cuándo usar cada una: \`motor-city/.claude/skills/motor-city-skills-externas/SKILL.md\`.
 
 ## Reglas del proyecto
 - Un solo HTML, sin librerías externas ni internet en el juego.
@@ -16268,8 +16609,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=0.1.0
-elmetro.versionCode=1
+elmetro.versionName=2.0.1
+elmetro.versionCode=27
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36

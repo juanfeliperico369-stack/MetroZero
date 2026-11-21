@@ -3740,7 +3740,8 @@ const Game = EM.game = {
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const { w, h } = fitCanvas(cv, q === 'low' ? 1 : q === 'auto' ? (this.dpr || 2) : 2), g = cv.getContext('2d');
-    const top = (46 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0)) * (w / cv.clientWidth || 1);
+    if (this._sat == null || this._satW !== innerWidth || this._satH !== innerHeight) { this._sat = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sat')) || 0; this._satW = innerWidth; this._satH = innerHeight; }   // relevo Z1: se lee al cambiar el tamaño, no en cada cuadro
+    const top = (46 + this._sat) * (w / cv.clientWidth || 1);
     this.vps = this.duel ? [{ x: 0, y: top + (h - top) / 2, w, h: (h - top) / 2, flip: false, st: this.st }, { x: 0, y: top, w, h: (h - top) / 2, flip: true, st: this.st2 }] : [{ x: 0, y: this.mode.fullCanvas ? 0 : top, w, h: this.mode.fullCanvas ? h : h - top, flip: false, st: this.st, top }];
     MAP.prisa = t + .012; MAP._hechos = 0;   // presupuesto del cuadro para armar trozos del mapa (12 ms; siempre al menos uno)
     try {
@@ -6741,6 +6742,7 @@ const CR_VEH = [
   { id: 'bici', ico: '🚲', spd: 22, sal: 7, mesh: 'bici', pie: .55 }
 ];
 const CR_POD = { iman: ['🧲', 'Imán: los pasajes de los otros carriles llegan solos', 8, [.86, .2, .2]], turbo: ['⚡', 'Turbo: más rápido y atraviesas lo que venga', 5, [.98, .8, .15]], escudo: ['🛡', 'Escudo: el próximo golpe no cuenta', 0, [.25, .55, .95]] };
+const crVentana = (st, s0, s1) => { const O = st.obs; let i = st._ci || 0; while (i > 0 && O[i - 1].s >= s0) i--; while (i < O.length && O[i].s < s0) i++; st._ci = i; const R = []; for (let j = i; j < O.length && O[j].s <= s1; j++) R.push(O[j]); return R; };
 const CR_OBS = {   // [largo (m), alto (m), color, 0 = se salta (está en el piso) · 1 = se esquiva o se salta si es bajo]
   hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1], moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1]
 };
@@ -6763,7 +6765,7 @@ const Carrera = EM.modes.carrera = {
     st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));   // el ritmo acelera hasta el tope del vehículo (unos 75 a 85 km/h)
     st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt; if (st.iman > 0) st.iman -= dt; if (st.turbo > 0) st.turbo -= dt;
     if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.y === 0) st.vy = 0; }
-    for (const o of st.obs) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
+    for (const o of crVentana(st, st.s - 1.2, st.s + 7)) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
       if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;   // con el imán, los pasajes de los otros carriles llegan solos
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; continue; }
@@ -6804,7 +6806,7 @@ const Carrera = EM.modes.carrera = {
     else {   // desde arriba (sin WebGL, en «Celular modesto» o en las pruebas)
       if (typeof G3 !== 'undefined' && G3.cv) G3.show(false); const k = 4 * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), mx = p.x, my = p.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H * .62 + (y - my) * k });
       g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, mx, my - (H * .12) / k, k);
-      for (const o of st.obs) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
+      for (const o of crVentana(st, st.s - 8, st.s + 70)) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
       const q = S(p.x, p.y); g.fillStyle = '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
     }
     this.marcador(g, st, W, H);
@@ -6812,7 +6814,7 @@ const Carrera = EM.modes.carrera = {
   malla(clave, hacer) { const T = EM.taller; return T && T.malla ? T.malla(clave, () => hacer(T)) : null; },
   dyn3D(G, st, p, z) {
     const T = EM.taller;
-    for (const o of st.obs) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
+    for (const o of crVentana(st, st.s - 3, st.s + 90)) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
       if (P) { G.box(q.x, zq + .9 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2.5, .55, .55, .55, P[3]); continue; }
       const m = this.malla('o:' + o.k, T => T.pista(o.k));
       if (m) { T.mundo(m, q.x, zq + (o.k === 'pasaje' ? .45 + Math.sin(st.t * 3 + o.s) * .15 : 0), q.y, o.k === 'pasaje' ? st.t * 2 : q.a + (o.k === 'moto' || o.k === 'perro' ? Math.PI : 0)); continue; }
@@ -7439,6 +7441,46 @@ const Album = EM.album = {
   check(E) { for (const p of this.lista()) { if (p.art && !Atlas.has(p.art)) E('álbum: falta el arte ' + p.art); if (!p.dato) E('álbum: sin dato ' + p.name); } return this.lista().length; }
 };
 
+const Tutorial = EM.tutorial = {
+  PASOS: {
+    general: [['Bienvenido a El Metro', 'Un juego sobre el Metro de Medellín y el Valle de Aburrá. Elige un modo en el menú: cada uno se juega solo, sin orden obligatorio.'],
+      ['Moverse', 'En los modos con mapa: arrastra el dedo para moverte o usa los botones. Pellizca para acercar o alejar.'],
+      ['Ayuda en el juego', 'En Ciudad Libre, 🆘 te lleva a una estación, a la calle o al inicio. Nunca quedas atrapado.'],
+      ['Aprender del Metro', '«Aprende a usar el Metro» explica la Cívica, los transbordos, los horarios y la Cultura Metro.']],
+    libre: [['Ciudad Libre', 'Recorre el valle real a pie, en bici, en patines o manejando. Los trabajos aparecen en la barra de arriba.'],
+      ['Subir al metro', 'Acércate a una estación y toca el botón para entrar; te bajas en la próxima con ●.'],
+      ['Si te pierdes', '🆘 Ayuda: vuelve a una estación, a la calle o al inicio, o pide un taxi.']],
+    conduce: [['Conducir el metro', 'Acelera y frena para parar justo en el andén. Las señales en rojo obligan a esperar.'],
+      ['Puntos', 'Ganas estrellas por llegar a tiempo, parar en la marca y no frenar en seco.']],
+    bus: [['Metroplús y alimentadores', 'Conduce de estación en estación por las calles reales, recoge pasajeros y respeta los semáforos.']],
+    cableviaje: [['Metrocable', 'Opera la línea sobre la loma. Con viento fuerte o tormenta, baja la velocidad.']],
+    carrera: [['Carrera sin fin', 'Desliza para cambiar de carril y salta los obstáculos. 🧲 imán, ⚡ turbo y 🛡 escudo te ayudan.']],
+    historia: [['La última vuelta', 'Rosalba y su nieta: la historia se juega en el mapa tomando el metro, los cables y los buses.']],
+    red: [['La Red', 'La panorámica del valle: toca una línea para ver sus datos y tu flota.']]
+  },
+  abrir(modo = 'general') {
+    const P = this.PASOS[modo] || this.PASOS.general; let i = 0;
+    const pinta = () => {
+      const [t, x] = P[i]; UI.modal(`<div class="pag">Cómo se juega · ${i + 1}/${P.length}</div><h2>${esc(t)}</h2><p>${esc(x)}</p><div class="row" style="gap:8px;margin-top:10px">${i > 0 ? '<button class="btn" id="tuAtras">Atrás</button>' : ''}<button class="btn pri" id="tuSig">${i < P.length - 1 ? 'Siguiente' : 'Listo'}</button></div>${i < P.length - 1 ? '<button class="btn" id="tuSaltar" style="margin-top:8px">Saltar</button>' : ''}`);
+      const a = $('#tuAtras'), s = $('#tuSig'), k = $('#tuSaltar'); if (a) a.onclick = () => { i--; pinta(); }; if (s) s.onclick = () => { if (i < P.length - 1) { i++; pinta(); } else UI.close(); }; if (k) k.onclick = () => UI.close();
+    };
+    pinta(); return P.length;
+  },
+  ofrecer() { const S = Save.d && Save.d.settings; if (!S || EM.headless) return; if (S.tuto == null) S.tuto = 1; if (!S.tuto || Save.d.tutoOfrecido) return; Save.d.tutoOfrecido = 1; Save.write(); UI.toast('¿Primera vez? Abajo en el menú está «❓ Cómo se juega» (opcional).'); }
+};
+const _modes69 = Menu.modes;
+Menu.modes = function () {
+  const r = _modes69.apply(this, arguments), L = $('#mList');
+  if (L && !L.querySelector('[data-tuto]')) { const b = document.createElement('button'); b.className = 'modo c-guia'; b.dataset.tuto = '1'; b.innerHTML = '<span class="nodo" style="font-size:30px;display:grid;place-items:center">❓</span><span class="tx"><b>Cómo se juega</b><small>Opcional: pasos cortos para cada modo. Se puede saltar.</small></span>'; b.onclick = () => Tutorial.abrir('general'); L.appendChild(b); }
+  Tutorial.ofrecer(); return r;
+};
+const _set69 = Menu.settings;
+Menu.settings = function () {
+  const r = _set69.apply(this, arguments), S = Save.d.settings, box = $('#mBody .col'); if (S.tuto == null) S.tuto = 1;
+  if (box && !box.querySelector('[data-k="tuto"]')) { const lab = document.createElement('div'); lab.className = 'pag'; lab.textContent = 'Ofrecer «Cómo se juega» (nunca sale solo)'; const tg = document.createElement('div'); tg.className = 'tg'; tg.dataset.k = 'tuto'; tg.innerHTML = `<button data-v="1" class="${S.tuto ? 'on' : ''}">Sí</button><button data-v="0" class="${S.tuto ? '' : 'on'}">No</button>`; box.appendChild(lab); box.appendChild(tg); tg.querySelectorAll('button').forEach(b => b.onclick = () => { S.tuto = +b.dataset.v; Save.write(); tg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }); }
+  return r;
+};
+
 const CAPS = [
   { t: 'Niquía, 4:30 a. m.', scene: 'anden', lines: [
     ['Rosalba', 'Mija, despierte. El primer tren sale a las cuatro y media y la ciudad no espera a nadie.'],
@@ -7823,6 +7865,37 @@ const BotT = EM.test = {
     return null;
   }
 };
+
+(function () {
+  if (typeof Menu === 'undefined' || !Menu.bind) return;
+  const _bind = Menu.bind;
+  Menu.bind = function () {
+    const r = _bind.apply(this, arguments), play = document.getElementById('bPlay'); if (!play) return r;
+    if (!document.getElementById('bModos')) { const b = document.createElement('button'); b.className = 'parada'; b.id = 'bModos'; b.style.setProperty('--c', 'var(--lB, #f39200)'); b.innerHTML = '<i></i><span><b>Todos los modos</b><small>Metro, Metroplús, Metrocable, bus, carrera y más</small></span>'; play.insertAdjacentElement('afterend', b);
+      b.onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(() => this.modes(), ms); }; }
+    play.onclick = e => { Snd.init(); Snd.play('tap'); const ms = this.tren(e.currentTarget); setTimeout(() => { const sv = Save.d.libre || {}; Game.start('libre', sv.x ? 'lb:ultimo' : 'lb:San Antonio', { back: 'cover' }); }, ms); };
+    return r;
+  };
+  const t = setInterval(() => { if (!EM.ready) return; clearInterval(t); const s = document.querySelector('#bPlay small'); if (s) { const sv = (Save.d && Save.d.libre) || {}; s.textContent = sv.x ? 'Ciudad Libre: donde quedaste' : 'Ciudad Libre: camina, monta y maneja por el valle'; } }, 200);
+})();
+
+(function () {
+  const css = document.createElement('style'); css.id = 'relevoZ1';
+  css.textContent = '#ghud .chips{flex:0 1 auto;min-width:0;overflow:hidden;flex-wrap:nowrap}#ghud .chips>*{flex:none}#ghud .ib{flex:none}'
+    + '#story canvas{flex:none;width:100%;height:auto;aspect-ratio:16/9;max-height:calc(100% - 170px);object-fit:contain;margin:auto 0}';
+  document.head.appendChild(css);
+  const CABINA = ['conduce'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
+    if (Game.mode && CABINA.some(k => EM.modes[k] === Game.mode)) top = Math.max(top, 196 + sat);
+    for (let pasada = 0; pasada < 2; pasada++) for (const e of document.querySelectorAll('#game .jobbar, #game #gmsg')) { if (e.classList.contains('hide')) continue; const r = e.getBoundingClientRect(); if (r.height < 4 || r.left > 52) continue; if (r.top < top + h && r.bottom > top - 4) top = Math.max(top, r.bottom + 8); }
+    const t = Math.round(top) + 'px'; if (c.style.top !== t) c.style.top = t; };
+  setInterval(ubicar, 300);
+  if (typeof Menu !== 'undefined' && Menu.levels) { const _lv = Menu.levels; Menu.levels = function (id) { const r = _lv.apply(this, arguments); if (id === 'libre') document.querySelectorAll('#lBody [data-l].lock').forEach(b => b.classList.remove('lock')); return r; }; }
+  const cv = document.getElementById('gcv'); if (cv && typeof Game !== 'undefined') cv.addEventListener('pointercancel', e => { try { Game.pointer('up', e); } catch (err) { /* sin modo activo */ } });
+  const C = EM.modes && EM.modes.carrera; if (C && C.step && typeof Snd !== 'undefined') { const _st = C.step;
+    C.step = function (st, dt) { const a = { p: st.pasajes, w: st.poderes, v: st.vidas, e: st.est, y: st.y, es: st.escudo }; const r = _st.apply(this, arguments);
+      if (!EM.headless) { if (st.vidas < a.v) Snd.play('crash'); else if (a.es && !st.escudo) Snd.play('ok'); if (st.pasajes > a.p) Snd.play('coin'); if (st.poderes > a.w) Snd.play('star'); if (st.est !== a.e && a.e >= 0) Snd.play('bell'); if (a.y === 0 && st.y > 0) Snd.play('whoosh'); }
+      return r; }; }
+})();
 
 async function boot() {
   Save.load(); Vida.apply();
