@@ -219,6 +219,7 @@ const Libre = EM.modes.libre = {
     const nx = st.x + vx * dt, ny = st.y + vy * dt, piso = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y)), hit = (x, y) => { const r = this.nivelV(st, x, y, V, piso); st._nz = r[1]; return !r[0]; };
     const x0m = st.x, y0m = st.y; if (st._chT > 0) st._chT -= dt;
     if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else this.deslizar(st, V, nx - st.x, ny - st.y, dt, hit);   // 3.0 · desliza por la pared (Motor City 4.5)
+    if (st.h !== oh && hit(st.x, st.y)) { const hN = st.h; st.h = oh; if (hit(st.x, st.y)) st.h = hN; else { st.vs *= .5; } }   // si el giro de este cuadro lo monta en la pared, conserva el rumbo de antes
     this.despues(st, V, dt, hit, x0m, y0m, thr > .3 || br > .3 || (j.m > .3 && libre), facil && j.m > .15 ? Math.atan2(this.joyMundo(st).y, this.joyMundo(st).x) : st.h + (st.vf < 0 || br > thr ? Math.PI : 0));
     if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = Math.atan2(Math.sin(st.h - h2), Math.cos(st.h - h2)); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2)); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
     st.km += Math.abs(st.vf) * dt / 1000; st.engine = thr;
