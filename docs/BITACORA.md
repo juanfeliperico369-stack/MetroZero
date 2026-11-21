@@ -47,7 +47,9 @@
 
 **Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas del bot (324.927 pasos, 46 victorias, con el tranvía) con 0 errores y 0 errores de consola; el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.1.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.1.0-4ed29c60`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 29, **6,7 MB**), igual byte a byte a la construida. La 3.0.0 se publicó antes el mismo día (caché `el-metro-v3.0.0-46057e02`, APK 28).
 
 ## Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
