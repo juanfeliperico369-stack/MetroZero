@@ -4,6 +4,18 @@
 
 
 
+## 21‑nov‑2026 · Motor City 4.1.0 en `motor-city/` (Claude)
+- Llegó el motor 4.1. Trae técnicas de motores clásicos, rehechas desde cero:
+  - 🏁 Arcade (la carretera de OutRun), que podría servir para un modo de bus por la Autopista del Embalse;
+  - ⛰️ Vuelo (el Voxel Space de Comanche), que podría servir para ver el valle desde el Metrocable;
+  - la gema y el ruido de Thief;
+  - el DDA de Wolfenstein;
+  - las semillas de Elite.
+
+  Ver `motor-city/docs/INVESTIGACION-MOTORES-CLASICOS.md`. Turno Cero sigue aislado.
+- **Regla nueva del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales y nunca bloquean (`motor-city/CONTEXTO-RELEVO.md` § 7). Gemini lo revisa en este juego (G‑H28).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
 ## 21‑nov‑2026 · Relevo Z1 y Z2: los 6 errores que halló Antigravity, terminados (Claude)
 - Antigravity reclamó Z1 y Z2 (`.ai-coord/estado-antigravity.json`) y catalogó 6 errores a `412 × 860`, pero se quedó sin uso antes de subir los arreglos. El autor pidió terminarlos.
 - **Arreglos** (casi todo en el archivo aditivo `src/js/98-relevo-z1.js`, con ganchos sobre `Menu`, `Game` y `EM.modes.carrera`):
