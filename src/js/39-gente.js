@@ -122,7 +122,7 @@ const Gente = EM.gente = {
   },
   charla(st, p, lines, opts, pie) {
     const el = $('#trTalk'); if (!el || EM.headless) { st.charla = null; return; } st.charla = { p, lines, i: 0, opts, pie };
-    const pinta = () => { const C = st.charla; if (!C) { el.className = 'trtalk hide'; el.innerHTML = ''; return; } const last = C.i >= C.lines.length - 1, face = Perfil.retrato(C.p.look, 96);
+    const pinta = () => { const C = st.charla; if (!C) { el.className = 'trtalk hide'; el.innerHTML = ''; return; } const last = C.i >= C.lines.length - 1, face = Perfil.retrato(C.p.look, 96, EM.rostro ? Object.assign(EM.rostro.rasgosDe(C.p.G.n), { expresion: EM.rostro.TONO(C.lines[C.i]) }) : undefined);
       el.className = 'trtalk conface'; el.innerHTML = `<img class="face" src="${face}" alt=""><b class="who">${esc(C.p.G.n)} · ${esc(C.p.G.o)}</b><p>${esc(C.lines[C.i])}</p>${C.pie && last ? `<p class="m" style="margin-top:-4px;font-size:12.5px">${esc(C.pie)}</p>` : ''}<div class="opts">${C.opts && last ? C.opts.map((o, i) => `<button class="btn sm ${i ? 'gh' : 'pri'}" data-o="${i}">${esc(o[0])}</button>`).join('') : `<button class="btn pri sm" data-n>${last ? 'Gracias ✓' : 'Cuénteme más ▶'}</button>`}</div><button class="x" data-x aria-label="Cerrar">✕</button>`;
       const n = el.querySelector('[data-n]'); if (n) n.onclick = () => { Snd.play('tap'); if (C.i < C.lines.length - 1) { C.i++; pinta(); } else this.cerrar(st); };
       el.querySelectorAll('[data-o]').forEach(b => b.onclick = () => C.opts[+b.dataset.o][1]()); el.querySelector('[data-x]').onclick = () => this.cerrar(st); };

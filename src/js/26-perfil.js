@@ -22,8 +22,16 @@ const Perfil = EM.perfil = {
   azar(r = Math.random) { const A = PERFIL, pk = n => Math.floor(r() * n); return { piel: pk(A.pieles.length), peinado: pk(A.peinados.length), colPelo: pk(A.colPelo.length), camisa: pk(A.camisas.length), pantalon: pk(A.pantalones.length), zapatos: pk(A.zapatos.length), gorro: r() < .45 ? 0 : pk(A.gorros.length), colGorro: pk(A.colGorro.length), accesorio: r() < .5 ? 0 : pk(A.accesorios.length) }; },
   /* retrato de frente: hombros con la ropa y el accesorio, cara, pelo y gorro (para las charlas y la ficha) */
   _ret: new Map(),
-  retrato(p, S = 96) {
-    const key = JSON.stringify(p) + S; let u = this._ret.get(key); if (u) return u;
+  retrato(p, S = 96, x) {
+    const key = JSON.stringify(p) + S + (x ? JSON.stringify(x) : ''); let u = this._ret.get(key); if (u) return u;
+    if (typeof EM !== 'undefined' && EM.rostro && typeof document !== 'undefined') try {   // 3.0 · el rostro detallado de Motor City, con lo de acá encima
+      const cv = mkCanvas(S, S), g = cv.getContext('2d'), R = EM.rostro.dePed(p, x || {}); EM.rostro.dibujar(g, R, 0, 0, S, { expresion: (x && x.expresion) || 'sonrisa' });
+      if (p.acc === 3) { g.fillStyle = '#8a8274'; g.beginPath(); g.moveTo(S * .04, S); g.lineTo(S * .3, S * .82); g.lineTo(S * .7, S * .82); g.lineTo(S * .96, S); g.fill(); g.strokeStyle = '#c9b38a'; g.lineWidth = S * .02; for (const k of [.9, .95]) { g.beginPath(); g.moveTo(S * (.12 + (k - .9)), S * k); g.lineTo(S * (.88 - (k - .9)), S * k); g.stroke(); } }
+      if (p.acc === 1) { g.strokeStyle = '#2b2f38'; g.lineWidth = S * .045; for (const s of [-1, 1]) { g.beginPath(); g.moveTo(S * (.5 + s * .17), S * .83); g.lineTo(S * (.5 + s * .2), S); g.stroke(); } }
+      if (p.acc === 2) { g.strokeStyle = '#5a3a1c'; g.lineWidth = S * .03; g.beginPath(); g.moveTo(S * .3, S * .83); g.lineTo(S * .74, S); g.stroke(); g.fillStyle = '#7a4a22'; g.fillRect(S * .66, S * .9, S * .16, S * .1); }
+      if (p.acc === 4) { g.strokeStyle = '#151515'; g.lineWidth = S * .022; g.beginPath(); g.moveTo(S * .36, S * .84); g.lineTo(S * .5, S * .93); g.lineTo(S * .64, S * .84); g.stroke(); g.fillStyle = '#23272f'; g.fillRect(S * .43, S * .92, S * .14, S * .08); g.fillStyle = '#56c7ff'; g.beginPath(); g.arc(S * .5, S * .96, S * .025, 0, TAU); g.fill(); }
+      u = cv.toDataURL ? cv.toDataURL() : ''; if (u) { this._ret.set(key, u); while (this._ret.size > 80) this._ret.delete(this._ret.keys().next().value); return u; }
+    } catch (e) { EM.errors.push('rostro: ' + e.message); }
     const cv = mkCanvas(S, S), g = cv.getContext('2d'), c = S / 2, r = S * .2, sh = (h, f) => Art.shade(h, f);
     g.fillStyle = '#cfe0ea'; g.beginPath(); g.arc(c, c, c, 0, TAU); g.fill(); g.save(); g.beginPath(); g.arc(c, c, c, 0, TAU); g.clip();
     // pelo largo, trenzas o coleta: por detrás de la cabeza
