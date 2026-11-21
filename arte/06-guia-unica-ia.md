@@ -658,6 +658,29 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+#### 21‑nov‑2026 · Relevo Z1 y Z2: los 6 errores que halló Antigravity, terminados (Claude)
+- Antigravity reclamó Z1 y Z2 (`.ai-coord/estado-antigravity.json`) y catalogó 6 errores a `412 × 860`, pero se quedó sin uso antes de subir los arreglos. El autor pidió terminarlos.
+- **Arreglos** (casi todo en el archivo aditivo `src/js/98-relevo-z1.js`, con ganchos sobre `Menu`, `Game` y `EM.modes.carrera`):
+  1. **Ciudad Libre:** todos los inicios abiertos. Son puntos de partida, no niveles con estrellas; antes solo se abría el primero.
+  2. **`#ghud`:** las fichas se recortan y ya no empujan el botón de pausa fuera de la pantalla.
+  3. **`.camui`:** la columna de cámara baja sola bajo el tablero de la cabina, la barra del trabajo (también la del tutorial y la de la trama) y el mensaje.
+  4. **Historia:** el lienzo conserva su 16:9; antes se estiraba 2,5× en alto.
+  5. **Carrera:**
+     - suenan el pasaje, el poder, el golpe, el escudo, la estación y el salto;
+     - `47-carrera.js` recorre solo la ventana de obstáculos cercana con un cursor (`crVentana`), no todos los de la línea en cada cuadro.
+  6. **`25-game.js`:**
+     - `--sat` se lee solo al cambiar el tamaño, no con `getComputedStyle` en cada cuadro;
+     - `pointercancel` suelta el dedo.
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 100 partidas, 0 errores, 0 errores de consola;
+  - medición en Chromium `412 × 860`:
+    - 0 inicios bloqueados;
+    - pausa dentro de la pantalla en todos los modos;
+    - la cámara no se cruza con la barra ni con el mensaje;
+    - historia con proporción 1,00.
+- **Falta (de Antigravity, sin reclamar por nadie más):** Z3 (`37-cronicas.js`), Z4 (`15-mc-puente.js`) y Z5 (`48-planificador.js`, `49-guatape.js`). Están en `.ai-coord/estado-antigravity.json`.
+
 #### 20-nov-2026 · Motor City 4.0.0 en `motor-city/`
 - Llegó el motor 4.0. Trae:
   - el planeta (`MC.Planeta`);

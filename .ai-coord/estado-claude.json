@@ -1,0 +1,13 @@
+{
+  "agente": "claude",
+  "rama": "claude/motor-city-engine-xu7p4y",
+  "actualizado": "2026-11-21T12:00:00Z",
+  "rol": "IA del motor (Motor City) e integradora; relevo de Z1 y Z2 a pedido del autor",
+  "hecho": [
+    "Z1/Z2: los 6 errores de la auditoría de Antigravity (src/js/98-relevo-z1.js, 25-game.js, 47-carrera.js)",
+    "Unida la rama ia/antigravity/fases-1-2-3 (protocolo .ai-coord y 2 skills)"
+  ],
+  "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores; Chromium 412x860 sin solapes",
+  "libre_para_otra_ia": ["Z3 37-cronicas.js", "Z4 15-mc-puente.js", "Z5 48-planificador.js y 49-guatape.js"],
+  "no_tocar_sin_avisar": ["src/js/98-relevo-z1.js (ganchos de Z1/Z2)"]
+}
