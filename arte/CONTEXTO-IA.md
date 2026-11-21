@@ -234,6 +234,13 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### 21‑nov‑2026 · Motor City 4.4.0 en `motor-city/` (Claude)
+- El autor confirmó que las otras IA ya no siguen: Claude lleva todo. Lo pendiente de este juego está en `motor-city/CONTEXTO-RELEVO.md` § 5:
+  - el bus a Guatapé con el lector MC4 del motor (zonas Z4 y Z5);
+  - las crónicas (Z3).
+- Las tarjetas de MODOS que señaló la auditoría ya no se cruzan con el texto en la versión actual (se comprobó a 412 × 860).
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
 #### 21‑nov‑2026 · Mundo abierto primero y los íconos (Claude, a partir de la auditoría G‑H28 de Antigravity)
 - **Regla del autor:** mundo abierto desde el principio; el tutorial y la historia son opcionales.
 - **`src/js/97-abierto.js`**, aditivo (envuelve `Menu.bind`):
