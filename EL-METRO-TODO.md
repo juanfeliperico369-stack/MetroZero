@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.0.0 · compilado el 2026-11-21.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.1.0 · compilado el 2026-11-21.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.0.0** · compilado el 2026-11-21.
+> Versión del juego **v3.1.0** · compilado el 2026-11-21.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -804,6 +804,51 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
+
+##### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
+- «mejora los íconos y la información en pantalla: a veces tapan todo el juego, y el tamaño solo es grande o enorme»;
+- «falta el tranvía y el minijuego o manejo del tranvía, y terminar de adaptar las otras líneas de Metroplús y los alimentadores».
+
+**Lo nuevo:**
+1. **Manejo de Juega EnCicla en Ciudad Libre** (`Libre.driveArcade`, de `Ride.update` en `src/js/30-ride.js` de BicicletasUno):
+   - el vehículo apunta hacia el dedo con un giro limitado por la velocidad y una inercia corta;
+   - arranca rápido, frena para tomar la curva y rueda solo al soltar;
+   - todo con exponenciales del paso de tiempo;
+   - se quedan el choque que desliza, el desatascador, las asistencias, el suelo, la pendiente, la lluvia, el freno de mano, la reversa y los niveles.
+
+   **Medido** (`scratchpad/medir-manejo.mjs`, iguales a 30 y a 60 cuadros por segundo):
+
+   | Vehículo | Medida | Antes | Ahora |
+   |---|---|---|---|
+   | Taxi | 0–50 km/h | no llegaba en 4 s | 2,8 s |
+   | Taxi | velocidad a los 4 s | 41 km/h | 73 km/h |
+   | Taxi | curva de 90° | 3,7 s | 0,9 s |
+   | Bici | curva de 90° | 2,2 s | 0,6 s |
+   | Moto | curva de 90° | no la completaba | 0,7 s |
+
+   **A pie:** más ágil, 2,4 m/s caminando y 5,2 m/s corriendo.
+2. **Interfaz más liviana** (`src/js/36b-iconos.js`):
+   - íconos dibujados en vez de emojis;
+   - **tamaño de botones e información: pequeño, mediano (por defecto) o grande** (el de antes), en el menú de Ciudad Libre;
+   - manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde.
+3. **Tranvía de Ayacucho con modo propio** (`src/js/30b-tranvia.js`):
+   - sus 6 tramos y la campana 🔔;
+   - cruces con gente: con la campana se apuran; si llegas a más de 10 km/h con gente cruzando, frenada de emergencia y una estrella menos;
+   - tiene tarjeta en el menú y lo juega el bot.
+4. **Alimentadores:**
+   - sus 14 rutas, punteadas y con su color, en el mapa grande y en el minimapa;
+   - buses en 3D con el color de su ruta.
+   - Metroplús (líneas 1, 2 y O) ya tenía sus articulados en 3D y sus niveles en los modos de bus.
+
+**Revisado:**
+- las 9 líneas del sistema (A, B, tranvía y los 6 metrocables H, J, K, L, M y P) y las 3 de Metroplús tienen vehículos andando en Ciudad Libre (182 en total, con los 14 alimentadores);
+- los metrocables tienen todos su modo de viaje y su rompecabezas.
+
+**Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
 
 ##### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
@@ -1801,6 +1846,16 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+#### Reglas aprendidas (fluido, 3.1.0)
+- **Manejo de Ciudad Libre = el de EnCicla** (`Libre.driveArcade`).
+  - Rumbo: `st._w` sigue al joystick con inercia `tw` y tope `w0…w1` según la velocidad.
+  - Velocidad: va hacia `tv` con `acc`, `brk` y `coast` de `Libre.ARC`.
+  - Las cifras por clase están en `ARC`: `[w0, w1, tw, s hasta la punta, s para frenar, rodada]`.
+  - El modo bus sigue con `drive()`.
+  - Mídelo con `medir-manejo.mjs` simulando asfalto (agarre 1 y piso plano): fuera del mapa todo es monte.
+- **Tamaño de la interfaz:** `--uiz` desde `settings.uiTam`. Los contenedores se escalan con `transform` desde su esquina, así no cambia su lugar ni sus rectángulos para los solapes.
+- **Un modo que es variante de otro** (como el tranvía): `Object.create(Modo)` y se sobrescriben `levels`, `create`, `step`, `mount`, `draw` y `result` llamando al original con `.call(this, …)`.
 
 #### Reglas aprendidas (Motor City adaptado, 3.0.0)
 - **Motor City se adapta, no se migra:** se porta la función a un archivo de El Metro («manera A») o se copia un módulo suelto dentro de una función con sus ayudas («manera B», como `29-rostros.js`). El guardado y el mapa no cambian.
@@ -3398,7 +3453,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (102 archivos, 1401 KB)
+## Código fuente (104 archivos, 1420 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3850,6 +3905,26 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .pftabs{margin:8px 0 2px}
 /* 3.0 · en Ciudad Libre la charla (gente, crónicas y trama) queda encima de los botones de acción, sin taparlos (auditoría 412 × 860) */
 #game:has(.lbbtns) .trtalk{bottom:calc(194px + var(--sab))}
+
+/* 3.1 · tamaño de botones e información (settings.uiTam → --uiz): se encogen desde su esquina, sin moverse de lugar */
+:root{--uiz:.87}
+#game .vsel{transform:scale(var(--uiz));transform-origin:top right}
+#game .lbbtns{transform:scale(var(--uiz));transform-origin:bottom right}
+#game .lbmini{transform:scale(var(--uiz));transform-origin:bottom left}
+#game .crbtns{transform:scale(var(--uiz));transform-origin:bottom center}
+#game .camui{transform:scale(var(--uiz));transform-origin:top left}
+#game .joy{transform:scale(var(--uiz))}
+#game .trtalk,#game .jobbar{font-size:calc(16px * var(--uiz))}
+#game .trtalk p,#game .jobbar span,#game .jobbar em{font-size:calc(15px * var(--uiz))}
+#game .trtalk .face{transform:scale(var(--uiz));transform-origin:top left}
+#ghud .gt b{font-size:calc(20px * var(--uiz))}
+#ghud .chips{font-size:calc(12.5px * var(--uiz))}
+.vsel button svg.ico,.abtn svg.ico{width:24px;height:24px;display:block;margin:0 auto}
+.vsel button small{display:block;font-size:10px;line-height:1;margin-top:1px}
+/* modo foco: manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde */
+#game.foco .vsel{opacity:.38;transition:opacity .3s}
+#game.foco .lugar{opacity:0;transition:opacity .3s}
+#game .vsel{transition:opacity .3s}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -3858,7 +3933,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.0.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.1.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3905,7 +3980,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0, claro: 1 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {} };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0, claro: 1, uiTam: 1 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {} };
 }
 const Save = EM.save = {
   d: null,
@@ -6400,7 +6475,7 @@ const Atlas = EM.atlas = {
   check(E) {
     if (typeof ARTE === 'undefined') { E('atlas: falta src/data/arte.js'); return 0; }
     for (const [k, v] of Object.entries(ARTE)) if (!/^data:image\/webp;base64,/.test(v) && !/^<svg[\s>]/.test(v)) E('atlas: ' + k + ' no es WebP ni SVG');
-    const pend = new Set(['logro_intermodal', 'logro_ciclista', 'ico_modo_carrera']);   // medallas encargadas a ChatGPT (C-12, 21 y 22) y el ícono de la carrera sin fin (Plan único, M4): mientras llegan, el respaldo procedural
+    const pend = new Set(['logro_intermodal', 'logro_ciclista', 'ico_modo_carrera', 'ico_modo_tranvia']);   // medallas encargadas a ChatGPT (C-12, 21 y 22) y el ícono de la carrera sin fin (Plan único, M4): mientras llegan, el respaldo procedural
     const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]).filter(id => !pend.has(id)), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
     for (const w of Object.keys(TRAMA_WHO)) if (this.WHO[w] && !this.retrato(w)) E('atlas: sin retrato de ' + w);
     for (const k of need) if (!this.has(k) && !pend.has(k)) E('atlas: falta ' + k);
@@ -8016,6 +8091,13 @@ const CamUI = EM.camui = {
       for (const s of [-1, 1]) { b(0, 1.3, s * (W / 2 + .01), L * .9, 1, .02, VIDRIO); b(clase === 'brtF' ? L * .1 : 0, .35, s * (W / 2 + .02), 1.2, 2.1, .02, '#c3c8cd'); }
       b(0, 2.4, 0, L * .98, .28, W * .94, '#f1f3f4');
       if (clase === 'brtF') { const x = L / 2 + .02; m.cara([[x, 1.15, -1.15], [x, 1.15, 1.15], [x, 2.35, 1.1], [x, 2.35, -1.1]], VIDRIO); for (const z of [-1, 1]) b(L / 2 + .03, .7, z, .04, .18, .3, FARO, true); }
+    } else if (clase === 'bus') {   // 3.1 · bus alimentador: la mitad de abajo del color de su ruta, blanco arriba, ventanas y parabrisas
+      const L = op.largo || 10.5, W = 2.5;
+      for (const u of [L * .3, -L * .28]) for (const s of [-1, 1]) m.barra([u, .45, s * 1.02], [u, .45, s * 1.26], .45, OSCURO, 10);
+      b(0, .3, 0, L, 1, W, color); b(0, 1.3, 0, L, 1.35, W, '#f3f4f5');
+      for (const s of [-1, 1]) { b(-L * .04, 1.4, s * (W / 2 + .01), L * .82, .95, .02, VIDRIO); b(L * .38, .35, s * (W / 2 + .02), 1.1, 2.1, .02, '#c3c8cd'); }
+      b(0, 2.65, 0, L * .97, .2, W * .92, TECHO);
+      const x = L / 2 + .02; m.cara([[x, 1.2, -1.12], [x, 1.2, 1.12], [x, 2.5, 1.08], [x, 2.5, -1.08]], VIDRIO); for (const z of [-1, 1]) b(L / 2 + .03, .65, z, .04, .18, .3, FARO, true);
     } else throw Error('Clase del sistema desconocida: ' + clase);
     return m;
   };
@@ -8686,6 +8768,71 @@ const Conduce = EM.modes.conduce = {
   },
   ai(st) { return null; }
 };
+~~~~
+
+### `src/js/30b-tranvia.js`
+~~~~js
+/* =====================================================================
+   TRANVÍA DE AYACUCHO (3.1) · el modo propio que pidió el autor («falta el minijuego o manejo del Tranvía»)
+   Se apoya en el modo Metro (30-conduce.js: palanca, puertas, crucero, vistas de cabina, de lado y en 3D) y le suma lo que es
+   del tranvía, que va por la calle:
+   - solo sus tramos (San Antonio – Oriente, y de vuelta);
+   - la campana 🔔 en vez del pito;
+   - cruces con peatones entre estación y estación: si hay gente cruzando, toca la campana (se apuran) y llega despacio
+     (≤ 10 km/h). Si llegas rápido con gente en el cruce, frenada de emergencia y una estrella menos.
+   Lo que pocos saben: el de Ayacucho es un Translohr, con llantas de caucho guiadas por un riel central; por eso sube la loma.
+   ===================================================================== */
+(() => {
+  const C = EM.modes.conduce; if (!C) return;
+  const T = EM.modes.tranvia = Object.create(C);
+  Object.assign(T, {
+    id: 'tranvia', name: 'Tranvía de Ayacucho', sub: 'Por la calle, de San Antonio a Oriente',
+    tip: 'Sube la palanca para avanzar y bájala para frenar. Entre estación y estación hay cruces: si ves gente cruzando, toca la campana 🔔 y llega despacio (10 km/h o menos). En cada estación abre puertas.',
+    levels() { return C.levels().filter(l => l.line === 'T'); },
+    create(lv, opts) {
+      const st = C.create.call(this, lv, opts), line = NET.byId.T, rng = new RNG(((opts && opts.seed) | 0) + 31), s0 = st.s, s1 = st.tgt && st.tgt.length ? st.tgt[st.tgt.length - 1] : (st.dir > 0 ? line.P.len : 0);
+      st.cruces = []; st.crOk = 0; st.emerg = 0; st.campana = -9;
+      const a = Math.min(s0, s1), b = Math.max(s0, s1), lejos = s => line.st.every(e => Math.abs(e.s - s) > 45);
+      for (let s = a + 120; s < b - 60; s += 190 + rng.f() * 90) if (lejos(s)) st.cruces.push({ s, p: rng.f(), dur: 5 + rng.f() * 3, on: false, hecho: false });
+      return st;
+    },
+    step(st, dt) {
+      C.step.call(this, st, dt); if (!st.cruces || st.done) return;
+      for (const c of st.cruces) {
+        if (c.hecho) continue; const d = (c.s - st.s) * st.dir;
+        if (d < -10) { c.hecho = true; continue; }
+        if (!c.on && !c.visto && d < 140) { c.visto = true; if (c.p < .7) { c.on = true; c.t0 = st.t; this.msg(st, '🚶 Gente cruzando a ' + Math.round(d) + ' m: toca la campana 🔔 y llega despacio', 'y'); } }
+        if (c.on) {
+          if (st.campana > c.t0) c.dur = Math.min(c.dur, st.campana - c.t0 + 1.5);   // con la campana se apuran
+          if (st.t - c.t0 > c.dur) { c.on = false; c.libre = true; }
+          if (st.auto && d < 90) { if (st.campana < c.t0) st.campana = st.t; if (st.v > 2.5) st.v = Math.max(2.5, st.v - 4 * dt); }   // el piloto también: campana y despacio
+        }
+        if (d < 6 && d > -2 && !c.hecho) {
+          if (c.on && st.v > 3) { st.v = Math.min(st.v, .4); st.emerg++; c.on = false; c.hecho = true; this.msg(st, '¡Frenada de emergencia! Había gente en el cruce', 'r'); if (!EM.headless) { Snd.play('crash'); vib(80); } }
+          else { c.hecho = true; if (c.visto && c.p < .7) { st.crOk++; this.msg(st, '✔ Cruce seguro', 'g'); } }
+        }
+      }
+    },
+    mount(st, el) {
+      C.mount.call(this, st, el); const h = $('#cHorn');
+      if (h) { h.textContent = '🔔 Campana'; h.onclick = () => { st.campana = st.t; Snd.play('bell'); vib(20); }; }
+    },
+    key(st, k, down) { if (down && (k === 'b' || k === 'c')) { st.campana = st.t; Snd.play('bell'); return; } return C.key.call(this, st, k, down); },
+    draw(g, st, vp) {
+      C.draw.call(this, g, st, vp); if (!st.cruces) return;
+      const c = st.cruces.find(q => q.on && !q.hecho && (q.s - st.s) * st.dir < 160); if (!c) return;
+      const W = vp.w, d = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), dist = Math.max(0, Math.round((c.s - st.s) * st.dir)), txt = '🚶 Gente en el cruce · ' + dist + ' m' + (st.campana > c.t0 ? ' · 🔔' : ' · toca 🔔');
+      g.save(); g.font = '800 ' + Math.round(14 * d) + 'px Cuerpo, sans-serif'; const w = g.measureText(txt).width + 24 * d, x = W / 2 - w / 2, y = 196 * d;
+      g.fillStyle = 'rgba(15,34,56,.9)'; g.fillRect(x, y, w, 30 * d); g.fillStyle = dist < 40 && st.v > 3 ? '#ff6b5a' : '#F6C538'; g.fillRect(x, y, 6 * d, 30 * d); g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, W / 2 + 3 * d, y + 15 * d); g.restore();
+    },
+    result(st) {
+      const r = C.result.call(this, st); if (!st.cruces) return r;
+      r.lines = (r.lines || []).concat([['Cruces seguros', st.crOk], ['Frenadas de emergencia', st.emerg]]); if (st.emerg) r.stars = Math.max(0, (r.stars | 0) - Math.min(2, st.emerg));
+      if (!r.fact) r.fact = 'El tranvía de Ayacucho es un Translohr: llantas de caucho guiadas por un riel central, por eso sube la loma hasta Oriente.';
+      return r;
+    }
+  });
+})();
 ~~~~
 
 ### `src/js/31-cabina.js`
@@ -9539,9 +9686,9 @@ const Libre = EM.modes.libre = {
   },
   walk(st, dt) {
     // a pie con algo de peso: arranca y para en un instante corto y gira hacia donde apunta el joystick
-    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 3.6 : 1.6) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
-    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * Math.min(1, dt * 12); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * Math.min(1, dt * (spd > w0 ? 7 : 11)); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5.2 : 2.4) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
+    if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * (1 - Math.exp(-dt * 16)); }
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16)));   // 3.1 · igual a cualquier ritmo de cuadros if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
@@ -9551,7 +9698,57 @@ const Libre = EM.modes.libre = {
       if (!ok) mov(nx, st.y) || mov(st.x, ny); }
     st.km += spdN * dt / 1000;
   },
+  /* ---------- 3.1 · manejo de Juega EnCicla (BicicletasUno, src/js/30-ride.js: Ride.update), adaptado a Ciudad Libre ----------
+     El autor: «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; que se sienta fluido, rápido y que no
+     difiera con el tiempo». Como allá: el vehículo apunta hacia donde va el dedo con un giro que sigue al joystick, limitado por la
+     velocidad (w0 parado, w1 a toda marcha) y con una inercia corta (tw); arranca rápido hasta la velocidad pedida, frena para tomar
+     la curva si el dedo apunta lejos del rumbo y, al soltar, rueda y se detiene solo. Todo con exponenciales del paso de tiempo:
+     igual a 30 o a 60 cuadros por segundo. Se queda lo de El Metro: el choque que desliza, el desatascador, la asistencia de carril
+     y de paredes, el suelo (andén, pasto, monte), la pendiente real, la lluvia, el freno de mano y los niveles (puentes y deprimidos). */
+  ARC: { micro: [5.2, 3, .08, 2.2, .9, .18], bici: [5, 2.7, .09, 2.4, .9, .2], moto: [4.2, 2.2, .1, 4.5, 2.2, .1], carro: [3, 1.45, .13, 5.5, 2.6, .06], bus: [1.9, .85, .2, 9, 3.5, .05] },   // [w0, w1, tw, s hasta la punta, s para frenar, rodada]
+  arc(V, kind) { const A = this.ARC[V.monta ? 'micro' : kind === 'bici' ? 'bici' : kind === 'moto' ? 'moto' : (V.art || kind === 'bus' || kind === 'alimentador') ? 'bus' : 'carro'];
+    return { w0: A[0], w1: A[1], tw: A[2], max: V.vmax, acc: V.vmax / A[3], brk: V.vmax / A[4], coast: V.vmax * A[5] }; },
+  driveArcade(st, dt) {
+    const V = this.V(st), kind = st.veh.kind, A = this.arc(V, kind), j = st.joy, k = st.keys, S = Save.d.settings, facil = !st.auto && S.manejo !== 'clasico', wet = Mundo.weather().rain;
+    const c0 = Math.cos(st.h), s0 = Math.sin(st.h), gr = st.z ? 0 : clamp((MAP.elevM(st.x + c0 * 8, st.y + s0 * 8) - MAP.elevM(st.x - c0 * 8, st.y - s0 * 8)) / 16, -.2, .2);
+    const ag = st.z ? 1 : VC.on ? VC.agarre(st.x, st.y) : 1, blando = ag < .95 && !V.campo;
+    const loma = (kind === 'scooter' || kind === 'monopatin') && gr > 0 ? 1 : clamp(1 - (kind === 'bici' || V.monta ? 2.2 : V.art || kind === 'bus' || kind === 'alimentador' ? .9 : 1.1) * gr, .5, 1.3);
+    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, tope = A.max * suelo * loma, kw = 1 - Math.exp(-dt / A.tw);
+    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1);
+    let wT = 0, tv = 0, hay = false;
+    if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
+      const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
+      const da = Math.atan2(Math.sin(ta - st.h), Math.cos(ta - st.h)); hay = true;
+      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
+      else { wT = clamp(da * 6.5, -wm, wm); tv = tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da))); }
+      st._quiere = ta;
+    } else {   // teclas, o el joystick clásico (los lados giran, arriba acelera, abajo frena y luego reversa)
+      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : 0, fr = k.down ? 1 : 0;
+      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); }
+      hay = !!(giro || ac || fr); wT = giro * wm; tv = ac ? tope * ac : fr ? (st.vf > .5 ? 0 : -A.max * .3 * fr) : 0; st._quiere = st.h + (fr > ac ? Math.PI : 0);
+    }
+    if (S.asist !== 0 && !st.auto && hay) { const As = this.asistencia(st, V, dt, wT / Math.max(.01, wm), st._quiere); if (As.giro && Math.abs(wT) < wm * .7) wT = clamp(wT + As.giro * wm * .6, -wm, wm); if (As.freno && Math.abs(st.vf) > 9) tv = Math.min(tv, A.max * .5); }
+    if (blando && !V.walk && !V.monta && kind !== 'bici' && Math.abs(tv) > 4 + 6 * ag) tv = Math.sign(tv) * (4 + 6 * ag);   // carros y buses, despacio fuera del asfalto
+    st._w = (st._w || 0) + ((hay ? wT : 0) - (st._w || 0)) * kw;
+    if (hay && tv !== 0) { if (tv > st.vf) st.vf = Math.min(tv, st.vf + Math.min(A.acc, (tv - st.vf) * 2 + .5) * dt); else st.vf = Math.max(tv, st.vf - Math.min(A.brk * (wet ? .7 : 1), (st.vf - tv) * 3.5 + 1) * dt); }
+    else if (hay && tv === 0) st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), A.brk * (wet ? .7 : 1) * dt);
+    else st.vf -= Math.sign(st.vf) * Math.min(Math.abs(st.vf), (A.coast * (wet ? .6 : 1) + Math.abs(st.vf) * (V.walk || V.monta || kind === 'bici' ? .35 : .08)) * dt);   // al soltar: rueda y se detiene solo
+    if (gr && !(kind === 'scooter' || kind === 'monopatin')) st.vf -= 9.81 * gr * (V.monta || kind === 'bici' ? .35 : .12) * dt;   // la bajada empuja y la subida frena
+    const hb = st.hb && !V.walk && Math.abs(st.vf) > 3; if (hb) st.vf *= Math.exp(-.9 * dt);
+    const oh = st.h; st.h += st._w * dt * (st.vf < -.2 ? -1 : 1) * Math.min(1, .35 + Math.abs(st.vf) / 3); st._yaw = st._w; st.steer = clamp(Math.atan(st._w * V.wb / Math.max(1.5, Math.abs(st.vf))), -V.smax, V.smax); st.vs = 0;
+    const c2 = Math.cos(st.h), s2 = Math.sin(st.h), vx = st.vf * c2, vy = st.vf * s2;
+    if (hb) { for (const o of [-1, 1]) { const rx = st.x - c2 * V.len * .38 - s2 * o * V.wid * .42, ry = st.y - s2 * V.len * .38 + c2 * o * V.wid * .42; Ciudad.marks.push({ x1: rx, y1: ry, x2: rx - vx * dt, y2: ry - vy * dt, t: 1 }); } if (!st._drT) { st._drT = 1; this.sfx(st, 'brake'); } } else st._drT = 0;
+    if (wet && Math.abs(st.vf) > 8 && Ciudad.rng.f() < .4) Ciudad.parts.push({ x: st.x - c2 * V.len * .3 + (Ciudad.rng.f() - .5) * V.wid, y: st.y - s2 * V.len * .3, vx: -vx * .1, vy: -vy * .1 - 1, t: .4, t0: .4, c: 'rgba(210,230,245,.9)', r: .2 });
+    const nx = st.x + vx * dt, ny = st.y + vy * dt, piso = (x, y) => this.hitV(x, y, st.h, V) && !(st.lane && st.lane(x, y)), hit = (x, y) => { const r = this.nivelV(st, x, y, V, piso); st._nz = r[1]; return !r[0]; };
+    const x0m = st.x, y0m = st.y; if (st._chT > 0) st._chT -= dt;
+    if (!hit(nx, ny)) { st.x = nx; st.y = ny; st.z = st._nz; } else this.deslizar(st, V, nx - st.x, ny - st.y, dt, hit);
+    if (st.h !== oh && hit(st.x, st.y)) { const hN = st.h; st.h = oh; if (hit(st.x, st.y)) st.h = hN; else st._w *= .5; }
+    this.despues(st, V, dt, hit, x0m, y0m, hay && (Math.abs(tv) > .5), st._quiere != null ? st._quiere : st.h);
+    if (V.art) { const h2 = st.h2 == null ? st.h : st.h2, d = Math.atan2(Math.sin(st.h - h2), Math.cos(st.h - h2)); st.h2 = h2 + st.vf / V.art * Math.sin(d) * dt; const d2 = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2)); if (Math.abs(d2) > .95) st.h2 = st.h - Math.sign(d2) * .95; } else st.h2 = st.h;
+    st.km += Math.abs(st.vf) * dt / 1000; st.engine = tv > st.vf ? 1 : 0; st.thr = st.engine;
+  },
   drive(st, dt) {
+    if (String(st.lvId || '').startsWith('lb:')) return this.driveArcade(st, dt);   // 3.1 · Ciudad Libre maneja como Juega EnCicla; los demás modos (bus) siguen con su modelo
     const V = this.V(st), j = st.joy, k = st.keys, S = Save.d.settings, libre = String(st.lvId || '').startsWith('lb:'), facil = libre && !st.auto && S.manejo !== 'clasico';
     let thrIn = k.up ? 1 : 0, br = k.down ? 1 : 0, sIn = k.left ? -1 : k.right ? 1 : 0, thr, spdF;
     if (libre) {
@@ -9678,6 +9875,7 @@ const Libre = EM.modes.libre = {
       <button class="btn" data-a="taxi">🚕 Pedir un taxi<small>llega a la calle más cercana</small></button>
       <button class="btn" data-a="ini">🏠 Volver a donde empecé<small>a ${km(dist(ini.x, ini.y, st.x, st.y))}</small></button></div>`}
       <div class="pag">Manejo</div><div class="tg" data-mj><button data-v="facil" class="${S.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${S.manejo === 'clasico' ? 'on' : ''}">Clásico: izquierda y derecha giran</button></div>
+      <div class="pag">Tamaño de botones e información</div><div class="tg" data-ui>${EM.iconos ? EM.iconos.TAM.map(([n], i) => `<button data-v="${i}" class="${EM.iconos.tam() === i ? 'on' : ''}">${n}</button>`).join('') : ''}</div>
       <div class="pag">Vista de lejos clara (líneas, estaciones y trenes resaltados)</div><div class="tg" data-cl><button data-v="1" class="${S.claro !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.claro === 0 ? 'on' : ''}">No</button></div>
       <div class="pag">Asistencia al volante (se endereza con la calle y esquiva las paredes)</div><div class="tg" data-as><button data-v="1" class="${S.asist !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.asist === 0 ? 'on' : ''}">No</button></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="ayPf">🧑 Mi personaje</button><button class="btn pri" id="ayOk">Seguir</button></div>`);
@@ -9688,6 +9886,7 @@ const Libre = EM.modes.libre = {
       if (a === 'taxi') { const t = VC.on ? VC.despeja(st.x, st.y, 1.4, true, 400) : this.libre(st.x, st.y, v => v === TT.ROAD || v === TT.AVE, 20); if (st.mode === 'veh') this.llevar(st, st.x, st.y, false); const R = this.rumbo({ x: t.x, y: t.y, t: -1, z: 0 }, st.h); st.parked.push({ kind: 'taxi', x: t.x, y: t.y, a: R != null ? R : st.h, id: st.parked.length }); const w = VC.on ? VC.despeja(t.x + 3, t.y + 3, .6, false, 20) : t; this.llevar(st, w.x, w.y, false); fin('🚕 Tu taxi llegó: está a tu lado, toca ● para subirte'); }
       if (a === 'ini') { this.llevar(st, ini.x, ini.y, false); fin('🏠 De vuelta donde empezaste'); } });
     $$('#mBody .tg[data-mj] button').forEach(b => b.onclick = () => { S.manejo = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $$('#mBody .tg[data-ui] button').forEach(b => b.onclick = () => { S.uiTam = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); if (EM.iconos) EM.iconos.ponTam(); Save.write(); });
     $$('#mBody .tg[data-cl] button').forEach(b => b.onclick = () => { S.claro = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-as] button').forEach(b => b.onclick = () => { S.asist = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $('#ayPf').onclick = () => Perfil.abrir(); $('#ayOk').onclick = () => fin();
@@ -9868,6 +10067,7 @@ const Libre = EM.modes.libre = {
     const M = this._mapa, st = M.st, cv = M.cv, g = cv.getContext('2d'), { w, h } = fitCanvas(cv, 2), dpr = w / Math.max(1, cv.clientWidth), k = M.k * dpr, mx = M.x, my = M.y, S = (x, y) => ({ x: w / 2 + (x - mx) * k, y: h / 2 + (y - my) * k });
     g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#1b2a39'; g.fillRect(0, 0, w, h); MAP._pend = 0;
     if (MAP.ready) { if (k < .07) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = true; g.drawImage(m, w / 2 - mx * k, h / 2 - my * k, m.width * s, m.height * s); } else { MAP.prisa = now() + .018; MAP._hechos = 0; MAP.drawTop(g, w, h, mx, my, k); MAP.prisa = 0; MAP._pend = 1; } if (k >= .3) MAP.drawLabels(g, w, h, mx, my, k, dpr, 0); }
+    for (const l of NET.lines) { if (l.kind !== 'feeder') continue; g.strokeStyle = l.color; g.globalAlpha = .85; g.lineWidth = 1.8 * dpr; g.setLineDash([4 * dpr, 3 * dpr]); g.lineJoin = 'round'; g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); g.setLineDash([]); g.globalAlpha = 1; }   // 3.1 · las rutas de los alimentadores
     for (const l of NET.lines) { if (l.kind === 'future' || l.kind === 'feeder' || l.kind === 'escalator') continue; g.strokeStyle = l.color; g.lineWidth = (l.kind === 'metro' ? 4 : 2.6) * dpr; g.lineJoin = 'round'; g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); }
     const C = this.mapaCosas(st), vis = Save.d.gente || {}; g.textAlign = 'center'; g.font = '700 ' + Math.round(11 * dpr) + 'px Cuerpo, sans-serif';
     for (const o of C) { const q = S(o.x, o.y); if (q.x < -20 || q.y < -20 || q.x > w + 20 || q.y > h + 20) continue;
@@ -9956,7 +10156,7 @@ const Libre = EM.modes.libre = {
       if (kind === 'metro' || kind === 'tram') { const carL = kind === 'metro' ? 22 : 19.5, n = kind === 'metro' ? 3 : 2; for (let i = 0; i < n; i++) { const s0 = v.s - v.dir * (i * (carL + 1) + carL / 2), q = Ciudad.cuerda(l.P, s0 + v.dir * carL * .35, s0 - v.dir * carL * .35, v.dir * 2), zq = G3.zOn(l, s0), op = { largo: carL, panto: i === 0, puntas: i === 0 ? [1] : i === n - 1 ? [-1] : [] };
         if (!(TS && TS(kind === 'metro' ? 'metro' : 'tranvia', l.color, q.x, zq, q.y, q.a, op))) G3.vehicle(q.x, zq, q.y, q.a, carL, kind, col); else if (i === 0 && cerca(q.x, q.y, 260)) { const u = kind === 'metro' ? carL * .3 - .25 : carL * .1 - .2; EM.taller.chispa(q.x + Math.cos(q.a) * u, zq + (kind === 'metro' ? 5.05 : 4.6), q.y + Math.sin(q.a) * u, q.a, st.t + i * 3.1 + v.s * .01, lluvia); } } }
       else if (kind === 'cable') { const Cg = G3.cableGeo(l), zc = Cg.zAt(NET.project(Cg.P, p.x, p.y).s); if (!(TS && TS('cabina', l.color, p.x, zc - 4.05, p.y, p.a))) { G.box(p.x, zc - 4.6, p.y, p.a, 2.2, 2, 2.2, col); G.box(p.x, zc - 2.4, p.y, p.a, .25, .25, 2.4, [.3, .3, .32]); } }
-      else { const zb = E(p.x, p.y); if (kind === 'brt') { const f = Ciudad.cuerda(l.P, v.s - v.dir * 1.4, v.s - v.dir * 9.9, v.dir * 2.2), r = Ciudad.cuerda(l.P, v.s - v.dir * 12.6, v.s - v.dir * 16.6, v.dir * 2.2); if (!(TS && TS('brtF', l.color, f.x, zb, f.y, f.a, { largo: 11.3 }))) G3.vehicle(f.x, zb, f.y, f.a, 11.3, 'brt', col); if (!(TS && TS('brtR', l.color, r.x, zb, r.y, r.a, { largo: 6.4 }))) G3.vehicle(r.x, zb, r.y, r.a, 6.4, 'brt', col); } else { const q = Ciudad.cuerda(l.P, v.s - v.dir * 2.4, v.s - v.dir * (KIND[kind].len - 2.6), v.dir * 2.2); G3.vehicle(q.x, zb, q.y, q.a, KIND[kind].len, kind, col); } } }
+      else { const zb = E(p.x, p.y); if (kind === 'brt') { const f = Ciudad.cuerda(l.P, v.s - v.dir * 1.4, v.s - v.dir * 9.9, v.dir * 2.2), r = Ciudad.cuerda(l.P, v.s - v.dir * 12.6, v.s - v.dir * 16.6, v.dir * 2.2); if (!(TS && TS('brtF', l.color, f.x, zb, f.y, f.a, { largo: 11.3 }))) G3.vehicle(f.x, zb, f.y, f.a, 11.3, 'brt', col); if (!(TS && TS('brtR', l.color, r.x, zb, r.y, r.a, { largo: 6.4 }))) G3.vehicle(r.x, zb, r.y, r.a, 6.4, 'brt', col); } else { const q = Ciudad.cuerda(l.P, v.s - v.dir * 2.4, v.s - v.dir * (KIND[kind].len - 2.6), v.dir * 2.2); if (!(TS && TS('bus', l.color, q.x, zb, q.y, q.a, { largo: KIND[kind].len }))) G3.vehicle(q.x, zb, q.y, q.a, KIND[kind].len, kind, col); } } }
     // tú: a pie con tu ropa, o tu vehículo; y encima un rombo naranja para no perderte
     if (st.mode !== 'ride') { const V = this.V(st);
       if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
@@ -9987,6 +10187,7 @@ const Libre = EM.modes.libre = {
     g.save(); g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.clip(); g.fillStyle = PAL.noche; g.fillRect(cx - R, cy - R, R * 2, R * 2);
     if (MAP.ready) { const m = MAP.mini(), s = km * MAP.miniK * dpr; g.imageSmoothingEnabled = true; g.drawImage(m, cx - st.x * km * dpr, cy - st.y * km * dpr, m.width * s, m.height * s); }
     const S = (x, y) => ({ x: cx + (x - st.x) * km * dpr, y: cy + (y - st.y) * km * dpr });
+    for (const l of NET.lines) { if (l.kind !== 'feeder') continue; g.strokeStyle = l.color; g.globalAlpha = .8; g.lineWidth = 1 * dpr; g.setLineDash([3 * dpr, 2 * dpr]); g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); g.setLineDash([]); g.globalAlpha = 1; }   // 3.1 · alimentadores en el minimapa
     for (const l of NET.lines) { if (l.kind === 'future' || l.kind === 'feeder') continue; g.strokeStyle = l.color; g.lineWidth = (l.kind === 'metro' ? 3 : 1.5) * dpr; g.beginPath(); l.P.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); }); g.stroke(); }
     for (const h of NET.stations) { if (!h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const q = S(h.x, h.y); if (Math.hypot(q.x - cx, q.y - cy) > R) continue; g.fillStyle = st.visited[h.name] ? '#fff' : 'rgba(255,255,255,.45)'; g.fillRect(q.x - 1.5 * dpr, q.y - 1.5 * dpr, 3 * dpr, 3 * dpr); }
     const GJ = st.goal || st.job; if (GJ && GJ.x != null) { const q = S(GJ.x, GJ.y), d = Math.hypot(q.x - cx, q.y - cy), f = d > R - 6 ? (R - 6) / d : 1; g.fillStyle = PAL.mostaza; g.beginPath(); g.arc(cx + (q.x - cx) * f, cy + (q.y - cy) * f, 4 * dpr, 0, TAU); g.fill(); }
@@ -9996,6 +10197,47 @@ const Libre = EM.modes.libre = {
   },
   ai(st) { return null; }
 };
+~~~~
+
+### `src/js/36b-iconos.js`
+~~~~js
+/* =====================================================================
+   ÍCONOS Y TAMAÑO DE LA INTERFAZ (3.1) · pedido del autor: «mejora los íconos y la información en pantalla: a veces hay tantas
+   cosas y tan grandes que tapan todo el juego; además el tamaño solo tiene dos opciones, grande o enorme».
+   - Íconos dibujados (SVG de trazo, del color del texto) en vez de emojis, que cambian de un celular a otro: vista, foto, cámara
+     libre, acercar, correr, ritmo, qué ver cerca y rescate. Si el arte del juego trae su propio ícono, se usa ese.
+   - Tamaño de botones e información: pequeño, mediano (por defecto) o grande (el de antes). Se encogen desde su esquina, así no
+     cambian de lugar ni tapan más; se elige en el menú de Ciudad Libre (⏸) y se guarda en settings.uiTam.
+   - Modo foco: manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde (como el «foco» de Motor City).
+   ===================================================================== */
+(() => {
+  const s = (d, rel = '') => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${rel}>${d}</svg>`;
+  const ICO = EM.iconos = {
+    vista: s('<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3.2"/>'),
+    foto: s('<path d="M3.5 8.5h3.2l1.8-2.8h7l1.8 2.8h3.2v10.5H3.5z"/><circle cx="12" cy="13.5" r="3.6"/>'),
+    camara: s('<path d="M12 3v18M3 12h18"/><path d="M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/>'),
+    zoom: s('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L21 21M7.5 10.5h6M10.5 7.5v6"/>'),
+    correr: s('<circle cx="15" cy="4.6" r="1.9"/><path d="M7.5 21l3.2-5.5 3.3 2.2V21M5 11.5l3.6-3 4.2.8 2.2 3.2h3.6M10.7 15.5l1.6-6"/>'),
+    ritmo: s('<path d="M3.5 6.5l7.5 5.5-7.5 5.5zM12.5 6.5l7.5 5.5-7.5 5.5z" fill="currentColor"/>'),
+    guia: s('<path d="M12 21.5s-6.5-6.4-6.5-11.5a6.5 6.5 0 0113 0c0 5.1-6.5 11.5-6.5 11.5z"/><circle cx="12" cy="10" r="2.4"/>'),
+    ayuda: s('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.6"/><path d="M6 6l3.4 3.4M18 6l-3.4 3.4M6 18l3.4-3.4M18 18l-3.4-3.4"/>'),
+    freno: s('<circle cx="12" cy="12" r="8.5"/><path d="M10 16V8h3a2.5 2.5 0 010 5h-3"/>')
+  };
+  /* botón → ícono; se conserva el <small> (con su id) que el juego actualiza */
+  const MAPA = { lbVista: 'vista', lbFoto: 'foto', lbCam: 'camara', lbZoom: 'zoom', lbRun: 'correr', lbFF: 'ritmo', lbGuia: 'guia', lbAyuda: 'ayuda', lbHb: 'freno' };
+  ICO.aplicar = () => { for (const [id, k] of Object.entries(MAPA)) { const b = document.getElementById(id); if (!b || b.dataset.ico) continue; if (b.querySelector('img.aico') && id !== 'lbHb') { b.dataset.ico = 1; continue; } const sm = b.querySelector('small'); b.innerHTML = ICO[k] + (sm ? sm.outerHTML : ''); b.dataset.ico = 1; } };
+  /* tamaño: 0 pequeño, 1 mediano, 2 grande */
+  ICO.TAM = [['Pequeño', .74], ['Mediano', .87], ['Grande', 1]];
+  ICO.tam = () => { const v = Save.d && Save.d.settings ? Save.d.settings.uiTam : 1; return clamp(v == null ? 1 : v | 0, 0, 2); };
+  ICO.ponTam = () => { if (typeof document !== 'undefined') document.documentElement.style.setProperty('--uiz', String(ICO.TAM[ICO.tam()][1])); };
+  if (typeof Libre !== 'undefined') {
+    const _mount = Libre.mount; Libre.mount = function () { const r = _mount.apply(this, arguments); try { ICO.ponTam(); ICO.aplicar(); } catch (e) { EM.errors.push('íconos: ' + e.message); } return r; };
+    const _step = Libre.step; Libre.step = function (st, dt) { const r = _step.apply(this, arguments);
+      if (!EM.headless && Game.st === st) { const f = st.mode === 'veh' && Math.abs(st.vf) > 9; if (f !== !!st._foco) { st._foco = f; const g = document.getElementById('game'); if (g) g.classList.toggle('foco', f); } }
+      return r; };
+  }
+  if (typeof document !== 'undefined') { const t = setInterval(() => { if (!EM.ready || !Save.d) return; clearInterval(t); ICO.ponTam(); }, 250); }
+})();
 ~~~~
 
 ### `src/js/37-cronicas.js`
@@ -11556,6 +11798,7 @@ const MODECARDS = [
   { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en bici, skate, patines, monopatín, carro, taxi o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio y la gente de EnCicla.' },
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
+  { id: 'tranvia', cls: 'c-conduce', t: 'Tranvía de Ayacucho', d: 'Conduce el tranvía por la calle: sube la loma de Ayacucho, toca la campana en los cruces con gente y para en cada estación.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
   { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En skate, patines, monopatín o bici EnCicla (🛹 para cambiar), con imán, turbo y escudo; por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
@@ -11616,6 +11859,7 @@ const Menu = EM.menu = {
   miniArt(g, id) {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
     if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
+    else if (id === 'tranvia') { Art.vehicleBack(g, 35, 52, 34, '#2f9b57', 'tram', true); }
     else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
     else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
     else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }
@@ -12368,12 +12612,12 @@ const BotT = EM.test = {
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
-    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
+    const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera', 'tranvia'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
-      games++; const dt = id === 'conduce' ? .1 : 1 / 20, max = id === 'conduce' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : id === 'carrera' ? 3000 : 4800;
+      games++; const dt = id === 'conduce' || id === 'tranvia' ? .1 : 1 / 20, max = id === 'conduce' || id === 'tranvia' ? 7000 : id === 'volante' ? 9000 : id === 'bus' ? 9000 : id === 'cableviaje' ? 6000 : id === 'libre' ? 2400 : id === 'carrera' ? 3000 : 4800;
       try {
         for (let i = 0; i < max; i++) {
           M.step(st, dt); steps++;
@@ -12453,7 +12697,7 @@ const BotT = EM.test = {
   document.head.appendChild(css);
   /* 3: la columna de cámara (+ − regla cámara) baja hasta quedar libre: bajo el tablero de la cabina (dibujado en el lienzo),
      bajo la barra del trabajo (.jobbar, también la del tutorial y la de la trama) y bajo el mensaje (#gmsg) cuando están a su altura */
-  const CABINA = ['conduce'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
+  const CABINA = ['conduce', 'tranvia'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
     if (Game.mode && CABINA.some(k => EM.modes[k] === Game.mode)) top = Math.max(top, 196 + sat);
     for (let pasada = 0; pasada < 2; pasada++) for (const e of document.querySelectorAll('#game .jobbar, #game #gmsg')) { if (e.classList.contains('hide')) continue; const r = e.getBoundingClientRect(); if (r.height < 4 || r.left > 52) continue; if (r.top < top + h && r.bottom > top - 4) top = Math.max(top, r.bottom + 8); }
     const t = Math.round(top) + 'px'; if (c.style.top !== t) c.style.top = t; };
@@ -17050,8 +17294,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.0.0
-elmetro.versionCode=28
+elmetro.versionName=3.1.0
+elmetro.versionCode=29
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36

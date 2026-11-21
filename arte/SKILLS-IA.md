@@ -183,6 +183,16 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+### Reglas aprendidas (fluido, 3.1.0)
+- **Manejo de Ciudad Libre = el de EnCicla** (`Libre.driveArcade`).
+  - Rumbo: `st._w` sigue al joystick con inercia `tw` y tope `w0…w1` según la velocidad.
+  - Velocidad: va hacia `tv` con `acc`, `brk` y `coast` de `Libre.ARC`.
+  - Las cifras por clase están en `ARC`: `[w0, w1, tw, s hasta la punta, s para frenar, rodada]`.
+  - El modo bus sigue con `drive()`.
+  - Mídelo con `medir-manejo.mjs` simulando asfalto (agarre 1 y piso plano): fuera del mapa todo es monte.
+- **Tamaño de la interfaz:** `--uiz` desde `settings.uiTam`. Los contenedores se escalan con `transform` desde su esquina, así no cambia su lugar ni sus rectángulos para los solapes.
+- **Un modo que es variante de otro** (como el tranvía): `Object.create(Modo)` y se sobrescriben `levels`, `create`, `step`, `mount`, `draw` y `result` llamando al original con `.call(this, …)`.
+
 ### Reglas aprendidas (Motor City adaptado, 3.0.0)
 - **Motor City se adapta, no se migra:** se porta la función a un archivo de El Metro («manera A») o se copia un módulo suelto dentro de una función con sus ayudas («manera B», como `29-rostros.js`). El guardado y el mapa no cambian.
 - **Manejo:** el choque va por `Libre.deslizar()` (normal por 8 tanteos, golpe solo si la velocidad contra la pared pasa de 2,5 m/s). Después de mover, `Libre.despues()` desatasca y da el tumbo del bordillo.
