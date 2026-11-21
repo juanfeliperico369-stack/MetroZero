@@ -19,7 +19,7 @@
   document.head.appendChild(css);
   /* 3: la columna de cámara (+ − regla cámara) baja hasta quedar libre: bajo el tablero de la cabina (dibujado en el lienzo),
      bajo la barra del trabajo (.jobbar, también la del tutorial y la de la trama) y bajo el mensaje (#gmsg) cuando están a su altura */
-  const CABINA = ['conduce'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
+  const CABINA = ['conduce', 'tranvia'], ubicar = () => { const c = document.getElementById('camUI'); if (!c) return; const sat = Game._sat || 0, h = c.offsetHeight || 170; let top = 112 + sat;
     if (Game.mode && CABINA.some(k => EM.modes[k] === Game.mode)) top = Math.max(top, 196 + sat);
     for (let pasada = 0; pasada < 2; pasada++) for (const e of document.querySelectorAll('#game .jobbar, #game #gmsg')) { if (e.classList.contains('hide')) continue; const r = e.getBoundingClientRect(); if (r.height < 4 || r.left > 52) continue; if (r.top < top + h && r.bottom > top - 4) top = Math.max(top, r.bottom + 8); }
     const t = Math.round(top) + 'px'; if (c.style.top !== t) c.style.top = t; };

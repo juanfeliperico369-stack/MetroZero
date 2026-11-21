@@ -50,6 +50,13 @@
       for (const s of [-1, 1]) { b(0, 1.3, s * (W / 2 + .01), L * .9, 1, .02, VIDRIO); b(clase === 'brtF' ? L * .1 : 0, .35, s * (W / 2 + .02), 1.2, 2.1, .02, '#c3c8cd'); }
       b(0, 2.4, 0, L * .98, .28, W * .94, '#f1f3f4');
       if (clase === 'brtF') { const x = L / 2 + .02; m.cara([[x, 1.15, -1.15], [x, 1.15, 1.15], [x, 2.35, 1.1], [x, 2.35, -1.1]], VIDRIO); for (const z of [-1, 1]) b(L / 2 + .03, .7, z, .04, .18, .3, FARO, true); }
+    } else if (clase === 'bus') {   // 3.1 · bus alimentador: la mitad de abajo del color de su ruta, blanco arriba, ventanas y parabrisas
+      const L = op.largo || 10.5, W = 2.5;
+      for (const u of [L * .3, -L * .28]) for (const s of [-1, 1]) m.barra([u, .45, s * 1.02], [u, .45, s * 1.26], .45, OSCURO, 10);
+      b(0, .3, 0, L, 1, W, color); b(0, 1.3, 0, L, 1.35, W, '#f3f4f5');
+      for (const s of [-1, 1]) { b(-L * .04, 1.4, s * (W / 2 + .01), L * .82, .95, .02, VIDRIO); b(L * .38, .35, s * (W / 2 + .02), 1.1, 2.1, .02, '#c3c8cd'); }
+      b(0, 2.65, 0, L * .97, .2, W * .92, TECHO);
+      const x = L / 2 + .02; m.cara([[x, 1.2, -1.12], [x, 1.2, 1.12], [x, 2.5, 1.08], [x, 2.5, -1.08]], VIDRIO); for (const z of [-1, 1]) b(L / 2 + .03, .65, z, .04, .18, .3, FARO, true);
     } else throw Error('Clase del sistema desconocida: ' + clase);
     return m;
   };

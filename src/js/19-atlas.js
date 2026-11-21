@@ -50,7 +50,7 @@ const Atlas = EM.atlas = {
   check(E) {
     if (typeof ARTE === 'undefined') { E('atlas: falta src/data/arte.js'); return 0; }
     for (const [k, v] of Object.entries(ARTE)) if (!/^data:image\/webp;base64,/.test(v) && !/^<svg[\s>]/.test(v)) E('atlas: ' + k + ' no es WebP ni SVG');
-    const pend = new Set(['logro_intermodal', 'logro_ciclista', 'ico_modo_carrera']);   // medallas encargadas a ChatGPT (C-12, 21 y 22) y el ícono de la carrera sin fin (Plan único, M4): mientras llegan, el respaldo procedural
+    const pend = new Set(['logro_intermodal', 'logro_ciclista', 'ico_modo_carrera', 'ico_modo_tranvia']);   // medallas encargadas a ChatGPT (C-12, 21 y 22) y el ícono de la carrera sin fin (Plan único, M4): mientras llegan, el respaldo procedural
     const need = [...MODECARDS.map(c => 'ico_modo_' + c.id), ...LOGROS.map(l => 'logro_' + l[0]).filter(id => !pend.has(id)), ...TRAMA.map(c => c.art).filter(Boolean), 'portada', 'carga'];
     for (const w of Object.keys(TRAMA_WHO)) if (this.WHO[w] && !this.retrato(w)) E('atlas: sin retrato de ' + w);
     for (const k of need) if (!this.has(k) && !pend.has(k)) E('atlas: falta ' + k);
