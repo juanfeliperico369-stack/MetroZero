@@ -234,6 +234,12 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### 21‑nov‑2026 · El manejo de EnCicla, a pie más ágil y Motor City 4.6.0 (Claude)
+- **Manejo de la ciudad libre** (`src/js/36-libre.js` · `driveArcade`): el de Juega EnCicla. El taxi va de 0 al 90 % en 2,7 s (antes más de 10), gira en 16 m a 72 km/h y no derrapa sin freno de mano. El autor: «te basaste en El Metro, donde también está mal hecho; arréglalo». El modo bus y «simulación» siguen con el de antes.
+- **A pie:** trota con el joystick a fondo (3,9 m/s) y gira al instante. **Cámara:** mira menos adelante y sigue más rápido.
+- APK **2.0.2 (código 28)**. `motor-city/` a 4.6.0. Informe: `docs/INFORME-MOTOR-CITY-4.6.md`.
+- Pruebas: `node tools/test.mjs 100` → 0 errores.
+
 #### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
 - **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
 - **Publicado:** `main` al día con la rama de Claude y `gh-pages` con el `dist/` nuevo.
