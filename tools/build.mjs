@@ -38,5 +38,7 @@ self.addEventListener('fetch', e => {
 });
 `);
 fs.writeFileSync(path.join(dist, '.nojekyll'), '');
+/* los íconos (favicon, PWA) viven en src/iconos/: se copian a dist para que el servidor local y el service worker no den 404 (auditoría G-H28) */
+for (const f of fs.existsSync(src('iconos')) ? fs.readdirSync(src('iconos')) : []) fs.copyFileSync(src('iconos/' + f), path.join(dist, f));
 fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.mjs'));
 console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);

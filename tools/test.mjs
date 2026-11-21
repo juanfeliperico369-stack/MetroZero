@@ -25,7 +25,9 @@ console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victori
 if (shots) fs.mkdirSync(shots, { recursive: true });
 const shot = async n => { if (!shots) return; await page.evaluate(() => EM.game.freeze(true)); await page.waitForTimeout(150); try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 20000 }); } catch (e) { try { await page.screenshot({ path: path.join(shots, n + '.png'), timeout: 60000 }); } catch (e2) { console.log('captura falló:', n); } } await page.evaluate(() => EM.game.freeze(false)); };
 await shot('01-portada');
-await page.click('#bPlay'); await page.waitForTimeout(300); await shot('02-modos');
+/* mundo abierto primero: ▶ Jugar entra directo a Ciudad Libre; los modos están en «Todos los modos» */
+await page.click('#bPlay'); await page.waitForTimeout(1500); { const ok = await page.evaluate(() => EM.game.mode === EM.modes.libre); if (!ok) cons.push('mundo abierto primero: ▶ Jugar no entró directo a Ciudad Libre'); } await shot('02-ciudad-libre');
+await page.evaluate(() => EM.game.exit()); await page.waitForTimeout(400); await page.click('#bModos'); await page.waitForTimeout(300); await shot('02b-modos');
 for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
   await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) }); }, [m, lv, extra]);
   await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) ? 3500 : 4000);
