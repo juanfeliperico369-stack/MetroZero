@@ -4,6 +4,16 @@
 
 
 
+## 21‑nov‑2026 · Motor City 4.2.0 en `motor-city/` (Claude)
+- Llegó el motor 4.2:
+  - recorte por región en el 3D;
+  - IA que no se tranca en el borde de la calle;
+  - el vuelo sin pausa;
+  - las entregas de ChatGPT y de Antigravity unidas.
+
+  Turno Cero sigue aislado.
+- Probado: `node tools/build.mjs` y `node tools/test.mjs 100`, con 0 errores.
+
 ## 21‑nov‑2026 · Motor City 4.1.0 en `motor-city/` (Claude)
 - Llegó el motor 4.1. Trae técnicas de motores clásicos, rehechas desde cero:
   - 🏁 Arcade (la carretera de OutRun), que podría servir para un modo de bus por la Autopista del Embalse;
