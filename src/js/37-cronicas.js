@@ -30,13 +30,15 @@
       const n = this.lista().filter(x => R[x.id]).length, total = this.lista().length;
       Gente.charla(st, this.narrador(l, est), this.lineas(l), null, '📜 Crónica ' + n + ' de ' + total + (nueva ? ' · +3 🎫' : ''));
     },
-    /* cada 0,8 s: si vas a pie o despacio junto a una estación y no hay otra charla abierta, la primera crónica que te falte */
+    /* cada 0,8 s: si vas a pie o despacio junto a una estación y no hay otra charla abierta, la primera crónica que te falte
+       (una por visita: la siguiente de esa misma estación, cuando vuelvas después de alejarte más de 80 m) */
     mirar(st, dt) {
       if ((st._cr = (st._cr || 0) + dt) < .8) return; st._cr = 0; if (st._crEspera > 0) { st._crEspera -= .8; return; }
       if (st.charla || (st.trama && st.trama.talk) || st.mode === 'ride' || (st.mode === 'veh' && Math.abs(st.vf) > 1.2) || !$('#modal') || !$('#modal').hidden) return;
-      const R = this.leidas(), L = this.lista(); let mejor = null, md = 28;
-      for (const h of NET.stations) { const d = Math.hypot(h.x - st.x, h.y - st.y); if (d >= md) continue; const l = L.find(x => !R[x.id] && h.lines.some(y => y.id === x.id)); if (l) { md = d; mejor = [l, h.name]; } }
-      if (mejor) { st._crEspera = 20; this.contar(st, mejor[0], mejor[1]); }
+      const R = this.leidas(), L = this.lista(); let mejor = null, md = 28, cerca = false;
+      for (const h of NET.stations) { const d = Math.hypot(h.x - st.x, h.y - st.y); if (d < 80 && h.name === st._crEst) cerca = true; if (d >= md || h.name === st._crEst) continue; const l = L.find(x => !R[x.id] && h.lines.some(y => y.id === x.id)); if (l) { md = d; mejor = [l, h.name]; } }
+      if (!cerca) st._crEst = null;
+      if (mejor) { st._crEspera = 20; st._crEst = mejor[1]; this.contar(st, mejor[0], mejor[1]); }
     }
   };
   const _step = Libre.step;

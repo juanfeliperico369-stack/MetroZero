@@ -355,3 +355,5 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .swt button.on{box-shadow:0 0 0 3px var(--lA);transform:scale(1.08)}
 .tg.wrap{flex-wrap:wrap}
 .pftabs{margin:8px 0 2px}
+/* 3.0 · en Ciudad Libre la charla (gente, crónicas y trama) queda encima de los botones de acción, sin taparlos (auditoría 412 × 860) */
+#game:has(.lbbtns) .trtalk{bottom:calc(194px + var(--sab))}
