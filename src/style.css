@@ -357,3 +357,23 @@ html.t-contraste .news{background:#ffe600;color:#000}
 .pftabs{margin:8px 0 2px}
 /* 3.0 · en Ciudad Libre la charla (gente, crónicas y trama) queda encima de los botones de acción, sin taparlos (auditoría 412 × 860) */
 #game:has(.lbbtns) .trtalk{bottom:calc(194px + var(--sab))}
+
+/* 3.1 · tamaño de botones e información (settings.uiTam → --uiz): se encogen desde su esquina, sin moverse de lugar */
+:root{--uiz:.87}
+#game .vsel{transform:scale(var(--uiz));transform-origin:top right}
+#game .lbbtns{transform:scale(var(--uiz));transform-origin:bottom right}
+#game .lbmini{transform:scale(var(--uiz));transform-origin:bottom left}
+#game .crbtns{transform:scale(var(--uiz));transform-origin:bottom center}
+#game .camui{transform:scale(var(--uiz));transform-origin:top left}
+#game .joy{transform:scale(var(--uiz))}
+#game .trtalk,#game .jobbar{font-size:calc(16px * var(--uiz))}
+#game .trtalk p,#game .jobbar span,#game .jobbar em{font-size:calc(15px * var(--uiz))}
+#game .trtalk .face{transform:scale(var(--uiz));transform-origin:top left}
+#ghud .gt b{font-size:calc(20px * var(--uiz))}
+#ghud .chips{font-size:calc(12.5px * var(--uiz))}
+.vsel button svg.ico,.abtn svg.ico{width:24px;height:24px;display:block;margin:0 auto}
+.vsel button small{display:block;font-size:10px;line-height:1;margin-top:1px}
+/* modo foco: manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde */
+#game.foco .vsel{opacity:.38;transition:opacity .3s}
+#game.foco .lugar{opacity:0;transition:opacity .3s}
+#game .vsel{transition:opacity .3s}

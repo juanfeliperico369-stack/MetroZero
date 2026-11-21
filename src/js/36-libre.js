@@ -354,6 +354,7 @@ const Libre = EM.modes.libre = {
       <button class="btn" data-a="taxi">🚕 Pedir un taxi<small>llega a la calle más cercana</small></button>
       <button class="btn" data-a="ini">🏠 Volver a donde empecé<small>a ${km(dist(ini.x, ini.y, st.x, st.y))}</small></button></div>`}
       <div class="pag">Manejo</div><div class="tg" data-mj><button data-v="facil" class="${S.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${S.manejo === 'clasico' ? 'on' : ''}">Clásico: izquierda y derecha giran</button></div>
+      <div class="pag">Tamaño de botones e información</div><div class="tg" data-ui>${EM.iconos ? EM.iconos.TAM.map(([n], i) => `<button data-v="${i}" class="${EM.iconos.tam() === i ? 'on' : ''}">${n}</button>`).join('') : ''}</div>
       <div class="pag">Vista de lejos clara (líneas, estaciones y trenes resaltados)</div><div class="tg" data-cl><button data-v="1" class="${S.claro !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.claro === 0 ? 'on' : ''}">No</button></div>
       <div class="pag">Asistencia al volante (se endereza con la calle y esquiva las paredes)</div><div class="tg" data-as><button data-v="1" class="${S.asist !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.asist === 0 ? 'on' : ''}">No</button></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="ayPf">🧑 Mi personaje</button><button class="btn pri" id="ayOk">Seguir</button></div>`);
@@ -364,6 +365,7 @@ const Libre = EM.modes.libre = {
       if (a === 'taxi') { const t = VC.on ? VC.despeja(st.x, st.y, 1.4, true, 400) : this.libre(st.x, st.y, v => v === TT.ROAD || v === TT.AVE, 20); if (st.mode === 'veh') this.llevar(st, st.x, st.y, false); const R = this.rumbo({ x: t.x, y: t.y, t: -1, z: 0 }, st.h); st.parked.push({ kind: 'taxi', x: t.x, y: t.y, a: R != null ? R : st.h, id: st.parked.length }); const w = VC.on ? VC.despeja(t.x + 3, t.y + 3, .6, false, 20) : t; this.llevar(st, w.x, w.y, false); fin('🚕 Tu taxi llegó: está a tu lado, toca ● para subirte'); }
       if (a === 'ini') { this.llevar(st, ini.x, ini.y, false); fin('🏠 De vuelta donde empezaste'); } });
     $$('#mBody .tg[data-mj] button').forEach(b => b.onclick = () => { S.manejo = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $$('#mBody .tg[data-ui] button').forEach(b => b.onclick = () => { S.uiTam = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); if (EM.iconos) EM.iconos.ponTam(); Save.write(); });
     $$('#mBody .tg[data-cl] button').forEach(b => b.onclick = () => { S.claro = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-as] button').forEach(b => b.onclick = () => { S.asist = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $('#ayPf').onclick = () => Perfil.abrir(); $('#ayOk').onclick = () => fin();
