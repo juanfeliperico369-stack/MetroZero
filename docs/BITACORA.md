@@ -4,6 +4,51 @@
 
 
 
+## Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
+- «mejora los íconos y la información en pantalla: a veces tapan todo el juego, y el tamaño solo es grande o enorme»;
+- «falta el tranvía y el minijuego o manejo del tranvía, y terminar de adaptar las otras líneas de Metroplús y los alimentadores».
+
+**Lo nuevo:**
+1. **Manejo de Juega EnCicla en Ciudad Libre** (`Libre.driveArcade`, de `Ride.update` en `src/js/30-ride.js` de BicicletasUno):
+   - el vehículo apunta hacia el dedo con un giro limitado por la velocidad y una inercia corta;
+   - arranca rápido, frena para tomar la curva y rueda solo al soltar;
+   - todo con exponenciales del paso de tiempo;
+   - se quedan el choque que desliza, el desatascador, las asistencias, el suelo, la pendiente, la lluvia, el freno de mano, la reversa y los niveles.
+
+   **Medido** (`scratchpad/medir-manejo.mjs`, iguales a 30 y a 60 cuadros por segundo):
+
+   | Vehículo | Medida | Antes | Ahora |
+   |---|---|---|---|
+   | Taxi | 0–50 km/h | no llegaba en 4 s | 2,8 s |
+   | Taxi | velocidad a los 4 s | 41 km/h | 73 km/h |
+   | Taxi | curva de 90° | 3,7 s | 0,9 s |
+   | Bici | curva de 90° | 2,2 s | 0,6 s |
+   | Moto | curva de 90° | no la completaba | 0,7 s |
+
+   **A pie:** más ágil, 2,4 m/s caminando y 5,2 m/s corriendo.
+2. **Interfaz más liviana** (`src/js/36b-iconos.js`):
+   - íconos dibujados en vez de emojis;
+   - **tamaño de botones e información: pequeño, mediano (por defecto) o grande** (el de antes), en el menú de Ciudad Libre;
+   - manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde.
+3. **Tranvía de Ayacucho con modo propio** (`src/js/30b-tranvia.js`):
+   - sus 6 tramos y la campana 🔔;
+   - cruces con gente: con la campana se apuran; si llegas a más de 10 km/h con gente cruzando, frenada de emergencia y una estrella menos;
+   - tiene tarjeta en el menú y lo juega el bot.
+4. **Alimentadores:**
+   - sus 14 rutas, punteadas y con su color, en el mapa grande y en el minimapa;
+   - buses en 3D con el color de su ruta.
+   - Metroplús (líneas 1, 2 y O) ya tenía sus articulados en 3D y sus niveles en los modos de bus.
+
+**Revisado:**
+- las 9 líneas del sistema (A, B, tranvía y los 6 metrocables H, J, K, L, M y P) y las 3 de Metroplús tienen vehículos andando en Ciudad Libre (182 en total, con los 14 alimentadores);
+- los metrocables tienen todos su modo de viaje y su rompecabezas.
+
+**Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
 ## Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
 

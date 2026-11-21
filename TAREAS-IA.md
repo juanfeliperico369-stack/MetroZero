@@ -9,6 +9,12 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.1.0 «Fluido» (mismo día):** también están:
+> - el manejo de EnCicla en Ciudad Libre;
+> - los íconos dibujados con tamaño pequeño, mediano o grande;
+> - el modo Tranvía con campana y cruces;
+> - los alimentadores en el mapa y en 3D.
+>
 > Siguen el bus a Guatapé (C‑EM40, Z4/Z5) y los efectos completos. Detalle en `docs/BITACORA.md`.
 
 > **Motor City 4.5 (21‑nov‑2026) · LEE PRIMERO `docs/INFORME-MOTOR-CITY-4.5.md`.** El autor decidió que este juego **sigue con su propio motor**: no se migra a Motor City (si abajo dice «Migrar a `motor-city/`», queda anulado). El motor 4.5 viaja en `motor-city/` como referencia y caja de herramientas; el informe dice qué cambió Claude, qué mejoró, qué falta auditar, qué te toca (manejo y controles, modelos, rostros, árboles con lógica, Guatapé, la forma cenital, efectos para todo público, interfaz) y **cómo usar el motor sin dejar el tuyo**.

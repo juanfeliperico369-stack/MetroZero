@@ -2,7 +2,7 @@
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
   "base": "origin/main (5abd9f2, Motor City 4.5 en motor-city/)",
-  "actualizado": "2026-11-21T23:30:00Z",
+  "actualizado": "2026-11-22T02:00:00Z",
   "rol": "IA de El Metro: adapta Motor City 4.5 al juego sin migrarlo (pedido del autor del 21-nov)",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
@@ -11,10 +11,29 @@
     "El sistema en 3D con la paleta oficial (src/js/28-taller-sistema.js) y chispas del pantógrafo",
     "Vista de lejos clara en Ciudad Libre (settings.claro)",
     "Z3: crónicas del sistema (src/js/37-cronicas.js, Save.d.cronicas)",
-    "Interfaz 412x860: la charla sobre los botones de acción (src/style.css, al final)"
+    "Interfaz 412x860: la charla sobre los botones de acción (src/style.css, al final)",
+    "3.1.0: manejo de EnCicla en Ciudad Libre (Libre.driveArcade)",
+    "3.1.0: íconos dibujados y tamaño de interfaz (src/js/36b-iconos.js)",
+    "3.1.0: modo Tranvía (src/js/30b-tranvia.js)",
+    "3.1.0: alimentadores en mapa, minimapa y 3D"
   ],
-  "archivos_compartidos_tocados": ["src/js/00-core.js (versión y valores por defecto)", "src/style.css (una regla al final)", "src/js/90-bot.js (autotest)"],
+  "archivos_compartidos_tocados": [
+    "src/js/00-core.js (versión y valores por defecto)",
+    "src/style.css (una regla al final)",
+    "src/js/90-bot.js (autotest)",
+    "src/js/98-relevo-z1.js (una línea: CABINA incluye 'tranvia')"
+  ],
   "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores (ver docs/BITACORA.md)",
-  "libre_para_otra_ia": ["Z4 15-mc-puente.js", "Z5 49-guatape.js (bus a Guatapé, C-EM40)", "MC.Efectos completo"],
-  "no_tocar_sin_avisar": ["src/js/37-cronicas.js", "src/js/28-taller-sistema.js", "src/js/29-rostros.js"]
+  "libre_para_otra_ia": [
+    "Z4 15-mc-puente.js",
+    "Z5 49-guatape.js (bus a Guatapé, C-EM40)",
+    "MC.Efectos completo"
+  ],
+  "no_tocar_sin_avisar": [
+    "src/js/37-cronicas.js",
+    "src/js/28-taller-sistema.js",
+    "src/js/29-rostros.js",
+    "src/js/30b-tranvia.js",
+    "src/js/36b-iconos.js"
+  ]
 }
