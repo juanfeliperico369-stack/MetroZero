@@ -303,6 +303,7 @@ const Libre = EM.modes.libre = {
       <button class="btn" data-a="taxi">🚕 Pedir un taxi<small>llega a la calle más cercana</small></button>
       <button class="btn" data-a="ini">🏠 Volver a donde empecé<small>a ${km(dist(ini.x, ini.y, st.x, st.y))}</small></button></div>`}
       <div class="pag">Manejo</div><div class="tg" data-mj><button data-v="facil" class="${S.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${S.manejo === 'clasico' ? 'on' : ''}">Clásico: izquierda y derecha giran</button></div>
+      <div class="pag">Vista de lejos clara (líneas, estaciones y trenes resaltados)</div><div class="tg" data-cl><button data-v="1" class="${S.claro !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.claro === 0 ? 'on' : ''}">No</button></div>
       <div class="pag">Asistencia al volante (se endereza con la calle y esquiva las paredes)</div><div class="tg" data-as><button data-v="1" class="${S.asist !== 0 ? 'on' : ''}">Sí</button><button data-v="0" class="${S.asist === 0 ? 'on' : ''}">No</button></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="ayPf">🧑 Mi personaje</button><button class="btn pri" id="ayOk">Seguir</button></div>`);
     const fin = t => { UI.close(); if (t) this.msg(st, t, 'b'); };
@@ -312,6 +313,7 @@ const Libre = EM.modes.libre = {
       if (a === 'taxi') { const t = VC.on ? VC.despeja(st.x, st.y, 1.4, true, 400) : this.libre(st.x, st.y, v => v === TT.ROAD || v === TT.AVE, 20); if (st.mode === 'veh') this.llevar(st, st.x, st.y, false); const R = this.rumbo({ x: t.x, y: t.y, t: -1, z: 0 }, st.h); st.parked.push({ kind: 'taxi', x: t.x, y: t.y, a: R != null ? R : st.h, id: st.parked.length }); const w = VC.on ? VC.despeja(t.x + 3, t.y + 3, .6, false, 20) : t; this.llevar(st, w.x, w.y, false); fin('🚕 Tu taxi llegó: está a tu lado, toca ● para subirte'); }
       if (a === 'ini') { this.llevar(st, ini.x, ini.y, false); fin('🏠 De vuelta donde empezaste'); } });
     $$('#mBody .tg[data-mj] button').forEach(b => b.onclick = () => { S.manejo = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $$('#mBody .tg[data-cl] button').forEach(b => b.onclick = () => { S.claro = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-as] button').forEach(b => b.onclick = () => { S.asist = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $('#ayPf').onclick = () => Perfil.abrir(); $('#ayOk').onclick = () => fin();
   },
@@ -415,7 +417,7 @@ const Libre = EM.modes.libre = {
     const W = vp.w, H = vp.h, k = st.cam.k * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir();
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
-    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); Ciudad.stations(g, S, k, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.marksDraw(g, S, k);
+    Ciudad.landmarks(g, S, k, x0, y0, x1, y1); const clara = this.clara(st, k, vp); if (clara) { g.fillStyle = 'rgba(246,243,236,.42)'; g.fillRect(0, 0, W, H); } Ciudad.stations(g, S, k, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.marksDraw(g, S, k);
     // estaciones de EnCicla: anclaje azul con postes verdes y tótem
     for (const D of st.docks || []) {
       if (D.x < x0 - 12 || D.x > x1 + 12 || D.y < y0 - 12 || D.y > y1 + 12) continue; const q = S(D.x, D.y);
@@ -449,6 +451,7 @@ const Libre = EM.modes.libre = {
     if (VC.on) { Ciudad.stations(g, S, k, x0, y0, x1, y1, 'alto'); Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, 'alto'); }
     nivelDib(2); nivelDib(3);
     if (VC.on) { Ciudad.stations(g, S, k, x0, y0, x1, y1, 'cable'); Ciudad.transitDraw(g, S, k, sh, night, x0, y0, x1, y1, 'cable'); }
+    if (clara) this.lectura(g, S, k, W, H, x0, y0, x1, y1, 'red');   // 3.0 · vista de lejos clara: las líneas, las estaciones y los vehículos encima de todo
     // el jugador se ve siempre: su anillo encima de todo y, si va por debajo de un tablero, su silueta a través
     if (st.mode !== 'ride') { g.globalAlpha = .38; dibJug(); g.globalAlpha = 1;   // tu silueta encima de todo: se ve aunque un edificio te tape
       const q = Sj(st.x, st.y), r = Math.max(13 * dprL, (st.mode === 'veh' ? this.V(st).len * .7 : 2.2) * k), pu = 1 + Math.sin(st.t * 4) * .06; g.lineWidth = 4 * dprL; g.strokeStyle = 'rgba(15,34,56,.55)'; g.beginPath(); g.arc(q.x, q.y, r * pu, 0, TAU); g.stroke(); g.lineWidth = 2.2 * dprL; g.strokeStyle = '#ffb21e'; g.stroke();
@@ -517,6 +520,22 @@ const Libre = EM.modes.libre = {
     else { g.fillStyle = '#141414'; for (const u of [-.38, .38]) g.fillRect(u * L - 1, -W / 2 - 1.5, 2, W + 3); }   // los ejes
     if (V.n === 'Patineta eléctrica') { g.strokeStyle = '#23272f'; g.lineWidth = Math.max(1.5, .08 * k); g.beginPath(); g.moveTo(L * .42, -W * 1.1); g.lineTo(L * .42, W * 1.1); g.stroke(); }   // el manubrio
     g.restore();
+  },
+  /* 3.0 · la vista de lejos que se lee de un vistazo (la idea de lectura de Hunter Assassin que pidió el autor, sin su arte): al alejar
+     la cámara (🔭 o pellizcando), la ciudad se aclara un poco y encima quedan las líneas con su color, las estaciones como anillos y
+     cada tren, cable o bus como un punto vivo. Se apaga en el menú (⏸): «Vista de lejos clara». */
+  clara(st, k, vp) { const d = vp.w / Math.max(1, ($('#gcv') || { clientWidth: vp.w }).clientWidth || vp.w); return Save.d.settings.claro !== 0 && (st.far || k / d < .95); },
+  lectura(g, S, k, W, H, x0, y0, x1, y1, fase) {
+    const d = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), KINDS = { metro: 1, tram: 1, cable: 1, brt: 1 };
+    if (fase === 'red') {
+      for (const l of NET.lines) { if (!KINDS[l.kind]) continue; const P = l._pts || (l._pts = (() => { const o = []; for (let s = 0; s <= l.P.len; s += 20) { const q = NET.at(l.P, s); o.push(q.x, q.y); } const q = NET.at(l.P, l.P.len); o.push(q.x, q.y); return Float32Array.from(o); })());
+        if (!l._bb) { let bx0 = 1e9, by0 = 1e9, bx1 = -1e9, by1 = -1e9; for (let i = 0; i < P.length; i += 2) { bx0 = Math.min(bx0, P[i]); bx1 = Math.max(bx1, P[i]); by0 = Math.min(by0, P[i + 1]); by1 = Math.max(by1, P[i + 1]); } l._bb = [bx0, by0, bx1, by1]; }
+        const B = l._bb; if (B[2] < x0 - 50 || B[0] > x1 + 50 || B[3] < y0 - 50 || B[1] > y1 + 50) continue;
+        const w = (l.kind === 'metro' ? 4.2 : l.kind === 'cable' ? 2.4 : 3) * d; g.lineCap = g.lineJoin = 'round';
+        for (const [col, lw] of [['rgba(255,255,255,.95)', w + 2.4 * d], [l.color, w]]) { g.strokeStyle = col; g.lineWidth = lw; if (l.kind === 'cable') g.setLineDash([5 * d, 3 * d]); g.beginPath(); for (let i = 0; i < P.length; i += 2) { const q = S(P[i], P[i + 1]); if (i) g.lineTo(q.x, q.y); else g.moveTo(q.x, q.y); } g.stroke(); g.setLineDash([]); }
+        for (const e of l.st) { if (e.x < x0 - 20 || e.x > x1 + 20 || e.y < y0 - 20 || e.y > y1 + 20) continue; const q = S(e.x, e.y); g.fillStyle = '#fff'; g.strokeStyle = l.color; g.lineWidth = 2.2 * d; g.beginPath(); g.arc(q.x, q.y, (l.kind === 'metro' ? 4.6 : 3.6) * d, 0, TAU); g.fill(); g.stroke(); }
+      }
+    } if (fase === 'red') for (const v of Ciudad.transit) { const l = v.line; if (!KINDS[l.kind]) continue; const p = Ciudad.tpos(v); if (p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1) continue; const q = S(p.x, p.y); g.fillStyle = l.color; g.strokeStyle = '#fff'; g.lineWidth = 1.8 * d; g.beginPath(); g.arc(q.x, q.y, (l.kind === 'metro' ? 3.8 : 2.8) * d, 0, TAU); g.fill(); g.stroke(); }
   },
   /* malla 3D del taller de arte para un vehículo de VEH (null sin taller o sin WebGL: se dibuja con cajas) */
   malla3(kind, monta) { const M = MALLA3[kind], p = !!(monta && M && M[2]); return M && EM.taller && EM.taller.malla ? EM.taller.malla('v:' + M[0] + (p ? '+p' : ''), () => EM.taller.vehiculo(M[0], { persona: p })) : null; },
