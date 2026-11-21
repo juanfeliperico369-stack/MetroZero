@@ -1,5 +1,8 @@
 # Tareas de cada IA · El Metro
 
+> **Motor City 4.5 (21‑nov‑2026) · LEE PRIMERO `docs/INFORME-MOTOR-CITY-4.5.md`.** El autor decidió que este juego **sigue con su propio motor**: no se migra a Motor City (si abajo dice «Migrar a `motor-city/`», queda anulado). El motor 4.5 viaja en `motor-city/` como referencia y caja de herramientas; el informe dice qué cambió Claude, qué mejoró, qué falta auditar, qué te toca (manejo y controles, modelos, rostros, árboles con lógica, Guatapé, la forma cenital, efectos para todo público, interfaz) y **cómo usar el motor sin dejar el tuyo**.
+
+
 > **Motor City 4.0 (20‑nov‑2026): el planeta y *Turno Cero*.**
 > - El motor une Manhattan, Medellín y el Valle y Guatapé en un planeta (`MC.Planeta`), con carreteras de la nada entre ellas.
 > - Trae la búsqueda 0–5 (`MC.Busqueda`) y lee modelos GLB (`MC.Modelos`).
@@ -39,7 +42,7 @@
 - La rama `plan-unico-el-metro` ya está dentro de la v2.0.0. No la fusiones.
 
 ## La IA de El Metro (Codex «astra» o Claude): lo fuerte
-1. **Migrar a `motor-city/`** (`motor-city/docs/MIGRACION-ELMETRO.md`). Hoy `tools/build.mjs` sigue leyendo `src/data/valle.js`.
+1. ~~**Migrar a `motor-city/`**~~ (anulado por el autor en la 4.5: el juego sigue con su motor; ver `docs/INFORME-MOTOR-CITY-4.5.md`) (`motor-city/docs/MIGRACION-ELMETRO.md`). Hoy `tools/build.mjs` sigue leyendo `src/data/valle.js`.
 2. **Estilo realista familiar** del motor 2.6 en las vistas cenital, isométrica y lateral:
    - árboles de pie;
    - asfalto gastado;

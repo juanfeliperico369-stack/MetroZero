@@ -234,6 +234,12 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
+- **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
+- **Publicado:** `main` al día con la rama de Claude y `gh-pages` con el `dist/` nuevo.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100` (0 errores).
+- **Falta:** el informe, § 4 y § 5 (crónicas Z3, bus a Guatapé, manejo, modelos, rostros, mapa fiel).
+
 #### 21‑nov‑2026 · Motor City 4.4.0 en `motor-city/` (Claude)
 - El autor confirmó que las otras IA ya no siguen: Claude lleva todo. Lo pendiente de este juego está en `motor-city/CONTEXTO-RELEVO.md` § 5:
   - el bus a Guatapé con el lector MC4 del motor (zonas Z4 y Z5);

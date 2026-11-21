@@ -62,11 +62,10 @@ jobs:
           path: dist/el-metro.apk
           if-no-files-found: error
 
-      - name: Adjuntar a la release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Adjuntar a la release (la etiqueta del empuje o, a mano, v + elmetro.versionName; el flujo la crea si no existe)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="$GITHUB_REF_NAME"
-          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "El Metro $tag" --generate-notes
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then tag="$GITHUB_REF_NAME"; else tag="v$(sed -n 's/^elmetro.versionName=//p' android/gradle.properties)"; fi
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --target "$GITHUB_SHA" --title "El Metro $tag" --generate-notes
           gh release upload "$tag" dist/el-metro.apk --clobber
