@@ -679,6 +679,7 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
     - pausa dentro de la pantalla en todos los modos;
     - la cámara no se cruza con la barra ni con el mensaje;
     - historia con proporción 1,00.
+- **Motor:** `motor-city/` pasa a la 4.0.3, con las entregas de ChatGPT y Antigravity unidas. Turno Cero sigue aislado y no se mezcla con este juego.
 - **Falta (de Antigravity, sin reclamar por nadie más):** Z3 (`37-cronicas.js`), Z4 (`15-mc-puente.js`) y Z5 (`48-planificador.js`, `49-guatape.js`). Están en `.ai-coord/estado-antigravity.json`.
 
 #### 20-nov-2026 · Motor City 4.0.0 en `motor-city/`
