@@ -9,6 +9,15 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.2.0 «Evolución» (22‑nov):**
+> - modos arreglados y medidos (metro, tranvía, volante, bus y carrera);
+> - Arcade por defecto;
+> - todo abierto;
+> - 🎮 cada modo jugable desde su estación en Ciudad Libre;
+> - ⏫ acelerador fijo.
+>
+> Plan y referencias en `docs/EVOLUCION-EL-METRO-CLAUDE.md`.
+>
 > **3.1.0 «Fluido» (mismo día):** también están:
 > - el manejo de EnCicla en Ciudad Libre;
 > - los íconos dibujados con tamaño pequeño, mediano o grande;

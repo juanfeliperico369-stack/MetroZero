@@ -1,9 +1,9 @@
 {
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
-  "base": "origin/main (5abd9f2, Motor City 4.5 en motor-city/)",
-  "actualizado": "2026-11-22T02:00:00Z",
-  "rol": "IA de El Metro: adapta Motor City 4.5 al juego sin migrarlo (pedido del autor del 21-nov)",
+  "base": "v3.1.0 (aef9362) → v3.2.0 «Evolución»",
+  "actualizado": "2026-11-22T15:30:00Z",
+  "rol": "IA de El Metro (Claude, Anthropic): arreglos de jugabilidad, todo abierto, modos en el mundo abierto y documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
     "Rostros detallados (src/js/29-rostros.js, MC.Rostro como módulo suelto) en charlas, trama, historia y perfil",
@@ -15,19 +15,29 @@
     "3.1.0: manejo de EnCicla en Ciudad Libre (Libre.driveArcade)",
     "3.1.0: íconos dibujados y tamaño de interfaz (src/js/36b-iconos.js)",
     "3.1.0: modo Tranvía (src/js/30b-tranvia.js)",
-    "3.1.0: alimentadores en mapa, minimapa y 3D"
+    "3.1.0: alimentadores en mapa, minimapa y 3D",
+    "3.2.0: auditoría de jugabilidad con entradas de jugador (antes/después en docs/EVOLUCION-EL-METRO-CLAUDE.md)",
+    "3.2.0: src/js/96-arcade.js (tiempo real en todos los modos, Arcade por defecto, carrera, acelerador fijo, todo abierto)",
+    "3.2.0: src/js/97b-actividades.js (🎮 cada modo desde su estación en Ciudad Libre; niveles «desde aquí»)",
+    "3.2.0: Volante.suelo en src/js/32-volante.js (choque contra la ciudad vectorial)",
+    "3.2.0: documento docs/EVOLUCION-EL-METRO-CLAUDE.md"
   ],
   "archivos_compartidos_tocados": [
+    "src/js/00-core.js (versión 3.2.0 y settings.arcade)",
     "src/js/00-core.js (versión y valores por defecto)",
-    "src/style.css (una regla al final)",
+    "src/js/32-volante.js (método suelo y una línea de choque)",
     "src/js/90-bot.js (autotest)",
-    "src/js/98-relevo-z1.js (una línea: CABINA incluye 'tranvia')"
+    "src/js/90-bot.js (pruebas 3.2: arranque, actividades, pista)",
+    "src/js/98-relevo-z1.js (una línea: CABINA incluye 'tranvia')",
+    "src/style.css (una regla al final)"
   ],
   "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores (ver docs/BITACORA.md)",
   "libre_para_otra_ia": [
-    "Z4 15-mc-puente.js",
-    "Z5 49-guatape.js (bus a Guatapé, C-EM40)",
-    "MC.Efectos completo"
+    "Corredor por ciclovías con skate y parkour (Antigravity lo anunció en 47-carrera.js)",
+    "Cenital 3D sobre G3 y rig único de cámaras (Antigravity: 22-gl.js, 27-camara.js)",
+    "Control estilo Traffix en 45-metroplus.js (Antigravity)",
+    "Hora del primer cuadro del cable y pasajeros del bus (Codex: 52-cableviaje.js, 38-bus.js)",
+    "Z4 15-mc-puente.js · Z5 48-planificador.js"
   ],
   "no_tocar_sin_avisar": [
     "src/js/37-cronicas.js",
