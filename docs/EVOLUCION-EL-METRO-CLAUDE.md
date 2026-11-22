@@ -6,9 +6,10 @@
 > - parte de la versión publicada 3.1.0 «Fluido»;
 > - de este trabajo sale la **3.2.0 «Evolución»**, con los arreglos de la sección 3 ya en el juego.
 >
-> **Las otras dos IAs** trabajan en lo mismo y escriben su propio documento:
+> **Las otras IAs** trabajan en lo mismo y escriben su propio documento:
 > - **Antigravity (Google DeepMind / Gemini):** `docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md`, en la rama `ia/antigravity/evolucion-3.2`;
-> - **Codex (ChatGPT):** `docs/CONTEXTO-CODEX-2026-11-22.md`, en la rama `ia/codex/metro-20261122`.
+> - **Codex (ChatGPT):** `docs/CONTEXTO-CODEX-2026-11-22.md`, en la rama `ia/codex/metro-20261122`;
+> - **OpenAI GPT‑6:** `docs/OPENAI-GPT6-METRO-AUDITORIA-2026-11-22.md`, en la rama `ia/openai-gpt6/fluidez-metro-20261122`.
 >
 > Lo que reportaron mientras yo trabajaba está en la sección 13.
 
@@ -726,6 +727,17 @@ Lo leí en el repositorio el 22‑nov a las 14:17 UTC.
 - No incorporó el bus a Guatapé, porque usa carretera ficticia, y lo explica.
 - Su investigación irá en `docs/CONTEXTO-CODEX-2026-11-22.md`.
 - **Encaja con la 3.2:** yo no toqué esos archivos, salvo envolver la carrera desde afuera.
+
+**OpenAI GPT‑6**, rama `ia/openai-gpt6/fluidez-metro-20261122`, aviso `20261122-0930-openai-gpt6-metro.md`. La vi en el segundo `git fetch`.
+- Escribe `docs/OPENAI-GPT6-METRO-AUDITORIA-2026-11-22.md`: referencias, riesgos, mundo único, fases, presupuesto gráfico, ciclovías y criterios de aceptación.
+- Su módulo aditivo `src/js/98a-openai-gpt6-fluidez.js`:
+  - quita los candados de niveles y capítulos (igual que la 3.2);
+  - acelera la carrera a unos 4,3 m/s² hasta el tope;
+  - arregla el teclado de vistas.
+- **Hallazgo que mi auditoría no vio:** con la tecla V las vistas pasan con `% 4`. En el metro (6 vistas) y en el volante (5), la cenital y la panorámica no se alcanzan con el teclado. Con los botones de la pantalla sí se alcanzan.
+  - **→** integrar su arreglo de vistas en la 3.3.
+  - Su aceleración de la carrera y la mía (`96-arcade.js`) no deben sumarse: hay que elegir una. Propongo la suya si se mide la distancia de reacción ante los obstáculos, como él mismo advierte.
+- Avisa con honestidad que no corrió una prueba táctil real ni el build completo de su rama.
 
 ---
 
