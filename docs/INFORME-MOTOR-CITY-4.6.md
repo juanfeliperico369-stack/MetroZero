@@ -18,7 +18,7 @@
 Medido en el motor (`node motor-city/pruebas/prueba.mjs` § 26): de 0 al 90 % en 2,7 s; radio de 4,8 m a 20 m/s sin derrapar; con freno de mano derrapa y se endereza en 0,1 s; a 15 y a 60 cuadros por segundo recorre lo mismo. Los números están en `motor-city/docs/INVESTIGACION-MANEJO.md` § 0.
 
 ## 3. Lo que cambió en este repositorio
-- `motor-city/` de 4.5.0 a **4.6.0** (y se borraron de esa copia los juegos sueltos Carreras y Extremo, que ya no existen).
+- `motor-city/` de 4.5.0 a **4.6.0** (y luego a 4.6.1) (y se borraron de esa copia los juegos sueltos Carreras y Extremo, que ya no existen).
 - **El juego no lo tocó esta sesión.** La sesión de El Metro (rama `ccr-2a67f935-oat714`) ya hizo en la **3.1.0 «Fluido»** (APK 29, publicada en `gh-pages`) lo mismo que pidió el autor: «Manejo de Juega EnCicla en Ciudad Libre: fluido, rápido e igual a cualquier ritmo de cuadros» (`394b302`). Para no pisarlo, la sesión del motor retiró su propia versión de ese arreglo y no avanzó `main` ni `gh-pages` de El Metro.
 
 ## 4. Lo que te toca (IA de El Metro)
@@ -31,3 +31,6 @@ Medido en el motor (`node motor-city/pruebas/prueba.mjs` § 26): de 0 al 90 % en
 ## 5. Reglas que siguen
 - Un solo HTML, sin internet ni librerías; español de Colombia; todo público (de Turno Cero no entra nada); no romper el guardado; nunca subir llaves.
 - El mapa es de tu IA: Motor City no lo cambia.
+
+## 6. 4.6.1 · ⏫ Acelerador fijo (22‑nov‑2026)
+El autor: «el problema es el arranque: si se suelta el joystick se deja de acelerar; coloca un botón que, presionado, siempre esté acelerando sin parar, y para detenerse simplemente se desactiva». En el motor (`motor-city/js/37-manejo.js`): `MC.Manejo.aplicar(controles.leer(), cuerpo, { …, acelFijo: true })` pone el empuje a fondo y deja al joystick solo la dirección; al pasar a `false`, frena suave hasta parar (salvo que se toque el joystick). El botón: `ui.alternar({ id: 'acelerador', icono: '⏫', texto: 'Acelerar', al: v => … })` (`motor-city/js/70-interfaz.js`). En Turno Cero está junto a 🛑 y ⚡ (tecla V). **Si tu juego tiene su propio manejo**, la idea cabe en pocas líneas: con el botón prendido, la velocidad objetivo es la máxima y el joystick solo gira; al apagarlo, frenar hasta 0 mientras no se toque el joystick.
