@@ -88,6 +88,7 @@
       const top = this.V(st).spd * (st.turbo > 0 ? 1.3 : 1);
       if (st.v < 12 && st.inv <= 0) st.v = Math.min(12, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
     };
+    Cr.step._arranqueVivo = true;   // 98a (GPT-6) lo lee para no sumar un segundo arranque
     /* el corrimiento lateral libre de edificios cada 12 m: primero el de la muestra anterior (para no saltar de lado), luego los demás */
     Cr.libreOff = function (st, s, prev) {
       const l = NET.byId[st.line], b = st.off, C0 = [prev, b, b - 4, b + 4, b + 8, -b, -b + 4, -b - 4, b - 8, b + 12, -b - 8];

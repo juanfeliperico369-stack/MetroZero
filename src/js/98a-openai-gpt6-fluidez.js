@@ -57,7 +57,8 @@
   // Se añade ~4,28 m/s² antes del avance original para un despegue de
   // ~2,7 s, sin alterar el límite de cada vehículo ni el modelo de colisiones.
   const carrera = EM.modes.carrera;
-  if (carrera && typeof carrera.step === 'function') {
+  // Integración (Claude, 4.8): si 96-arcade ya dio el arranque vivo, no se suma otro (el tope llegaría en 3 s y se perdería la subida).
+  if (carrera && typeof carrera.step === 'function' && !carrera.step._arranqueVivo) {
     const anterior = carrera.step;
     carrera.step = function (estado, dt) {
       if (estado && !estado.done && Number.isFinite(dt) && dt > 0 && Number.isFinite(estado.v)) {
