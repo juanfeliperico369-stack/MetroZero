@@ -234,6 +234,22 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+
+#### Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
+- **Unión:**
+  - la 3.2.0 de la sesión de El Metro (`ccr-2a67f935-oat714`; conflicto solo en esta bitácora, se conservaron las dos entradas);
+  - Antigravity (`ia/antigravity/evolucion-3.2`, solo su nota: el documento y `36c-actividades.js` que anunció no llegaron);
+  - Codex (`ia/codex/metro-20261122`, nota de relevo);
+  - GPT‑6 (`98a-openai-gpt6-fluidez.js` y `98b-openai-gpt6-eon-manejo.js`, con sus pruebas).
+- **Integración:** la carrera ya no suma dos arranques. `96-arcade.js` marca `Cr.step._arranqueVivo` y `98a` solo suma el suyo si no hay otro; antes, el tope llegaba en 3 s y se perdía la subida. Del `98a` queda lo útil: la tecla V ya recorre las 6 y 5 vistas.
+- **⚙️ Flexibilidad** (Ajustes → ⚙️ Flexibilidad): manejo de los modos (arcade o realista), mano zurda (joystick a la derecha y botones a la izquierda en Ciudad Libre), joystick fácil o clásico, 🎯 giro, 🚗 velocidad de los vehículos, ⏫ acelerador fijo al subir y 🔠 tamaño de botones. Son claves dentro de `settings`; `elmetro.v1` no cambia.
+- **Motor:** `motor-city/` 4.8.0 como referencia (`docs/INFORME-MOTOR-CITY-4.6.md`, apartado 4.8).
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 0 errores;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: PASS.
+- **APK:** versionName 3.3.0, versionCode 31.
+
 #### Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - revisar el juego frente a los mejores y a sus referencias;
@@ -294,6 +310,8 @@ Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/e
 - autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
 - 100 partidas del bot;
 - capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.2.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.2.0-43c9d049`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 30, **6,7 MB**), igual byte a byte a la construida.
 
 #### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
@@ -394,6 +412,9 @@ Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/e
 - `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
 - techos a cuatro aguas;
 - probarlo en un celular real.
+#### 21‑nov‑2026 · Motor City 4.6.0 en `motor-city/` e informe (Claude, sesión del motor)
+- `motor-city/` pasó a 4.6.0 (el manejo y el mapa de EnCicla en el motor, horizontal y un solo juego de prueba). El juego no cambió en esta entrada: el manejo de EnCicla de El Metro ya lo hizo la sesión de El Metro en la 3.1.0 «Fluido» (rama `ccr-2a67f935-oat714`, APK 29).
+- Informe: `docs/INFORME-MOTOR-CITY-4.6.md`.
 
 #### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
 - **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
