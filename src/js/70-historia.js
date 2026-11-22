@@ -72,7 +72,8 @@ const Story = EM.story = {
     if (this.line === 0) { $('#stText').innerHTML = `<span class="who">Capítulo ${this.ch + 1}</span><br><b style="font-size:20px">${esc(C.t)}</b>`; return; }
     const L = C.lines[this.line - 1];
     if (!L) { this.mission(); return; }
-    $('#stText').innerHTML = (L[0] ? `<span class="who">${esc(L[0])}</span><br>` : '') + esc(L[1]); Snd.play('tap');
+    const fa = L[0] ? (Atlas.retrato(L[0], L[1]) ? Atlas.url(Atlas.retrato(L[0], L[1])) : EM.rostro ? EM.rostro.dePersonaje(L[0], L[1], 64) : '') : '';
+    $('#stText').innerHTML = (L[0] ? `<span class="who">${fa ? `<img src="${fa}" alt="" style="width:34px;height:34px;border-radius:50%;vertical-align:middle;margin-right:6px">` : ''}${esc(L[0])}</span><br>` : '') + esc(L[1]); Snd.play('tap');
   },
   mission() {
     const C = CAPS[this.ch];

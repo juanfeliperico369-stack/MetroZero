@@ -4,6 +4,168 @@
 
 
 
+## Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- revisar el juego frente a los mejores y a sus referencias;
+- investigar jugabilidad, controles, render y optimización;
+- un plan con ideas aplicables en **un documento con la marca de la IA**;
+- **arreglar los modos rotos** («los vehículos no se mueven, van muy lento, los controles son engorrosos»);
+- **todo liberado desde el principio**;
+- **cada módulo dentro del mundo abierto** con la misma experiencia.
+
+Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/evolucion-3.2` y Codex en `ia/codex/metro-20261122`.
+
+**Documento:** `docs/EVOLUCION-EL-METRO-CLAUDE.md`. Tiene:
+- la auditoría medida antes y después;
+- 40 referencias, una por una;
+- el plan por los 10 géneros;
+- el mundo abierto con rol;
+- el corredor de ciclovías;
+- un solo mundo 3D;
+- render y optimización;
+- la hoja de ruta 3.3–3.8;
+- lo que reportan las otras IAs;
+- las fuentes.
+
+**Auditoría con entradas de jugador** (`scratchpad/auditoria.mjs`, 12 s por modo, 412 × 860):
+
+| Modo | Antes | Ahora |
+|---|---|---|
+| Metro y tranvía | con ▲ el tren no salía (llave, sentido y señal) | 0 → 62 km/h en 12 s |
+| Al volante | 0 m y ritmo 0,62 (chocaba contra las casillas viejas) | 0 → 67 km/h, ritmo 0,99 |
+| Bus | 0 → 40 km/h en 12 s | 0 → 55 km/h en 10 s |
+| Carrera | ritmo 0,65, 0,12 m/s², pista dentro de edificios en Niquía | ritmo 0,99, sale a 44 km/h, pista por el lado libre |
+| Ciudad Libre | la crónica dejaba el joystick muerto al empezar | se cierra al caminar; la primera espera 25 s |
+
+**Lo nuevo:**
+1. **`src/js/96-arcade.js` (aditivo):**
+   - tiempo real en todos los modos (`substeps`);
+   - **Arcade** por defecto (`settings.arcade`, se cambia en la pantalla de niveles):
+     - en metro y tranvía: cabina lista, señal enseguida, sin vigilante, puertas solas del lado del andén, abordaje a la mitad y aceleración y freno ×1,8;
+     - en buses: puertas solas y aceleración ×2;
+     - la Escuela sigue con el procedimiento real;
+   - carrera con arranque vivo y pista corrida al lado libre (`Carrera.offAt`);
+   - **⏫ acelerador fijo** en Ciudad Libre (botón «fijo» o tecla X) y arranque más vivo: taxi de 0 a 50 km/h en 1,9 s, moto en 1,4 s;
+   - charlas que no amarran;
+   - **todo abierto**: niveles, capítulos clásicos y cualquier capítulo de «La última vuelta», empezando donde comienza.
+2. **`src/js/97b-actividades.js` (aditivo):**
+   - 🎮 «jugar» junto a cada estación de Ciudad Libre:
+     - metro y tranvía **desde esa estación** hacia los dos lados, o el recorrido completo;
+     - Metroplús y alimentadores desde arriba o en la cabina 3D;
+     - operar y armar el cable;
+     - despacho, alimentadores, cruces y carrera.
+   - Los tramos «desde aquí» son niveles dinámicos con el formato de siempre (`A:3-5`, `bus:MP1:6-10`).
+   - Al terminar o al salir se vuelve a la ciudad, al mismo punto.
+3. **`32-volante.js`:** `Volante.suelo`, el choque contra la ciudad vectorial.
+
+**Guardado:** `settings.arcade` nuevo, con su valor por defecto.
+
+**Probado:**
+- autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
+- 100 partidas del bot;
+- capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.2.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.2.0-43c9d049`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 30, **6,7 MB**), igual byte a byte a la construida.
+
+## Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
+- «mejora los íconos y la información en pantalla: a veces tapan todo el juego, y el tamaño solo es grande o enorme»;
+- «falta el tranvía y el minijuego o manejo del tranvía, y terminar de adaptar las otras líneas de Metroplús y los alimentadores».
+
+**Lo nuevo:**
+1. **Manejo de Juega EnCicla en Ciudad Libre** (`Libre.driveArcade`, de `Ride.update` en `src/js/30-ride.js` de BicicletasUno):
+   - el vehículo apunta hacia el dedo con un giro limitado por la velocidad y una inercia corta;
+   - arranca rápido, frena para tomar la curva y rueda solo al soltar;
+   - todo con exponenciales del paso de tiempo;
+   - se quedan el choque que desliza, el desatascador, las asistencias, el suelo, la pendiente, la lluvia, el freno de mano, la reversa y los niveles.
+
+   **Medido** (`scratchpad/medir-manejo.mjs`, iguales a 30 y a 60 cuadros por segundo):
+
+   | Vehículo | Medida | Antes | Ahora |
+   |---|---|---|---|
+   | Taxi | 0–50 km/h | no llegaba en 4 s | 2,8 s |
+   | Taxi | velocidad a los 4 s | 41 km/h | 73 km/h |
+   | Taxi | curva de 90° | 3,7 s | 0,9 s |
+   | Bici | curva de 90° | 2,2 s | 0,6 s |
+   | Moto | curva de 90° | no la completaba | 0,7 s |
+
+   **A pie:** más ágil, 2,4 m/s caminando y 5,2 m/s corriendo.
+2. **Interfaz más liviana** (`src/js/36b-iconos.js`):
+   - íconos dibujados en vez de emojis;
+   - **tamaño de botones e información: pequeño, mediano (por defecto) o grande** (el de antes), en el menú de Ciudad Libre;
+   - manejando rápido, la columna de botones se atenúa y la ficha del lugar se esconde.
+3. **Tranvía de Ayacucho con modo propio** (`src/js/30b-tranvia.js`):
+   - sus 6 tramos y la campana 🔔;
+   - cruces con gente: con la campana se apuran; si llegas a más de 10 km/h con gente cruzando, frenada de emergencia y una estrella menos;
+   - tiene tarjeta en el menú y lo juega el bot.
+4. **Alimentadores:**
+   - sus 14 rutas, punteadas y con su color, en el mapa grande y en el minimapa;
+   - buses en 3D con el color de su ruta.
+   - Metroplús (líneas 1, 2 y O) ya tenía sus articulados en 3D y sus niveles en los modos de bus.
+
+**Revisado:**
+- las 9 líneas del sistema (A, B, tranvía y los 6 metrocables H, J, K, L, M y P) y las 3 de Metroplús tienen vehículos andando en Ciudad Libre (182 en total, con los 14 alimentadores);
+- los metrocables tienen todos su modo de viaje y su rompecabezas.
+
+**Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas del bot (324.927 pasos, 46 victorias, con el tranvía) con 0 errores y 0 errores de consola; el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.1.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.1.0-4ed29c60`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 29, **6,7 MB**), igual byte a byte a la construida. La 3.0.0 se publicó antes el mismo día (caché `el-metro-v3.0.0-46057e02`, APK 28).
+
+## Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
+**Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
+
+**Cómo se adaptó el motor:**
+- **Decisión:** El Metro sigue con su motor (mapa, G3, ciudad vectorial, modos y guardado) y toma de Motor City 4.5 lo que más le sirve, adaptado:
+  - portado («manera A»): el manejo y la regla de los árboles;
+  - como módulo suelto («manera B»): los rostros.
+  Así se conservan la fidelidad del mapa, el guardado `elmetro.v1` y las 100 partidas del bot.
+- **Base:** la rama de trabajo se adelantó a `main` (Motor City 4.5 en `motor-city/`, mundo abierto primero, relevo Z1/Z2, tutorial opcional).
+
+**Lo nuevo para quien juega** (§ 5 del informe 4.5):
+1. **Manejo que no se traba** (`src/js/36-libre.js`; motor: `js/32-fisica.js`):
+   - el choque desliza a lo largo de la pared (la normal sale de 8 tanteos) y pierde velocidad según el ángulo;
+   - solo cuenta como golpe si va contra la pared a más de 2,5 m/s;
+   - si empuja y no avanza en 0,85 s, se desatasca solo (y, metido en un edificio, busca el hueco libre más cercano);
+   - la asistencia mira adelante y esquiva la pared (se apaga con la asistencia al volante);
+   - el giro va amortiguado y el giro del cuadro no lo monta en la pared;
+   - el bordillo da un tumbo a la cámara, y a pie también se desliza por los muros en diagonal.
+2. **Rostros detallados** (`src/js/29-rostros.js`, de `js/71-rostros.js`):
+   - la gente de la ciudad, la trama, la historia, las crónicas y tu ficha tienen cara con volumen, edad y gesto según la frase;
+   - van encima el sombrero aguadeño (crema con cinta negra), la ruana, el carriel, la mochila y la cámara.
+3. **Árboles con lógica** (`VC.sembrable`; regla de `js/29-arboleda.js`): nada en canchas, pistas, piscinas, la cancha del estadio ni en medio de una plaza dura.
+4. **El sistema en 3D con la paleta oficial** (`src/js/28-taller-sistema.js`):
+   - vagones de A y B plateados con la franja de su línea, puertas dobles, frente con faros y pantógrafo;
+   - el tranvía, las cabinas de los cables y los articulados de Metroplús en dos cuerpos;
+   - chispas del pantógrafo, más con lluvia;
+   - sin WebGL quedan las cajas de antes.
+5. **Vista de lejos clara** (la idea de lectura de *Hunter Assassin*, sin su arte): al alejar la cámara en Ciudad Libre la ciudad se aclara y encima quedan las líneas con su color, las estaciones y cada tren, cable o bus. Ajuste `settings.claro`.
+6. **Crónicas del sistema** (Z3, `src/js/37-cronicas.js`):
+   - 13 crónicas: la primera vez que llegas a una estación de una línea, alguien del barrio te cuenta su historia;
+   - todos los datos son los ya verificados de `src/data/red.js`;
+   - +3 🎫 cada una, una por visita a cada estación, guardadas en `Save.d.cronicas`.
+7. **Interfaz 412 × 860:** la charla ya no tapa el botón de acción ni el acelerador.
+
+**Guardado:** los campos nuevos (`settings.claro`, `cronicas`) tienen su valor por defecto en `newSave`.
+
+**Probado:**
+- autotest con 0 errores y 0 avisos, con pruebas nuevas:
+  - roce en diagonal y choque de frente contra un muro recto;
+  - salir de un edificio enorme;
+  - árboles alrededor del estadio;
+  - las 13 crónicas con narrador;
+- 100 partidas del bot (ver abajo);
+- capturas a 412 × 860 sin solapes;
+- 3D del tren en Niquía, el viaducto y el articulado;
+- retratos de 16 personajes.
+
+**Sigue:**
+- el bus a Guatapé (C‑EM40, «manera C»: suma ≈ 1,4 MB con el motor y el mundo MC4);
+- `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
+- techos a cuatro aguas;
+- probarlo en un celular real.
 ## 21‑nov‑2026 · Motor City 4.6.0 en `motor-city/` e informe (Claude, sesión del motor)
 - `motor-city/` pasó a 4.6.0 (el manejo y el mapa de EnCicla en el motor, horizontal y un solo juego de prueba). El juego no cambió en esta entrada: el manejo de EnCicla de El Metro ya lo hizo la sesión de El Metro en la 3.1.0 «Fluido» (rama `ccr-2a67f935-oat714`, APK 29).
 - Informe: `docs/INFORME-MOTOR-CITY-4.6.md`.

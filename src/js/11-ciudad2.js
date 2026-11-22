@@ -119,11 +119,12 @@ const VC = EM.vcity = {
       const an = dirA[di], ux = Math.cos(an), uy = Math.sin(an), ed = tipo(jx, jy), r = h2(x, y, 53);
       for (const f of [1, .75, .55]) { const hw = (ed ? 7 + r * 6 : 3 + r * 2) * f, hd = (ed ? 6 + r * 5 : 4 + r * 2.5) * f; if (hw < 2.2 || hd < 2.2) break; if (cabe(jx, jy, hw, hd, ux, uy)) { pon(jx, jy, hw, hd, ux, uy, ed, 77); break; } }
     }
-    // árboles en parques y zonas verdes de la ciudad (no en la montaña, que tiene su propio dosel)
-    const DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 };
+    // árboles en parques y zonas verdes de la ciudad (no en la montaña, que tiene su propio dosel); 3.0: nunca en canchas, pistas,
+    // piscinas ni en la mitad de una plaza dura (la regla «sembrable» de Motor City 4.5, js/29-arboleda.js)
+    const DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 }, SU = this.suelosEn ? this.suelosEn(cx0 - 20, cy0 - 20, cx0 + R + 20, cy0 + R + 20) : [];
     for (let y = cy0 + 4; y < cy0 + R; y += 9) for (let x = cx0 + 4; x < cx0 + R; x += 9) { const v = tileAt(x, y); if (occAt(x, y)) continue; let p = v === TT.GRASS ? .5 : v === TT.PLAZA ? .12 : 0;
       if (reales && (v === TT.BRICK || v === TT.BLDG)) p = this.enCampus && this.enCampus(x, y) ? .42 : DENS[this.zona(x, y)] || .04;
-      if (p && h2(x, y, 21) < p) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; if (occAt(jx, jy) === 2) continue; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
+      if (p && h2(x, y, 21) < p) { const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6; if (occAt(jx, jy) === 2 || !this.sembrable(jx, jy, SU)) continue; trees.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); } }
     // índice de edificios por celdas de 40 m (choques)
     const fis = ext.length ? bs.concat(ext) : bs, bins = new Map(); fis.forEach((b, i) => { const r = Math.hypot(b.hw, b.hd); for (let gy = Math.floor((b.y - r) / 40); gy <= Math.floor((b.y + r) / 40); gy++) for (let gx = Math.floor((b.x - r) / 40); gx <= Math.floor((b.x + r) / 40); gx++) { const k = gx * 8192 + gy; let a = bins.get(k); if (!a) bins.set(k, a = []); a.push(i); } });
     Rg = { bs, fis, trees, bins, occ, X0, Y0, NG, RES, hitos: hits.filter(H => !H.libre) };
@@ -421,11 +422,20 @@ const VC = EM.vcity = {
     cv.lights = (cv.lights || []).concat(B.filter(b => !b.hito && b.h > 6 && b.s > .3).map(b => [b.x, b.y - b.h * ob * .5, b.hw, b.h])); cv.X0 = X0; cv.Y0 = Y0; cv.sc = sc;
   },
   /* árboles de lejos sin armar la región: parques y, en las manzanas, según la zona (van debajo de los edificios) */
+  /* 3.0 · ¿se puede sembrar un árbol en (x, y)? (la regla «sembrable» de Motor City 4.5): no en canchas, pistas ni piscinas (con 1,5 m
+     de margen), no en la cancha de los escenarios deportivos de la lista de hitos, y no en la mitad de una plaza dura (plaza a lado y lado) */
+  sembrable(x, y, SU) {
+    for (const o of SU || []) { if (o.t !== 'cancha' && o.t !== 'pista' && o.t !== 'piscina') continue; const dx = x - o.x, dy = y - o.y, a = dx * o.ux + dy * o.uy, d = -dx * o.uy + dy * o.ux; if (Math.abs(a) < o.hw + 1.5 && Math.abs(d) < o.hd + 1.5) return false; }
+    for (const H of this.HT || []) { if (!H.C || Math.abs(H.cx - x) > 300 || Math.abs(H.cy - y) > 300) continue; const C = H.C; let ins = false; for (let i = 0, j = C.length - 2; i < C.length; j = i, i += 2) if ((C[i + 1] > y) !== (C[j + 1] > y) && x < (C[j] - C[i]) * (y - C[i + 1]) / (C[j + 1] - C[i + 1]) + C[i]) ins = !ins; if (ins) return false; }
+    const P = (u, v) => MAP.tile(Math.floor(u / TM), Math.floor(v / TM)) === TT.PLAZA;
+    if (P(x, y) && P(x + 16, y) && P(x - 16, y) && P(x, y + 16) && P(x, y - 16)) return false;
+    return true;
+  },
   arbolesLejos(X0, Y0, S, B) {
-    const out = [], DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 }, C = 4, N = Math.ceil(S / C) + 2, oc = new Uint8Array(N * N);
+    const out = [], DENS = { poblado: .34, laureles: .2, pueblo: .1, mixto: .05, ladera: .035, centro: .015 }, C = 4, N = Math.ceil(S / C) + 2, oc = new Uint8Array(N * N), SU = this.suelosEn ? this.suelosEn(X0 - 20, Y0 - 20, X0 + S + 20, Y0 + S + 20) : [];
     for (const b of B) { if (b.hito) continue; const r = Math.max(b.hw, b.hd) + .5, i0 = Math.max(0, Math.floor((b.x - r - X0) / C)), i1 = Math.min(N - 1, Math.floor((b.x + r - X0) / C)), j0 = Math.max(0, Math.floor((b.y - r - Y0) / C)), j1 = Math.min(N - 1, Math.floor((b.y + r - Y0) / C)); for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) oc[j * N + i] = 1; }
     for (let y = Math.floor(Y0 / 9) * 9 + 4; y < Y0 + S; y += 9) for (let x = Math.floor(X0 / 9) * 9 + 4; x < X0 + S; x += 9) { const v = MAP.tile(Math.floor(x / TM), Math.floor(y / TM)); let p = v === TT.GRASS ? .5 : v === TT.PLAZA ? .12 : (v === TT.BRICK || v === TT.BLDG) ? DENS[this.zona(x, y)] || .04 : 0;
-      if (!p || h2(x, y, 21) >= p) continue; const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6, gi = Math.floor((jx - X0) / C), gj = Math.floor((jy - Y0) / C); if (gi >= 0 && gj >= 0 && gi < N && gj < N && oc[gj * N + gi]) continue; out.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); }
+      if (!p || h2(x, y, 21) >= p) continue; const jx = x + (h2(x, y, 22) - .5) * 6, jy = y + (h2(x, y, 23) - .5) * 6, gi = Math.floor((jx - X0) / C), gj = Math.floor((jy - Y0) / C); if ((gi >= 0 && gj >= 0 && gi < N && gj < N && oc[gj * N + gi]) || !this.sembrable(jx, jy, SU)) continue; out.push(jx, jy, 2.4 + h2(x, y, 24) * 2.2, h2(x, y, 25) < .08 ? 1 : 0); }
     return out;
   },
   luces(c) {

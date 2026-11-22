@@ -228,8 +228,8 @@ const Trama = EM.trama = {
     }
     const L = T.lines[T.i] || ['', '']; const last = T.i >= T.lines.length - 1;
     if (T.said !== T.i) { T.said = T.i; if (L[1]) Snd.say(L[1]); }
-    const face = L[0] ? Atlas.retrato(L[0], L[1]) : ''; el.classList.toggle('conface', !!face);
-    el.innerHTML = `${face ? Atlas.tag(face, 'face', L[0]) : ''}${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
+    const face = L[0] ? Atlas.retrato(L[0], L[1]) : '', rostro = !face && L[0] && EM.rostro ? EM.rostro.dePersonaje(L[0], L[1]) : ''; el.classList.toggle('conface', !!face || !!rostro);
+    el.innerHTML = `${face ? Atlas.tag(face, 'face', L[0]) : rostro ? `<img class="face" src="${rostro}" alt="" draggable="false">` : ''}${L[0] ? `<b class="who">${esc(L[0])}</b>` : ''}<p>${esc(L[1])}</p><div class="opts">${last && S.k === 'modulo' ? `<button class="btn pri sm" data-go>▶ ¡Vamos!</button><button class="btn sm gh" data-later>Más tarde</button>` : `<button class="btn pri sm" data-n>${last ? 'Listo ✓' : 'Siguiente ▶'}</button>`}</div>`;
     const nb = el.querySelector('[data-n]'); if (nb) nb.onclick = () => { Snd.play('tap'); if (T.i < T.lines.length - 1) { T.i++; this.render(st); } else { tr.talk = null; this.render(st); this.next(st); } };
     const go = el.querySelector('[data-go]'); if (go) go.onclick = () => { tr.talk = null; this.render(st); this.launch(st, S); };
     const lt = el.querySelector('[data-later]'); if (lt) lt.onclick = () => this.close(st);

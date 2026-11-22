@@ -237,7 +237,9 @@ const Conduce = EM.modes.conduce = {
     G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
       G3.traffic(cam, st.t + 1000, line); G3.people(cam, st.t);
       const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
-      if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s); G3.vehicle(q.x, this.zLine(line, s), q.y, q.a + (dir < 0 ? Math.PI : 0), carL, st.kind, col); }
+      if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s), zq = this.zLine(line, s), a = q.a + (dir < 0 ? Math.PI : 0);   // 3.0 · tu tren con la paleta de la línea (28-taller-sistema.js)
+        if (!((st.kind === 'metro' || st.kind === 'tram') && EM.taller && EM.taller.dibujaSistema && EM.taller.dibujaSistema(st.kind === 'tram' ? 'tranvia' : 'metro', line.color, q.x, zq, q.y, a, { largo: carL, panto: k === 0, puntas: k === 0 ? [1] : k === n - 1 ? [-1] : [] }))) G3.vehicle(q.x, zq, q.y, a, carL, st.kind, col);
+        else if (k === 0) { const u = st.kind === 'tram' ? carL * .1 - .2 : carL * .3 - .25; EM.taller.chispa(q.x + Math.cos(a) * u, zq + (st.kind === 'tram' ? 4.6 : 5.05), q.y + Math.sin(a) * u, a, st.t, Mundo.weather().rain); } }
       for (const sg of st.sig) { if (!sg.seen || sg.done) continue; const q = NET.at(line.P, sg.s, dir * 3.6), zq = this.zLine(line, sg.s); G.box(q.x, zq, q.y, 0, .35, .35, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .8, .8, 1.6, sg.on ? [1, .23, .18] : [.22, .9, .48]); }
       for (const L of st.lights) { const q = NET.at(line.P, L.s, dir * 6), zq = this.zLine(line, L.s), ls = this.lightState(L, st.t); G.box(q.x, zq, q.y, 0, .3, .3, 5, [.2, .2, .22]); G.box(q.x, zq + 5, q.y, 0, .7, .7, 1.4, ls === 'g' ? [.22, .9, .48] : ls === 'y' ? [1, .76, .23] : [1, .23, .18]); }
       const m = NET.at(line.P, st.tgt[st.ni], dir * 3); if (st.ph !== 'dwell') G.box(m.x, this.zLine(line, st.tgt[st.ni]), m.y, 0, .4, .4, 2.6 + .3 * Math.sin(st.t * 6), [.98, .88, .4]);

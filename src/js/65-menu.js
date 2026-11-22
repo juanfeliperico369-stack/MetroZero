@@ -5,6 +5,7 @@ const MODECARDS = [
   { id: 'libre', cls: 'c-libre', t: 'Ciudad Libre', d: 'Recorre el Valle de Aburrá real: a pie, en bici, skate, patines, monopatín, carro, taxi o moto, o de pasajero en el metro, el tranvía, los cables y los buses. Oficios por la radio y la gente de EnCicla.' },
   { id: 'bus', cls: 'c-volante', t: 'Metroplús y alimentadores', d: 'Simulador de bus en vista cenital: de estación a estación por las calles reales, con pasajeros, semáforos y tráfico.' },
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
+  { id: 'tranvia', cls: 'c-conduce', t: 'Tranvía de Ayacucho', d: 'Conduce el tranvía por la calle: sube la loma de Ayacucho, toca la campana en los cruces con gente y para en cada estación.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
   { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En skate, patines, monopatín o bici EnCicla (🛹 para cambiar), con imán, turbo y escudo; por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
@@ -65,6 +66,7 @@ const Menu = EM.menu = {
   miniArt(g, id) {
     g.imageSmoothingEnabled = false; g.clearRect(0, 0, 70, 55);
     if (id === 'conduce') { Art.vehicleBack(g, 35, 52, 34, '#1C5C9C', 'metro', true); }
+    else if (id === 'tranvia') { Art.vehicleBack(g, 35, 52, 34, '#2f9b57', 'tram', true); }
     else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
     else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
     else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }

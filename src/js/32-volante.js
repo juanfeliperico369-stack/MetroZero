@@ -103,7 +103,7 @@ const Volante = EM.modes.volante = {
     st.h += st.v / B.wb * Math.tan(st.steer) * dt; st.x += st.v * Math.cos(st.h) * dt; st.y += st.v * Math.sin(st.h) * dt;
     if (B.len2) { let d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); st.h2 += st.v / B.wb2 * Math.sin(d) * dt; d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); if (Math.abs(d) > 1) st.h2 = st.h - Math.sign(d) * 1; }
     // choques con edificios, montaña y agua (por el eje del bus)
-    let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = MAP.tileM(px, py); if (SOLIDB.has(v)) hit = true; else if (!DRIVE_OK.has(v)) soft++; }
+    let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = this.suelo(st, line, px, py); if (v === 2) hit = true; else if (v === 1) soft++; }
     if (hit) { st.x = ox; st.y = oy; st.h = oh; st.h2 = oh2; const imp = Math.abs(st.v); if (imp > 1.5) { st.damage += imp * 2; st.score -= Math.round(20 * imp); st.crashes++; st.comfort = Math.max(0, st.comfort - imp * 3); st.shake = .4; this.sfx(st, 'crash'); this.msg(st, '¡Golpe! −' + Math.round(20 * imp), 'r'); vib(120); } st.v = -st.v * .2; }
     // ruta: proyección local sobre la polilínea
     const pr = this.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
@@ -124,6 +124,13 @@ const Volante = EM.modes.volante = {
       st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 220 ? 'g' : 'y');
     } else if (dS < -40 && st.ni < st.stops.length) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st); }
     if (st.shake > 0) st.shake -= dt;
+  },
+  /* 3.2 · el piso bajo el bus: 2 = choca, 1 = fuera del asfalto, 0 = bien. Con la ciudad vectorial (VC) se choca contra sus
+     edificios (antes, contra las casillas viejas de 20 m: el bus quedaba trabado al salir); el corredor de la ruta (7 m a cada
+     lado) siempre se rueda, como en el modo Bus */
+  suelo(st, line, x, y) {
+    if (VC.on) { if (this.projLocal(line.P, x, y, st.sR).d < 7) return 0; return VC.solid(x, y, .3) ? 2 : VC.agarre(x, y) < .95 ? 1 : 0; }
+    const v = MAP.tileM(x, y); return SOLIDB.has(v) ? 2 : DRIVE_OK.has(v) ? 0 : 1;
   },
   projLocal(P, x, y, s0) {
     let bd = 1e18, bs = s0; const a = Math.max(0, s0 - 120), b = Math.min(P.len, s0 + 220);
