@@ -362,6 +362,8 @@ html.t-contraste .news{background:#ffe600;color:#000}
 :root{--uiz:.87}
 #game .vsel{transform:scale(var(--uiz));transform-origin:top right}
 #game .lbbtns{transform:scale(var(--uiz));transform-origin:bottom right}
+/* 3.3 · ⚙️ Flexibilidad: mano zurda (joystick a la derecha, botones a la izquierda) */
+body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8px;transform-origin:bottom left}
 #game .lbmini{transform:scale(var(--uiz));transform-origin:bottom left}
 #game .crbtns{transform:scale(var(--uiz));transform-origin:bottom center}
 #game .camui{transform:scale(var(--uiz));transform-origin:top left}

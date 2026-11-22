@@ -141,6 +141,8 @@
     };
   }
 
+  /* 3.3 · ⚙️ Flexibilidad: la mano zurda se aplica al cargar */
+  try { if (document.body) document.body.classList.toggle('zurdo', !!S().zurdo); } catch (e) { /* sin documento */ }
   /* ---------- 4 · todo abierto desde el principio + el ajuste de manejo ---------- */
   if (typeof Menu === 'undefined') return;
   const abre = () => { for (const b of document.querySelectorAll('#lBody .lock')) b.classList.remove('lock'); };
