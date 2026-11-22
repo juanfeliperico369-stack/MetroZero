@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.1.0 · compilado el 2026-11-21.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.2.0 · compilado el 2026-11-22.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.1.0** · compilado el 2026-11-21.
+> Versión del juego **v3.2.0** · compilado el 2026-11-22.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -805,6 +805,67 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+##### Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- revisar el juego frente a los mejores y a sus referencias;
+- investigar jugabilidad, controles, render y optimización;
+- un plan con ideas aplicables en **un documento con la marca de la IA**;
+- **arreglar los modos rotos** («los vehículos no se mueven, van muy lento, los controles son engorrosos»);
+- **todo liberado desde el principio**;
+- **cada módulo dentro del mundo abierto** con la misma experiencia.
+
+Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/evolucion-3.2` y Codex en `ia/codex/metro-20261122`.
+
+**Documento:** `docs/EVOLUCION-EL-METRO-CLAUDE.md`. Tiene:
+- la auditoría medida antes y después;
+- 40 referencias, una por una;
+- el plan por los 10 géneros;
+- el mundo abierto con rol;
+- el corredor de ciclovías;
+- un solo mundo 3D;
+- render y optimización;
+- la hoja de ruta 3.3–3.8;
+- lo que reportan las otras IAs;
+- las fuentes.
+
+**Auditoría con entradas de jugador** (`scratchpad/auditoria.mjs`, 12 s por modo, 412 × 860):
+
+| Modo | Antes | Ahora |
+|---|---|---|
+| Metro y tranvía | con ▲ el tren no salía (llave, sentido y señal) | 0 → 62 km/h en 12 s |
+| Al volante | 0 m y ritmo 0,62 (chocaba contra las casillas viejas) | 0 → 67 km/h, ritmo 0,99 |
+| Bus | 0 → 40 km/h en 12 s | 0 → 55 km/h en 10 s |
+| Carrera | ritmo 0,65, 0,12 m/s², pista dentro de edificios en Niquía | ritmo 0,99, sale a 44 km/h, pista por el lado libre |
+| Ciudad Libre | la crónica dejaba el joystick muerto al empezar | se cierra al caminar; la primera espera 25 s |
+
+**Lo nuevo:**
+1. **`src/js/96-arcade.js` (aditivo):**
+   - tiempo real en todos los modos (`substeps`);
+   - **Arcade** por defecto (`settings.arcade`, se cambia en la pantalla de niveles):
+     - en metro y tranvía: cabina lista, señal enseguida, sin vigilante, puertas solas del lado del andén, abordaje a la mitad y aceleración y freno ×1,8;
+     - en buses: puertas solas y aceleración ×2;
+     - la Escuela sigue con el procedimiento real;
+   - carrera con arranque vivo y pista corrida al lado libre (`Carrera.offAt`);
+   - **⏫ acelerador fijo** en Ciudad Libre (botón «fijo» o tecla X) y arranque más vivo: taxi de 0 a 50 km/h en 1,9 s, moto en 1,4 s;
+   - charlas que no amarran;
+   - **todo abierto**: niveles, capítulos clásicos y cualquier capítulo de «La última vuelta», empezando donde comienza.
+2. **`src/js/97b-actividades.js` (aditivo):**
+   - 🎮 «jugar» junto a cada estación de Ciudad Libre:
+     - metro y tranvía **desde esa estación** hacia los dos lados, o el recorrido completo;
+     - Metroplús y alimentadores desde arriba o en la cabina 3D;
+     - operar y armar el cable;
+     - despacho, alimentadores, cruces y carrera.
+   - Los tramos «desde aquí» son niveles dinámicos con el formato de siempre (`A:3-5`, `bus:MP1:6-10`).
+   - Al terminar o al salir se vuelve a la ciudad, al mismo punto.
+3. **`32-volante.js`:** `Volante.suelo`, el choque contra la ciudad vectorial.
+
+**Guardado:** `settings.arcade` nuevo, con su valor por defecto.
+
+**Probado:**
+- autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
+- 100 partidas del bot;
+- capturas a 412 × 860.
+
 ##### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
@@ -848,7 +909,9 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 **Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas del bot (324.927 pasos, 46 victorias, con el tranvía) con 0 errores y 0 errores de consola; el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.1.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.1.0-4ed29c60`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 29, **6,7 MB**), igual byte a byte a la construida. La 3.0.0 se publicó antes el mismo día (caché `el-metro-v3.0.0-46057e02`, APK 28).
 
 ##### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
@@ -1846,6 +1909,17 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+#### Reglas aprendidas (evolución, 3.2.0)
+- **Audita con entradas de jugador, no solo con el bot.** El bot (`auto`) se salta llaves, señales y puertas. Por eso el metro «funcionaba» en las pruebas y no se movía con ▲. Mide cada modo 12 s con ▲ sostenido (`scratchpad/auditoria.mjs`): velocidad por segundo, avance y ritmo (tiempo del juego ÷ tiempo real).
+- **Todos los modos usan `substeps`.** Con el tope viejo de 50 ms por cuadro, a 13 cuadros por segundo (3D sin tarjeta gráfica) el juego iba al 62 %.
+- **Arcade por defecto** (`settings.arcade !== 0`). Lo realista queda como opción y en la Escuela. Si un modo nuevo tiene procedimiento (llaves, puertas), en arcade lo hace solo.
+- **Colisiones contra la ciudad que se ve** (`VC.solid`, `VC.agarre`), nunca contra las casillas viejas de 20 m (`MAP.tileM`), salvo que VC no esté.
+- **Mundo abierto:** un modo nuevo debe poder lanzarse desde su lugar en Ciudad Libre.
+  - Se agrega en `EM.actividades.aqui`.
+  - Si necesita empezar en cualquier estación, se usa un nivel dinámico con `dinamico()` (mismo formato `linea:a-b`).
+  - Se lanza con `{ ciudad: 1, onEnd }`: al salir vuelve a la ciudad.
+- **Las charlas no bloquean el movimiento:** caminar las cierra.
 
 #### Reglas aprendidas (fluido, 3.1.0)
 - **Manejo de Ciudad Libre = el de EnCicla** (`Libre.driveArcade`).
@@ -3453,7 +3527,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (104 archivos, 1420 KB)
+## Código fuente (106 archivos, 1445 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3933,7 +4007,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.1.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -3980,7 +4054,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0, claro: 1, uiTam: 1 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {} };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {} };
 }
 const Save = EM.save = {
   d: null,
@@ -9086,7 +9160,7 @@ const Volante = EM.modes.volante = {
     st.h += st.v / B.wb * Math.tan(st.steer) * dt; st.x += st.v * Math.cos(st.h) * dt; st.y += st.v * Math.sin(st.h) * dt;
     if (B.len2) { let d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); st.h2 += st.v / B.wb2 * Math.sin(d) * dt; d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); if (Math.abs(d) > 1) st.h2 = st.h - Math.sign(d) * 1; }
     // choques con edificios, montaña y agua (por el eje del bus)
-    let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = MAP.tileM(px, py); if (SOLIDB.has(v)) hit = true; else if (!DRIVE_OK.has(v)) soft++; }
+    let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = this.suelo(st, line, px, py); if (v === 2) hit = true; else if (v === 1) soft++; }
     if (hit) { st.x = ox; st.y = oy; st.h = oh; st.h2 = oh2; const imp = Math.abs(st.v); if (imp > 1.5) { st.damage += imp * 2; st.score -= Math.round(20 * imp); st.crashes++; st.comfort = Math.max(0, st.comfort - imp * 3); st.shake = .4; this.sfx(st, 'crash'); this.msg(st, '¡Golpe! −' + Math.round(20 * imp), 'r'); vib(120); } st.v = -st.v * .2; }
     // ruta: proyección local sobre la polilínea
     const pr = this.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
@@ -9107,6 +9181,13 @@ const Volante = EM.modes.volante = {
       st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 220 ? 'g' : 'y');
     } else if (dS < -40 && st.ni < st.stops.length) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st); }
     if (st.shake > 0) st.shake -= dt;
+  },
+  /* 3.2 · el piso bajo el bus: 2 = choca, 1 = fuera del asfalto, 0 = bien. Con la ciudad vectorial (VC) se choca contra sus
+     edificios (antes, contra las casillas viejas de 20 m: el bus quedaba trabado al salir); el corredor de la ruta (7 m a cada
+     lado) siempre se rueda, como en el modo Bus */
+  suelo(st, line, x, y) {
+    if (VC.on) { if (this.projLocal(line.P, x, y, st.sR).d < 7) return 0; return VC.solid(x, y, .3) ? 2 : VC.agarre(x, y) < .95 ? 1 : 0; }
+    const v = MAP.tileM(x, y); return SOLIDB.has(v) ? 2 : DRIVE_OK.has(v) ? 0 : 1;
   },
   projLocal(P, x, y, s0) {
     let bd = 1e18, bs = s0; const a = Math.max(0, s0 - 120), b = Math.min(P.len, s0 + 220);
@@ -12582,6 +12663,13 @@ const BotT = EM.test = {
           if (B) { Object.assign(st, { mode: 'veh', veh: { kind: 'taxi' }, x: B.x, y: B.y, z: 0, h: 0, vf: 0, vs: 0, steer: 0, thr: 1, joy: { x: 0, y: 0, m: 0 }, keys: { up: true }, hb: false, _atasco: 0, _empujon: null, _chT: 0, desatascos: 0 }); for (let i = 0; i < 150 && Libre.hitV(st.x, st.y, st.h, V); i++) Libre.drive(st, 1 / 60); if (Libre.hitV(st.x, st.y, st.h, V)) E('manejo: metido en un edificio no sale'); } }
         if (VC.on) { const H = (VC.HT || []).find(h => h.C && h.k === 'estadio'); if (H) { let malos = 0, n = 0; for (const [dx, dy] of [[0, 0], [VC.R, 0], [0, VC.R], [-VC.R, 0], [0, -VC.R]]) { const Rg = VC.regionAt(H.cx + dx, H.cy + dy), T = Rg.trees || []; for (let i = 0; i < T.length; i += 4) { n++; if (!VC.sembrable(T[i], T[i + 1], VC.suelosEn(T[i] - 2, T[i + 1] - 2, T[i] + 2, T[i + 1] + 2))) malos++; } } if (malos) E('árboles: ' + malos + ' de ' + n + ' en canchas, piscinas o en medio de una plaza dura'); } }   // 3.0 · árboles con lógica
         if (EM.cronicas) { const L = EM.cronicas.lista(); if (L.length < 10) E('crónicas: solo ' + L.length); for (const l of L) { const p = EM.cronicas.narrador(l, 'prueba'), t = EM.cronicas.lineas(l); if (!p || !p.look || !p.G.n || t.length < 3) E('crónicas: incompleta la de ' + l.id); } }   // 3.0 · crónicas del sistema
+        // 3.2 · arcade: los modos arrancan y avanzan con lo que haría un jugador; actividades del mundo abierto; carrera fuera de los edificios
+        { const M = EM.modes.conduce, s1 = M.create('A:0-2', { seed: 3 }); s1.keys = { up: true }; for (let i = 0; i < 300; i++) M.step(s1, 1 / 30); if (Save.d.settings.arcade !== 0 && !(s1.v > 11)) E('arcade: el metro no arranca con la palanca (' + Math.round(s1.v * 3.6) + ' km/h en 10 s, fase ' + s1.ph + ')');
+          const Vo = EM.modes.volante, s2 = Vo.create('vo:MP1:0-4', { seed: 3 }), x0 = s2.x, y0 = s2.y; s2.keys = { up: true }; for (let i = 0; i < 300; i++) Vo.step(s2, 1 / 30); if (Math.hypot(s2.x - x0, s2.y - y0) < 40) E('arcade: el bus del volante no avanza (' + Math.round(Math.hypot(s2.x - x0, s2.y - y0)) + ' m en 10 s)'); }
+        if (EM.actividades) { const h = NET.stations.find(s => s.name === 'Acevedo'), q = h && EM.actividades.aqui({ x: h.x, y: h.y, mode: 'walk' }); if (!q || q.G.length < 3) E('actividades: Acevedo sin modos para jugar');
+          const s3 = EM.modes.conduce.create('A:3-5', { seed: 1 }); if (s3.stops.join() !== '3,4,5') E('actividades: el tramo «desde aquí» no arranca en su estación (' + s3.stops.join() + ')');
+          const s4 = EM.modes.tranvia.create('T:3-1', { seed: 1 }); if (s4.stops.join() !== '3,2,1') E('actividades: el tranvía «desde aquí» no arranca en su estación'); }
+        if (VC.on && EM.modes.carrera.offAt) { const C = EM.modes.carrera, s5 = C.create('cr:A', { seed: 1 }); let malos = 0; for (let s = 40; s < 600; s += 10) { const q = C.pos(s5, s, 1); if (VC.solid(q.x, q.y, .3)) malos++; } if (malos > 4) E('carrera: la pista pasa por dentro de ' + malos + ' edificios'); }
         { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }
         { const ec = GENTE.filter(g => g.frag); if (ec.length !== 6) E('EnCicla: ' + ec.length + ' de 6 personajes'); for (const g of ec) if (!NET.stations.some(s => s.name === g.en[1])) E('EnCicla: no existe la estación ' + g.en[1]); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
@@ -12646,6 +12734,178 @@ const BotT = EM.test = {
 };
 ~~~~
 
+### `src/js/96-arcade.js`
+~~~~js
+/* =====================================================================
+   ARCADE Y TODO ABIERTO (3.2 «Evolución», Claude, 22‑nov‑2026)
+   Pedido del autor: «aún hay muchos [modos] donde todo está roto y es injugable, los vehículos no se mueven, van muy
+   lento, los controles son engorrosos» y «todo desbloqueado desde el principio: debo probar todo antes de pulir la trama».
+   La auditoría con entradas de jugador (docs/EVOLUCION-EL-METRO-CLAUDE.md) midió:
+   - Metro y Tranvía: con la palanca arriba 12 s el tren no salía (pedía llave, sentido y señal; la escuela aparecía sola).
+   - Al volante: el bus no se movía (chocaba contra las casillas viejas de 20 m) y el juego corría al 62 % del tiempo real.
+   - Bus: de 0 a 40 km/h en 12 s.
+   - Carrera: al 65 % del tiempo real, con 0,12 m/s² de aceleración (de 29 a 72 km/h en 100 s); junto a Niquía la pista
+     pasaba por dentro de los edificios y la cámara quedaba encerrada.
+   Arreglos (módulo aditivo: envuelve sin reescribir los modos):
+   1. Tiempo real en todos los modos: pasos de 1/30 s hasta 0,12 s por cuadro (antes, tope de 50 ms por cuadro).
+   2. Arcade (por defecto; Ajustes → «Manejo de los modos»): en el metro y el tranvía la cabina queda lista (llave y
+      ADELANTE), la señal sale casi enseguida, no hay vigilante, las puertas abren y cierran solas del lado del andén, el
+      abordaje dura la mitad y la aceleración y el freno son 1,8 veces los reales. En los buses, puertas solas y el doble
+      de aceleración. «Realista» deja el procedimiento completo; la Escuela de conducción siempre lo enseña.
+   3. Carrera: sale a 43 km/h en 2 s y sube hasta el tope del vehículo; la pista se corre al lado libre de la vía.
+   4. Todo abierto: niveles de todos los modos, capítulos de la historia clásica y de «La última vuelta» en la ciudad.
+   5. ⏫ Acelerador fijo en Ciudad Libre (como Motor City 4.6.1): acelera solo y el joystick solo da la dirección.
+   ===================================================================== */
+(function () {
+  const S = () => (Save.d && Save.d.settings) || {}, arcade = () => S().arcade !== 0;
+
+  /* ---------- 1 · tiempo real en todos los modos ---------- */
+  for (const id in EM.modes) { const M = EM.modes[id]; if (M && !M.substeps) M.substeps = true; }
+
+  /* ---------- 2 · metro y tranvía en arcade ---------- */
+  const C = EM.modes.conduce;
+  if (C) {
+    const KA = {}, arcK = kd => KA[kd] || (KA[kd] = Object.assign({}, KIND[kd], { acc: KIND[kd].acc * 1.8, brk: KIND[kd].brk * 1.8, emg: KIND[kd].emg * 1.3 }));
+    const create0 = C.create, tick0 = C.tick, doors0 = C.doors, mount0 = C.mount;
+    C.create = function (lv, opts = {}) {
+      const st = create0.call(this, lv, opts), escuela = String(lv || '').endsWith('#escuela');
+      st.arcade = arcade() && !escuela && !opts.auto ? 1 : 0;
+      if (st.arcade) { st.key = true; st.sel = 1; st.sigOK = true; st.tut = -1; }
+      return st;
+    };
+    C.tick = function (st, dt, K, line) {
+      if (st.arcade !== 1) return tick0.call(this, st, dt, K, line);
+      st.key = true; if (st.sel === 0) st.sel = 1; st.vigAlarm = false; st.vigNext = 30;
+      if (st.ph === 'ready') st.sigOK = true; else if (st.ph === 'dwell' && st.doors === 2 && !st.sigOK) st.sigT += dt * 3;
+      const kd = st.kind, k0 = KIND[kd], ka = arcK(kd); KIND[kd] = ka;
+      try { tick0.call(this, st, dt, ka, line); } finally { KIND[kd] = k0; }
+      if (st.ph === 'dwell' && !st.done && !st.trivia) {   // puertas solas, del lado del andén
+        if (st.doors === 0 && !st.opened && st.dwell > .35) { this.doors(st); if (st.doors === 1) st.bTime = Math.max(2.5, st.bTime * .5); }
+        else if (st.doors === 1 && st.board >= 1 && st.bellDone) { st._cz = (st._cz || 0) + dt; if (st._cz > .5) { st._cz = 0; this.doors(st); } }
+      }
+    };
+    C.doors = function (st, side) { return doors0.call(this, st, st.arcade === 1 ? undefined : side); };
+    C.mount = function (st, el) {
+      const r = mount0.apply(this, arguments);
+      if (st.arcade === 1) for (const id of ['cbKey', 'cbSel', 'cbVig']) { const b = document.getElementById(id); if (b) b.style.display = 'none'; }
+      return r;
+    };
+  }
+
+  /* ---------- buses: puertas solas y más aceleración en arcade ---------- */
+  const VA = {}, rapido = kd => VA[kd] || (VA[kd] = Object.assign({}, VEH[kd], { acc: VEH[kd].acc * 2, brk: VEH[kd].brk * 1.4 }));
+  const B = EM.modes.bus;
+  if (B) {
+    const step0 = B.step;
+    B.step = function (st, dt) {
+      const kd = st.veh && st.veh.kind; if (st.auto || !arcade() || !VEH[kd]) return step0.call(this, st, dt);
+      const v0 = VEH[kd]; VEH[kd] = rapido(kd);
+      try { step0.call(this, st, dt); } finally { VEH[kd] = v0; }
+      if (st.ph !== 'stop' || st.done) return;
+      const W = st.waiting[st.ni] || [], quedan = W.filter(p => !p.gone).length;
+      if (st.doors === 0 && st.dwell > .5) this.doors(st);
+      else if (st.doors === 1 && !quedan && st.alight <= 0) { st._cz = (st._cz || 0) + dt; if (st._cz > .6) { st._cz = 0; this.doors(st); } }
+    };
+  }
+  const Vo = EM.modes.volante;
+  if (Vo) {
+    const dw0 = Vo.dwellTick;
+    Vo.dwellTick = function (st, dt, line) {
+      dw0.call(this, st, dt, line); if (st.auto || !arcade() || st.ph !== 'dwell' || st.done) return;
+      if (st.doors === 0 && st.dwell > .4) this.doors(st);
+      else if (st.doors === 1 && st.board >= 1) { st._cz = (st._cz || 0) + dt; if (st._cz > .5) { st._cz = 0; this.doors(st); } }
+    };
+  }
+
+  /* ---------- 3 · carrera: arranque vivo y pista por el lado libre ---------- */
+  const Cr = EM.modes.carrera;
+  if (Cr) {
+    const step0 = Cr.step, PASO = 12;
+    Cr.step = function (st, dt) {
+      step0.call(this, st, dt); if (st.done) return;
+      const top = this.V(st).spd * (st.turbo > 0 ? 1.3 : 1);
+      if (st.v < 12 && st.inv <= 0) st.v = Math.min(12, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
+    };
+    /* el corrimiento lateral libre de edificios cada 12 m: primero el de la muestra anterior (para no saltar de lado), luego los demás */
+    Cr.libreOff = function (st, s, prev) {
+      const l = NET.byId[st.line], b = st.off, C0 = [prev, b, b - 4, b + 4, b + 8, -b, -b + 4, -b - 4, b - 8, b + 12, -b - 8];
+      const vistos = new Set(); for (const o of C0) { if (vistos.has(o)) continue; vistos.add(o); let ok = true; for (const c of [-2.6, 0, 2.6]) { const q = NET.at(l.P, clamp(s, 0, l.P.len), o + c); if (VC.solid(q.x, q.y, .5)) { ok = false; break; } } if (ok) return o; }
+      return prev;
+    };
+    Cr.offAt = function (st, s) {
+      if (!VC.on || st.auto) return st.off;
+      const T = st._offT || (st._offT = []), i = Math.max(0, Math.floor(s / PASO));
+      while (T.length <= i + 1) T.push(this.libreOff(st, T.length * PASO, T.length ? T[T.length - 1] : st.off));
+      const f = s / PASO - i; return T[i] + (T[i + 1] - T[i]) * clamp(f, 0, 1);
+    };
+    Cr.pos = function (st, s, c) { const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - 1) * 2.6); };
+  }
+
+  /* ---------- 5 · ⏫ acelerador fijo en Ciudad Libre ---------- */
+  const L = EM.modes.libre;
+  if (L) {
+    /* y el arranque más vivo, como el del motor (taxi al 90 % en 2,7 s): segundos hasta la punta y para frenar */
+    if (L.ARC) { L.ARC.carro = [3, 1.45, .13, 3.8, 2.0, .06]; L.ARC.moto = [4.2, 2.2, .1, 3.2, 1.8, .1]; L.ARC.bus = [1.9, .85, .2, 6.5, 2.8, .05]; }
+    const da0 = L.driveArcade, mount0 = L.mount, upd0 = L.updCtl, key0 = L.key;
+    L.driveArcade = function (st, dt) {
+      if (!st.crucero || st.mode !== 'veh' || st.auto) return da0.call(this, st, dt);
+      const k = st.keys, j = st.joy, up = k.up, m = j.m;
+      if (!k.down && !st.hb) { if (j.m > .15) j.m = 1; else k.up = true; }   // ▼ o el freno de mano frenan mientras se sostienen
+      try { return da0.call(this, st, dt); } finally { k.up = up; j.m = m; }
+    };
+    L.crucero = function (st, on) {
+      st.crucero = on == null ? !st.crucero : !!on; const b = document.getElementById('lbCru'); if (b) b.classList.toggle('on', st.crucero);
+      this.msg(st, st.crucero ? '⏫ Acelerador fijo: acelera solo y el joystick solo da la dirección. ▼ o ✋ frenan mientras los sostienes' : 'Acelerador normal', 'b');
+    };
+    L.mount = function (st, el) {
+      const r = mount0.apply(this, arguments), box = el && el.querySelector('.lbbtns');
+      if (box && !document.getElementById('lbCru')) { const b = document.createElement('button'); b.className = 'abtn cru'; b.id = 'lbCru'; b.setAttribute('aria-label', 'Acelerador fijo'); b.innerHTML = '⏫<small>fijo</small>'; b.onclick = () => this.crucero(st); box.appendChild(b); }
+      this.updCtl(st); return r;
+    };
+    L.updCtl = function (st) {
+      const r = upd0.apply(this, arguments), b = document.getElementById('lbCru');
+      if (b) { const veh = st.mode === 'veh' && !((this.V(st) || {}).walk); b.style.display = veh ? '' : 'none'; if (!veh) st.crucero = false; b.classList.toggle('on', !!st.crucero); }
+      return r;
+    };
+    L.key = function (st, k, down) { if (down && (k === 'x' || k === 'X') && st.mode === 'veh') { this.crucero(st); return; } return key0.call(this, st, k, down); };
+    /* las charlas ya no amarran: si caminas o manejas, la charla se cierra y sigues (antes el joystick quedaba muerto hasta
+       tocar la ✕); y la primera crónica espera 25 s, para que al empezar en una estación no salte encima del juego */
+    const step0 = L.step;
+    L.step = function (st, dt) {
+      if (st._crEspera == null) st._crEspera = 25;
+      const k = st.keys || {}; if (st.charla && !st.auto && ((st.joy && st.joy.m > .35) || k.up || k.down || k.left || k.right) && typeof Gente !== 'undefined') Gente.cerrar(st);
+      return step0.apply(this, arguments);
+    };
+  }
+
+  /* ---------- 4 · todo abierto desde el principio + el ajuste de manejo ---------- */
+  if (typeof Menu === 'undefined') return;
+  const abre = () => { for (const b of document.querySelectorAll('#lBody .lock')) b.classList.remove('lock'); };
+  const fila = (id) => {
+    const body = document.getElementById('lBody'); if (!body || document.getElementById('lArc')) return;
+    const d = document.createElement('div'); d.id = 'lArc'; d.className = 'boxed'; d.style.marginBottom = '12px';
+    const pinta = () => { const a = arcade(); d.innerHTML = `<div class="pag" style="font-size:12px">Manejo de los modos</div><div class="tg" style="margin-top:6px"><button data-v="1" class="${a ? 'on' : ''}">🎮 Arcade</button><button data-v="0" class="${a ? '' : 'on'}">🎓 Realista</button></div><p class="m" style="margin:6px 0 0;font-size:12.5px">${a ? (id === 'conduce' || id === 'tranvia' ? 'Cabina lista, señal enseguida, puertas solas del lado del andén y más aceleración. Solo manejas y frenas en la marca.' : 'Puertas solas en cada parada y más aceleración: solo manejas y paras donde está la gente.') : (id === 'conduce' || id === 'tranvia' ? 'Procedimiento real: llave, sentido, señal de salida, vigilante y puertas por lado.' : 'Abres y cierras las puertas tú, con la aceleración real del bus.')}</p>`;
+      for (const b of d.querySelectorAll('[data-v]')) b.onclick = () => { Save.d.settings.arcade = +b.dataset.v; Save.write(); pinta(); }; };
+    pinta(); body.prepend(d);
+  };
+  const lv0 = Menu.levels;
+  Menu.levels = function (id) { const r = lv0.apply(this, arguments); abre(); if (['conduce', 'tranvia', 'volante', 'bus'].includes(id)) fila(id); return r; };
+  const sl0 = Menu.storyList;
+  if (sl0) Menu.storyList = function () {
+    const r = sl0.apply(this, arguments); abre();
+    for (const b of document.querySelectorAll('#lBody [data-c]')) { const sp = b.lastElementChild; if (sp && sp.textContent === '🔒') sp.textContent = '▶'; b.onclick = () => { if (typeof Story !== 'undefined') Story.open(+b.dataset.c); }; }
+    /* «La última vuelta» en la ciudad: cualquier capítulo, empezando donde comienza */
+    const city = document.getElementById('stCity'); if (city && typeof TRAMA !== 'undefined' && typeof Trama !== 'undefined' && !document.getElementById('stCaps')) {
+      const w = document.createElement('div'); w.id = 'stCaps'; w.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:10px';
+      w.innerHTML = '<div class="pag" style="font-size:12px;width:100%">O empieza en cualquier capítulo</div>' + TRAMA.map((C, i) => `<button class="btn sm" data-tc="${i}" title="${esc(C.t)}">${i + 1}. ${esc(C.t.length > 22 ? C.t.slice(0, 21) + '…' : C.t)}</button>`).join('');
+      city.closest('.boxed').appendChild(w);
+      for (const b of w.querySelectorAll('[data-tc]')) b.onclick = () => { const i = +b.dataset.tc, S0 = TRAMA[i].steps[0]; Save.d.trama = { c: i, s: 0, fin: 0, started: 1 }; if (S0 && S0.at) Trama.place(S0.at, S0.line); Save.write(); Snd.init(); Game.start('libre', 'lb:trama', {}); };
+    }
+    return r;
+  };
+})();
+~~~~
+
 ### `src/js/97-abierto.js`
 ~~~~js
 /* =====================================================================
@@ -12671,6 +12931,115 @@ const BotT = EM.test = {
   };
   /* el arranque cambia el texto de Jugar al terminar de cargar: se ajusta después */
   const t = setInterval(() => { if (!EM.ready) return; clearInterval(t); const s = document.querySelector('#bPlay small'); if (s) { const sv = (Save.d && Save.d.libre) || {}; s.textContent = sv.x ? 'Ciudad Libre: donde quedaste' : 'Ciudad Libre: camina, monta y maneja por el valle'; } }, 200);
+})();
+~~~~
+
+### `src/js/97b-actividades.js`
+~~~~js
+/* =====================================================================
+   ACTIVIDADES EN EL MUNDO ABIERTO (3.2 «Evolución», Claude, 22‑nov‑2026)
+   Pedido del autor: «cada módulo del juego presente en el mundo abierto, con la misma experiencia que el módulo cerrado».
+   En Ciudad Libre, cerca de cada estación aparece 🎮 «jugar» con lo que se puede hacer ahí mismo:
+   - Metro y tranvía: manejar DESDE ESA ESTACIÓN hacia un lado o el otro (dos estaciones), o el recorrido completo.
+   - Metroplús y alimentadores: manejar desde esa parada (desde arriba o en la cabina 3D) y los cruces del Metroplús.
+   - Metrocable: operar la línea y armarla en la loma.
+   - Despacho de trenes, el rompecabezas de los alimentadores y la carrera junto a la vía.
+   Se juega el mismo módulo del menú (mismos niveles; los tramos «desde aquí» son niveles nuevos con el mismo formato) y al
+   terminar —o al salir con ⏸— se vuelve a la ciudad, donde estabas y en lo que ibas.
+   ===================================================================== */
+(function () {
+  if (typeof Libre === 'undefined' || typeof Game === 'undefined') return;
+  const svg = d => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICO = svg('<path d="M7 8h10a4 4 0 014 4v1.5a3.5 3.5 0 01-6.2 2.2L13.5 14h-3l-1.3 1.7A3.5 3.5 0 013 13.5V12a4 4 0 014-4z"/><path d="M7.5 10.8v3M6 12.3h3"/><circle cx="15.6" cy="11.4" r=".8" fill="currentColor"/><circle cx="17.4" cy="13.2" r=".8" fill="currentColor"/>');
+
+  /* ---------- tramos «desde aquí»: niveles con el mismo formato que los del menú (línea:a-b) ---------- */
+  const dinamico = (M, patron, hacer) => {
+    if (!M) return; const lv0 = M.levels, cr0 = M.create;
+    M.levels = function () { const L = lv0.apply(this, arguments); return M._extra ? L.concat([M._extra]) : L; };
+    M.create = function (lv, opts) {
+      const m = patron.exec(String(lv || '')); if (!m || M._extra || lv0.call(this).some(l => l.id === lv)) return cr0.call(this, lv, opts);
+      const x = hacer(m, lv); if (!x) return cr0.call(this, lv, opts);
+      M._extra = x; try { return cr0.call(this, lv, opts); } finally { M._extra = null; }
+    };
+  };
+  const tramo = (id, a, b, sub) => { const l = NET.byId[id]; if (!l || a === b || !l.st[a] || !l.st[b]) return null; return { line: id, a, b, name: l.st[a].name + ' → ' + l.st[b].name, sub: sub || l.name }; };
+  dinamico(EM.modes.conduce, /^([A-Z]):(\d+)-(\d+)$/, (m, id) => { const t = tramo(m[1], +m[2], +m[3]); return t && Object.assign(t, { id, k: 99 }); });
+  dinamico(EM.modes.tranvia, /^(T):(\d+)-(\d+)$/, (m, id) => { const t = tramo(m[1], +m[2], +m[3]); return t && Object.assign(t, { id, k: 99 }); });
+  dinamico(EM.modes.bus, /^bus:([A-Z0-9-]+):(\d+)-(\d+)$/, (m, id) => { const t = tramo(m[1], +m[2], +m[3]); return t && Object.assign(t, { id }); });
+  dinamico(EM.modes.volante, /^vo:([A-Z0-9-]+):(\d+)-(\d+)$/, (m, id) => { const t = tramo(m[1], +m[2], +m[3]); return t && Object.assign(t, { id }); });
+
+  const sigue = (m, pre) => { const M = EM.modes[m]; if (!M) return null; const L = M.levels().filter(l => !pre || String(l.id).startsWith(pre)); return (L.find(l => !Save.stars(m, l.id)) || L[0] || {}).id; };
+  const A = EM.actividades = {
+    R: 70,
+    /* lo que se puede jugar junto a la estación más cercana (a menos de R metros) */
+    aqui(st) {
+      if (!st || st.mode === 'ride' || st.trama && st.trama.talk) return null;
+      const h = Libre.nearHub(st, this.R); if (!h) return null;
+      const G = [], pon = (g, m, lv, ico, n, sub) => { if (!EM.modes[m] || !lv) return; g.it.push({ m, lv, ico, n, sub }); };
+      let feeders = 0;
+      for (const l of h.lines) {
+        const i = l.st.findIndex(s => s.hub === h); if (i < 0) continue; const n = l.st.length, g = { l, it: [] };
+        if (l.kind === 'metro' || l.kind === 'tram') {
+          const m = l.kind === 'tram' ? 'tranvia' : 'conduce', ic = l.kind === 'tram' ? '🚋' : '🚇';
+          if (i < n - 1) { const b = Math.min(n - 1, i + 2); pon(g, m, l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Desde ' + l.st[i].name + ', ' + (b - i) + ' estaciones'); }
+          if (i > 0) { const b = Math.max(0, i - 2); pon(g, m, l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Desde ' + l.st[i].name + ', sentido contrario'); }
+          const full = EM.modes[m].levels().find(q => q.line === l.id && q.full); if (full) pon(g, m, full.id, '🏁', 'Recorrido completo', full.sub);
+          if (l.kind === 'metro') pon(g, 'despacho', sigue('despacho'), '🎛', 'Despacho de trenes', 'El Puesto de Control: agujas y horarios');
+          pon(g, 'carrera', 'cr:' + l.id, '🛹', 'Carrera junto a la línea', 'En skate, patines, monopatín o bici');
+        } else if (l.kind === 'brt' || l.kind === 'feeder') {
+          if (l.kind === 'feeder' && ++feeders > 3) continue;
+          const ic = l.kind === 'brt' ? '🚌' : '🚐', paso = l.kind === 'brt' ? 4 : n;
+          if (i < n - 1) { const b = Math.min(n - 1, i + paso); pon(g, 'bus', 'bus:' + l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Desde arriba, con las paradas y la gente'); pon(g, 'volante', 'vo:' + l.id + ':' + i + '-' + b, '🎮', 'Al volante hacia ' + l.st[b].name, 'En la cabina 3D, con timón y pedales'); }
+          if (i > 0 && l.kind === 'brt') { const b = Math.max(0, i - paso); pon(g, 'bus', 'bus:' + l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Sentido contrario'); }
+          if (l.kind === 'brt') { pon(g, 'metroplus', sigue('metroplus'), '🚦', 'Cruces del Metroplús', 'Semáforos y carril exclusivo'); pon(g, 'carrera', 'cr:' + l.id, '🛹', 'Carrera junto a la línea', 'En skate, patines, monopatín o bici'); }
+          else pon(g, 'alim', sigue('alim'), '🧩', 'Alimentadores: barrios → Metro', 'Rompecabezas de agujas');
+        } else if (l.kind === 'cable') {
+          pon(g, 'cableviaje', 'cv:' + l.id, '🚡', 'Opera la línea ' + l.id, l.st[0].name + ' → ' + l.st[n - 1].name);
+          pon(g, 'cable', sigue('cable', 'cb:' + l.id + ':'), '🧩', 'Arma el cable en la loma', 'Rompecabezas de la línea ' + l.id);
+        }
+        if (g.it.length) G.push(g);
+      }
+      return G.length ? { h, G } : null;
+    },
+    abrir(st) {
+      const q = this.aqui(st); if (!q) { Libre.msg(st, 'Acércate a una estación para jugar sus modos', 'y'); return; }
+      Libre.persist(st);
+      UI.modal(`<div class="pag">Jugar aquí</div><h2>🎮 ${esc(q.h.name)}</h2><p class="m" style="margin-top:0">El mismo juego de cada modo. Al terminar vuelves aquí.</p>` + q.G.map(g => `<h3 style="margin:12px 0 6px"><span class="badge" style="background:${g.l.color}">${esc(g.l.id.replace(/^AL-/, ''))}</span> ${esc(g.l.name)}</h3><div class="tramos">` + g.it.map((a, k) => `<button class="tramo" data-a="${esc(g.l.id)}|${k}"><span class="tx"><b>${a.ico} ${esc(a.n)}</b><small>${esc(EM.modes[a.m].name)} · ${esc(a.sub || '')}</small></span><span>▶</span></button>`).join('') + '</div>').join('') + '<div class="row" style="margin-top:12px"><button class="btn sm gh" id="acX">Seguir en la ciudad</button></div>');
+      const x = $('#acX'); if (x) x.onclick = () => UI.close();
+      for (const b of document.querySelectorAll('[data-a]')) b.onclick = () => { const [lid, k] = b.dataset.a.split('|'), g = q.G.find(g => g.l.id === lid), a = g && g.it[+k]; if (!a) return; UI.close(); this.lanzar(a); };
+    },
+    lanzar(a) {
+      Snd.init(); Game.start(a.m, a.lv, { back: 'cover', ciudad: 1, onEnd: r => this.fin(a, r) });
+    },
+    fin(a, r) {
+      const ok = r.win || (r.stars | 0) > 0, earn = Save.record(a.m, a.lv, r), M = EM.modes[a.m];
+      UI.modal(`<div class="pag">${esc(M.name)}</div><h2>${ok ? '¡Bien hecho!' : 'Casi…'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="kv" style="margin:10px 0">${(r.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Pasajes</b><span>+${earn} 🎫</span></div>${r.fact ? `<div class="film" style="margin:10px 0">Dato · ${esc(r.fact)}</div>` : ''}<div class="row"><button class="btn pri" id="acCity">🏙️ Volver a la ciudad</button><button class="btn sm" id="acOtra">↻ Otra vez</button></div>`);
+      $('#acCity').onclick = () => { UI.close(); this.volver(); };
+      $('#acOtra').onclick = () => { UI.close(); Game.stop(); this.lanzar(a); };
+    },
+    volver() { Game.stop(); Game.start('libre', 'lb:ultimo', { back: 'cover' }); }
+  };
+
+  /* ⏸ Salir de un módulo lanzado desde la ciudad: de vuelta a la ciudad (no al menú) */
+  const ex0 = Game.exit;
+  Game.exit = function () { const c = this.opts && this.opts.ciudad; const r = ex0.apply(this, arguments); if (c) A.volver(); return r; };
+
+  /* el botón 🎮 en la columna de Ciudad Libre: aparece solo junto a una estación */
+  const mount0 = Libre.mount, step0 = Libre.step, key0 = Libre.key;
+  Libre.mount = function (st, el) {
+    const r = mount0.apply(this, arguments), col = document.getElementById('lbView');
+    if (col && !document.getElementById('lbJuego')) { const b = document.createElement('button'); b.id = 'lbJuego'; b.title = 'Jugar aquí: los modos de esta estación'; b.innerHTML = ICO + '<small>jugar</small>'; b.style.display = 'none'; b.onclick = () => A.abrir(st); col.prepend(b); }
+    return r;
+  };
+  Libre.step = function (st, dt) {
+    const r = step0.apply(this, arguments);
+    if (!EM.headless && !st.auto && Game.st === st && (st._acT = (st._acT || 0) - dt) <= 0) {
+      st._acT = .5; const b = document.getElementById('lbJuego'), q = A.aqui(st), on = !!q && !(st.mode === 'veh' && Math.abs(st.vf) > 6);
+      if (b && (b.style.display === 'none') === on) { b.style.display = on ? '' : 'none'; if (on && !st._acAviso) { st._acAviso = 1; Libre.msg(st, '🎮 En las estaciones puedes jugar sus modos: toca «jugar»', 'b'); } }
+    }
+    return r;
+  };
+  Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { A.abrir(st); return; } return key0.call(this, st, k, down); };
 })();
 ~~~~
 
@@ -17294,8 +17663,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.1.0
-elmetro.versionCode=29
+elmetro.versionName=3.2.0
+elmetro.versionCode=30
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
