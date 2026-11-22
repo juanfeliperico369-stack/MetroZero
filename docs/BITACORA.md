@@ -65,6 +65,8 @@ Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/e
 - 100 partidas del bot;
 - capturas a 412 × 860.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.2.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.2.0-43c9d049`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 30, **6,7 MB**), igual byte a byte a la construida.
+
 ## Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
