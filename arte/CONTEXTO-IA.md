@@ -234,6 +234,67 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- revisar el juego frente a los mejores y a sus referencias;
+- investigar jugabilidad, controles, render y optimización;
+- un plan con ideas aplicables en **un documento con la marca de la IA**;
+- **arreglar los modos rotos** («los vehículos no se mueven, van muy lento, los controles son engorrosos»);
+- **todo liberado desde el principio**;
+- **cada módulo dentro del mundo abierto** con la misma experiencia.
+
+Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/evolucion-3.2` y Codex en `ia/codex/metro-20261122`.
+
+**Documento:** `docs/EVOLUCION-EL-METRO-CLAUDE.md`. Tiene:
+- la auditoría medida antes y después;
+- 40 referencias, una por una;
+- el plan por los 10 géneros;
+- el mundo abierto con rol;
+- el corredor de ciclovías;
+- un solo mundo 3D;
+- render y optimización;
+- la hoja de ruta 3.3–3.8;
+- lo que reportan las otras IAs;
+- las fuentes.
+
+**Auditoría con entradas de jugador** (`scratchpad/auditoria.mjs`, 12 s por modo, 412 × 860):
+
+| Modo | Antes | Ahora |
+|---|---|---|
+| Metro y tranvía | con ▲ el tren no salía (llave, sentido y señal) | 0 → 62 km/h en 12 s |
+| Al volante | 0 m y ritmo 0,62 (chocaba contra las casillas viejas) | 0 → 67 km/h, ritmo 0,99 |
+| Bus | 0 → 40 km/h en 12 s | 0 → 55 km/h en 10 s |
+| Carrera | ritmo 0,65, 0,12 m/s², pista dentro de edificios en Niquía | ritmo 0,99, sale a 44 km/h, pista por el lado libre |
+| Ciudad Libre | la crónica dejaba el joystick muerto al empezar | se cierra al caminar; la primera espera 25 s |
+
+**Lo nuevo:**
+1. **`src/js/96-arcade.js` (aditivo):**
+   - tiempo real en todos los modos (`substeps`);
+   - **Arcade** por defecto (`settings.arcade`, se cambia en la pantalla de niveles):
+     - en metro y tranvía: cabina lista, señal enseguida, sin vigilante, puertas solas del lado del andén, abordaje a la mitad y aceleración y freno ×1,8;
+     - en buses: puertas solas y aceleración ×2;
+     - la Escuela sigue con el procedimiento real;
+   - carrera con arranque vivo y pista corrida al lado libre (`Carrera.offAt`);
+   - **⏫ acelerador fijo** en Ciudad Libre (botón «fijo» o tecla X) y arranque más vivo: taxi de 0 a 50 km/h en 1,9 s, moto en 1,4 s;
+   - charlas que no amarran;
+   - **todo abierto**: niveles, capítulos clásicos y cualquier capítulo de «La última vuelta», empezando donde comienza.
+2. **`src/js/97b-actividades.js` (aditivo):**
+   - 🎮 «jugar» junto a cada estación de Ciudad Libre:
+     - metro y tranvía **desde esa estación** hacia los dos lados, o el recorrido completo;
+     - Metroplús y alimentadores desde arriba o en la cabina 3D;
+     - operar y armar el cable;
+     - despacho, alimentadores, cruces y carrera.
+   - Los tramos «desde aquí» son niveles dinámicos con el formato de siempre (`A:3-5`, `bus:MP1:6-10`).
+   - Al terminar o al salir se vuelve a la ciudad, al mismo punto.
+3. **`32-volante.js`:** `Volante.suelo`, el choque contra la ciudad vectorial.
+
+**Guardado:** `settings.arcade` nuevo, con su valor por defecto.
+
+**Probado:**
+- autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
+- 100 partidas del bot;
+- capturas a 412 × 860.
+
 #### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
@@ -277,7 +338,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas del bot (324.927 pasos, 46 victorias, con el tranvía) con 0 errores y 0 errores de consola; el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.1.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.1.0-4ed29c60`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 29, **6,7 MB**), igual byte a byte a la construida. La 3.0.0 se publicó antes el mismo día (caché `el-metro-v3.0.0-46057e02`, APK 28).
 
 #### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
