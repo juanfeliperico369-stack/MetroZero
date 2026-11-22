@@ -382,6 +382,8 @@ html.t-contraste .news{background:#ffe600;color:#000}
 :root{--uiz:.87}
 #game .vsel{transform:scale(var(--uiz));transform-origin:top right}
 #game .lbbtns{transform:scale(var(--uiz));transform-origin:bottom right}
+
+body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8px;transform-origin:bottom left}
 #game .lbmini{transform:scale(var(--uiz));transform-origin:bottom left}
 #game .crbtns{transform:scale(var(--uiz));transform-origin:bottom center}
 #game .camui{transform:scale(var(--uiz));transform-origin:top left}
@@ -775,7 +777,7 @@ const SUELOS = {"cancha":[[512.5,13897.9,17.9,10.2,0.337,0.9],[14085.8,13622.9,1
 </script>
 <script>
 'use strict';
-const EM = window.EM = { version: '3.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.3.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -5683,7 +5685,7 @@ const Libre = EM.modes.libre = {
     const np = typeof Gente !== 'undefined' ? Gente.cerca(st, 3.4) : null; if (np) { const dn = dist(np.x, np.y, st.x, st.y), dv = st.parked.reduce((m, q) => Math.min(m, dist(q.x, q.y, st.x, st.y) - VEH[q.kind].len / 2), 1e9); if (!(dv < dn)) { Gente.hablar(st, np); return; } }   // con un vehículo más cerca que la persona, gana el vehículo
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
     if (best && best.dock != null && !EM.headless) { const Hh = enciclaHorario(new Date()); if (!Hh.abierto) { this.msg(st, '🚲 EnCicla no presta a esta hora: ' + Hh.txt, 'y'); return; } }
-    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; if (Save.d.settings.crucero && this.crucero && !st.auto) this.crucero(st, true); st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
     const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
       st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; st.subio = 1; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
@@ -5746,8 +5748,8 @@ const Libre = EM.modes.libre = {
     const c0 = Math.cos(st.h), s0 = Math.sin(st.h), gr = st.z ? 0 : clamp((MAP.elevM(st.x + c0 * 8, st.y + s0 * 8) - MAP.elevM(st.x - c0 * 8, st.y - s0 * 8)) / 16, -.2, .2);
     const ag = st.z ? 1 : VC.on ? VC.agarre(st.x, st.y) : 1, blando = ag < .95 && !V.campo;
     const loma = (kind === 'scooter' || kind === 'monopatin') && gr > 0 ? 1 : clamp(1 - (kind === 'bici' || V.monta ? 2.2 : V.art || kind === 'bus' || kind === 'alimentador' ? .9 : 1.1) * gr, .5, 1.3);
-    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, tope = A.max * suelo * loma, kw = 1 - Math.exp(-dt / A.tw);
-    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1);
+    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, FXk = st.auto ? null : Save.d.settings, tope = A.max * suelo * loma * (FXk && FXk.velo || 1), kw = 1 - Math.exp(-dt / A.tw);   // 3.3 · ⚙️ Flexibilidad: velocidad y giro de quien juega
+    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1) * (FXk && FXk.giro || 1);
     let wT = 0, tv = 0, hay = false;
     if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
       const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
@@ -7671,11 +7673,20 @@ const Menu = EM.menu = {
       <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Ángulo de la cámara (Ciudad Libre y mapas)</div><div class="tg" data-ang>${VC.ANGULOS.map((A, i) => `<button data-v="${i}" class="${(s.angulo | 0) === i ? 'on' : ''}">${A.n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
+      <h3 style="margin:12px 0 0">⚙️ Flexibilidad</h3>
+      <div class="pag">Manejo de los modos</div><div class="tg" data-fx="arcade"><button data-v="1" class="${s.arcade !== 0 ? 'on' : ''}">🎮 Arcade</button><button data-v="0" class="${s.arcade === 0 ? 'on' : ''}">🎓 Realista</button></div>
+      <div class="pag">Mano (Ciudad Libre)</div><div class="tg" data-fx="zurdo"><button data-v="0" class="${s.zurdo ? '' : 'on'}">Diestra</button><button data-v="1" class="${s.zurdo ? 'on' : ''}">Zurda: joystick a la derecha</button></div>
+      <div class="pag">Joystick (Ciudad Libre)</div><div class="tg" data-fx="manejo"><button data-v="facil" class="${s.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${s.manejo === 'clasico' ? 'on' : ''}">Clásico: los lados giran</button></div>
+      <div class="pag">🎯 Giro</div><div class="tg" data-fx="giro">${[[.75, 'Suave'], [1, 'Normal'], [1.3, 'Rápido']].map(([v, n]) => `<button data-v="${v}" class="${(s.giro || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="pag">🚗 Velocidad de los vehículos (Ciudad Libre)</div><div class="tg" data-fx="velo">${[[.8, '×0,8'], [1, '×1'], [1.25, '×1,25'], [1.5, '×1,5']].map(([v, n]) => `<button data-v="${v}" class="${(s.velo || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="pag">⏫ Acelerador fijo al subir</div><div class="tg" data-fx="crucero"><button data-v="0" class="${s.crucero ? '' : 'on'}">No</button><button data-v="1" class="${s.crucero ? 'on' : ''}">Sí</button></div>
+      <div class="pag">🔠 Tamaño de botones</div><div class="tg" data-fx="uiTam">${EM.iconos ? EM.iconos.TAM.map(([n], i) => `<button data-v="${i}" class="${EM.iconos.tam() === i ? 'on' : ''}">${n}</button>`).join('') : ''}</div>
       <div class="row" style="margin-top:8px"><button class="btn pri" id="sOk">Listo</button><button class="btn sm gh" id="sReset">Borrar progreso</button></div></div>`);
     $$('#mBody .tg[data-k] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.k; s[k] = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Snd.apply(); if (k === 'mus') { if (s.mus) Music.play('menu'); } Save.write(); });
     $$('#mBody .tg[data-c] button').forEach(b => b.onclick = () => { s.ciclo = b.dataset.v; Mundo.h0 = null; Mundo.t0 = now(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-ang] button').forEach(b => b.onclick = () => { s.angulo = +b.dataset.v; VC.angulo(s.angulo); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-q] button').forEach(b => b.onclick = () => { s.q = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    $$('#mBody .tg[data-fx] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.fx, v = b.dataset.v; s[k] = k === 'manejo' ? v : k === 'zurdo' || k === 'crucero' ? (v === '1') : +v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); if (k === 'zurdo') document.body.classList.toggle('zurdo', !!s.zurdo); if (k === 'uiTam' && EM.iconos) EM.iconos.ponTam(); Save.write(); });
     $('#sOk').onclick = () => { Save.d.name = ($('#sName').value || 'Aprendiz').trim().slice(0, 16); Save.write(); UI.close(); UI.refresh(); };
     $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };
   },
@@ -8380,6 +8391,7 @@ const BotT = EM.test = {
       const top = this.V(st).spd * (st.turbo > 0 ? 1.3 : 1);
       if (st.v < 12 && st.inv <= 0) st.v = Math.min(12, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
     };
+    Cr.step._arranqueVivo = true;   // 98a (GPT-6) lo lee para no sumar un segundo arranque
     Cr.libreOff = function (st, s, prev) {
       const l = NET.byId[st.line], b = st.off, C0 = [prev, b, b - 4, b + 4, b + 8, -b, -b + 4, -b - 4, b - 8, b + 12, -b - 8];
       const vistos = new Set(); for (const o of C0) { if (vistos.has(o)) continue; vistos.add(o); let ok = true; for (const c of [-2.6, 0, 2.6]) { const q = NET.at(l.P, clamp(s, 0, l.P.len), o + c); if (VC.solid(q.x, q.y, .5)) { ok = false; break; } } if (ok) return o; }
@@ -8427,6 +8439,7 @@ const BotT = EM.test = {
     };
   }
 
+  try { if (document.body) document.body.classList.toggle('zurdo', !!S().zurdo); } catch (e) { /* sin documento */ }
   if (typeof Menu === 'undefined') return;
   const abre = () => { for (const b of document.querySelectorAll('#lBody .lock')) b.classList.remove('lock'); };
   const fila = (id) => {
@@ -8572,6 +8585,159 @@ const BotT = EM.test = {
     C.step = function (st, dt) { const a = { p: st.pasajes, w: st.poderes, v: st.vidas, e: st.est, y: st.y, es: st.escudo }; const r = _st.apply(this, arguments);
       if (!EM.headless) { if (st.vidas < a.v) Snd.play('crash'); else if (a.es && !st.escudo) Snd.play('ok'); if (st.pasajes > a.p) Snd.play('coin'); if (st.poderes > a.w) Snd.play('star'); if (st.est !== a.e && a.e >= 0) Snd.play('bell'); if (a.y === 0 && st.y > 0) Snd.play('whoosh'); }
       return r; }; }
+})();
+
+(function () {
+  'use strict';
+
+  if (typeof Menu !== 'undefined' && typeof Menu.levels === 'function') {
+    const anterior = Menu.levels;
+    Menu.levels = function () {
+      const resultado = anterior.apply(this, arguments);
+      document.querySelectorAll('#lBody [data-l].lock').forEach(b => b.classList.remove('lock'));
+      return resultado;
+    };
+  }
+
+  if (typeof Menu !== 'undefined' && typeof Menu.storyList === 'function') {
+    const anterior = Menu.storyList;
+    Menu.storyList = function () {
+      const resultado = anterior.apply(this, arguments);
+      document.querySelectorAll('#lBody [data-c]').forEach(b => {
+        b.classList.remove('lock');
+        const marcador = b.lastElementChild;
+        if (marcador && marcador.textContent.trim() === '🔒') marcador.textContent = '▶';
+        b.onclick = () => { if (typeof Snd !== 'undefined') Snd.init(); Story.open(Number(b.dataset.c)); };
+      });
+      return resultado;
+    };
+  }
+
+  function camarasCompletas(modo, vistas) {
+    if (!modo || typeof modo.key !== 'function') return;
+    const anterior = modo.key;
+    modo.key = function (estado, tecla, presionada) {
+      if (tecla === 'v' || tecla === 'V') {
+        if (presionada) {
+          const indice = vistas.indexOf(estado.view);
+          estado.view = vistas[(indice + 1) % vistas.length];
+        }
+        return;
+      }
+      return anterior.apply(this, arguments);
+    };
+  }
+  camarasCompletas(EM.modes.conduce, ['cab', 'tps', 'cine', 'lado', 'top', 'pan']);
+  camarasCompletas(EM.modes.volante, ['tps', 'cab', 'cine', 'top', 'pan']);
+
+  const carrera = EM.modes.carrera;
+  if (carrera && typeof carrera.step === 'function' && !carrera.step._arranqueVivo) {
+    const anterior = carrera.step;
+    carrera.step = function (estado, dt) {
+      if (estado && !estado.done && Number.isFinite(dt) && dt > 0 && Number.isFinite(estado.v)) {
+        const vehiculo = this.V(estado);
+        if (vehiculo && Number.isFinite(vehiculo.spd)) {
+          const tope = vehiculo.spd * (estado.turbo > 0 ? 1.3 : 1);
+          if (estado.v < tope) estado.v = Math.min(tope, estado.v + (estado.turbo > 0 ? 3.9 : 4.28) * dt);
+        }
+      }
+      return anterior.apply(this, arguments);
+    };
+  }
+})();
+
+(function () {
+  'use strict';
+  const volante = EM.modes && EM.modes.volante;
+  if (volante && typeof volante.step === 'function' && typeof NET !== 'undefined' && typeof MAP !== 'undefined') {
+    const prohibido = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]);
+    const anterior = volante.step;
+
+    function rescatar(st) {
+      if (!MAP.ready || !st || !Number.isFinite(st.sR) || !NET.byId[st.line]) return false;
+      const l = NET.byId[st.line], B = BUSES && BUSES[st.kind];
+      if (!B || !l.P || !Number.isFinite(l.P.len) || typeof volante.pts !== 'function') return false;
+      if (!st.stopTgt || !(st.stopTgt[st.ni] - st.sR > 45)) return false;
+      if (typeof volante.redAhead === 'function') {
+        const semaforo = volante.redAhead(st);
+        if (Number.isFinite(semaforo) && semaforo < 32) return false;
+      }
+      for (const adelante of [4, 7, 10, 13, 16]) {
+        const s = st.sR + adelante;
+        if (s >= l.P.len - 3 || s >= st.stopTgt[st.ni] - 30) continue;
+        for (const margen of [0, 1.5, -1.5]) {
+          const p = NET.at(l.P, s, margen);
+          if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.a)) continue;
+          const probe = { x: p.x, y: p.y, h: p.a, h2: p.a };
+          const pts = volante.pts(probe, B);
+          if (!pts || !pts.length || pts.some(([x, y]) => prohibido.has(MAP.tileM(x, y)))) continue;
+          st.x = p.x; st.y = p.y; st.h = p.a; st.h2 = p.a; st.sR = s;
+          st.off = Math.abs(margen); st.v = 0; st.steer = 0; st.sin = 0;
+          st._eonAtasco = 0; st._eonRecuperaciones = (st._eonRecuperaciones || 0) + 1;
+          st._lost = 0;
+          if (typeof volante.msg === 'function') volante.msg(st, 'Bus recolocado en la ruta tras quedar atascado', 'b');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    volante.step = function (st, dt) {
+      const x = st && st.x, y = st && st.y;
+      const r = anterior.apply(this, arguments);
+      if (!st || !Number.isFinite(dt) || dt <= 0 || st.done || st.ph !== 'run' || st.rev || !MAP.ready) {
+        if (st) st._eonAtasco = 0;
+        return r;
+      }
+      const insiste = (st.keys && st.keys.up) || (st.auto && st.lev > .5) || st.lev > .75;
+      const detenido = Number.isFinite(st.v) && st.v < .45 && Math.hypot(st.x - x, st.y - y) < .035;
+      if (!insiste || !detenido || (st.keys && st.keys.down) || (st.stopTgt && st.stopTgt[st.ni] - st.sR <= 45)) {
+        st._eonAtasco = 0;
+        return r;
+      }
+      st._eonAtasco = (st._eonAtasco || 0) + Math.min(dt, .1);
+      if (st._eonAtasco >= 2.6 && !rescatar(st)) st._eonAtasco = 1.8;
+      return r;
+    };
+    const keyAnterior = volante.key;
+    if (typeof keyAnterior === 'function') {
+      volante.key = function (st, key, down) {
+        if (down && (key === 'r' || key === 'R') && st && st._eonAtasco > .65 && st.ph === 'run') {
+          rescatar(st);
+          return;
+        }
+        return keyAnterior.apply(this, arguments);
+      };
+    }
+    volante.tip += ' Si un bloqueo del mapa impide avanzar, acelera unos segundos para recuperarte o pulsa R.';
+    if (typeof BUSES !== 'undefined') {
+      if (BUSES.brt) BUSES.brt.acc = Math.max(BUSES.brt.acc, 1.35);
+      if (BUSES.feeder) BUSES.feeder.acc = Math.max(BUSES.feeder.acc, 1.55);
+    }
+  }
+
+  const carrera = EM.modes && EM.modes.carrera;
+  if (carrera && typeof carrera.ai === 'function' && typeof crVentana === 'function' && typeof CR_OBS !== 'undefined') {
+    const anteriorAI = carrera.ai;
+    carrera.ai = function (st) {
+      if (!st || !Array.isArray(st.obs) || !Number.isFinite(st.s) || !Number.isFinite(st.v)) return anteriorAI.apply(this, arguments);
+      if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }
+      const ventana = crVentana(st, st.s + .01, st.s + Math.max(25, Math.min(42, st.v * 2)));
+      const obst = ventana.find(o => !o.hecho && CR_OBS[o.k] && o.c === st.c);
+      if (!obst || st.turbo > 0) return null;
+      const d = obst.s - st.s;
+      if (d > Math.max(12, st.v * 1.25)) return null;
+      const tipo = CR_OBS[obst.k], saltable = tipo[3] === 0 || tipo[1] < .9;
+      if (saltable) return d <= Math.max(11, st.v * .8) && st.y === 0 && st.vy <= 0 ? 'salta' : null;
+      const espacio = Math.max(13, st.v * 1.3);
+      const libres = [0, 1, 2].filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && o.c === c && o.s <= st.s + espacio));
+      if (libres.length) {
+        libres.sort((a, b) => Math.abs(a - st.c) - Math.abs(b - st.c));
+        return libres[0] < st.c ? 'izq' : 'der';
+      }
+      return st.y === 0 && st.vy <= 0 && d <= Math.max(12, st.v * .85) ? 'salta' : null;
+    };
+  }
 })();
 
 async function boot() {

@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.2.0 · compilado el 2026-11-22.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.3.0 · compilado el 2026-11-22.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.2.0** · compilado el 2026-11-22.
+> Versión del juego **v3.3.0** · compilado el 2026-11-22.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -805,6 +805,22 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+
+##### Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
+- **Unión:**
+  - la 3.2.0 de la sesión de El Metro (`ccr-2a67f935-oat714`; conflicto solo en esta bitácora, se conservaron las dos entradas);
+  - Antigravity (`ia/antigravity/evolucion-3.2`, solo su nota: el documento y `36c-actividades.js` que anunció no llegaron);
+  - Codex (`ia/codex/metro-20261122`, nota de relevo);
+  - GPT‑6 (`98a-openai-gpt6-fluidez.js` y `98b-openai-gpt6-eon-manejo.js`, con sus pruebas).
+- **Integración:** la carrera ya no suma dos arranques. `96-arcade.js` marca `Cr.step._arranqueVivo` y `98a` solo suma el suyo si no hay otro; antes, el tope llegaba en 3 s y se perdía la subida. Del `98a` queda lo útil: la tecla V ya recorre las 6 y 5 vistas.
+- **⚙️ Flexibilidad** (Ajustes → ⚙️ Flexibilidad): manejo de los modos (arcade o realista), mano zurda (joystick a la derecha y botones a la izquierda en Ciudad Libre), joystick fácil o clásico, 🎯 giro, 🚗 velocidad de los vehículos, ⏫ acelerador fijo al subir y 🔠 tamaño de botones. Son claves dentro de `settings`; `elmetro.v1` no cambia.
+- **Motor:** `motor-city/` 4.8.0 como referencia (`docs/INFORME-MOTOR-CITY-4.6.md`, apartado 4.8).
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 0 errores;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: PASS.
+- **APK:** versionName 3.3.0, versionCode 31.
+
 ##### Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - revisar el juego frente a los mejores y a sus referencias;
@@ -865,6 +881,8 @@ Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/e
 - autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
 - 100 partidas del bot;
 - capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.2.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.2.0-43c9d049`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 30, **6,7 MB**), igual byte a byte a la construida.
 
 ##### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
@@ -965,6 +983,9 @@ Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/e
 - `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
 - techos a cuatro aguas;
 - probarlo en un celular real.
+##### 21‑nov‑2026 · Motor City 4.6.0 en `motor-city/` e informe (Claude, sesión del motor)
+- `motor-city/` pasó a 4.6.0 (el manejo y el mapa de EnCicla en el motor, horizontal y un solo juego de prueba). El juego no cambió en esta entrada: el manejo de EnCicla de El Metro ya lo hizo la sesión de El Metro en la 3.1.0 «Fluido» (rama `ccr-2a67f935-oat714`, APK 29).
+- Informe: `docs/INFORME-MOTOR-CITY-4.6.md`.
 
 ##### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
 - **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.
@@ -3527,7 +3548,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (106 archivos, 1445 KB)
+## Código fuente (110 archivos, 1462 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -3984,6 +4005,8 @@ html.t-contraste .news{background:#ffe600;color:#000}
 :root{--uiz:.87}
 #game .vsel{transform:scale(var(--uiz));transform-origin:top right}
 #game .lbbtns{transform:scale(var(--uiz));transform-origin:bottom right}
+/* 3.3 · ⚙️ Flexibilidad: mano zurda (joystick a la derecha, botones a la izquierda) */
+body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8px;transform-origin:bottom left}
 #game .lbmini{transform:scale(var(--uiz));transform-origin:bottom left}
 #game .crbtns{transform:scale(var(--uiz));transform-origin:bottom center}
 #game .camui{transform:scale(var(--uiz));transform-origin:top left}
@@ -4007,7 +4030,7 @@ html.t-contraste .news{background:#ffe600;color:#000}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.3.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -9720,7 +9743,7 @@ const Libre = EM.modes.libre = {
     const np = typeof Gente !== 'undefined' ? Gente.cerca(st, 3.4) : null; if (np) { const dn = dist(np.x, np.y, st.x, st.y), dv = st.parked.reduce((m, q) => Math.min(m, dist(q.x, q.y, st.x, st.y) - VEH[q.kind].len / 2), 1e9); if (!(dv < dn)) { Gente.hablar(st, np); return; } }   // con un vehículo más cerca que la persona, gana el vehículo
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
     if (best && best.dock != null && !EM.headless) { const Hh = enciclaHorario(new Date()); if (!Hh.abierto) { this.msg(st, '🚲 EnCicla no presta a esta hora: ' + Hh.txt, 'y'); return; } }
-    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; if (Save.d.settings.crucero && this.crucero && !st.auto) this.crucero(st, true); st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
     const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
       st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; st.subio = 1; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
@@ -9794,8 +9817,8 @@ const Libre = EM.modes.libre = {
     const c0 = Math.cos(st.h), s0 = Math.sin(st.h), gr = st.z ? 0 : clamp((MAP.elevM(st.x + c0 * 8, st.y + s0 * 8) - MAP.elevM(st.x - c0 * 8, st.y - s0 * 8)) / 16, -.2, .2);
     const ag = st.z ? 1 : VC.on ? VC.agarre(st.x, st.y) : 1, blando = ag < .95 && !V.campo;
     const loma = (kind === 'scooter' || kind === 'monopatin') && gr > 0 ? 1 : clamp(1 - (kind === 'bici' || V.monta ? 2.2 : V.art || kind === 'bus' || kind === 'alimentador' ? .9 : 1.1) * gr, .5, 1.3);
-    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, tope = A.max * suelo * loma, kw = 1 - Math.exp(-dt / A.tw);
-    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1);
+    const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, FXk = st.auto ? null : Save.d.settings, tope = A.max * suelo * loma * (FXk && FXk.velo || 1), kw = 1 - Math.exp(-dt / A.tw);   // 3.3 · ⚙️ Flexibilidad: velocidad y giro de quien juega
+    const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1) * (FXk && FXk.giro || 1);
     let wT = 0, tv = 0, hay = false;
     if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
       const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
@@ -11984,11 +12007,21 @@ const Menu = EM.menu = {
       <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Ángulo de la cámara (Ciudad Libre y mapas)</div><div class="tg" data-ang>${VC.ANGULOS.map((A, i) => `<button data-v="${i}" class="${(s.angulo | 0) === i ? 'on' : ''}">${A.n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
+      <h3 style="margin:12px 0 0">⚙️ Flexibilidad</h3>
+      <div class="pag">Manejo de los modos</div><div class="tg" data-fx="arcade"><button data-v="1" class="${s.arcade !== 0 ? 'on' : ''}">🎮 Arcade</button><button data-v="0" class="${s.arcade === 0 ? 'on' : ''}">🎓 Realista</button></div>
+      <div class="pag">Mano (Ciudad Libre)</div><div class="tg" data-fx="zurdo"><button data-v="0" class="${s.zurdo ? '' : 'on'}">Diestra</button><button data-v="1" class="${s.zurdo ? 'on' : ''}">Zurda: joystick a la derecha</button></div>
+      <div class="pag">Joystick (Ciudad Libre)</div><div class="tg" data-fx="manejo"><button data-v="facil" class="${s.manejo !== 'clasico' ? 'on' : ''}">Fácil: apunta hacia donde vas</button><button data-v="clasico" class="${s.manejo === 'clasico' ? 'on' : ''}">Clásico: los lados giran</button></div>
+      <div class="pag">🎯 Giro</div><div class="tg" data-fx="giro">${[[.75, 'Suave'], [1, 'Normal'], [1.3, 'Rápido']].map(([v, n]) => `<button data-v="${v}" class="${(s.giro || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="pag">🚗 Velocidad de los vehículos (Ciudad Libre)</div><div class="tg" data-fx="velo">${[[.8, '×0,8'], [1, '×1'], [1.25, '×1,25'], [1.5, '×1,5']].map(([v, n]) => `<button data-v="${v}" class="${(s.velo || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <div class="pag">⏫ Acelerador fijo al subir</div><div class="tg" data-fx="crucero"><button data-v="0" class="${s.crucero ? '' : 'on'}">No</button><button data-v="1" class="${s.crucero ? 'on' : ''}">Sí</button></div>
+      <div class="pag">🔠 Tamaño de botones</div><div class="tg" data-fx="uiTam">${EM.iconos ? EM.iconos.TAM.map(([n], i) => `<button data-v="${i}" class="${EM.iconos.tam() === i ? 'on' : ''}">${n}</button>`).join('') : ''}</div>
       <div class="row" style="margin-top:8px"><button class="btn pri" id="sOk">Listo</button><button class="btn sm gh" id="sReset">Borrar progreso</button></div></div>`);
     $$('#mBody .tg[data-k] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.k; s[k] = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Snd.apply(); if (k === 'mus') { if (s.mus) Music.play('menu'); } Save.write(); });
     $$('#mBody .tg[data-c] button').forEach(b => b.onclick = () => { s.ciclo = b.dataset.v; Mundo.h0 = null; Mundo.t0 = now(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-ang] button').forEach(b => b.onclick = () => { s.angulo = +b.dataset.v; VC.angulo(s.angulo); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-q] button').forEach(b => b.onclick = () => { s.q = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
+    /* 3.3 · ⚙️ Flexibilidad */
+    $$('#mBody .tg[data-fx] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.fx, v = b.dataset.v; s[k] = k === 'manejo' ? v : k === 'zurdo' || k === 'crucero' ? (v === '1') : +v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); if (k === 'zurdo') document.body.classList.toggle('zurdo', !!s.zurdo); if (k === 'uiTam' && EM.iconos) EM.iconos.ponTam(); Save.write(); });
     $('#sOk').onclick = () => { Save.d.name = ($('#sName').value || 'Aprendiz').trim().slice(0, 16); Save.write(); UI.close(); UI.refresh(); };
     $('#sReset').onclick = () => { if (confirm('¿Borrar todo el progreso de El Metro en este dispositivo?')) { Save.d = newSave(); Save.write(); UI.close(); UI.refresh(); UI.toast('Progreso borrado'); } };
   },
@@ -12826,6 +12859,7 @@ const BotT = EM.test = {
       const top = this.V(st).spd * (st.turbo > 0 ? 1.3 : 1);
       if (st.v < 12 && st.inv <= 0) st.v = Math.min(12, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
     };
+    Cr.step._arranqueVivo = true;   // 98a (GPT-6) lo lee para no sumar un segundo arranque
     /* el corrimiento lateral libre de edificios cada 12 m: primero el de la muestra anterior (para no saltar de lado), luego los demás */
     Cr.libreOff = function (st, s, prev) {
       const l = NET.byId[st.line], b = st.off, C0 = [prev, b, b - 4, b + 4, b + 8, -b, -b + 4, -b - 4, b - 8, b + 12, -b - 8];
@@ -12878,6 +12912,8 @@ const BotT = EM.test = {
     };
   }
 
+  /* 3.3 · ⚙️ Flexibilidad: la mano zurda se aplica al cargar */
+  try { if (document.body) document.body.classList.toggle('zurdo', !!S().zurdo); } catch (e) { /* sin documento */ }
   /* ---------- 4 · todo abierto desde el principio + el ajuste de manejo ---------- */
   if (typeof Menu === 'undefined') return;
   const abre = () => { for (const b of document.querySelectorAll('#lBody .lock')) b.classList.remove('lock'); };
@@ -13080,6 +13116,193 @@ const BotT = EM.test = {
     C.step = function (st, dt) { const a = { p: st.pasajes, w: st.poderes, v: st.vidas, e: st.est, y: st.y, es: st.escudo }; const r = _st.apply(this, arguments);
       if (!EM.headless) { if (st.vidas < a.v) Snd.play('crash'); else if (a.es && !st.escudo) Snd.play('ok'); if (st.pasajes > a.p) Snd.play('coin'); if (st.poderes > a.w) Snd.play('star'); if (st.est !== a.e && a.e >= 0) Snd.play('bell'); if (a.y === 0 && st.y > 0) Snd.play('whoosh'); }
       return r; }; }
+})();
+~~~~
+
+### `src/js/98a-openai-gpt6-fluidez.js`
+~~~~js
+/*
+ * OpenAI GPT-6 · Fluidez arcade y acceso libre · 2026-11-22
+ * Módulo aditivo: no reescribe motores ajenos y se carga después de 98-relevo-z1.js.
+ * Preserva la física ferroviaria, el guardado y el trazado del mapa.
+ */
+(function () {
+  'use strict';
+
+  // Cualquier nivel debe poder probarse desde el primer inicio.
+  // El cierre original consulta la clase 'lock' al tocar, por lo que quitarla
+  // después de dibujar conserva el mismo selector y los eventos existentes.
+  if (typeof Menu !== 'undefined' && typeof Menu.levels === 'function') {
+    const anterior = Menu.levels;
+    Menu.levels = function () {
+      const resultado = anterior.apply(this, arguments);
+      document.querySelectorAll('#lBody [data-l].lock').forEach(b => b.classList.remove('lock'));
+      return resultado;
+    };
+  }
+
+  // Los capítulos clásicos se pueden examinar en cualquier orden, sin alterar
+  // el progreso guardado; la misión sigue usando su propio resultado.
+  if (typeof Menu !== 'undefined' && typeof Menu.storyList === 'function') {
+    const anterior = Menu.storyList;
+    Menu.storyList = function () {
+      const resultado = anterior.apply(this, arguments);
+      document.querySelectorAll('#lBody [data-c]').forEach(b => {
+        b.classList.remove('lock');
+        const marcador = b.lastElementChild;
+        if (marcador && marcador.textContent.trim() === '🔒') marcador.textContent = '▶';
+        b.onclick = () => { if (typeof Snd !== 'undefined') Snd.init(); Story.open(Number(b.dataset.c)); };
+      });
+      return resultado;
+    };
+  }
+
+  // El teclado recorría un módulo de 4 aunque hubiera 5 o 6 vistas.
+  // No se modifican las cámaras; solo se vuelve alcanzable cada proyección.
+  function camarasCompletas(modo, vistas) {
+    if (!modo || typeof modo.key !== 'function') return;
+    const anterior = modo.key;
+    modo.key = function (estado, tecla, presionada) {
+      if (tecla === 'v' || tecla === 'V') {
+        if (presionada) {
+          const indice = vistas.indexOf(estado.view);
+          estado.view = vistas[(indice + 1) % vistas.length];
+        }
+        return;
+      }
+      return anterior.apply(this, arguments);
+    };
+  }
+  camarasCompletas(EM.modes.conduce, ['cab', 'tps', 'cine', 'lado', 'top', 'pan']);
+  camarasCompletas(EM.modes.volante, ['tps', 'cab', 'cine', 'top', 'pan']);
+
+  // La carrera tardaba ~100 segundos en pasar de 8 a 20 m/s: 0,12 m/s².
+  // Se añade ~4,28 m/s² antes del avance original para un despegue de
+  // ~2,7 s, sin alterar el límite de cada vehículo ni el modelo de colisiones.
+  const carrera = EM.modes.carrera;
+  // Integración (Claude, 4.8): si 96-arcade ya dio el arranque vivo, no se suma otro (el tope llegaría en 3 s y se perdería la subida).
+  if (carrera && typeof carrera.step === 'function' && !carrera.step._arranqueVivo) {
+    const anterior = carrera.step;
+    carrera.step = function (estado, dt) {
+      if (estado && !estado.done && Number.isFinite(dt) && dt > 0 && Number.isFinite(estado.v)) {
+        const vehiculo = this.V(estado);
+        if (vehiculo && Number.isFinite(vehiculo.spd)) {
+          const tope = vehiculo.spd * (estado.turbo > 0 ? 1.3 : 1);
+          if (estado.v < tope) estado.v = Math.min(tope, estado.v + (estado.turbo > 0 ? 3.9 : 4.28) * dt);
+        }
+      }
+      return anterior.apply(this, arguments);
+    };
+  }
+})();
+~~~~
+
+### `src/js/98b-openai-gpt6-eon-manejo.js`
+~~~~js
+/*
+ * OpenAI GPT-6 · Eón · Recuperación arcade y visión anticipada · 22-XI-2026.
+ * Complemento aditivo a la PR #3; se ejecuta después de 98a-... cuando se fusione.
+ * NO cambia la geometría, rutas, límites de velocidad, puntos, ni el guardado.
+ * La recuperación es la última opción, solo al quedar bloqueado fuera de paradas.
+ */
+(function () {
+  'use strict';
+  const volante = EM.modes && EM.modes.volante;
+  if (volante && typeof volante.step === 'function' && typeof NET !== 'undefined' && typeof MAP !== 'undefined') {
+    const prohibido = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]);
+    const anterior = volante.step;
+
+    function rescatar(st) {
+      if (!MAP.ready || !st || !Number.isFinite(st.sR) || !NET.byId[st.line]) return false;
+      const l = NET.byId[st.line], B = BUSES && BUSES[st.kind];
+      if (!B || !l.P || !Number.isFinite(l.P.len) || typeof volante.pts !== 'function') return false;
+      // No teletransportar a través de un semáforo o una parada: son detenciones válidas.
+      if (!st.stopTgt || !(st.stopTgt[st.ni] - st.sR > 45)) return false;
+      if (typeof volante.redAhead === 'function') {
+        const semaforo = volante.redAhead(st);
+        if (Number.isFinite(semaforo) && semaforo < 32) return false;
+      }
+      for (const adelante of [4, 7, 10, 13, 16]) {
+        const s = st.sR + adelante;
+        if (s >= l.P.len - 3 || s >= st.stopTgt[st.ni] - 30) continue;
+        for (const margen of [0, 1.5, -1.5]) {
+          const p = NET.at(l.P, s, margen);
+          if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.a)) continue;
+          const probe = { x: p.x, y: p.y, h: p.a, h2: p.a };
+          const pts = volante.pts(probe, B);
+          if (!pts || !pts.length || pts.some(([x, y]) => prohibido.has(MAP.tileM(x, y)))) continue;
+          st.x = p.x; st.y = p.y; st.h = p.a; st.h2 = p.a; st.sR = s;
+          st.off = Math.abs(margen); st.v = 0; st.steer = 0; st.sin = 0;
+          st._eonAtasco = 0; st._eonRecuperaciones = (st._eonRecuperaciones || 0) + 1;
+          st._lost = 0;
+          if (typeof volante.msg === 'function') volante.msg(st, 'Bus recolocado en la ruta tras quedar atascado', 'b');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    volante.step = function (st, dt) {
+      const x = st && st.x, y = st && st.y;
+      const r = anterior.apply(this, arguments);
+      if (!st || !Number.isFinite(dt) || dt <= 0 || st.done || st.ph !== 'run' || st.rev || !MAP.ready) {
+        if (st) st._eonAtasco = 0;
+        return r;
+      }
+      const insiste = (st.keys && st.keys.up) || (st.auto && st.lev > .5) || st.lev > .75;
+      const detenido = Number.isFinite(st.v) && st.v < .45 && Math.hypot(st.x - x, st.y - y) < .035;
+      if (!insiste || !detenido || (st.keys && st.keys.down) || (st.stopTgt && st.stopTgt[st.ni] - st.sR <= 45)) {
+        st._eonAtasco = 0;
+        return r;
+      }
+      st._eonAtasco = (st._eonAtasco || 0) + Math.min(dt, .1);
+      if (st._eonAtasco >= 2.6 && !rescatar(st)) st._eonAtasco = 1.8;
+      return r;
+    };
+    const keyAnterior = volante.key;
+    if (typeof keyAnterior === 'function') {
+      volante.key = function (st, key, down) {
+        // Atajo opcional: solo disponible si realmente hubo un bloqueo al acelerar.
+        if (down && (key === 'r' || key === 'R') && st && st._eonAtasco > .65 && st.ph === 'run') {
+          rescatar(st);
+          return;
+        }
+        return keyAnterior.apply(this, arguments);
+      };
+    }
+    volante.tip += ' Si un bloqueo del mapa impide avanzar, acelera unos segundos para recuperarte o pulsa R.';
+    // Ajuste arcade moderado: mejora la respuesta de arranque sin tocar el tope de velocidad.
+    if (typeof BUSES !== 'undefined') {
+      if (BUSES.brt) BUSES.brt.acc = Math.max(BUSES.brt.acc, 1.35);
+      if (BUSES.feeder) BUSES.feeder.acc = Math.max(BUSES.feeder.acc, 1.55);
+    }
+  }
+
+  // El piloto del corredor avistaba obstáculos a solo 9 metros: <0,5 s a 75 km/h.
+  // Usa la ventana ordenada ya cacheada por el juego; no inspecciona la lista completa.
+  const carrera = EM.modes && EM.modes.carrera;
+  if (carrera && typeof carrera.ai === 'function' && typeof crVentana === 'function' && typeof CR_OBS !== 'undefined') {
+    const anteriorAI = carrera.ai;
+    carrera.ai = function (st) {
+      if (!st || !Array.isArray(st.obs) || !Number.isFinite(st.s) || !Number.isFinite(st.v)) return anteriorAI.apply(this, arguments);
+      if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }
+      const ventana = crVentana(st, st.s + .01, st.s + Math.max(25, Math.min(42, st.v * 2)));
+      const obst = ventana.find(o => !o.hecho && CR_OBS[o.k] && o.c === st.c);
+      if (!obst || st.turbo > 0) return null;
+      const d = obst.s - st.s;
+      // Reaccionar cuando quedan ~1-1,3 s, y no malgastar cambios de carril demasiado pronto.
+      if (d > Math.max(12, st.v * 1.25)) return null;
+      const tipo = CR_OBS[obst.k], saltable = tipo[3] === 0 || tipo[1] < .9;
+      if (saltable) return d <= Math.max(11, st.v * .8) && st.y === 0 && st.vy <= 0 ? 'salta' : null;
+      const espacio = Math.max(13, st.v * 1.3);
+      const libres = [0, 1, 2].filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && o.c === c && o.s <= st.s + espacio));
+      if (libres.length) {
+        libres.sort((a, b) => Math.abs(a - st.c) - Math.abs(b - st.c));
+        return libres[0] < st.c ? 'izq' : 'der';
+      }
+      return st.y === 0 && st.vy <= 0 && d <= Math.max(12, st.v * .85) ? 'salta' : null;
+    };
+  }
 })();
 ~~~~
 
@@ -15829,6 +16052,128 @@ fs.writeFileSync(path.join(root, 'arte', 'SKILLS-IA.md'), out);
 console.log(`.claude/skills ← ${n} skills · arte/SKILLS-IA.md ${Math.round(out.length / 1024)} KB`);
 ~~~~
 
+### `tools/test-gpt6-eon-manejo.mjs`
+~~~~js
+/** Pruebas aisladas del módulo aditivo GPT-6/Eón. No sustituye Chromium/Android. */
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const script = fs.readFileSync(new URL('../src/js/98b-openai-gpt6-eon-manejo.js', import.meta.url), 'utf8');
+let red = null, mapa = 4;
+const volante = {
+  tip: 'Conduce',
+  step(st, dt) { st.t += dt; },
+  pts(st) { return [[st.x, st.y], [st.x + 2, st.y], [st.x - 2, st.y]]; },
+  redAhead() { return red; },
+  msg() {},
+  key(st, key, down) { st.ultimaTecla = [key, down]; }
+};
+const carrera = { ai() { return 'original'; } };
+const b = { brt: { acc: 1 }, feeder: { acc: 1.2 } };
+const context = {
+  EM: { modes: { volante, carrera } },
+  BUSES: b,
+  NET: { byId: { MP1: { P: { len: 1000 } } }, at(_P, s, off = 0) { return { x: s, y: off, a: 0 }; } },
+  MAP: { ready: true, tileM() { return mapa; } },
+  TT: { MOUNT: 1, BRICK: 2, BLDG: 3, ROAD: 4, WATER: 8, CANAL: 9, LAND: 13 },
+  CR_OBS: { cono: [.5, .8, '#fff', 1], moto: [2, 1.3, '#fff', 1], hueco: [1, .1, '#fff', 0] },
+  crVentana(st, s0, s1) { return st.obs.filter(o => o.s >= s0 && o.s <= s1); },
+  Math, Number, Set, Array
+};
+vm.runInNewContext(script, context, { filename: '98b-openai-gpt6-eon-manejo.js' });
+function estado() { return { line: 'MP1', kind: 'brt', sR: 20, x: 20, y: 0, h: 0, h2: 0, v: 0, steer: 0, sin: 0, lev: 1, t: 0, ph: 'run', ni: 1, stopTgt: [0, 300], keys: { up: true } }; }
+const st = estado();
+for (let i = 0; i < 35; i++) volante.step(st, .1);
+assert.ok(st._eonRecuperaciones === 1 && st.x > 20 && st.sR > 20, 'rescata bus detenido fuera de parada');
+assert.equal(st.v, 0);
+assert.ok(b.brt.acc >= 1.35 && b.feeder.acc >= 1.55, 'ajuste arcade moderado');
+const nearRed = estado(); red = 10;
+for (let i = 0; i < 45; i++) volante.step(nearRed, .1);
+assert.equal(nearRed._eonRecuperaciones || 0, 0, 'no debe saltarse el semáforo');
+red = null;
+const nearStop = estado(); nearStop.stopTgt[1] = 35;
+for (let i = 0; i < 45; i++) volante.step(nearStop, .1);
+assert.equal(nearStop._eonRecuperaciones || 0, 0, 'no debe saltarse paradas');
+const blocked = estado(); mapa = 3;
+for (let i = 0; i < 45; i++) volante.step(blocked, .1);
+assert.equal(blocked._eonRecuperaciones || 0, 0, 'no teletransportar dentro de edificios');
+mapa = 4;
+const watch = { s: 100, v: 20, t: 2, c: 1, y: 0, vy: 0, turbo: 0, obs: [{ s: 121, c: 1, k: 'moto' }] };
+assert.ok(['izq', 'der'].includes(carrera.ai(watch)), 'el piloto reacciona con 21 metros anticipación a 20 m/s');
+watch.turbo = 2;
+assert.equal(carrera.ai(watch), null, 'no maniobra con turbo protector');
+watch.turbo = 0;
+watch.obs = [{ s: 116, c: 1, k: 'hueco' }];
+assert.equal(carrera.ai(watch), 'salta', 'salta obstáculo bajo');
+volante.key(st, 'h', true);
+assert.equal(st.ultimaTecla[0], 'h', 'preserva los controles anteriores');
+console.log('PASS GPT-6/Eón: rescate, semáforos, paradas, colisiones, aceleración, anticipación, salto y teclado');
+~~~~
+
+### `tools/test-gpt6-fluidez.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Pruebas deterministas del módulo aditivo OpenAI GPT-6 (sin paquetes externos).
+   Ejecutar desde la raíz: node tools/test-gpt6-fluidez.mjs */
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+import assert from 'node:assert/strict';
+
+const botones = [];
+const tipos = {
+  levels() { botones.length = 0; for (let i = 0; i < 12; i++) botones.push({classList: {
+    has: true, remove(c) { if (c === 'lock') this.has = false; }
+  }, dataset: { l: String(i) } }); },
+  storyList() { botones.length = 0; for (let i = 0; i < 8; i++) botones.push({
+    classList: { has: true, remove(c) { if (c === 'lock') this.has = false; } },
+    dataset: { c: String(i) }, lastElementChild: { textContent: '🔒' }, onclick: () => { throw new Error('Guardia previa'); }
+  }); }
+};
+let visitado = null;
+const modos = {
+  conduce: {key(st,k,on) { if (on && k === 'h') st.horn = true; }},
+  volante: {key(st,k,on) { if (on && k === 'h') st.horn = true; }},
+  carrera: {V() { return { spd: 20 }; }, step(st,dt) { st.v = Math.min(20 * (st.turbo > 0 ? 1.3 : 1), st.v + (st.turbo > 0 ? 4 : .12) * dt); st.s += st.v * dt; }}
+};
+const contexto = {
+  EM: {modes:modos}, Menu: tipos, Snd: {init(){}}, Story: {open(i){ visitado = i; }},
+  document: { querySelectorAll(selector) { return botones.filter(b => selector.includes('[data-l]') ? !!b.dataset.l : !!b.dataset.c); } },
+  Number
+};
+runInNewContext(readFileSync(new URL('../src/js/98a-openai-gpt6-fluidez.js', import.meta.url), 'utf8'), contexto);
+
+tipos.levels();
+assert.equal(botones.length, 12);
+assert.ok(botones.every(b => !b.classList.has), 'Todos los niveles sin candado');
+tipos.storyList();
+assert.ok(botones.every(b => !b.classList.has), 'Todos los capítulos sin candado');
+assert.ok(botones.every(b => b.lastElementChild.textContent === '▶'));
+botones[7].onclick();
+assert.equal(visitado,7);
+
+for (const [id,orden] of [
+ ['conduce',['cab','tps','cine','lado','top','pan']],
+ ['volante',['tps','cab','cine','top','pan']]
+]) {
+ const s = {view: orden[0]};
+ for(let i=1;i<=orden.length;i++) { modos[id].key(s,'v',true); assert.equal(s.view,orden[i % orden.length]); }
+ modos[id].key(s,'h',true); assert.equal(s.horn,true,'Delegación de controles restantes');
+}
+
+const e = {v:8,turbo:0,s:0};
+for(let n=0;n<90;n++) modos.carrera.step(e,1/30);
+assert.ok(e.v >= 19.95, `Ritmo arcade al llegar a tres segundos: ${e.v}`);
+assert.ok(e.v<=20,'Tope sin turbo');
+assert.ok(e.s > 30,'Recorrido avanza');
+e.turbo=2;
+for(let n=0;n<30;n++) modos.carrera.step(e,1/30);
+assert.ok(e.v <=26,'Tope con turbo');
+const congelado = {...e};
+modos.carrera.step(e,0);
+assert.equal(e.s,congelado.s,'Pausa no mueve el vehículo');
+console.log('PASS GPT-6: desbloqueo de 12 niveles, 8 capítulos, 6+5 vistas, velocidad, turbo y pausa');
+~~~~
+
 ### `tools/test-servidor.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -17663,8 +18008,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.2.0
-elmetro.versionCode=30
+elmetro.versionName=3.3.0
+elmetro.versionCode=31
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
