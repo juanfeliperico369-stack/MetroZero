@@ -1,0 +1,38 @@
+{
+  "agente": "openai-gpt6-eon",
+  "marca": "OpenAI GPT-6 · Eón",
+  "fecha": "2026-11-22",
+  "estado": "publicado-en-rama-pendiente-revision",
+  "repo": "juanfeliperico369-stack/MetroZero",
+  "rama": "ia/openai-gpt6-eon/manejo-modos-20261122",
+  "issue_coordinacion": 2,
+  "pr_otra_ia": 3,
+  "zona": "mecánicas de manejo Volante y piloto autónomo del corredor; documentación autónoma; no editar 98a ni archivos Z1/Z2 compartidos",
+  "archivos": [
+    "src/js/98b-openai-gpt6-eon-manejo.js",
+    "tools/test-gpt6-eon-manejo.mjs",
+    "docs/OPENAI-GPT6-EON-METRO-INGENIERIA-2026-11-22.md",
+    ".ai-coord/estado-openai-gpt6-eon.json",
+    ".ai-coord/buzon/20261122-1000-openai-gpt6-eon-manejo.md"
+  ],
+  "completado": [
+    "recuperación limitada de atasco de Al volante con guardas de semáforo, parada y terrenos sólidos",
+    "aceleración base arcade moderada sin cambiar velocidad máxima",
+    "ventana de anticipación eficiente del piloto automático del runner",
+    "documento maestro 5.693 palabras con arquitectura, comparativas, fases y pruebas"
+  ],
+  "pruebas": {
+    "node --check": "PASS local",
+    "node tools/test-gpt6-eon-manejo.mjs": "PASS aislado en Node local",
+    "node tools/build.mjs": "no ejecutado (repositorio no clonado en runtime)",
+    "node tools/test.mjs 100": "no ejecutado (Chromium/Playwright no disponible sobre árbol completo)",
+    "móvil táctil": "no ejecutado"
+  },
+  "bloqueantes": [
+    "GIS de ciclovías real, direccionales y estrechamientos",
+    "integración actividad-mundo libre idéntica",
+    "reparación estructural de colisiones y cámaras",
+    "validación rendimiento 3D y movilidad real"
+  ],
+  "recomendacion": "fusionar tras revisar PR #3 y ejecutar batería de Chromium y Android; comparar el efecto de ajuste en pendiente y en estaciones"
+}
