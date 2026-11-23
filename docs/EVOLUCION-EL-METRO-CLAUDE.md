@@ -13,6 +13,10 @@
 >
 > Lo que reportaron mientras yo trabajaba está en la sección 13.
 
+> **Actualización del 23‑nov‑2026 (3.4.0 «Jugo y ciclovías»):**
+> - el corredor ya va solo por las ciclorrutas reales, con cruces ↰/↱, tramos que se angostan, zonas de skate, trucos y parkour a pie;
+> - el jugo está en todos los modos (sección 12).
+
 ---
 
 ## 0. En corto
@@ -686,12 +690,14 @@ Comparten datos (vías, edificios, red), pero son **dibujos distintos**.
 | Versión | Qué | Criterio de aceptación (medible) |
 |---|---|---|
 | **3.2.0 ✔** | Modos arreglados, arcade, todo abierto, actividades 🎮, acelerador fijo | Auditoría: todos los modos avanzan con ▲ en menos de 2 s y a ritmo 1,0. Autotest y 100 partidas con 0 errores. |
-| **3.3** | Corredor de ciclovías con skate, parkour y zona zen (integrar lo de Antigravity); jugo en todos los modos | La pista no pasa por edificios en 10 km de prueba; cruces ↰/↱ cada 150–400 m; trucos con puntaje |
-| **3.4** | Cenital 3D sobre G3; rig único de cámaras; horizontal y vertical | 30 cuadros por segundo en cenital 3D en «celular modesto» (sin tarjeta gráfica: 25 o más) |
-| **3.5** | Contrarreloj con fantasma, reto del día y fantasmas por QR | Fantasma reproduce el tramo con error < 1 m |
-| **3.6** | «Un día de operación» (roguelite) y Cruces con el control de Traffix | Partida de 5–10 min; dos partidas seguidas nunca iguales |
-| **3.7** | Historias con peso: arcos por personaje, reputación, diario, noticias, épocas del sistema | 6 arcos completos; el diario guarda las decisiones sin romper `elmetro.v1` |
-| **3.8** | Arte: modelos más realistas, modo pixel, sprite stacking | Mismo costo de dibujo o menor; respaldo procedural |
+| **3.3.0 ✔** (otra sesión) | ⚙️ Flexibilidad: arcade o realista, mano zurda, joystick, giro, velocidad; unión de las ramas de las IAs | Autotest y 100 partidas con 0 errores |
+| **3.4.0 ✔** | Corredor solo por ciclovías: cruces ↰/↱, tramos estrechos, zonas de skate, trucos, parkour a pie y 🎮 desde cualquier ciclorruta. Jugo en todos los modos | La pista no se sale de la ciclorruta; con el piloto, 4 de 6 ciclorrutas terminan con 2–3 vidas; autotest y 100 partidas con 0 errores |
+| **Sigue** | Modo zen de domingo (ciclovía sin perder) | Partida sin fin sin vidas, al amanecer |
+| **3.5** | Cenital 3D sobre G3; rig único de cámaras; horizontal y vertical | 30 cuadros por segundo en cenital 3D en «celular modesto» (sin tarjeta gráfica: 25 o más) |
+| **3.6** | Contrarreloj con fantasma, reto del día y fantasmas por QR | Fantasma reproduce el tramo con error < 1 m |
+| **3.7** | «Un día de operación» (roguelite) y Cruces con el control de Traffix | Partida de 5–10 min; dos partidas seguidas nunca iguales |
+| **3.8** | Historias con peso: arcos por personaje, reputación, diario, noticias, épocas del sistema | 6 arcos completos; el diario guarda las decisiones sin romper `elmetro.v1` |
+| **3.9** | Arte: modelos más realistas, modo pixel, sprite stacking | Mismo costo de dibujo o menor; respaldo procedural |
 
 ---
 

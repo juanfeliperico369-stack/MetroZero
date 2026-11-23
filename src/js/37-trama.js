@@ -106,8 +106,8 @@ const TRAMA = [
       ['Doña Luz', 'Mija, mire este pasaje: se le dobló la esquina y por dentro tiene el dibujo de una rueda.'],
       ['Doña Luz', 'Póngalo contra la luz. ¿Sí ve el radio que le falta?'],
       ['Rosalba', 'Eso es cosa de la gente de EnCicla. Arranquemos por la calle del viaducto, que es lo más rápido.']] },
-    { k: 'modulo', who: 'Doña Luz', at: 'San Antonio', line: 'A', m: 'carrera', lv: 'cr:A', fin: 'San Antonio', finLine: 'A', txt: 'Corre por la calle junto al viaducto: esquiva, salta y recoge pasajes', lines: [
-      ['Doña Luz', 'Con ◀ ▶ cambia de carril, con ▲ salta los huecos y con 🛹 escoge en qué rodar.']],
+    { k: 'modulo', who: 'Doña Luz', at: 'San Antonio', line: 'A', m: 'carrera', lv: 'cr:A', fin: 'San Antonio', finLine: 'A', txt: 'Corre por la ciclorruta: esquiva, salta y recoge pasajes', lines: [
+      ['Doña Luz', 'Por la ciclorruta, mija: con ◀ ▶ cambia de carril y en los cruces escoge para dónde; con ▲ salta los huecos y en el aire haga un truco; ▼ para agacharse; y con 🛹 escoge en qué rodar.']],
       ok: 'Doña Luz guardó el pasaje en la libreta: «Ahora lléveselo a Santi, en Floresta».' },
     { k: 'abordar', line: 'B', at: 'San Antonio', txt: 'Toma la línea B hacia San Javier' },
     { k: 'bajar', line: 'B', at: 'Floresta', txt: 'Bájate en Floresta' },

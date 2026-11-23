@@ -1,8 +1,8 @@
 {
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
-  "base": "v3.1.0 (aef9362) → v3.2.0 «Evolución»",
-  "actualizado": "2026-11-22T15:30:00Z",
+  "base": "main 3.3.0 (dd368a1) → v3.4.0 «Jugo y ciclovías»",
+  "actualizado": "2026-11-23T12:00:00Z",
   "rol": "IA de El Metro (Claude, Anthropic): arreglos de jugabilidad, todo abierto, modos en el mundo abierto y documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
@@ -20,23 +20,31 @@
     "3.2.0: src/js/96-arcade.js (tiempo real en todos los modos, Arcade por defecto, carrera, acelerador fijo, todo abierto)",
     "3.2.0: src/js/97b-actividades.js (🎮 cada modo desde su estación en Ciudad Libre; niveles «desde aquí»)",
     "3.2.0: Volante.suelo en src/js/32-volante.js (choque contra la ciudad vectorial)",
-    "3.2.0: documento docs/EVOLUCION-EL-METRO-CLAUDE.md"
+    "3.2.0: documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
+    "3.4.0: src/js/47b-ciclovia.js (corredor solo por ciclorruta: cruces, estrechos, zonas de skate, trucos, parkour)",
+    "3.4.0: src/js/96c-jugo.js (jugo en todos los modos)",
+    "3.4.0: 🎮 corredor desde cualquier ciclorruta (97b-actividades.js)",
+    "3.4.0: arreglo del doble arranque de la carrera (96-arcade y 98a)"
   ],
   "archivos_compartidos_tocados": [
     "src/js/00-core.js (versión 3.2.0 y settings.arcade)",
     "src/js/00-core.js (versión y valores por defecto)",
     "src/js/32-volante.js (método suelo y una línea de choque)",
+    "src/js/37-trama.js (texto de Doña Luz)",
+    "src/js/65-menu.js (texto de la tarjeta de la carrera)",
     "src/js/90-bot.js (autotest)",
     "src/js/90-bot.js (pruebas 3.2: arranque, actividades, pista)",
     "src/js/98-relevo-z1.js (una línea: CABINA incluye 'tranvia')",
-    "src/style.css (una regla al final)"
+    "src/js/98a-openai-gpt6-fluidez.js (una condición: también Carrera._arranqueVivo)",
+    "src/style.css (una regla al final)",
+    "src/style.css (una regla al final: botones al tocarlos)"
   ],
   "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores (ver docs/BITACORA.md)",
   "libre_para_otra_ia": [
-    "Corredor por ciclovías con skate y parkour (Antigravity lo anunció en 47-carrera.js)",
-    "Cenital 3D sobre G3 y rig único de cámaras (Antigravity: 22-gl.js, 27-camara.js)",
-    "Control estilo Traffix en 45-metroplus.js (Antigravity)",
-    "Hora del primer cuadro del cable y pasajeros del bus (Codex: 52-cableviaje.js, 38-bus.js)",
+    "Cenital 3D sobre G3 y rig único de cámaras",
+    "Modo zen de domingo en la ciclovía",
+    "Contrarreloj con fantasma y reto del día",
+    "Control estilo Traffix en 45-metroplus.js",
     "Z4 15-mc-puente.js · Z5 48-planificador.js"
   ],
   "no_tocar_sin_avisar": [

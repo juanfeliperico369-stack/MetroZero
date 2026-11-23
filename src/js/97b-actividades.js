@@ -36,10 +36,17 @@
     /* lo que se puede jugar junto a la estación más cercana (a menos de R metros) */
     aqui(st) {
       if (!st || st.mode === 'ride' || st.trama && st.trama.talk) return null;
-      const h = Libre.nearHub(st, this.R); if (!h) return null;
-      const G = [], pon = (g, m, lv, ico, n, sub) => { if (!EM.modes[m] || !lv) return; g.it.push({ m, lv, ico, n, sub }); };
+      const h = Libre.nearHub(st, this.R), Ci = EM.ciclo, G = [], pon = (g, m, lv, ico, n, sub) => { if (!EM.modes[m] || !lv) return; g.it.push({ m, lv, ico, n, sub }); };
+      /* 3.4 · el corredor por ciclovías: sobre una ciclorruta (sale de ahí, hacia donde miras) o desde la estación si hay una a menos de 400 m */
+      if (Ci && Ci.armar()) {
+        const aqui = Ci.cercano(st.x, st.y, 30), cerca = aqui < 0 && h ? Ci.cercano(h.x, h.y, 400) : -1, n = aqui >= 0 ? aqui : cerca;
+        if (n >= 0) { const q = Ci.red.N[n], nm = Ci.nombre((q.a[0] || {}).nm).replace(/^Ciclorruta\s+/, ''), g = { l: { id: '🚲', color: '#2e9d55', name: 'Ciclorruta ' + nm }, it: [] };
+          if (aqui >= 0) { pon(g, 'carrera', 'cr:@' + Math.round(st.x) + ',' + Math.round(st.y) + ',' + (+st.h || 0).toFixed(2), '🛹', 'Corredor desde aquí', 'Por la ciclorruta: cruces ↰ ↱, trucos y zonas de skate'); }
+          else pon(g, 'carrera', 'cr:@' + Math.round(h.x) + ',' + Math.round(h.y), '🛹', 'Corredor por la ciclorruta ' + nm, 'A ' + Math.round(Math.hypot(q.x - h.x, q.y - h.y)) + ' m de la estación: cruces, trucos y zonas de skate');
+          if (g.it.length) G.push(g); }
+      }
       let feeders = 0;
-      for (const l of h.lines) {
+      for (const l of (h ? h.lines : [])) {
         const i = l.st.findIndex(s => s.hub === h); if (i < 0) continue; const n = l.st.length, g = { l, it: [] };
         if (l.kind === 'metro' || l.kind === 'tram') {
           const m = l.kind === 'tram' ? 'tranvia' : 'conduce', ic = l.kind === 'tram' ? '🚋' : '🚇';
@@ -47,13 +54,12 @@
           if (i > 0) { const b = Math.max(0, i - 2); pon(g, m, l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Desde ' + l.st[i].name + ', sentido contrario'); }
           const full = EM.modes[m].levels().find(q => q.line === l.id && q.full); if (full) pon(g, m, full.id, '🏁', 'Recorrido completo', full.sub);
           if (l.kind === 'metro') pon(g, 'despacho', sigue('despacho'), '🎛', 'Despacho de trenes', 'El Puesto de Control: agujas y horarios');
-          pon(g, 'carrera', 'cr:' + l.id, '🛹', 'Carrera junto a la línea', 'En skate, patines, monopatín o bici');
         } else if (l.kind === 'brt' || l.kind === 'feeder') {
           if (l.kind === 'feeder' && ++feeders > 3) continue;
           const ic = l.kind === 'brt' ? '🚌' : '🚐', paso = l.kind === 'brt' ? 4 : n;
           if (i < n - 1) { const b = Math.min(n - 1, i + paso); pon(g, 'bus', 'bus:' + l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Desde arriba, con las paradas y la gente'); pon(g, 'volante', 'vo:' + l.id + ':' + i + '-' + b, '🎮', 'Al volante hacia ' + l.st[b].name, 'En la cabina 3D, con timón y pedales'); }
           if (i > 0 && l.kind === 'brt') { const b = Math.max(0, i - paso); pon(g, 'bus', 'bus:' + l.id + ':' + i + '-' + b, ic, 'Maneja hacia ' + l.st[b].name, 'Sentido contrario'); }
-          if (l.kind === 'brt') { pon(g, 'metroplus', sigue('metroplus'), '🚦', 'Cruces del Metroplús', 'Semáforos y carril exclusivo'); pon(g, 'carrera', 'cr:' + l.id, '🛹', 'Carrera junto a la línea', 'En skate, patines, monopatín o bici'); }
+          if (l.kind === 'brt') { pon(g, 'metroplus', sigue('metroplus'), '🚦', 'Cruces del Metroplús', 'Semáforos y carril exclusivo'); }
           else pon(g, 'alim', sigue('alim'), '🧩', 'Alimentadores: barrios → Metro', 'Rompecabezas de agujas');
         } else if (l.kind === 'cable') {
           pon(g, 'cableviaje', 'cv:' + l.id, '🚡', 'Opera la línea ' + l.id, l.st[0].name + ' → ' + l.st[n - 1].name);
@@ -61,7 +67,7 @@
         }
         if (g.it.length) G.push(g);
       }
-      return G.length ? { h, G } : null;
+      return G.length ? { h: h || { name: G[0].l.name }, G } : null;
     },
     abrir(st) {
       const q = this.aqui(st); if (!q) { Libre.msg(st, 'Acércate a una estación para jugar sus modos', 'y'); return; }

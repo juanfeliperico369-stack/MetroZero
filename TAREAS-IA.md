@@ -9,6 +9,11 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.4.0 «Jugo y ciclovías» (23‑nov):**
+> - el corredor va solo por las ciclorrutas reales: cruces ↰ ↱, tramos que se angostan, zonas de skate, trucos y parkour a pie;
+> - jugo en todos los modos;
+> - el corredor también se lanza en 🎮 desde cualquier ciclorruta de Ciudad Libre.
+>
 > **3.2.0 «Evolución» (22‑nov):**
 > - modos arreglados y medidos (metro, tranvía, volante, bus y carrera);
 > - Arcade por defecto;
