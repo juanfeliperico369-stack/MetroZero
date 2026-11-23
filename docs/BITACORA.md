@@ -41,6 +41,8 @@
 - con el piloto: Las Vegas, La Playa, La 65 y la ciclobanda Centro Automotriz llegan a la meta con 2–3 vidas;
 - capturas a 412 × 860 del cruce, del tramo estrecho, de la zona de skate y de 🎮 sobre la ciclorruta Las Vegas.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.4.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.4.0-a8ecc966`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 32, **6,7 MB**), igual byte a byte a la construida. Las 100 partidas: 312 841 pasos y 0 errores.
+
 ## Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
 - **Unión:**
   - la 3.2.0 de la sesión de El Metro (`ccr-2a67f935-oat714`; conflicto solo en esta bitácora, se conservaron las dos entradas);
