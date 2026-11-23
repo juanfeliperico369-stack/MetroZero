@@ -187,15 +187,16 @@
   Cr.stepCiclo = function (st, dt) {
     if (st.done) return; const K = st.cic, V = this.V(st), top = V.spd * (st.turbo > 0 ? 1.3 : 1); st.t += dt;
     st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));
-    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10);
+    const s0 = st.s; st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10);   /* 3.5: s0 para la colisión barrida (un cuadro lento no se salta una rampa) */
     for (const k of ['inv', 'iman', 'turbo', 'agacha']) if (st[k] > 0) st[k] -= dt;
     if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.truco) st.truco.t -= dt; if (st.y === 0) { st.vy = 0; this.aterriza(st); } }
     Ci.extender(st, st.s + 230); if (K.cruce && st.s > K.cruce.s - 14) Ci.decidir(st);
     for (const a of K.avisos) if (!a.ya && st.s >= a.s) { a.ya = 1; st.dato = a.t; st.datoT = 2.5; }
     const z = K.zonas.find(q => st.s >= q.s0 && st.s <= q.s1) || null; if (z && st._zona !== z.s0) { st._zona = z.s0; st.dato = '🛹 Zona de skate · ' + z.nombre + ': rampas y barandas, los trucos valen doble'; st.datoT = 3; jugo(st, '🛹 Zona de skate', 'b'); } else if (!z) st._zona = null;
     if (st.auto && st.y > 1 && !st.truco && rnd(st) < .3) this.act(st, 'truco');
-    for (const o of crVentana(st, st.s - 1.2, st.s + 7)) {
-      if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
+    const desde = Math.min(s0, st.s - 1.2);
+    for (const o of crVentana(st, desde, st.s + 7)) {
+      if (o.hecho || o.s < desde || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
       if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; jugo(st, P[0], 'y'); continue; }

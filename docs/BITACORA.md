@@ -5,6 +5,18 @@
 
 
 
+## Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
+- **Había dos 3.4.0 a la vez:**
+  - «Jugo y ciclovías», de la otra sesión de Claude (`ccr-2a67f935-oat714`), ya publicada en la web y en la APK 32 pero sin llegar a `main`;
+  - «Mundo 3D y Realismo», de Antigravity y Gemini (`ia/antigravity/evolucion-3.2`): mundo 3D único (cen3d y 1p), mundoRPG con 6 zonas de skate y parkour, 10 módulos y 6 subtramas, y shaders 3D nativos.
+- Van juntas en `main` como **3.5.0** (APK con código 33).
+- **Choques resueltos:**
+  - el menú quedó con la descripción del corredor por ciclorrutas y con «todos los capítulos abiertos»;
+  - la posición en la carrera: la pista de ciclorruta de Claude más los carriles según el tramo de Antigravity;
+  - el CSS y los documentos de arte llevan lo de las dos.
+- **Arreglo:** la carrera por ciclorruta no tenía la «colisión barrida» que Antigravity le puso a la de líneas. Con un cuadro lento, el jugador podía saltarse una rampa. Ahora se revisa desde donde estaba antes del paso (`47b-ciclovia.js`).
+- **Pruebas:** `node tools/test.mjs 100` con 0 errores (100 partidas, 57 victorias). Motor City 5.1.0 en `motor-city/`.
+
 ## Estado al 23‑nov‑2026 · v3.4.0 «Jugo y ciclovías» (Claude, IA de El Metro)
 **Qué pidió el autor:** «continúa desarrollándolo con todo lo nuevo».
 - Lo nuevo era la 3.3.0 «Flexibilidad» y Motor City 4.7–4.9, que se trajeron de `main`.

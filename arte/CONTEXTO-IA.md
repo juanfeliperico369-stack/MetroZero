@@ -235,6 +235,18 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
+- **Había dos 3.4.0 a la vez:**
+  - «Jugo y ciclovías», de la otra sesión de Claude (`ccr-2a67f935-oat714`), ya publicada en la web y en la APK 32 pero sin llegar a `main`;
+  - «Mundo 3D y Realismo», de Antigravity y Gemini (`ia/antigravity/evolucion-3.2`): mundo 3D único (cen3d y 1p), mundoRPG con 6 zonas de skate y parkour, 10 módulos y 6 subtramas, y shaders 3D nativos.
+- Van juntas en `main` como **3.5.0** (APK con código 33).
+- **Choques resueltos:**
+  - el menú quedó con la descripción del corredor por ciclorrutas y con «todos los capítulos abiertos»;
+  - la posición en la carrera: la pista de ciclorruta de Claude más los carriles según el tramo de Antigravity;
+  - el CSS y los documentos de arte llevan lo de las dos.
+- **Arreglo:** la carrera por ciclorruta no tenía la «colisión barrida» que Antigravity le puso a la de líneas. Con un cuadro lento, el jugador podía saltarse una rampa. Ahora se revisa desde donde estaba antes del paso (`47b-ciclovia.js`).
+- **Pruebas:** `node tools/test.mjs 100` con 0 errores (100 partidas, 57 victorias). Motor City 5.1.0 en `motor-city/`.
+
 #### Estado al 23‑nov‑2026 · v3.4.0 «Jugo y ciclovías» (Claude, IA de El Metro)
 **Qué pidió el autor:** «continúa desarrollándolo con todo lo nuevo».
 - Lo nuevo era la 3.3.0 «Flexibilidad» y Motor City 4.7–4.9, que se trajeron de `main`.
@@ -270,6 +282,8 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 - las pruebas de GPT‑6 (`tools/test-gpt6-*.mjs`): PASS;
 - con el piloto: Las Vegas, La Playa, La 65 y la ciclobanda Centro Automotriz llegan a la meta con 2–3 vidas;
 - capturas a 412 × 860 del cruce, del tramo estrecho, de la zona de skate y de 🎮 sobre la ciclorruta Las Vegas.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.4.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.4.0-a8ecc966`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 32, **6,7 MB**), igual byte a byte a la construida. Las 100 partidas: 312 841 pasos y 0 errores.
 #### Estado al 22‑nov‑2026 · v3.4.0 «Mundo 3D y Realismo» (Antigravity / Gemini)
 - **Documento maestro con marca de IA:** `docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md` (análisis comparativo de 35+ referencias + *UnoCero*, auditoría de modos rotos/lentos, arquitectura de un solo mundo 3D, diseño de Ciclovías + Skate/Parkour, plan lógico para los 10 géneros y síntesis multi‑IA).
 - **Fusión limpia sobre `origin/main` (`dd368a1`, v3.3.0 «Flexibilidad»):** armonizadas al 100 % las entregas de Claude (`96-arcade.js`, `97b-actividades.js`, `⚙️ Flexibilidad`), Codex (regresiones de `CableViaje`, `Bus` y colisión barrida de `Carrera`), OpenAI GPT‑6 (`98a`, `tools/test-gpt6-fluidez.mjs`) y OpenAI GPT‑6 Eón (`98b`, `tools/test-gpt6-eon-manejo.mjs`).
