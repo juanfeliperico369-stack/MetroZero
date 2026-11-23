@@ -1,5 +1,119 @@
 # Bitácora de Motor City
 
+## 22-nov-2026 · 4.9.0 «Realismo» · three.js incrustado y el 3D realista
+- **El autor:**
+  - «Nuestro motor no logra mapear todo tal cual: los relieves, las casas y los edificios no son como son, y los gráficos aún son básicos. ¿Qué debemos hacer?».
+  - Luego aprobó incrustar three.js: «haz todo eso que propones y sigue mejorando».
+  - Sobre las imágenes: las fotos de la ciudad son solo para mirar y adaptar; no se montan en el motor.
+- **three.js 0.170 (MIT) dentro de `dist/motor.js`:**
+  - la construcción convierte su módulo en el objeto `THREE`, sin internet;
+  - la licencia va en `js/vendor/LICENSE-three.txt` y en la cabecera;
+  - `motor.js` pasa de 1,0 a 1,7 MB.
+- **`MC.VistaTres` (`js/45-tres.js`):** dibuja las mismas regiones y mallas que `VistaGL` (que arma los datos y sigue de respaldo).
+  - Luz: materiales físicos y sol con sombras de verdad (mapa que sigue a la cámara, alineado a sus texeles); luz de cielo hemisférica casi neutra (el azul lo pone el domo); reflejos solo en los objetos; exposición «Khronos PBR Neutral»; niebla del clima.
+  - De noche: las ventanas encendidas brillan con luz cálida, y lo que el clásico aclaraba (carros, letreros) recibe un leve brillo propio.
+  - Grano procedural en los muros, con las juntas del ladrillo, y en el suelo, con grano fino y manchas.
+- **⚙️ Gráficos:** automático (realista salvo en GPU de gama baja), realista o clásico, con cambio en caliente (`MC.Vistas.reiniciarGL`).
+- **Lección:** en three.js 0.163 y posteriores, `scene.environment` usa `scene.environmentIntensity` y no el `envMapIntensity` del material: teñía de azul todo lo que mira hacia arriba. Se encontró midiendo píxeles con las luces apagadas una por una.
+- **Plan de datos para que la ciudad sea «como es»:** `docs/PLAN-REALISMO.md` (catastro en todas las comunas, techos de OpenStreetMap, relieve según la licencia, planos históricos, atlas de fachadas, mallas pre-cocinadas, «modo nube»).
+- **Prueba nueva:** `pruebas/tres.mjs`.
+
+
+## 22-nov-2026 · 4.8.0 · Flexibilidad, lo que dejaron Gemini y ChatGPT, y optimización
+- **El autor:** «Retoma el trabajo de las otras IAs (Gemini y ChatGPT), termina de unir lo que falta en el Motor y el juego de prueba, más EnCicla y El Metro, dedícate a optimizarlos. Añade a todo *Flexibilidad*.»
+- **Unión:** ramas de ChatGPT (`ia/chatgpt/4.7-auditoria-arcade-20261122`), Codex (`ia/codex/reporte-metrozero-20261122`) y Gemini (`ia/gemini/4.7-evolucion-arte-render`, solo coordinación) en el motor. EnCicla: la 3.0.0 de su otra sesión y la auditoría de GPT-6. El Metro: la 3.2.0, Antigravity, Codex y las dos de GPT-6.
+- **⚙️ Flexibilidad (`js/37-flexibilidad.js`, `MC.Flex`):** diez ajustes para cualquier juego del motor:
+  - control (según la cámara, apuntar, volante o un pulgar), giro, velocidad de los vehículos y distancia de la cámara;
+  - acelerador fijo al subir y tren con palanca;
+  - mano zurda, tamaño de la interfaz, calidad fija y vibración en choques.
+  En Turno Cero: ⏸ Menú → ⚙️ Flexibilidad, guardado en `leerG().flex`. Prueba nueva: `pruebas/flexibilidad.mjs`.
+- **Lo de ChatGPT (auditoría 4.7, 11/11 contratos):**
+  - el metro con teclado o mando es palanca (↑ acelera, ↓ frena en cualquier cámara);
+  - Run solo ofrece doblar hacia otra ciclorruta;
+  - la carrera lejos de la salida pregunta «🚗 Ir manejando / ⚡ Llevarme ya» (sin teletransporte sin aviso);
+  - la guardia de EnCicla quedó dentro de `60-modos.js` y se retiró `61-chatgpt-guardia-encicla.js`;
+  - su prueba estática apunta a `pruebas/humano.mjs` (E2E solo con entradas) y su E2E de entradas reales pasa los cuatro escenarios.
+- **Lo de Gemini (su plan de render, que no alcanzó a entregar):**
+  - el Raster 3D por software dibuja el tráfico (`E.trafico`), respeta `_sinJugador` en el tren y tiene `aPantalla` (flechas, conos y efectos también sin WebGL);
+  - la primera persona va a la altura de los ojos de quien maneja (1,15 m en carro, 2,3 m en bus) y solo dibuja el capó;
+  - luz hemisférica, brillo especular Blinn-Phong y contorno, por vértice;
+  - la niebla y la distancia siguen al escalador de resolución (`E.factorNiebla`, que nadie leía);
+  - 🌄 miradores en el mundo abierto: la cámara de cine orbita, se cuentan y dan una propina.
+- **Optimización medida (CPU 4×, manejando con ⏫):**
+  - el caché de sectores de suelo tenía 16 sectores y el mapa grande, armándose en ratos libres, recorría 44 por fila: el LRU se vaciaba en ciclo (34 000 descompresiones en 8 s, 26 % de la CPU);
+  - ahora guarda hasta 400 (unos 4 MB);
+  - p95 del cuadro: cenital de 166 a 33 ms, tercera de 133 a 50 ms y ciudad 3D de 150 a 50 ms.
+- **Interfaz:** en horizontal el minimapa sube junto a los botones (antes tapaba la fila Modos/Cámara); en zurdo los botones van a la izquierda y el minimapa a la esquina libre.
+- **Pedidos nuevos en la misma sesión (Turno Cero):**
+  - 🆘 **Rescate** (`juegos/getaway/63-rescate.js`, como el 🆘 de El Metro): salir a la calle más cercana, 🔧 grúa y mecánico, 🚕 taxi, 🚇 la estación más cercana, 🚑 ambulancia, 🏠 volver a donde empezaste y 🗺️ elegir un punto; un vigía lo ofrece si llevas 3,5 s empujando sin moverte o vas en carro lejos de las calles. Con la policía encima o en un capítulo, no hay saltos.
+  - 🗺️ **Un solo mapa:** el minimapa, 🗺️ y M abren el mismo; al poner un punto aparece **🚀 Ir** (calle más cercana o, si no hay a 400 m, el sitio transitable más cercano al punto); 🌍 y alejar más allá de la ciudad pasan al planeta, y 🗺️ en el planeta vuelve. El botón suelto 🌍 se quitó (la tecla G sigue).
+  - ✂️ **Pantalla en mitades** (motor, `MC.Controles({ mitades: true })`): abajo se maneja (joystick en el cuarto de su mano, botones al otro); arriba es siempre la cámara: arrastrar gira e inclina, pellizcar acerca o aleja, el encuadre se queda y el doble toque lo endereza. El dedo del joystick no se suelta aunque otro mueva la cámara. ⚙️ Flexibilidad permite volver a la clásica.
+  - Prueba nueva: `pruebas/rescate-mapa.mjs`.
+- **Juegos hermanos:** EnCicla 3.1.0 (giro, velocidad de la cicla y pedaleo fijo al empezar, junto a lado, tamaño y vibración) y El Metro 3.3.0 (arcade o realista, mano zurda, joystick, giro, velocidad, acelerador fijo y tamaño de botones), ambos con sus pruebas en verde.
+
+
+## 22-nov-2026 · Ilustraciones de actos y accesibilidad del menú
+- Cinco imágenes originales WebP aparecen en las transiciones de Turno Cero.
+- MC.UI limpia el manejador Escape, cierra el menú anterior y devuelve el foco.
+- Pruebas de modos admiten HTTP local. Ver CONTEXTO-CODEX-TURNO-CERO.md para resultados y pendientes.
+
+
+## 22-nov-2026 · 4.7.0 · Plan de evolución, ritmo arcade, todo liberado y los modos en el mundo abierto
+- **El autor** (a tres IA a la vez):
+  - revisar el juego contra los mejores e investigar jugabilidad, controles, mundos grandes con pocos recursos, render y optimización;
+  - un plan verosímil en un documento con la marca de cada IA;
+  - arreglar los modos (lentos, engorrosos, «no se mueven»);
+  - todo liberado; cada modo presente en el mundo abierto con la misma experiencia;
+  - Run solo en ciclovías;
+  - luego arte, cámaras y un solo mundo 3D.
+- **Documento:** `docs/PLAN-EVOLUCION-CLAUDE.md`. Contiene:
+  - una auditoría con «dedo» real en 6 cámaras × 5 vehículos;
+  - la comparación con las ~40 referencias (técnica, no arte);
+  - la investigación transversal, con fuentes;
+  - ideas por género bajo el marco de la «doble vida» de Mara;
+  - el mundo vivo (RPG y «MMO sin servidor»), Run, cámaras y arte;
+  - la hoja de ruta 4.8–5.0 repartida entre Claude, Gemini y Codex;
+  - las ideas que no tienen cabida.
+- **Ritmo arcade** (a pie ≈ 43 % de la bici, como en EnCicla):
+  - a pie camina a 2,2, trota a 4 y corre a 6,4 m/s;
+  - bici: 9; e‑bike y MTB: 10,5; skate: 7; patines: 7,5;
+  - se trota con el joystick a fondo en cualquier vista.
+- **Modos más cortos y vivos:**
+  - EnCicla y Mandados: 0,3 a 1,3 km;
+  - Extremo: hasta 2,6 km;
+  - tren: 2,4 m/s² al acelerar y 3,2 al frenar, ×3 lejos de la estación, sin espera inicial; el joystick empuja hacia donde va.
+- **Todo liberado:** los 5 capítulos y todos los vehículos desde la primera partida.
+- **Actividades en el mundo abierto** (`G.Actividades`):
+  - marcas por celdas de 1,2 km con datos reales: 🏁 avenidas, 🚵 lomas, 📦 lugares, 🛹 plazas, 🛴 ciclorrutas, 🚲 EnCicla y 🚇 estaciones;
+  - se ven en la calle, el minimapa y el mapa;
+  - ▶ Jugar arranca el mismo modo ahí.
+- **🛹 Zona de trucos y parkour:** saltos, giros en el aire con el joystick, caer derecho y combos ×5. **🛴 Run** también en el menú 🎮.
+- **Cámaras:**
+  - por contexto: Arcade solo en carretera y carreras, Vuelo solo volando; primera persona y dron en el selector;
+  - la cenital de verdad (79° y 66°) se aleja con la velocidad, como GTA 2;
+  - en las vistas de volante, el joystick de lado avanza.
+- **Hallazgos de Gemini en las zonas de Claude:** resueltos (metro, cenital, volante, cámaras, Run, puente del raster).
+- **Coordinación:** `coord/buzon/2026-11-22-claude-4.7-en-curso.md` y `20261122-1500-claude-4.7-respuesta.md`. Unida la entrega de Codex (`c3fc286`).
+- **Pruebas:** 146 Node y `pruebas/modos.mjs` (cinco modos, ⏫, mapa y vuelta al carro).
+
+
+- **El autor:** «el joystick está bien, pero el problema es el arranque: si se suelta el joystick se deja de acelerar; coloca un botón que, presionado, siempre esté acelerando sin parar, y para detenerse simplemente se desactiva».
+- **Motor:** `MC.Manejo.aplicar(…, { acelFijo })` (`js/37-manejo.js`): prendido, acelera a fondo y el joystick solo da la dirección (sin joystick sigue derecho y el imán de calle lo alinea); apagado, frena suave hasta parar (`frenoK` 0,55 en `js/32-fisica.js`), salvo que se toque el joystick. El 🛑 manda mientras se oprime (y con giro, derrapa). `ui.alternar` (`js/70-interfaz.js`): botón que se prende y se apaga, verde y brillante cuando está prendido.
+- **Turno Cero:** ⏫ junto a 🛑 y ⚡ (tecla V), visible en carro, moto, bici y manejando el tren de 🎮 Modos; a pie se esconde y se apaga; un aviso la primera vez. En vertical la velocidad sube sobre la fila de botones; en horizontal la columna izquierda ya no invade la zona libre.
+- **Pruebas:** §27 (sin joystick llega a 25 m/s derecho en 4 s; con el joystick a un 35 % gira sin soltar el acelerador; apagado para en 2,1 s) y `pruebas/modos.mjs` toca el botón de verdad en Turno Cero (114 km/h en 3,5 s y luego para).
+
+## 21-nov-2026 · 4.6.0 · El manejo de EnCicla, el mapa de EnCicla, horizontal y un solo juego de prueba con todo
+- **El autor:** «injugables: toscos como GTA IV; derrapa por nada, va lento, avanza lento, retoma lento; no hay horizontal; te basaste en El Metro: básate en EnCicla y arregla El Metro de paso; el mapa no deja elegir en la brújula y al abrirlo el juego deja de funcionar; el de EnCicla acerca, aleja y no se ralentiza». Luego: «la idea no era tener 4 juegos de prueba sino uno: entrega los cuatro en Turno Cero y rescata lo de EnCicla y El Metro».
+- **Manejo (motor, `js/32-fisica.js`, `js/31-vehiculos.js`):** el modelo de `BicicletasUno/src/js/30-ride.js` para carros, motos, bicis y a pie: el vehículo gira hacia donde apunta el joystick con una velocidad de giro que baja con la velocidad, la velocidad persigue un objetivo (empuje × (0,3 + 0,7·cos Δ)) con aceleración y frenado firmes, las llantas agarran (derrape solo con freno de mano), asistencia de esquinas de EnCicla y reversa. Tabla `Vehiculos.ARCADE` por tipo. El modelo de llantas de Turno Cero (`ManejoCarro`) queda solo en «simulación».
+- **Al ritmo del reloj:** la física da subpasos de 25 ms (antes, con dt topado en 50 ms, a pocos cuadros por segundo todo iba en cámara lenta); búsqueda, persecución, objetos y guardias a pie, igual. Prueba §26: 0→90 % en 2,7 s, radio de 4,8 m a 20 m/s sin derrapar, freno de mano que derrapa y se endereza en 0,1 s, y a 15 y a 60 cuadros por segundo el carro recorre lo mismo.
+- **Cámara:** mira menos adelante (0,45·v, tope 1/6 de la vista) y sigue más rápido.
+- **Mapa grande (`js/70-mapa.js`):** como el de EnCicla: una vista general del mundo armada de a poco (y en los ratos libres mientras se juega), el detalle con presupuesto por cuadro, el juego en pausa mientras está abierto, ✕ + − ◎ 🧭 (norte o rumbo arriba), tocar = destino (pegado al lugar o la estación más cercana), nombres que no se montan y la escala. Tocar el minimapa (que ahora marca la N) lo abre. Antes repintaba más de mil losas de Medellín en cada movimiento del dedo.
+- **Horizontal:** portada de Turno Cero a dos columnas, HUD que no se monta (artefactos arriba al centro, subtítulos más abajo); el APK gira con el celular (antes, fijo en vertical); Run Scooter también.
+- **Un solo juego de prueba:** `juegos/getaway/60-modos.js`, 🎮 Modos en Turno Cero (portada, botón y ⏸ Menú): 🏁 Carreras (circuito o sprint con 3 rivales, récords), 🚵 Extremo (bajada en bici de montaña, saltos y derrapes), 📦 Mandados (tres entregas con reloj y paquete que se daña), 🚲 EnCicla (rebalanceo de estaciones, racha por la ciclorruta, multa por semáforo en rojo) y 🚇 Metro, tranvía y Metroplús (manejas el tren por la línea real y paras en el andén), más 🧪 Laboratorio (estilo, hora, clima y cualquier vehículo). Sin policía mientras dura un modo. `juegos/carreras/` y `juegos/extremo/` se borraron (su código vive en Turno Cero); Mandados queda solo como banco interno de pruebas (público simulado y capturas), fuera de la portada y de las entregas.
+- **El Metro (MetroZero):** la sesión de El Metro ya publicó en paralelo la 3.1.0 «Fluido» con el manejo de EnCicla (APK 29). Esta sesión también lo había hecho, pero lo retiró para no pisarlo: en MetroZero solo quedan el motor 4.6.0 en `motor-city/` y `docs/INFORME-MOTOR-CITY-4.6.md`. En EnCicla otra sesión prepara la 2.1.0 en su rama: tampoco se avanzó su `main`.
+- **Pruebas:** 145 Node y 157 en navegador; `pruebas/modos.mjs` juega los cinco modos de punta a punta y abre el mapa (reemplaza a `pruebas/carreras.mjs`); los hermanos, en verde con el motor 4.6.0 copiado.
+- **Falta:** probar la sensación con las manos en un celular (autor); el globo en la misma escena 3D (C‑M31) sigue pendiente.
+
 ## 21-nov-2026 · 4.5.0 · PVS, modelos y ciudad pulidos, manejo que no se traba, efectos, rostros, Hunter Assassin, y los juegos Motor City y Extremo
 - **El autor:** retocar modelos 3D, 2D y pixel; el PVS; Guatapé en los juegos hermanos; topografías, relieve, casas y edificios; luego, «mejor un informe detallado a cada repositorio y que sigan con su motor del Valle, solo compárteles el motor»; y en el motor y el juego de prueba, todo lo que falta, sin cambiar el mapa. Después: manejo y controles («ahí yace toda la jugabilidad»), rostros detallados, árboles con lógica, vehículos que suben por algunas cosas, la forma cenital de *Hunter Assassin* y explosiones, choques, derrapes y cosas rotas.
 - **PVS de Quake (C‑M37):** `herramientas/pvs.mjs` hornea, para cada celda de 160 m, qué celdas se ven (horizonte de Comanche desde ojos en la calle y sobre las vías, 4 núcleos); `js/45-pvs.js` y la vista 3D lo usan con la cámara a ras de calle. Recorta 26 % en Manhattan y 28 % en Guatapé, sin fugas grandes (`pruebas/pvs.mjs`). Medellín se midió (15 %) y no se mete al HTML.

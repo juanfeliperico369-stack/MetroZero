@@ -32,7 +32,12 @@ class Vistas {
   liberar() { if (this.gl) { try { this.gl.liberar(); const x = this.gl.gl && this.gl.gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) { /* ya estaba suelto */ } this.gl = null; } this.glIntentado = true; this.losas = this.losasLejos = null; this._buf = null; }
   /* ¿la 3D la dibuja el raster por software? 'auto': si no hay WebGL o si el WebGL es por software */
   usaRaster() { if (this.motor3d === 'raster') return true; if (this.motor3d === 'gl') return !this.hayGL(); return GPU.perfil().nivel === 'software' || !this.hayGL(); }
-  hayGL() { if (!this.glIntentado) { this.glIntentado = true; try { this.gl = new VistaGL(this.mundo, this.losas); if (!this.gl.ok) this.gl = null; } catch (e) { this.gl = null; MC.falla('WebGL', e); } } return !!this.gl; }
+  /* 4.9: el 3D realista (three.js, MC.VistaTres) si hay WebGL2 y ⚙️ Gráficos no pide los clásicos; si no, o si falla, el VistaGL de siempre */
+  hayGL() { if (!this.glIntentado) { this.glIntentado = true; const gr = MC.opciones.graficos, quiere = gr === 'realistas' || (gr !== 'clasicos' && GPU.perfil().nivel !== 'baja'), Tres = quiere && MC.VistaTres && MC.VistaTres.puede() ? MC.VistaTres : null;
+      if (Tres) { try { this.gl = new Tres(this.mundo, this.losas); if (!this.gl.ok) this.gl = null; } catch (e) { this.gl = null; MC.falla('three', e); } }
+      if (!this.gl) { try { this.gl = new VistaGL(this.mundo, this.losas); if (!this.gl.ok) this.gl = null; } catch (e) { this.gl = null; MC.falla('WebGL', e); } } } return !!this.gl; }
+  reiniciarGL() { if (this.gl) { try { this.gl.liberar(); const x = this.gl.gl && this.gl.gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) { /* ya estaba suelto */ } this.gl = null; } this.glIntentado = false; }
+  realista() { return !!(this.gl && this.gl.tres); }
   /* cambia de vista (por id) con transición; la cámara toma el perfil de la nueva */
   usar(id, E) {
     let v = VISTAS.find(q => q.id === id) || VISTAS[0];
@@ -48,7 +53,8 @@ class Vistas {
   gl3d() { return this.motor3d !== '2d' && this.motor3d !== 'raster' && this.hayGL() && !this.usaRaster(); }
   efectiva() { const v = this.actual; return v.respaldo && !this.gl3d() ? (v._r2d ||= Object.assign({}, v, { tipo: '2d', modo: v.respaldo })) : v; }
   /* metros → pantalla con la vista que esté (2D, pixel o 3D): para la flecha al objetivo, globos y etiquetas */
-  aPantalla(E, x, y, z = 0) { const v = this._ef || this.actual; if (v.tipo === 'gl' && this.gl && this.gl.mvp) return this.gl.aPantalla(x, y, z, this._W || 1, this._H || 1); if (v.tipo === '2d' && E._pr) { const r = E._pr(x, y, z); return this.pixel ? [r[0] * this.escalaPixel, r[1] * this.escalaPixel] : r; } return null; }
+  aPantalla(E, x, y, z = 0) { const v = this._ef || this.actual; if (v.tipo === 'gl' && this.usaRaster() && this.raster && typeof this.raster.aPantalla === 'function') return this.raster.aPantalla(x, y, z, this._W || 1, this._H || 1);   /* 4.7: con el respaldo por software (Gemini, js/44-raster.js) */
+    if (v.tipo === 'gl' && this.gl && this.gl.mvp) return this.gl.aPantalla(x, y, z, this._W || 1, this._H || 1); if (v.tipo === '2d' && E._pr) { const r = E._pr(x, y, z); return this.pixel ? [r[0] * this.escalaPixel, r[1] * this.escalaPixel] : r; } return null; }
   dibujar(g, W, H, E, dt = 1 / 60) {
     const t0 = MC.ahora(), v = this._ef = this.efectiva(), px = this.pixel; this._W = W; this._H = H; if (E.camara) { E.camara.pantalla = [W, H]; if (this.actual.perfil && E.camara.perfil !== this.actual.perfil) E.camara.usarPerfil(this.actual.perfil); } E.losas = this.losas; E.losasLejos = this.losasLejos; E.calidad = this.calidad;
     let dst = g, w = W, h = H;
@@ -68,7 +74,9 @@ class Vistas {
         if (this.usaRaster()) { if (!this.raster) this.raster = new Raster(this.mundo); if (!this._rb || this._rb.width !== rw || this._rb.height !== rh) this._rb = lienzo(rw, rh); this.raster.dibujar(this._rb.getContext('2d'), rw, rh, E); dst.drawImage(this._rb, 0, 0, w, h); }
         else { const cv = this.gl.dibujar(rw, rh, E, { presupuesto: 4 + 6 * this.calidad }); if (cv) dst.drawImage(cv, 0, 0, w, h); }
         /* 4.5: los efectos (choques, derrapes, explosiones, restos) encima de la 3D, con la misma proyección */
-        if (MC.Efectos && this.gl && this.gl.mvp && !this.usaRaster()) { try { MC.Efectos.dibujar(dst, (x, y, z) => this.gl.aPantalla(x, y, z, w, h), E); } catch (e) { MC.falla('efectos', e); } }
+        /* 4.8: también con el respaldo por software (Raster.aPantalla) */
+        const proy = this.usaRaster() ? (this.raster && this.raster._P ? (x, y, z) => this.raster.aPantalla(x, y, z, w, h) : null) : (this.gl && this.gl.mvp ? (x, y, z) => this.gl.aPantalla(x, y, z, w, h) : null);
+        if (MC.Efectos && proy) { try { MC.Efectos.dibujar(dst, proy, E); } catch (e) { MC.falla('efectos', e); } }
         this._clima2D(dst, w, h, E, true);
       }
     } catch (e) { MC.falla('vista ' + v.id, e); }

@@ -66,7 +66,7 @@ const Game = EM.game = {
   end(r1, r2) {
     this.ended = true; const M = this.mode;
     try { if (!EM.headless) Vida.onGame(M.id, this.st, r1); } catch (e) { EM.errors.push('vida: ' + e.message); }
-    try { if (EM.actividades && EM.actividades.onGameEnd) EM.actividades.onGameEnd(M.id, this.st, r1); } catch (e) { EM.errors.push('rpg: ' + e.message); }
+    try { if (EM.mundoRPG && EM.mundoRPG.onGameEnd) EM.mundoRPG.onGameEnd(M.id, this.st, r1); } catch (e) { EM.errors.push('rpg: ' + e.message); }
     if (this.opts.onEnd) { this.opts.onEnd(r1, r2); return; }
     if (this.duel) {
       const a = r1.score | 0, b = r2.score | 0, w = a === b ? 'Empate' : a > b ? 'Gana Jugador 1' : 'Gana Jugador 2'; Snd.play('win');

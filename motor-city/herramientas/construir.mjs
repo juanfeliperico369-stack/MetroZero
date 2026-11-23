@@ -18,12 +18,22 @@ fs.mkdirSync(DIST, { recursive: true });
 /* ---------- el motor ---------- */
 const dirJS = path.join(RAIZ, 'js'), lista = fs.readdirSync(dirJS).filter(f => /^\d\d-.*\.js$/.test(f)).sort();   // solo los fragmentos numerados (valle.js es el lector 1.x de compatibilidad)
 const cuerpo = lista.map(f => `/* ---- js/${f} ---- */\n` + fs.readFileSync(path.join(dirJS, f), 'utf8')).join('\n');
+/* 4.9 · three.js (MIT, © three.js authors) incrustado para el render realista (MC.VistaTres): su módulo ES se vuelve una función que
+   devuelve el objeto THREE, sin internet ni import. La licencia va en js/vendor/LICENSE-three.txt y en la cabecera del archivo. */
+const THREE_ARCH = path.join(dirJS, 'vendor', 'three-0.170.0.module.min.js');
+let threeJS = '';
+if (fs.existsSync(THREE_ARCH)) {
+  const src = fs.readFileSync(THREE_ARCH, 'utf8'), i = src.lastIndexOf('export{');
+  if (i < 0) { console.error('three.js sin export final'); process.exit(1); }
+  const pares = src.slice(i + 7, src.lastIndexOf('}')).split(',').map(t => t.trim().split(/\s+as\s+/)).map(([a, b]) => JSON.stringify(b || a) + ':' + a);
+  threeJS = `/* ---- js/vendor/three-0.170.0 (MIT) ---- */\nconst THREE = (function () {\n${src.slice(0, i)}\nreturn {${pares.join(',')}};\n})();\n`;
+}
 const motor = `/* ${VER.nombre} ${VER.version} · ${VER.fecha} · https://github.com/${VER.fuente_de_verdad}
-   Un solo motor de mundo abierto para Juega EnCicla, El Metro y los juegos que vienen. Sin librerías ni internet.
+   Un solo motor de mundo abierto para Juega EnCicla, El Metro y los juegos que vienen. Sin internet; trae three.js 0.170 (MIT, © three.js authors) para el 3D realista.
    Datos del mundo: © colaboradores de OpenStreetMap (ODbL) vía Overture Maps; capas oficiales de Medellín; relieve SRTM/NASA. */
 (function (root) {
 'use strict';
-${cuerpo}
+${threeJS}${cuerpo}
 MC.archivos = ${JSON.stringify(lista)};
 root.MC = MC;
 if (!root.Valle) root.Valle = MC.ValleCompat;
@@ -156,7 +166,12 @@ if (fs.existsSync(dirJ) && !process.argv.includes('--sin-juegos')) for (const id
   const dirsJ = (J.comparte || []).map(c => path.join(dirJ, c)).concat([jd]);
   const jsJ = dirsJ.flatMap(dd => fs.readdirSync(dd).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(dd, f), 'utf8'))).join('\n');
   const chk = path.join(DIST, '.juego.check.js'); fs.writeFileSync(chk, jsJ); try { execSync('node --check ' + JSON.stringify(chk), { stdio: 'inherit' }); } finally { fs.unlinkSync(chk); }
-  const out = fs.readFileSync(path.join(jd, 'index.html'), 'utf8').replace('/*CSS*/', () => fs.existsSync(path.join(jd, 'estilo.css')) ? fs.readFileSync(path.join(jd, 'estilo.css'), 'utf8') : '').replace('/*MUNDO*/', () => mundoJ).replace('/*MOTOR*/', () => motor + (J.run && fs.existsSync(path.join(RAIZ, 'run', 'run-scooter.js')) ? '\n' + fs.readFileSync(path.join(RAIZ, 'run', 'run-scooter.js'), 'utf8') : '')).replace('/*JUEGO*/', () => `(function(){'use strict';\n${jsJ}\n})();`).replace('<!--MUNDOS-->', () => mundosHTML).replaceAll('%VERSION%', VER.version)
+  const plantilla = fs.readFileSync(path.join(jd, 'index.html'), 'utf8').replace(/\{\{ilustracion:([\w-]+)\}\}/g, (_, clave) => {
+    const archivo = J.ilustraciones?.[clave];
+    if (!archivo || !archivo.endsWith('.webp')) throw new Error(id + ': ilustración sin definir: ' + clave);
+    return 'data:image/webp;base64,' + fs.readFileSync(path.join(RAIZ, archivo)).toString('base64');
+  });
+  const out = plantilla.replace('/*CSS*/', () => fs.existsSync(path.join(jd, 'estilo.css')) ? fs.readFileSync(path.join(jd, 'estilo.css'), 'utf8') : '').replace('/*MUNDO*/', () => mundoJ).replace('/*MOTOR*/', () => motor + (J.run && fs.existsSync(path.join(RAIZ, 'run', 'run-scooter.js')) ? '\n' + fs.readFileSync(path.join(RAIZ, 'run', 'run-scooter.js'), 'utf8') : '')).replace('/*JUEGO*/', () => `(function(){'use strict';\n${jsJ}\n})();`).replace('<!--MUNDOS-->', () => mundosHTML).replaceAll('%VERSION%', VER.version)
     .replace('__PORTADA_BG__', () => {
       if (id !== 'getaway') return 'none';
       const portada = path.join(RAIZ, 'arte/gemini/turno-cero/portada-turno-cero.webp');

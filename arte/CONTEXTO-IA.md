@@ -234,6 +234,103 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+
+#### Estado al 22‑nov‑2026 · v3.4.0 «Mundo 3D y Realismo» (Antigravity / Gemini)
+- **Documento maestro con marca de IA:** `docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md` (análisis comparativo de 35+ referencias + *UnoCero*, auditoría de modos rotos/lentos, arquitectura de un solo mundo 3D, diseño de Ciclovías + Skate/Parkour, plan lógico para los 10 géneros y síntesis multi‑IA).
+- **Fusión limpia sobre `origin/main` (`dd368a1`, v3.3.0 «Flexibilidad»):** armonizadas al 100 % las entregas de Claude (`96-arcade.js`, `97b-actividades.js`, `⚙️ Flexibilidad`), Codex (regresiones de `CableViaje`, `Bus` y colisión barrida de `Carrera`), OpenAI GPT‑6 (`98a`, `tools/test-gpt6-fluidez.mjs`) y OpenAI GPT‑6 Eón (`98b`, `tools/test-gpt6-eon-manejo.mjs`).
+- **Un solo mundo 3D + port de Motor City 4.9.0 «Realismo» a WebGL nativo (`src/js/22-gl.js`, 0 KB extra):**
+  - Sombreo procedural GLSL ES 1.00: juntas de ladrillo paisa y grano de fachada, textura y manchas de asfalto, tone mapping Khronos PBR Neutral, rebote hemisférico, especular Blinn‑Phong, ventanas diurnas con reflejo de cielo y nocturnas cálidas, guayacanes en flor, cornisas y barandas; conmutable en `⚙️ Flexibilidad` (`✨ Gráficos 3D · Realista / Clásico`).
+  - Corregido el bloqueo de `G3.init()` (`EM.headless` ya no marca `tried = true` de forma permanente tras correr el bot) y el degradado por distancia `smoothstep(160., 480., vd)` de luces nocturnas en ladera.
+  - Cámaras coherentes en el mismo mundo 3D (`36-libre.js`): `cen3d` (3D Cenital Norte arriba, encuadre 68–104 m), `3p`, `1p` (primera persona con cabinas/manubrios `EM.taller.primera`), `dron`, `cine` y `2d`.
+- **Mundo abierto RPG y actividades embebidas (`src/js/36c-actividades.js`, `EM.mundoRPG`):**
+  - 6 zonas físicas de Skate & Parkour en Medellín (3D y 2D), salto y trucos en vivo (`★`), acceso directo a los 10 módulos cerrados con retorno exacto a Ciudad Libre, 4 ramas de carrera RPG (`Aprendiz → Leyenda`) y 6 subtramas con decisiones inspiradas en *UnoCero*.
+  - Convivencia limpia con `97b-actividades.js` (`EM.actividades` en estaciones; la tecla `J` abre el hub RPG cuando estás lejos de una estación).
+- **Ciclovías + Skate/Parkour (`47-carrera.js`, `28-taller-corredor.js`):** 6 corredores de movilidad activa con ancho variable (`3↔2` carriles), giros direccionales `↰/↱`, rampas, barandas de grind, arcos parkour (`▼`), colisión continua barrida `[sPrev, st.s]` y `offAt` despejado de edificios.
+- **Arreglo integral de modos y UI responsiva:** `32-volante.js` (`VC.on` `suelo()`, crucero, `pointercancel`), `38-bus.js` (`alighted` + puertas limpias), `45-metroplus.js` (*Traffix* turbo + anillo de paciencia), `52-cableviaje.js` (`hourNow` cuadro 1 + arranca en marcha + ritmo `×1/×2/×3`), `60-mapa.js` (culling de etiquetas), `style.css` (mitad inferior táctil `.joyzone { top: 48%; }`, vista horizontal `860×412` + vertical `412×860`, WCAG AA y `#toast` despejado en *La Red*).
+- **Probado (0 errores en todo):**
+  - `node tools/build.mjs` → `dist/index.html` 8.633 KB · v3.4.0;
+  - `node tools/test.mjs 100 --shots /tmp/elmetro-34final`: **16/16 servidor local · 2.085 ms carga · 0 errores/avisos en selfTest · 100 partidas (284.224 pasos, 53 victorias, 0 errores) · 0 errores de consola**;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: **PASS**;
+  - Auditoría visual de 29 capturas PNG (vertical y horizontal) con WebGL 3D vivo verificado.
+
+#### Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
+- **Unión:**
+  - la 3.2.0 de la sesión de El Metro (`ccr-2a67f935-oat714`; conflicto solo en esta bitácora, se conservaron las dos entradas);
+  - Antigravity (`ia/antigravity/evolucion-3.2`, solo su nota: el documento y `36c-actividades.js` que anunció no llegaron);
+  - Codex (`ia/codex/metro-20261122`, nota de relevo);
+  - GPT‑6 (`98a-openai-gpt6-fluidez.js` y `98b-openai-gpt6-eon-manejo.js`, con sus pruebas).
+- **Integración:** la carrera ya no suma dos arranques. `96-arcade.js` marca `Cr.step._arranqueVivo` y `98a` solo suma el suyo si no hay otro; antes, el tope llegaba en 3 s y se perdía la subida. Del `98a` queda lo útil: la tecla V ya recorre las 6 y 5 vistas.
+- **⚙️ Flexibilidad** (Ajustes → ⚙️ Flexibilidad): manejo de los modos (arcade o realista), mano zurda (joystick a la derecha y botones a la izquierda en Ciudad Libre), joystick fácil o clásico, 🎯 giro, 🚗 velocidad de los vehículos, ⏫ acelerador fijo al subir y 🔠 tamaño de botones. Son claves dentro de `settings`; `elmetro.v1` no cambia.
+- **Motor:** `motor-city/` 4.8.0 como referencia (`docs/INFORME-MOTOR-CITY-4.6.md`, apartado 4.8).
+- **Probado:**
+  - `node tools/build.mjs`;
+  - `node tools/test.mjs 100`: 0 errores;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: PASS.
+- **APK:** versionName 3.3.0, versionCode 31.
+
+#### Estado al 22‑nov‑2026 · v3.2.0 «Evolución» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- revisar el juego frente a los mejores y a sus referencias;
+- investigar jugabilidad, controles, render y optimización;
+- un plan con ideas aplicables en **un documento con la marca de la IA**;
+- **arreglar los modos rotos** («los vehículos no se mueven, van muy lento, los controles son engorrosos»);
+- **todo liberado desde el principio**;
+- **cada módulo dentro del mundo abierto** con la misma experiencia.
+
+Dos IAs más trabajan en lo mismo en sus ramas: Antigravity en `ia/antigravity/evolucion-3.2` y Codex en `ia/codex/metro-20261122`.
+
+**Documento:** `docs/EVOLUCION-EL-METRO-CLAUDE.md`. Tiene:
+- la auditoría medida antes y después;
+- 40 referencias, una por una;
+- el plan por los 10 géneros;
+- el mundo abierto con rol;
+- el corredor de ciclovías;
+- un solo mundo 3D;
+- render y optimización;
+- la hoja de ruta 3.3–3.8;
+- lo que reportan las otras IAs;
+- las fuentes.
+
+**Auditoría con entradas de jugador** (`scratchpad/auditoria.mjs`, 12 s por modo, 412 × 860):
+
+| Modo | Antes | Ahora |
+|---|---|---|
+| Metro y tranvía | con ▲ el tren no salía (llave, sentido y señal) | 0 → 62 km/h en 12 s |
+| Al volante | 0 m y ritmo 0,62 (chocaba contra las casillas viejas) | 0 → 67 km/h, ritmo 0,99 |
+| Bus | 0 → 40 km/h en 12 s | 0 → 55 km/h en 10 s |
+| Carrera | ritmo 0,65, 0,12 m/s², pista dentro de edificios en Niquía | ritmo 0,99, sale a 44 km/h, pista por el lado libre |
+| Ciudad Libre | la crónica dejaba el joystick muerto al empezar | se cierra al caminar; la primera espera 25 s |
+
+**Lo nuevo:**
+1. **`src/js/96-arcade.js` (aditivo):**
+   - tiempo real en todos los modos (`substeps`);
+   - **Arcade** por defecto (`settings.arcade`, se cambia en la pantalla de niveles):
+     - en metro y tranvía: cabina lista, señal enseguida, sin vigilante, puertas solas del lado del andén, abordaje a la mitad y aceleración y freno ×1,8;
+     - en buses: puertas solas y aceleración ×2;
+     - la Escuela sigue con el procedimiento real;
+   - carrera con arranque vivo y pista corrida al lado libre (`Carrera.offAt`);
+   - **⏫ acelerador fijo** en Ciudad Libre (botón «fijo» o tecla X) y arranque más vivo: taxi de 0 a 50 km/h en 1,9 s, moto en 1,4 s;
+   - charlas que no amarran;
+   - **todo abierto**: niveles, capítulos clásicos y cualquier capítulo de «La última vuelta», empezando donde comienza.
+2. **`src/js/97b-actividades.js` (aditivo):**
+   - 🎮 «jugar» junto a cada estación de Ciudad Libre:
+     - metro y tranvía **desde esa estación** hacia los dos lados, o el recorrido completo;
+     - Metroplús y alimentadores desde arriba o en la cabina 3D;
+     - operar y armar el cable;
+     - despacho, alimentadores, cruces y carrera.
+   - Los tramos «desde aquí» son niveles dinámicos con el formato de siempre (`A:3-5`, `bus:MP1:6-10`).
+   - Al terminar o al salir se vuelve a la ciudad, al mismo punto.
+3. **`32-volante.js`:** `Volante.suelo`, el choque contra la ciudad vectorial.
+
+**Guardado:** `settings.arcade` nuevo, con su valor por defecto.
+
+**Probado:**
+- autotest con pruebas nuevas: el metro arranca, el volante avanza, Acevedo ofrece modos, los tramos «desde aquí» salen de su estación y la carrera no pasa por edificios;
+- 100 partidas del bot;
+- capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.2.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.2.0-43c9d049`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 30, **6,7 MB**), igual byte a byte a la construida.
+
 #### Estado al 21‑nov‑2026 · v3.1.0 «Fluido» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «el manejo es muy pesado… básate en el de EnCicla, que es mucho más fluido; lo mismo con el movimiento del personaje; que se sienta fluido, rápido y que no difiera con el tiempo»;
@@ -277,7 +374,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Guardado:** `settings.uiTam` nuevo, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas del bot (con el tranvía); el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas del bot (324.927 pasos, 46 victorias, con el tranvía) con 0 errores y 0 errores de consola; el piloto completa los 6 tramos del tranvía sin frenadas de emergencia; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.1.0 verificada el 22‑nov‑2026**: carga, service worker con caché `el-metro-v3.1.0-4ed29c60`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 29, **6,7 MB**), igual byte a byte a la construida. La 3.0.0 se publicó antes el mismo día (caché `el-metro-v3.0.0-46057e02`, APK 28).
 
 #### Estado al 21‑nov‑2026 · v3.0.0 «Motor City adaptado» (Claude, IA de El Metro)
 **Qué pidió el autor:** «Continúa el desarrollo… comprende toda la nueva información compilada, el motor, las ideas y sugerencias, y ahora sí revoluciona el videojuego… Solo El Metro y adapta a tus requerimientos el motor nuevo».
@@ -331,6 +430,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 - `MC.Efectos` completo (polvo de frenada, puertas, multitudes);
 - techos a cuatro aguas;
 - probarlo en un celular real.
+#### 21‑nov‑2026 · Motor City 4.6.0 en `motor-city/` e informe (Claude, sesión del motor)
+- `motor-city/` pasó a 4.6.0 (el manejo y el mapa de EnCicla en el motor, horizontal y un solo juego de prueba). El juego no cambió en esta entrada: el manejo de EnCicla de El Metro ya lo hizo la sesión de El Metro en la 3.1.0 «Fluido» (rama `ccr-2a67f935-oat714`, APK 29).
+- Informe: `docs/INFORME-MOTOR-CITY-4.6.md`.
 
 #### 21‑nov‑2026 · Motor City 4.5.0 en `motor-city/` e informe para la IA que siga (Claude)
 - **El autor decidió:** El Metro **sigue con su propio motor**; Motor City se comparte como referencia. Lo que cambió, mejoró, falta auditar y les toca, y cómo usar el motor sin dejar el propio: **`docs/INFORME-MOTOR-CITY-4.5.md`**.

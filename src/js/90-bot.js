@@ -145,6 +145,13 @@ const BotT = EM.test = {
           if (B) { Object.assign(st, { mode: 'veh', veh: { kind: 'taxi' }, x: B.x, y: B.y, z: 0, h: 0, vf: 0, vs: 0, steer: 0, thr: 1, joy: { x: 0, y: 0, m: 0 }, keys: { up: true }, hb: false, _atasco: 0, _empujon: null, _chT: 0, desatascos: 0 }); for (let i = 0; i < 150 && Libre.hitV(st.x, st.y, st.h, V); i++) Libre.drive(st, 1 / 60); if (Libre.hitV(st.x, st.y, st.h, V)) E('manejo: metido en un edificio no sale'); } }
         if (VC.on) { const H = (VC.HT || []).find(h => h.C && h.k === 'estadio'); if (H) { let malos = 0, n = 0; for (const [dx, dy] of [[0, 0], [VC.R, 0], [0, VC.R], [-VC.R, 0], [0, -VC.R]]) { const Rg = VC.regionAt(H.cx + dx, H.cy + dy), T = Rg.trees || []; for (let i = 0; i < T.length; i += 4) { n++; if (!VC.sembrable(T[i], T[i + 1], VC.suelosEn(T[i] - 2, T[i + 1] - 2, T[i] + 2, T[i + 1] + 2))) malos++; } } if (malos) E('árboles: ' + malos + ' de ' + n + ' en canchas, piscinas o en medio de una plaza dura'); } }   // 3.0 · árboles con lógica
         if (EM.cronicas) { const L = EM.cronicas.lista(); if (L.length < 10) E('crónicas: solo ' + L.length); for (const l of L) { const p = EM.cronicas.narrador(l, 'prueba'), t = EM.cronicas.lineas(l); if (!p || !p.look || !p.G.n || t.length < 3) E('crónicas: incompleta la de ' + l.id); } }   // 3.0 · crónicas del sistema
+        // 3.2 · arcade: los modos arrancan y avanzan con lo que haría un jugador; actividades del mundo abierto; carrera fuera de los edificios
+        { const M = EM.modes.conduce, s1 = M.create('A:0-2', { seed: 3 }); s1.keys = { up: true }; for (let i = 0; i < 300; i++) M.step(s1, 1 / 30); if (Save.d.settings.arcade !== 0 && !(s1.v > 11)) E('arcade: el metro no arranca con la palanca (' + Math.round(s1.v * 3.6) + ' km/h en 10 s, fase ' + s1.ph + ')');
+          const Vo = EM.modes.volante, s2 = Vo.create('vo:MP1:0-4', { seed: 3 }), x0 = s2.x, y0 = s2.y; s2.keys = { up: true }; for (let i = 0; i < 300; i++) Vo.step(s2, 1 / 30); if (Math.hypot(s2.x - x0, s2.y - y0) < 40) E('arcade: el bus del volante no avanza (' + Math.round(Math.hypot(s2.x - x0, s2.y - y0)) + ' m en 10 s)'); }
+        if (EM.actividades) { const h = NET.stations.find(s => s.name === 'Acevedo'), q = h && EM.actividades.aqui({ x: h.x, y: h.y, mode: 'walk' }); if (!q || q.G.length < 3) E('actividades: Acevedo sin modos para jugar');
+          const s3 = EM.modes.conduce.create('A:3-5', { seed: 1 }); if (s3.stops.join() !== '3,4,5') E('actividades: el tramo «desde aquí» no arranca en su estación (' + s3.stops.join() + ')');
+          const s4 = EM.modes.tranvia.create('T:3-1', { seed: 1 }); if (s4.stops.join() !== '3,2,1') E('actividades: el tranvía «desde aquí» no arranca en su estación'); }
+        if (VC.on && EM.modes.carrera.offAt) { const C = EM.modes.carrera, s5 = C.create('cr:A', { seed: 1 }); let malos = 0; for (let s = 40; s < 600; s += 10) { const q = C.pos(s5, s, 1); if (VC.solid(q.x, q.y, .3)) malos++; } if (malos > 4) E('carrera: la pista pasa por dentro de ' + malos + ' edificios'); }
         { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }
         { const ec = GENTE.filter(g => g.frag); if (ec.length !== 6) E('EnCicla: ' + ec.length + ' de 6 personajes'); for (const g of ec) if (!NET.stations.some(s => s.name === g.en[1])) E('EnCicla: no existe la estación ' + g.en[1]); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
@@ -171,17 +178,17 @@ const BotT = EM.test = {
         }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
-    // 3.2.0 · mundo 3D único, actividades abiertas, zonas Skate/Parkour, ciclovías, y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
+    // 3.4.0 · mundo 3D único, mundoRPG (6 zonas Skate/Parkour + 10 módulos + 6 subtramas), ciclovías y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
     try {
       const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
-      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.2: faltan cen3d o 1p');
-      const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.2: cen3d debe mantener Norte arriba');
-      if (!EM.actividades) E('actividades 3.2: no cargó EM.actividades');
+      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.4: faltan cen3d o 1p');
+      const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
+      if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');
       else {
-        const Z = EM.actividades.zonas(); if (Z.length < 6) E('actividades 3.2: faltan zonas Skate/Parkour (' + Z.length + ')');
-        for (const z of Z) if (!fin(z.x) || !fin(z.y)) E('actividades 3.2: zona con coords inválidas ' + z.id);
-        if (EM.actividades.MODULOS.length < 10) E('actividades 3.2: faltan módulos abiertos (' + EM.actividades.MODULOS.length + ')');
-        if (EM.actividades.SUBTRAMAS.length < 6) E('actividades 3.2: faltan subtramas (' + EM.actividades.SUBTRAMAS.length + ')');
+        const Z = EM.mundoRPG.zonas(); if (Z.length < 6) E('mundoRPG 3.4: faltan zonas Skate/Parkour (' + Z.length + ')');
+        for (const z of Z) if (!fin(z.x) || !fin(z.y)) E('mundoRPG 3.4: zona con coords inválidas ' + z.id);
+        if (EM.mundoRPG.MODULOS.length < 10) E('mundoRPG 3.4: faltan módulos abiertos (' + EM.mundoRPG.MODULOS.length + ')');
+        if (EM.mundoRPG.SUBTRAMAS.length < 6) E('mundoRPG 3.4: faltan subtramas (' + EM.mundoRPG.SUBTRAMAS.length + ')');
       }
       const cr = Carrera.create('cr:A', { seed: 9 });
       if (!cr.tramos || cr.tramos.length < 3 || !cr.giros || !cr.giros.length) E('carrera 3.2: faltan tramos de ancho variable o giros direccionales');

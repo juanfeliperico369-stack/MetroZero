@@ -46,18 +46,22 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;uniform vec3 camPos;
+uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;uniform vec3 camPos;uniform float uReal;
 varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;varying vec2 vuv;varying float vh;varying vec3 vw;
 float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+float ruido2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+vec3 neutralTM(vec3 c){float x=min(c.r,min(c.g,c.b));float o=x<.08?x-6.25*x*x:.04;c=max(c-o,0.);float pk=max(c.r,max(c.g,c.b));if(pk<.76)return c;float d=.24;float np=1.-d*d/(pk+d-.76);c*=np/max(pk,.0001);float g=1.-1./(.15*(pk-np)+1.);return mix(c,vec3(np),g);}
 void main(){vec3 base=mix(vc,tint.rgb,tint.a);
-if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;}
 vec3 N=normalize(vn);vec3 V=normalize(camPos-wp);
+if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;if(uReal>.5){float fino=.93+.07*h(floor(vw.xz*6.5));float mancha=.92+.11*ruido2(vw.xz*.06)+.04*ruido2(vw.xz*.42);base*=fino*mancha;}}
+else if(vk<1.9&&uReal>.5){float muro=1.-smoothstep(.35,.6,abs(N.y));float grano=.94+.06*h(floor(vw.xz*5.+vw.y*3.1));float ladr=step(.07,base.r-base.g)*step(base.b,base.g+.03);float junta=muro*ladr*(1.-smoothstep(0.,.09,fract(vw.y*3.5)))*.22;base*=mix(1.,grano,muro)*(1.-junta);}
 float hemi=N.y*.5+.5;vec3 skyBounce=mix(amb*vec3(.78,.73,.68),amb*vec3(.96,1.05,1.16),hemi);
 float d=max(dot(N,sun),0.);vec3 H=normalize(sun+V);float sp=pow(max(dot(N,H),0.),26.);
 vec3 col=base*(skyBounce+sunc*d)+sunc*sp*(vk>.5&&vk<1.5?.08:vk>=2.?.05:.16)*(1.-night);
-if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
+if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;float farL=smoothstep(160.,480.,vd);vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*farL*on*vec3(1.,.74,.38)*1.3;}
 if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.2,f.x)*step(f.x,.8)*step(.24,f.y)*step(f.y,.8);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));vec3 dayWin=mix(vec3(.2,.32,.44),vec3(.56,.74,.86),hemi)+sunc*sp*.45;vec3 winCol=mix(dayWin,vec3(1.,.84,.48),night*lit);col=mix(col,mix(col*.45,winCol,.85),w*.86);}
 if(vk>3.5)col=base*(.85+.18*night);
+if(uReal>.5)col=neutralTM(col);
 float fg=clamp(1.-exp(-vd*fogd),0.,1.);float sAmt=max(dot(-V,sun),0.);vec3 fCol=mix(fogc,sunc*1.05+vec3(.18,.15,.1),pow(sAmt,6.)*.32*(1.-night));
 gl_FragColor=vec4(mix(col,fCol,fg),1.);}`;
 const SVS = `attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,.9999,1.);}`;
@@ -96,8 +100,8 @@ const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0
 const G3 = EM.g3 = {
   ok: false, tried: false, gl: null, cv: null, P: null, S: null, stat: [], far: [], near: [], bld: [], win: null, texFar: null, texNear: null, cube: null, quadB: null, scale: .5,
   init() {
-    if (this.tried) return this.ok; this.tried = true;
     if (EM.headless || !MAP.ready) return false;
+    if (this.tried) return this.ok; this.tried = true;
     try {
       const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:auto;z-index:0';
       $('#game').insertBefore(cv, $('#gcv'));
@@ -333,7 +337,7 @@ const G3 = EM.g3 = {
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
     gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
     const P = this.P; gl.useProgram(P.p); const u = P.u;
-    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye);
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (Save.d && Save.d.settings && Save.d.settings.realismo === 0) ? 0 : 1);
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };

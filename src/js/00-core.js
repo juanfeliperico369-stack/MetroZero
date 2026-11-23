@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.2.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.4.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -49,7 +49,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, cabReal: 0, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
 }
 const Save = EM.save = {
   d: null,

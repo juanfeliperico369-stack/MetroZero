@@ -73,13 +73,13 @@ async function mundoListo(id) {
 const G = window.TURNO = {
   modo: 'historia', id: null, M: null, cuerpo: null, camara: null, vistas: null, E: null, trafico: null, pobl: null, transporte: null, busq: null, objetos: null,
   reloj: new MC.Reloj({ vel: .25 }), clima: null, ui: null, ctl: null, cv: null, g: null, W: 0, H: 0,
-  dinero: 380, rep: { taller: 0, vecindarios: 0, garantias: 0, coro: 0, northquay: 0 }, flags: {}, veh: 'tc_vega', tengo: ['tc_vega'],
+  dinero: 380, rep: { taller: 0, vecindarios: 0, garantias: 0, coro: 0, northquay: 0 }, flags: {}, veh: 'tc_vega', tengo: TC.VEHICULOS.map(v => v.id),   /* 4.7: todos los vehículos desde el principio */
   carro: 1, vida: 1, nitro: .6, danoZonas: { f: 0, b: 0, l: 0, r: 0 }, piezasFisicas: null, piezasSueltas: {}, pausa: false, transicion: false, vistaId: 'cenital', zoom: null, km: 0, destrozados: 0, civiles: 0, disparosRecibidos: 0,
   hist: null, objetivo: null, contrato: null, evidencia: 0, municion: 0, dron: null, lenteT: 0, recarga: { dron: 0, pulso: 0, lente: 0 }, cebos: 2, rastreado: null, guardias: [], modelos3d: [], caidos: [], humo: [], lugaresCache: {}, viaje: null, rapido: false, errores: MC.errores, listo: false, t: 0
 };
 const ui = () => G.ui;
 /* ganchos para los extras (50-extras.js): botones, HUD, tráfico y obstáculos que se suman sin reescribir este archivo */
-const EXTRAS = { ui: [], hud: [], trafico: [], obstaculos: [], capas: [], mapa: [] };   /* 4.2: capas (dibujar encima del mundo) y mapa (puntos del minimapa) */
+const EXTRAS = { ui: [], hud: [], trafico: [], obstaculos: [], capas: [], mapa: [], paso: [], entrada: [] };   /* 4.6: paso (cada paso de la simulación) y entrada (tocar lo que pide el jugador antes de mover el cuerpo), para los 🎮 modos */   /* 4.2: capas (dibujar encima del mundo) y mapa (puntos del minimapa) */
 
 /* lugar del juego → punto sobre una vía del mundo actual */
 function resolver(clave) {
@@ -106,6 +106,7 @@ async function entrarMundo(id, spawn = {}, texto = null) {
   const v0 = G.cuerpo ? G.cuerpo.v : 0, heat0 = G.busq ? G.busq.heat : 0, desde = G.id;
   const M = await mundoListo(id);
   if (G.vistas) G.vistas.liberar();
+  G.tengo = [...new Set([...(G.tengo || []), ...TC.VEHICULOS.map(v => v.id)])];   /* 4.7: todo liberado aunque venga de un guardado viejo */
   G.id = id; G.M = M; planeta.fijar(id); G._esp = null; G.sectores = id === 'nueva_york' ? new MC.Sectores1km(M, { lado: 1000, radio: 1, maxRegiones: 36 }) : null; G._sectoresT = 0;
   let L = spawn.x != null ? spawn : spawn.lugar ? resolver(spawn.lugar) : null;
   if (!L && desde) L = planeta.llegada(id, desde);
@@ -118,7 +119,7 @@ async function entrarMundo(id, spawn = {}, texto = null) {
   const lat = M.cfgCiudad ? (M.cfgCiudad.lat ?? M.metrosAGeo(C.x, C.y).lat) : (planeta.enGlobo(id, C.x, C.y).lat);
   G.clima = new MC.ClimaGlobal({ lat: Math.abs(lat) > 1 ? lat : 6.2, alt: M.cota(C.x, C.y) }); C.clima = G.clima; if (G.climaForzado) G.clima.forzar(G.climaForzado);
   const dpr0 = Math.min(2, devicePixelRatio || 1);
-  G.vistas = new MC.Vistas(M); G.camara = new MC.Camara({ zoom: G.zoom || Math.max(8, Math.min(15, Math.min(innerWidth, innerHeight) / 50)) * dpr0, mundo: M }); G.camara.limites.zoom = [2.4 * dpr0, 20 * dpr0];
+  G.vistas = new MC.Vistas(M); G.flex = MC.Flex.aplicar(leerG().flex, { vistas: G.vistas });   /* 4.8 · ⚙️ Flexibilidad */ G.camara = new MC.Camara({ zoom: G.zoom || Math.max(8, Math.min(15, Math.min(innerWidth, innerHeight) / 50)) * dpr0, mundo: M }); G.camara.limites.zoom = [2.4 * dpr0, 20 * dpr0];
   G.camara.x = C.x; G.camara.y = C.y;
   G.trafico = new MC.Trafico(M, { n: M.esCiudad ? 16 : 7, peatones: 0, red: 'rueda', radio: 460 });
   G.pobl = M.esCiudad ? new MC.Poblacion(M, { n: 30, centro: { x: C.x, y: C.y }, radio: 900, semilla: 17 }) : null;
@@ -129,7 +130,8 @@ async function entrarMundo(id, spawn = {}, texto = null) {
   G.E = { mundo: M, camara: G.camara, reloj: G.reloj, clima: G.clima, transporte: G.transporte, jugador: { cuerpo: C, aspecto: G.aspecto, modelo: 'personaje_mara_rig', dano: G.danoZonas }, t: G.t, vehiculos: [], trafico: [], peatones: [], extras: [], cables: G.transporte ? G.transporte.lineas.filter(l => l.clase === 'cable') : [], objetos: G.objetos, piezas: G.piezasFisicas, curvatura: CURVATURA, modelos3d: G.modelos3d,
     bloqueosEtiquetas: (w, h) => [[w - 84 * w / innerWidth, 0, w, h]] };
   G.vistas.usar(G.vistaId, G.E); G.vistas.dpr = G.dEf || 1;
-  if (G.ui && G.ui._mini) G.ui._mini.vistas = G.vistas; else if (G.ui) G.ui.minimapa(G.vistas);
+  if (G.ui && G.ui._mini) G.ui._mini.vistas = G.vistas; else if (G.ui) G.ui.minimapa(G.vistas, () => abrirMapaTC());
+  if (M.esCiudad) MC.MapaGrande.precalentar(M);   /* 4.6: la vista general del mapa se arma en los ratos libres */
   planeta.llegadaT = 3; G.caidos = []; G.humo = []; G.rutaHecha = {}; G.rapido = false;
   ajustar();
   await espera(120); tr.classList.remove('on'); G.transicion = false;
@@ -198,7 +200,7 @@ const Busq_umbral = n => MC.Busqueda.UMBRAL[clamp(n, 0, 5)];
 let t0 = 0, hudT = 0, sonT = 0, musT = 0, tocando = null, ultBloqueo = null, rozados = new WeakMap(), insultoT = 0, radioT = 40;
 function cuadro(ahora) {
   requestAnimationFrame(cuadro);
-  const dtR = Math.min(.1, (ahora - t0) / 1000); t0 = ahora; if (!G.M || G.transicion || G.enRun) return;
+  const dtR = Math.min(.15, Math.max(0, (ahora - t0) / 1000)); /* 4.6: el motor da subpasos; a 7 cuadros por segundo el juego ya no va en cámara lenta */ t0 = ahora; if (!G.M || G.transicion || G.enRun) return; if (G.ui && G.ui._mapa) return;   /* 4.6: con el mapa abierto no se dibuja el mundo de debajo (el mapa tiene su propio ciclo) */
   if (G.globo) { pintarGlobo(dtR); return; }
   const pasos = G.rapido && !G.pausa ? 3 : 1;
   for (let k = 0; k < pasos; k++) paso(G.pausa ? 0 : dtR, k === pasos - 1 ? dtR : 0);
@@ -213,15 +215,16 @@ function paso(dt, dtVisual) {
   C.escala = enCarro ? (G.carro <= 0 ? .14 : (.72 + .28 * G.carro) * (G.busq.pinchado ? .58 : 1)) : 1;
   if (G.viaje) viajeTransporte(dt);
   else if (G.dron && dt > 0) vueloDron(dt, ent);
+  else if (G.controlExterno && dt > 0) G.controlExterno(dt, ent);   /* 4.6: un modo maneja otra cosa (el tren de 🎮 Modos) */
   else if (dt > 0) {
     const gl = G.vistas.actual.control === 'volante', via = V.clase !== 'pie' ? M.viaCercana(C.x, C.y, 12) : null;
-    const e = MC.Manejo.aplicar(ent, C, { camara: G.camara, esquema: 'joystick', vista: gl ? 'volante' : 'mundo', rumboVia: via ? via.ang : null });
+    const e = MC.Manejo.aplicar(ent, C, { camara: G.camara, esquema: MC.Flex.esquema('joystick'), vista: MC.Flex.vista(gl ? 'volante' : 'mundo'), rumboVia: via ? via.ang : null, acelFijo: !!G.acelFijo && V.clase !== 'pie' });   /* 4.6.1: ⏫ acelerador fijo */
     const freno = G.ctl.botones.has('freno') || ent.pulsos.has('Space');
     /* 4.5 · freno de mano: con velocidad y girando, derrapa (sigue girando, se cruza la cola, deja marcas y humo); quieto o derecho, frena */
     if (freno && V.clase !== 'pie') { const gira = (e.dir && Math.abs(angDif(C.a, Math.atan2(e.dir.y, e.dir.x))) > .25) || Math.abs(e.giro || 0) > .25; if (gira && Math.abs(C.v) > 7 && enCarro) { e.derrape = true; e.acel = Math.min(e.acel || 0, .3); } else { e.dir = null; e.acel = -1; } }
-    if (G.asistencia == null) G.asistencia = leerG().asistencia !== false; e.asistencia = G.asistencia;
+    if (G.asistencia == null) G.asistencia = leerG().asistencia === true; e.asistencia = G.asistencia; /* 4.6: apagada por defecto (el autor: «por nada derrapa, va lento»); se prende en ⏸ Menú */
     e.turbo = false; if ((ent.turbo || G.ctl.botones.has('turbo')) && G.nitro > .02 && enCarro && G.carro > 0) { e.turbo = true; G.nitro = Math.max(0, G.nitro - dt * .18); } else G.nitro = Math.min(1, G.nitro + dt * .012);
-    e.lluvia = G.clima.lluvia; C.actualizar(dt, e);
+    for (const f of EXTRAS.entrada) f(e, ent); e.lluvia = G.clima.lluvia; C.actualizar(dt, e);
   }
   if (dt > 0) {
     /* daño por golpes: lo que se perdió de velocidad de un cuadro a otro */
@@ -250,7 +253,7 @@ function paso(dt, dtVisual) {
     /* la historia y los contratos */
     if (G.hist) Historia.paso(dt); else if (G.contrato) Contratos.paso(dt);
     if (G.esperando) { const W = G.esperando; if (Math.abs(C.v) < 3) W.t -= dt; G.ui.aviso('⏳ ' + W.texto + ' ' + Math.min(100, Math.round((1 - W.t / W.total) * 100)) + '%', 400, 'espera'); if (W.t <= 0) W.luego(); }
-    escondites(dt);
+    escondites(dt); for (const f of EXTRAS.paso) f(dt, ent);
     /* fallar */
     if (G.vida <= 0 && !G.cayo) { G.cayo = true; fallar('💀 Mara cayó', 'Te dieron demasiados tiros. En esta ciudad nadie para a ayudar.'); }
     else if (B.estado === 'atrapado' && !G.cayo) { G.cayo = true; fallar('🚔 Te atraparon', 'Esposas, una patrulla y una llamada a El Contador desde la estación. Tu turno se acabó.'); }
@@ -263,7 +266,7 @@ function paso(dt, dtVisual) {
   /* artefactos: recargas y la lente espectral (T01, estilo térmico del motor por 8 s) */
   for (const k in G.recarga) G.recarga[k] = Math.max(0, G.recarga[k] - dt);
   if (G.lenteT > 0) { G.lenteT -= dt; if (G.lenteT <= 0) { MC.estilo = G.estiloAntes || 'realista'; G.ui.aviso('👁️ Lente espectral apagada', 1200, 'lente'); } }
-  if (!G.viaje && !G.dron) G.camara.actualizar(dtVisual || dt, { x: C.x, y: C.y, z: C.alturaSuelo, a: C.a, v: C.v, zCuerpo: C.z, zPaso: C.zPaso, mundo: M });
+  if (!G.viaje && !G.dron) G.camara.actualizar(dtVisual || dt, { x: C.x, y: C.y, z: C.alturaSuelo, a: C.a, v: C.v, zCuerpo: C.z, zPaso: C.zPaso, mundo: M, ojo: C.veh.clase === 'auto' ? 1.15 : C.veh.clase === 'pesado' ? 2.3 : undefined });   /* 4.8: en primera persona, los ojos de quien maneja */
   Subt.paso(dtVisual || dt);
 }
 

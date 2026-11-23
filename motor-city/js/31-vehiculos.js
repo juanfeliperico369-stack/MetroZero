@@ -15,20 +15,20 @@ const VEH_SUELO_CARRO = [.32, .12, .45, 0, 1, 1, .45, .55, 0, 0, .55, 1, 0, .25,
 const VEH_SUELO_MOTO = [.45, .2, .6, 0, 1, 1, .55, .85, 0, 0, .7, 1, .3, .35, 1, .9, .3, .35, .25, .28];
 const VEH_LISTA = [
   /* a pie y micromovilidad (Juega EnCicla, Run Scooter y Gemini) */
-  { id: 'pie', n: 'A pie', icon: '🚶', clase: 'pie', cuerpo: 'pie', vmax: 1.6, vcorre: 4.6, acc: 3, freno: 8, giro: [6, 5], largo: .5, ancho: .5, masa: 70, suelo: VEH_SUELO_PIE, loma: [1.1, .6, 1.15], salto: 1, run: 1 },
-  { id: 'bici', n: 'Bici EnCicla', icon: '🚲', clase: 'rueda', cuerpo: 'pedalea', vmax: 7.5, acc: 1.6, freno: 4.5, giro: [3.2, 1.4], largo: 1.8, ancho: .6, masa: 95, suelo: VEH_SUELO_RUEDA, loma: [2.2, .5, 1.32], timbre: 1, salto: 1, run: 1, color: '#7ab800', manubrio: [.42, 1.0] },
+  { id: 'pie', n: 'A pie', icon: '🚶', clase: 'pie', cuerpo: 'pie', vmax: 2.2, vcorre: 6.4, acc: 3, freno: 8, giro: [6, 5], largo: .5, ancho: .5, masa: 70, suelo: VEH_SUELO_PIE, loma: [1.1, .6, 1.15], salto: 1, run: 1 },
+  { id: 'bici', n: 'Bici EnCicla', icon: '🚲', clase: 'rueda', cuerpo: 'pedalea', vmax: 9, acc: 1.6, freno: 4.5, giro: [3.2, 1.4], largo: 1.8, ancho: .6, masa: 95, suelo: VEH_SUELO_RUEDA, loma: [2.2, .5, 1.32], timbre: 1, salto: 1, run: 1, color: '#7ab800', manubrio: [.42, 1.0] },
   { id: 'bici_propia', n: 'Bici propia', icon: '🚴', de: 'bici', color: '#29b6f6' },
-  { id: 'ebike', n: 'Bici eléctrica', icon: '⚡', de: 'bici', vmax: 8.3, acc: 2.2, electrico: 1, loma: [.4, .85, 1.15], color: '#2fa8dc' },
-  { id: 'bmx', n: 'BMX', icon: '🚲', de: 'bici', vmax: 7, acc: 2, giro: [4, 1.8], salto: 1.6, trucos: 1, color: '#e53935', futuro: 1 },
-  { id: 'mtb', n: 'Bici de montaña', icon: '🚵', de: 'bici', vmax: 8, suelo: [.85, .7, .5, .5, .95, .95, .75, 1.05, 0, 0, .85, .95, .75, 0, .9, .9, .55], color: '#43a047', futuro: 1 },
+  { id: 'ebike', n: 'Bici eléctrica', icon: '⚡', de: 'bici', vmax: 10.5, acc: 2.2, electrico: 1, loma: [.4, .85, 1.15], color: '#2fa8dc' },
+  { id: 'bmx', n: 'BMX', icon: '🚲', de: 'bici', vmax: 8.5, acc: 2, giro: [4, 1.8], salto: 1.6, trucos: 1, color: '#e53935', futuro: 1 },
+  { id: 'mtb', n: 'Bici de montaña', icon: '🚵', de: 'bici', vmax: 10.5, suelo: [.85, .7, .5, .5, .95, .95, .75, 1.05, 0, 0, .85, .95, .75, 0, .9, .9, .55], color: '#43a047', futuro: 1 },
   { id: 'ruta', n: 'Bici de ruta', icon: '🚴', de: 'bici', vmax: 11, acc: 1.8, giro: [2.6, 1.1], color: '#fdd835', futuro: 1 },
-  { id: 'patinete', n: 'Patinete clásico', icon: '🛴', clase: 'rueda', cuerpo: 'impulsa', vmax: 5.5, acc: 1.4, freno: 3.5, giro: [3.5, 1.6], largo: 1.1, ancho: .45, masa: 78, suelo: VEH_SUELO_RUEDA, loma: [2.6, .45, 1.4], run: 1, color: '#c9d1db', manubrio: [.38, 1.0] },
+  { id: 'patinete', n: 'Patinete clásico', icon: '🛴', clase: 'rueda', cuerpo: 'impulsa', vmax: 6.5, acc: 1.4, freno: 3.5, giro: [3.5, 1.6], largo: 1.1, ancho: .45, masa: 78, suelo: VEH_SUELO_RUEDA, loma: [2.6, .45, 1.4], run: 1, color: '#c9d1db', manubrio: [.38, 1.0] },
   { id: 'scooter', n: 'Scooter eléctrico', icon: '🛵', de: 'patinete', cuerpo: 'tabla', vmax: 7, acc: 2.4, electrico: 1, loma: [.5, .8, 1.15], color: '#29b6f6' },
   { id: 'monopatin', n: 'Monopatín eléctrico', icon: '🔋', de: 'patinete', cuerpo: 'tabla', vmax: 7.5, acc: 2.6, electrico: 1, loma: [.5, .8, 1.15], suelo: [.3, .1, .2, .2, 1, 1, .7, 1.15, 0, 0, .85, 1, .75, 0, .95, .9, .2], color: '#1f242e' },
   { id: 'monociclo', n: 'Monociclo eléctrico', icon: '🛞', de: 'patinete', cuerpo: 'tabla', vmax: 6.5, acc: 2, electrico: 1, giro: [4.5, 2], largo: .5, color: '#7e57c2' },
-  { id: 'skate', n: 'Skate', icon: '🛹', clase: 'rueda', cuerpo: 'impulsa', vmax: 5.5, acc: 1.3, freno: 2.5, giro: [4.2, 1.8], largo: .82, ancho: .22, masa: 72, suelo: [.1, .05, .2, .2, 1, 1, .8, 1.1, 0, 0, .95, 1, .8, 0, .9, .9, .1], loma: [3, .4, 1.5], salto: 1.3, trucos: 1, run: 1, color: '#d9a066' },
+  { id: 'skate', n: 'Skate', icon: '🛹', clase: 'rueda', cuerpo: 'impulsa', vmax: 7, acc: 1.3, freno: 2.5, giro: [4.2, 1.8], largo: .82, ancho: .22, masa: 72, suelo: [.1, .05, .2, .2, 1, 1, .8, 1.1, 0, 0, .95, 1, .8, 0, .9, .9, .1], loma: [3, .4, 1.5], salto: 1.3, trucos: 1, run: 1, color: '#d9a066' },
   { id: 'longboard', n: 'Longboard', icon: '🛹', de: 'skate', vmax: 7, giro: [3, 1.2], largo: 1.05, loma: [3.4, .4, 1.7], color: '#8d6e63' },
-  { id: 'patines', n: 'Patines en línea', icon: '🛼', clase: 'rueda', cuerpo: 'patina', vmax: 6, acc: 1.6, freno: 3, giro: [4, 1.9], largo: .4, ancho: .4, masa: 70, suelo: VEH_SUELO_RUEDA, loma: [2.6, .45, 1.4], salto: 1.1, run: 1, color: '#ff5a36' },
+  { id: 'patines', n: 'Patines en línea', icon: '🛼', clase: 'rueda', cuerpo: 'patina', vmax: 7.5, acc: 1.6, freno: 3, giro: [4, 1.9], largo: .4, ancho: .4, masa: 70, suelo: VEH_SUELO_RUEDA, loma: [2.6, .45, 1.4], salto: 1.1, run: 1, color: '#ff5a36' },
   { id: 'quad', n: 'Patines quad', icon: '🛼', de: 'patines', vmax: 5.5, giro: [4.5, 2.1], color: '#f06292' },
   { id: 'triciclo', n: 'Triciclo de carga', icon: '🚲', de: 'bici', vmax: 5.5, acc: 1, giro: [2.2, 1], largo: 2.4, ancho: 1.1, masa: 160, carga: 1, color: '#ffb300' },
   { id: 'jetpack', n: 'Jetpack', icon: '🚀', clase: 'aire', cuerpo: 'pie', vmax: 14, acc: 5, freno: 5, giro: [3, 2], largo: .6, ancho: .6, masa: 90, suelo: VEH_SUELO_PIE, loma: [0, 1, 1], vuela: 1, techo: 60, run: 1, futuro: 1, color: '#ff7043' },
@@ -68,7 +68,21 @@ const Vehiculos = {
   de(juego, filtro) { return [...this.lista.values()].filter(v => (v.juegos.includes('*') || v.juegos.includes(juego)) && (!filtro || filtro(v))); },
   /* cuánto rinde en una casilla (0 = no entra) y en una pendiente */
   suelo(v, tt) { return (v.suelo || VEH_SUELO_RUEDA)[tt] ?? 0; },
-  loma(v, p) { const [k, a, b] = v.loma || [1, .6, 1.2]; return clamp(1 - k * p, a, b); }
+  loma(v, p) { const [k, a, b] = v.loma || [1, .6, 1.2]; return clamp(1 - k * p, a, b); },
+  /* 4.6 · las cifras del manejo arcade (el de Juega EnCicla) por clase de vehículo. acc, brk y coast son proporciones de la velocidad
+     máxima por segundo, como en EnCicla (la bici: acc 0,5·max, brk 1,2·max, coast 0,67·max; w0 5 y w1 2,7 rad/s; tw 0,09 s).
+     Un vehículo puede traer las suyas en v.arcade = { acc, brk, coast, arrastre, w0, w1, tw } (en m/s² y rad/s). */
+  ARCADE: {
+    pie: { accK: 3.5, brkK: 6.5, coastK: 4, arrastre: .35, w0: 7.5, w1: 6, tw: .05, accMin: 6, brkMin: 10 },
+    rueda: { accK: .5, brkK: 1.2, coastK: .67, arrastre: .35, w0: 5, w1: 2.7, tw: .09, accMin: 2.5, brkMin: 6 },
+    moto: { accK: .42, brkK: .9, coastK: .18, arrastre: .12, w0: 4.2, w1: 2.3, tw: .08, accMin: 7, brkMin: 14 },
+    auto: { accK: .34, brkK: .85, coastK: .14, arrastre: .1, w0: 3.4, w1: 1.75, tw: .11, accMin: 7.5, brkMin: 18 },
+    pesado: { accK: .32, brkK: .9, coastK: .3, arrastre: .1, w0: 2.4, w1: 1.2, tw: .2, accMin: 3.5, brkMin: 10 }
+  },
+  arcade(v) {
+    if (v._arcade) return v._arcade; const B = Vehiculos.ARCADE[v.clase] || Vehiculos.ARCADE.auto, mx = Math.max(1, v.vmax || 10), o = v.arcade || {};
+    return (v._arcade = { acc: o.acc ?? Math.max(B.accMin, B.accK * mx), brk: o.brk ?? Math.max(B.brkMin, B.brkK * mx), coast: o.coast ?? B.coastK * mx, arrastre: o.arrastre ?? B.arrastre, w0: o.w0 ?? B.w0, w1: o.w1 ?? B.w1, tw: o.tw ?? B.tw });
+  }
 };
 for (const d of VEH_LISTA) Vehiculos.registrar(d);
 MC.Vehiculos = Vehiculos;

@@ -133,6 +133,9 @@ const Volante = EM.modes.volante = {
     } else if (dS < -40 && st.ni < st.stops.length) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st); }
     if (st.shake > 0) st.shake -= dt;
   },
+  /* 3.2 · el piso bajo el bus: 2 = choca, 1 = fuera del asfalto, 0 = bien. Con la ciudad vectorial (VC) se choca contra sus
+     edificios (antes, contra las casillas viejas de 20 m: el bus quedaba trabado al salir); el corredor de la ruta (7 m a cada
+     lado) siempre se rueda, como en el modo Bus */
   suelo(st, line, x, y) {
     if (typeof VC !== 'undefined' && VC.on) { if (this.projLocal(line.P, x, y, st.sR).d < 7) return 0; return VC.solid(x, y, .3) ? 2 : VC.agarre(x, y) < .95 ? 1 : 0; }
     const v = MAP.tileM(x, y); return SOLIDB.has(v) ? 2 : DRIVE_OK.has(v) ? 0 : 1;

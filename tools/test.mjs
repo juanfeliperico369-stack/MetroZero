@@ -35,12 +35,12 @@ for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3
   await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
   await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
 }
-/* 3.2.0 · cámaras unificadas (3D Cenital, 1ª persona, Skatepark + Actividades RPG) y formato horizontal 860×412 */
-await page.evaluate(() => { EM.game.start('libre', 'lb:Exposiciones', { seed: 5 }); const z = EM.actividades.zonas()[0]; EM.modes.libre.llevar(EM.game.st, z.x, z.y, false); EM.modes.libre.vista(EM.game.st, 'cen3d'); });
+/* 3.4.0 · cámaras unificadas (3D Cenital, 1ª persona, Skatepark + Diario RPG) y formato horizontal 860×412 */
+await page.evaluate(() => { EM.game.start('libre', 'lb:Exposiciones', { seed: 5 }); const z = EM.mundoRPG.zonas()[0]; EM.modes.libre.llevar(EM.game.st, z.x, z.y, false); EM.modes.libre.vista(EM.game.st, 'cen3d'); });
 await page.waitForTimeout(1400); await shot('08-libre-cen3d-skatepark');
 await page.evaluate(() => { EM.modes.libre.vista(EM.game.st, '1p'); });
 await page.waitForTimeout(900); await shot('08b-libre-1p');
-await page.evaluate(() => { EM.actividades.abrir(EM.game.st, 'modos'); });
+await page.evaluate(() => { EM.mundoRPG.abrir(EM.game.st, 'modos'); });
 await page.waitForTimeout(400); await shot('08c-actividades-rpg');
 await page.evaluate(() => { document.querySelector('#modal').hidden = true; EM.modes.libre.vista(EM.game.st, '3p'); });
 await page.setViewportSize({ width: 860, height: 412 });

@@ -147,7 +147,7 @@
     return L[0].id;
   }
 
-  const ACT = EM.actividades = {
+  const ACT = EM.mundoRPG = {
     ZONAS: ZONAS_DEF,
     RUTAS,
     MODULOS,
@@ -325,7 +325,7 @@
     hud3D(g, st, P, rot, dpr) {
       for (const z of resuelveZonas()) {
         if (Math.abs(z.x - st.x) > 190 || Math.abs(z.y - st.y) > 190) continue;
-        const q = P(z.x, z.y, MAP.elevM(z.x, z.y) + 4.6);
+        const q = P(z.x + 9.5, z.y - 7.5, MAP.elevM(z.x, z.y) + 4.8);
         if (q) rot('🛹 ' + z.n, q.x, q.y, '#0E6F76');
       }
     },
@@ -365,7 +365,7 @@
           }).join('')}</div>`;
       }
 
-      UI.modal(`<div class="pag">Mundo Abierto · El Metro 3.2</div><h2>📋 Actividades y Diario RPG</h2>
+      UI.modal(`<div class="pag">Mundo Abierto · El Metro 3.4</div><h2>📋 Actividades y Diario RPG</h2>
         <div class="tg pftabs" id="actTabs">
           <button data-t="modos" class="${tab === 'modos' ? 'on' : ''}">🎯 Módulos y Zonas</button>
           <button data-t="rpg" class="${tab === 'rpg' ? 'on' : ''}">⭐ Diario RPG</button>

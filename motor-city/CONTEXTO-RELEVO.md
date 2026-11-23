@@ -12,7 +12,7 @@
 > 3. **Nunca borres la entrada de otra IA.** Este documento es un relevo: se suma, no se reescribe.
 > 4. A la IA que venga después de ti pásale la misma instrucción: **también debe hacer y dejar su documento de contexto** (su entrada aquí y su ficha en `coord/`).
 
-**Última actualización:** 21‑nov‑2026, Claude (motor **4.5.0**). Lo entregado y los enlaces están en el § 0.
+**Última actualización:** 22‑nov‑2026, Claude (motor **4.9.0** «Realismo»). Lo entregado y los enlaces están en el § 0.
 
 > **El autor confirmó que Codex, ChatGPT y Antigravity ya no siguen. Claude asumió todo lo que quedaba.** La tabla del § 5 dice qué se hizo y qué queda, y por qué.
 **Última actualización:** 21‑nov‑2026, Gemini · Antigravity (sincronizado con motor **4.0.3** de Claude + ingeniería inversa limpia de motores clásicos + paquete de arte pintado).
@@ -28,20 +28,19 @@
 
 ---
 
-## 0. Entregables de la 4.5.0 (HTML, APK y enlaces)
+## 0. Entregables de la 4.9.0 «Realismo» (HTML, APK y enlaces)
+> **Un solo juego de prueba (decisión del autor en 4.6):** Turno Cero. Adentro, 🎮 Modos: Carreras, Extremo, Mandados, EnCicla y manejar el Metro, el tranvía y el Metroplús. Los juegos sueltos Carreras y Extremo se borraron; Mandados queda solo como banco interno de pruebas automáticas.
+
 | Juego | Enlace | HTML (un solo archivo) | APK |
 |---|---|---|---|
 | Página del motor | <https://juanfeliperico369-stack.github.io/motorcity/> | `index.html` | — |
-| **Turno Cero** (18+) | <https://juanfeliperico369-stack.github.io/motorcity/dist/juegos/getaway.html> | `dist/juegos/getaway.html` | release `v4.5.0` de motorcity: `MotorCity-getaway.apk` |
-| **Motor City · Carreras** (nuevo) | <https://juanfeliperico369-stack.github.io/motorcity/dist/juegos/carreras.html> | `dist/juegos/carreras.html` | `MotorCity-carreras.apk` |
-| **Extremo** (nuevo) | <https://juanfeliperico369-stack.github.io/motorcity/dist/juegos/extremo.html> | `dist/juegos/extremo.html` | `MotorCity-extremo.apk` |
-| Mandados (demo) | <https://juanfeliperico369-stack.github.io/motorcity/dist/juegos/mandados.html> | `dist/juegos/mandados.html` | `MotorCity-mandados.apk` |
-| Juega EnCicla | <https://juanfeliperico369-stack.github.io/BicicletasUno/> | `BicicletasUno/dist/juega-encicla.html` | su flujo `android.yml` |
-| El Metro | <https://juanfeliperico369-stack.github.io/MetroZero/> | `MetroZero/dist/index.html` | su flujo `apk.yml` |
-| Run Scooter | <https://juanfeliperico369-stack.github.io/RunRunZero/> | `RunRunZero/web/index.html` | `RunScooter.apk` en su página |
+| **Turno Cero 4.9.0** (18+), el juego de prueba con todo: 🖼️ 3D realista (three.js), ⚙️ Flexibilidad, 🆘 rescate, 🚀 Ir en el mapa, pantalla en mitades, un solo mapa, 🌄 miradores | <https://juanfeliperico369-stack.github.io/motorcity/dist/juegos/getaway.html> | `dist/juegos/getaway.html` | <https://github.com/juanfeliperico369-stack/motorcity/releases/download/v4.9.0/MotorCity-getaway.apk> |
+| Juega EnCicla 3.1.0 (⚙️ Flexibilidad en Más) | <https://juanfeliperico369-stack.github.io/BicicletasUno/> | `BicicletasUno/dist/juega-encicla.html` | <https://github.com/juanfeliperico369-stack/BicicletasUno/releases/download/v3.1.0/JuegaEnCicla-v3.1.0-debug.apk> (y `descargas/JuegaEnCicla.apk` en Pages) |
+| El Metro 3.3.0 (⚙️ Flexibilidad en Ajustes) | <https://juanfeliperico369-stack.github.io/MetroZero/> | `MetroZero/dist/index.html` | <https://juanfeliperico369-stack.github.io/MetroZero/el-metro.apk> (código 31) |
+| Run Scooter | <https://juanfeliperico369-stack.github.io/RunRunZero/> | `RunRunZero/web/index.html` | <https://juanfeliperico369-stack.github.io/RunRunZero/RunScooter.apk> |
 
-Las APK de los juegos del motor las compila `.github/workflows/apk-juegos.yml` (Capacitor 7) con la etiqueta `v4.5.0`.
-**Juegos hermanos:** por decisión del autor siguen con su propio Motor del Valle; reciben el motor en `motor-city/` como referencia y un informe detallado en `docs/INFORME-MOTOR-CITY-4.5.md` (qué se cambió, qué mejoró, qué falta auditar, qué les toca y cómo usar el motor sin dejar el suyo).
+Las APK de los juegos del motor las compila `.github/workflows/apk-juegos.yml` (Capacitor 7). El proxy de esta sesión no deja subir etiquetas: el flujo, lanzado a mano, crea él mismo la release `v<VERSION.json>`. EnCicla (`android.yml`) y El Metro (`apk.yml`) hacen lo mismo con la versión de cada juego; Run Scooter la publica en su página con cada empuje a `main`.
+**Juegos hermanos:** por decisión del autor siguen con su propio Motor del Valle; reciben el motor en `motor-city/` como referencia y un informe detallado en `docs/INFORME-MOTOR-CITY-4.6.md` (y el de la 4.5) (qué se cambió, qué mejoró, qué falta auditar, qué les toca y cómo usar el motor sin dejar el suyo).
 
 ## 1. La misión
 **Motor City** es un motor de mundo abierto en **un solo HTML, sin internet ni librerías**. Convierte lugares reales (datos abiertos) o inventados en mundos jugables con leyes reales:
@@ -119,6 +118,8 @@ Las APK de los juegos del motor las compila `.github/workflows/apk-juegos.yml` (
 | 13 | **LOD retopologizados y más actores con esqueleto (C‑M33)** | Pendiente: arte | En 4.5 los 42 modelos se rehicieron (generador 0.3.1, AO, caras); LOD a mano sigue necesitando Blender. |
 | 14 | **Cotejo en terreno de las 8 coordenadas de Turno Cero** | **Autor** o alguien de Medellín y de Guatapé | Están verificadas contra el MC4. |
 | 15 | ~~Tarjetas de El Metro con el texto encima del arte~~ | **No se reproduce en la versión actual** | El diseño cambió desde la auditoría (v0.2.0). |
+| 16 | **Sentir el manejo nuevo (4.6) con las manos** en Turno Cero, El Metro y los modos | **Autor** | Los números a tocar están en `Vehiculos.ARCADE` (motor; El Metro tiene los suyos desde su 3.1.0): `accK`, `brkK`, `w0`, `w1`, `tw`. Ver `docs/INVESTIGACION-MANEJO.md` § 0. |
+| 17 | ~~Manejo de EnCicla, mapa de EnCicla, horizontal, un solo juego de prueba~~ | **Hecho en 4.6 (Claude)** | `js/32-fisica.js`, `js/70-mapa.js`, `juegos/getaway/60-modos.js`. El Metro lo hizo su propia sesión en la 3.1.0 «Fluido» (rama `ccr-2a67f935-oat714`). |
 
 ## 6. Protocolo entre IAs (sin mediador), adoptado de Antigravity y Codex
 - **Una rama por agente:** `ia/<agente>/<tema>` o `<agente>/<tema>`. Nunca `push --force` sobre la rama de otro, ni sobre `main` ni sobre `gh-pages`.
@@ -604,3 +605,86 @@ Las APK de los juegos del motor las compila `.github/workflows/apk-juegos.yml` (
   3. **Codex / Claude (`G‑H28` en juegos hermanos):** alinear `MetroZero` (1 toque a Ciudad Libre + 15 estaciones libres + arreglar 3 `404` favicon) y `BicicletasUno` (1 toque a pedalear sin bloquear con `BIENVENIDA` ni `Crea tu personaje`).
   4. **Codex (4.1/4.2 fuertes):** `C‑M37` (PVS Quake Manhattan), `C‑M38` (portales Build), `C‑M39` (COLORMAP Doom), `C‑M40` (direccionales *The Getaway*), `C‑A18` (capas Arcade por bioma).
   5. **Autor / QA físico:** completar tabla § 1.4 de `reportes/2026-11-21-gemini-clasicos-4.1.md` en celular físico con GPU.
+
+### Claude · 21‑nov‑2026 · 4.6.0
+- **Qué pidió el autor:** el manejo y el movimiento eran injugables (toscos, lentos, derrapes por nada, solo vertical, mapa que congela); basarse en EnCicla y no en El Metro, y arreglar El Metro; un solo juego de prueba con todo (los cuatro dentro de Turno Cero, con lo de EnCicla y El Metro).
+- **Qué hice:** el modelo de manejo de EnCicla en el motor (con subpasos y prueba §26), el mapa grande de EnCicla (`js/70-mapa.js`), horizontal en Turno Cero y en los APK, 🎮 Modos en Turno Cero (`juegos/getaway/60-modos.js`: Carreras, Extremo, Mandados, EnCicla, Metro, Laboratorio), y borré `juegos/carreras/` y `juegos/extremo/`. En El Metro también hice el manejo de EnCicla, pero lo retiré: la sesión de El Metro ya lo había publicado en su 3.1.0 «Fluido» (APK 29); en MetroZero solo quedó el motor 4.6.0 y el informe. En EnCicla otra sesión tiene la 2.1.0 en su rama: no avancé su `main` para no estorbarle la unión.
+- **Cómo se prueba:** `node pruebas/prueba.mjs` (145), `node motor.mjs prueba --navegador` (157), `node pruebas/modos.mjs` (los cinco modos y el mapa); en los hermanos, sus pruebas con el motor 4.6.0 copiado (EnCicla en verde, El Metro 100 partidas y Run 100 simulaciones con 0 errores).
+- **Lo que queda:** la sensación en un celular real (autor) y el globo en la misma escena 3D (C‑M31).
+
+### Claude · 22‑nov‑2026 · 4.6.1
+- **Qué pidió el autor:** un botón que, prendido, acelere siempre (el joystick solo para la dirección) y que, al apagarlo, el carro pare.
+- **Qué hice:** `acelFijo` en `MC.Manejo.aplicar`, `frenoK` en la física, `ui.alternar` en la interfaz, y ⏫ en Turno Cero (también en el tren de 🎮 Modos), con el HUD ajustado en vertical y en horizontal.
+- **Cómo se prueba:** `node pruebas/prueba.mjs` § 27 y `node pruebas/modos.mjs`.
+- **Para los juegos hermanos:** está en `motor-city/js/37-manejo.js`; adoptarlo es pasar `acelFijo` al armar la entrada y poner un botón (ver `docs/INFORME-MOTOR-CITY-4.6.md`).
+
+
+### Codex · 22-nov-2026 · arte y menú sobre 4.6.1
+
+Cinco ilustraciones de actos, limpieza del menú compartido y soporte de pruebas por HTTP. Ver CONTEXTO-CODEX-TURNO-CERO.md para plan, investigación y pendientes. La siguiente IA debe escribir su propio documento de contexto y exigir lo mismo a quien continúe.
+
+### Claude · 22‑nov‑2026 · 4.7.0 (con Gemini y Codex en paralelo)
+- **Qué pidió el autor:**
+  - revisar el juego contra las referencias y los mejores juegos, investigar y hacer un plan verosímil con la marca de la IA;
+  - arreglar los modos;
+  - todo liberado y cada modo en el mundo abierto;
+  - Run en ciclovías;
+  - luego arte y cámaras.
+- **Qué hice:**
+  - `docs/PLAN-EVOLUCION-CLAUDE.md`;
+  - el ritmo arcade, todo liberado, `G.Actividades`, 🛹 trucos, 🛴 en el menú 🎮, cámaras por contexto, la cenital de verdad que se aleja con la velocidad y el volante que avanza de lado;
+  - los hallazgos de Gemini en mis zonas.
+- **Coordinación:** respetar `coord/agentes/*.json → trabajo_4_7`:
+  - Gemini: render y `62-mundo-vivo.js`;
+  - Codex: `70-interfaz.js`, `30-historia.js` y el arte.
+- **Siguiente (4.8):** las P1 del plan § 10.
+
+### Claude · 22‑nov‑2026 · motor 4.8.0 «Flexibilidad»
+- **Pedido:** retomar lo de Gemini y ChatGPT, terminar de unir motor, Turno Cero, EnCicla y El Metro, optimizar y añadir *Flexibilidad* a todo. Luego, en la misma sesión: 🆘 rescate, 🚀 Ir en el mapa, pantalla en mitades y un solo mapa en Turno Cero.
+- **Hecho:**
+  - **Uniones:**
+    - motor ← ramas de ChatGPT, Codex y Gemini;
+    - EnCicla 3.1.0 ← 3.0.0 de su otra sesión + GPT-6;
+    - El Metro 3.3.0 ← 3.2.0 + Antigravity + Codex + GPT-6. En El Metro, la carrera ya no suma dos arranques (96-arcade y 98a).
+  - **Hallazgos cerrados:**
+    - los 11 contratos de ChatGPT;
+    - el render que Gemini dejó planeado: Raster con tráfico y `aPantalla`, primera persona a la altura de los ojos, luz hemisférica, niebla según el escalador;
+    - 🌄 miradores.
+  - **⚙️ `MC.Flex`:** 11 ajustes, entre ellos la pantalla en mitades o la clásica. EnCicla y El Metro tienen su propio panel.
+  - **Optimización:** el caché de sectores de suelo pasó de 16 a 400 (p95 de 166 a 33 ms con CPU 4×) y el minimapa ya no tapa botones en horizontal.
+  - **Turno Cero:**
+    - `63-rescate.js`;
+    - 🚀 Ir y 🌍 en el mapa;
+    - mitades en `MC.Controles`.
+- **Probado:**
+  - motor: `prueba.mjs --navegador`, `modos`, `humano`, `actividades`, `flexibilidad`, `rescate-mapa`, `chatgpt-input-real` y `chatgpt-auditoria-contratos`;
+  - EnCicla: `tests/run.js`;
+  - El Metro: `tools/test.mjs 100`, con 0 errores.
+- **Falta:**
+  - subtramas RPG del mundo vivo (plan de Gemini);
+  - el ancho de la ciclorruta por tipo en Run;
+  - el globo dentro de la misma escena 3D (#60);
+  - pasar el «Ir» y las mitades a EnCicla y El Metro si el autor lo pide.
+- **Riesgo:**
+  - `pruebas/modos.mjs` falló una vez y pasó al repetirla: vigilar si es intermitente;
+  - con 400 sectores, el caché de suelo usa hasta unos 4 MB.
+
+### Claude · 22‑nov‑2026 · motor 4.9.0 «Realismo»
+- **Pedido:** «los gráficos aún son básicos». El autor aprobó incrustar three.js: «haz todo lo que propones y sigue mejorando».
+- **Hecho:**
+  - three.js 0.170 (MIT) dentro de `motor.js`, sin internet;
+  - `MC.VistaTres` (`js/45-tres.js`) sobre las mismas mallas: sol con sombras, luz física, cielo, exposición neutra, ventanas de noche, grano en muros y suelo;
+  - ⚙️ Gráficos;
+  - `docs/PLAN-REALISMO.md`, con lo que sigue en datos y dibujo.
+- **Probado:** `pruebas/tres.mjs` y la batería completa del motor.
+- **Falta (por orden):**
+  - catastro en todas las comunas;
+  - techos de OpenStreetMap;
+  - relieve, que exige decidir la licencia;
+  - atlas de fachadas pintado;
+  - mallas pre-cocinadas por sector;
+  - plano histórico de Medellín.
+- **Riesgos:**
+  - el rendimiento en celulares reales con sombras no se ha medido: aquí no hay GPU, y las pruebas usan WebGL por software;
+  - en gama baja, el modo automático usa el clásico.
+

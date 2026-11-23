@@ -183,6 +183,17 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+### Reglas aprendidas (evolución, 3.2.0)
+- **Audita con entradas de jugador, no solo con el bot.** El bot (`auto`) se salta llaves, señales y puertas. Por eso el metro «funcionaba» en las pruebas y no se movía con ▲. Mide cada modo 12 s con ▲ sostenido (`scratchpad/auditoria.mjs`): velocidad por segundo, avance y ritmo (tiempo del juego ÷ tiempo real).
+- **Todos los modos usan `substeps`.** Con el tope viejo de 50 ms por cuadro, a 13 cuadros por segundo (3D sin tarjeta gráfica) el juego iba al 62 %.
+- **Arcade por defecto** (`settings.arcade !== 0`). Lo realista queda como opción y en la Escuela. Si un modo nuevo tiene procedimiento (llaves, puertas), en arcade lo hace solo.
+- **Colisiones contra la ciudad que se ve** (`VC.solid`, `VC.agarre`), nunca contra las casillas viejas de 20 m (`MAP.tileM`), salvo que VC no esté.
+- **Mundo abierto:** un modo nuevo debe poder lanzarse desde su lugar en Ciudad Libre.
+  - Se agrega en `EM.actividades.aqui`.
+  - Si necesita empezar en cualquier estación, se usa un nivel dinámico con `dinamico()` (mismo formato `linea:a-b`).
+  - Se lanza con `{ ciudad: 1, onEnd }`: al salir vuelve a la ciudad.
+- **Las charlas no bloquean el movimiento:** caminar las cierra.
+
 ### Reglas aprendidas (fluido, 3.1.0)
 - **Manejo de Ciudad Libre = el de EnCicla** (`Libre.driveArcade`).
   - Rumbo: `st._w` sigue al joystick con inercia `tw` y tope `w0…w1` según la velocidad.

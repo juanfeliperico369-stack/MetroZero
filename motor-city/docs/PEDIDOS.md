@@ -229,3 +229,66 @@ Esta página conserva la historia original de los pedidos, incluso estados de 2.
 | Documento detallado a cada repositorio; que sigan con su motor del Valle | ✅ | `docs/INFORME-MOTOR-CITY-4.5.md` en BicicletasUno, MetroZero y RunRunZero; el motor va en `motor-city/` como referencia. |
 | El mapa | No se tocó | Por pedido del autor: es de las IA que lo desarrollan. El PVS es un dato derivado del mapa, no lo cambia. |
 | HTML, APK y enlace de cada juego | ✅ | Ver `CONTEXTO-RELEVO.md` § 1. |
+
+## 17. «Injugables, toscos como GTA IV… básate en EnCicla, arregla El Metro, el mapa congela, no hay horizontal» y «un solo juego de prueba con todo» (4.6, esta sesión)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Manejo fluido, que arranque, avance y retome rápido, sin derrapes por nada | ✅ | El modelo de EnCicla (`30-ride.js`) en `js/32-fisica.js` (`_arcade`) y `js/31-vehiculos.js` (`ARCADE`); subpasos de 25 ms; prueba §26. |
+| Movimiento del personaje como en EnCicla | ✅ | A pie, el mismo modelo: gira al instante y trota con el joystick a fondo. |
+| Horizontal | ✅ | Portada y HUD de Turno Cero a 860×412; los APK giran con el celular (Turno Cero y Run Scooter). |
+| El mapa: brújula, acercar y alejar, que no congele | ✅ | `js/70-mapa.js`: vista general armada de a poco, detalle con presupuesto, pausa, ✕ + − ◎ 🧭, tocar = destino. Tocar el minimapa lo abre. |
+| Arreglar El Metro | ✅ (por la sesión de El Metro) | La 3.1.0 «Fluido» (APK 29) ya trae el manejo de EnCicla; esta sesión retiró el suyo para no pisarlo y dejó el informe 4.6 con cómo comparar los dos. |
+| Un solo juego de prueba: los cuatro en Turno Cero | ✅ | `juegos/getaway/60-modos.js`: 🏁 Carreras, 🚵 Extremo, 📦 Mandados, 🚲 EnCicla (racha por la ciclorruta, semáforo en rojo, rebalanceo), 🚇 Metro, tranvía y Metroplús (manejar y parar en el andén), 🧪 Laboratorio. `pruebas/modos.mjs`. |
+| Lo que dije que faltaba | Parcial | Hecho: mapa, horizontal, manejo. Pendiente: el globo en la misma escena 3D (C‑M31) y la prueba en un celular real. |
+| HTML, APK y enlace de cada juego | ✅ | `CONTEXTO-RELEVO.md` § 0. |
+
+## 18. «Coloca un botón que, presionado, siempre esté acelerando sin parar; para detenerse, se desactiva» (4.6.1)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Botón de acelerador fijo | ✅ | `js/37-manejo.js` (`acelFijo`), `js/70-interfaz.js` (`ui.alternar`), Turno Cero: ⏫ junto a 🛑 y ⚡, tecla V. |
+| Que al desactivarlo se detenga | ✅ | Frena suave hasta parar (`frenoK` 0,55), salvo que se toque el joystick. |
+| Adaptarlo bien | ✅ | Vertical (la velocidad sube sobre los botones) y horizontal; también en el tren de 🎮 Modos; a pie se esconde; aviso la primera vez. Pruebas § 27 y `pruebas/modos.mjs`. |
+
+## 19. «Revisa el juego contra los mejores, investiga, haz un plan; arregla los modos; todo liberado; cada modo en el mundo abierto; Run en ciclovías; luego arte y cámaras» (4.7, con Gemini y Codex en paralelo)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Documento con la marca de la IA | ✅ | `docs/PLAN-EVOLUCION-CLAUDE.md` (Gemini: `docs/PLAN-EVOLUCION-GEMINI.md`; Codex: `CONTEXTO-CODEX-TURNO-CERO.md`) |
+| Comparar con las referencias e investigar | ✅ | Plan § 3–4, con fuentes; límites declarados (no se pudieron jugar ni ver los videos) |
+| Arreglar los modos (lentos, engorrosos) | ✅ | Plan § 2: ritmo, tren, volante, cenital |
+| Todo liberado desde el principio | ✅ | Capítulos y vehículos |
+| Cada modo presente en el mundo abierto | ✅ | `G.Actividades` en `juegos/getaway/60-modos.js` |
+| Run solo en ciclovías, con giros, anchos, obstáculos, trucos y parkour | Parcial | Ya: ciclorruta real, curvas, cruces y la marca 🛴. Falta el ancho por tipo de vía y las zonas de trucos dentro del corredor (plan § 7). |
+| Cámaras coherentes; un solo mundo 3D; 2D y pixel donde convienen | Parcial | Cámaras por contexto, cenital de verdad y zoom por velocidad (4.7). La lateral 2D en el tren y los enfrentamientos va en el plan § 8. |
+| Arte y gráficos más realistas | En curso | Gemini (iluminación, primera persona, raster) y Codex (arte). Rellenar manzanas espera el visto bueno del autor (plan § 9). |
+| Revisar lo que reportan las otras IA | ✅ | Buzón y ramas leídos; hallazgos de Gemini resueltos; entrega de Codex unida |
+
+## 20. «Retoma el trabajo de Gemini y ChatGPT, termina de unir lo que falta en el motor, el juego de prueba, EnCicla y El Metro, optimízalos y añade a todo Flexibilidad» (4.8)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Unir las ramas de Gemini, ChatGPT y Codex en el motor | ✅ | Merges en `claude/motor-city-engine-xu7p4y` |
+| Cerrar los hallazgos de ChatGPT | ✅ 11/11 | `pruebas/chatgpt-auditoria-contratos.mjs` y `pruebas/chatgpt-input-real.mjs` |
+| Hacer lo que Gemini dejó planeado (render y mundo vivo) | ✅ render y miradores · ⏳ subtramas | `js/44-raster.js`, `js/45-gl.js`, `js/34-camara.js`, `60-modos.js` (🌄). Las subtramas RPG siguen en su plan |
+| Unir EnCicla (3.0.0 + GPT-6) | ✅ 3.1.0 | `BicicletasUno`, `tests/run.js` en verde |
+| Unir El Metro (3.2.0 + Antigravity + Codex + GPT-6) | ✅ 3.3.0 | `MetroZero`, `tools/test.mjs 100`: 0 errores |
+| Optimizar | ✅ medido | Caché de sectores (p95 de 166 a 33 ms con CPU 4×); minimapa sin solapes |
+| Flexibilidad en todo | ✅ | Motor (`MC.Flex`) y Turno Cero; EnCicla (Más → ⚙️ Flexibilidad); El Metro (Ajustes → ⚙️ Flexibilidad) |
+
+## 21. «Añade a Turno Cero los servicios de rescate y teletransportarse en el mapa con Ir; divide la pantalla en mitades (arriba siempre la cámara); unifica los mapas» (4.8)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Servicios de rescate | ✅ | 🆘 en el HUD y en ⏸ Menú: `juegos/getaway/63-rescate.js` |
+| Teletransportarse con «Ir» al poner el punto | ✅ | 🚀 Ir en el mapa (`js/70-mapa.js`, `op.alIr`) |
+| Pantalla en mitades: arriba siempre mover y acercar la cámara | ✅ | `js/33-controles.js` (mitades), `js/34-camara.js` (encuadre fijo, doble toque endereza) |
+| Unificar los mapas | ✅ | Minimapa, 🗺️ y 🌍 en un solo mapa (`op.planeta`), 🗺️ de vuelta desde el planeta |
+| Prueba | ✅ | `pruebas/rescate-mapa.mjs` |
+
+## 22. «Los gráficos aún son básicos: incrusta three.js, haz todo lo que propones y sigue mejorando» (4.9)
+| Pedido | Estado | Dónde |
+|---|---|---|
+| Incrustar three.js (sin internet) | ✅ | `js/vendor/`, `herramientas/construir.mjs` |
+| Sol con sombras, luz física, cielo y noche | ✅ | `js/45-tres.js` (`MC.VistaTres`) |
+| Suelo, muros y ladrillo con más vida | ✅ procedural | Grano y juntas en los sombreadores |
+| Relieve, casas y edificios «como son» | 📋 plan con decisiones de licencia | `docs/PLAN-REALISMO.md` § 3 A |
+| Elegir gráficos según el celular | ✅ | ⚙️ Flexibilidad → 🖼️ Gráficos |
+| Prueba | ✅ | `pruebas/tres.mjs` |
+
