@@ -28,13 +28,27 @@ await shot('01-portada');
 /* mundo abierto primero: ▶ Jugar entra directo a Ciudad Libre; los modos están en «Todos los modos» */
 await page.click('#bPlay'); await page.waitForTimeout(1500); { const ok = await page.evaluate(() => EM.game.mode === EM.modes.libre); if (!ok) cons.push('mundo abierto primero: ▶ Jugar no entró directo a Ciudad Libre'); } await shot('02-ciudad-libre');
 await page.evaluate(() => EM.game.exit()); await page.waitForTimeout(400); await page.click('#bModos'); await page.waitForTimeout(300); await shot('02b-modos');
-for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
-  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) }); }, [m, lv, extra]);
-  await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) ? 3500 : 4000);
-  if (!['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
+for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['tranvia', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['carrera', 'cr:A'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
+  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m) }); }, [m, lv, extra]);
+  await page.waitForTimeout(['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m) ? 2800 : 3200);
+  if (!['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
   await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
   await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
 }
+/* 3.2.0 · cámaras unificadas (3D Cenital, 1ª persona, Skatepark + Actividades RPG) y formato horizontal 860×412 */
+await page.evaluate(() => { EM.game.start('libre', 'lb:Exposiciones', { seed: 5 }); const z = EM.actividades.zonas()[0]; EM.modes.libre.llevar(EM.game.st, z.x, z.y, false); EM.modes.libre.vista(EM.game.st, 'cen3d'); });
+await page.waitForTimeout(1400); await shot('08-libre-cen3d-skatepark');
+await page.evaluate(() => { EM.modes.libre.vista(EM.game.st, '1p'); });
+await page.waitForTimeout(900); await shot('08b-libre-1p');
+await page.evaluate(() => { EM.actividades.abrir(EM.game.st, 'modos'); });
+await page.waitForTimeout(400); await shot('08c-actividades-rpg');
+await page.evaluate(() => { document.querySelector('#modal').hidden = true; EM.modes.libre.vista(EM.game.st, '3p'); });
+await page.setViewportSize({ width: 860, height: 412 });
+await page.waitForTimeout(900); await shot('09-horizontal-libre-3p');
+await page.evaluate(() => { EM.game.stop(); EM.game.start('carrera', 'cr:A', { seed: 5, auto: true }); });
+await page.waitForTimeout(1400); await shot('09b-horizontal-carrera');
+await page.evaluate(() => EM.game.stop());
+await page.setViewportSize({ width: 412, height: 860 });
 await page.evaluate(() => EM.game.start('despacho', 'despacho2', { seed: 3, duel: true })); await page.waitForTimeout(1500); await shot('04-duelo'); await page.evaluate(() => EM.game.stop());
 await page.evaluate(() => EM.red.open()); await page.waitForTimeout(1200); await shot('05-red');
 await page.evaluate(() => EM.story.open(0)); await page.waitForTimeout(600); await page.click('#stNext'); await page.waitForTimeout(300); await shot('06-historia');

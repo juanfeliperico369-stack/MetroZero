@@ -80,10 +80,13 @@ const MPlus = EM.modes.metroplus = {
         }
         // parada de Metroplús
         if (v.ty === 'mp') for (const sp of st.stops) { const ss = L.d > 0 ? sp : L.len - sp, d = ss - v.s; if (!v.done || !v.done.includes(sp)) { if (d > 0 && d < 3) vmax = Math.min(vmax, Math.sqrt(2 * T.a * d)); if (Math.abs(d) < .15) { v.dw += dt; vmax = 0; if (v.dw > 1.4) { (v.done || (v.done = [])).push(sp); v.dw = 0; st.score += 20; } } } }
-        v.v = v.v < vmax ? Math.min(vmax, v.v + T.a * dt) : Math.max(vmax, v.v - T.a * 2.4 * dt);
+        const boostMul = v.boost > 0 ? 1.55 : 1;
+        if (v.boost > 0) v.boost -= dt;
+        const vTop = vmax * boostMul;
+        v.v = v.v < vTop ? Math.min(vTop, v.v + T.a * (v.boost > 0 ? 2.2 : 1) * dt) : Math.max(vTop, v.v - T.a * 2.4 * dt);
         v.s += v.v * dt; v.w = v.v < .1 ? v.w + dt : Math.max(0, v.w - dt * 2);
         if (v.w > 12 && !v.honk) { v.honk = 1; st.fx.push(Object.assign({ k: 'honk', t: 1.2, s: '¡Piii!' }, this.vpos(st, v))); this.sfx(st, 'horn'); }
-        if (v.s - T.len / 2 > L.len) { v.out = true; st.score += T.p; if (v.ty === 'mp') { st.buses++; st.fx.push(Object.assign({ k: 'pts', t: 1.2, s: '+100' }, this.vpos(st, v))); this.sfx(st, 'coin'); } }
+        if (v.s - T.len / 2 > L.len) { v.out = true; st.score += T.p; if (v.ty === 'mp') { st.buses++; st.combo = (st.combo || 0) + 1; const bon = st.combo > 1 ? Math.min(80, (st.combo - 1) * 20) : 0; st.score += bon; st.fx.push(Object.assign({ k: 'pts', t: 1.2, s: '+' + (100 + bon) + (st.combo > 1 ? ' ×' + st.combo : '') }, this.vpos(st, v))); this.sfx(st, 'coin'); } }
       }
     }
     // choques dentro de los cruces (ejes distintos)
@@ -91,7 +94,7 @@ const MPlus = EM.modes.metroplus = {
       const inX = st.veh.filter(v => { if (v.out || v.dead) return false; const p = this.vpos(st, v), T = VTYPE[v.ty], hx = (st.lanes[v.l].ax === 'h' ? T.len : T.wid) / 2, hy = (st.lanes[v.l].ax === 'h' ? T.wid : T.len) / 2; v._b = [p.x - hx, p.y - hy, p.x + hx, p.y + hy]; return v._b[2] > X.x - X.hw && v._b[0] < X.x + X.hw && v._b[3] > X.y - X.hh && v._b[1] < X.y + X.hh; });
       for (let a = 0; a < inX.length; a++) for (let b = a + 1; b < inX.length; b++) {
         const A = inX[a], B = inX[b]; if (st.lanes[A.l].ax === st.lanes[B.l].ax) continue;
-        if (A._b[0] < B._b[2] && A._b[2] > B._b[0] && A._b[1] < B._b[3] && A._b[3] > B._b[1]) { A.dead = B.dead = true; st.crashes++; st.lives--; const p = this.vpos(st, A); st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1.2 }); this.sfx(st, 'crash'); if (Game.st === st) vib(160); }
+        if (A._b[0] < B._b[2] && A._b[2] > B._b[0] && A._b[1] < B._b[3] && A._b[3] > B._b[1]) { A.dead = B.dead = true; st.crashes++; st.lives--; st.combo = 0; const p = this.vpos(st, A); st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1.2 }); this.sfx(st, 'crash'); if (Game.st === st) vib(160); }
       }
     }
     st.veh = st.veh.filter(v => !v.out && !v.dead);
@@ -101,14 +104,27 @@ const MPlus = EM.modes.metroplus = {
   },
   edge(st, L) { return L.ax === 'h' ? { x: L.d > 0 ? 1 : st.W - 1, y: L.c } : { x: L.c, y: L.d > 0 ? 1 : st.H - 1 }; },
   sfx(st, k) { if (!EM.headless && (Game.st === st || Game.st2 === st)) Snd.play(k); },
-  act(st, a) { if (!a || a.k !== 'x') return; const X = st.X[a.i]; if (!X || X.y0 > 0) return; X.pend = X.g === 'h' ? 'v' : 'h'; X.g = 'y'; X.y0 = .7; this.sfx(st, 'switch'); },
+  act(st, a) {
+    if (!a) return;
+    if (a.k === 'boost') { const v = st.veh.find(q => q.id === a.id); if (v && !(v.boost > .5)) { v.boost = 1.8; st.score += 5; st.fx.push(Object.assign({ k: 'pts', t: .8, s: '⚡' }, this.vpos(st, v))); this.sfx(st, 'tap'); } return; }
+    if (a.k !== 'x') return; const X = st.X[a.i]; if (!X || X.y0 > 0) return; X.pend = X.g === 'h' ? 'v' : 'h'; X.g = 'y'; X.y0 = .7; this.sfx(st, 'switch');
+  },
   result(st) { return { done: st.done, win: st.win, score: st.score, stars: st.win ? starsOf(st.lives / 3 * .9 + .1) : 0, lines: [['Buses Metroplús', st.buses + ' / ' + st.goal], ['Choques', st.crashes], ['Trancones', st.jams]], fact: this.LV[st.idx].f || '' }; },
   hud(st) { return [['🚌', st.buses + '/' + st.goal], ['♥', Math.max(0, st.lives)], ['★', fmt(st.score)]]; },
   geo(st, vp) { const cs = Math.min(vp.w / st.W, vp.h / st.H); return { cs, ox: (vp.w - cs * st.W) / 2, oy: (vp.h - cs * st.H) / 2 }; },
-  pointer(st, type, x, y, vp) { if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs; let best = -1, bd = 4; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } }); return best < 0 ? null : { k: 'x', i: best }; },
+  pointer(st, type, x, y, vp) {
+    if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs;
+    let best = -1, bd = 2.6; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } });
+    if (best >= 0) return { k: 'x', i: best };
+    // toque estilo Traffix sobre un vehículo para darle impulso breve
+    let bv = null, vd = 1.6; for (const v of st.veh) { const p = this.vpos(st, v), d = Math.hypot(p.x - gx, p.y - gy); if (d < vd) { vd = d; bv = v; } }
+    if (bv) return { k: 'boost', id: bv.id };
+    bd = 4.2; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } });
+    return best < 0 ? null : { k: 'x', i: best };
+  },
   draw(g, st, vp) {
     const G = this.geo(st, vp), cs = G.cs, X = x => G.ox + x * cs, Y = y => G.oy + y * cs, mpc = (NET.byId.MP1 || NET.byId.MP2 || {}).color || '#7ab648';
-    g.fillStyle = '#EB318E'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#1b2d3e'; g.fillRect(0, 0, vp.w, vp.h);
     g.fillStyle = '#d9cdae'; g.fillRect(X(0), Y(0), cs * st.W, cs * st.H);
     // manzanas con techos
     for (let by = 0; by < st.H; by += 1) for (let bx = 0; bx < st.W; bx += 1) { const onRoad = st.roads.some(r => r.ax === 'h' ? Math.abs(by + .5 - r.c) < r.hw + .6 : Math.abs(bx + .5 - r.c) < r.hw + .6); if (onRoad) continue; const h = h2(bx, by, st.idx); if (h < .7) { g.fillStyle = PAL.negro; g.fillRect(X(bx) + 1, Y(by) + 1, cs - 2, cs - 2); g.fillStyle = h < .4 ? PAL.ladrillo : h < .55 ? '#8d97a4' : '#b8b0a0'; g.fillRect(X(bx) + 2, Y(by) + 2, cs - 4, cs - 4); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(X(bx) + 2, Y(by) + cs * .55, cs - 4, cs * .45 - 2); } else { Art.tree(g, X(bx + .5), Y(by + .9), cs * .8, false); } }
@@ -133,15 +149,17 @@ const MPlus = EM.modes.metroplus = {
       const lc = ax => Xx.g === ax ? '#38e07b' : Xx.g === 'y' ? '#ffc23a' : '#ff3b2f';
       for (const [dx, dy, ax] of [[-1, -1, 'v'], [1, 1, 'v'], [1, -1, 'h'], [-1, 1, 'h']]) { const lx = X(Xx.x + dx * (Xx.hw + .35)), ly = Y(Xx.y + dy * (Xx.hh + .35)); g.fillStyle = PAL.negro; g.fillRect(lx - cs * .14, ly - cs * .14, cs * .28, cs * .28); g.fillStyle = lc(ax); g.fillRect(lx - cs * .09, ly - cs * .09, cs * .18, cs * .18); }
     }
-    // vehículos
+    // vehículos + aro de paciencia + brillo de impulso Traffix
     for (const v of st.veh) {
       const p = this.vpos(st, v), T = VTYPE[v.ty]; g.save(); g.translate(X(p.x), Y(p.y)); g.rotate(p.a); const L = T.len * cs, Wd = T.wid * cs;
+      if (v.boost > 0) { g.strokeStyle = 'rgba(56,224,123,.8)'; g.lineWidth = 2.5; g.strokeRect(-L / 2 - 3, -Wd / 2 - 3, L + 6, Wd + 6); }
       g.fillStyle = PAL.negro; g.fillRect(-L / 2 - 1.5, -Wd / 2 - 1.5, L + 3, Wd + 3);
       if (v.ty === 'mp') { g.fillStyle = mpc; g.fillRect(-L / 2, -Wd / 2, L * .48, Wd); g.fillRect(-L / 2 + L * .52, -Wd / 2, L * .48, Wd); g.fillStyle = '#f4f1ea'; g.fillRect(-L / 2 + 2, -Wd * .25, L * .44, Wd * .5); g.fillRect(-L / 2 + L * .54, -Wd * .25, L * .44, Wd * .5); g.fillStyle = PAL.negro; g.fillRect(-1, -Wd / 2, 2, Wd); }
       else if (v.ty === 'moto') { g.fillStyle = '#222'; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.col; g.beginPath(); g.arc(0, 0, Wd * .55, 0, TAU); g.fill(); }
       else { g.fillStyle = v.ty === 'feeder' ? '#f4f1ea' : v.col; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.ty === 'feeder' ? PAL.naranja : 'rgba(20,30,40,.55)'; g.fillRect(L * .12, -Wd / 2 + 2, L * .2, Wd - 4); if (v.ty === 'feeder') g.fillRect(-L / 2, -Wd * .12, L, Wd * .24); }
       g.fillStyle = '#fff6c0'; g.fillRect(L / 2 - 2, -Wd / 2 + 1, 2, 2); g.fillRect(L / 2 - 2, Wd / 2 - 3, 2, 2);
       g.restore();
+      if (v.w > 3.2) { const frac = clamp((v.w - 3.2) / 9, 0, 1); g.beginPath(); g.strokeStyle = frac > .65 ? '#ff3b2f' : '#ffc23a'; g.lineWidth = Math.max(2, cs * .09); g.arc(X(p.x), Y(p.y) - cs * .55, cs * .26, -Math.PI / 2, -Math.PI / 2 + TAU * frac); g.stroke(); }
     }
     if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
     // efectos

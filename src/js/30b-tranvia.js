@@ -12,8 +12,8 @@
   const C = EM.modes.conduce; if (!C) return;
   const T = EM.modes.tranvia = Object.create(C);
   Object.assign(T, {
-    id: 'tranvia', name: 'Tranvía de Ayacucho', sub: 'Por la calle, de San Antonio a Oriente',
-    tip: 'Sube la palanca para avanzar y bájala para frenar. Entre estación y estación hay cruces: si ves gente cruzando, toca la campana 🔔 y llega despacio (10 km/h o menos). En cada estación abre puertas.',
+    id: 'tranvia', name: 'Tranvía de Ayacucho', sub: 'Por la calle, de San Antonio a Oriente', substeps: true,
+    tip: 'Sube la palanca (o toca ▲ / ⏫ Crucero) para avanzar y baja para frenar. Si ves gente cruzando, toca la campana 🔔 y pasa despacio (10 km/h o menos). En cada estación abre puertas.',
     levels() { return C.levels().filter(l => l.line === 'T'); },
     create(lv, opts) {
       const st = C.create.call(this, lv, opts), line = NET.byId.T, rng = new RNG(((opts && opts.seed) | 0) + 31), s0 = st.s, s1 = st.tgt && st.tgt.length ? st.tgt[st.tgt.length - 1] : (st.dir > 0 ? line.P.len : 0);
@@ -41,7 +41,7 @@
     },
     mount(st, el) {
       C.mount.call(this, st, el); const h = $('#cHorn');
-      if (h) { h.textContent = '🔔 Campana'; h.onclick = () => { st.campana = st.t; Snd.play('bell'); vib(20); }; }
+      if (h) { h.innerHTML = '<b>🔔</b>CAMPANA'; h.onclick = () => { st.campana = st.t; Snd.play('bell'); vib(20); }; }
     },
     key(st, k, down) { if (down && (k === 'b' || k === 'c')) { st.campana = st.t; Snd.play('bell'); return; } return C.key.call(this, st, k, down); },
     draw(g, st, vp) {

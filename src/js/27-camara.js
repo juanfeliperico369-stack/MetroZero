@@ -26,5 +26,6 @@ const CamUI = EM.camui = {
     cv.addEventListener('pointerdown', down); cv.addEventListener('pointermove', move); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('wheel', wheel, { passive: false });
     this._off = () => { cv.removeEventListener('pointerdown', down); cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); cv.removeEventListener('wheel', wheel); const e2 = $('#camUI'); if (e2) e2.remove(); this._off = null; };
   },
+  visible(on) { const e = $('#camUI'); if (e) e.classList.toggle('hide', !on); },
   unmount() { if (this._off) this._off(); }
 };

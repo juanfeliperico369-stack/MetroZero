@@ -7,18 +7,19 @@
    ===================================================================== */
 const MIRADORES = { 'Santo Domingo Savio': 'Biblioteca España sobre la loma', 'Parque Arví': 'El bosque de Arví entre la niebla', 'La Aurora': 'El occidente y la Comuna 13', 'El Progreso': 'El cerro El Picacho', 'Villa Sierra': 'El centro desde la Comuna 8', 'Trece de Noviembre': 'Los techos de ladrillo de la 8', 'Andalucía': 'Las casas de colores del nororiente', 'Popular': 'El río y el valle al norte', 'Juan XXIII': 'San Javier desde el aire', 'Vallejuelos': 'La ladera occidental', 'Las Torres': 'El oriente de la ciudad', 'El Pinal': 'Las quebradas del oriente', 'SENA': 'El Doce de Octubre', 'Doce de Octubre': 'El noroccidente encendido' };
 const CableViaje = EM.modes.cableviaje = {
-  id: 'cableviaje', name: 'Metrocable · Viaje', sub: 'Opera la línea y viaja sobre la loma', music: 'story', fullCanvas: true,
-  tip: 'Controla la velocidad de la línea (hasta 5 m/s). Con ráfagas fuertes baja la velocidad para que la cabina no se balancee; con tormenta, detén la línea. Toma fotos en los miradores 📷.',
+  id: 'cableviaje', name: 'Metrocable · Viaje', sub: 'Opera la línea y viaja sobre la loma', music: 'story', fullCanvas: true, substeps: true,
+  tip: 'La cabina ya viene en marcha. Ajusta la velocidad con la palanca o ▲/▼ (hasta 5 m/s), cambia el ritmo con ⏩, frena en ráfagas fuertes o tormenta y toma fotos en los miradores 📷.',
   levels() { if (this._lv) return this._lv; return (this._lv = NET.lines.filter(l => l.kind === 'cable').map(l => ({ id: 'cv:' + l.id, line: l.id, name: l.name, sub: l.st[0].name + ' → ' + l.st[l.st.length - 1].name }))); },
   create(lv, opts) {
     const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], C = G3.cableGeo(line), rng = new RNG(opts.seed | 0), hr = new Date().getHours() + new Date().getMinutes() / 60;
     const stS = C.pts.map((p, i) => p.st ? C.P.cum[i] : null).filter(v => v != null), alto = Math.max(...C.pts.map(p => p.z));
-    const st = { lvId: L.id, line: line.id, s: stS[0] + 2, v: 0, vt: 0, th: 0, om: 0, wind: 0, gust: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, stS, ni: 1, ph: 'ride', dwell: 0, pax: 0, moved: 0, comfort: 100, score: 0, photos: [], view: opts.view || 'lado', auto: !!opts.auto, done: false, seed: opts.seed | 0,
-      fixH: opts.hour, paseo: !!opts.paseo, fog: alto > 2200 || (opts.hour != null ? rng.f() < .15 : Mundo.weather().fog), rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, storm: null, stormT: rng.range(40, 140), stormed: false, stopPen: 0, safety: 0, lastV: 0, titleT: 3, title: line.st[0].name, base: 1.5 + rng.f() * 2.5 + (alto > 2100 ? 2 : 0) };
+    const h0 = opts.hour != null ? opts.hour : (typeof Mundo !== 'undefined' && Mundo.hour ? Mundo.hour() : hr);
+    const st = { lvId: L.id, line: line.id, s: stS[0] + 2, v: 2.4, vt: 4.0, ritmo: 1, th: 0, om: 0, wind: 0, gust: 0, t: 0, hour: h0, hourNow: h0, stS, ni: 1, ph: 'ride', dwell: 0, pax: 0, moved: 0, comfort: 100, score: 0, photos: [], view: opts.view || 'lado', auto: !!opts.auto, done: false, seed: opts.seed | 0,
+      fixH: opts.hour, paseo: !!opts.paseo, fog: alto > 2200 || (opts.hour != null ? rng.f() < .15 : Mundo.weather().fog), rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, storm: null, stormT: rng.range(45, 140), stormed: false, stopPen: 0, safety: 0, lastV: 0, titleT: 3, title: line.st[0].name, base: 1.5 + rng.f() * 2.5 + (alto > 2100 ? 2 : 0) };
     st.mir = line.st.slice(1).map(s => ({ name: s.name, txt: MIRADORES[s.name] || 'Mirador de ' + s.name, s: stS[line.st.indexOf(s)] - 140, done: false }));
     return st;
   },
-  step(st, dt) { if (st.done) return; const n = 3; for (let i = 0; i < n; i++) this.tick(st, dt); },   // el tiempo corre ×3
+  step(st, dt) { if (st.done) return; const n = 3 * (st.ritmo || 1); for (let i = 0; i < n; i++) this.tick(st, dt); },   // base ×3, ajustable con ⏩
   tick(st, dt) {
     const line = NET.byId[st.line], C = G3.cableGeo(line); st.t += dt; st.hourNow = st.fixH != null ? st.fixH + st.t * 10 / 3600 : Mundo.hour(); if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 3) { st._wt = 0; const w = Mundo.weather(); st.rain = w.rain; if (w.storm && !st.storm) { st.storm = { t: 0, len: 30 }; this.msg(st, '⚡ Tormenta eléctrica en el valle: detén la línea', 'r'); } }
     // viento: base + ráfagas suaves + ráfagas fuertes ocasionales; tormenta con relámpagos
@@ -28,7 +29,7 @@ const CableViaje = EM.modes.cableviaje = {
     st.wind = st.base + 3 * Math.sin(st.t * .13) + 2.2 * Math.sin(st.t * .41 + 1) + (gustOn ? 6 * Math.max(0, Math.sin(st.t * 1.3)) : 0) + (st.storm ? 9 + 3 * Math.sin(st.t * 2.1) : 0);
     // piloto (bot) o mando del jugador
     if (st.auto) st.vt = st.storm ? 0 : st.wind > 12 ? 2 : st.wind > 9 ? 3.5 : 5;
-    const lineA = clamp(st.vt - st.v, -.35 * dt, .3 * dt) / dt; st.v = clamp(st.v + lineA * dt, 0, 5);
+    const lineA = clamp(st.vt - st.v, -.6 * dt, .55 * dt) / dt; st.v = clamp(st.v + lineA * dt, 0, 5);
     if (st.safety > 0) { st.safety -= dt; st.v = Math.max(0, st.v - 1.2 * dt); }
     // péndulo (hanger de 3 m)
     const Lh = 3, Fw = .022 * st.wind * Math.abs(st.wind) * (st.ph === 'station' ? .2 : 1), acc = st.ph === 'station' ? 0 : lineA;
@@ -38,7 +39,7 @@ const CableViaje = EM.modes.cableviaje = {
     if (ang > .36 && st.safety <= 0) { st.safety = 6; st.score -= 150; this.msg(st, 'Parada de seguridad: balanceo de ' + Math.round(ang * 57) + '° −150', 'r'); this.sfx(st, 'crash'); }
     if (st.storm && st.v > 1) { st.stopPen += dt; if (st.stopPen > 8) { st.stopPen = -1e9; st.score -= 200; this.msg(st, 'No se puede operar con tormenta eléctrica −200', 'r'); this.sfx(st, 'bad'); } }
     // avance y estaciones (la cabina se desacopla, abre puertas y vuelve a salir)
-    if (st.ph === 'station') { st.dwell += dt; if (st.dwell > 7) { st.ph = 'ride'; this.sfx(st, 'whoosh'); } }
+    if (st.ph === 'station') { st.dwell += dt; if (st.dwell > 4.5) { st.ph = 'ride'; this.sfx(st, 'whoosh'); } }
     else {
       st.s += st.v * dt; const tgt = st.stS[st.ni];
       for (const m of st.mir) if (!m.done && !m.seen && st.s > m.s && st.s < m.s + 160) { m.seen = true; this.msg(st, '📷 Mirador: ' + m.txt, 'b'); if (st.auto) this.photo(st); }
@@ -62,16 +63,20 @@ const CableViaje = EM.modes.cableviaje = {
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
   hud(st) { this.updCtl(st); const line = NET.byId[st.line]; return [['', st.v.toFixed(1) + ' m/s'], ['💨', Math.round(st.wind * 3.6) + ' km/h'], ['→', line.st[Math.min(st.ni, line.st.length - 1)].name], ['★', fmt(st.score)]]; },
   mount(st, el) {
-    el.innerHTML = `<div class="lever" id="cvLev" style="background:linear-gradient(#2f9b57,#f9e4a4 70%,#c8201f)"><div class="lb" style="top:6px">5 m/s</div><div class="lb" style="bottom:6px">PARAR</div><div class="kn" id="cvKn">0</div></div>
+    el.innerHTML = `<div class="lever" id="cvLev" style="background:linear-gradient(#2f9b57,#f9e4a4 70%,#c8201f)"><div class="lb" style="top:6px">5 m/s</div><div class="lb" style="bottom:6px">PARAR</div><div class="kn" id="cvKn">4.0</div></div>
+      <div class="lever-nudge"><button id="cvMas" aria-label="Subir velocidad">▲</button><button id="cvRit" aria-label="Ritmo del viaje">×1</button><button id="cvMen" aria-label="Bajar velocidad">▼</button></div>
       <div class="gbtns"><button class="btn sm mos" id="cvFoto">📷 Foto</button><button class="btn sm" id="cvStop">■ Detener</button></div>
       <div class="vsel" id="cvView"><button data-v="lado">↔</button><button data-v="tps">3ª</button><button data-v="cab">1ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="paseo">🎬</button></div>`;
     const lev = $('#cvLev'), set = e => { const r = lev.getBoundingClientRect(); st.vt = Math.round(clamp(1 - (e.clientY - r.top) / r.height, 0, 1) * 10) / 2; Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); }); lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
-    $('#cvFoto').onclick = () => this.photo(st); $('#cvStop').onclick = () => { st.vt = 0; };
-    $$('#cvView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: la línea se opera sola' : 'Vuelves a operar tú', 'b'); } else st.view = b.dataset.v; });
+    $('#cvMas').onclick = () => { st.vt = Math.min(5, Math.round((st.vt + .5) * 2) / 2); Snd.init(); this.updCtl(st); };
+    $('#cvMen').onclick = () => { st.vt = Math.max(0, Math.round((st.vt - .5) * 2) / 2); Snd.init(); this.updCtl(st); };
+    $('#cvRit').onclick = () => { st.ritmo = st.ritmo === 1 ? 2 : st.ritmo === 2 ? 3 : 1; this.msg(st, '⏩ Ritmo del cable: ×' + st.ritmo, 'b'); this.updCtl(st); };
+    $('#cvFoto').onclick = () => this.photo(st); $('#cvStop').onclick = () => { st.vt = 0; this.updCtl(st); };
+    $$('#cvView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: la línea se opera sola' : 'Vuelves a operar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
   },
-  updCtl(st) { if (EM.headless || Game.st !== st) return; const kn = $('#cvKn'); if (!kn) return; kn.style.top = 'calc(' + ((1 - st.vt / 5) * 100) + '% - 15px)'; kn.textContent = st.vt.toFixed(1); $$('#cvView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo))); if (st.paseo && (st._pv = (st._pv || 0) + .2) > 9) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['lado', 'cine', 'tps', 'cab'] : ['lado', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } const f = $('#cvFoto'); const can = st.mir.some(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); f.style.background = can ? 'var(--naranja)' : ''; },
-  key(st, k, down) { if (!down) return; if (k === 'ArrowUp' || k === 'w') st.vt = Math.min(5, st.vt + .5); if (k === 'ArrowDown' || k === 's') st.vt = Math.max(0, st.vt - .5); if (k === ' ' || k === 'f') this.photo(st); if (k === 'x') st.vt = 0; if (k === 'v') { const V = ['lado', 'tps', 'cab', 'cine', 'top']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } },
+  updCtl(st) { if (EM.headless || Game.st !== st) return; const kn = $('#cvKn'); if (!kn) return; kn.style.top = 'calc(' + ((1 - st.vt / 5) * 100) + '% - 15px)'; kn.textContent = st.vt.toFixed(1); const rb = $('#cvRit'); if (rb) { rb.textContent = '×' + (st.ritmo || 1); rb.classList.toggle('on', (st.ritmo || 1) > 1); } $$('#cvView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo))); if (st.paseo && (st._pv = (st._pv || 0) + .2) > 9) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['lado', 'cine', 'tps', 'cab'] : ['lado', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } const f = $('#cvFoto'); const can = st.mir.some(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); f.classList.toggle('on', can); },
+  key(st, k, down) { if (!down) return; if (k === 'ArrowUp' || k === 'w') st.vt = Math.min(5, st.vt + .5); if (k === 'ArrowDown' || k === 's') st.vt = Math.max(0, st.vt - .5); if (k === ' ' || k === 'f') this.photo(st); if (k === 'x') st.vt = 0; if (k === 'r') st.ritmo = st.ritmo === 1 ? 2 : st.ritmo === 2 ? 3 : 1; if (k === 'v') { const V = ['lado', 'tps', 'cab', 'cine', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } },
   gl(st) { return (st.view === 'tps' || st.view === 'cab' || st.view === 'cine') && G3.init() && Save.d.settings.q !== 'low'; },
   cabin(st) { const line = NET.byId[st.line], C = G3.cableGeo(line), p = NET.at(C.P, st.s); return { x: p.x, y: p.y, a: p.a, z: C.zAt(st.s) + 2 }; },
   draw(g, st, vp) {
@@ -80,7 +85,7 @@ const CableViaje = EM.modes.cableviaje = {
       G3.show(true); const c = this.cabin(st), ca = Math.cos(c.a), sa = Math.sin(c.a), sx = -sa, sy = ca;
       if (st.view === 'cine' && (!st._cine || st._cine.s - st.s < -30)) { const sa = Math.min(C.P.len, st.s + 90 + h2(st.t | 0, 1, 3) * 60), q = NET.at(C.P, sa, (h2(st.t | 0, 2, 3) < .5 ? -1 : 1) * 24); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 2 }; }
       const cam = st.view === 'cine' ? { eye: [st._cine.x, st._cine.z, st._cine.y], at: [c.x, c.z - 4, c.y], fov: .95 } : st.view === 'cab' ? { eye: [c.x + ca * 1, c.z - 3.4, c.y + sa * 1], at: [c.x + ca * 60, c.z - 18, c.y + sa * 60], fov: 1.2 } : { eye: [c.x - ca * 24 + sx * 14, c.z + 7, c.y - sa * 24 + sy * 14], at: [c.x + ca * 6, c.z - 6, c.y + sa * 6], fov: 1.05 };
-      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
+      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, escala: .82, suave: true, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
       if (st.storm && (st.t % 7) < .15) { g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(0, 0, W, H); }
       if (st.view === 'cab') { g.strokeStyle = '#141414'; g.lineWidth = Math.min(W, H) * .05; g.strokeRect(0, 0, W, H); g.fillStyle = 'rgba(20,20,20,.9)'; g.fillRect(0, H * .82, W, H * .18); }
     } else if (st.view === 'top') {
@@ -116,7 +121,7 @@ const CableViaje = EM.modes.cableviaje = {
     g.restore();
   },
   gauges(g, st, W, H) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), x = 12 * dpr, y = 58 * dpr, w = 120 * dpr;
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), x = 12 * dpr, y = 108 * dpr, w = 126 * dpr;
     g.fillStyle = 'rgba(13,20,24,.82)'; g.fillRect(x, y, w, 58 * dpr); g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('VIENTO ' + Math.round(st.wind * 3.6) + ' km/h', x + 8 * dpr, y + 14 * dpr);
     const wf = clamp(st.wind / 20, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 19 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = wf > .7 ? '#ff3b2f' : wf > .45 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 19 * dpr, (w - 16 * dpr) * wf, 7 * dpr);
     g.fillStyle = PAL.mante; g.fillText('BALANCEO ' + Math.round(Math.abs(st.th) * 57.3) + '°', x + 8 * dpr, y + 40 * dpr); const bf = clamp(Math.abs(st.th) / .36, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 45 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = bf > .7 ? '#ff3b2f' : bf > .3 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 45 * dpr, (w - 16 * dpr) * bf, 7 * dpr);

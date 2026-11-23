@@ -171,12 +171,35 @@ const BotT = EM.test = {
         }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
+    // 3.2.0 · mundo 3D único, actividades abiertas, zonas Skate/Parkour, ciclovías, y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
+    try {
+      const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
+      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.2: faltan cen3d o 1p');
+      const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.2: cen3d debe mantener Norte arriba');
+      if (!EM.actividades) E('actividades 3.2: no cargó EM.actividades');
+      else {
+        const Z = EM.actividades.zonas(); if (Z.length < 6) E('actividades 3.2: faltan zonas Skate/Parkour (' + Z.length + ')');
+        for (const z of Z) if (!fin(z.x) || !fin(z.y)) E('actividades 3.2: zona con coords inválidas ' + z.id);
+        if (EM.actividades.MODULOS.length < 10) E('actividades 3.2: faltan módulos abiertos (' + EM.actividades.MODULOS.length + ')');
+        if (EM.actividades.SUBTRAMAS.length < 6) E('actividades 3.2: faltan subtramas (' + EM.actividades.SUBTRAMAS.length + ')');
+      }
+      const cr = Carrera.create('cr:A', { seed: 9 });
+      if (!cr.tramos || cr.tramos.length < 3 || !cr.giros || !cr.giros.length) E('carrera 3.2: faltan tramos de ancho variable o giros direccionales');
+      cr.obs.unshift({ s: 28, c: 1, k: 'rampa' }, { s: 46, c: 1, k: 'baranda' }, { s: 64, c: 1, k: 'arco' });
+      cr.v = 18; cr.s = 26.8; Carrera.step(cr, .2); // paso grande: la colisión barrida debe detectar la rampa sin saltarla
+      if (cr.y <= 0 && cr.vy <= 0) E('carrera 3.2: la rampa o la colisión barrida falló');
+      const b = Bus.create(Bus.levels()[0].id, { seed: 2 }); b.ph = 'stop'; b.pax = 5; b.waiting[b.ni] = []; Bus.doors(b); const al0 = b.alight;
+      for (let i = 0; i < 40 && b.alight > 0; i++) Bus.stopTick(b, .1, NET.byId[b.line]);
+      if (al0 > 0 && b.pax !== 5 - al0) E('bus 3.2: al bajar pasajeros st.pax quedó en ' + b.pax + ' (esperado ' + (5 - al0) + ')');
+    } catch (e) { E('3.2.0: ' + e.message); }
     const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
+    const h0 = EM.headless; EM.headless = true;
     const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera', 'tranvia'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
+    try {
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
@@ -198,6 +221,7 @@ const BotT = EM.test = {
         }
       } catch (e) { errors.push(id + ' ' + lv.id + ': ' + e.message); }
     }
+    } finally { EM.headless = h0; }
     return { games, steps, wins, errors };
   },
   randomAct(id, st, rng) {

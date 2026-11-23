@@ -62,10 +62,11 @@ const Game = EM.game = {
     if (on) UI.modal(`<div class="pag">Pausa</div><h2>${esc(this.mode.name)}</h2><p class="m">${esc(this.mode.tip || '')}</p><div class="col"><button class="btn pri" id="pzC">▶ Continuar</button><button class="btn sm" id="pzR">↻ Reiniciar</button><button class="btn sm gh" id="pzX">Salir</button></div>`, () => { this.paused = false; });
     if (on && !EM.headless) { $('#pzC').onclick = () => UI.close(); $('#pzR').onclick = () => { UI.close(); this.start(this.mode.id, this.lv, Object.assign({}, this.opts, { seed: undefined })); }; $('#pzX').onclick = () => { UI.close(); this.exit(); }; }
   },
-  exit() { this.stop(); if (this.net && this.net.leave) this.net.leave(); this.net = null; Music.play('menu'); const back = this.opts && this.opts.back; UI.stack = UI.stack.filter(s => s !== 'game'); UI.show(back || 'levels', false); },
+  exit() { const ex = this.opts && this.opts.onExit; this.stop(); if (this.net && this.net.leave) this.net.leave(); this.net = null; if (ex) { ex(); return; } Music.play('menu'); const back = this.opts && this.opts.back; UI.stack = UI.stack.filter(s => s !== 'game'); UI.show(back || 'levels', false); },
   end(r1, r2) {
     this.ended = true; const M = this.mode;
     try { if (!EM.headless) Vida.onGame(M.id, this.st, r1); } catch (e) { EM.errors.push('vida: ' + e.message); }
+    try { if (EM.actividades && EM.actividades.onGameEnd) EM.actividades.onGameEnd(M.id, this.st, r1); } catch (e) { EM.errors.push('rpg: ' + e.message); }
     if (this.opts.onEnd) { this.opts.onEnd(r1, r2); return; }
     if (this.duel) {
       const a = r1.score | 0, b = r2.score | 0, w = a === b ? 'Empate' : a > b ? 'Gana Jugador 1' : 'Gana Jugador 2'; Snd.play('win');

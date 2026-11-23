@@ -24,17 +24,21 @@ const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAN
 Music.SONGS.ciudad = { bpm: 100, root: 55, sc: [0, 2, 3, 5, 7, 9, 10], prog: [0, 3, 4, 3], bass: [1, 0, 0, 1, 0, 0, 1, 0], mel: .4, w: 'triangle' };
 const Libre = EM.modes.libre = {
   id: 'libre', name: 'Ciudad Libre', sub: 'Recorre el valle', music: 'ciudad', fullCanvas: true, endless: true,
-  tip: 'Joystick a la izquierda: a pie y en «manejo fácil» apunta hacia donde quieres ir, y el vehículo gira hacia allá con su radio de giro (en «clásico», los lados giran y arriba acelera). ● sirve para subirte a un vehículo o al metro, hablar con la gente o entregar. ▼ frena y ✋ derrapa. ⏩ elige el ritmo: ×1, ×1,5 o ×2 (en metro y cable, hasta ×6). 🎥 suelta la cámara: arrastra para mirar, pellizca para acercar y 📐 cambia el ángulo. 📍 te muestra qué ver cerca y 🆘 te rescata si te pierdes. 👁 cambia la vista: desde arriba, tercera persona, dron o cine (en 3D, un dedo gira la cámara y dos acercan). Toca el minimapa (o M) para ver el mapa del valle y elegir dónde ir.',
+  tip: 'Un solo mundo 3D del Valle de Aburrá: cambia entre 3D Cenital 🛰, 3ª persona 🎮, 1ª persona 👁, Panorámica 🏔, Cine 🎬 o 2D/Pixel 🗺. Usa ⏫ para acelerador fijo, 📋 para abrir cualquier modo o zona Skate/Parkour y tu diario RPG, ● para subir/abordar y M o el minimapa para viajar.',
   substeps: true,
   RITMOS: [['×1', 1, 1], ['×1,5', 1.5, 3], ['×2', 2, 6]],   // [rótulo, a pie y manejando, en metro, cable, tranvía o bus]
   escala(st) { const R = this.RITMOS[clamp(Save.d.settings.ritmo | 0, 0, 2)]; return st.mode === 'ride' ? R[2] : R[1]; },
-  /* estilos de vista (1.4.0): desde arriba (la ciudad vectorial, con sus tres ángulos) y en 3D con el motor G3 y los edificios reales:
-     tercera persona (detrás del jugador), dron (alto y lejos, gira despacio cuando estás quieto) y cine (cámara en la calle que te ve pasar) */
-  VISTAS: [['2d', '🗺', 'Desde arriba'], ['3p', '🎮', 'Tercera persona'], ['dron', '🚁', 'Dron'], ['cine', '🎬', 'Cine']],
+  /* 3.2 · un solo mundo 3D con cámaras coherentes (3D Cenital, 3ª persona, 1ª persona, Panorámica, Cine) + modo 2D/Pixel */
+  VISTAS: [['cen3d', '🛰', '3D Cenital'], ['3p', '🎮', 'Tercera persona'], ['1p', '👁', 'Primera persona'], ['dron', '🏔', 'Panorámica'], ['cine', '🎬', 'Cine'], ['2d', '🗺', '2D / Pixel']],
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
-  vista(st, v) { if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y un navegador con WebGL', 'y'); v = '2d'; } st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; Save.d.settings.vistaL = v; Save.write(); const A = this.VISTAS.find(q => q[0] === v); this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st); },
-  /* el joystick en 3D va con la cámara: arriba es hacia donde mira la cámara */
-  joyMundo(st) { const j = st.joy; if (!st.vista3 || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
+  vista(st, v) {
+    if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
+    st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; st._ec = null;
+    Save.d.settings.vistaL = v; Save.write();
+    const A = this.VISTAS.find(q => q[0] === v) || this.VISTAS[0]; this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st);
+  },
+  /* joystick coherente con la cámara: en 3D Cenital y 2D el norte es arriba; en 3p/1p/dron/cine sigue el rumbo de la cámara */
+  joyMundo(st) { const j = st.joy; if (!st.vista3 || st.vista3 === 'cen3d' || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
   STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
   levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }, { id: 'lb:mapa', name: '🗺 Elegir en el mapa', sub: 'Mira todo el valle y escoge dónde empezar' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
@@ -52,7 +56,7 @@ const Libre = EM.modes.libre = {
     Ciudad.init((opts.seed | 0) || 1); const rng = new RNG((opts.seed | 0) + 3), sv = Save.d.libre || {};
     const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
     let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv === 'lb:mapa' ? 'San Antonio' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.libre(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
-    const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, z: 0, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
+    const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, acelFijo: false, jumpY: 0, jumpVy: 0, trickSpin: 0, combo: 0, comboT: 0, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, z: 0, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
     // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
     const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
     // estaciones de EnCicla (src/data/encicla.js, de Juega EnCicla): anclajes con 2 a 4 bicis
@@ -66,8 +70,10 @@ const Libre = EM.modes.libre = {
     if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
     if (trama) Trama.init(st);
     if (lv === 'lb:mapa') st.abrirMapa = 1;
-    st.vista3 = ['3p', 'dron', 'cine'].includes(Save.d.settings.vistaL) && !EM.headless ? Save.d.settings.vistaL : null; st.cy = st.h;
-    st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; if (typeof Gente !== 'undefined') Gente.crear(st);
+    const prefV = Save.d.settings.vistaL || 'cen3d';
+    st.vista3 = ['cen3d', '3p', '1p', 'dron', 'cine'].includes(prefV) && !EM.headless && Save.d.settings.q !== 'low' ? prefV : null; st.cy = st.h;
+    st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; st._crEspera = 25; if (typeof Gente !== 'undefined') Gente.crear(st);
+    if (EM.actividades && EM.actividades.initLibre) EM.actividades.initLibre(st);
     return st;
   },
   V(st) { return st.veh ? VEH[st.veh.kind] : null; },
@@ -111,14 +117,14 @@ const Libre = EM.modes.libre = {
       const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
       if (st.veh.kind === 'bici' && st.prestamo) { if (this.devolver(st)) return; st.prestamo = null; this.msg(st, '⚠ Dejaste la bici EnCicla sola. En EnCicla eso se reporta: devuélvela siempre en un anclaje', 'y'); }
-      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.libre(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
+      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; st.acelFijo = false; const t = this.libre(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
     }
     // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
     if (st.trama && Trama.onAction(st)) return;
     const np = typeof Gente !== 'undefined' ? Gente.cerca(st, 3.4) : null; if (np) { const dn = dist(np.x, np.y, st.x, st.y), dv = st.parked.reduce((m, q) => Math.min(m, dist(q.x, q.y, st.x, st.y) - VEH[q.kind].len / 2), 1e9); if (!(dv < dn)) { Gente.hablar(st, np); return; } }   // con un vehículo más cerca que la persona, gana el vehículo
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
     if (best && best.dock != null && !EM.headless) { const Hh = enciclaHorario(new Date()); if (!Hh.abierto) { this.msg(st, '🚲 EnCicla no presta a esta hora: ' + Hh.txt, 'y'); return; } }
-    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; st.acelFijo = false; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲ o ⏫' : ' · ▲ acelera · ⏫ fijo · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
     const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
       st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; st.subio = 1; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
@@ -142,12 +148,36 @@ const Libre = EM.modes.libre = {
     if (T.length >= 3 && h && h.lines.some(l => l.kind === 'metro')) { st.timbres = []; Vida.logro('ciclista'); this.msg(st, '🚲 ¡Ciclista secreto! Tres timbrazos debajo del metro. ¿Te gusta pedalear? Juega EnCicla', 'g'); }
     else if (T.length === 1) this.msg(st, '🔔 ¡Tilín, tilín!', 'b');
   },
+  /* salto y truco en vivo en zonas Skate/Parkour o con skate/patines/patineta */
+  saltaTruco(st) {
+    const z = EM.actividades && EM.actividades.enZona ? EM.actividades.enZona(st) : null;
+    const V = this.V(st), puede = !!z || (V && V.monta);
+    if (!puede) return false;
+    if ((st.jumpY || 0) <= .05) {
+      st.jumpVy = z ? 8.2 : 6.4; st.jumpY = .12; st.trickSpin = 1;
+      st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5;
+      const trucos = st.mode === 'walk' ? ['Salto Parkour', 'Bóveda', 'Salto de precisión'] : ['Ollie', 'Kickflip', '360° Valle', 'Grind Aéreo'];
+      const nom = trucos[(Math.floor(st.t * 10) + st.combo) % trucos.length], pts = (z ? 15 : 6) * st.combo;
+      if (z) { Save.d.wallet += Math.min(25, Math.ceil(pts / 5)); if (Save.d.rpg) { Save.d.rpg.trucos = (Save.d.rpg.trucos || 0) + 1; Save.d.rpg.xp.ciclovia = (Save.d.rpg.xp.ciclovia || 0) + 12; } Save.write(); }
+      this.msg(st, '★ ' + nom + (z ? ' en ' + z.n + ' · ×' + st.combo + ' (+' + Math.min(25, Math.ceil(pts / 5)) + ' 🎫)' : ' · ×' + st.combo), 'g');
+      this.sfx(st, 'star'); vib(22);
+      return true;
+    }
+    return false;
+  },
   nearHub(st, r) { let best = null, bd = r; for (const h of NET.stations) { const d = dist(h.x, h.y, st.x, st.y); if (d < bd) { bd = d; best = h; } } return best; },
   /* ---------- física ---------- */
   step(st, dt) {
     if (st.done) return; st.t += dt; const J = st.job;
     if (st.prestamo) { const P = st.prestamo; P.min += dt / 10; if (P.min > 60 && !P.avisado) { P.avisado = 1; this.msg(st, '⏰ Pasó la hora del préstamo: devuelve o renueva la bici en una estación EnCicla', 'y'); } }   // 10 s de juego = 1 minuto de préstamo
-    if (st.mode === 'veh' && st.veh.kind === 'bici' && st.hb) { st.hb = false; this.timbre(st); }
+    if (st.jumpY > 0 || st.jumpVy > 0) { st.jumpVy -= 22 * dt; st.jumpY = Math.max(0, st.jumpY + st.jumpVy * dt); if (st.jumpY === 0) st.jumpVy = 0; }
+    if (st.trickSpin > 0) st.trickSpin = Math.max(0, st.trickSpin - dt * 2.4);
+    if (st.comboT > 0) { st.comboT -= dt; if (st.comboT <= 0) st.combo = 0; }
+    if (st.hb) {
+      const z = EM.actividades && EM.actividades.enZona ? EM.actividades.enZona(st) : null;
+      if (z || (st.mode === 'veh' && this.V(st).monta)) { st.hb = false; this.saltaTruco(st); }
+      else if (st.mode === 'veh' && st.veh.kind === 'bici') { st.hb = false; this.timbre(st); }
+    }
     if (st.auto) { st.joy = { x: Math.sin(st.t * .3), y: -.8, m: 1 }; if (Math.floor(st.t) % 7 === 0 && !st._a) { st._a = 1; this.action(st); } else if (Math.floor(st.t) % 7) st._a = 0; }
     if (st.trama && st.trama.talk) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; }
     if (st.charla) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; } const wdt = dt;
@@ -155,12 +185,12 @@ const Libre = EM.modes.libre = {
     else if (st.mode === 'veh') this.drive(st, dt);
     else this.walk(st, dt);
     Ciudad.tick(wdt, { x: st.x, y: st.y, z: st.z || 0, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
-    this.acomoda(st); this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); if (typeof Gente !== 'undefined') Gente.tick(st, dt); this.vigila(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
+    this.acomoda(st); this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); if (typeof Gente !== 'undefined') Gente.tick(st, dt); if (EM.actividades && EM.actividades.tick) EM.actividades.tick(st, dt); this.vigila(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
     if (st.shake > 0) st.shake -= dt;
     // cámara: sigue al jugador con adelanto y zoom según la velocidad
     const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
     if (!st.camLibre) { st.cam.k += (kT * (st.zoomU || 1) - st.cam.k) * Math.min(1, dt * 2); const lead = st.mode === 'walk' ? 6 : 1.1 * st.vf; st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 4); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 4); }
-    if (st.vista3) { const mov = st.mode === 'ride' || Math.abs(st.vf) > .6, d = Math.atan2(Math.sin(st.h - (st.cy || 0)), Math.cos(st.h - (st.cy || 0))); if (st.cy == null) st.cy = st.h; if (mov) st.cy += d * Math.min(1, dt * (st.vista3 === 'dron' ? .5 : st.mode === 'walk' ? 1.3 : 2)); else if (st.vista3 === 'dron') st.cy += dt * .07; }
+    if (st.vista3 && st.vista3 !== 'cen3d') { const mov = st.vista3 === '1p' || st.mode === 'ride' || Math.abs(st.vf) > .6, d = Math.atan2(Math.sin(st.h - (st.cy || 0)), Math.cos(st.h - (st.cy || 0))); if (st.cy == null) st.cy = st.h; if (mov) st.cy += d * Math.min(1, dt * (st.vista3 === '1p' ? 12 : st.vista3 === 'dron' ? .5 : st.mode === 'walk' ? 1.5 : 2.6)); else if (st.vista3 === 'dron') st.cy += dt * .07; }
     if ((st._sv = (st._sv || 0) + dt) > 5) { st._sv = 0; this.persist(st); }
   },
   walk(st, dt) {
@@ -195,15 +225,16 @@ const Libre = EM.modes.libre = {
     const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, tope = A.max * suelo * loma, kw = 1 - Math.exp(-dt / A.tw);
     const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1);
     let wT = 0, tv = 0, hay = false;
+    if (k.down || st.hb) st.acelFijo = false;
     if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
       const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
       const da = Math.atan2(Math.sin(ta - st.h), Math.cos(ta - st.h)); hay = true;
-      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
-      else { wT = clamp(da * 6.5, -wm, wm); tv = tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da))); }
+      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { st.acelFijo = false; const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
+      else { wT = clamp(da * 6.5, -wm, wm); tv = Math.max(st.acelFijo ? tope * .84 : 0, tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da)))); }
       st._quiere = ta;
-    } else {   // teclas, o el joystick clásico (los lados giran, arriba acelera, abajo frena y luego reversa)
-      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : 0, fr = k.down ? 1 : 0;
-      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); }
+    } else {   // teclas, acelerador fijo (⏫) o joystick clásico
+      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : st.acelFijo ? .84 : 0, fr = k.down ? 1 : 0;
+      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) { fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); st.acelFijo = false; ac = 0; } }
       hay = !!(giro || ac || fr); wT = giro * wm; tv = ac ? tope * ac : fr ? (st.vf > .5 ? 0 : -A.max * .3 * fr) : 0; st._quiere = st.h + (fr > ac ? Math.PI : 0);
     }
     if (S.asist !== 0 && !st.auto && hay) { const As = this.asistencia(st, V, dt, wT / Math.max(.01, wm), st._quiere); if (As.giro && Math.abs(wT) < wm * .7) wT = clamp(wT + As.giro * wm * .6, -wm, wm); if (As.freno && Math.abs(st.vf) > 9) tv = Math.min(tv, A.max * .5); }
@@ -409,8 +440,8 @@ const Libre = EM.modes.libre = {
   /* ---------- controles ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
-      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: desde arriba, tercera persona, dron o cine">👁<small id="lbVistaN"></small></button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
+      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano o truco">✋</button><button class="abtn cruise" id="lbCr" aria-label="Acelerador fijo">⏫<small>fijo</small></button></div>
+      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: 3D Cenital, 3ª, 1ª, Panorámica, Cine o 2D">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -418,6 +449,8 @@ const Libre = EM.modes.libre = {
     const hold = (id, key, down, up) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); if (down) down(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); if (up) up(); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
     hold('#lbUp', 'up', () => { st.run = true; }, () => { st.run = false; }); hold('#lbDown', 'down'); hold('#lbHb', 'hb', () => { st.hb = true; }, () => { st.hb = false; });
     hold('#lbAct', 'act', () => { st.act = 1; this.action(st); }, () => { st.act = 0; });
+    $('#lbCr').onclick = () => { if (st.mode !== 'veh') return; st.acelFijo = !st.acelFijo; Snd.init(); this.msg(st, st.acelFijo ? '⏫ Acelerador fijo encendido · solo gira o frena ▼' : 'Acelerador fijo apagado', 'b'); this.updCtl(st); };
+    $('#lbActHub').onclick = () => { Snd.init(); if (EM.actividades && EM.actividades.abrir) EM.actividades.abrir(st); };
     this.camMount(st);
     $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { const s = Save.d.settings; s.ritmo = ((s.ritmo | 0) + 1) % 3; Save.write(); const R = this.RITMOS[s.ritmo]; this.msg(st, '⏩ Ritmo ' + R[0] + (R[2] > 1 ? ' · en metro y cable ×' + R[2] : '') , 'b'); this.updCtl(st); };
     $('#lbGuia').onclick = () => { if (typeof Gente !== 'undefined') Gente.guia(st); };
@@ -428,13 +461,20 @@ const Libre = EM.modes.libre = {
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; this.letrero(st); const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
-    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')); vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
+    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')) || this.VISTAS[0]; vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
     const ff = $('#lbFF'); if (ff) { const r = clamp(Save.d.settings.ritmo | 0, 0, 2), R = this.RITMOS[r]; ff.classList.toggle('on', r > 0); const n = $('#lbFFn'); if (n) n.textContent = st.mode === 'ride' ? '×' + R[2] : R[0]; }
     if (!st.goal && !J && st.guia) { const G = st.guia, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar guia'; jb.innerHTML = `<b>📍 ${esc(G.title)}</b><span>${esc(G.hint || '')}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal && !st.guia) jb.classList.add('hide');
-    const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; const bici = veh && st.veh.kind === 'bici', hbB = $('#lbHb'); hbB.style.visibility = veh && (!this.V(st).walk || bici) ? '' : 'hidden'; if (hbB.dataset.b !== String(bici)) { hbB.dataset.b = bici; hbB.textContent = bici ? '🔔' : '✋'; hbB.setAttribute('aria-label', bici ? 'Timbre' : 'Freno de mano'); }
+    const veh = st.mode === 'veh', z = EM.actividades && EM.actividades.enZona ? EM.actividades.enZona(st) : null;
+    $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden';
+    const crB = $('#lbCr'); if (crB) { crB.style.visibility = veh ? '' : 'hidden'; crB.classList.toggle('on', !!st.acelFijo); }
+    const bici = veh && st.veh.kind === 'bici', truco = !!z || (veh && this.V(st).monta), hbB = $('#lbHb');
+    const hbKind = truco ? 'truco' : bici ? 'bici' : 'freno';
+    hbB.style.visibility = (truco || (veh && (!this.V(st).walk || bici))) ? '' : 'hidden';
+    if (hbB.dataset.b !== hbKind) { hbB.dataset.b = hbKind; hbB.textContent = truco ? '★' : bici ? '🔔' : '✋'; hbB.setAttribute('aria-label', truco ? 'Saltar y hacer truco' : bici ? 'Timbre' : 'Freno de mano'); }
     const a = $('#lbAct'); let lbl = 'acción'; if (st.mode === 'ride') lbl = st.ride.ph === 'dwell' ? 'bajar' : 'viajando'; else if (veh) lbl = (st.job && st.job.k === 'taxi' && st.job.stage === 0 && dist(st.x, st.y, st.job.client.x, st.job.client.y) < 9) ? 'recoger' : 'bajarse'; else { const p = st.parked.find(p => dist(p.x, p.y, st.x, st.y) < 4.5 + VEH[p.kind].len / 2); if (p) lbl = VEH[p.kind].icon + ' subir'; else if (typeof Gente !== 'undefined' && Gente.cerca(st, 3.4)) lbl = 'hablar'; else if (this.nearHub(st, 34)) lbl = 'abordar'; else if (Ciudad.peds.some(p => dist(p.x, p.y, st.x, st.y) < 3)) lbl = 'hablar'; }
     a.querySelector('small').textContent = lbl; a.classList.toggle('hot', lbl !== 'acción' && lbl !== 'viajando' && lbl !== 'bajarse');
+    if (EM.actividades && EM.actividades.updBar) EM.actividades.updBar(st);
     // motor (zumbido según la velocidad)
     if (Snd.ac && Save.d.settings.snd) { if (veh && !this.V(st).walk) { if (!this._eng) { const o = Snd.ac.createOscillator(), g = Snd.ac.createGain(); o.type = 'sawtooth'; g.gain.value = 0; o.connect(g); g.connect(Snd.sfxG); o.start(); this._eng = { o, g }; } const f = 40 + Math.abs(st.vf) * 7 + st.engine * 25; this._eng.o.frequency.setTargetAtTime(f, Snd.ac.currentTime, .08); this._eng.g.gain.setTargetAtTime(.025 + .02 * st.engine, Snd.ac.currentTime, .1); } else if (this._eng) this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .1); }
   },
@@ -445,7 +485,7 @@ const Libre = EM.modes.libre = {
     const libre = on => { st.camLibre = on; P.classList.toggle('hide', !on); const jz = $('#lbJz'); if (jz) jz.style.display = on ? 'none' : ''; const b = $('#lbCam'); if (b) b.classList.toggle('on', on); if (on) { st.joy = { x: 0, y: 0, m: 0 }; this.msg(st, '🎥 Cámara libre: arrastra para mirar, pellizca para acercar', 'b'); } };
     this._camLibre = libre;
     $('#lbCam').onclick = () => libre(!st.camLibre); $('#lbCamV').onclick = () => libre(false);
-    const zoom = f => { if (st.camLibre) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .3, 3.2); };
+    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, 3.2); };
     $('#lbCamM').onclick = () => zoom(1 / 1.35); $('#lbCamMas').onclick = () => zoom(1.35);
     $('#lbCamA').onclick = () => { const s = Save.d.settings; s.angulo = ((s.angulo | 0) + 1) % VC.ANGULOS.length; const A = VC.angulo(s.angulo); $('#lbCamAn').textContent = A.n; Save.write(); this.msg(st, '📐 Ángulo: ' + A.n, 'b'); };
     this._zoom = zoom; this.camGestos(st);
@@ -454,7 +494,8 @@ const Libre = EM.modes.libre = {
     const cv = $('#gcv'); if (!cv) return; if (this._cg) this._cg(); const T = new Map(); let pinch = null;
     const down = e => { T.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (T.size === 2) { const [a, b] = [...T.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: st.cam.k, z: st.zoomU || 1 }; } };
     const move = e => { const q = T.get(e.pointerId); if (!q) return; const nx = e.clientX, ny = e.clientY;
-      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .3, 3.2); return; }
+      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, 3.2); return; }
+      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
       if (st.vista3 && T.size === 1) { st.cyo = (st.cyo || 0) - (nx - q.x) * .006; st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .004, -.45, .9); q.x = nx; q.y = ny; return; }
       if (st.camLibre && T.size === 1) { st.cam.x -= (nx - q.x) / st.cam.k; st.cam.y -= (ny - q.y) / st.cam.k; } q.x = nx; q.y = ny; };
     const up = e => { T.delete(e.pointerId); if (T.size < 2) pinch = null; };
@@ -463,7 +504,7 @@ const Libre = EM.modes.libre = {
     this._cg = () => { cv.removeEventListener('pointerdown', down); cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); cv.removeEventListener('wheel', wheel); this._cg = null; };
   },
   photo(st) { if (st.trama && Trama.onPhoto(st)) return; const J = st.job; if (J && J.k === 'postal' && dist(st.x, st.y, J.x, J.y) < 70) { st.flash = .4; this.complete(st); return; } const L = Ciudad.lm.find(l => dist(l.x, l.y, st.x, st.y) < 70); st.flash = .4; this.sfx(st, 'ok'); if (L) { const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(L.name)) { F.push(L.name); Save.d.wallet += 20; this.msg(st, '📷 ' + L.name + ' · nueva postal +20 🎫', 'g'); this.msg(st, L.fact, 'y'); Save.write(); } else this.msg(st, '📷 ' + L.name, 'b'); } else this.msg(st, '📷 Foto del valle', 'b'); },
-  key(st, k, down) { if (down && (k === 'm' || k === 'M')) { if (this._mapa) this.mapaCierra(); else this.mapa(st); return; } if (down && (k === '+' || k === '=') && this._zoom) { this._zoom(1.25); return; } if (down && (k === '-' || k === '_') && this._zoom) { this._zoom(1 / 1.25); return; } if (down && (k === 'c' || k === 'C') && this._camLibre) { this._camLibre(!st.camLibre); return; } const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
+  key(st, k, down) { if (down && (k === 'm' || k === 'M')) { if (this._mapa) this.mapaCierra(); else this.mapa(st); return; } if (down && (k === '+' || k === '=') && this._zoom) { this._zoom(1.25); return; } if (down && (k === '-' || k === '_') && this._zoom) { this._zoom(1 / 1.25); return; } if (down && (k === 'c' || k === 'C') && this._camLibre) { this._camLibre(!st.camLibre); return; } if (down && (k === 'j' || k === 'J') && EM.actividades && EM.actividades.abrir) { EM.actividades.abrir(st); return; } if (down && (k === 'v' || k === 'V') && st.mode === 'veh') { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Acelerador fijo encendido' : 'Acelerador fijo apagado', 'b'); this.updCtl(st); return; } const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
   /* ---------- dibujo ---------- */
   draw(g, st, vp) {
     if (this.gl(st)) { G3.show(true); this.draw3D(g, st, vp); return; } else if (G3.cv) G3.show(false);
@@ -471,6 +512,7 @@ const Libre = EM.modes.libre = {
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     Ciudad.landmarks(g, S, k, x0, y0, x1, y1); const clara = this.clara(st, k, vp); if (clara) { g.fillStyle = 'rgba(246,243,236,.42)'; g.fillRect(0, 0, W, H); } Ciudad.stations(g, S, k, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.marksDraw(g, S, k);
+    if (EM.actividades && EM.actividades.draw2D) EM.actividades.draw2D(g, st, S, k, x0, y0, x1, y1);
     // estaciones de EnCicla: anclaje azul con postes verdes y tótem
     for (const D of st.docks || []) {
       if (D.x < x0 - 12 || D.x > x1 + 12 || D.y < y0 - 12 || D.y > y1 + 12) continue; const q = S(D.x, D.y);
@@ -608,19 +650,47 @@ const Libre = EM.modes.libre = {
     if (p.acc === 1) G.box(x - Math.cos(a) * .25 * s, z + .95 * s + b, y - Math.sin(a) * .25 * s, a, .16 * s, .36 * s, .42 * s, [.17, .18, .22]); if (p.acc === 3) G.box(x, z + .78 * s + b, y, a, .44 * s, .62 * s, .5 * s, [.54, .51, .45]);
   },
   draw3D(g, st, vp) {
-    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
+    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
     const largo = st.mode === 'ride' ? (st.ride.line.kind === 'metro' ? 34 : st.ride.line.kind === 'cable' ? 12 : 26) : st.mode === 'veh' ? 8 + V.len * 1.1 : 9;
-    let cam;
-    if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
+    let cam, nearP = 2.4;
+    if (st.vista3 === 'cen3d') {
+      // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
+      const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
+      const pitch = clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44);
+      const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
+      const tx = st.camLibre ? st.cam.x : st.x + Math.cos(st.h) * lead;
+      const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
+      const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
+      const distR = (st.far ? 185 : st.mode === 'ride' ? 88 : st.mode === 'veh' ? lerp(52, 78, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 44) / zu;
+      const ex = tx, ey = ty + Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + 14);
+      st._ec = st._ec || { x: ex, y: ey, z: ez };
+      const E = st._ec, f = st.camLibre ? .35 : .18;
+      E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
+      if (dist(E.x, E.y, ex, ey) > 350) { E.x = ex; E.y = ey; E.z = ez; }
+      cam = { eye: [E.x, E.z, E.y], at: [tx, tz + 1.2, ty], fov: .88 };
+      nearP = 3.2;
+    } else if (st.vista3 === '1p') {
+      // Primera persona real sobre el MISMO mundo 3D
+      const eyeH = st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.0 : 2.3) : st.mode === 'veh' ? (V.monta || st.veh.kind === 'bici' ? 1.65 : st.veh.kind === 'alimentador' || st.veh.kind === 'bus' || st.veh.kind === 'metroplus' ? 2.35 : 1.45) : 1.68;
+      const fwd = st.mode === 'veh' && !V.monta && st.veh.kind !== 'bici' ? V.len * .16 : .25;
+      const h1 = st.h + (st.cyo || 0), c1 = Math.cos(h1), s1 = Math.sin(h1);
+      const ex = st.x + c1 * fwd, ey = st.y + s1 * fwd, ez = z + eyeH + jY;
+      cam = { eye: [ex, ez, ey], at: [ex + c1 * 40, ez - 2.2 - po * 18, ey + s1 * 40], fov: 1.18 / Math.sqrt(clamp(zu, .6, 1.6)) };
+      nearP = .55;
+    } else if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
       const C0 = st._cine, ad = C0 ? (C0.x - st.x) * Math.cos(st.h) + (C0.y - st.y) * Math.sin(st.h) : -1;
       if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, z0 = Math.max(MAP.elevM(px0, py0), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), q = VC.on && VC.camaraLibre ? VC.camaraLibre(px0, py0, st.x, st.y, z0) : { x: px0, y: py0, z: z0 }; st._cine = { x: q.x, y: q.y, z: q.z, t: st.t }; }   // en la calle, a la altura de un poste
-      cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2, st.y], fov: .9 / Math.sqrt(zu) };
+      cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2 + jY, st.y], fov: .9 / Math.sqrt(zu) };
     } else {
       const D = (st.vista3 === 'dron' ? 95 : largo) / zu, Hh = (st.vista3 === 'dron' ? 70 : st.mode === 'walk' ? 3.4 : 4.2 + (V ? V.len * .25 : 3)) / zu * (1 + po * 1.6) + (st.vista3 === 'dron' ? 0 : 1.2);
       const ex = st.x - c * D, ey = st.y - s * D, ez = Math.max(z + Hh, MAP.elevM(ex, ey) + 2.5); st._ec = st._ec || { x: ex, y: ey, z: ez }; const E = st._ec, f = st.vista3 === 'dron' ? .08 : .25; E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f; if (dist(E.x, E.y, ex, ey) > 300) { E.x = ex; E.y = ey; E.z = ez; }
-      cam = { eye: [E.x, E.z, E.y], at: [st.x + c * (st.vista3 === 'dron' ? 0 : 4), z + (st.vista3 === 'dron' ? 0 : 1.4), st.y + s * (st.vista3 === 'dron' ? 0 : 4)], fov: st.vista3 === 'dron' ? .85 : 1.05 };
+      cam = { eye: [E.x, E.z, E.y], at: [st.x + c * (st.vista3 === 'dron' ? 0 : 4), z + (st.vista3 === 'dron' ? 0 : 1.4 + jY * .7), st.y + s * (st.vista3 === 'dron' ? 0 : 4)], fov: st.vista3 === 'dron' ? .85 : 1.05 };
     }
-    G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: Game.dpr && Game.dpr < 1.5 ? .7 : .9, suave: true, cerca: 2.4, dyn: G => this.dyn3D(G, st, z) });
+    G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: Game.dpr && Game.dpr < 1.5 ? .75 : .92, suave: true, cerca: nearP, dyn: G => this.dyn3D(G, st, z) });
+    if (st.vista3 === '1p' && st.mode === 'veh' && EM.taller && EM.taller.primera) {
+      const mid = (MALLA3[st.veh.kind] && MALLA3[st.veh.kind][0]) || (st.veh.kind === 'metroplus' ? 'bus' : st.veh.kind);
+      EM.taller.primera(g, mid, W, H, -(st.steer || 0) * .42 + (jY > .1 ? -.04 : 0));
+    }
     this.hud3D(g, st, W, H, z);
   },
   dyn3D(G, st, zj) {
@@ -628,6 +698,16 @@ const Libre = EM.modes.libre = {
     for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G.box(k.x, zk + .3, k.y, k.a, L, Wd, Hh * .62, C(k.col)); G.box(k.x, zk + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
     for (const p of Ciudad.peds) { if (!cerca(p.x, p.y, 90) || p.dog) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p, 1, p.ph || 0); }
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { if (!cerca(p.x, p.y, 130)) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p.look, 1.05, p.v > .1 ? p.ph : 0); }
+    // estaciones de EnCicla en 3D
+    for (const D of st.docks || []) {
+      if (!cerca(D.x, D.y, 150)) continue;
+      const zd = E(D.x, D.y);
+      G.box(D.x, zd + .08, D.y, 0, 7.2, 1.5, .18, [.055, .176, .333]);
+      for (let i = 0; i < 5; i++) G.box(D.x - 2.9 + i * 1.45, zd + .18, D.y, 0, .24, .34, .75, [.608, .827, .255]);
+      G.box(D.x + 4.1, zd + .05, D.y, 0, .7, .7, 2.5, [.055, .176, .333]);
+      G.box(D.x + 4.1, zd + 2.0, D.y, 0, .74, .74, .45, [.608, .827, .255]);
+    }
+    if (EM.actividades && EM.actividades.draw3D) EM.actividades.draw3D(G, st, zj);
     for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y), m3 = this.malla3(p.kind); if (m3) { EM.taller.mundo(m3, p.x, zp, p.y, p.a); continue; } const chico = p.kind === 'bici' || V.monta; G.box(p.x, zp + (V.monta ? .05 : .3), p.y, p.a, V.len, V.wid, V.monta ? .12 : chico ? .9 : 1, C(V.col)); if (!chico && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
     // el transporte de la ciudad en su sitio: trenes por vagones sobre su vía, articulados en dos cuerpos, cabinas en su cable
     for (const v of Ciudad.transit) { const p = Ciudad.tpos(v); if (!cerca(p.x, p.y, 700)) continue; const l = v.line, kind = l.kind, col = C(l.color);
@@ -636,15 +716,17 @@ const Libre = EM.modes.libre = {
         if (!(TS && TS(kind === 'metro' ? 'metro' : 'tranvia', l.color, q.x, zq, q.y, q.a, op))) G3.vehicle(q.x, zq, q.y, q.a, carL, kind, col); else if (i === 0 && cerca(q.x, q.y, 260)) { const u = kind === 'metro' ? carL * .3 - .25 : carL * .1 - .2; EM.taller.chispa(q.x + Math.cos(q.a) * u, zq + (kind === 'metro' ? 5.05 : 4.6), q.y + Math.sin(q.a) * u, q.a, st.t + i * 3.1 + v.s * .01, lluvia); } } }
       else if (kind === 'cable') { const Cg = G3.cableGeo(l), zc = Cg.zAt(NET.project(Cg.P, p.x, p.y).s); if (!(TS && TS('cabina', l.color, p.x, zc - 4.05, p.y, p.a))) { G.box(p.x, zc - 4.6, p.y, p.a, 2.2, 2, 2.2, col); G.box(p.x, zc - 2.4, p.y, p.a, .25, .25, 2.4, [.3, .3, .32]); } }
       else { const zb = E(p.x, p.y); if (kind === 'brt') { const f = Ciudad.cuerda(l.P, v.s - v.dir * 1.4, v.s - v.dir * 9.9, v.dir * 2.2), r = Ciudad.cuerda(l.P, v.s - v.dir * 12.6, v.s - v.dir * 16.6, v.dir * 2.2); if (!(TS && TS('brtF', l.color, f.x, zb, f.y, f.a, { largo: 11.3 }))) G3.vehicle(f.x, zb, f.y, f.a, 11.3, 'brt', col); if (!(TS && TS('brtR', l.color, r.x, zb, r.y, r.a, { largo: 6.4 }))) G3.vehicle(r.x, zb, r.y, r.a, 6.4, 'brt', col); } else { const q = Ciudad.cuerda(l.P, v.s - v.dir * 2.4, v.s - v.dir * (KIND[kind].len - 2.6), v.dir * 2.2); if (!(TS && TS('bus', l.color, q.x, zb, q.y, q.a, { largo: KIND[kind].len }))) G3.vehicle(q.x, zb, q.y, q.a, KIND[kind].len, kind, col); } } }
-    // tú: a pie con tu ropa, o tu vehículo; y encima un rombo naranja para no perderte
-    if (st.mode !== 'ride') { const V = this.V(st);
-      if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
-      else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zj, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zj, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
-      else if (this.malla3(st.veh.kind, 1)) { EM.taller.mundo(this.malla3(st.veh.kind, 1), st.x, zj, st.y, st.h); const pie = MALLA3[st.veh.kind][1]; if (pie != null) this.persona3(G, st.x, zj + pie, st.y, st.h, Perfil.ped(), 1, 0); }   // mallas del taller de arte (Codex)
-      else if (V.monta) { G.box(st.x, zj + .06, st.y, st.h, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(st.h) * V.len * .42, zj + .1, st.y + Math.sin(st.h) * V.len * .42, st.h, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zj + .18, st.y, st.h, Perfil.ped(), 1, 0); }
-      else if (st.veh.kind === 'bici') { G.box(st.x, zj + .35, st.y, st.h, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zj + .55, st.y, st.h, Perfil.ped(), 1, 0); }
-      else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zj + .3, st.y, st.h, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zj + .3 + Hh * .62, st.y, st.h, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); } }
-    const tope = zj + (st.mode === 'veh' ? 3.6 : st.mode === 'ride' ? 6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78);
+    // tú: a pie con tu ropa, o tu vehículo (se omite el cuerpo propio en 1ª persona); con salto y giro de truco
+    const zjP = zj + (st.jumpY || 0), hP = st.h + (st.trickSpin > 0 ? st.trickSpin * TAU : 0);
+    if (st.mode !== 'ride' && st.vista3 !== '1p') { const V = this.V(st);
+      if (st.mode === 'walk') this.persona3(G, st.x, zjP, st.y, hP, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
+      else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zjP, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zjP, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
+      else if (this.malla3(st.veh.kind, 1)) { EM.taller.mundo(this.malla3(st.veh.kind, 1), st.x, zjP, st.y, hP); const pie = MALLA3[st.veh.kind][1]; if (pie != null) this.persona3(G, st.x, zjP + pie, st.y, hP, Perfil.ped(), 1, 0); }   // mallas del taller de arte (Codex)
+      else if (V.monta) { G.box(st.x, zjP + .06, st.y, hP, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(hP) * V.len * .42, zjP + .1, st.y + Math.sin(hP) * V.len * .42, hP, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zjP + .18, st.y, hP, Perfil.ped(), 1, 0); }
+      else if (st.veh.kind === 'bici') { G.box(st.x, zjP + .35, st.y, hP, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zjP + .55, st.y, hP, Perfil.ped(), 1, 0); }
+      else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zjP + .3, st.y, hP, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zjP + .3 + Hh * .62, st.y, hP, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); }
+      const tope = zjP + (st.mode === 'veh' ? 3.6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78); }
+    else if (st.mode === 'ride' && st.vista3 !== '1p') { const tope = zj + 6 + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .42, .42, .42, [1, .55, .1], .78, .78); }
     // el destino: un poste alto que se ve de lejos
     const J = st.goal || st.job || st.guia; if (J && J.x != null && cerca(J.x, J.y, 1500)) { const zg = E(J.x, J.y); G.box(J.x, zg, J.y, 0, .7, .7, 16 + Math.sin(st.t * 4), [.98, .78, .2]); G.box(J.x, zg + 16, J.y, st.t, 2.4, 2.4, 2.4, [1, .9, .4]); }
   },
@@ -654,11 +736,12 @@ const Libre = EM.modes.libre = {
     g.font = '700 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = 'center';
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { const d = dist(p.x, p.y, st.x, st.y); if (d > 40) continue; const q = P(p.x, p.y, MAP.elevM(p.x, p.y) + 2.3); if (q) rot(p.G.n + ((Save.d.gente || {})[p.G.id] || p.tur ? '' : ' 💬'), q.x, q.y); }
     for (const h of NET.stations) { if (Math.abs(h.x - st.x) > 500 || Math.abs(h.y - st.y) > 500 || !h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const l = h.lines.find(l => l.kind === 'metro' || l.kind === 'tram') , q = P(h.x, h.y, (l ? G3.zOn(l, NET.project(l.P, h.x, h.y).s) : MAP.elevM(h.x, h.y)) + 9); if (q) rot('🚉 ' + h.name, q.x, q.y, '#1C5C9C'); }
-    const yo = P(st.x, st.y, zj + (st.mode === 'veh' ? 4.5 : 3.2)); if (yo && st.mode !== 'ride') { g.font = '800 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; rot('Tú', yo.x, yo.y - 6 * dpr, '#c2410c'); }
+    if (EM.actividades && EM.actividades.hud3D) EM.actividades.hud3D(g, st, P, rot, dpr);
+    if (st.vista3 !== '1p' && st.mode !== 'ride') { const yo = P(st.x, st.y, zj + (st.jumpY || 0) + (st.mode === 'veh' ? 4.5 : 3.2)); if (yo) { g.font = '800 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; rot('Tú', yo.x, yo.y - 6 * dpr, '#c2410c'); } }
     g.textAlign = 'left';
     // el destino: anillo en pantalla o flecha al borde, según hacia dónde queda respecto a la cámara
     const J = st.goal || st.job || st.guia; if (J && J.x != null) { const q = P(J.x, J.y, MAP.elevM(J.x, J.y) + 2), inside = q && q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20;
-      if (!inside) { const yaw = (st.cy || 0) + (st.cyo || 0), dx = J.x - st.x, dy = J.y - st.y, fx = dx * Math.cos(yaw) + dy * Math.sin(yaw), rx = -dx * Math.sin(yaw) + dy * Math.cos(yaw), a = Math.atan2(-fx, rx), r = Math.min(W, H) * .4, ax = W / 2 + Math.cos(a) * r, ay = H / 2 + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16 * dpr, 0); g.lineTo(-10 * dpr, -11 * dpr); g.lineTo(-4 * dpr, 0); g.lineTo(-10 * dpr, 11 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
+      if (!inside) { const dx = J.x - st.x, dy = J.y - st.y; let a; if (st.vista3 === 'cen3d') a = Math.atan2(dy, dx); else { const yaw = (st.cy || 0) + (st.cyo || 0), fx = dx * Math.cos(yaw) + dy * Math.sin(yaw), rx = -dx * Math.sin(yaw) + dy * Math.cos(yaw); a = Math.atan2(-fx, rx); } const r = Math.min(W, H) * .4, ax = W / 2 + Math.cos(a) * r, ay = H / 2 + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16 * dpr, 0); g.lineTo(-10 * dpr, -11 * dpr); g.lineTo(-4 * dpr, 0); g.lineTo(-10 * dpr, 11 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     this.minimap(g, st, W, H);
   },
   minimap(g, st, W, H) {

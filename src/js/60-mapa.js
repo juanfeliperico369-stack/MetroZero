@@ -41,10 +41,17 @@ const RedView = EM.red = {
       l.P.pts.forEach((p, i) => { const q = S(p.x, p.y, MAP.elevM(p.x, p.y) + lift); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); });
       g.strokeStyle = 'rgba(15,34,56,.85)'; g.lineWidth = lw + 2 * dpr; g.lineJoin = 'round'; g.stroke(); g.strokeStyle = l.color; g.lineWidth = lw; g.stroke();
     }
-    for (const s of NET.stations) {
+    const isoOrd = NET.stations.slice().sort((a, b) => (b === this.sel ? 100 : b.lines.length) - (a === this.sel ? 100 : a.lines.length)), isoBox = [];
+    for (const s of isoOrd) {
       if (!s.lines.some(l => this.on[l.kind])) continue; const q = S(s.x, s.y, MAP.elevM(s.x, s.y) + 10); if (q.x < -40 || q.y < -40 || q.x > w + 40 || q.y > h + 40) continue; s._iso = q;
       const r = (s.lines.length > 1 ? 5 : 3.6) * dpr * clamp(c.a * 2.5, .7, 1.4); g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = '#0F2238'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); g.stroke();
-      if (c.a > .22 || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, q.x + r + 3, q.y + 4 * dpr); g.fillStyle = '#13253A'; g.fillText(s.name, q.x + r + 3, q.y + 4 * dpr); }
+      if (c.a > .22 || s.lines.length > 2 || s === this.sel) {
+        g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; const tw = g.measureText(s.name).width, lx = q.x + r + 3, ly = q.y + 4 * dpr, lh = 13 * dpr;
+        if (s === this.sel || !isoBox.some(b => lx < b[2] && lx + tw > b[0] && ly - lh < b[3] && ly > b[1])) {
+          isoBox.push([lx - 2, ly - lh, lx + tw + 4, ly + 2]);
+          g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, lx, ly); g.fillStyle = '#13253A'; g.fillText(s.name, lx, ly);
+        }
+      }
     }
     if (c.a >= .07 && c.a < .5 && typeof CIUDAD !== 'undefined') { g.textAlign = 'center'; for (const B of MAP.barriosL || CIUDAD.barrios) { if (!B[6] || B[5] < (c.a < .15 ? 70 : 16)) continue; const x = B[3] / 4 * TM, y = B[4] / 4 * TM, q = S(x, y, MAP.elevM(x, y) + 20); if (q.x < 0 || q.y < 0 || q.x > w || q.y > h) continue; g.font = '800 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(15,34,56,.55)'; g.strokeText(B[0].toUpperCase(), q.x, q.y); g.fillStyle = '#fff'; g.fillText(B[0].toUpperCase(), q.x, q.y); } g.textAlign = 'left'; }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
@@ -66,13 +73,19 @@ const RedView = EM.red = {
       if (!this.on[l.kind] || l.kind === 'future') continue; const n = 1 + this.flota(l.id), v = l.kind === 'cable' ? 60 : 160;
       for (let i = 0; i < n; i++) { const L2 = 2 * l.P.len, q = ((this.t * v + i * L2 / n) % L2), s = q < l.P.len ? q : L2 - q, p = NET.at(l.P, s), sp = this.S(p.x, p.y); if (l.kind === 'cable') Art.cabin(g, sp.x, sp.y + 2, Math.max(1, dpr * .9), l.color); else Art.topVehicle(g, sp.x, sp.y, p.a, Math.max(8, KIND[l.kind].len * k) * dpr * .6 + 6, 6 * dpr, l.color, l.kind); }
     }
-    // estaciones
-    const showLbl = k > .12;
-    for (const s of NET.stations) {
+    // estaciones con prioridad y control de solapamiento de nombres
+    const showLbl = k > .12, ord = NET.stations.slice().sort((a, b) => (b === this.sel ? 100 : b.lines.length) - (a === this.sel ? 100 : a.lines.length)), lblBox = [];
+    for (const s of ord) {
       if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), r = (s.lines.length > 1 ? 5.5 : 4) * dpr * clamp(k * 8, .7, 1.4);
       if (p.x < -40 || p.y < -40 || p.x > w + 40 || p.y > h + 40) continue;
       g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(p.x, p.y, r, 0, TAU); g.fill(); g.stroke();
-      if (showLbl || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, p.x + r + 3, p.y + 4 * dpr); g.fillStyle = PAL.negro; g.fillText(s.name, p.x + r + 3, p.y + 4 * dpr); }
+      if (showLbl || s.lines.length > 2 || s === this.sel) {
+        g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; const tw = g.measureText(s.name).width, lx = p.x + r + 3, ly = p.y + 4 * dpr, lh = 13 * dpr;
+        if (s === this.sel || !lblBox.some(b => lx < b[2] && lx + tw > b[0] && ly - lh < b[3] && ly > b[1])) {
+          lblBox.push([lx - 2, ly - lh, lx + tw + 4, ly + 2]);
+          g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, lx, ly); g.fillStyle = PAL.negro; g.fillText(s.name, lx, ly);
+        }
+      }
     }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
   },

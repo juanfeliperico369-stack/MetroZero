@@ -32,7 +32,7 @@ function trackOf(line) {
   TRACKS.set(line.id, T); return T;
 }
 const Conduce = EM.modes.conduce = {
-  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, camara: {}, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
+  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, substeps: true, camara: {}, tip: 'Sube la palanca (o toca ▲ / ⏩ Crucero) para avanzar; baja para frenar. Detén el frente del tren en la marca del andén, abre puertas, espera el timbre y cierra.',
   _lv: null,
   levels() {
     if (this._lv) return this._lv; const L = [];
@@ -49,7 +49,7 @@ const Conduce = EM.modes.conduce = {
     const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
     const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
     const hr = opts.hour != null ? opts.hour : new Date().getHours() + new Date().getMinutes() / 60, tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
-    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
+    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, crucero: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
       rain: opts.hour != null ? rng.f() < .25 : Mundo.weather().rain, tod, hour: hr, fixH: opts.hour, paseo: !!opts.paseo, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
     st.tgt = stops.map(tgt);
     // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
@@ -92,11 +92,11 @@ const Conduce = EM.modes.conduce = {
     const e = target - st.v; return e > .8 ? clamp(e / 2, .3, 1) : e < -.3 ? clamp(e / 2, -1, -.15) : 0;
   },
   physics(st, dt) {
-    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .8 : .35);
+    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .6 : .25);
     let a;
     if (st.eb > 0) { a = -K.emg; st.eb = st.v > .05 ? st.eb : 0; }
-    else if (st.lev > 0) a = st.lev * K.acc * (1 - .35 * st.v / K.vmax);
-    else a = st.lev * K.brk * (st.rain ? .82 : 1);
+    else if (st.lev > 0) a = st.lev * K.acc * 1.35 * (1 - .32 * st.v / K.vmax);
+    else a = st.lev * K.brk * 1.15 * (st.rain ? .86 : 1);
     if (st.v > .01 || a > 0) a += -9.81 * gr - .015 - .0003 * st.v * st.v;
     if (st.v <= .01 && a < 0) a = 0;
     st.v = Math.max(0, st.v + a * dt); st.s += st.dir * st.v * dt; st.s = clamp(st.s, 0, T.len); st.a = a;
@@ -105,20 +105,25 @@ const Conduce = EM.modes.conduce = {
   },
   step(st, dt) {
     if (st.done) return;
-    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 3 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
+    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 2 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
     for (let k = 0; k < sub; k++) this.tick(st, dt, K, line);
     st.cam += (st.v - st.cam) * Math.min(1, dt * 3);
   },
   tick(st, dt, K, line) {
     st.t += dt; if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; const h = Mundo.hour(), w = Mundo.weather(h); st.rain = w.rain; st.tod = h >= 6 && h < 17 ? 'dia' : h >= 17 && h < 19 ? 'tarde' : 'noche'; }
     if (st.auto) { if (st.ph === 'run' || st.ph === 'ready') st.lev = this.pilot(st); }
-    else if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.2, -1, 1);
+    else if (st.keys.up || st.keys.down) { if (st.keys.down) st.crucero = false; st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.6, -1, 1); }
+    else if (st.crucero && (st.ph === 'run' || st.ph === 'ready')) {
+      const ns = this.nextStop(st), lim = Math.min(this.limAt(st, st.s), this.limAt(st, st.s + st.dir * 55)) * .92;
+      if (ns.d < 150) { st.crucero = false; st.ff = false; st.lev = Math.min(st.lev, 0); this.msg(st, 'Estación cerca (' + Math.round(ns.d) + ' m) · frena suave', 'y'); }
+      else { const e = lim - st.v; st.lev = e > .6 ? clamp(e / 2, .45, .95) : e < -.4 ? clamp(e / 2.5, -.6, -.1) : .15; }
+    }
     if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; st.ni = 1; this.say(st, 'Próxima estación: ' + line.st[st.stops[1]].name); } else return; }
     if (st.ph === 'dwell') {
       st.v = 0; st.dwell += dt;
       if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bellDone) { st.bellDone = true; Snd.play('bell'); this.msg(st, 'Abordaje completo · cierra puertas', 'y'); } }
       if (st.auto) { if (st.doors === 0 && st.dwell > .5 && !st.opened) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2 && st.dwell > .3) { st.lev = .6; } if (st.trivia) this.answer(st, 0); }
-      if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
+      if (st.doors === 2 && (st.lev > .05 || st.crucero)) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
       return;
     }
     // señales en rojo: aparecen al acercarse y se despejan con el tiempo
@@ -132,7 +137,7 @@ const Conduce = EM.modes.conduce = {
     // llegada a la estación
     const d = (st.tgt[st.ni] - st.s) * st.dir;
     if (st.v < .05 && st.eb === 0 && Math.abs(d) <= 12 && st.lev <= 0) {
-      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d);
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d); st.crucero = false; st.ff = false;
       const late = st.t - st.sched[st.ni], pP = d === 0 ? 300 : st.err < .5 ? 300 : st.err < 1 ? 250 : st.err < 2 ? 200 : st.err < 4 ? 120 : st.err < 7 ? 60 : 20, pT = Math.abs(late) <= 6 ? 200 : Math.abs(late) <= 15 ? 120 : Math.abs(late) <= 30 ? 60 : 0;
       st.score += pP + pT; st.arr.push({ err: st.err, late, pP, pT }); Snd.play(pP >= 250 ? 'star' : 'ok');
       this.msg(st, (st.err < .5 ? '¡Perfecto! ' : st.err < 2 ? '¡Muy bien! ' : '') + st.err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 200 ? 'g' : 'y');
@@ -150,8 +155,8 @@ const Conduce = EM.modes.conduce = {
     if (st.doors === 0) {
       st.doors = 1; st.opened = true; Snd.play('door'); vib(20); const line = NET.byId[st.line], name = line.st[st.stops[st.ni]].name;
       const alight = Math.round(st.pax * (st.ni === st.stops.length - 1 ? 1 : .3)), board = st.ni === st.stops.length - 1 ? 0 : 15 + (hashStr(name) % 40);
-      st.pax = st.pax - alight + board; st.bTime = 5 + (alight + board) / 10; st.board = 0; EM.save.d.stats.pax += board;
-      if (st.ni === st.stops.length - 1) { st.bTime = 3; }
+      st.pax = st.pax - alight + board; st.bTime = 3.2 + (alight + board) / 18; st.board = 0; EM.save.d.stats.pax += board;
+      if (st.ni === st.stops.length - 1) { st.bTime = 2; }
       const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); EM.save.d.facts[name] = 1; }
     } else if (st.doors === 1) {
       if (st.ni === st.holdDoor && !st.held) { st.held = true; Snd.play('warn'); this.msg(st, '“Por favor, libere las puertas” · inténtalo de nuevo', 'y'); st.board = Math.max(0, st.board - .3); st.bellDone = false; return; }
@@ -176,31 +181,39 @@ const Conduce = EM.modes.conduce = {
   msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
   say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
   hud(st) {
-    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir;
     this.updCtl(st);
     return [['', Math.round(st.v * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'dwell' ? 'Andén' : Math.max(0, d) < 1000 ? Math.round(Math.max(0, d)) + ' m' : (d / 1000).toFixed(1) + ' km'], ['★', fmt(st.score)]];
   },
-  /* ---------- controles (palanca, puertas, vistas) ---------- */
+  /* ---------- controles (palanca, botones rápidos, puertas, vistas) ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
+      <div class="lever-nudge"><button id="cUp" aria-label="Acelerar">▲</button><button id="cCr" aria-label="Crucero automático">⏫</button><button id="cDn" aria-label="Frenar">▼</button></div>
       <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
       <div class="vsel" id="cView"><button data-v="lado">↔</button><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
-    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
+    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; if (st.lev < 0) { st.crucero = false; st.ff = false; } Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
     lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
+    const hold = (id, key) => { const b = $(id); if (!b) return; const on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; if (key === 'down') { st.crucero = false; st.ff = false; } b.classList.add('on'); Snd.init(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    hold('#cUp', 'up'); hold('#cDn', 'down');
+    const toggleCr = () => { st.crucero = !st.crucero; st.ff = st.crucero; if (st.crucero && st.ph === 'ready') st.lev = .7; this.msg(st, st.crucero ? '⏫ Crucero activo: mantiene velocidad segura' : 'Crucero apagado', 'b'); this.updCtl(st); };
+    $('#cCr').onclick = toggleCr;
     $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
-    $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
+    $('#cFF').onclick = toggleCr;
     $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v !== 'paseo') { Save.d.settings.vistaMetro = b.dataset.v; Save.write(); } if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
     this.updCtl(st); this._kn = kn;
   },
   updCtl(st) {
-    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'), lev = $('#cLev'); if (!kn) return;
+    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'); if (!kn) return;
     const f = st.lev > 0 ? .42 * (1 - st.lev) : st.lev < 0 ? .5 + .5 * -st.lev : .46; kn.style.top = 'calc(' + (f * 100) + '% - 15px)'; kn.textContent = st.eb ? 'EMG' : st.lev > 0 ? 'T' + Math.round(st.lev * 10) : st.lev < 0 ? 'F' + Math.round(-st.lev * 10) : 'N';
-    const d = $('#cDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
-    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 500; if (near && st.ff) st.ff = false; ff.disabled = near || st.ph !== 'run'; ff.style.background = st.ff ? 'var(--mante)' : '';
+    const d = $('#cDoor'); if (d) { d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir'; }
+    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 220; if (near && st.ff) st.ff = false;
+    if (ff) { ff.disabled = st.ph === 'dwell' && st.doors !== 2; ff.classList.toggle('cr-on', !!st.crucero); ff.style.background = ''; }
+    const cr = $('#cCr'); if (cr) cr.classList.toggle('on', !!st.crucero);
+    if (EM.camui && EM.camui.visible) EM.camui.visible(st.view === 'top' || st.view === 'pan');
     $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
     if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'cab' })) ? ['cine', 'tps', 'cab', 'lado', 'cine', 'pan'] : ['lado', 'cab', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
-    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca o toca ▲ / ⏫ para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
     if (st.trivia && !$('#cTriv').innerHTML) this.renderTrivia(st);
   },
   renderTrivia(st) {
@@ -208,7 +221,7 @@ const Conduce = EM.modes.conduce = {
     el.innerHTML = q ? `<div class="card" style="top:auto;bottom:calc(120px + var(--sab));left:50%;transform:translateX(-50%);width:min(92%,420px)"><div class="pag">Pregunta de la estación · +100</div><p style="font-weight:700;margin:6px 0 10px">${esc(q.q)}</p><div class="col">${q.o.map((o, i) => `<button class="btn sm" data-i="${i}">${esc(o.t)}</button>`).join('')}</div></div>` : '';
     $$('#cTriv button').forEach(b => b.onclick = () => this.answer(st, +b.dataset.i));
   },
-  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
+  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') { st.keys.down = down; if (down) { st.crucero = false; st.ff = false; } } if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'f' || k === 'F') { st.crucero = !st.crucero; st.ff = st.crucero; } if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } if (k === 'h') Snd.play('horn'); if (k === 'x') { st.lev = 0; st.crucero = false; st.ff = false; } },
   /* ======================= DIBUJO ======================= */
   gl(st) { return (st.view === 'cab' || st.view === 'tps' || st.view === 'cine') && Save.d.settings.q !== 'low' && G3.init(); },
   draw(g, st, vp) {
@@ -222,7 +235,7 @@ const Conduce = EM.modes.conduce = {
   },
   /* diagrama de la línea: estaciones del tramo y posición del tren */
   drawStrip(g, st, W, H) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 118 : 104) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 120 : 114) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
     g.fillStyle = 'rgba(16,46,80,.82)'; g.fillRect(8 * dpr, y - 16 * dpr, W - 16 * dpr, 30 * dpr); g.strokeStyle = line.color; g.lineWidth = 4 * dpr; g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
     for (let i = 0; i < n; i++) { const f = n > 1 ? i / (n - 1) : 0, x = x0 + (x1 - x0) * f, done = i < st.ni || (i === st.ni && st.ph === 'dwell'); g.fillStyle = done ? '#fff' : 'rgba(255,255,255,.35)'; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, TAU); g.fill(); g.stroke(); if (n <= 8 || i === 0 || i === n - 1 || i === st.ni) { g.fillStyle = i === st.ni ? PAL.mante : '#fff'; g.font = (i === st.ni ? '800 ' : '600 ') + (8.5 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = i === 0 ? 'left' : i === n - 1 ? 'right' : 'center'; g.fillText(line.st[st.stops[i]].name, x, y - 7 * dpr); } }
     const f = clamp((st.s - a) / ((b - a) || 1), 0, 1), tx = x0 + (x1 - x0) * f; g.fillStyle = PAL.mante; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(tx, y + 3 * dpr); g.lineTo(tx - 6 * dpr, y + 12 * dpr); g.lineTo(tx + 6 * dpr, y + 12 * dpr); g.closePath(); g.fill(); g.stroke(); g.textAlign = 'left';
@@ -234,7 +247,7 @@ const Conduce = EM.modes.conduce = {
     let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q0 = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)), q = typeof VC !== 'undefined' && VC.camaraLibre ? VC.camaraLibre(q0.x, q0.y, p.x, p.y, MAP.elevM(q0.x, q0.y) + 2.6 + (st.kind === 'metro' ? 6 : 0)) : { x: q0.x, y: q0.y, z: MAP.elevM(q0.x, q0.y) + 2.6 }; st._cine = { s: sa, x: q.x, y: q.y, z: q.z }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
     else if (tps) { const sb = st.s - dir * (K.len + 30), q = NET.at(line.P, sb, dir * 6); cam = { eye: [q.x, this.zLine(line, sb) + 12, q.y], at: [p.x + Math.cos(a) * 16, z + 2.5, p.y + Math.sin(a) * 16], fov: .95 }; }
     else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
-    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
+    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, escala: .82, suave: true, dyn: G => {
       G3.traffic(cam, st.t + 1000, line); G3.people(cam, st.t);
       const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
       if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s), zq = this.zLine(line, s), a = q.a + (dir < 0 ? Math.PI : 0);   // 3.0 · tu tren con la paleta de la línea (28-taller-sistema.js)
