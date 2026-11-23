@@ -230,6 +230,19 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
+#### 2026-11-23 · OpenAI GPT-6 / Eón · C-70–72 + tareas CX-36 (rama de revisión)
+
+- Rama `ia/codex/eon-optimizacion-3.7`, partiendo de `main` que declaraba **v3.5.0**. No se tocó `main` ni otros repositorios. El archivo de pedidos 3.6 y las dos herramientas de medición CX-36 no estaban en el árbol.
+- **Arte original:** 14 PNG en `arte/entregas/vectorial/png/`: 12 íconos/medallas C-70/71 a **256 × 256**, portadas C-72 **1080 × 1920** y **1920 × 1080**; nombres exactos, transparencia en iconos, paleta oficial, sin textos ni logos. Falta integración Atlas y aprobación visual.
+- **CX-36-1 parcial:** `22a-gpt6-eon-3d-batch.js` agrupa las cajas dinámicas `G3.box` en un búfer reutilizable por cuadro; reducción **3→1 llamadas de dibujo** en prueba WebGL mock. Recorte `G3.bld/G3.far` por celdas no implementado.
+- **CX-36-2 parcial:** `48a-gpt6-eon-fantasma.js`: muestreo interpolado cada **0,1 s** para tren, bus y carrera, mejor tiempo diario en `Save.d.best._retoFantasma`, marcador translúcido en 3D y QR **solo de marca**. Prueba de trayectoria lineal simulada: **error máximo <0,11 m**; falta prueba en conducción/cámaras reales.
+- **CX-36-3 inicial:** `48-operacion.js` y `97c-gpt6-eon-operacion-estaciones.js`: gestión de red real, 4:30–23:00, picos, refuerzos, saturación, mejoras entre jornadas, bot y lanzamiento en 🎮. Prueba aislada: PASS.
+- **Pruebas locales aisladas realizadas:** `node tools/test-gpt6-eon-3d-batch.mjs` PASS; `node tools/test-gpt6-eon-fantasma.mjs` PASS; `node tools/test-gpt6-eon-operacion.mjs` PASS. `node --check` de módulos nuevos PASS.
+- **Benchmarks antes/después:** FPS 3p = **no medido / no medido**; vértices por cuadro = **no medido / no medido**; draw calls reales = **no medido / no medido**. **No hay afirmación** de 12 FPS, <400 000 vértices ni <120 llamadas.
+- **Build/test100:** `node tools/build.mjs && node tools/test.mjs 100` **no se ejecutó** contra el árbol del repositorio completo en este entorno; queda como requisito antes de unir y publicar. No se certificó juego en Android.
+- Informe y reglas aprendidas: `docs/OPENAI-GPT6-EON-ENTREGA-C70-C72-CX36-20261123.md`. Firma: **OpenAI GPT-6 · Eón**.
+
+
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
@@ -264,7 +277,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Guardado:** `settings.epoca` y `Save.d.pinturas`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘.
+**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘. Las 100 partidas: 295 150 pasos, 54 victorias y 0 errores.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.7.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.7.0-ed33307a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 35), igual byte a byte a la construida.
 #### Estado al 23‑nov‑2026 · v3.7.0 «GA‑36» (Antigravity / Gemini · rama `ia/antigravity/ciudad-viva-3.7`)
 - **Base:** `origin/ccr-2a67f935-oat714` (`9ddcb6a`, El Metro 3.6.0 «Ciudad viva»). Todo implementado en **módulos aditivos**, conservando `elmetro.v1` intacto (campos nuevos en `newSave()` y `Save.sanitize()`: `settings.pantalla = 'mitades'`, `rpg.diario = []`, `rpg.barrios = {}`).
 - **GA‑36‑1 · Inclinación en las curvas (`src/js/96g-ladeo-mitades.js`, `EM.ladeo`):**

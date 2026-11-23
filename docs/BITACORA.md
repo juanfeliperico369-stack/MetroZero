@@ -1,5 +1,15 @@
 # Bitácora · El Metro
 
+## 2026-11-23 · v3.8.0 · Unión de las 3.7 (Claude «Épocas», Antigravity GA-36) y de Codex / GPT-6 Eón (CX-36)
+- **Qué se unió (Claude):**
+  - la 3.6.0 «Ciudad viva» y la 3.7.0 «Épocas» de la otra sesión de Claude (`ccr-2a67f935-oat714`), que ya estaban publicadas en `gh-pages` (APK 35) pero no en `main`;
+  - la 3.7 de Antigravity (`ia/antigravity/ciudad-viva-3.7`): GA-36-1 a 4 (ladeo en las curvas, pantalla en mitades en 3D, huellas de las subtramas, paradero y banca) y G-110 a G-112;
+  - la rama de Codex / GPT-6 Eón (`ia/codex/eon-optimizacion-3.7`): CX-36 (cajas 3D en un solo búfer, fantasmas cada 0,1 s con marca diaria, operación con demanda pico) y el arte C-70 a C-72.
+- **Choques resueltos:** el guardado (`newSave`) junta los campos de las dos 3.7 (`settings.epoca` y `pinturas` de «Épocas»; `settings.pantalla`, `rpg.diario` y `rpg.barrios` de Antigravity), con su valor por defecto: ningún guardado se rompe. Los documentos de `arte/` llevan las dos entradas y se regeneraron con `tools/arte.mjs` y `tools/todo.mjs`.
+- **Probado:** `node tools/build.mjs` y `node tools/test.mjs 100` (0 errores; 100 partidas, 59 victorias); `tools/test-ga36.mjs` y las cuatro pruebas de GPT-6 Eón (operación, fantasmas, manejo y fluidez), todas PASS.
+- **Versión:** 3.8.0 (código 36).
+- **Falta:** medir en un celular real; las imágenes pendientes de Gemini.
+
 ## 2026-11-23 · OpenAI GPT-6 / Eón · C-70–72 + tareas CX-36 (rama de revisión)
 
 - Rama `ia/codex/eon-optimizacion-3.7`, partiendo de `main` que declaraba **v3.5.0**. No se tocó `main` ni otros repositorios. El archivo de pedidos 3.6 y las dos herramientas de medición CX-36 no estaban en el árbol.
