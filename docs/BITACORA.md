@@ -44,7 +44,9 @@
 
 **Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas (291 048 pasos, 61 victorias, 0 errores); las pruebas de GPT‑6; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.6.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.6.0-32e63870`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 34), igual byte a byte a la construida.
 
 ## Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
