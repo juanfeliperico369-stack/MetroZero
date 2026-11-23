@@ -83,7 +83,7 @@
 
 
 **Nuevo (20‑nov‑2026, Motor City 2.10):**
-- **Skills y plugins de los videos del autor:** Hallmark, Modern Web Guidance y HyperFrames, en `.claude/settings.json`. Las demás IA las instalan con `node motor-city/motor.mjs skills --instalar --agente codex` (o `antigravity`).
+- **Skills y plugins de los videos del autor:** Hallmark, Modern Web Guidance y HyperFrames, en `.claude/settings.json`. Desde la 5.3.1, cualquier IA las integra desde la raíz con `node motor-city/motor.mjs skills --integrar --agente <tu-agente>` (pasos y reglas: `motor-city/docs/PROMPT-SKILLS.md`). Las skills propias siguen en `.agents/skills/`, y `node tools/skills.mjs` las copia a `.claude/skills/`.
 - **Codex («astra»):**
   - antes de tocar la interfaz (`src/js/65-menu.js`, CSS), consulta **Modern Web Guidance** y corre `legacy-scan src/js --json`; aplica solo lo verificado;
   - haz un **tráiler** de El Metro con **HyperFrames**, con capturas reales.

@@ -108,10 +108,11 @@ node tools/test.mjs 100     # autotest + 100 partidas + pantallas: debe dar 0 er
 node tools/todo.mjs         # documento único + archivo con todo + este archivo
 ~~~~
 
-## Skills y plugins externos (motor 2.10)
+## Skills y plugins externos (motor 2.10; integración automática desde la 5.3.1)
 - Hallmark, Modern Web Guidance, find-skills y HyperFrames.
-- Claude Code las recibe por `.claude/settings.json`.
-- Las demás IA corren `node motor-city/motor.mjs skills --instalar --agente codex` (o `antigravity`).
+- Cualquier IA las integra desde la raíz: `node motor-city/motor.mjs skills --integrar --agente <tu-agente>` (`codex`, `antigravity`, `gemini-cli`, `cursor` o `claude-code`). Pasos y reglas: `motor-city/docs/PROMPT-SKILLS.md`.
+- Claude Code también las recibe por `.claude/settings.json`.
+- Las skills propias van en `.agents/skills/`; `node tools/skills.mjs` las copia a `.claude/skills/`.
 - Cuándo usar cada una: `motor-city/.claude/skills/motor-city-skills-externas/SKILL.md`.
 
 ## Reglas del proyecto

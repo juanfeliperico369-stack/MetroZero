@@ -1,5 +1,14 @@
 # Bitácora · El Metro
 
+## 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
+- **Qué cambió:**
+  - la copia del motor pasó a la 5.3.1;
+  - el `.gitignore` ya no deja subir las skills externas;
+  - `tools/todo.mjs` (y con él `CLAUDE.md`, `AGENTS.md` y `GEMINI.md`) y `TAREAS-IA.md` piden integrar las skills con `node motor-city/motor.mjs skills --integrar --agente <tu-agente>` (prompt: `motor-city/docs/PROMPT-SKILLS.md`).
+  - Las skills propias siguen en `.agents/skills/`, copiadas por `node tools/skills.mjs`. Son compatibles con el comando del motor, que no pisa una skill distinta sin `--desde`.
+- **El juego no cambió.**
+- **Probado:** `node tools/test.mjs 100` con 0 errores.
+
 ## 2026-11-23 · v3.8.0 · Unión de las 3.7 (Claude «Épocas», Antigravity GA-36) y de Codex / GPT-6 Eón (CX-36)
 - **Qué se unió (Claude):**
   - la 3.6.0 «Ciudad viva» y la 3.7.0 «Épocas» de la otra sesión de Claude (`ccr-2a67f935-oat714`), que ya estaban publicadas en `gh-pages` (APK 35) pero no en `main`;
