@@ -157,6 +157,12 @@ const BotT = EM.test = {
           EM.epocas.aplicar(2011); if (!NET.byId.MP1 || !NET.lines.includes(NET.byId.MP1) || NET.lines.includes(NET.byId.T)) E('épocas: 2011 sin Metroplús o con tranvía'); EM.epocas.aplicar(0); if (NET.lines.length !== n0) E('épocas: al volver a hoy faltan líneas (' + NET.lines.length + ' de ' + n0 + ')'); }
         // 3.7 · pintura: tu moto toma el color comprado; el taxi (de servicio) no
         if (EM.pintura) { const D = EM.pintura.datos(), a0 = D.actual; D.actual = '#EC343A'; const vm = Libre.V({ veh: { kind: 'moto' } }), vt = Libre.V({ veh: { kind: 'taxi' } }); if (!vm || vm.col !== '#EC343A' || vm.vmax !== VEH.moto.vmax) E('pintura: la moto no toma el color (o pierde su física)'); if (vt && vt.col === '#EC343A') E('pintura: el taxi no debe pintarse'); D.actual = a0; }
+        // 3.9 · operación: el piloto gana las 7 jornadas y quien no hace nada pierde la primera (en la 3.8.0 nadie podía ganar)
+        if (EM.modes.operacion && EM.modes.operacion.simular) { const O = EM.modes.operacion, a = O.simular('bot', 3), b = O.simular('nada', 3); if (!a.gana) E('operación: el piloto no gana (' + JSON.stringify(a) + ')'); if (b.gana || b.dia > 1) E('operación: sin jugar también se gana'); }
+        // 3.9 · fantasmas: fuera de la partida, y el reto del día no borra su API
+        if (EM.reto && !EM.reto.fantasma) E('reto: se perdió EM.reto.fantasma'); if (Save.d.best && Save.d.best._retoFantasma) E('fantasmas: siguen dentro de la partida');
+        // 3.9 · recorte 3D: una caja delante de la cámara se dibuja y una detrás se descarta
+        if (typeof G3 !== 'undefined' && G3.vis) { const VP = M4.mul(M4.persp(1.05, .5, 1.2, 26000), M4.look([0, 10, 0], [0, 10, 100])); if (!G3.vis(VP, [-5, 0, 40, 5, 20, 60])) E('recorte 3D: descarta lo que está delante'); if (G3.vis(VP, [-5, 0, -60, 5, 20, -40])) E('recorte 3D: dibuja lo que está detrás'); }
         { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }
         { const ec = GENTE.filter(g => g.frag); if (ec.length !== 6) E('EnCicla: ' + ec.length + ' de 6 personajes'); for (const g of ec) if (!NET.stations.some(s => s.name === g.en[1])) E('EnCicla: no existe la estación ' + g.en[1]); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }

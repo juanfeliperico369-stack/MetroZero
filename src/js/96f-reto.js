@@ -9,7 +9,7 @@
 (function () {
   if (typeof Game === 'undefined' || typeof Menu === 'undefined') return;
   const fecha = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  const R = EM.reto = {
+  const R = EM.reto = Object.assign(EM.reto || {}, {   // 3.9: sin borrar lo que otro módulo ya puso (EM.reto.fantasma, de 48a)
     datos() { return Save.d.reto || (Save.d.reto = { dia: '', racha: 0, ultimo: '' }); },
     hoy() {
       const dia = fecha(new Date()), listo = typeof VC !== 'undefined' && VC.on; if (this._c && this._c.dia === dia && this._c.listo === listo) return this._c;
@@ -31,7 +31,7 @@
       $('#rtSal').onclick = () => { UI.close(); Game.exit(); this.etiqueta(); };
     },
     etiqueta() { const b = document.getElementById('bReto'); if (!b) return; const H = this.hoy(), D = this.datos(); b.querySelector('small').textContent = H.m ? (this.hecho() ? '✓ Cumplido hoy' + (D.racha > 1 ? ' · racha ' + D.racha : '') : H.t + ' · ' + H.meta) : 'Mañana hay otro'; }
-  };
+  });
   const bind0 = Menu.bind;
   Menu.bind = function () {
     const r = bind0.apply(this, arguments), play = document.getElementById('bPlay');
