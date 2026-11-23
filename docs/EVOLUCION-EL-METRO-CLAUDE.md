@@ -694,7 +694,8 @@ Comparten datos (vías, edificios, red), pero son **dibujos distintos**.
 | **3.4.0 ✔** | Corredor solo por ciclovías: cruces ↰/↱, tramos estrechos, zonas de skate, trucos, parkour a pie y 🎮 desde cualquier ciclorruta. Jugo en todos los modos | La pista no se sale de la ciclorruta; con el piloto, 4 de 6 ciclorrutas terminan con 2–3 vidas; autotest y 100 partidas con 0 errores |
 | **3.5.0 ✔** (otra sesión) | Unión con «Mundo 3D y Realismo» de Antigravity (cen3d, mundoRPG, shaders) | 100 partidas con 0 errores |
 | **3.6.0 ✔** | 3D recortado y regulado (📏), ciudad viva en familia, ⭐ reto del día, 🌅 domingo zen; pedidos y prompts para Gemini y ChatGPT | En el 3D emulado, el volante pasa de 5 a 16 y Ciudad Libre de 6,5 a 18 cuadros por segundo, con ritmo 1,0; 0 errores |
-| **3.7 (Claude)** | «Épocas»: la red como era en 1995, 2004, 2008, 2011 y 2016; unir las entregas de las otras IAs | Ver `docs/SUGERENCIAS-CLAUDE.md` |
+| **3.7.0 ✔** | 📅 Épocas (la red como era, con ficha y tono de recuerdo) y 🎨 pasajes que se gastan (pintura de tus vehículos) | En 1995 solo la A; en 2011, Metroplús y no tranvía; al salir, toda la red; autotest y 100 partidas con 0 errores |
+| **3.8 (Claude)** | Unir y medir las entregas de Gemini, ChatGPT, Antigravity y Codex (G‑110…, C‑70…, GA‑36‑…, CX‑36‑…) | `docs/PEDIDOS-GEMINI-CHATGPT-3.6.md` |
 | **3.5** | Cenital 3D sobre G3; rig único de cámaras; horizontal y vertical | 30 cuadros por segundo en cenital 3D en «celular modesto» (sin tarjeta gráfica: 25 o más) |
 | **3.6** | Contrarreloj con fantasma, reto del día y fantasmas por QR | Fantasma reproduce el tramo con error < 1 m |
 | **3.7** | «Un día de operación» (roguelite) y Cruces con el control de Traffix | Partida de 5–10 min; dos partidas seguidas nunca iguales |

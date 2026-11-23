@@ -9,6 +9,10 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.7.0 «Épocas» (23‑nov):**
+> - 📅 la red como era en 1995, 1996, 2004, 2008, 2011 y 2016 (🆘 en Ciudad Libre);
+> - 🎨 los pasajes compran pintura para tus vehículos.
+>
 > **3.6.0 «Ciudad viva» (23‑nov):**
 > - el 3D recortado y regulado (📏 Medir mi celular);
 > - la gente reacciona;

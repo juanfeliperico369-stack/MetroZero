@@ -41,6 +41,11 @@
 6. **Calendario real** en el mundo abierto: ciclovía de domingo, Feria de las Flores y Alumbrados con su música y su gente.
 
 ## 4. El siguiente paso para Claude: 3.7 «Épocas»
+
+> **Hecho en la 3.7.0:**
+> - los puntos 2 (épocas) y 4 (pasajes que se gastan);
+> - el punto 1 queda abierto hasta que lleguen las entregas;
+> - el punto 3 espera las cifras de `?medir` en el celular del autor.
 1. **Unir y medir lo que entreguen:**
    - Gemini: G‑110 a G‑112;
    - ChatGPT: C‑70 a C‑72;

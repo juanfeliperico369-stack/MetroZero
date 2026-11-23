@@ -1,8 +1,8 @@
 {
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
-  "base": "main 3.5.0 + Motor City 5.2 (d07ba6d) → v3.6.0 «Ciudad viva»",
-  "actualizado": "2026-11-23T18:00:00Z",
+  "base": "v3.6.0 → v3.7.0 «Épocas»",
+  "actualizado": "2026-11-23T21:00:00Z",
   "rol": "IA de El Metro (Claude, Anthropic): arreglos de jugabilidad, todo abierto, modos en el mundo abierto y documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
@@ -28,7 +28,9 @@
     "3.6.0: 3D recortado por celdas (MBC) y regulador EM.rendimiento con 📏 Medir mi celular",
     "3.6.0: ciudad viva en familia con frases del motor (tools/frases_ciudad.mjs)",
     "3.6.0: ⭐ reto del día (EM.reto) y 🌅 domingo zen",
-    "3.6.0: pedidos y prompts para Gemini y ChatGPT (docs/PEDIDOS-GEMINI-CHATGPT-3.6.md) y sugerencias (docs/SUGERENCIAS-CLAUDE.md)"
+    "3.6.0: pedidos y prompts para Gemini y ChatGPT (docs/PEDIDOS-GEMINI-CHATGPT-3.6.md) y sugerencias (docs/SUGERENCIAS-CLAUDE.md)",
+    "3.7.0: 📅 épocas en Ciudad Libre (EM.epocas)",
+    "3.7.0: 🎨 pintura de los vehículos propios con pasajes (EM.pintura)"
   ],
   "archivos_compartidos_tocados": [
     "src/js/00-core.js (versión 3.2.0 y settings.arcade)",
