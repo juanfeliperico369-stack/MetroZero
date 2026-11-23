@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.6.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.7.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.6.0** · compilado el 2026-11-23.
+> Versión del juego **v3.7.0** · compilado el 2026-11-23.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -806,6 +806,37 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+##### Estado al 23‑nov‑2026 · v3.7.0 «Épocas» (Claude, IA de El Metro)
+**Qué pidió el autor:** «ya empezaron [las otras IAs], haz tú eso que falta».
+- Es el plan 3.7 de `docs/SUGERENCIAS-CLAUDE.md`.
+- No hubo entregas nuevas de las otras IAs para unir: se revisó con `git fetch` al empezar y antes de publicar.
+
+**Lo nuevo:**
+1. **📅 Épocas** (`src/js/96g-epocas.js`, `EM.epocas`). En Ciudad Libre: 🆘 → «Época»: Hoy, 2016, 2011, 2008, 2004, 1996 o 1995.
+   - **Qué cambia:** la lista de líneas y las de cada estación se filtran en su sitio con la fecha de apertura de los datos de la red. Así circulan, se dibujan (2D, mapa y 3D) y se abordan solo las líneas que existían, y 🎮 ofrece solo sus modos.
+   - **Ejemplos:**
+     - en 1995 está solo la Línea A;
+     - en 2011 están A, B, los cables K, J y L, el Metroplús 1 y las escaleras de la Comuna 13.
+   - **Ficha de la época:** las líneas en servicio con su fecha, lo nuevo y lo que pocos saben, sacado de la ficha técnica de cada línea. Por ejemplo, en 1995: «trenes eléctricos de 3 coches, catenaria de 1500 V CC, hasta 80 km/h».
+   - **Tono de recuerdo:** un sepia suave en las épocas viejas.
+   - **Simplificaciones que dice la ficha:** los alimentadores aparecen desde 2011 y el resto de la ciudad es la de hoy.
+   - **La historia «La última vuelta»** va siempre en «Hoy».
+   - **Al salir de Ciudad Libre** vuelve toda la red.
+2. **🎨 Los pasajes se gastan** (`src/js/96h-tienda.js`, `EM.pintura`). En 🆘 → «Pintura»:
+   - pintura para tus vehículos propios (moto, carro particular, patinetas, skate y patines), en 8 colores de la paleta;
+   - 30 🎫 cada color y, ya comprado, se cambia gratis;
+   - en 2D, con el tipo y tu color; en 3D, tiñendo solo el tuyo;
+   - taxi, camioneta del Metro, bici EnCicla y buses conservan su color de servicio.
+3. **Autotest:**
+   - en 1995 solo existe la A;
+   - en 2011 hay Metroplús y no tranvía;
+   - al volver a hoy está toda la red;
+   - la moto toma tu color y conserva su física; el taxi no se pinta.
+
+**Guardado:** `settings.epoca` y `Save.d.pinturas`, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘.
+
 ##### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «vuelve a trabajar en El Metro, mejora y desarrolla todo lo que puedas, evalúa qué falta y las peticiones para Gemini y ChatGPT, entrégame los prompts, planea tu siguiente paso, usa todo lo nuevo del motor y deja sugerencias en el repositorio».
@@ -845,7 +876,9 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 **Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas (291 048 pasos, 61 victorias, 0 errores); las pruebas de GPT‑6; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.6.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.6.0-32e63870`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 34), igual byte a byte a la construida.
 
 ##### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
@@ -2038,6 +2071,12 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+#### Reglas aprendidas (épocas, 3.7.0)
+- **Para cambiar qué líneas existen, filtra `NET.lines` y `hub.lines` EN SU SITIO** (`EM.epocas.aplicar`). Muchos módulos guardan la referencia a esos arreglos, así que una lista nueva no la verían.
+- **Rearma el 3D solo si cambió la época** (`G3.buildNet`, `G3._rm = null`).
+- **Restaura al salir de Ciudad Libre** (`unmount`): los modos cerrados ven toda la red.
+- **Una versión «pintada» de un tipo de vehículo es `Object.create(V)` con su propio `col`.** Hereda lo demás, así sigue cualquier ajuste de velocidad. Se guarda por objeto en un `WeakMap`.
 
 #### Reglas aprendidas (ciudad viva, 3.6.0)
 - **Antes de subir la calidad 3D, mide** con `node tools/medir-3d.mjs`: vértices y llamadas por cuadro, y cuadros por segundo por escalón.
@@ -3672,7 +3711,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (120 archivos, 1591 KB)
+## Código fuente (122 archivos, 1604 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4225,7 +4264,7 @@ body.zurdo .actbar{left:152px;right:10px}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.6.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4272,7 +4311,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, epoca: 0, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, pinturas: { compradas: [], actual: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
 }
 const Save = EM.save = {
   d: null,
@@ -14043,6 +14082,11 @@ const BotT = EM.test = {
           const s3 = EM.modes.conduce.create('A:3-5', { seed: 1 }); if (s3.stops.join() !== '3,4,5') E('actividades: el tramo «desde aquí» no arranca en su estación (' + s3.stops.join() + ')');
           const s4 = EM.modes.tranvia.create('T:3-1', { seed: 1 }); if (s4.stops.join() !== '3,2,1') E('actividades: el tranvía «desde aquí» no arranca en su estación'); }
         if (VC.on && EM.modes.carrera.offAt) { const C = EM.modes.carrera, s5 = C.create('cr:A', { seed: 1 }); let malos = 0; for (let s = 40; s < 600; s += 10) { const q = C.pos(s5, s, 1); if (VC.solid(q.x, q.y, .3)) malos++; } if (malos > 4) E('carrera: la pista pasa por dentro de ' + malos + ' edificios'); }
+        // 3.7 · épocas: en 1995 solo existe la Línea A (y San Antonio solo la tiene a ella); al volver a «Hoy» está toda la red
+        if (EM.epocas) { const n0 = NET.lines.length; EM.epocas.aplicar(1995); const ids = NET.lines.map(l => l.id).join(), sa = NET.stations.find(h => h.name === 'San Antonio'); if (ids !== 'A') E('épocas: en 1995 hay ' + ids); if (sa && sa.lines.some(l => l.id !== 'A')) E('épocas: San Antonio tiene líneas que no existían en 1995');
+          EM.epocas.aplicar(2011); if (!NET.byId.MP1 || !NET.lines.includes(NET.byId.MP1) || NET.lines.includes(NET.byId.T)) E('épocas: 2011 sin Metroplús o con tranvía'); EM.epocas.aplicar(0); if (NET.lines.length !== n0) E('épocas: al volver a hoy faltan líneas (' + NET.lines.length + ' de ' + n0 + ')'); }
+        // 3.7 · pintura: tu moto toma el color comprado; el taxi (de servicio) no
+        if (EM.pintura) { const D = EM.pintura.datos(), a0 = D.actual; D.actual = '#EC343A'; const vm = Libre.V({ veh: { kind: 'moto' } }), vt = Libre.V({ veh: { kind: 'taxi' } }); if (!vm || vm.col !== '#EC343A' || vm.vmax !== VEH.moto.vmax) E('pintura: la moto no toma el color (o pierde su física)'); if (vt && vt.col === '#EC343A') E('pintura: el taxi no debe pintarse'); D.actual = a0; }
         { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }
         { const ec = GENTE.filter(g => g.frag); if (ec.length !== 6) E('EnCicla: ' + ec.length + ' de 6 personajes'); for (const g of ec) if (!NET.stations.some(s => s.name === g.en[1])) E('EnCicla: no existe la estación ' + g.en[1]); }
         { const C = Libre.mapaCosas({ gente: [] }); if (C.filter(o => o.t === 'est').length < 70 || C.filter(o => o.t === 'hito').length < 25) E('mapa: faltan estaciones o lugares para elegir (' + C.length + ')'); }
@@ -14537,6 +14581,138 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     return r;
   };
   const t = setInterval(() => { if (!EM.ready || typeof VC === 'undefined' || !VC.on) return; clearInterval(t); R.etiqueta(); }, 300);
+})();
+~~~~
+
+### `src/js/96g-epocas.js`
+~~~~js
+/* =====================================================================
+   ÉPOCAS (3.7 «Épocas», Claude, 23‑nov‑2026) · jugar la red como era (idea de UnoCero: la línea de tiempo con hitos que se abre
+   jugando; documento de evolución, secciones 5.6 y 7)
+   En Ciudad Libre, 🆘 → «📅 Época»: Hoy, 2016, 2011, 2008, 2004, 1996 o 1995.
+   - La lista de líneas (NET.lines) y las de cada estación se filtran EN SU SITIO mientras estás en Ciudad Libre, con la fecha de
+     apertura de cada línea (l.open, de los datos de la red): así lo ven todos los sistemas que ya la leen (los trenes y cables que
+     circulan, el dibujo 2D, la red 3D, el mapa, abordar en las estaciones y los modos de 🎮). Al salir de la ciudad, vuelve entera.
+   - El 3D se rearma solo si la época cambió (G3.buildNet) y la vista toma un tono de recuerdo (sepia suave en las épocas viejas).
+   - Al entrar, la ficha de la época: las líneas en servicio con su fecha, lo nuevo y lo que pocos saben de lo nuevo.
+   - Simplificaciones que se dicen en la ficha: los alimentadores aparecen desde 2011 y el resto de la ciudad es la de hoy.
+   - «La última vuelta» (la historia en la ciudad) siempre va en «Hoy»: usa líneas de todas las épocas.
+   ===================================================================== */
+(function () {
+  if (typeof NET === 'undefined' || typeof Libre === 'undefined' || typeof Game === 'undefined') return;
+  const S = () => (Save.d && Save.d.settings) || {}, ano = l => l.open ? +String(l.open).slice(0, 4) : 0;
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const fecha = f => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(f || ''); return m ? (+m[3]) + ' de ' + MESES[+m[2] - 1] + ' de ' + m[1] : ''; };
+  const EP = EM.epocas = {
+    ANOS: [0, 2016, 2011, 2008, 2004, 1996, 1995], firma: '', actual: 0,
+    nombre(a) { return a ? String(a) : 'Hoy'; },
+    /* ¿existía la línea en el año a? (0 = hoy: todo, como siempre) */
+    abierta(l, a) { if (!a) return true; if (l.kind === 'feeder') return a >= 2011; return l.kind !== 'future' && ano(l) > 0 && ano(l) <= a; },
+    /* filtra NET.lines y las líneas de cada estación en su sitio; devuelve true si cambió algo */
+    aplicar(a) {
+      const T = NET._todas || (NET._todas = NET.lines.slice()), L = T.filter(l => this.abierta(l, a)), firma = L.map(l => l.id).join(',');
+      this.actual = a; if (firma === this.firma || (!this.firma && L.length === T.length)) { this.firma = firma; return false; }
+      NET.lines.length = 0; NET.lines.push(...L); const dentro = new Set(L);
+      for (const h of NET.stations) { if (!h._todas) h._todas = h.lines.slice(); h.lines.length = 0; h.lines.push(...h._todas.filter(l => dentro.has(l))); }
+      this.firma = firma;
+      if (typeof G3 !== 'undefined') { G3._rm = null; if (G3.ok && G3.gl && G3.buildNet) { try { G3.buildNet(); } catch (e) { EM.errors.push('épocas 3D: ' + e.message); } } }
+      return true;
+    },
+    filtro(a) { return !a ? '' : a <= 1996 ? 'sepia(.42) saturate(.8) contrast(1.05)' : a <= 2008 ? 'sepia(.26) saturate(.88)' : a <= 2011 ? 'sepia(.14)' : 'sepia(.06)'; },
+    tono(a) { for (const c of [document.getElementById('gcv'), typeof G3 !== 'undefined' && G3.cv]) if (c && c.style) c.style.filter = this.filtro(a); },
+    /* la ficha de la época: en servicio, lo nuevo y lo que pocos saben */
+    ficha(a) {
+      const T = (NET._todas || NET.lines).filter(l => l.kind !== 'feeder' && l.kind !== 'future'), L = T.filter(l => this.abierta(l, a)).sort((x, y) => String(x.open).localeCompare(String(y.open)));
+      const i = this.ANOS.indexOf(a), antes = a ? (this.ANOS[i + 1] || 0) : 2016, nuevas = L.filter(l => ano(l) > antes), dato = nuevas.map(l => l.fact || l.tech).find(Boolean);
+      const chip = l => `<span class="badge" style="background:${l.color}">${esc(l.id.replace(/^AL-/, ''))}</span>`;
+      return `<div class="pag">📅 Época</div><h2>${a ? 'Medellín en ' + a : 'Hoy'}</h2>
+        <p class="m"><b>En servicio (${L.length}):</b><br>${L.map(l => chip(l) + ' ' + esc(l.name) + ' <small>· desde el ' + esc(fecha(l.open)) + '</small>').join('<br>')}</p>
+        ${nuevas.length ? `<p class="m"><b>Lo nuevo${a ? ' de esta época' : ' desde 2016'}:</b> ${nuevas.map(l => esc(l.name)).join(', ')}.</p>` : ''}
+        ${dato ? `<div class="film" style="margin:8px 0">Lo que pocos saben · ${esc(dato)}</div>` : ''}
+        <p class="m" style="font-size:12px">${a ? 'Circulan solo las líneas que ya existían. Los alimentadores aparecen desde 2011 y el resto de la ciudad es la de hoy.' : 'Toda la red de hoy.'}</p>
+        <div class="row"><button class="btn pri" id="epOk">A rodar</button></div>`;
+    },
+    mostrar(a) { if (EM.headless) return; UI.modal(this.ficha(a)); const b = document.getElementById('epOk'); if (b) b.onclick = () => UI.close(); }
+  };
+  /* Ciudad Libre: la época se aplica antes de crear la ciudad (los trenes que circulan salen de NET.lines) y se quita al salir */
+  const create0 = Libre.create, unmount0 = Libre.unmount, mount0 = Libre.mount, ayuda0 = Libre.ayuda;
+  Libre.create = function (lv, opts = {}) {
+    const a = lv === 'lb:trama' || opts.auto ? 0 : (+S().epoca || 0); EP.aplicar(a);
+    const st = create0.apply(this, arguments); st.epoca = a; return st;
+  };
+  Libre.mount = function (st, el) { const r = mount0.apply(this, arguments); EP.tono(st.epoca || 0); if (st.epoca && !st._epVisto && !st.auto) { st._epVisto = 1; this.msg(st, '📅 Estás en ' + st.epoca + ': solo circulan las líneas que ya existían (🆘 → Época)', 'b'); } return r; };
+  Libre.unmount = function (st) { const r = unmount0.apply(this, arguments); EP.tono(0); EP.aplicar(0); return r; };
+  /* 🆘: el selector de época, después de «vista de lejos clara» */
+  Libre.ayuda = function (st) {
+    const r = ayuda0.apply(this, arguments); if (EM.headless || document.getElementById('lbEpoca')) return r;
+    const ref = document.querySelector('#mBody .tg[data-cl]'), cur = st.epoca || 0; if (!ref) return r;
+    const d = document.createElement('div'); d.innerHTML = `<div class="pag">📅 Época: la red como era</div><div class="tg" id="lbEpoca">${EP.ANOS.map(a => `<button data-v="${a}" class="${cur === a ? 'on' : ''}">${EP.nombre(a)}</button>`).join('')}</div>`;
+    ref.after(d);
+    for (const b of d.querySelectorAll('button')) b.onclick = () => {
+      const a = +b.dataset.v; if (st.trama) { this.msg(st, 'La historia va en «Hoy»: termina el capítulo o sal de la historia para cambiar de época', 'y'); return; }
+      S().epoca = a; Save.write(); UI.close(); this.persist(st); const back = (Game.opts && Game.opts.back) || 'cover';
+      Game.start('libre', 'lb:ultimo', { back }); setTimeout(() => EP.mostrar(a), 350);
+    };
+    return r;
+  };
+})();
+~~~~
+
+### `src/js/96h-tienda.js`
+~~~~js
+/* =====================================================================
+   PASAJES QUE SE GASTAN (3.7 «Épocas», Claude, 23‑nov‑2026) · lo primero de las sugerencias de diseño (docs/SUGERENCIAS-CLAUDE.md,
+   sección 3): los pasajes 🎫 se ganaban y casi no se usaban.
+   - Ahora compran pintura para tus vehículos propios: moto, carro particular, patineta y monopatín eléctricos, skate y patines.
+     Cada color cuesta 30 🎫; ya comprado, se cambia gratis. Se ve en 2D y en 3D.
+   - Los de servicio (taxi, camioneta del Metro, bici EnCicla y buses) conservan su color: son de todos.
+   - En Ciudad Libre: 🆘 → «🎨 Pintura». Se guarda en Save.d.pinturas (con su valor por defecto).
+   ===================================================================== */
+(function () {
+  const L = EM.modes.libre; if (!L || typeof VEH === 'undefined') return;
+  const PROPIOS = ['moto', 'carro', 'scooter', 'monopatin', 'skate', 'patines'].filter(k => VEH[k]), PRECIO = 30;
+  const COLORES = [['Rojo', '#EC343A'], ['Mostaza', '#F6C538'], ['Azul Línea A', '#1C5C9C'], ['Naranja Línea B', '#E38835'], ['Verde tranvía', '#59AB42'], ['Rosa Línea H', '#EB318E'], ['Morado Línea M', '#743D90'], ['Petróleo Metroplús', '#0E6F76']];
+  const P = EM.pintura = {
+    PROPIOS, COLORES, PRECIO,
+    datos() { return Save.d.pinturas || (Save.d.pinturas = { compradas: [], actual: '' }); },
+    color(kind) { const c = this.datos().actual; return c && PROPIOS.includes(kind) ? c : null; },
+    rgb(h) { return [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255); },
+    /* elegir un color: si ya es tuyo, gratis; si no, cuesta PRECIO pasajes */
+    elegir(st, hex) {
+      const D = this.datos(); if (!hex) { D.actual = ''; Save.write(); return 'ok'; }
+      if (!D.compradas.includes(hex)) { if ((Save.d.wallet | 0) < PRECIO) return 'falta'; Save.d.wallet -= PRECIO; D.compradas.push(hex); if (EM.jugo && st) EM.jugo.pop(st, '🎨 −' + PRECIO + ' 🎫', 'y'); if (typeof Snd !== 'undefined') Snd.play('coin'); }
+      D.actual = hex; Save.write(); return 'ok';
+    }
+  };
+  /* 2D y física: V(st) da el mismo tipo con tu color (hereda todo lo demás, así sigue cualquier ajuste de velocidad) */
+  const deriv = new WeakMap(), V0 = L.V;
+  L.V = function (st) {
+    const V = V0.call(this, st); if (!V || !st || !st.veh) return V; const c = P.color(st.veh.kind); if (!c) return V;
+    let m = deriv.get(V); if (!m) deriv.set(V, m = {}); return m[c] || (m[c] = Object.assign(Object.create(V), { col: c }));
+  };
+  /* 3D: tu vehículo se tiñe (solo el tuyo: se reconoce por su posición; los parqueados del mismo tipo no) */
+  const T = EM.taller;
+  if (T && T.mundo && L.dyn3D) {
+    const mundo0 = T.mundo, dyn0 = L.dyn3D;
+    T.mundo = function (buffer, x, altura, z, rumbo, g3 = EM.g3) {
+      const pz = T._pintar; if (!pz || x !== pz.x || z !== pz.z || !g3 || !g3.gl || !g3.P) return mundo0.apply(this, arguments);
+      const gl = g3.gl, u = g3.P.u; gl.uniform4fv(u.tint, [pz.c[0], pz.c[1], pz.c[2], pz.a]); try { return mundo0.apply(this, arguments); } finally { gl.uniform4fv(u.tint, [0, 0, 0, 0]); }
+    };
+    L.dyn3D = function (G, st) {
+      const c = st && st.mode === 'veh' && st.veh ? P.color(st.veh.kind) : null; T._pintar = c ? { x: st.x, z: st.y, c: P.rgb(c), a: (VEH[st.veh.kind] || {}).monta ? .3 : .42 } : null;
+      try { return dyn0.apply(this, arguments); } finally { T._pintar = null; }
+    };
+  }
+  /* 🆘: la fila de pintura, después de la época (o de «vista de lejos clara») */
+  const ayuda0 = L.ayuda;
+  L.ayuda = function (st) {
+    const r = ayuda0.apply(this, arguments); if (EM.headless || document.getElementById('lbPint')) return r;
+    const ref = document.getElementById('lbEpoca') || document.querySelector('#mBody .tg[data-cl]'); if (!ref) return r;
+    const d = document.createElement('div'); (ref.id === 'lbEpoca' ? ref : ref).after(d);
+    const pinta = () => { const D = P.datos(); d.innerHTML = `<div class="pag">🎨 Pintura de tus vehículos <small>(moto, carro, patinetas, skate y patines) · tienes ${Save.d.wallet | 0} 🎫</small></div><div class="tg" id="lbPint" style="flex-wrap:wrap"><button data-c="" class="${D.actual ? '' : 'on'}">Original</button>${COLORES.map(([n, h]) => `<button data-c="${h}" title="${esc(n)}" class="${D.actual === h ? 'on' : ''}" style="background:${h};color:#fff;min-width:44px;text-shadow:0 1px 2px #000">${D.compradas.includes(h) ? (D.actual === h ? '✓' : '·') : PRECIO + '🎫'}</button>`).join('')}</div>`;
+      for (const b of d.querySelectorAll('[data-c]')) b.onclick = () => { const r2 = P.elegir(st, b.dataset.c); if (r2 === 'falta') { UI.toast('Te faltan ' + (PRECIO - (Save.d.wallet | 0)) + ' 🎫: haz oficios, el reto del día o un modo desde 🎮'); return; } pinta(); }; };
+    pinta(); return r;
+  };
 })();
 ~~~~
 
@@ -19705,8 +19881,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.6.0
-elmetro.versionCode=34
+elmetro.versionName=3.7.0
+elmetro.versionCode=35
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36

@@ -183,6 +183,12 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+### Reglas aprendidas (épocas, 3.7.0)
+- **Para cambiar qué líneas existen, filtra `NET.lines` y `hub.lines` EN SU SITIO** (`EM.epocas.aplicar`). Muchos módulos guardan la referencia a esos arreglos, así que una lista nueva no la verían.
+- **Rearma el 3D solo si cambió la época** (`G3.buildNet`, `G3._rm = null`).
+- **Restaura al salir de Ciudad Libre** (`unmount`): los modos cerrados ven toda la red.
+- **Una versión «pintada» de un tipo de vehículo es `Object.create(V)` con su propio `col`.** Hereda lo demás, así sigue cualquier ajuste de velocidad. Se guarda por objeto en un `WeakMap`.
+
 ### Reglas aprendidas (ciudad viva, 3.6.0)
 - **Antes de subir la calidad 3D, mide** con `node tools/medir-3d.mjs`: vértices y llamadas por cuadro, y cuadros por segundo por escalón.
 - **Geometría de todo el valle = recorte por celdas** (`MBC` en `22-gl.js`).
