@@ -183,6 +183,15 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+### Reglas aprendidas (jugo y ciclovías, 3.4.0)
+- **Corredor solo por ciclorruta** (`EM.ciclo`, `src/js/47b-ciclovia.js`): la pista sale de la red de ciclorrutas. Un nivel nuevo de la carrera debe ser una ciclorruta: `cr:c<nombre>`, `cr:@x,y,h` o `cr:<línea>`, que es la más cercana.
+- **Obstáculo nuevo = pieza del taller** (`EM.taller.pista`) y entrada en `T.obstaculos`. El autotest exige pieza para cada clave de `CR_OBS`; sin ella, el 3D registra «Objeto desconocido».
+- **Las marcas entre módulos van en el modo, no en la función.** Otro módulo puede volver a envolver `step`, y la marca de la función se pierde: así se sumaron dos arranques en la carrera.
+- **Jugo** (`EM.jugo`):
+  - los aciertos llaman a `EM.jugo.pop(st, texto, 'g' | 'y' | 'r' | 'b')`;
+  - los golpes, a `EM.jugo.golpe(st)`;
+  - nunca con el bot ni en duelo de mesa.
+
 ### Reglas aprendidas (evolución, 3.2.0)
 - **Audita con entradas de jugador, no solo con el bot.** El bot (`auto`) se salta llaves, señales y puertas. Por eso el metro «funcionaba» en las pruebas y no se movía con ▲. Mide cada modo 12 s con ▲ sostenido (`scratchpad/auditoria.mjs`): velocidad por segundo, avance y ritmo (tiempo del juego ÷ tiempo real).
 - **Todos los modos usan `substeps`.** Con el tope viejo de 50 ms por cuadro, a 13 cuadros por segundo (3D sin tarjeta gráfica) el juego iba al 62 %.
