@@ -102,8 +102,8 @@
       while (T.length <= i + 1) T.push(this.libreOff(st, T.length * PASO, T.length ? T[T.length - 1] : st.off));
       const f = s / PASO - i; return T[i] + (T[i + 1] - T[i]) * clamp(f, 0, 1);
     };
-    const posPrev = Cr.pos;   // 3.4: la carrera por ciclorruta (47b-ciclovia.js) lleva su propia pista
-    Cr.pos = function (st, s, c) { if (st.cic) return posPrev.call(this, st, s, c); const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - 1) * 2.6); };
+    const posPrev = Cr.pos;   // 3.4: la carrera por ciclorruta (47b-ciclovia.js) lleva su propia pista; 3.5: en las demás, los carriles según el tramo (Antigravity)
+    Cr.pos = function (st, s, c) { if (st.cic) return posPrev.call(this, st, s, c); const l = NET.byId[st.line], tr = this.tramoEn ? this.tramoEn(st, s) : { ancho: 3 }, sep = tr.ancho === 2 ? 2.3 : 2.6, cen = (tr.ancho - 1) / 2; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - cen) * sep); };
   }
 
   /* ---------- 5 · ⏫ acelerador fijo en Ciudad Libre ---------- */
@@ -132,7 +132,7 @@
       if (b) { const veh = st.mode === 'veh' && !((this.V(st) || {}).walk); b.style.display = veh ? '' : 'none'; if (!veh) st.crucero = false; b.classList.toggle('on', !!st.crucero); }
       return r;
     };
-    L.key = function (st, k, down) { if (down && (k === 'x' || k === 'X') && st.mode === 'veh') { this.crucero(st); return; } return key0.call(this, st, k, down); };
+    L.key = function (st, k, down) { if (down && (k === 'x' || k === 'X' || k === 'v' || k === 'V') && st.mode === 'veh') { this.crucero(st); return; } return key0.call(this, st, k, down); };
     /* las charlas ya no amarran: si caminas o manejas, la charla se cierra y sigues (antes el joystick quedaba muerto hasta
        tocar la ✕); y la primera crónica espera 25 s, para que al empezar en una estación no salte encima del juego */
     const step0 = L.step;

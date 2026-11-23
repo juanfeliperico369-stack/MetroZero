@@ -1,7 +1,7 @@
 /* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
 (() => {
  const T=EM.taller;
- T.obstaculos=['hueco','cono','moto','perro','chaza','charco','rampa','pasaje','dato'];
+ T.obstaculos=['hueco','cono','moto','perro','chaza','charco','rampa','baranda','arco','pasaje','dato'];
  T.pista=id=>{
    if(id==='moto')return T.vehiculo('moto');
    const m=new T.Malla(),b=(...a)=>m.caja(...a), tubo=(...a)=>m.barra(...a);
@@ -23,8 +23,19 @@
      for(const s of [-1,1]){tubo([.28,.66,s*.07],[.22,.77,s*.11],.047,'#9a4630');
        for(const x of [-.21,.22])tubo([x,.34,s*.08],[x+s*.04,.02,s*.10],.042,'#9a4630');}
      tubo([-.26,.48,0],[-.47,.63,0],.038,'#b4583a');
-   }else if(id==='rampa')m.perfil([[-1.4,0],[1.4,0],[1.4,.48]],-.7,.7,'#9a4630');
-   else if(id==='pasaje'||id==='dato'){
+   }else if(id==='rampa'){
+     m.perfil([[-1.6,0],[1.6,0],[1.6,.72]],-.9,.9,'#8e9aa6');
+     b(1.52,.66,0,.16,.12,1.82,'#F6C538');
+     b(0,.04,0,3.2,.08,1.82,'#3b4754');
+   }else if(id==='baranda'){
+     for(const x of [-1.7,0,1.7])tubo([x,0,0],[x,.58,0],.05,'#3b4754');
+     tubo([-1.9,.58,0],[1.9,.58,0],.065,'#F6C538');
+     for(const x of [-1.7,1.7])b(x,.03,0,.36,.06,.36,'#243039');
+   }else if(id==='arco'){
+     for(const z of [-.95,.95])b(0,0,z,.24,1.95,.24,'#1C5C9C');
+     b(0,1.15,0,.32,.46,2.14,'#E38835');
+     b(0,1.15,0,.34,.14,2.16,'#F6C538');
+   }else if(id==='pasaje'||id==='dato'){
      m.perfil([[-.24,.45],[.24,.45],[.24,.74],[.12,.85],[-.24,.85]],-.035,.035,id==='dato'?'#9fd3e6':'#fbe7b0');
      for(const z of [-.039,.039]){b(-.12,.49,z,.028,.31,.01,'#154a80');b(.05,.59,z,.14,.035,.01,'#154a80');
        if(id==='dato')b(.05,.67,z,.14,.035,.01,'#154a80');}

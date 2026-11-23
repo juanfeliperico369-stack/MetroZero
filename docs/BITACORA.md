@@ -42,6 +42,23 @@
 - capturas a 412 × 860 del cruce, del tramo estrecho, de la zona de skate y de 🎮 sobre la ciclorruta Las Vegas.
 
 **Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.4.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.4.0-a8ecc966`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 32, **6,7 MB**), igual byte a byte a la construida. Las 100 partidas: 312 841 pasos y 0 errores.
+## Estado al 22‑nov‑2026 · v3.4.0 «Mundo 3D y Realismo» (Antigravity / Gemini)
+- **Documento maestro con marca de IA:** `docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md` (análisis comparativo de 35+ referencias + *UnoCero*, auditoría de modos rotos/lentos, arquitectura de un solo mundo 3D, diseño de Ciclovías + Skate/Parkour, plan lógico para los 10 géneros y síntesis multi‑IA).
+- **Fusión limpia sobre `origin/main` (`dd368a1`, v3.3.0 «Flexibilidad»):** armonizadas al 100 % las entregas de Claude (`96-arcade.js`, `97b-actividades.js`, `⚙️ Flexibilidad`), Codex (regresiones de `CableViaje`, `Bus` y colisión barrida de `Carrera`), OpenAI GPT‑6 (`98a`, `tools/test-gpt6-fluidez.mjs`) y OpenAI GPT‑6 Eón (`98b`, `tools/test-gpt6-eon-manejo.mjs`).
+- **Un solo mundo 3D + port de Motor City 4.9.0 «Realismo» a WebGL nativo (`src/js/22-gl.js`, 0 KB extra):**
+  - Sombreo procedural GLSL ES 1.00: juntas de ladrillo paisa y grano de fachada, textura y manchas de asfalto, tone mapping Khronos PBR Neutral, rebote hemisférico, especular Blinn‑Phong, ventanas diurnas con reflejo de cielo y nocturnas cálidas, guayacanes en flor, cornisas y barandas; conmutable en `⚙️ Flexibilidad` (`✨ Gráficos 3D · Realista / Clásico`).
+  - Corregido el bloqueo de `G3.init()` (`EM.headless` ya no marca `tried = true` de forma permanente tras correr el bot) y el degradado por distancia `smoothstep(160., 480., vd)` de luces nocturnas en ladera.
+  - Cámaras coherentes en el mismo mundo 3D (`36-libre.js`): `cen3d` (3D Cenital Norte arriba, encuadre 68–104 m), `3p`, `1p` (primera persona con cabinas/manubrios `EM.taller.primera`), `dron`, `cine` y `2d`.
+- **Mundo abierto RPG y actividades embebidas (`src/js/36c-actividades.js`, `EM.mundoRPG`):**
+  - 6 zonas físicas de Skate & Parkour en Medellín (3D y 2D), salto y trucos en vivo (`★`), acceso directo a los 10 módulos cerrados con retorno exacto a Ciudad Libre, 4 ramas de carrera RPG (`Aprendiz → Leyenda`) y 6 subtramas con decisiones inspiradas en *UnoCero*.
+  - Convivencia limpia con `97b-actividades.js` (`EM.actividades` en estaciones; la tecla `J` abre el hub RPG cuando estás lejos de una estación).
+- **Ciclovías + Skate/Parkour (`47-carrera.js`, `28-taller-corredor.js`):** 6 corredores de movilidad activa con ancho variable (`3↔2` carriles), giros direccionales `↰/↱`, rampas, barandas de grind, arcos parkour (`▼`), colisión continua barrida `[sPrev, st.s]` y `offAt` despejado de edificios.
+- **Arreglo integral de modos y UI responsiva:** `32-volante.js` (`VC.on` `suelo()`, crucero, `pointercancel`), `38-bus.js` (`alighted` + puertas limpias), `45-metroplus.js` (*Traffix* turbo + anillo de paciencia), `52-cableviaje.js` (`hourNow` cuadro 1 + arranca en marcha + ritmo `×1/×2/×3`), `60-mapa.js` (culling de etiquetas), `style.css` (mitad inferior táctil `.joyzone { top: 48%; }`, vista horizontal `860×412` + vertical `412×860`, WCAG AA y `#toast` despejado en *La Red*).
+- **Probado (0 errores en todo):**
+  - `node tools/build.mjs` → `dist/index.html` 8.633 KB · v3.4.0;
+  - `node tools/test.mjs 100 --shots /tmp/elmetro-34final`: **16/16 servidor local · 2.085 ms carga · 0 errores/avisos en selfTest · 100 partidas (284.224 pasos, 53 victorias, 0 errores) · 0 errores de consola**;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: **PASS**;
+  - Auditoría visual de 29 capturas PNG (vertical y horizontal) con WebGL 3D vivo verificado.
 
 ## Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
 - **Unión:**

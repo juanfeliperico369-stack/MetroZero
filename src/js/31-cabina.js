@@ -28,23 +28,24 @@
   };
   C.create = function (lv, opts) {
     const esc_ = String(lv).endsWith('#escuela'), st = base.create.call(this, esc_ ? String(lv).replace('#escuela', '') : lv, opts); if (esc_) st.lvId = lv;
-    Object.assign(st, { key: !!opts.auto, sel: opts.auto ? 1 : 0, sigOK: false, sigT: 0, vigNext: 28 + (st.seed % 12), vigAlarm: false, vigT: 0, vigAcks: 0, lastLev: 0, annDone: {}, wrongDoor: 0, tut: !opts.auto && !EM.headless && (esc_ || (!Save.d.tutMetro && st.line === 'A')) ? 0 : -1 });
+    const realista = esc_ || (!opts.auto && Save.d && Save.d.settings && Save.d.settings.cabReal === 1);
+    Object.assign(st, { cabReal: realista, key: !realista || !!opts.auto, sel: (!realista || opts.auto) ? 1 : 0, sigOK: !realista, sigT: 0, vigNext: (realista ? 28 : 48) + (st.seed % 12), vigAlarm: false, vigT: 0, vigAcks: 0, lastLev: 0, annDone: {}, wrongDoor: 0, tut: !opts.auto && !EM.headless && esc_ ? 0 : -1 });
     return st;
   };
-  C.vigAck = function (st) { if (!st.vigAlarm) return; st.vigAlarm = false; st.vigT = 0; st.vigNext = 25 + h2(st.t | 0, 7, 1) * 15; st.vigAcks++; this.sfx2(st, 'tap'); };
+  C.vigAck = function (st) { if (!st.vigAlarm) return; st.vigAlarm = false; st.vigT = 0; st.vigNext = (st.cabReal ? 25 : 42) + h2(st.t | 0, 7, 1) * 15; st.vigAcks++; this.sfx2(st, 'tap'); };
   C.sfx2 = function (st, k) { if (!EM.headless && Game.st === st) Snd.play(k); };
   C.tick = function (st, dt, K, line) {
     if (st.auto) { st.key = true; st.sel = 1; if (st.vigAlarm && st.vigT > .8) this.vigAck(st); }
     // sin cabina activa o sin sentido no hay tracción
     if ((!st.key || st.sel !== 1) && st.lev > 0) { st.lev = 0; if (!st._hintK || st.t - st._hintK > 4) { st._hintK = st.t; this.msg(st, !st.key ? 'Primero gira la llave 🔑' : 'Pon el sentido en ADELANTE', 'y'); } }
-    // salida: la señal se pone verde 1,5 s (inicio) o 2,5 s (estación) después de quedar listo
+    // salida: la señal se pone verde rápido en modo ágil (0,4 s) o realista (1,5–2,5 s)
     const ready = st.ph === 'ready' || (st.ph === 'dwell' && st.doors === 2);
-    if (ready && st.key && st.sel === 1 && !st.sigOK) { st.sigT += dt; if (st.sigT > (st.ph === 'ready' ? 1.5 : 2.5)) { st.sigOK = true; this.sfx2(st, 'beep'); this.msg(st, 'Señal de salida en verde ●', 'g'); } }
+    if (ready && st.key && st.sel === 1 && !st.sigOK) { st.sigT += dt; const waitSig = st.cabReal ? (st.ph === 'ready' ? 1.5 : 2.5) : .35; if (st.sigT > waitSig) { st.sigOK = true; this.sfx2(st, 'beep'); this.msg(st, 'Señal de salida en verde ●', 'g'); } }
     if (ready && !st.sigOK) { if (st.lev > .05 && !st.auto && (!st._hintS || st.t - st._hintS > 3)) { st._hintS = st.t; this.msg(st, 'Espera la señal de salida en verde', 'y'); } st.t += dt; if (st.ph === 'dwell') st.dwell += dt; st.lev = Math.min(st.lev, 0); return; }
     const was = st.ph;
     // vigilante (solo en marcha)
     if (st.ph === 'run') {
-      if (Math.abs(st.lev - st.lastLev) > .1) { if (st.vigAlarm) this.vigAck(st); else st.vigNext = Math.max(st.vigNext, 12); }
+      if (Math.abs(st.lev - st.lastLev) > .08 || st.crucero) { if (st.vigAlarm) this.vigAck(st); else st.vigNext = Math.max(st.vigNext, st.cabReal ? 14 : 26); }
       st.lastLev = st.lev;
       if (!st.vigAlarm) { st.vigNext -= dt; if (st.vigNext <= 0 && st.v > 1) { st.vigAlarm = true; st.vigT = 0; this.sfx2(st, 'warn'); this.msg(st, '⚠ VIGILANTE: tócalo para confirmar que estás atento', 'r'); } }
       else { st.vigT += dt; if ((st.vigT * 2 | 0) !== ((st.vigT - dt) * 2 | 0)) this.sfx2(st, 'beep'); if (st.vigT > 6) { st.vigAlarm = false; st.vigNext = 25; st.eb = 1; st.score -= 100; this.msg(st, 'Vigilante sin respuesta: freno de emergencia −100', 'r'); this.sfx2(st, 'crash'); vib(200); } }
@@ -54,7 +55,13 @@
   };
   C.doors = function (st, side) {
     if (st.ph !== 'dwell') { this.msg(st, 'Las puertas solo abren detenido en el andén', 'y'); return; }
-    if (st.doors === 0) { const ok = this.sideOf(st, st.ni); if (side && side !== ok) { st.score -= 120; st.wrongDoor++; this.msg(st, '¡Ese lado no tiene andén! Abre las de la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' −120', 'r'); this.sfx2(st, 'bad'); vib(120); return; } }
+    if (st.doors === 0) {
+      const ok = this.sideOf(st, st.ni);
+      if (side && side !== ok) {
+        if (st.cabReal) { st.score -= 120; st.wrongDoor++; this.msg(st, '¡Ese lado no tiene andén! Abre las de la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' −120', 'r'); this.sfx2(st, 'bad'); vib(120); return; }
+        this.msg(st, 'Andén a la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' · puertas abiertas', 'b');
+      }
+    }
     base.doors.call(this, st);
   };
   C.announce = function (st) {
@@ -74,7 +81,8 @@
     $('#cbAnn').onclick = () => this.announce(st);
     $('#cbDL').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'izq'); };
     $('#cbDR').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'der'); };
-    $('#cFF').onclick = () => { st.ff = !st.ff; }; $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
+    $('#cFF').onclick = () => { st.crucero = !st.crucero; st.ff = st.crucero; if (st.crucero && st.ph === 'ready') st.lev = .7; this.msg(st, st.crucero ? '⏫ Crucero activo' : 'Crucero apagado', 'b'); this.updCtl(st); };
+    $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
   };
   C.updCtl = function (st) {
     base.updCtl.call(this, st); if (EM.headless || Game.st !== st) return; const k = $('#cbKey'); if (!k) return;
@@ -83,7 +91,7 @@
     const side = st.ph === 'dwell' || (st.tgt[st.ni] - st.s) * st.dir < 400 ? this.sideOf(st, st.ni) : null, open = st.doors === 1;
     $('#cbDL').classList.toggle('hot', side === 'izq' && st.ph === 'dwell' && st.doors === 0); $('#cbDR').classList.toggle('hot', side === 'der' && st.ph === 'dwell' && st.doors === 0);
     $('#cbDL').classList.toggle('on', open && side === 'izq'); $('#cbDR').classList.toggle('on', open && side === 'der');
-    $('#cFF').classList.toggle('on', st.ff); $('#cFF').disabled = st.ph !== 'run';
+    $('#cFF').classList.toggle('on', !!(st.crucero || st.ff)); $('#cFF').disabled = st.ph === 'dwell' && st.doors !== 2;
     // escuela paso a paso
     const tb = $('#cTut'); if (st.tut >= 0) { while (st.tut < TUT.length && TUT[st.tut][1](st)) { st.tut++; this.sfx2(st, 'coin'); } if (st.tut >= TUT.length) { st.tut = -1; Save.d.tutMetro = 1; Save.write(); this.msg(st, '🎓 ¡Ya sabes manejar el metro! Escuela completa', 'g'); tb.classList.add('hide'); } else { tb.classList.remove('hide'); tb.innerHTML = `<b>Escuela · paso ${st.tut + 1} de ${TUT.length}</b><span>${esc(TUT[st.tut][0])}</span>`; } } else tb.classList.add('hide');
     if (st.ph === 'ready' && !st._rt2) { st._rt2 = 1; if (st.tut < 0 && !st.key) this.msg(st, 'Gira la llave, pon ADELANTE y espera la señal verde', 'b'); }

@@ -107,5 +107,5 @@
     }
     return r;
   };
-  Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { A.abrir(st); return; } return key0.call(this, st, k, down); };
+  Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { if (A.aqui(st)) A.abrir(st); else if (EM.mundoRPG && EM.mundoRPG.abrir) EM.mundoRPG.abrir(st); else A.abrir(st); return; } return key0.call(this, st, k, down); };
 })();

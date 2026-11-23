@@ -46,16 +46,24 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;
+uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;uniform vec3 camPos;uniform float uReal;
 varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;varying vec2 vuv;varying float vh;varying vec3 vw;
 float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+float ruido2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+vec3 neutralTM(vec3 c){float x=min(c.r,min(c.g,c.b));float o=x<.08?x-6.25*x*x:.04;c=max(c-o,0.);float pk=max(c.r,max(c.g,c.b));if(pk<.76)return c;float d=.24;float np=1.-d*d/(pk+d-.76);c*=np/max(pk,.0001);float g=1.-1./(.15*(pk-np)+1.);return mix(c,vec3(np),g);}
 void main(){vec3 base=mix(vc,tint.rgb,tint.a);
-if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;}
-vec3 N=normalize(vn);float d=max(dot(N,sun),0.);vec3 col=base*(amb+sunc*d);
-if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
-if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.22,f.x)*step(f.x,.78)*step(.28,f.y)*step(f.y,.82);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));col=mix(col,mix(col*.55,vec3(1.,.84,.48),night*lit),w*.85);}
-if(vk>3.5)col=base*(.8+.2*night);
-float fg=clamp(1.-exp(-vd*fogd),0.,1.);gl_FragColor=vec4(mix(col,fogc,fg),1.);}`;
+vec3 N=normalize(vn);vec3 V=normalize(camPos-wp);
+if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;if(uReal>.5){float fino=.93+.07*h(floor(vw.xz*6.5));float mancha=.92+.11*ruido2(vw.xz*.06)+.04*ruido2(vw.xz*.42);base*=fino*mancha;}}
+else if(vk<1.9&&uReal>.5){float muro=1.-smoothstep(.35,.6,abs(N.y));float grano=.94+.06*h(floor(vw.xz*5.+vw.y*3.1));float ladr=step(.07,base.r-base.g)*step(base.b,base.g+.03);float junta=muro*ladr*(1.-smoothstep(0.,.09,fract(vw.y*3.5)))*.22;base*=mix(1.,grano,muro)*(1.-junta);}
+float hemi=N.y*.5+.5;vec3 skyBounce=mix(amb*vec3(.78,.73,.68),amb*vec3(.96,1.05,1.16),hemi);
+float d=max(dot(N,sun),0.);vec3 H=normalize(sun+V);float sp=pow(max(dot(N,H),0.),26.);
+vec3 col=base*(skyBounce+sunc*d)+sunc*sp*(vk>.5&&vk<1.5?.08:vk>=2.?.05:.16)*(1.-night);
+if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;float farL=smoothstep(160.,480.,vd);vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*farL*on*vec3(1.,.74,.38)*1.3;}
+if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.2,f.x)*step(f.x,.8)*step(.24,f.y)*step(f.y,.8);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));vec3 dayWin=mix(vec3(.2,.32,.44),vec3(.56,.74,.86),hemi)+sunc*sp*.45;vec3 winCol=mix(dayWin,vec3(1.,.84,.48),night*lit);col=mix(col,mix(col*.45,winCol,.85),w*.86);}
+if(vk>3.5)col=base*(.85+.18*night);
+if(uReal>.5)col=neutralTM(col);
+float fg=clamp(1.-exp(-vd*fogd),0.,1.);float sAmt=max(dot(-V,sun),0.);vec3 fCol=mix(fogc,sunc*1.05+vec3(.18,.15,.1),pow(sAmt,6.)*.32*(1.-night));
+gl_FragColor=vec4(mix(col,fCol,fg),1.);}`;
 const SVS = `attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,.9999,1.);}`;
 const SFS = `precision mediump float;uniform vec3 top;uniform vec3 bot;uniform vec3 sc;uniform vec3 sp;varying vec2 v;void main(){vec3 c=mix(bot,top,clamp(v.y*.5+.5,0.,1.));float d=length((v-sp.xy)*vec2(sp.z,1.));c+=sc*(smoothstep(.06,.04,d)+.35*smoothstep(.45,0.,d));gl_FragColor=vec4(c,1.);}`;
 /* constructor de mallas (triángulos sin índices, sombreado plano estilo low‑poly) */
@@ -88,16 +96,16 @@ class MB {
   done() { this.flush(); return this.parts; }
 }
 const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
-const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246'].map(rgb);
+const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246', '#e6b822', '#d96ca8'].map(rgb);
 const G3 = EM.g3 = {
   ok: false, tried: false, gl: null, cv: null, P: null, S: null, stat: [], far: [], near: [], bld: [], win: null, texFar: null, texNear: null, cube: null, quadB: null, scale: .5,
   init() {
-    if (this.tried) return this.ok; this.tried = true;
     if (EM.headless || !MAP.ready) return false;
+    if (this.tried) return this.ok; this.tried = true;
     try {
-      const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:pixelated;z-index:0';
+      const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:auto;z-index:0';
       $('#game').insertBefore(cv, $('#gcv'));
-      const gl = this.gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: true, powerPreference: 'low-power', preserveDrawingBuffer: false }); if (!gl) return false;
+      const gl = this.gl = cv.getContext('webgl', { antialias: true, alpha: false, depth: true, powerPreference: 'low-power', preserveDrawingBuffer: false }); if (!gl) return false;
       const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
       const pr = (v, f) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const q = gl.getActiveUniform(p, i); u[q.name] = gl.getUniformLocation(p, q.name); } return { p, u, a: { p: gl.getAttribLocation(p, 'p'), n: gl.getAttribLocation(p, 'n'), c: gl.getAttribLocation(p, 'c'), k: gl.getAttribLocation(p, 'k') } }; };
       this.P = pr(VS, FS); this.S = pr(SVS, SFS);
@@ -172,19 +180,22 @@ const G3 = EM.g3 = {
         if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
       }
     }
-    // árboles en parques y montes cercanos
+    // árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos)
     const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
-      const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .3) || (v === TT.MOUNT && r < .6))) continue;
-      const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14; bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[(r * 53 | 0) % TREE_COL.length]);
+      const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .32) || (v === TT.MOUNT && r < .6))) continue;
+      const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14;
+      if (typeof VC !== 'undefined' && VC.on && VC.sembrable && !VC.sembrable(tx, tz, VC.suelosEn(tx - 2, tz - 2, tx + 2, tz + 2))) continue;
+      const tci = v === TT.GRASS && h2(X, Z, 71) < .16 ? (h2(X, Z, 73) < .55 ? 5 : 6) : ((r * 53 | 0) % 5);
+      bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[tci]);
     }
     this.bld = bm.done().map(a => this.buf(a));
     this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
-  /* las casas y los edificios reales en 3D (1.5.0):
+  /* las casas y los edificios reales en 3D (1.5.0–3.2.0):
      · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
-       y coronas escalonadas con baliza roja nocturna en las torres altas.
+       remates arquitectónicos en edificios medianos y coronas escalonadas con baliza roja nocturna en las torres altas.
      · Entre R y R2 (700–1050 m): anillo exterior de edificios reales simplificados para ampliar el horizonte urbano sin perder fluidez. */
   edifReales(bm, cx, cz, R, R2 = R) {
     const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; };
@@ -207,9 +218,13 @@ const G3 = EM.g3 = {
           const tc = tq < .2 ? [.16, .34, .58] : [.18, .19, .22];
           bm.box(b.x + b.ux * Lx * .22, yt, b.y + b.uy * Lx * .22, a, .95, .95, 1.15, tc, tc, 0, 0);
         } else if (b.h >= 26) {
-          // torre escalonada con cuarto de máquinas y baliza nocturna en las más altas
-          bm.box(b.x, yt, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0);
-          if (b.h >= 42) bm.box(b.x, yt + 2.8, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4);
+          // cornisa + torre escalonada con cuarto de máquinas y baliza nocturna en las más altas
+          bm.box(b.x, yt - .15, b.y, a, Lx + .45, Wz + .45, .55, cr, cr, 0, 0);
+          bm.box(b.x, yt + .4, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0);
+          if (b.h >= 42) bm.box(b.x, yt + 3.2, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4);
+        } else if (b.h >= 12 && d2 < Rsq * .55) {
+          // remate superior de parapeto en edificios medianos cercanos
+          bm.box(b.x, yt - .1, b.y, a, Lx + .3, Wz + .3, .45, cr, cr, 0, 0);
         }
       }
     }
@@ -218,11 +233,12 @@ const G3 = EM.g3 = {
     for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes y deprimidos: tablero por tramos a la altura de su rampa, o muros de portal en los deprimidos
+    // puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
-        if (B.is_tunnel) { const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .4), ny = Math.cos(an) * (B.w / 2 + .4), zm = MAP.elevM(mx, my); bm.box(mx + nx, zm - h, my + ny, an, L + .3, .7, h + .8, col, col); bm.box(mx - nx, zm - h, my - ny, an, L + .3, .7, h + .8, col, col); }
-        else bm.box(mx, MAP.elevM(mx, my) + h - .9, my, Math.atan2(by - ay, bx - ax), L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); } }
+        const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .2), ny = Math.cos(an) * (B.w / 2 + .2), zm = MAP.elevM(mx, my);
+        if (B.is_tunnel) { bm.box(mx + nx, zm - h, my + ny, an, L + .3, .7, h + .8, col, col); bm.box(mx - nx, zm - h, my - ny, an, L + .3, .7, h + .8, col, col); }
+        else { bm.box(mx, zm + h - .9, my, an, L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); bm.box(mx + nx, zm + h, my + ny, an, L + .3, .28, .75, col, col); bm.box(mx - nx, zm + h, my - ny, an, L + .3, .28, .75, col, col); } } }
   },
   /* red de transporte estática: viaductos, rieles, postes, estaciones con interior (andén, línea amarilla, torniquetes y escaleras), torres de cable y carriles de bus */
   netZ: {},
@@ -308,7 +324,7 @@ const G3 = EM.g3 = {
   },
   /* ---------- dibujo ---------- */
   draw(cam, opts = {}) {
-    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .4 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : opts.escala || .55), ir = opts.suave ? 'auto' : 'pixelated'; if (cv.style.imageRendering !== ir) cv.style.imageRendering = ir;
+    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .45 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : opts.escala || .82), ir = opts.suave === false ? 'pixelated' : 'auto'; if (cv.style.imageRendering !== ir) cv.style.imageRendering = ir;
     const w = Math.max(64, Math.round(cv.clientWidth * q)), h = Math.max(64, Math.round(cv.clientHeight * q)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
     if (!this.win || dist(cam.eye[0], cam.eye[2], this.win.cx, this.win.cz) > Math.min(1000, this.win.s * .2)) this.buildNear(cam.eye[0], cam.eye[2]);
     const sky = SKY.at(opts.hour != null ? opts.hour : 12), V = M4.look(cam.eye, cam.at), Pm = M4.persp(cam.fov || 1.05, w / h, opts.cerca || 1.2, 26000), VP = M4.mul(Pm, V); this.VP = VP; this.vw = w; this.vh = h;
@@ -321,7 +337,7 @@ const G3 = EM.g3 = {
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
     gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
     const P = this.P; gl.useProgram(P.p); const u = P.u;
-    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog);
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (Save.d && Save.d.settings && Save.d.settings.realismo === 0) ? 0 : 1);
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };

@@ -85,16 +85,22 @@
     carrera.ai = function (st) {
       if (!st || !Array.isArray(st.obs) || !Number.isFinite(st.s) || !Number.isFinite(st.v)) return anteriorAI.apply(this, arguments);
       if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }
+      if (st.y > .55 && st.airTrick === 0) return 'truco';
+      const giro = (st.giros || []).find(q => !q.hecho && q.s - st.s < 22 && q.s - st.s > -4);
+      if (giro) return giro.dir < 0 ? 'izq' : 'der';
       const ventana = crVentana(st, st.s + .01, st.s + Math.max(25, Math.min(42, st.v * 2)));
       const obst = ventana.find(o => !o.hecho && CR_OBS[o.k] && o.c === st.c);
       if (!obst || st.turbo > 0) return null;
       const d = obst.s - st.s;
       // Reaccionar cuando quedan ~1-1,3 s, y no malgastar cambios de carril demasiado pronto.
       if (d > Math.max(12, st.v * 1.25)) return null;
-      const tipo = CR_OBS[obst.k], saltable = tipo[3] === 0 || tipo[1] < .9;
+      const tipo = CR_OBS[obst.k];
+      if (tipo[3] === 2 || tipo[3] === 3) return null; // aprovechar rampas y barandas de grind
+      if (tipo[3] === 4) return d <= Math.max(12, st.v * .85) ? 'agacha' : null;
+      const saltable = tipo[3] === 0 || tipo[1] < .9;
       if (saltable) return d <= Math.max(11, st.v * .8) && st.y === 0 && st.vy <= 0 ? 'salta' : null;
-      const espacio = Math.max(13, st.v * 1.3);
-      const libres = [0, 1, 2].filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && o.c === c && o.s <= st.s + espacio));
+      const espacio = Math.max(13, st.v * 1.3), carriles = st.ancho === 2 ? [0, 1] : [0, 1, 2];
+      const libres = carriles.filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && CR_OBS[o.k][3] === 1 && o.c === c && o.s <= st.s + espacio));
       if (libres.length) {
         libres.sort((a, b) => Math.abs(a - st.c) - Math.abs(b - st.c));
         return libres[0] < st.c ? 'izq' : 'der';

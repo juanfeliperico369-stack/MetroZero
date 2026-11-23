@@ -2,30 +2,43 @@
   "agente": "antigravity-gemini",
   "marca": "Antigravity (Google DeepMind / Gemini)",
   "rama": "ia/antigravity/evolucion-3.2",
-  "base": "origin/ccr-2a67f935-oat714 (v3.1.0 Fluido, aef9362)",
-  "actualizado": "2026-11-22T14:15:00Z",
-  "fase_actual": "Evolución 3.2 — Investigación comparativa (35+ juegos + UnoCero), arreglo total de modos lentos/rotos, desbloqueo completo, Ciclovías/Skate/Parkour, actividades RPG en mundo abierto y Un Solo Mundo 3D con cámaras coherentes",
+  "version": "3.4.0",
+  "base": "origin/main (v3.3.0 Flexibilidad + Motor City 4.9.0, dd368a1)",
+  "actualizado": "2026-11-23T02:30:00Z",
+  "fase_actual": "Entrega completa v3.4.0 «Mundo 3D y Realismo» — fusionada con origin/main (Claude v3.3.0, Codex, GPT-6, GPT-6 Eón), port WebGL nativo de Motor City 4.9.0, EM.mundoRPG + 6 Skateparks 3D/2D, Ciclovías/Skate/Parkour y auditoría visual 3D verificada con 0 errores",
   "documento_evolucion": "docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md",
   "archivos_nuevos": [
     "docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md",
-    "src/js/36c-actividades.js"
+    "src/js/36c-actividades.js",
+    ".ai-coord/buzon/20261122-cierre-antigravity-evolucion-3.4.md"
   ],
-  "archivos_a_mejorar": [
+  "archivos_actualizados": [
     "src/js/00-core.js",
     "src/js/22-gl.js",
-    "src/js/27-camara.js",
-    "src/js/30-conduce.js",
-    "src/js/30b-tranvia.js",
-    "src/js/31-cabina.js",
+    "src/js/25-game.js",
+    "src/js/28-taller-corredor.js",
     "src/js/32-volante.js",
     "src/js/36-libre.js",
     "src/js/38-bus.js",
     "src/js/45-metroplus.js",
     "src/js/47-carrera.js",
     "src/js/52-cableviaje.js",
+    "src/js/60-mapa.js",
     "src/js/65-menu.js",
     "src/js/90-bot.js",
-    "src/style.css"
+    "src/js/96-arcade.js",
+    "src/js/97b-actividades.js",
+    "src/js/98b-openai-gpt6-eon-manejo.js",
+    "src/style.css",
+    "tools/test.mjs",
+    "docs/BITACORA.md"
   ],
-  "estado": "en_curso"
+  "pruebas": {
+    "build": "dist/index.html 8633 KB · v3.4.0",
+    "test_100": "OK, 0 errores (100 partidas, 284224 pasos, 53 victorias, carga 2085 ms)",
+    "test_gpt6_fluidez": "PASS",
+    "test_gpt6_eon_manejo": "PASS",
+    "qa_visual_3d": "29 capturas PNG (412x860 y 860x412) con WebGL 3D vivo verificado"
+  },
+  "estado": "entregado"
 }

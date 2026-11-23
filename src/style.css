@@ -382,3 +382,72 @@ body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8
 
 /* 3.4 · jugo: los botones responden al dedo (scale compone con el transform de cada uno) */
 .abtn:active,.crbtns button:active,.pedal:active,.cb:active,.vsel button:active,.gbtns .btn:active,.tramo:active{filter:brightness(1.18);scale:.94}
+/* ---------- 3.2.0 · fluidez, contraste WCAG AA, horizontal/vertical, actividades RPG y ciclovías ---------- */
+.news .tick{padding-left:14px}
+body:has(#red.on) #toast{bottom:calc(84px + var(--sab))}
+#game .gbtns .btn.on,#game .gbtns .btn.mos,.btn.on{background:var(--lJ);color:var(--tinta);border-color:rgba(19,37,58,.18)}
+#game .gbtns .btn.cr-on{background:var(--lT);color:#fff}
+#game #bsView{flex-direction:column}
+.camui.hide{display:none!important}
+.joyzone{top:48%}
+.lbbtns{grid-auto-rows:64px}
+.abtn.cru,.abtn.cruise{grid-column:2;grid-row:3;background:var(--noche2);color:#fff;font-size:20px}
+.abtn.cru small,.abtn.cruise small{font-size:10px;color:#dbeeff}
+.abtn.cru.on,.abtn.cruise.on{background:var(--lT);color:#fff;box-shadow:0 0 0 2px var(--led),0 3px 0 rgba(8,22,40,.35)}
+.crbtns{gap:10px;padding:0 10px}
+.crbtns button{width:68px;height:60px;font-size:23px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.crbtns button small{font-size:10px;font-weight:800;margin-top:2px;color:var(--suave)}
+.crbtns button.cr-jump{background:var(--lT);color:#fff}
+.crbtns button.cr-jump small{color:#eaf8ec}
+.crbtns button.cr-duck{background:var(--lA);color:#fff}
+.crbtns button.cr-duck small{color:#dbeeff}
+.crbtns button.cr-trick{background:var(--lJ);color:var(--tinta);animation:pulse .65s infinite alternate}
+.crbtns button.cr-trick small{color:var(--tinta)}
+.lever-nudge{position:absolute;right:78px;bottom:calc(14px + var(--sab));display:flex;flex-direction:column;gap:8px}
+.lever-nudge button{width:46px;height:46px;border-radius:12px;background:#243039;color:#ffd27a;font-size:19px;font-weight:900;box-shadow:0 3px 0 #0b1115}
+.lever-nudge button.on{background:var(--lT);color:#fff}
+/* barra flotante de actividad cercana en Ciudad Libre (sin tapar controles) */
+.actbar{position:absolute;left:134px;right:152px;bottom:calc(12px + var(--sab));z-index:5;display:flex;align-items:center;gap:6px;background:rgba(15,34,56,.94);color:#fff;border-radius:14px;padding:6px 8px;box-shadow:inset 5px 0 0 var(--lT),var(--sombra);pointer-events:auto;max-width:420px;margin:0 auto}
+.actbar.hide{display:none!important}
+.actbar button{flex:1;min-width:0;min-height:38px;padding:5px 8px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actbar button:first-child{background:var(--lT);color:#fff}
+.actbar button b{font-size:15px;line-height:1}
+@media (max-width:460px){.actbar{left:10px;right:152px;bottom:calc(138px + var(--sab))}}
+body.zurdo .actbar{left:152px;right:10px}
+/* modal de actividades, carreras RPG y subtramas */
+.rpg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+@media (max-width:420px){.rpg-grid{grid-template-columns:1fr}}
+.rpg-card{background:var(--concreto);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.rpg-card b{font-family:var(--fd);font-size:17px;line-height:1.1}
+.rpg-card small{font-size:12px;color:var(--suave)}
+.rpg-bar{height:8px;border-radius:4px;background:rgba(15,34,56,.14);overflow:hidden}
+.rpg-bar i{display:block;height:100%;background:var(--lA);border-radius:4px}
+.zona-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--concreto);font-size:12px;font-weight:800;margin:3px 4px 3px 0}
+/* ---------- vista horizontal (landscape) en celular y tablet ---------- */
+@media (orientation:landscape) and (max-height:540px){
+  #ghud{min-height:calc(40px + var(--sat))}
+  #ghud .gt b{font-size:16px}
+  #ghud .gt small{display:none}
+  #ghud .ib{width:42px;font-size:18px}
+  .vsel{top:calc(46px + var(--sat));gap:4px}
+  .vsel button{width:40px;height:38px;font-size:11px;border-radius:10px}
+  #game #lbView{max-height:calc(100vh - 140px - var(--sat) - var(--sab))}
+  .jobbar{top:calc(46px + var(--sat));max-width:340px;padding:6px 10px 6px 12px}
+  .jobbar.tut,.jobbar.trama{top:calc(46px + var(--sat));left:8px;right:auto;max-width:320px}
+  .camui{top:calc(52px + var(--sat))}
+  .camui button{width:34px;height:34px;font-size:15px}
+  .lbbtns{grid-template-columns:54px 54px;grid-template-rows:54px 54px;grid-auto-rows:54px;gap:6px}
+  .abtn{font-size:20px;border-radius:14px}
+  .abtn.big{font-size:26px}
+  .lbmini{width:92px;height:92px;left:8px;bottom:calc(8px + var(--sab))}
+  .wheel{width:108px;height:108px}
+  .pedal{width:72px;height:min(24vh,82px)}
+  .lever{height:min(58vh,200px);width:54px}
+  .lever-nudge{right:68px}
+  .cabgrid{grid-template-columns:repeat(4,42px);grid-auto-rows:38px;gap:4px}
+  .crbtns{bottom:calc(8px + var(--sab));gap:10px}
+  .crbtns button{width:60px;height:50px;font-size:20px}
+  .actbar{left:110px;right:134px;bottom:calc(8px + var(--sab))}
+  #game:has(.lbbtns) .trtalk{bottom:calc(132px + var(--sab))}
+}
+
