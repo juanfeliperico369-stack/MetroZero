@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.4.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.5.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.4.0** · compilado el 2026-11-23.
+> Versión del juego **v3.5.0** · compilado el 2026-11-23.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -806,6 +806,18 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+##### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
+- **Había dos 3.4.0 a la vez:**
+  - «Jugo y ciclovías», de la otra sesión de Claude (`ccr-2a67f935-oat714`), ya publicada en la web y en la APK 32 pero sin llegar a `main`;
+  - «Mundo 3D y Realismo», de Antigravity y Gemini (`ia/antigravity/evolucion-3.2`): mundo 3D único (cen3d y 1p), mundoRPG con 6 zonas de skate y parkour, 10 módulos y 6 subtramas, y shaders 3D nativos.
+- Van juntas en `main` como **3.5.0** (APK con código 33).
+- **Choques resueltos:**
+  - el menú quedó con la descripción del corredor por ciclorrutas y con «todos los capítulos abiertos»;
+  - la posición en la carrera: la pista de ciclorruta de Claude más los carriles según el tramo de Antigravity;
+  - el CSS y los documentos de arte llevan lo de las dos.
+- **Arreglo:** la carrera por ciclorruta no tenía la «colisión barrida» que Antigravity le puso a la de líneas. Con un cuadro lento, el jugador podía saltarse una rampa. Ahora se revisa desde donde estaba antes del paso (`47b-ciclovia.js`).
+- **Pruebas:** `node tools/test.mjs 100` con 0 errores (100 partidas, 57 victorias). Motor City 5.1.0 en `motor-city/`.
+
 ##### Estado al 23‑nov‑2026 · v3.4.0 «Jugo y ciclovías» (Claude, IA de El Metro)
 **Qué pidió el autor:** «continúa desarrollándolo con todo lo nuevo».
 - Lo nuevo era la 3.3.0 «Flexibilidad» y Motor City 4.7–4.9, que se trajeron de `main`.
@@ -841,6 +853,25 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 - las pruebas de GPT‑6 (`tools/test-gpt6-*.mjs`): PASS;
 - con el piloto: Las Vegas, La Playa, La 65 y la ciclobanda Centro Automotriz llegan a la meta con 2–3 vidas;
 - capturas a 412 × 860 del cruce, del tramo estrecho, de la zona de skate y de 🎮 sobre la ciclorruta Las Vegas.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.4.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.4.0-a8ecc966`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 32, **6,7 MB**), igual byte a byte a la construida. Las 100 partidas: 312 841 pasos y 0 errores.
+##### Estado al 22‑nov‑2026 · v3.4.0 «Mundo 3D y Realismo» (Antigravity / Gemini)
+- **Documento maestro con marca de IA:** `docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md` (análisis comparativo de 35+ referencias + *UnoCero*, auditoría de modos rotos/lentos, arquitectura de un solo mundo 3D, diseño de Ciclovías + Skate/Parkour, plan lógico para los 10 géneros y síntesis multi‑IA).
+- **Fusión limpia sobre `origin/main` (`dd368a1`, v3.3.0 «Flexibilidad»):** armonizadas al 100 % las entregas de Claude (`96-arcade.js`, `97b-actividades.js`, `⚙️ Flexibilidad`), Codex (regresiones de `CableViaje`, `Bus` y colisión barrida de `Carrera`), OpenAI GPT‑6 (`98a`, `tools/test-gpt6-fluidez.mjs`) y OpenAI GPT‑6 Eón (`98b`, `tools/test-gpt6-eon-manejo.mjs`).
+- **Un solo mundo 3D + port de Motor City 4.9.0 «Realismo» a WebGL nativo (`src/js/22-gl.js`, 0 KB extra):**
+  - Sombreo procedural GLSL ES 1.00: juntas de ladrillo paisa y grano de fachada, textura y manchas de asfalto, tone mapping Khronos PBR Neutral, rebote hemisférico, especular Blinn‑Phong, ventanas diurnas con reflejo de cielo y nocturnas cálidas, guayacanes en flor, cornisas y barandas; conmutable en `⚙️ Flexibilidad` (`✨ Gráficos 3D · Realista / Clásico`).
+  - Corregido el bloqueo de `G3.init()` (`EM.headless` ya no marca `tried = true` de forma permanente tras correr el bot) y el degradado por distancia `smoothstep(160., 480., vd)` de luces nocturnas en ladera.
+  - Cámaras coherentes en el mismo mundo 3D (`36-libre.js`): `cen3d` (3D Cenital Norte arriba, encuadre 68–104 m), `3p`, `1p` (primera persona con cabinas/manubrios `EM.taller.primera`), `dron`, `cine` y `2d`.
+- **Mundo abierto RPG y actividades embebidas (`src/js/36c-actividades.js`, `EM.mundoRPG`):**
+  - 6 zonas físicas de Skate & Parkour en Medellín (3D y 2D), salto y trucos en vivo (`★`), acceso directo a los 10 módulos cerrados con retorno exacto a Ciudad Libre, 4 ramas de carrera RPG (`Aprendiz → Leyenda`) y 6 subtramas con decisiones inspiradas en *UnoCero*.
+  - Convivencia limpia con `97b-actividades.js` (`EM.actividades` en estaciones; la tecla `J` abre el hub RPG cuando estás lejos de una estación).
+- **Ciclovías + Skate/Parkour (`47-carrera.js`, `28-taller-corredor.js`):** 6 corredores de movilidad activa con ancho variable (`3↔2` carriles), giros direccionales `↰/↱`, rampas, barandas de grind, arcos parkour (`▼`), colisión continua barrida `[sPrev, st.s]` y `offAt` despejado de edificios.
+- **Arreglo integral de modos y UI responsiva:** `32-volante.js` (`VC.on` `suelo()`, crucero, `pointercancel`), `38-bus.js` (`alighted` + puertas limpias), `45-metroplus.js` (*Traffix* turbo + anillo de paciencia), `52-cableviaje.js` (`hourNow` cuadro 1 + arranca en marcha + ritmo `×1/×2/×3`), `60-mapa.js` (culling de etiquetas), `style.css` (mitad inferior táctil `.joyzone { top: 48%; }`, vista horizontal `860×412` + vertical `412×860`, WCAG AA y `#toast` despejado en *La Red*).
+- **Probado (0 errores en todo):**
+  - `node tools/build.mjs` → `dist/index.html` 8.633 KB · v3.4.0;
+  - `node tools/test.mjs 100 --shots /tmp/elmetro-34final`: **16/16 servidor local · 2.085 ms carga · 0 errores/avisos en selfTest · 100 partidas (284.224 pasos, 53 victorias, 0 errores) · 0 errores de consola**;
+  - `tools/test-gpt6-fluidez.mjs` y `tools/test-gpt6-eon-manejo.mjs`: **PASS**;
+  - Auditoría visual de 29 capturas PNG (vertical y horizontal) con WebGL 3D vivo verificado.
 
 ##### Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
 - **Unión:**
@@ -3593,7 +3624,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (112 archivos, 1497 KB)
+## Código fuente (113 archivos, 1563 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4070,6 +4101,74 @@ body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8
 
 /* 3.4 · jugo: los botones responden al dedo (scale compone con el transform de cada uno) */
 .abtn:active,.crbtns button:active,.pedal:active,.cb:active,.vsel button:active,.gbtns .btn:active,.tramo:active{filter:brightness(1.18);scale:.94}
+/* ---------- 3.2.0 · fluidez, contraste WCAG AA, horizontal/vertical, actividades RPG y ciclovías ---------- */
+.news .tick{padding-left:14px}
+body:has(#red.on) #toast{bottom:calc(84px + var(--sab))}
+#game .gbtns .btn.on,#game .gbtns .btn.mos,.btn.on{background:var(--lJ);color:var(--tinta);border-color:rgba(19,37,58,.18)}
+#game .gbtns .btn.cr-on{background:var(--lT);color:#fff}
+#game #bsView{flex-direction:column}
+.camui.hide{display:none!important}
+.joyzone{top:48%}
+.lbbtns{grid-auto-rows:64px}
+.abtn.cru,.abtn.cruise{grid-column:2;grid-row:3;background:var(--noche2);color:#fff;font-size:20px}
+.abtn.cru small,.abtn.cruise small{font-size:10px;color:#dbeeff}
+.abtn.cru.on,.abtn.cruise.on{background:var(--lT);color:#fff;box-shadow:0 0 0 2px var(--led),0 3px 0 rgba(8,22,40,.35)}
+.crbtns{gap:10px;padding:0 10px}
+.crbtns button{width:68px;height:60px;font-size:23px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.crbtns button small{font-size:10px;font-weight:800;margin-top:2px;color:var(--suave)}
+.crbtns button.cr-jump{background:var(--lT);color:#fff}
+.crbtns button.cr-jump small{color:#eaf8ec}
+.crbtns button.cr-duck{background:var(--lA);color:#fff}
+.crbtns button.cr-duck small{color:#dbeeff}
+.crbtns button.cr-trick{background:var(--lJ);color:var(--tinta);animation:pulse .65s infinite alternate}
+.crbtns button.cr-trick small{color:var(--tinta)}
+.lever-nudge{position:absolute;right:78px;bottom:calc(14px + var(--sab));display:flex;flex-direction:column;gap:8px}
+.lever-nudge button{width:46px;height:46px;border-radius:12px;background:#243039;color:#ffd27a;font-size:19px;font-weight:900;box-shadow:0 3px 0 #0b1115}
+.lever-nudge button.on{background:var(--lT);color:#fff}
+/* barra flotante de actividad cercana en Ciudad Libre (sin tapar controles) */
+.actbar{position:absolute;left:134px;right:152px;bottom:calc(12px + var(--sab));z-index:5;display:flex;align-items:center;gap:6px;background:rgba(15,34,56,.94);color:#fff;border-radius:14px;padding:6px 8px;box-shadow:inset 5px 0 0 var(--lT),var(--sombra);pointer-events:auto;max-width:420px;margin:0 auto}
+.actbar.hide{display:none!important}
+.actbar button{flex:1;min-width:0;min-height:38px;padding:5px 8px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actbar button:first-child{background:var(--lT);color:#fff}
+.actbar button b{font-size:15px;line-height:1}
+@media (max-width:460px){.actbar{left:10px;right:152px;bottom:calc(138px + var(--sab))}}
+body.zurdo .actbar{left:152px;right:10px}
+/* modal de actividades, carreras RPG y subtramas */
+.rpg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+@media (max-width:420px){.rpg-grid{grid-template-columns:1fr}}
+.rpg-card{background:var(--concreto);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.rpg-card b{font-family:var(--fd);font-size:17px;line-height:1.1}
+.rpg-card small{font-size:12px;color:var(--suave)}
+.rpg-bar{height:8px;border-radius:4px;background:rgba(15,34,56,.14);overflow:hidden}
+.rpg-bar i{display:block;height:100%;background:var(--lA);border-radius:4px}
+.zona-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:var(--concreto);font-size:12px;font-weight:800;margin:3px 4px 3px 0}
+/* ---------- vista horizontal (landscape) en celular y tablet ---------- */
+@media (orientation:landscape) and (max-height:540px){
+  #ghud{min-height:calc(40px + var(--sat))}
+  #ghud .gt b{font-size:16px}
+  #ghud .gt small{display:none}
+  #ghud .ib{width:42px;font-size:18px}
+  .vsel{top:calc(46px + var(--sat));gap:4px}
+  .vsel button{width:40px;height:38px;font-size:11px;border-radius:10px}
+  #game #lbView{max-height:calc(100vh - 140px - var(--sat) - var(--sab))}
+  .jobbar{top:calc(46px + var(--sat));max-width:340px;padding:6px 10px 6px 12px}
+  .jobbar.tut,.jobbar.trama{top:calc(46px + var(--sat));left:8px;right:auto;max-width:320px}
+  .camui{top:calc(52px + var(--sat))}
+  .camui button{width:34px;height:34px;font-size:15px}
+  .lbbtns{grid-template-columns:54px 54px;grid-template-rows:54px 54px;grid-auto-rows:54px;gap:6px}
+  .abtn{font-size:20px;border-radius:14px}
+  .abtn.big{font-size:26px}
+  .lbmini{width:92px;height:92px;left:8px;bottom:calc(8px + var(--sab))}
+  .wheel{width:108px;height:108px}
+  .pedal{width:72px;height:min(24vh,82px)}
+  .lever{height:min(58vh,200px);width:54px}
+  .lever-nudge{right:68px}
+  .cabgrid{grid-template-columns:repeat(4,42px);grid-auto-rows:38px;gap:4px}
+  .crbtns{bottom:calc(8px + var(--sab));gap:10px}
+  .crbtns button{width:60px;height:50px;font-size:20px}
+  .actbar{left:110px;right:134px;bottom:calc(8px + var(--sab))}
+  #game:has(.lbbtns) .trtalk{bottom:calc(132px + var(--sab))}
+}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -4078,7 +4177,7 @@ body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.4.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4125,7 +4224,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: '2d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {} };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
 }
 const Save = EM.save = {
   d: null,
@@ -4145,6 +4244,13 @@ const Save = EM.save = {
     for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;
     if (!isFinite(d.wallet) || d.wallet < 0) d.wallet = 0;
     if (!Array.isArray(d.log)) d.log = []; if (!d.libre || typeof d.libre !== 'object') d.libre = b.libre; if (!d.libre.visited || typeof d.libre.visited !== 'object') d.libre.visited = {};
+    if (!d.rpg || typeof d.rpg !== 'object') d.rpg = b.rpg;
+    if (!d.rpg.xp || typeof d.rpg.xp !== 'object') d.rpg.xp = b.rpg.xp;
+    for (const k in b.rpg.xp) if (typeof d.rpg.xp[k] !== 'number' || !isFinite(d.rpg.xp[k])) d.rpg.xp[k] = 0;
+    if (typeof d.rpg.rep !== 'number' || !isFinite(d.rpg.rep)) d.rpg.rep = 0;
+    if (typeof d.rpg.trucos !== 'number' || !isFinite(d.rpg.trucos)) d.rpg.trucos = 0;
+    if (!d.rpg.subtramas || typeof d.rpg.subtramas !== 'object') d.rpg.subtramas = {};
+    if (!d.rpg.zonas || typeof d.rpg.zonas !== 'object') d.rpg.zonas = {};
     return d;
   },
   write() { if (EM.headless) return; try { localStorage.setItem(KEY, JSON.stringify(this.d)); } catch (e) { } },
@@ -6942,16 +7048,24 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;
+uniform sampler2D T;uniform vec4 R;uniform vec4 hole;uniform vec3 sun;uniform vec3 amb;uniform vec3 sunc;uniform vec3 fogc;uniform float fogd;uniform float night;uniform float time;uniform vec4 tint;uniform vec3 camPos;uniform float uReal;
 varying vec3 vc;varying float vk;varying vec3 vn;varying vec3 wp;varying float vd;varying vec2 vuv;varying float vh;varying vec3 vw;
 float h(vec2 q){return fract(sin(dot(q,vec2(12.9898,78.233)))*43758.5453);}
+float ruido2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+vec3 neutralTM(vec3 c){float x=min(c.r,min(c.g,c.b));float o=x<.08?x-6.25*x*x:.04;c=max(c-o,0.);float pk=max(c.r,max(c.g,c.b));if(pk<.76)return c;float d=.24;float np=1.-d*d/(pk+d-.76);c*=np/max(pk,.0001);float g=1.-1./(.15*(pk-np)+1.);return mix(c,vec3(np),g);}
 void main(){vec3 base=mix(vc,tint.rgb,tint.a);
-if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;}
-vec3 N=normalize(vn);float d=max(dot(N,sun),0.);vec3 col=base*(amb+sunc*d);
-if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*on*vec3(1.,.74,.38)*1.3;}
-if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.22,f.x)*step(f.x,.78)*step(.28,f.y)*step(f.y,.82);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));col=mix(col,mix(col*.55,vec3(1.,.84,.48),night*lit),w*.85);}
-if(vk>3.5)col=base*(.8+.2*night);
-float fg=clamp(1.-exp(-vd*fogd),0.,1.);gl_FragColor=vec4(mix(col,fogc,fg),1.);}`;
+vec3 N=normalize(vn);vec3 V=normalize(camPos-wp);
+if(vk>=2.&&vk<3.){if(vh>.5)discard;base=texture2D(T,vuv+.5).rgb;if(uReal>.5){float fino=.93+.07*h(floor(vw.xz*6.5));float mancha=.92+.11*ruido2(vw.xz*.06)+.04*ruido2(vw.xz*.42);base*=fino*mancha;}}
+else if(vk<1.9&&uReal>.5){float muro=1.-smoothstep(.35,.6,abs(N.y));float grano=.94+.06*h(floor(vw.xz*5.+vw.y*3.1));float ladr=step(.07,base.r-base.g)*step(base.b,base.g+.03);float junta=muro*ladr*(1.-smoothstep(0.,.09,fract(vw.y*3.5)))*.22;base*=mix(1.,grano,muro)*(1.-junta);}
+float hemi=N.y*.5+.5;vec3 skyBounce=mix(amb*vec3(.78,.73,.68),amb*vec3(.96,1.05,1.16),hemi);
+float d=max(dot(N,sun),0.);vec3 H=normalize(sun+V);float sp=pow(max(dot(N,H),0.),26.);
+vec3 col=base*(skyBounce+sunc*d)+sunc*sp*(vk>.5&&vk<1.5?.08:vk>=2.?.05:.16)*(1.-night);
+if(vk>=2.&&vk<3.&&night>0.){float u=vk-2.;float farL=smoothstep(160.,480.,vd);vec2 cl=floor(vw.xz/7.);float r=h(cl);float on=step(1.-u*.6,r)*(.65+.35*sin(time*1.7+r*50.));col+=night*farL*on*vec3(1.,.74,.38)*1.3;}
+if(vk>.5&&vk<1.5){vec2 q=vec2((vw.x+vw.z)/3.4,vw.y/3.1);vec2 f=fract(q);float w=step(.2,f.x)*step(f.x,.8)*step(.24,f.y)*step(f.y,.8);float lit=step(.42,h(floor(q)+floor(vw.xz*.02)));vec3 dayWin=mix(vec3(.2,.32,.44),vec3(.56,.74,.86),hemi)+sunc*sp*.45;vec3 winCol=mix(dayWin,vec3(1.,.84,.48),night*lit);col=mix(col,mix(col*.45,winCol,.85),w*.86);}
+if(vk>3.5)col=base*(.85+.18*night);
+if(uReal>.5)col=neutralTM(col);
+float fg=clamp(1.-exp(-vd*fogd),0.,1.);float sAmt=max(dot(-V,sun),0.);vec3 fCol=mix(fogc,sunc*1.05+vec3(.18,.15,.1),pow(sAmt,6.)*.32*(1.-night));
+gl_FragColor=vec4(mix(col,fCol,fg),1.);}`;
 const SVS = `attribute vec2 p;varying vec2 v;void main(){v=p;gl_Position=vec4(p,.9999,1.);}`;
 const SFS = `precision mediump float;uniform vec3 top;uniform vec3 bot;uniform vec3 sc;uniform vec3 sp;varying vec2 v;void main(){vec3 c=mix(bot,top,clamp(v.y*.5+.5,0.,1.));float d=length((v-sp.xy)*vec2(sp.z,1.));c+=sc*(smoothstep(.06,.04,d)+.35*smoothstep(.45,0.,d));gl_FragColor=vec4(c,1.);}`;
 /* constructor de mallas (triángulos sin índices, sombreado plano estilo low‑poly) */
@@ -6984,16 +7098,16 @@ class MB {
   done() { this.flush(); return this.parts; }
 }
 const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
-const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246'].map(rgb);
+const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246', '#e6b822', '#d96ca8'].map(rgb);
 const G3 = EM.g3 = {
   ok: false, tried: false, gl: null, cv: null, P: null, S: null, stat: [], far: [], near: [], bld: [], win: null, texFar: null, texNear: null, cube: null, quadB: null, scale: .5,
   init() {
-    if (this.tried) return this.ok; this.tried = true;
     if (EM.headless || !MAP.ready) return false;
+    if (this.tried) return this.ok; this.tried = true;
     try {
-      const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:pixelated;z-index:0';
+      const cv = this.cv = document.createElement('canvas'); cv.id = 'g3d'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;image-rendering:auto;z-index:0';
       $('#game').insertBefore(cv, $('#gcv'));
-      const gl = this.gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: true, powerPreference: 'low-power', preserveDrawingBuffer: false }); if (!gl) return false;
+      const gl = this.gl = cv.getContext('webgl', { antialias: true, alpha: false, depth: true, powerPreference: 'low-power', preserveDrawingBuffer: false }); if (!gl) return false;
       const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
       const pr = (v, f) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p)); const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const q = gl.getActiveUniform(p, i); u[q.name] = gl.getUniformLocation(p, q.name); } return { p, u, a: { p: gl.getAttribLocation(p, 'p'), n: gl.getAttribLocation(p, 'n'), c: gl.getAttribLocation(p, 'c'), k: gl.getAttribLocation(p, 'k') } }; };
       this.P = pr(VS, FS); this.S = pr(SVS, SFS);
@@ -7068,19 +7182,22 @@ const G3 = EM.g3 = {
         if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
       }
     }
-    // árboles en parques y montes cercanos
+    // árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos)
     const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
-      const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .3) || (v === TT.MOUNT && r < .6))) continue;
-      const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14; bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[(r * 53 | 0) % TREE_COL.length]);
+      const v = MAP.tileM(X + 10, Z + 10), r = h2(X, Z, 13); if (!((v === TT.GRASS && r < .32) || (v === TT.MOUNT && r < .6))) continue;
+      const tx = X + 3 + h2(X, Z, 14) * 14, tz = Z + 3 + h2(X, Z, 15) * 14;
+      if (typeof VC !== 'undefined' && VC.on && VC.sembrable && !VC.sembrable(tx, tz, VC.suelosEn(tx - 2, tz - 2, tx + 2, tz + 2))) continue;
+      const tci = v === TT.GRASS && h2(X, Z, 71) < .16 ? (h2(X, Z, 73) < .55 ? 5 : 6) : ((r * 53 | 0) % 5);
+      bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[tci]);
     }
     this.bld = bm.done().map(a => this.buf(a));
     this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
-  /* las casas y los edificios reales en 3D (1.5.0):
+  /* las casas y los edificios reales en 3D (1.5.0–3.2.0):
      · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
-       y coronas escalonadas con baliza roja nocturna en las torres altas.
+       remates arquitectónicos en edificios medianos y coronas escalonadas con baliza roja nocturna en las torres altas.
      · Entre R y R2 (700–1050 m): anillo exterior de edificios reales simplificados para ampliar el horizonte urbano sin perder fluidez. */
   edifReales(bm, cx, cz, R, R2 = R) {
     const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; };
@@ -7103,9 +7220,13 @@ const G3 = EM.g3 = {
           const tc = tq < .2 ? [.16, .34, .58] : [.18, .19, .22];
           bm.box(b.x + b.ux * Lx * .22, yt, b.y + b.uy * Lx * .22, a, .95, .95, 1.15, tc, tc, 0, 0);
         } else if (b.h >= 26) {
-          // torre escalonada con cuarto de máquinas y baliza nocturna en las más altas
-          bm.box(b.x, yt, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0);
-          if (b.h >= 42) bm.box(b.x, yt + 2.8, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4);
+          // cornisa + torre escalonada con cuarto de máquinas y baliza nocturna en las más altas
+          bm.box(b.x, yt - .15, b.y, a, Lx + .45, Wz + .45, .55, cr, cr, 0, 0);
+          bm.box(b.x, yt + .4, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0);
+          if (b.h >= 42) bm.box(b.x, yt + 3.2, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4);
+        } else if (b.h >= 12 && d2 < Rsq * .55) {
+          // remate superior de parapeto en edificios medianos cercanos
+          bm.box(b.x, yt - .1, b.y, a, Lx + .3, Wz + .3, .45, cr, cr, 0, 0);
         }
       }
     }
@@ -7114,11 +7235,12 @@ const G3 = EM.g3 = {
     for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes y deprimidos: tablero por tramos a la altura de su rampa, o muros de portal en los deprimidos
+    // puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
-        if (B.is_tunnel) { const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .4), ny = Math.cos(an) * (B.w / 2 + .4), zm = MAP.elevM(mx, my); bm.box(mx + nx, zm - h, my + ny, an, L + .3, .7, h + .8, col, col); bm.box(mx - nx, zm - h, my - ny, an, L + .3, .7, h + .8, col, col); }
-        else bm.box(mx, MAP.elevM(mx, my) + h - .9, my, Math.atan2(by - ay, bx - ax), L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); } }
+        const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .2), ny = Math.cos(an) * (B.w / 2 + .2), zm = MAP.elevM(mx, my);
+        if (B.is_tunnel) { bm.box(mx + nx, zm - h, my + ny, an, L + .3, .7, h + .8, col, col); bm.box(mx - nx, zm - h, my - ny, an, L + .3, .7, h + .8, col, col); }
+        else { bm.box(mx, zm + h - .9, my, an, L + .4, B.w, .9, col, rgb('#5d5d5d'), 0, 0); bm.box(mx + nx, zm + h, my + ny, an, L + .3, .28, .75, col, col); bm.box(mx - nx, zm + h, my - ny, an, L + .3, .28, .75, col, col); } } }
   },
   /* red de transporte estática: viaductos, rieles, postes, estaciones con interior (andén, línea amarilla, torniquetes y escaleras), torres de cable y carriles de bus */
   netZ: {},
@@ -7204,7 +7326,7 @@ const G3 = EM.g3 = {
   },
   /* ---------- dibujo ---------- */
   draw(cam, opts = {}) {
-    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .4 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : opts.escala || .55), ir = opts.suave ? 'auto' : 'pixelated'; if (cv.style.imageRendering !== ir) cv.style.imageRendering = ir;
+    const gl = this.gl, cv = this.cv, q = Save.d.settings.q === 'low' ? .45 : (Save.d.settings.px3d === 'fino' ? Math.min(1.5, window.devicePixelRatio || 1) : opts.escala || .82), ir = opts.suave === false ? 'pixelated' : 'auto'; if (cv.style.imageRendering !== ir) cv.style.imageRendering = ir;
     const w = Math.max(64, Math.round(cv.clientWidth * q)), h = Math.max(64, Math.round(cv.clientHeight * q)); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
     if (!this.win || dist(cam.eye[0], cam.eye[2], this.win.cx, this.win.cz) > Math.min(1000, this.win.s * .2)) this.buildNear(cam.eye[0], cam.eye[2]);
     const sky = SKY.at(opts.hour != null ? opts.hour : 12), V = M4.look(cam.eye, cam.at), Pm = M4.persp(cam.fov || 1.05, w / h, opts.cerca || 1.2, 26000), VP = M4.mul(Pm, V); this.VP = VP; this.vw = w; this.vh = h;
@@ -7217,7 +7339,7 @@ const G3 = EM.g3 = {
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
     gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
     const P = this.P; gl.useProgram(P.p); const u = P.u;
-    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog);
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (Save.d && Save.d.settings && Save.d.settings.realismo === 0) ? 0 : 1);
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
@@ -7605,10 +7727,11 @@ const Game = EM.game = {
     if (on) UI.modal(`<div class="pag">Pausa</div><h2>${esc(this.mode.name)}</h2><p class="m">${esc(this.mode.tip || '')}</p><div class="col"><button class="btn pri" id="pzC">▶ Continuar</button><button class="btn sm" id="pzR">↻ Reiniciar</button><button class="btn sm gh" id="pzX">Salir</button></div>`, () => { this.paused = false; });
     if (on && !EM.headless) { $('#pzC').onclick = () => UI.close(); $('#pzR').onclick = () => { UI.close(); this.start(this.mode.id, this.lv, Object.assign({}, this.opts, { seed: undefined })); }; $('#pzX').onclick = () => { UI.close(); this.exit(); }; }
   },
-  exit() { this.stop(); if (this.net && this.net.leave) this.net.leave(); this.net = null; Music.play('menu'); const back = this.opts && this.opts.back; UI.stack = UI.stack.filter(s => s !== 'game'); UI.show(back || 'levels', false); },
+  exit() { const ex = this.opts && this.opts.onExit; this.stop(); if (this.net && this.net.leave) this.net.leave(); this.net = null; if (ex) { ex(); return; } Music.play('menu'); const back = this.opts && this.opts.back; UI.stack = UI.stack.filter(s => s !== 'game'); UI.show(back || 'levels', false); },
   end(r1, r2) {
     this.ended = true; const M = this.mode;
     try { if (!EM.headless) Vida.onGame(M.id, this.st, r1); } catch (e) { EM.errors.push('vida: ' + e.message); }
+    try { if (EM.mundoRPG && EM.mundoRPG.onGameEnd) EM.mundoRPG.onGameEnd(M.id, this.st, r1); } catch (e) { EM.errors.push('rpg: ' + e.message); }
     if (this.opts.onEnd) { this.opts.onEnd(r1, r2); return; }
     if (this.duel) {
       const a = r1.score | 0, b = r2.score | 0, w = a === b ? 'Empate' : a > b ? 'Gana Jugador 1' : 'Gana Jugador 2'; Snd.play('win');
@@ -7761,6 +7884,7 @@ const CamUI = EM.camui = {
     cv.addEventListener('pointerdown', down); cv.addEventListener('pointermove', move); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('wheel', wheel, { passive: false });
     this._off = () => { cv.removeEventListener('pointerdown', down); cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); cv.removeEventListener('wheel', wheel); const e2 = $('#camUI'); if (e2) e2.remove(); this._off = null; };
   },
+  visible(on) { const e = $('#camUI'); if (e) e.classList.toggle('hide', !on); },
   unmount() { if (this._off) this._off(); }
 };
 ~~~~
@@ -7961,7 +8085,7 @@ const CamUI = EM.camui = {
 /* Taller de arte procedural (entrega de ChatGPT/Codex para el Plan único, M1–M6): mallas en metros para el motor G3 y respaldo en Canvas 2D. */
 (() => {
  const T=EM.taller;
- T.obstaculos=['hueco','cono','moto','perro','chaza','charco','rampa','pasaje','dato'];
+ T.obstaculos=['hueco','cono','moto','perro','chaza','charco','rampa','baranda','arco','pasaje','dato'];
  T.pista=id=>{
    if(id==='moto')return T.vehiculo('moto');
    const m=new T.Malla(),b=(...a)=>m.caja(...a), tubo=(...a)=>m.barra(...a);
@@ -7983,8 +8107,19 @@ const CamUI = EM.camui = {
      for(const s of [-1,1]){tubo([.28,.66,s*.07],[.22,.77,s*.11],.047,'#9a4630');
        for(const x of [-.21,.22])tubo([x,.34,s*.08],[x+s*.04,.02,s*.10],.042,'#9a4630');}
      tubo([-.26,.48,0],[-.47,.63,0],.038,'#b4583a');
-   }else if(id==='rampa')m.perfil([[-1.4,0],[1.4,0],[1.4,.48]],-.7,.7,'#9a4630');
-   else if(id==='pasaje'||id==='dato'){
+   }else if(id==='rampa'){
+     m.perfil([[-1.6,0],[1.6,0],[1.6,.72]],-.9,.9,'#8e9aa6');
+     b(1.52,.66,0,.16,.12,1.82,'#F6C538');
+     b(0,.04,0,3.2,.08,1.82,'#3b4754');
+   }else if(id==='baranda'){
+     for(const x of [-1.7,0,1.7])tubo([x,0,0],[x,.58,0],.05,'#3b4754');
+     tubo([-1.9,.58,0],[1.9,.58,0],.065,'#F6C538');
+     for(const x of [-1.7,1.7])b(x,.03,0,.36,.06,.36,'#243039');
+   }else if(id==='arco'){
+     for(const z of [-.95,.95])b(0,0,z,.24,1.95,.24,'#1C5C9C');
+     b(0,1.15,0,.32,.46,2.14,'#E38835');
+     b(0,1.15,0,.34,.14,2.16,'#F6C538');
+   }else if(id==='pasaje'||id==='dato'){
      m.perfil([[-.24,.45],[.24,.45],[.24,.74],[.12,.85],[-.24,.85]],-.035,.035,id==='dato'?'#9fd3e6':'#fbe7b0');
      for(const z of [-.039,.039]){b(-.12,.49,z,.028,.31,.01,'#154a80');b(.05,.59,z,.14,.035,.01,'#154a80');
        if(id==='dato')b(.05,.67,z,.14,.035,.01,'#154a80');}
@@ -8487,7 +8622,7 @@ function trackOf(line) {
   TRACKS.set(line.id, T); return T;
 }
 const Conduce = EM.modes.conduce = {
-  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, camara: {}, tip: 'Palanca arriba: tracción; abajo: freno. Detén el frente del tren en la marca del andén, abre las puertas, espera el timbre y cierra. ↔ panorámica · 1ª cabina.',
+  id: 'conduce', name: 'Metro', sub: 'Metro y tranvía · vista panorámica y cabina', music: 'conduce', fullCanvas: true, substeps: true, camara: {}, tip: 'Sube la palanca (o toca ▲ / ⏩ Crucero) para avanzar; baja para frenar. Detén el frente del tren en la marca del andén, abre puertas, espera el timbre y cierra.',
   _lv: null,
   levels() {
     if (this._lv) return this._lv; const L = [];
@@ -8504,7 +8639,7 @@ const Conduce = EM.modes.conduce = {
     const dir = L.b > L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
     const tgt = i => clamp(line.st[i].s + dir * K.plat / 2, 1, T.len - 1);
     const hr = opts.hour != null ? opts.hour : new Date().getHours() + new Date().getMinutes() / 60, tod = opts.tod || (hr >= 6 && hr < 17 ? 'dia' : hr >= 17 && hr < 19 ? 'tarde' : 'noche');
-    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
+    const st = { lvId: L.id, line: line.id, kind: kd, dir, stops, ni: 1, s: tgt(stops[0]), s0: tgt(stops[0]), v: 0, a: 0, lev: 0, eb: 0, ph: 'ready', t: 0, dwell: 0, doors: 0, board: 0, pax: 40 + rng.i(0, 60), score: 0, comfort: 100, energy: 0, ff: false, crucero: false, view: opts.view || (Save.d.settings.vistaMetro || 'lado'),
       rain: opts.hour != null ? rng.f() < .25 : Mundo.weather().rain, tod, hour: hr, fixH: opts.hour, paseo: !!opts.paseo, fest: EM.vida && EM.vida.has('alumbrados') ? 'alumbrados' : EM.vida && EM.vida.has('feria') ? 'feria' : '', arr: [], sched: [], over: 0, skipped: 0, sig: [], lights: [], trivia: null, msg: [], done: false, perf: [], seed: opts.seed | 0, cam: 0, keys: {}, holdDoor: -1, auto: !!opts.auto, lastA: 0, jerkT: 0, wait: 0 };
     st.tgt = stops.map(tgt);
     // eventos: señal en rojo (tren adelante), puertas retenidas, trivia en una parada
@@ -8547,11 +8682,11 @@ const Conduce = EM.modes.conduce = {
     const e = target - st.v; return e > .8 ? clamp(e / 2, .3, 1) : e < -.3 ? clamp(e / 2, -1, -.15) : 0;
   },
   physics(st, dt) {
-    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .8 : .35);
+    const K = KIND[st.kind], T = TRACKS.get(st.line), i = clamp(Math.round(st.s / SEG), 0, T.n - 2), gr = clamp((T.z[i + 1] - T.z[i]) / SEG * st.dir, -.12, .12) * (st.kind === 'metro' ? .6 : .25);
     let a;
     if (st.eb > 0) { a = -K.emg; st.eb = st.v > .05 ? st.eb : 0; }
-    else if (st.lev > 0) a = st.lev * K.acc * (1 - .35 * st.v / K.vmax);
-    else a = st.lev * K.brk * (st.rain ? .82 : 1);
+    else if (st.lev > 0) a = st.lev * K.acc * 1.35 * (1 - .32 * st.v / K.vmax);
+    else a = st.lev * K.brk * 1.15 * (st.rain ? .86 : 1);
     if (st.v > .01 || a > 0) a += -9.81 * gr - .015 - .0003 * st.v * st.v;
     if (st.v <= .01 && a < 0) a = 0;
     st.v = Math.max(0, st.v + a * dt); st.s += st.dir * st.v * dt; st.s = clamp(st.s, 0, T.len); st.a = a;
@@ -8560,20 +8695,25 @@ const Conduce = EM.modes.conduce = {
   },
   step(st, dt) {
     if (st.done) return;
-    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 3 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
+    const K = KIND[st.kind], line = NET.byId[st.line], sub = st.ff && st.ph === 'run' ? 2 : st.ph === 'dwell' && st.doors === 1 ? 2 : 1;
     for (let k = 0; k < sub; k++) this.tick(st, dt, K, line);
     st.cam += (st.v - st.cam) * Math.min(1, dt * 3);
   },
   tick(st, dt, K, line) {
     st.t += dt; if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; const h = Mundo.hour(), w = Mundo.weather(h); st.rain = w.rain; st.tod = h >= 6 && h < 17 ? 'dia' : h >= 17 && h < 19 ? 'tarde' : 'noche'; }
     if (st.auto) { if (st.ph === 'run' || st.ph === 'ready') st.lev = this.pilot(st); }
-    else if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.2, -1, 1);
+    else if (st.keys.up || st.keys.down) { if (st.keys.down) st.crucero = false; st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 1.6, -1, 1); }
+    else if (st.crucero && (st.ph === 'run' || st.ph === 'ready')) {
+      const ns = this.nextStop(st), lim = Math.min(this.limAt(st, st.s), this.limAt(st, st.s + st.dir * 55)) * .92;
+      if (ns.d < 150) { st.crucero = false; st.ff = false; st.lev = Math.min(st.lev, 0); this.msg(st, 'Estación cerca (' + Math.round(ns.d) + ' m) · frena suave', 'y'); }
+      else { const e = lim - st.v; st.lev = e > .6 ? clamp(e / 2, .45, .95) : e < -.4 ? clamp(e / 2.5, -.6, -.1) : .15; }
+    }
     if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; st.ni = 1; this.say(st, 'Próxima estación: ' + line.st[st.stops[1]].name); } else return; }
     if (st.ph === 'dwell') {
       st.v = 0; st.dwell += dt;
       if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bellDone) { st.bellDone = true; Snd.play('bell'); this.msg(st, 'Abordaje completo · cierra puertas', 'y'); } }
       if (st.auto) { if (st.doors === 0 && st.dwell > .5 && !st.opened) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2 && st.dwell > .3) { st.lev = .6; } if (st.trivia) this.answer(st, 0); }
-      if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
+      if (st.doors === 2 && (st.lev > .05 || st.crucero)) { st.ph = 'run'; st.doors = 0; st.opened = false; st.bellDone = false; st.board = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima estación: ' + line.st[st.stops[st.ni]].name); }
       return;
     }
     // señales en rojo: aparecen al acercarse y se despejan con el tiempo
@@ -8587,7 +8727,7 @@ const Conduce = EM.modes.conduce = {
     // llegada a la estación
     const d = (st.tgt[st.ni] - st.s) * st.dir;
     if (st.v < .05 && st.eb === 0 && Math.abs(d) <= 12 && st.lev <= 0) {
-      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d);
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.err = Math.abs(d); st.crucero = false; st.ff = false;
       const late = st.t - st.sched[st.ni], pP = d === 0 ? 300 : st.err < .5 ? 300 : st.err < 1 ? 250 : st.err < 2 ? 200 : st.err < 4 ? 120 : st.err < 7 ? 60 : 20, pT = Math.abs(late) <= 6 ? 200 : Math.abs(late) <= 15 ? 120 : Math.abs(late) <= 30 ? 60 : 0;
       st.score += pP + pT; st.arr.push({ err: st.err, late, pP, pT }); Snd.play(pP >= 250 ? 'star' : 'ok');
       this.msg(st, (st.err < .5 ? '¡Perfecto! ' : st.err < 2 ? '¡Muy bien! ' : '') + st.err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 200 ? 'g' : 'y');
@@ -8605,8 +8745,8 @@ const Conduce = EM.modes.conduce = {
     if (st.doors === 0) {
       st.doors = 1; st.opened = true; Snd.play('door'); vib(20); const line = NET.byId[st.line], name = line.st[st.stops[st.ni]].name;
       const alight = Math.round(st.pax * (st.ni === st.stops.length - 1 ? 1 : .3)), board = st.ni === st.stops.length - 1 ? 0 : 15 + (hashStr(name) % 40);
-      st.pax = st.pax - alight + board; st.bTime = 5 + (alight + board) / 10; st.board = 0; EM.save.d.stats.pax += board;
-      if (st.ni === st.stops.length - 1) { st.bTime = 3; }
+      st.pax = st.pax - alight + board; st.bTime = 3.2 + (alight + board) / 18; st.board = 0; EM.save.d.stats.pax += board;
+      if (st.ni === st.stops.length - 1) { st.bTime = 2; }
       const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); EM.save.d.facts[name] = 1; }
     } else if (st.doors === 1) {
       if (st.ni === st.holdDoor && !st.held) { st.held = true; Snd.play('warn'); this.msg(st, '“Por favor, libere las puertas” · inténtalo de nuevo', 'y'); st.board = Math.max(0, st.board - .3); st.bellDone = false; return; }
@@ -8631,31 +8771,39 @@ const Conduce = EM.modes.conduce = {
   msg(st, t, c) { if (!EM.headless && Game.st === st) UI.gmsg(t, c); },
   say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
   hud(st) {
-    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
+    const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.tgt[st.ni] - st.s) * st.dir;
     this.updCtl(st);
     return [['', Math.round(st.v * 3.6) + ' km/h'], ['→', nx.name], ['', st.ph === 'dwell' ? 'Andén' : Math.max(0, d) < 1000 ? Math.round(Math.max(0, d)) + ' m' : (d / 1000).toFixed(1) + ' km'], ['★', fmt(st.score)]];
   },
-  /* ---------- controles (palanca, puertas, vistas) ---------- */
+  /* ---------- controles (palanca, botones rápidos, puertas, vistas) ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="lever" id="cLev"><div class="lb" style="top:6px">TRACCIÓN</div><div class="lb" style="bottom:6px">FRENO</div><div class="kn" id="cKn">0</div></div>
+      <div class="lever-nudge"><button id="cUp" aria-label="Acelerar">▲</button><button id="cCr" aria-label="Crucero automático">⏫</button><button id="cDn" aria-label="Frenar">▼</button></div>
       <div class="gbtns"><button class="btn sm mos" id="cDoor">⇆ Puertas</button><button class="btn sm" id="cFF">⏩ Crucero</button><button class="btn sm" id="cHorn">📯 Pito</button></div>
       <div class="vsel" id="cView"><button data-v="lado">↔</button><button data-v="cab">1ª</button><button data-v="tps">3ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div><div id="cTriv"></div>`;
-    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; Snd.init(); };
+    const lev = $('#cLev'), kn = $('#cKn'), set = e => { const r = lev.getBoundingClientRect(), f = clamp((e.clientY - r.top) / r.height, 0, 1); let v = f < .42 ? (1 - f / .42) : f > .5 ? -((f - .5) / .5) : 0; st.lev = Math.round(v * 10) / 10; if (st.lev < 0) { st.crucero = false; st.ff = false; } Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); });
     lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
+    const hold = (id, key) => { const b = $(id); if (!b) return; const on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; if (key === 'down') { st.crucero = false; st.ff = false; } b.classList.add('on'); Snd.init(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    hold('#cUp', 'up'); hold('#cDn', 'down');
+    const toggleCr = () => { st.crucero = !st.crucero; st.ff = st.crucero; if (st.crucero && st.ph === 'ready') st.lev = .7; this.msg(st, st.crucero ? '⏫ Crucero activo: mantiene velocidad segura' : 'Crucero apagado', 'b'); this.updCtl(st); };
+    $('#cCr').onclick = toggleCr;
     $('#cDoor').onclick = () => this.doors(st); $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
-    $('#cFF').onclick = () => { st.ff = !st.ff; this.updCtl(st); };
+    $('#cFF').onclick = toggleCr;
     $$('#cView button').forEach(b => b.onclick = () => { if (b.dataset.v !== 'paseo') { Save.d.settings.vistaMetro = b.dataset.v; Save.write(); } if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: el piloto maneja, tú disfrutas la vista' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
     this.updCtl(st); this._kn = kn;
   },
   updCtl(st) {
-    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'), lev = $('#cLev'); if (!kn) return;
+    if (EM.headless || Game.st !== st) return; const kn = $('#cKn'); if (!kn) return;
     const f = st.lev > 0 ? .42 * (1 - st.lev) : st.lev < 0 ? .5 + .5 * -st.lev : .46; kn.style.top = 'calc(' + (f * 100) + '% - 15px)'; kn.textContent = st.eb ? 'EMG' : st.lev > 0 ? 'T' + Math.round(st.lev * 10) : st.lev < 0 ? 'F' + Math.round(-st.lev * 10) : 'N';
-    const d = $('#cDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
-    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 500; if (near && st.ff) st.ff = false; ff.disabled = near || st.ph !== 'run'; ff.style.background = st.ff ? 'var(--mante)' : '';
+    const d = $('#cDoor'); if (d) { d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir'; }
+    const ff = $('#cFF'), near = (st.tgt[st.ni] - st.s) * st.dir < 220; if (near && st.ff) st.ff = false;
+    if (ff) { ff.disabled = st.ph === 'dwell' && st.doors !== 2; ff.classList.toggle('cr-on', !!st.crucero); ff.style.background = ''; }
+    const cr = $('#cCr'); if (cr) cr.classList.toggle('on', !!st.crucero);
+    if (EM.camui && EM.camui.visible) EM.camui.visible(st.view === 'top' || st.view === 'pan');
     $$('#cView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
     if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'cab' })) ? ['cine', 'tps', 'cab', 'lado', 'cine', 'pan'] : ['lado', 'cab', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
-    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Sube la palanca o toca ▲ / ⏫ para salir de ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
     if (st.trivia && !$('#cTriv').innerHTML) this.renderTrivia(st);
   },
   renderTrivia(st) {
@@ -8663,7 +8811,7 @@ const Conduce = EM.modes.conduce = {
     el.innerHTML = q ? `<div class="card" style="top:auto;bottom:calc(120px + var(--sab));left:50%;transform:translateX(-50%);width:min(92%,420px)"><div class="pag">Pregunta de la estación · +100</div><p style="font-weight:700;margin:6px 0 10px">${esc(q.q)}</p><div class="col">${q.o.map((o, i) => `<button class="btn sm" data-i="${i}">${esc(o.t)}</button>`).join('')}</div></div>` : '';
     $$('#cTriv button').forEach(b => b.onclick = () => this.answer(st, +b.dataset.i));
   },
-  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') st.keys.down = down; if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'h') Snd.play('horn'); if (k === 'x') st.lev = 0; },
+  key(st, k, down) { if (k === 'ArrowUp' || k === 'w') st.keys.up = down; if (k === 'ArrowDown' || k === 's') { st.keys.down = down; if (down) { st.crucero = false; st.ff = false; } } if (!down) return; if (k === ' ' || k === 'd') this.doors(st); if (k === 'f' || k === 'F') { st.crucero = !st.crucero; st.ff = st.crucero; } if (k === 'v') { const V = ['cab', 'tps', 'cine', 'lado', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } if (k === 'h') Snd.play('horn'); if (k === 'x') { st.lev = 0; st.crucero = false; st.ff = false; } },
   /* ======================= DIBUJO ======================= */
   gl(st) { return (st.view === 'cab' || st.view === 'tps' || st.view === 'cine') && Save.d.settings.q !== 'low' && G3.init(); },
   draw(g, st, vp) {
@@ -8677,7 +8825,7 @@ const Conduce = EM.modes.conduce = {
   },
   /* diagrama de la línea: estaciones del tramo y posición del tren */
   drawStrip(g, st, W, H) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 118 : 104) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), line = NET.byId[st.line], n = st.stops.length, x0 = 16 * dpr, x1 = W - 16 * dpr, y = (st.view === 'cab' ? 120 : 114) * dpr, a = st.tgt[0], b = st.tgt[n - 1];
     g.fillStyle = 'rgba(16,46,80,.82)'; g.fillRect(8 * dpr, y - 16 * dpr, W - 16 * dpr, 30 * dpr); g.strokeStyle = line.color; g.lineWidth = 4 * dpr; g.beginPath(); g.moveTo(x0, y); g.lineTo(x1, y); g.stroke();
     for (let i = 0; i < n; i++) { const f = n > 1 ? i / (n - 1) : 0, x = x0 + (x1 - x0) * f, done = i < st.ni || (i === st.ni && st.ph === 'dwell'); g.fillStyle = done ? '#fff' : 'rgba(255,255,255,.35)'; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 4.5 * dpr, 0, TAU); g.fill(); g.stroke(); if (n <= 8 || i === 0 || i === n - 1 || i === st.ni) { g.fillStyle = i === st.ni ? PAL.mante : '#fff'; g.font = (i === st.ni ? '800 ' : '600 ') + (8.5 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = i === 0 ? 'left' : i === n - 1 ? 'right' : 'center'; g.fillText(line.st[st.stops[i]].name, x, y - 7 * dpr); } }
     const f = clamp((st.s - a) / ((b - a) || 1), 0, 1), tx = x0 + (x1 - x0) * f; g.fillStyle = PAL.mante; g.strokeStyle = PAL.negro; g.lineWidth = 1.5; g.beginPath(); g.moveTo(tx, y + 3 * dpr); g.lineTo(tx - 6 * dpr, y + 12 * dpr); g.lineTo(tx + 6 * dpr, y + 12 * dpr); g.closePath(); g.fill(); g.stroke(); g.textAlign = 'left';
@@ -8689,7 +8837,7 @@ const Conduce = EM.modes.conduce = {
     let cam; if (st.view === 'cine') { if (!st._cine || (st._cine.s - st.s) * dir < -40) { const sa = st.s + dir * (150 + h2(st.t | 0, 1, 1) * 120), sd = h2(st.t | 0, 2, 1) < .5 ? -1 : 1, q0 = NET.at(line.P, sa, sd * (26 + h2(st.t | 0, 3, 1) * 22)), q = typeof VC !== 'undefined' && VC.camaraLibre ? VC.camaraLibre(q0.x, q0.y, p.x, p.y, MAP.elevM(q0.x, q0.y) + 2.6 + (st.kind === 'metro' ? 6 : 0)) : { x: q0.x, y: q0.y, z: MAP.elevM(q0.x, q0.y) + 2.6 }; st._cine = { s: sa, x: q.x, y: q.y, z: q.z }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [p.x, z + 3, p.y], fov: .9 }; }
     else if (tps) { const sb = st.s - dir * (K.len + 30), q = NET.at(line.P, sb, dir * 6); cam = { eye: [q.x, this.zLine(line, sb) + 12, q.y], at: [p.x + Math.cos(a) * 16, z + 2.5, p.y + Math.sin(a) * 16], fov: .95 }; }
     else { const q = NET.at(line.P, st.s + dir * 90); cam = { eye: [p.x, z + 2.9, p.y], at: [q.x, this.zLine(line, st.s + dir * 90) + 1.5, q.y], fov: 1.1 }; }
-    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, dyn: G => {
+    G3.draw(cam, { hour: this.hourOf(st), rain: st.rain, escala: .82, suave: true, dyn: G => {
       G3.traffic(cam, st.t + 1000, line); G3.people(cam, st.t);
       const carL = st.kind === 'metro' ? 22 : st.kind === 'tram' ? 19.5 : K.len, n = st.kind === 'metro' ? 3 : st.kind === 'tram' ? 2 : 1;
       if (tps || st.view === 'cine') for (let k = 0; k < n; k++) { const s = st.s - dir * (k * (carL + 1) + carL / 2), q = NET.at(line.P, s), zq = this.zLine(line, s), a = q.a + (dir < 0 ? Math.PI : 0);   // 3.0 · tu tren con la paleta de la línea (28-taller-sistema.js)
@@ -8931,8 +9079,8 @@ const Conduce = EM.modes.conduce = {
   const C = EM.modes.conduce; if (!C) return;
   const T = EM.modes.tranvia = Object.create(C);
   Object.assign(T, {
-    id: 'tranvia', name: 'Tranvía de Ayacucho', sub: 'Por la calle, de San Antonio a Oriente',
-    tip: 'Sube la palanca para avanzar y bájala para frenar. Entre estación y estación hay cruces: si ves gente cruzando, toca la campana 🔔 y llega despacio (10 km/h o menos). En cada estación abre puertas.',
+    id: 'tranvia', name: 'Tranvía de Ayacucho', sub: 'Por la calle, de San Antonio a Oriente', substeps: true,
+    tip: 'Sube la palanca (o toca ▲ / ⏫ Crucero) para avanzar y baja para frenar. Si ves gente cruzando, toca la campana 🔔 y pasa despacio (10 km/h o menos). En cada estación abre puertas.',
     levels() { return C.levels().filter(l => l.line === 'T'); },
     create(lv, opts) {
       const st = C.create.call(this, lv, opts), line = NET.byId.T, rng = new RNG(((opts && opts.seed) | 0) + 31), s0 = st.s, s1 = st.tgt && st.tgt.length ? st.tgt[st.tgt.length - 1] : (st.dir > 0 ? line.P.len : 0);
@@ -8960,7 +9108,7 @@ const Conduce = EM.modes.conduce = {
     },
     mount(st, el) {
       C.mount.call(this, st, el); const h = $('#cHorn');
-      if (h) { h.textContent = '🔔 Campana'; h.onclick = () => { st.campana = st.t; Snd.play('bell'); vib(20); }; }
+      if (h) { h.innerHTML = '<b>🔔</b>CAMPANA'; h.onclick = () => { st.campana = st.t; Snd.play('bell'); vib(20); }; }
     },
     key(st, k, down) { if (down && (k === 'b' || k === 'c')) { st.campana = st.t; Snd.play('bell'); return; } return C.key.call(this, st, k, down); },
     draw(g, st, vp) {
@@ -9012,23 +9160,24 @@ const Conduce = EM.modes.conduce = {
   };
   C.create = function (lv, opts) {
     const esc_ = String(lv).endsWith('#escuela'), st = base.create.call(this, esc_ ? String(lv).replace('#escuela', '') : lv, opts); if (esc_) st.lvId = lv;
-    Object.assign(st, { key: !!opts.auto, sel: opts.auto ? 1 : 0, sigOK: false, sigT: 0, vigNext: 28 + (st.seed % 12), vigAlarm: false, vigT: 0, vigAcks: 0, lastLev: 0, annDone: {}, wrongDoor: 0, tut: !opts.auto && !EM.headless && (esc_ || (!Save.d.tutMetro && st.line === 'A')) ? 0 : -1 });
+    const realista = esc_ || (!opts.auto && Save.d && Save.d.settings && Save.d.settings.cabReal === 1);
+    Object.assign(st, { cabReal: realista, key: !realista || !!opts.auto, sel: (!realista || opts.auto) ? 1 : 0, sigOK: !realista, sigT: 0, vigNext: (realista ? 28 : 48) + (st.seed % 12), vigAlarm: false, vigT: 0, vigAcks: 0, lastLev: 0, annDone: {}, wrongDoor: 0, tut: !opts.auto && !EM.headless && esc_ ? 0 : -1 });
     return st;
   };
-  C.vigAck = function (st) { if (!st.vigAlarm) return; st.vigAlarm = false; st.vigT = 0; st.vigNext = 25 + h2(st.t | 0, 7, 1) * 15; st.vigAcks++; this.sfx2(st, 'tap'); };
+  C.vigAck = function (st) { if (!st.vigAlarm) return; st.vigAlarm = false; st.vigT = 0; st.vigNext = (st.cabReal ? 25 : 42) + h2(st.t | 0, 7, 1) * 15; st.vigAcks++; this.sfx2(st, 'tap'); };
   C.sfx2 = function (st, k) { if (!EM.headless && Game.st === st) Snd.play(k); };
   C.tick = function (st, dt, K, line) {
     if (st.auto) { st.key = true; st.sel = 1; if (st.vigAlarm && st.vigT > .8) this.vigAck(st); }
     // sin cabina activa o sin sentido no hay tracción
     if ((!st.key || st.sel !== 1) && st.lev > 0) { st.lev = 0; if (!st._hintK || st.t - st._hintK > 4) { st._hintK = st.t; this.msg(st, !st.key ? 'Primero gira la llave 🔑' : 'Pon el sentido en ADELANTE', 'y'); } }
-    // salida: la señal se pone verde 1,5 s (inicio) o 2,5 s (estación) después de quedar listo
+    // salida: la señal se pone verde rápido en modo ágil (0,4 s) o realista (1,5–2,5 s)
     const ready = st.ph === 'ready' || (st.ph === 'dwell' && st.doors === 2);
-    if (ready && st.key && st.sel === 1 && !st.sigOK) { st.sigT += dt; if (st.sigT > (st.ph === 'ready' ? 1.5 : 2.5)) { st.sigOK = true; this.sfx2(st, 'beep'); this.msg(st, 'Señal de salida en verde ●', 'g'); } }
+    if (ready && st.key && st.sel === 1 && !st.sigOK) { st.sigT += dt; const waitSig = st.cabReal ? (st.ph === 'ready' ? 1.5 : 2.5) : .35; if (st.sigT > waitSig) { st.sigOK = true; this.sfx2(st, 'beep'); this.msg(st, 'Señal de salida en verde ●', 'g'); } }
     if (ready && !st.sigOK) { if (st.lev > .05 && !st.auto && (!st._hintS || st.t - st._hintS > 3)) { st._hintS = st.t; this.msg(st, 'Espera la señal de salida en verde', 'y'); } st.t += dt; if (st.ph === 'dwell') st.dwell += dt; st.lev = Math.min(st.lev, 0); return; }
     const was = st.ph;
     // vigilante (solo en marcha)
     if (st.ph === 'run') {
-      if (Math.abs(st.lev - st.lastLev) > .1) { if (st.vigAlarm) this.vigAck(st); else st.vigNext = Math.max(st.vigNext, 12); }
+      if (Math.abs(st.lev - st.lastLev) > .08 || st.crucero) { if (st.vigAlarm) this.vigAck(st); else st.vigNext = Math.max(st.vigNext, st.cabReal ? 14 : 26); }
       st.lastLev = st.lev;
       if (!st.vigAlarm) { st.vigNext -= dt; if (st.vigNext <= 0 && st.v > 1) { st.vigAlarm = true; st.vigT = 0; this.sfx2(st, 'warn'); this.msg(st, '⚠ VIGILANTE: tócalo para confirmar que estás atento', 'r'); } }
       else { st.vigT += dt; if ((st.vigT * 2 | 0) !== ((st.vigT - dt) * 2 | 0)) this.sfx2(st, 'beep'); if (st.vigT > 6) { st.vigAlarm = false; st.vigNext = 25; st.eb = 1; st.score -= 100; this.msg(st, 'Vigilante sin respuesta: freno de emergencia −100', 'r'); this.sfx2(st, 'crash'); vib(200); } }
@@ -9038,7 +9187,13 @@ const Conduce = EM.modes.conduce = {
   };
   C.doors = function (st, side) {
     if (st.ph !== 'dwell') { this.msg(st, 'Las puertas solo abren detenido en el andén', 'y'); return; }
-    if (st.doors === 0) { const ok = this.sideOf(st, st.ni); if (side && side !== ok) { st.score -= 120; st.wrongDoor++; this.msg(st, '¡Ese lado no tiene andén! Abre las de la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' −120', 'r'); this.sfx2(st, 'bad'); vib(120); return; } }
+    if (st.doors === 0) {
+      const ok = this.sideOf(st, st.ni);
+      if (side && side !== ok) {
+        if (st.cabReal) { st.score -= 120; st.wrongDoor++; this.msg(st, '¡Ese lado no tiene andén! Abre las de la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' −120', 'r'); this.sfx2(st, 'bad'); vib(120); return; }
+        this.msg(st, 'Andén a la ' + (ok === 'izq' ? 'IZQUIERDA' : 'DERECHA') + ' · puertas abiertas', 'b');
+      }
+    }
     base.doors.call(this, st);
   };
   C.announce = function (st) {
@@ -9058,7 +9213,8 @@ const Conduce = EM.modes.conduce = {
     $('#cbAnn').onclick = () => this.announce(st);
     $('#cbDL').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'izq'); };
     $('#cbDR').onclick = () => { if (st.doors === 1) this.doors(st); else this.doors(st, 'der'); };
-    $('#cFF').onclick = () => { st.ff = !st.ff; }; $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
+    $('#cFF').onclick = () => { st.crucero = !st.crucero; st.ff = st.crucero; if (st.crucero && st.ph === 'ready') st.lev = .7; this.msg(st, st.crucero ? '⏫ Crucero activo' : 'Crucero apagado', 'b'); this.updCtl(st); };
+    $('#cHorn').onclick = () => { Snd.play('horn'); vib(30); };
   };
   C.updCtl = function (st) {
     base.updCtl.call(this, st); if (EM.headless || Game.st !== st) return; const k = $('#cbKey'); if (!k) return;
@@ -9067,7 +9223,7 @@ const Conduce = EM.modes.conduce = {
     const side = st.ph === 'dwell' || (st.tgt[st.ni] - st.s) * st.dir < 400 ? this.sideOf(st, st.ni) : null, open = st.doors === 1;
     $('#cbDL').classList.toggle('hot', side === 'izq' && st.ph === 'dwell' && st.doors === 0); $('#cbDR').classList.toggle('hot', side === 'der' && st.ph === 'dwell' && st.doors === 0);
     $('#cbDL').classList.toggle('on', open && side === 'izq'); $('#cbDR').classList.toggle('on', open && side === 'der');
-    $('#cFF').classList.toggle('on', st.ff); $('#cFF').disabled = st.ph !== 'run';
+    $('#cFF').classList.toggle('on', !!(st.crucero || st.ff)); $('#cFF').disabled = st.ph === 'dwell' && st.doors !== 2;
     // escuela paso a paso
     const tb = $('#cTut'); if (st.tut >= 0) { while (st.tut < TUT.length && TUT[st.tut][1](st)) { st.tut++; this.sfx2(st, 'coin'); } if (st.tut >= TUT.length) { st.tut = -1; Save.d.tutMetro = 1; Save.write(); this.msg(st, '🎓 ¡Ya sabes manejar el metro! Escuela completa', 'g'); tb.classList.add('hide'); } else { tb.classList.remove('hide'); tb.innerHTML = `<b>Escuela · paso ${st.tut + 1} de ${TUT.length}</b><span>${esc(TUT[st.tut][0])}</span>`; } } else tb.classList.add('hide');
     if (st.ph === 'ready' && !st._rt2) { st._rt2 = 1; if (st.tut < 0 && !st.key) this.msg(st, 'Gira la llave, pon ADELANTE y espera la señal verde', 'b'); }
@@ -9133,8 +9289,8 @@ const Conduce = EM.modes.conduce = {
    GPS sobre la ruta y asistente de carril (para jugar en familia).
    ===================================================================== */
 const BUSES = {
-  brt: { name: 'Articulado Metroplús', len1: 11.2, len2: 6.8, w: 2.55, wb: 5.7, hitch: 1.7, wb2: 5.3, vmax: 60 / 3.6, acc: 1.0, brk: 2.6, emg: 5.5, smax: .62, srate: 1.15 },
-  feeder: { name: 'Bus alimentador', len1: 12, len2: 0, w: 2.5, wb: 6.1, hitch: 0, wb2: 0, vmax: 50 / 3.6, acc: 1.2, brk: 3, emg: 6, smax: .6, srate: 1.25 }
+  brt: { name: 'Articulado Metroplús', len1: 11.2, len2: 6.8, w: 2.55, wb: 5.7, hitch: 1.7, wb2: 5.3, vmax: 72 / 3.6, acc: 2.6, brk: 5.5, emg: 8.5, smax: .64, srate: 1.8 },
+  feeder: { name: 'Bus alimentador', len1: 12, len2: 0, w: 2.5, wb: 6.1, hitch: 0, wb2: 0, vmax: 64 / 3.6, acc: 3.0, brk: 6.0, emg: 9.0, smax: .62, srate: 2.0 }
 };
 const DRIVE_OK = new Set([TT.ROAD, TT.AVE, TT.AUTO, TT.BRIDGE, TT.DEPOT, TT.STATION]), SOLIDB = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAND]);
 /* carriles de carros y semáforos reales (OSM) en metros */
@@ -9157,8 +9313,8 @@ const TRAF = {
   state(g, t) { const p = ((t + g.off) % 32 + 32) % 32; return p < 13 ? 'gr' : p < 16 ? 'yr' : p < 29 ? 'rg' : 'ry'; }
 };
 const Volante = EM.modes.volante = {
-  id: 'volante', name: 'Al volante', sub: 'Metroplús y alimentadores', music: 'conduce', fullCanvas: true, camara: {},
-  tip: 'Palanca: acelerar/frenar. Con el asistente de carril el bus gira solo; apágalo para manejar con el timón (×1,25 puntos). Para en cada parada, abre puertas y respeta los semáforos.',
+  id: 'volante', name: 'Al volante', sub: 'Metroplús y alimentadores en 3D', music: 'conduce', fullCanvas: true, substeps: true, camara: {},
+  tip: '▲ acelera (o toca ⏫ Crucero), ▼ frena. Con el asistente el bus sigue la ruta solo; apágalo para girar con el timón (×1,25 puntos). Para en cada parada y abre puertas.',
   levels() {
     if (this._lv) return this._lv; const L = [];
     for (const line of NET.lines.filter(l => l.kind === 'brt' || l.kind === 'feeder')) {
@@ -9179,17 +9335,17 @@ const Volante = EM.modes.volante = {
     const stops = []; for (let i = L.a; i <= L.b; i++) stops.push(i);
     const p0 = NET.at(line.P, line.st[L.a].s), hr = new Date().getHours() + new Date().getMinutes() / 60;
     const st = { lvId: L.id, line: line.id, kind: line.kind === 'brt' ? 'brt' : 'feeder', stops, ni: 1, x: p0.x - Math.cos(p0.a) * 4, y: p0.y - Math.sin(p0.a) * 4, h: p0.a, h2: p0.a, v: 0, steer: 0, sin: 0, lev: 0, rev: false, revT: 0,
-      sR: line.st[L.a].s, off: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, fixH: opts.hour, paseo: !!opts.paseo, tilt: false, rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, assist: opts.assist != null ? opts.assist : true, auto: !!opts.auto, view: opts.view || 'tps',
+      sR: line.st[L.a].s, off: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, fixH: opts.hour, paseo: !!opts.paseo, tilt: false, acelFijo: false, rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, assist: opts.assist != null ? opts.assist : true, auto: !!opts.auto, view: opts.view || 'tps',
       ph: 'ready', doors: 0, board: 0, dwell: 0, pax: 10 + rng.i(0, 20), score: 0, comfort: 100, damage: 0, crashes: 0, reds: 0, offT: 0, arr: [], sched: [0], cars: [], spawnT: 0, redSeen: {}, fx: [], keys: {}, seed: opts.seed | 0, done: false, lastA: 0, shake: 0, stopTgt: [] };
     st.stopTgt = stops.map(i => line.st[i].s);
-    let acc = 0; for (let k = 1; k < stops.length; k++) { const d = st.stopTgt[k] - st.stopTgt[k - 1]; acc += d / (line.kind === 'brt' ? 6.2 : 5.2) + (k > 1 ? 14 : 0); st.sched.push(acc); }
+    let acc = 0; for (let k = 1; k < stops.length; k++) { const d = st.stopTgt[k] - st.stopTgt[k - 1]; acc += d / (line.kind === 'brt' ? 8.2 : 7.0) + (k > 1 ? 11 : 0); st.sched.push(acc); }
     return st;
   },
   elev(x, y) { return MAP.ready ? MAP.elevM(x, y) : 1500; },
   /* piloto: velocidad objetivo por curvas, parada, semáforos y carro de adelante */
   pilot(st, line, B) {
     const R = this.route(line), i = clamp(Math.round(st.sR / 8), 0, R.n - 1), j = clamp(Math.round((st.sR + 20 + st.v * 2) / 8), 0, R.n - 1);
-    let tgt = Math.min(B.vmax * .92, R.lim[i], R.lim[j]); const dS = st.stopTgt[st.ni] - st.sR, bm = B.brk * (st.rain ? .75 : 1) * .7;
+    let tgt = Math.min(B.vmax * .92, R.lim[i], R.lim[j]); const dS = st.stopTgt[st.ni] - st.sR, bm = B.brk * (st.rain ? .8 : 1) * .72;
     tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, dS - 1)));
     const red = this.redAhead(st); if (red != null) tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, red - 6)));
     const car = this.carAhead(st); if (car != null) tgt = Math.min(tgt, Math.max(0, (car - 9) * .9));
@@ -9210,45 +9366,53 @@ const Volante = EM.modes.volante = {
   tick(st, dt) {
     const line = NET.byId[st.line], B = BUSES[st.kind]; st.t += dt; st.hourNow = st.fixH != null ? st.fixH + st.t * 6 / 3600 : Mundo.hour(); if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 2) { st._wt = 0; st.rain = Mundo.weather().rain; }
     if (st.auto && (st.ph === 'run' || st.ph === 'ready')) st.lev = this.pilot(st, line, B);
-    else if (!st.auto) { if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 2.6, -1, 1); else st.lev *= Math.pow(.0004, dt); }
-    if (st.keys.left || st.keys.right) st.sin = clamp(st.sin + (st.keys.right ? 1 : -1) * dt * 2.2, -1, 1); else if (st.keys._kb) st.sin *= Math.pow(.02, dt);
+    else if (!st.auto) {
+      if (st.keys.down) st.acelFijo = false;
+      if (st.keys.up || st.keys.down) st.lev = clamp(st.lev + (st.keys.up ? 1 : -1) * dt * 3.4, -1, 1);
+      else if (st.acelFijo && (st.ph === 'run' || st.ph === 'ready')) {
+        const R = this.route(line), i = clamp(Math.round(st.sR / 8), 0, R.n - 1), dS = st.stopTgt[st.ni] - st.sR;
+        if (dS < 65 && dS > 0) { st.acelFijo = false; st.lev = 0; this.msg(st, 'Parada cerca (' + Math.round(dS) + ' m) · frena suave', 'y'); }
+        else { const tgt = Math.min(B.vmax * .86, R.lim[i] * 1.05); st.lev = st.v < tgt - .4 ? .85 : st.v > tgt + .8 ? -.25 : .25; }
+      } else st.lev *= Math.pow(.0004, dt);
+    }
+    if (st.keys.left || st.keys.right) st.sin = clamp(st.sin + (st.keys.right ? 1 : -1) * dt * 2.6, -1, 1); else if (st.keys._kb) st.sin *= Math.pow(.02, dt);
     if (st.ph === 'ready') { if (st.lev > .05) { st.ph = 'run'; this.say(st, 'Próxima parada: ' + line.st[st.stops[1]].name); } else return; }
     if (st.ph === 'dwell') { this.dwellTick(st, dt, line); return; }
     // dirección: asistente (persecución pura) o timón
     let want;
-    if (st.assist || st.auto) { const Ld = 7 + st.v * .9, q = NET.at(line.P, Math.min(line.P.len, st.sR + Ld)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al)); want = Math.atan(2 * B.wb * Math.sin(a) / Math.max(4, Math.hypot(dx, dy))); }
+    if (st.assist || st.auto) { const Ld = 7 + st.v * .85, q = NET.at(line.P, Math.min(line.P.len, st.sR + Ld)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al)); want = Math.atan(2 * B.wb * Math.sin(a) / Math.max(4, Math.hypot(dx, dy))); }
     else want = st.sin * B.smax;
     want = clamp(want, -B.smax, B.smax); st.steer += clamp(want - st.steer, -B.srate * dt, B.srate * dt);
-    // tracción, freno, pendiente real y reversa
-    const c = Math.cos(st.h), s = Math.sin(st.h), gr = clamp((this.elev(st.x + c * 6, st.y + s * 6) - this.elev(st.x - c * 6, st.y - s * 6)) / 12, -.25, .25), wet = st.rain ? .75 : 1;
-    if (!st.rev && st.v <= .05 && st.lev < -.5) { st.revT += dt; if (st.revT > .8) { st.rev = true; Snd.play && this.sfx(st, 'beep'); } } else if (st.lev >= 0) st.revT = 0;
+    // tracción, freno, pendiente suavizada (sube todas las lomas de Medellín sin quedarse) y reversa
+    const c = Math.cos(st.h), s = Math.sin(st.h), gr = clamp((this.elev(st.x + c * 6, st.y + s * 6) - this.elev(st.x - c * 6, st.y - s * 6)) / 12, -.18, .18), wet = st.rain ? .82 : 1;
+    if (!st.rev && st.v <= .05 && st.lev < -.5) { st.revT += dt; if (st.revT > .6) { st.rev = true; Snd.play && this.sfx(st, 'beep'); } } else if (st.lev >= 0) st.revT = 0;
     let a;
-    if (st.rev) { a = st.lev < 0 ? -st.lev * .8 : -st.lev * B.brk; if (st.lev > .05 && st.v >= -.05) { st.rev = false; st.v = 0; } }
-    else { const tr = st.lev > 0 ? st.lev * B.acc * clamp(2.6 - 2.2 * st.v / B.vmax, .4, 2.6) : 0, br = st.lev < 0 ? -st.lev * B.brk * wet : 0; a = tr - br - 9.81 * gr * .95 - .02 - .0004 * st.v * st.v; if (st.v <= .02 && a < 0 && st.lev <= 0) a = 0; }
-    if (st.rev) { st.v = clamp(st.v - a * dt, -2.5, 0); if (st.lev >= 0 && st.v > -.05) st.v = 0; } else st.v = Math.max(0, st.v + a * dt);
+    if (st.rev) { a = st.lev < 0 ? -st.lev * 2.2 : -st.lev * B.brk; if (st.lev > .05 && st.v >= -.05) { st.rev = false; st.v = 0; } }
+    else { const tr = st.lev > 0 ? st.lev * B.acc * clamp(2.1 - 1.45 * st.v / B.vmax, .55, 2.1) : 0, br = st.lev < 0 ? -st.lev * B.brk * wet : 0; a = tr - br - 9.81 * gr * .22 - .02 - .0003 * st.v * st.v; if (st.v <= .02 && a < 0 && st.lev <= 0) a = 0; }
+    if (st.rev) { st.v = clamp(st.v - a * dt, -4, 0); if (st.lev >= 0 && st.v > -.05) st.v = 0; } else st.v = Math.max(0, st.v + a * dt);
     // movimiento (modelo de bicicleta) + remolque
     const ox = st.x, oy = st.y, oh = st.h, oh2 = st.h2;
     st.h += st.v / B.wb * Math.tan(st.steer) * dt; st.x += st.v * Math.cos(st.h) * dt; st.y += st.v * Math.sin(st.h) * dt;
     if (B.len2) { let d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); st.h2 += st.v / B.wb2 * Math.sin(d) * dt; d = st.h - st.h2; d = Math.atan2(Math.sin(d), Math.cos(d)); if (Math.abs(d) > 1) st.h2 = st.h - Math.sign(d) * 1; }
-    // choques con edificios, montaña y agua (por el eje del bus)
+    // choques con edificios, montaña y agua (ciudad vectorial VC con corredor libre de 7 m, o respaldo en casillas)
     let hit = false, soft = 0; if (MAP.ready) for (const [px, py] of this.pts(st, B)) { const v = this.suelo(st, line, px, py); if (v === 2) hit = true; else if (v === 1) soft++; }
     if (hit) { st.x = ox; st.y = oy; st.h = oh; st.h2 = oh2; const imp = Math.abs(st.v); if (imp > 1.5) { st.damage += imp * 2; st.score -= Math.round(20 * imp); st.crashes++; st.comfort = Math.max(0, st.comfort - imp * 3); st.shake = .4; this.sfx(st, 'crash'); this.msg(st, '¡Golpe! −' + Math.round(20 * imp), 'r'); vib(120); } st.v = -st.v * .2; }
     // ruta: proyección local sobre la polilínea
     const pr = this.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
     if (soft && st.off > 14 && st.v > 1) { st.offT += dt; st.score -= 6 * dt; if (!st._offMsg) { st._offMsg = 1; this.msg(st, '¡Por el andén no! Vuelve a la calle', 'y'); } } else st._offMsg = 0;
-    if (soft && st.off > 14) st.v = Math.min(st.v, 4);
+    if (soft && st.off > 14) st.v = Math.min(st.v, 5);
     if (st.off > 70 && !st._lost) { st._lost = 1; this.msg(st, 'Te saliste de la ruta: sigue la flecha', 'y'); } else if (st.off < 30) st._lost = 0;
     // confort: aceleración longitudinal y lateral (v²·curvatura)
     const lat = st.v * st.v * Math.abs(Math.tan(st.steer)) / B.wb, jerk = Math.abs(a - st.lastA) / dt; st.lastA = a;
-    if ((lat > 2.2 || jerk > 4) && st.v > 1) st.comfort = Math.max(0, st.comfort - dt * (lat > 2.2 ? (lat - 2.2) * 14 : 10));
+    if ((lat > 2.8 || jerk > 6) && st.v > 1.5) st.comfort = Math.max(0, st.comfort - dt * (lat > 2.8 ? (lat - 2.8) * 10 : 7));
     // semáforos en rojo
     for (const g of this._lightsNear(st)) { if (st.redSeen[g.i]) continue; const d = dist(g.x, g.y, st.x + c * B.wb, st.y + s * B.wb); if (d < 7 && st.v > 2) { const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; st.redSeen[g.i] = 1; if (ls === 'r') { st.reds++; st.score -= 120; this.msg(st, '¡Semáforo en rojo! −120', 'r'); this.sfx(st, 'bad'); } } }
     this.trafficTick(st, dt, B);
     // llegada a la parada
     const dS = st.stopTgt[st.ni] - st.sR;
-    if (Math.abs(st.v) < .3 && Math.abs(dS) <= 15 && st.off < 14 && st.lev <= 0) {
-      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.v = 0; const err = Math.abs(dS), late = st.t - st.sched[st.ni];
-      const pP = err < 1 ? 300 : err < 3 ? 220 : err < 6 ? 140 : err < 10 ? 70 : 25, pT = Math.abs(late) <= 10 ? 200 : Math.abs(late) <= 25 ? 120 : Math.abs(late) <= 45 ? 50 : 0;
+    if (Math.abs(st.v) < .35 && Math.abs(dS) <= 16 && st.off < 14 && st.lev <= 0) {
+      st.ph = 'dwell'; st.dwell = 0; st.doors = 0; st.v = 0; st.acelFijo = false; const err = Math.abs(dS), late = st.t - st.sched[st.ni];
+      const pP = err < 1.5 ? 300 : err < 4 ? 220 : err < 8 ? 140 : err < 12 ? 70 : 25, pT = Math.abs(late) <= 10 ? 200 : Math.abs(late) <= 25 ? 120 : Math.abs(late) <= 45 ? 50 : 0;
       st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s', pP >= 220 ? 'g' : 'y');
     } else if (dS < -40 && st.ni < st.stops.length) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); if (st.ni < st.stops.length - 1) st.ni++; else this.finish(st); }
     if (st.shake > 0) st.shake -= dt;
@@ -9257,7 +9421,7 @@ const Volante = EM.modes.volante = {
      edificios (antes, contra las casillas viejas de 20 m: el bus quedaba trabado al salir); el corredor de la ruta (7 m a cada
      lado) siempre se rueda, como en el modo Bus */
   suelo(st, line, x, y) {
-    if (VC.on) { if (this.projLocal(line.P, x, y, st.sR).d < 7) return 0; return VC.solid(x, y, .3) ? 2 : VC.agarre(x, y) < .95 ? 1 : 0; }
+    if (typeof VC !== 'undefined' && VC.on) { if (this.projLocal(line.P, x, y, st.sR).d < 7) return 0; return VC.solid(x, y, .3) ? 2 : VC.agarre(x, y) < .95 ? 1 : 0; }
     const v = MAP.tileM(x, y); return SOLIDB.has(v) ? 2 : DRIVE_OK.has(v) ? 0 : 1;
   },
   projLocal(P, x, y, s0) {
@@ -9268,13 +9432,13 @@ const Volante = EM.modes.volante = {
   },
   dwellTick(st, dt, line) {
     st.dwell += dt; st.v = 0;
-    if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra puertas', 'y'); } }
+    if (st.doors === 1) { st.board = Math.min(1, st.board + dt / st.bTime); if (st.board >= 1 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra puertas o acelera ▲', 'y'); } if (st.bell && (st.keys.up || st.acelFijo)) this.doors(st); }
     if (st.auto) { if (st.doors === 0 && st.dwell > .4) this.doors(st); else if (st.doors === 1 && st.board >= 1) this.doors(st); else if (st.doors === 2) st.lev = .6; }
-    if (st.doors === 2 && st.lev > .05) { st.ph = 'run'; st.doors = 0; st.bell = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); }
+    if (st.doors === 2 && (st.lev > .05 || st.acelFijo)) { st.ph = 'run'; st.doors = 0; st.bell = 0; if (st.ni < st.stops.length) this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); }
   },
   doors(st) {
     if (st.ph !== 'dwell') return; const line = NET.byId[st.line], last = st.ni === st.stops.length - 1;
-    if (st.doors === 0) { st.doors = 1; this.sfx(st, 'door'); const name = line.st[st.stops[st.ni]].name, al = last ? st.pax : Math.round(st.pax * .35), bo = last ? 0 : 4 + hashStr(name) % 18; st.pax += bo - al; st.bTime = 3 + (al + bo) / 6; st.board = 0; Save.d.stats.pax += bo; const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); Save.d.facts[name] = 1; } }
+    if (st.doors === 0) { st.doors = 1; this.sfx(st, 'door'); const name = line.st[st.stops[st.ni]].name, al = last ? st.pax : Math.round(st.pax * .35), bo = last ? 0 : 4 + hashStr(name) % 18; st.pax += bo - al; st.bTime = 2.0 + (al + bo) / 14; st.board = 0; Save.d.stats.pax += bo; const f = NET.fact(name); if (f) { this.msg(st, name + ': ' + f, 'b'); Save.d.facts[name] = 1; } }
     else if (st.doors === 1) { if (st.board < 1) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); } st.doors = 2; this.sfx(st, 'door'); if (last) { this.finish(st); return; } st.ni++; }
   },
   /* tráfico: carros en carriles reales alrededor del bus */
@@ -9305,21 +9469,22 @@ const Volante = EM.modes.volante = {
   say(st, t) { if (!st.auto && Game.st === st) Snd.say(t); },
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
   hud(st) { const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = st.stopTgt[st.ni] - st.sR; this.updCtl(st); return [['', Math.round(Math.abs(st.v) * 3.6) + ' km/h' + (st.rev ? ' R' : '')], ['→', nx.name], ['', st.ph === 'dwell' ? 'Parada' : Math.round(Math.max(0, d)) + ' m'], ['★', fmt(st.score)]]; },
-  /* ---------- controles: timón, palanca, botones ---------- */
+  /* ---------- controles: timón, pedales, crucero y botones ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="pedals"><button class="pedal acc" id="vAcc"><b>▲</b>Acelerar</button><button class="pedal brk" id="vBrk"><b>▼</b>Frenar · R</button></div>
       <div class="wheel" id="vWh"><div class="wh-in" id="vWi"><i></i></div></div>
-      <div class="gbtns" style="bottom:calc(150px + var(--sab))"><button class="btn sm mos" id="vDoor">⇆ Puertas</button><button class="btn sm" id="vAs">🛞 Asistente</button><button class="btn sm" id="vTilt">📱 Inclinar</button><button class="btn sm" id="vHorn">📯 Pito</button></div>
+      <div class="gbtns" style="bottom:calc(150px + var(--sab))"><button class="btn sm mos" id="vDoor">⇆ Puertas</button><button class="btn sm" id="vCr">⏫ Crucero</button><button class="btn sm" id="vAs">🛞 Asistente</button><button class="btn sm" id="vTilt">📱 Inclinar</button><button class="btn sm" id="vHorn">📯 Pito</button></div>
       <div class="vsel" id="vView"><button data-v="tps">3ª</button><button data-v="cab">1ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="pan">◎</button><button data-v="paseo">🎬</button></div>`;
-    const pedal = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); vib(8); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    const pedal = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; if (key === 'down') st.acelFijo = false; b.classList.add('on'); Snd.init(); vib(8); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
     pedal('#vAcc', 'up'); pedal('#vBrk', 'down');
+    $('#vCr').onclick = () => { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Crucero activo: velocidad segura automática' : 'Crucero apagado', 'b'); this.updCtl(st); };
     $('#vTilt').onclick = () => this.tiltToggle(st);
-    const wh = $('#vWh'), ws = e => { const r = wh.getBoundingClientRect(); st.sin = clamp((e.clientX - (r.left + r.width / 2)) / (r.width * .42), -1, 1); st.keys._kb = false; };
-    wh.addEventListener('pointerdown', e => { wh.setPointerCapture(e.pointerId); if (st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú (×1,25)', 'b'); } ws(e); });
-    wh.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') ws(e); }); wh.addEventListener('pointerup', () => { st.keys._kb = true; });
+    const wh = $('#vWh'), ws = e => { const r = wh.getBoundingClientRect(); st.sin = clamp((e.clientX - (r.left + r.width / 2)) / (r.width * .42), -1, 1); st.keys._kb = false; }, wEnd = () => { st.keys._kb = true; };
+    wh.addEventListener('pointerdown', e => { wh.setPointerCapture && wh.setPointerCapture(e.pointerId); if (st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú (×1,25)', 'b'); } ws(e); });
+    wh.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') ws(e); }); wh.addEventListener('pointerup', wEnd); wh.addEventListener('pointercancel', wEnd); wh.addEventListener('lostpointercapture', wEnd);
     $('#vDoor').onclick = () => this.doors(st); $('#vHorn').onclick = () => { Snd.play('horn'); vib(30); for (const c of st.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); };
     $('#vAs').onclick = () => { st.assist = !st.assist; this.msg(st, st.assist ? 'Asistente de carril encendido' : 'Asistente apagado: usa el timón (×1,25)', 'b'); };
-    $$('#vView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; if (st.paseo) st.assist = true; this.msg(st, st.paseo ? 'Modo paseo: el bus va solo y la cámara cambia de plano' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; });
+    $$('#vView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; if (st.paseo) st.assist = true; this.msg(st, st.paseo ? 'Modo paseo: el bus va solo y la cámara cambia de plano' : 'Vuelves a manejar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
   },
   /* dirección inclinando el celular (giroscopio) */
   tiltToggle(st) {
@@ -9330,14 +9495,16 @@ const Volante = EM.modes.volante = {
   unmount(st) { if (this._tl) removeEventListener('deviceorientation', this._tl); },
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; const pb = $('#vBrk'); if (!pb) return;
-    pb.querySelector('b').textContent = st.rev ? 'R' : '▼'; $('#vTilt').style.background = st.tilt ? 'var(--mante)' : '';
+    pb.querySelector('b').textContent = st.rev ? 'R' : '▼'; $('#vTilt').classList.toggle('on', !!st.tilt);
     const d = $('#vDoor'); d.disabled = st.ph !== 'dwell'; d.textContent = st.doors === 1 ? (st.board >= 1 ? '🔔 Cerrar' : '⇆ Cerrar') : '⇆ Abrir';
-    $('#vAs').style.background = st.assist ? 'var(--mante)' : ''; $('#vWi').style.transform = 'rotate(' + (st.steer / BUSES[st.kind].smax * 120) + 'deg)';
+    $('#vAs').classList.toggle('on', !!st.assist); const cr = $('#vCr'); if (cr) cr.classList.toggle('cr-on', !!st.acelFijo);
+    $('#vWi').style.transform = 'rotate(' + (st.steer / BUSES[st.kind].smax * 120) + 'deg)';
+    if (EM.camui && EM.camui.visible) EM.camui.visible(st.view === 'top' || st.view === 'pan');
     $$('#vView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo)));
     if (st.paseo && (st._pv = (st._pv || 0) + .2) > 8) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['cine', 'tps', 'cab', 'cine', 'pan'] : ['top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; }
-    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Mantén ACELERAR para arrancar desde ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
+    if (st.ph === 'ready' && !st._rt) { st._rt = 1; this.msg(st, 'Mantén ACELERAR o toca ⏫ Crucero para arrancar desde ' + NET.byId[st.line].st[st.stops[0]].name, 'b'); }
   },
-  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if (m === 'left' || m === 'right') { st.keys._kb = true; if (down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú', 'b'); } } return; } if (!down) return; if (k === ' ') this.doors(st); if (k === 'h') Snd.play('horn'); if (k === 'v') { const V = ['tps', 'cab', 'cine', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } if (k === 'g') st.assist = !st.assist; },
+  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if (m === 'down' && down) st.acelFijo = false; if (m === 'left' || m === 'right') { st.keys._kb = true; if (down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: manejas tú', 'b'); } } return; } if (!down) return; if (k === ' ') this.doors(st); if (k === 'c' || k === 'C') { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Crucero activo' : 'Crucero apagado', 'b'); } if (k === 'h') Snd.play('horn'); if (k === 'v') { const V = ['tps', 'cab', 'cine', 'top', 'pan']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } if (k === 'g') st.assist = !st.assist; },
   gl(st) { return (st.view === 'tps' || st.view === 'cab' || st.view === 'cine') && G3.init() && Save.d.settings.q !== 'low'; },
   /* ---------- dibujo ---------- */
   draw(g, st, vp) {
@@ -9352,7 +9519,7 @@ const Volante = EM.modes.volante = {
     if (st.view === 'cine') { if (!st._cine || st._cine.s - st.sR < -25) { const sa = Math.min(line.P.len, st.sR + 110 + h2(st.t | 0, 1, 2) * 60), sd = h2(st.t | 0, 2, 2) < .5 ? -1 : 1, q0 = NET.at(line.P, sa, sd * 13), q = typeof VC !== 'undefined' && VC.camaraLibre ? VC.camaraLibre(q0.x, q0.y, st.x, st.y, this.elev(q0.x, q0.y) + 2.2) : { x: q0.x, y: q0.y, z: this.elev(q0.x, q0.y) + 2.2 }; st._cine = { s: sa, x: q.x, y: q.y, z: q.z }; } cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x + c * 6, z + 2, st.y + s * 6], fov: .95 }; }
     else if (st.view === 'cab') cam = { eye: [st.x + c * (B.wb + 1.6), z + 2.9 + sh, st.y + s * (B.wb + 1.6)], at: [st.x + c * 60, z + 1.5 + (this.elev(st.x + c * 60, st.y + s * 60) - z) * .6, st.y + s * 60], fov: 1.15 };
     else { const bk = B.len2 ? 30 : 25, ex = st.x - c * bk, ey = st.y - s * bk, ez = Math.max(z, this.elev(ex, ey)) + 12; if (!st._cam) st._cam = { x: ex, y: ey, z: ez }; st._cam.x += (ex - st._cam.x) * .18; st._cam.y += (ey - st._cam.y) * .18; st._cam.z += (ez - st._cam.z) * .18; cam = { eye: [st._cam.x, st._cam.z + sh, st._cam.y], at: [st.x + c * 14, z + 2.5, st.y + s * 14], fov: .95 }; }
-    G3.draw(cam, { hour: st.hourNow, rain: st.rain, dyn: G => {
+    G3.draw(cam, { hour: st.hourNow, rain: st.rain, escala: .82, suave: true, dyn: G => {
       G3.traffic(cam, st.t + 3000, line); G3.people(cam, st.t);
       // bus del jugador
       const col = rgb(line.color), zf = this.elev(st.x + c * B.wb * .5, st.y + s * B.wb * .5);
@@ -9384,12 +9551,12 @@ const Volante = EM.modes.volante = {
   },
   /* tablero: velocímetro, flecha GPS, tinto, clima */
   overlay(g, st, W, H, line, B) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), cx = W / 2, R = Math.min(W * .12, 46 * dpr), cy = H - 8 * dpr;
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), cx = W / 2, R = Math.min(W * .12, 46 * dpr), cy = H - 18 * dpr;
     g.fillStyle = 'rgba(13,20,24,.85)'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * dpr; g.stroke();
     const an = Math.PI + Math.PI * clamp(Math.abs(st.v) / B.vmax, 0, 1); g.strokeStyle = '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * R * .82, cy + Math.sin(an) * R * .82); g.stroke();
     g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .36) + 'px Titulos, sans-serif'; g.fillText(Math.round(Math.abs(st.v) * 3.6), cx, cy - R * .2); g.font = '700 ' + (R * .16) + 'px Cuerpo, sans-serif'; g.fillStyle = PAL.mante; g.fillText(st.rev ? 'REVERSA' : 'KM/H', cx, cy - R * .02);
     // flecha GPS hacia la ruta (punto 40 m adelante)
-    const q = NET.at(line.P, Math.min(line.P.len, st.sR + 40)), br = Math.atan2(q.y - st.y, q.x - st.x) - st.h, ay = 92 * dpr, ar = 18 * dpr;
+    const q = NET.at(line.P, Math.min(line.P.len, st.sR + 40)), br = Math.atan2(q.y - st.y, q.x - st.x) - st.h, ay = 114 * dpr, ar = 18 * dpr;
     g.save(); g.translate(cx, ay); g.rotate(br); g.fillStyle = st.off > 30 ? PAL.naranja : 'rgba(249,228,164,.9)'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.moveTo(ar, 0); g.lineTo(-ar * .6, -ar * .6); g.lineTo(-ar * .25, 0); g.lineTo(-ar * .6, ar * .6); g.closePath(); g.fill(); g.stroke(); g.restore();
     const d = st.stopTgt[st.ni] - st.sR, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)];
     g.fillStyle = 'rgba(13,20,24,.82)'; g.fillRect(cx - 90 * dpr, ay + 24 * dpr, 180 * dpr, 34 * dpr); g.fillStyle = line.color; g.fillRect(cx - 90 * dpr, ay + 24 * dpr, 4 * dpr, 34 * dpr);
@@ -9697,17 +9864,21 @@ const SOLID_V = new Set([TT.MOUNT, TT.BRICK, TT.BLDG, TT.WATER, TT.CANAL, TT.LAN
 Music.SONGS.ciudad = { bpm: 100, root: 55, sc: [0, 2, 3, 5, 7, 9, 10], prog: [0, 3, 4, 3], bass: [1, 0, 0, 1, 0, 0, 1, 0], mel: .4, w: 'triangle' };
 const Libre = EM.modes.libre = {
   id: 'libre', name: 'Ciudad Libre', sub: 'Recorre el valle', music: 'ciudad', fullCanvas: true, endless: true,
-  tip: 'Joystick a la izquierda: a pie y en «manejo fácil» apunta hacia donde quieres ir, y el vehículo gira hacia allá con su radio de giro (en «clásico», los lados giran y arriba acelera). ● sirve para subirte a un vehículo o al metro, hablar con la gente o entregar. ▼ frena y ✋ derrapa. ⏩ elige el ritmo: ×1, ×1,5 o ×2 (en metro y cable, hasta ×6). 🎥 suelta la cámara: arrastra para mirar, pellizca para acercar y 📐 cambia el ángulo. 📍 te muestra qué ver cerca y 🆘 te rescata si te pierdes. 👁 cambia la vista: desde arriba, tercera persona, dron o cine (en 3D, un dedo gira la cámara y dos acercan). Toca el minimapa (o M) para ver el mapa del valle y elegir dónde ir.',
+  tip: 'Un solo mundo 3D del Valle de Aburrá: cambia entre 3D Cenital 🛰, 3ª persona 🎮, 1ª persona 👁, Panorámica 🏔, Cine 🎬 o 2D/Pixel 🗺. Usa ⏫ para acelerador fijo, 📋 para abrir cualquier modo o zona Skate/Parkour y tu diario RPG, ● para subir/abordar y M o el minimapa para viajar.',
   substeps: true,
   RITMOS: [['×1', 1, 1], ['×1,5', 1.5, 3], ['×2', 2, 6]],   // [rótulo, a pie y manejando, en metro, cable, tranvía o bus]
   escala(st) { const R = this.RITMOS[clamp(Save.d.settings.ritmo | 0, 0, 2)]; return st.mode === 'ride' ? R[2] : R[1]; },
-  /* estilos de vista (1.4.0): desde arriba (la ciudad vectorial, con sus tres ángulos) y en 3D con el motor G3 y los edificios reales:
-     tercera persona (detrás del jugador), dron (alto y lejos, gira despacio cuando estás quieto) y cine (cámara en la calle que te ve pasar) */
-  VISTAS: [['2d', '🗺', 'Desde arriba'], ['3p', '🎮', 'Tercera persona'], ['dron', '🚁', 'Dron'], ['cine', '🎬', 'Cine']],
+  /* 3.2 · un solo mundo 3D con cámaras coherentes (3D Cenital, 3ª persona, 1ª persona, Panorámica, Cine) + modo 2D/Pixel */
+  VISTAS: [['cen3d', '🛰', '3D Cenital'], ['3p', '🎮', 'Tercera persona'], ['1p', '👁', 'Primera persona'], ['dron', '🏔', 'Panorámica'], ['cine', '🎬', 'Cine'], ['2d', '🗺', '2D / Pixel']],
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
-  vista(st, v) { if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y un navegador con WebGL', 'y'); v = '2d'; } st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; Save.d.settings.vistaL = v; Save.write(); const A = this.VISTAS.find(q => q[0] === v); this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st); },
-  /* el joystick en 3D va con la cámara: arriba es hacia donde mira la cámara */
-  joyMundo(st) { const j = st.joy; if (!st.vista3 || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
+  vista(st, v) {
+    if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
+    st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; st._ec = null;
+    Save.d.settings.vistaL = v; Save.write();
+    const A = this.VISTAS.find(q => q[0] === v) || this.VISTAS[0]; this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st);
+  },
+  /* joystick coherente con la cámara: en 3D Cenital y 2D el norte es arriba; en 3p/1p/dron/cine sigue el rumbo de la cámara */
+  joyMundo(st) { const j = st.joy; if (!st.vista3 || st.vista3 === 'cen3d' || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
   STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
   levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }, { id: 'lb:mapa', name: '🗺 Elegir en el mapa', sub: 'Mira todo el valle y escoge dónde empezar' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
@@ -9725,7 +9896,7 @@ const Libre = EM.modes.libre = {
     Ciudad.init((opts.seed | 0) || 1); const rng = new RNG((opts.seed | 0) + 3), sv = Save.d.libre || {};
     const trama = lv === 'lb:trama', T = trama ? Trama.save() : null, fresh = trama && !T.started; if (fresh) { T.started = 1; T.c = T.c || 0; T.s = T.s || 0; }
     let start; if ((lv === 'lb:ultimo' || (trama && !fresh)) && sv.x) start = { x: sv.x, y: sv.y }; else { const h = this.hub(trama ? 'Niquía' : lv === 'lb:mapa' ? 'San Antonio' : lv.startsWith('lb:') ? lv.slice(3) : 'San Antonio'); start = this.libre(h.x, h.y, v => v === TT.WALK || v === TT.PLAZA || v === TT.STATION, 6); }
-    const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, z: 0, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
+    const st = { lvId: lv, x: start.x, y: start.y, h: -Math.PI / 2, vf: 0, vs: 0, steer: 0, mode: 'walk', veh: null, ride: null, hb: false, run: false, acelFijo: false, jumpY: 0, jumpVy: 0, trickSpin: 0, combo: 0, comboT: 0, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, dmg: 0, job: null, jobT: 18, jobs: 0, pay: 0, crashes: 0, peds: 0, km: 0, photos: [], visited: Object.assign({}, sv.visited || {}), cam: { x: start.x, y: start.y, k: 3 }, z: 0, far: false, parked: [], msg: [], shake: 0, seed: opts.seed | 0, act: 0, actHold: 0, done: false, auto: !!opts.auto, radio: 0, lastHub: null, near: null, engine: 0 };
     // vehículos parqueados: taxis y bicis en las estaciones, camionetas en el taller de Bello, alimentadores en sus cabeceras, articulados en Metroplús
     const park = (kind, x, y, a) => { const p = this.nearTile(x, y, v => v === TT.ROAD || v === TT.AVE || v === TT.DEPOT || v === TT.WALK, 7); st.parked.push({ kind, x: p.x, y: p.y, a: a != null ? a : rng.f() * TAU, id: st.parked.length }); };
     // estaciones de EnCicla (src/data/encicla.js, de Juega EnCicla): anclajes con 2 a 4 bicis
@@ -9739,8 +9910,10 @@ const Libre = EM.modes.libre = {
     if (sv.veh && (lv === 'lb:ultimo' || (trama && !fresh)) && VEH[sv.veh]) { st.parked = st.parked.filter(p => !(p.kind === sv.veh && dist(p.x, p.y, st.x, st.y) < 40)); st.veh = { kind: sv.veh, col: VEH[sv.veh].col, id: -1 }; st.mode = 'veh'; st.h = sv.h || st.h; }
     if (trama) Trama.init(st);
     if (lv === 'lb:mapa') st.abrirMapa = 1;
-    st.vista3 = ['3p', 'dron', 'cine'].includes(Save.d.settings.vistaL) && !EM.headless ? Save.d.settings.vistaL : null; st.cy = st.h;
-    st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; if (typeof Gente !== 'undefined') Gente.crear(st);
+    const prefV = Save.d.settings.vistaL || 'cen3d';
+    st.vista3 = ['cen3d', '3p', '1p', 'dron', 'cine'].includes(prefV) && !EM.headless && Save.d.settings.q !== 'low' ? prefV : null; st.cy = st.h;
+    st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; st._crEspera = 25; if (typeof Gente !== 'undefined') Gente.crear(st);
+    if (EM.mundoRPG && EM.mundoRPG.initLibre) EM.mundoRPG.initLibre(st);
     return st;
   },
   V(st) { return st.veh ? VEH[st.veh.kind] : null; },
@@ -9784,14 +9957,14 @@ const Libre = EM.modes.libre = {
       const J = st.job; if (J && J.k === 'taxi' && J.stage === 0 && Math.abs(st.vf) < 1 && dist(st.x, st.y, J.client.x, J.client.y) < 7) { J.stage = 1; Ciudad.peds = Ciudad.peds.filter(p => p !== J.client); J.client.x0 = st.x; J.client.y0 = st.y; J.dist = dist(st.x, st.y, J.dest.x, J.dest.y); J.limit = J.t + J.dist / 8 + 50; J.title = 'Lleva al pasajero a ' + J.dest.name; J.hint = 'Sin choques y sin pasarte de velocidad'; this.msg(st, '«A ' + J.dest.name + ', por favor»', 'b'); this.sfx(st, 'door'); return; }
       if (Math.abs(st.vf) > 1.5) { this.msg(st, 'Frena primero para bajarte', 'y'); return; }
       if (st.veh.kind === 'bici' && st.prestamo) { if (this.devolver(st)) return; st.prestamo = null; this.msg(st, '⚠ Dejaste la bici EnCicla sola. En EnCicla eso se reporta: devuélvela siempre en un anclaje', 'y'); }
-      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; const t = this.libre(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
+      const V = this.V(st); st.parked.push({ kind: st.veh.kind, x: st.x, y: st.y, a: st.h, id: st.parked.length }); st.veh = null; st.mode = 'walk'; st.vf = st.vs = 0; st.acelFijo = false; const t = this.libre(st.x - Math.sin(st.h) * (V.wid + 1.2), st.y + Math.cos(st.h) * (V.wid + 1.2), q => WALK_OK.has(q), 3); st.x = t.x; st.y = t.y; this.sfx(st, 'door'); if (st.job && st.job.k === 'ruta') this.fail(st, 'dejaste el bus'); if (st.job && st.job.k === 'taxi' && st.job.stage === 1) this.fail(st, 'dejaste al pasajero'); return;
     }
     // a pie: personaje de la historia, vehículo cercano, transporte en la estación, persona
     if (st.trama && Trama.onAction(st)) return;
     const np = typeof Gente !== 'undefined' ? Gente.cerca(st, 3.4) : null; if (np) { const dn = dist(np.x, np.y, st.x, st.y), dv = st.parked.reduce((m, q) => Math.min(m, dist(q.x, q.y, st.x, st.y) - VEH[q.kind].len / 2), 1e9); if (!(dv < dn)) { Gente.hablar(st, np); return; } }   // con un vehículo más cerca que la persona, gana el vehículo
     let best = null, bd = 4.5; for (const p of st.parked) { const d = dist(p.x, p.y, st.x, st.y); if (d < bd + VEH[p.kind].len / 2) { bd = d; best = p; } }
     if (best && best.dock != null && !EM.headless) { const Hh = enciclaHorario(new Date()); if (!Hh.abierto) { this.msg(st, '🚲 EnCicla no presta a esta hora: ' + Hh.txt, 'y'); return; } }
-    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; if (Save.d.settings.crucero && this.crucero && !st.auto) this.crucero(st, true); st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲' : ' · ▲ acelera · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
+    if (best) { st.parked = st.parked.filter(p => p !== best); st.veh = { kind: best.kind, col: VEH[best.kind].col, id: best.id }; st.mode = 'veh'; st.x = best.x; st.y = best.y; st.h = best.a; st.vf = st.vs = 0; st.steer = 0; st.acelFijo = false; if (Save.d.settings.crucero && this.crucero && !st.auto) this.crucero(st, true); this.msg(st, VEH[best.kind].icon + ' ' + VEH[best.kind].n + (best.kind === 'bici' ? ' · pedalea con ▲ o ⏫' : ' · ▲ acelera · ⏫ fijo · ✋ derrapa'), 'b'); if (best.dock != null) this.prestar(st, best.dock); this.sfx(st, 'door'); if (st.jobT > 4) st.jobT = 4; return; }
     const hub = this.nearHub(st, 34); if (hub) { const v = Ciudad.atHub(hub, st.x, st.y, st.trama ? Trama.wantLine(st) : null); if (v) { if (!Save.d.civica && Game.st === st && !st.auto && !EM.headless) { Save.d.civica = 1; Save.write(); UI.modal(`<div class="pag">Primera vez en el Metro</div><h2>Tu Cívica</h2><div class="civica"><i></i>Metro de Medellín</div><p>Para viajar se pasa la tarjeta <b>Cívica</b> por el torniquete. La personal es gratis en los puntos de atención y cobra la tarifa frecuente. Cada viaje descuenta un pasaje; los transbordos a cables y Metroplús no cobran de nuevo.</p><p class="m">En el juego cada viaje cuesta 1 🎫 y los cables integrados son gratis.</p><button class="btn pri" id="cvOk">Entendido · pasar la Cívica</button>`); $('#cvOk').onclick = () => UI.close(); }
       if (v.line.kind !== 'cable') { if (Save.d.wallet >= 1) { Save.d.wallet -= 1; } else this.msg(st, 'Sin saldo en la Cívica: haz un oficio para ganar pasajes (te dejan pasar esta vez)', 'y'); }
       st.mode = 'ride'; st.ride = v; st.vf = st.vs = 0; st.subio = 1; this.msg(st, 'Abordas ' + v.line.name + ' → ' + v.line.st[v.dir > 0 ? Math.min(v.ni + 1, v.line.st.length - 1) : Math.max(v.ni - 1, 0)].name, 'b'); this.sfx(st, 'bell'); return; } const coming = Ciudad.transit.find(t => t.line.st.some(s => s.hub === hub) && !t.line._far); this.msg(st, coming ? 'Espera en el andén: el ' + coming.line.K.label.toLowerCase() + ' viene en camino' : 'Aquí no para nada por ahora', 'y'); return; }
@@ -9815,12 +9988,36 @@ const Libre = EM.modes.libre = {
     if (T.length >= 3 && h && h.lines.some(l => l.kind === 'metro')) { st.timbres = []; Vida.logro('ciclista'); this.msg(st, '🚲 ¡Ciclista secreto! Tres timbrazos debajo del metro. ¿Te gusta pedalear? Juega EnCicla', 'g'); }
     else if (T.length === 1) this.msg(st, '🔔 ¡Tilín, tilín!', 'b');
   },
+  /* salto y truco en vivo en zonas Skate/Parkour o con skate/patines/patineta */
+  saltaTruco(st) {
+    const z = EM.mundoRPG && EM.mundoRPG.enZona ? EM.mundoRPG.enZona(st) : null;
+    const V = this.V(st), puede = !!z || (V && V.monta);
+    if (!puede) return false;
+    if ((st.jumpY || 0) <= .05) {
+      st.jumpVy = z ? 8.2 : 6.4; st.jumpY = .12; st.trickSpin = 1;
+      st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5;
+      const trucos = st.mode === 'walk' ? ['Salto Parkour', 'Bóveda', 'Salto de precisión'] : ['Ollie', 'Kickflip', '360° Valle', 'Grind Aéreo'];
+      const nom = trucos[(Math.floor(st.t * 10) + st.combo) % trucos.length], pts = (z ? 15 : 6) * st.combo;
+      if (z) { Save.d.wallet += Math.min(25, Math.ceil(pts / 5)); if (Save.d.rpg) { Save.d.rpg.trucos = (Save.d.rpg.trucos || 0) + 1; Save.d.rpg.xp.ciclovia = (Save.d.rpg.xp.ciclovia || 0) + 12; } Save.write(); }
+      this.msg(st, '★ ' + nom + (z ? ' en ' + z.n + ' · ×' + st.combo + ' (+' + Math.min(25, Math.ceil(pts / 5)) + ' 🎫)' : ' · ×' + st.combo), 'g');
+      this.sfx(st, 'star'); vib(22);
+      return true;
+    }
+    return false;
+  },
   nearHub(st, r) { let best = null, bd = r; for (const h of NET.stations) { const d = dist(h.x, h.y, st.x, st.y); if (d < bd) { bd = d; best = h; } } return best; },
   /* ---------- física ---------- */
   step(st, dt) {
     if (st.done) return; st.t += dt; const J = st.job;
     if (st.prestamo) { const P = st.prestamo; P.min += dt / 10; if (P.min > 60 && !P.avisado) { P.avisado = 1; this.msg(st, '⏰ Pasó la hora del préstamo: devuelve o renueva la bici en una estación EnCicla', 'y'); } }   // 10 s de juego = 1 minuto de préstamo
-    if (st.mode === 'veh' && st.veh.kind === 'bici' && st.hb) { st.hb = false; this.timbre(st); }
+    if (st.jumpY > 0 || st.jumpVy > 0) { st.jumpVy -= 22 * dt; st.jumpY = Math.max(0, st.jumpY + st.jumpVy * dt); if (st.jumpY === 0) st.jumpVy = 0; }
+    if (st.trickSpin > 0) st.trickSpin = Math.max(0, st.trickSpin - dt * 2.4);
+    if (st.comboT > 0) { st.comboT -= dt; if (st.comboT <= 0) st.combo = 0; }
+    if (st.hb) {
+      const z = EM.mundoRPG && EM.mundoRPG.enZona ? EM.mundoRPG.enZona(st) : null;
+      if (z || (st.mode === 'veh' && this.V(st).monta)) { st.hb = false; this.saltaTruco(st); }
+      else if (st.mode === 'veh' && st.veh.kind === 'bici') { st.hb = false; this.timbre(st); }
+    }
     if (st.auto) { st.joy = { x: Math.sin(st.t * .3), y: -.8, m: 1 }; if (Math.floor(st.t) % 7 === 0 && !st._a) { st._a = 1; this.action(st); } else if (Math.floor(st.t) % 7) st._a = 0; }
     if (st.trama && st.trama.talk) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; }
     if (st.charla) { st.joy = { x: 0, y: 0, m: 0 }; st.keys.up = st.keys.down = false; } const wdt = dt;
@@ -9828,12 +10025,12 @@ const Libre = EM.modes.libre = {
     else if (st.mode === 'veh') this.drive(st, dt);
     else this.walk(st, dt);
     Ciudad.tick(wdt, { x: st.x, y: st.y, z: st.z || 0, h: st.h, vf: st.vf, veh: st.mode === 'veh' ? this.V(st) : null, onPed: p => { st.peds++; st.crashesJ = 1; Save.d.wallet = Math.max(0, Save.d.wallet - 30); st.vf *= .5; this.msg(st, '¡Casi atropellas a alguien! −30 🎫 · Cultura Metro: el peatón primero', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.crashesJ = 1; st.dmg += Math.abs(st.vf); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : c.kind === 'bus' ? 'bus' : 'carro'), 'r'); vib(100); } });
-    this.acomoda(st); this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); if (typeof Gente !== 'undefined') Gente.tick(st, dt); this.vigila(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
+    this.acomoda(st); this.jobTick(st, dt); if (st.trama) Trama.tick(st, dt); if (typeof Gente !== 'undefined') Gente.tick(st, dt); if (EM.mundoRPG && EM.mundoRPG.tick) EM.mundoRPG.tick(st, dt); this.vigila(st, dt); const hub = this.nearHub(st, 40); if (hub && hub !== st.lastHub) { st.lastHub = hub; st.visited[hub.name] = 1; }
     if (st.shake > 0) st.shake -= dt;
     // cámara: sigue al jugador con adelanto y zoom según la velocidad
     const V = this.V(st), kT = st.far ? .42 : st.mode === 'walk' ? 2.1 : st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.5 : 1.15) : st.veh.kind === 'bici' ? 1.8 : lerp(1.7, 1.05, clamp(Math.abs(st.vf) / V.vmax, 0, 1));
     if (!st.camLibre) { st.cam.k += (kT * (st.zoomU || 1) - st.cam.k) * Math.min(1, dt * 2); const lead = st.mode === 'walk' ? 6 : 1.1 * st.vf; st.cam.x += (st.x + Math.cos(st.h) * lead - st.cam.x) * Math.min(1, dt * 4); st.cam.y += (st.y + Math.sin(st.h) * lead - st.cam.y) * Math.min(1, dt * 4); }
-    if (st.vista3) { const mov = st.mode === 'ride' || Math.abs(st.vf) > .6, d = Math.atan2(Math.sin(st.h - (st.cy || 0)), Math.cos(st.h - (st.cy || 0))); if (st.cy == null) st.cy = st.h; if (mov) st.cy += d * Math.min(1, dt * (st.vista3 === 'dron' ? .5 : st.mode === 'walk' ? 1.3 : 2)); else if (st.vista3 === 'dron') st.cy += dt * .07; }
+    if (st.vista3 && st.vista3 !== 'cen3d') { const mov = st.vista3 === '1p' || st.mode === 'ride' || Math.abs(st.vf) > .6, d = Math.atan2(Math.sin(st.h - (st.cy || 0)), Math.cos(st.h - (st.cy || 0))); if (st.cy == null) st.cy = st.h; if (mov) st.cy += d * Math.min(1, dt * (st.vista3 === '1p' ? 12 : st.vista3 === 'dron' ? .5 : st.mode === 'walk' ? 1.5 : 2.6)); else if (st.vista3 === 'dron') st.cy += dt * .07; }
     if ((st._sv = (st._sv || 0) + dt) > 5) { st._sv = 0; this.persist(st); }
   },
   walk(st, dt) {
@@ -9868,15 +10065,16 @@ const Libre = EM.modes.libre = {
     const suelo = blando ? (V.walk || V.monta ? .85 : clamp(.45 + .55 * ag, .4, .9)) : 1, FXk = st.auto ? null : Save.d.settings, tope = A.max * suelo * loma * (FXk && FXk.velo || 1), kw = 1 - Math.exp(-dt / A.tw);   // 3.3 · ⚙️ Flexibilidad: velocidad y giro de quien juega
     const wm = (A.w1 + (A.w0 - A.w1) * clamp(1 - Math.abs(st.vf) / A.max, 0, 1)) * (wet ? .85 : 1) * (st.hb && !V.walk && Math.abs(st.vf) > 4 ? 1.45 : 1) * (FXk && FXk.giro || 1);
     let wT = 0, tv = 0, hay = false;
+    if (k.down || st.hb) st.acelFijo = false;
     if (facil && j.m > .15 && !k.left && !k.right) {   // el joystick apunta en el mundo: hacia allá va (y si apunta casi a lo largo de la calle, sigue la calle)
       const jw = this.joyMundo(st); let ta = Math.atan2(jw.y, jw.x); const R = S.asist !== 0 && Math.abs(st.vf) > 2 ? this.rumbo(st, ta) : null; if (R != null && Math.abs(Math.atan2(Math.sin(R - ta), Math.cos(R - ta))) < .3) ta = R;
       const da = Math.atan2(Math.sin(ta - st.h), Math.cos(ta - st.h)); hay = true;
-      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
-      else { wT = clamp(da * 6.5, -wm, wm); tv = tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da))); }
+      if (Math.abs(da) > 2.35 && st.vf < 1.5 && !V.walk) { st.acelFijo = false; const db = Math.atan2(Math.sin(ta + Math.PI - st.h), Math.cos(ta + Math.PI - st.h)); wT = clamp(db * 6.5, -wm, wm); tv = -A.max * .3 * j.m; }   // de reversa, con la cola hacia el dedo
+      else { wT = clamp(da * 6.5, -wm, wm); tv = Math.max(st.acelFijo ? tope * .84 : 0, tope * j.m * (.3 + .7 * Math.max(0, Math.cos(da)))); }
       st._quiere = ta;
-    } else {   // teclas, o el joystick clásico (los lados giran, arriba acelera, abajo frena y luego reversa)
-      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : 0, fr = k.down ? 1 : 0;
-      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); }
+    } else {   // teclas, acelerador fijo (⏫) o joystick clásico
+      let giro = k.left ? -1 : k.right ? 1 : 0, ac = k.up ? 1 : st.acelFijo ? .84 : 0, fr = k.down ? 1 : 0;
+      if (!facil && j.m > .15) { const ax = Math.abs(j.x); if (ax > .1) giro = Math.sign(j.x) * Math.pow((ax - .1) / .9, 1.3); if (j.y < -.2) ac = Math.max(ac, Math.min(1, (-j.y - .2) / .65)); if (j.y > .25) { fr = Math.max(fr, Math.min(1, (j.y - .25) / .6)); st.acelFijo = false; ac = 0; } }
       hay = !!(giro || ac || fr); wT = giro * wm; tv = ac ? tope * ac : fr ? (st.vf > .5 ? 0 : -A.max * .3 * fr) : 0; st._quiere = st.h + (fr > ac ? Math.PI : 0);
     }
     if (S.asist !== 0 && !st.auto && hay) { const As = this.asistencia(st, V, dt, wT / Math.max(.01, wm), st._quiere); if (As.giro && Math.abs(wT) < wm * .7) wT = clamp(wT + As.giro * wm * .6, -wm, wm); if (As.freno && Math.abs(st.vf) > 9) tv = Math.min(tv, A.max * .5); }
@@ -10082,8 +10280,8 @@ const Libre = EM.modes.libre = {
   /* ---------- controles ---------- */
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
-      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: desde arriba, tercera persona, dron o cine">👁<small id="lbVistaN"></small></button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
+      <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano o truco">✋</button></div>
+      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: 3D Cenital, 3ª, 1ª, Panorámica, Cine o 2D">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -10091,6 +10289,7 @@ const Libre = EM.modes.libre = {
     const hold = (id, key, down, up) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); if (down) down(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); if (up) up(); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
     hold('#lbUp', 'up', () => { st.run = true; }, () => { st.run = false; }); hold('#lbDown', 'down'); hold('#lbHb', 'hb', () => { st.hb = true; }, () => { st.hb = false; });
     hold('#lbAct', 'act', () => { st.act = 1; this.action(st); }, () => { st.act = 0; });
+    $('#lbActHub').onclick = () => { Snd.init(); if (EM.mundoRPG && EM.mundoRPG.abrir) EM.mundoRPG.abrir(st); };
     this.camMount(st);
     $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { const s = Save.d.settings; s.ritmo = ((s.ritmo | 0) + 1) % 3; Save.write(); const R = this.RITMOS[s.ritmo]; this.msg(st, '⏩ Ritmo ' + R[0] + (R[2] > 1 ? ' · en metro y cable ×' + R[2] : '') , 'b'); this.updCtl(st); };
     $('#lbGuia').onclick = () => { if (typeof Gente !== 'undefined') Gente.guia(st); };
@@ -10101,13 +10300,19 @@ const Libre = EM.modes.libre = {
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; this.letrero(st); const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
-    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')); vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
+    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')) || this.VISTAS[0]; vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
     const ff = $('#lbFF'); if (ff) { const r = clamp(Save.d.settings.ritmo | 0, 0, 2), R = this.RITMOS[r]; ff.classList.toggle('on', r > 0); const n = $('#lbFFn'); if (n) n.textContent = st.mode === 'ride' ? '×' + R[2] : R[0]; }
     if (!st.goal && !J && st.guia) { const G = st.guia, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar guia'; jb.innerHTML = `<b>📍 ${esc(G.title)}</b><span>${esc(G.hint || '')}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal && !st.guia) jb.classList.add('hide');
-    const veh = st.mode === 'veh'; $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden'; const bici = veh && st.veh.kind === 'bici', hbB = $('#lbHb'); hbB.style.visibility = veh && (!this.V(st).walk || bici) ? '' : 'hidden'; if (hbB.dataset.b !== String(bici)) { hbB.dataset.b = bici; hbB.textContent = bici ? '🔔' : '✋'; hbB.setAttribute('aria-label', bici ? 'Timbre' : 'Freno de mano'); }
+    const veh = st.mode === 'veh', z = EM.mundoRPG && EM.mundoRPG.enZona ? EM.mundoRPG.enZona(st) : null;
+    $('#lbUp').textContent = veh ? '▲' : '🏃'; $('#lbDown').style.visibility = veh ? '' : 'hidden';
+    const bici = veh && st.veh.kind === 'bici', truco = !!z || (veh && this.V(st).monta), hbB = $('#lbHb');
+    const hbKind = truco ? 'truco' : bici ? 'bici' : 'freno';
+    hbB.style.visibility = (truco || (veh && (!this.V(st).walk || bici))) ? '' : 'hidden';
+    if (hbB.dataset.b !== hbKind) { hbB.dataset.b = hbKind; hbB.textContent = truco ? '★' : bici ? '🔔' : '✋'; hbB.setAttribute('aria-label', truco ? 'Saltar y hacer truco' : bici ? 'Timbre' : 'Freno de mano'); }
     const a = $('#lbAct'); let lbl = 'acción'; if (st.mode === 'ride') lbl = st.ride.ph === 'dwell' ? 'bajar' : 'viajando'; else if (veh) lbl = (st.job && st.job.k === 'taxi' && st.job.stage === 0 && dist(st.x, st.y, st.job.client.x, st.job.client.y) < 9) ? 'recoger' : 'bajarse'; else { const p = st.parked.find(p => dist(p.x, p.y, st.x, st.y) < 4.5 + VEH[p.kind].len / 2); if (p) lbl = VEH[p.kind].icon + ' subir'; else if (typeof Gente !== 'undefined' && Gente.cerca(st, 3.4)) lbl = 'hablar'; else if (this.nearHub(st, 34)) lbl = 'abordar'; else if (Ciudad.peds.some(p => dist(p.x, p.y, st.x, st.y) < 3)) lbl = 'hablar'; }
     a.querySelector('small').textContent = lbl; a.classList.toggle('hot', lbl !== 'acción' && lbl !== 'viajando' && lbl !== 'bajarse');
+    if (EM.mundoRPG && EM.mundoRPG.updBar) EM.mundoRPG.updBar(st);
     // motor (zumbido según la velocidad)
     if (Snd.ac && Save.d.settings.snd) { if (veh && !this.V(st).walk) { if (!this._eng) { const o = Snd.ac.createOscillator(), g = Snd.ac.createGain(); o.type = 'sawtooth'; g.gain.value = 0; o.connect(g); g.connect(Snd.sfxG); o.start(); this._eng = { o, g }; } const f = 40 + Math.abs(st.vf) * 7 + st.engine * 25; this._eng.o.frequency.setTargetAtTime(f, Snd.ac.currentTime, .08); this._eng.g.gain.setTargetAtTime(.025 + .02 * st.engine, Snd.ac.currentTime, .1); } else if (this._eng) this._eng.g.gain.setTargetAtTime(0, Snd.ac.currentTime, .1); }
   },
@@ -10118,7 +10323,7 @@ const Libre = EM.modes.libre = {
     const libre = on => { st.camLibre = on; P.classList.toggle('hide', !on); const jz = $('#lbJz'); if (jz) jz.style.display = on ? 'none' : ''; const b = $('#lbCam'); if (b) b.classList.toggle('on', on); if (on) { st.joy = { x: 0, y: 0, m: 0 }; this.msg(st, '🎥 Cámara libre: arrastra para mirar, pellizca para acercar', 'b'); } };
     this._camLibre = libre;
     $('#lbCam').onclick = () => libre(!st.camLibre); $('#lbCamV').onclick = () => libre(false);
-    const zoom = f => { if (st.camLibre) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .3, 3.2); };
+    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, 3.2); };
     $('#lbCamM').onclick = () => zoom(1 / 1.35); $('#lbCamMas').onclick = () => zoom(1.35);
     $('#lbCamA').onclick = () => { const s = Save.d.settings; s.angulo = ((s.angulo | 0) + 1) % VC.ANGULOS.length; const A = VC.angulo(s.angulo); $('#lbCamAn').textContent = A.n; Save.write(); this.msg(st, '📐 Ángulo: ' + A.n, 'b'); };
     this._zoom = zoom; this.camGestos(st);
@@ -10127,7 +10332,8 @@ const Libre = EM.modes.libre = {
     const cv = $('#gcv'); if (!cv) return; if (this._cg) this._cg(); const T = new Map(); let pinch = null;
     const down = e => { T.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (T.size === 2) { const [a, b] = [...T.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: st.cam.k, z: st.zoomU || 1 }; } };
     const move = e => { const q = T.get(e.pointerId); if (!q) return; const nx = e.clientX, ny = e.clientY;
-      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .3, 3.2); return; }
+      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, 3.2); return; }
+      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
       if (st.vista3 && T.size === 1) { st.cyo = (st.cyo || 0) - (nx - q.x) * .006; st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .004, -.45, .9); q.x = nx; q.y = ny; return; }
       if (st.camLibre && T.size === 1) { st.cam.x -= (nx - q.x) / st.cam.k; st.cam.y -= (ny - q.y) / st.cam.k; } q.x = nx; q.y = ny; };
     const up = e => { T.delete(e.pointerId); if (T.size < 2) pinch = null; };
@@ -10136,7 +10342,7 @@ const Libre = EM.modes.libre = {
     this._cg = () => { cv.removeEventListener('pointerdown', down); cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); cv.removeEventListener('wheel', wheel); this._cg = null; };
   },
   photo(st) { if (st.trama && Trama.onPhoto(st)) return; const J = st.job; if (J && J.k === 'postal' && dist(st.x, st.y, J.x, J.y) < 70) { st.flash = .4; this.complete(st); return; } const L = Ciudad.lm.find(l => dist(l.x, l.y, st.x, st.y) < 70); st.flash = .4; this.sfx(st, 'ok'); if (L) { const F = Save.d.fotos || (Save.d.fotos = []); if (!F.includes(L.name)) { F.push(L.name); Save.d.wallet += 20; this.msg(st, '📷 ' + L.name + ' · nueva postal +20 🎫', 'g'); this.msg(st, L.fact, 'y'); Save.write(); } else this.msg(st, '📷 ' + L.name, 'b'); } else this.msg(st, '📷 Foto del valle', 'b'); },
-  key(st, k, down) { if (down && (k === 'm' || k === 'M')) { if (this._mapa) this.mapaCierra(); else this.mapa(st); return; } if (down && (k === '+' || k === '=') && this._zoom) { this._zoom(1.25); return; } if (down && (k === '-' || k === '_') && this._zoom) { this._zoom(1 / 1.25); return; } if (down && (k === 'c' || k === 'C') && this._camLibre) { this._camLibre(!st.camLibre); return; } const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
+  key(st, k, down) { if (down && (k === 'm' || k === 'M')) { if (this._mapa) this.mapaCierra(); else this.mapa(st); return; } if (down && (k === '+' || k === '=') && this._zoom) { this._zoom(1.25); return; } if (down && (k === '-' || k === '_') && this._zoom) { this._zoom(1 / 1.25); return; } if (down && (k === 'c' || k === 'C') && this._camLibre) { this._camLibre(!st.camLibre); return; } if (down && (k === 'j' || k === 'J') && EM.mundoRPG && EM.mundoRPG.abrir) { EM.mundoRPG.abrir(st); return; } if (down && (k === 'v' || k === 'V') && st.mode === 'veh') { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Acelerador fijo encendido' : 'Acelerador fijo apagado', 'b'); this.updCtl(st); return; } const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right', ' ': 'hb', Shift: 'run' }[k]; if (m) { st.keys[m] = down; if (m === 'hb') st.hb = down; if (m === 'run') st.run = down; const kx = (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), ky = (st.keys.down ? 1 : 0) - (st.keys.up ? 1 : 0); if (st.mode !== 'veh') st.joy = { x: kx, y: ky, m: Math.min(1, Math.hypot(kx, ky)) }; else st.joy = { x: 0, y: 0, m: 0 }; return; } if (!down) return; if (k === 'e' || k === 'Enter') { st.act = 1; this.action(st); setTimeout(() => { st.act = 0; }, 3500); } if (k === 'f') this.photo(st); if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') { Snd.play('horn'); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); } },
   /* ---------- dibujo ---------- */
   draw(g, st, vp) {
     if (this.gl(st)) { G3.show(true); this.draw3D(g, st, vp); return; } else if (G3.cv) G3.show(false);
@@ -10144,6 +10350,7 @@ const Libre = EM.modes.libre = {
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round(st.cam.x * k) / k, my = Math.round(st.cam.y * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
     g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) { if (k < .3) { const m = MAP.mini(), s = k * MAP.miniK; g.imageSmoothingEnabled = false; g.drawImage(m, W / 2 - mx * k, H / 2 - my * k, m.width * s, m.height * s); } else MAP.drawTop(g, W, H, mx, my, k); }
     Ciudad.landmarks(g, S, k, x0, y0, x1, y1); const clara = this.clara(st, k, vp); if (clara) { g.fillStyle = 'rgba(246,243,236,.42)'; g.fillRect(0, 0, W, H); } Ciudad.stations(g, S, k, x0, y0, x1, y1, VC.on ? 'piso' : null); Ciudad.marksDraw(g, S, k);
+    if (EM.mundoRPG && EM.mundoRPG.draw2D) EM.mundoRPG.draw2D(g, st, S, k, x0, y0, x1, y1);
     // estaciones de EnCicla: anclaje azul con postes verdes y tótem
     for (const D of st.docks || []) {
       if (D.x < x0 - 12 || D.x > x1 + 12 || D.y < y0 - 12 || D.y > y1 + 12) continue; const q = S(D.x, D.y);
@@ -10281,19 +10488,47 @@ const Libre = EM.modes.libre = {
     if (p.acc === 1) G.box(x - Math.cos(a) * .25 * s, z + .95 * s + b, y - Math.sin(a) * .25 * s, a, .16 * s, .36 * s, .42 * s, [.17, .18, .22]); if (p.acc === 3) G.box(x, z + .78 * s + b, y, a, .44 * s, .62 * s, .5 * s, [.54, .51, .45]);
   },
   draw3D(g, st, vp) {
-    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
+    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
     const largo = st.mode === 'ride' ? (st.ride.line.kind === 'metro' ? 34 : st.ride.line.kind === 'cable' ? 12 : 26) : st.mode === 'veh' ? 8 + V.len * 1.1 : 9;
-    let cam;
-    if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
+    let cam, nearP = 2.4;
+    if (st.vista3 === 'cen3d') {
+      // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
+      const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
+      const pitch = clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44);
+      const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
+      const tx = st.camLibre ? st.cam.x : st.x + Math.cos(st.h) * lead;
+      const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
+      const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
+      const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
+      const ex = tx, ey = ty + Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + 14);
+      st._ec = st._ec || { x: ex, y: ey, z: ez };
+      const E = st._ec, f = st.camLibre ? .35 : .18;
+      E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
+      if (dist(E.x, E.y, ex, ey) > 350) { E.x = ex; E.y = ey; E.z = ez; }
+      cam = { eye: [E.x, E.z, E.y], at: [tx, tz + 1.2, ty], fov: .88 };
+      nearP = 3.2;
+    } else if (st.vista3 === '1p') {
+      // Primera persona real sobre el MISMO mundo 3D
+      const eyeH = st.mode === 'ride' ? (st.ride.line.kind === 'cable' ? 1.0 : 2.3) : st.mode === 'veh' ? (V.monta || st.veh.kind === 'bici' ? 1.65 : st.veh.kind === 'alimentador' || st.veh.kind === 'bus' || st.veh.kind === 'metroplus' ? 2.35 : 1.45) : 1.68;
+      const fwd = st.mode === 'veh' && !V.monta && st.veh.kind !== 'bici' ? V.len * .16 : .25;
+      const h1 = st.h + (st.cyo || 0), c1 = Math.cos(h1), s1 = Math.sin(h1);
+      const ex = st.x + c1 * fwd, ey = st.y + s1 * fwd, ez = z + eyeH + jY;
+      cam = { eye: [ex, ez, ey], at: [ex + c1 * 40, ez - 2.2 - po * 18, ey + s1 * 40], fov: 1.18 / Math.sqrt(clamp(zu, .6, 1.6)) };
+      nearP = .55;
+    } else if (st.vista3 === 'cine') {   // una cámara en la calle, adelante y a un lado, que te ve pasar; se cambia cuando la dejas atrás
       const C0 = st._cine, ad = C0 ? (C0.x - st.x) * Math.cos(st.h) + (C0.y - st.y) * Math.sin(st.h) : -1;
       if (!C0 || ad < -12 || dist(C0.x, C0.y, st.x, st.y) > 160 || st.t - C0.t > 14) { const sd = h2(st.t | 0, 3, 7) < .5 ? -1 : 1, fw = 26 + h2(st.t | 0, 4, 7) * 30, px0 = st.x + Math.cos(st.h) * fw - Math.sin(st.h) * sd * 9, py0 = st.y + Math.sin(st.h) * fw + Math.cos(st.h) * sd * 9, z0 = Math.max(MAP.elevM(px0, py0), z - 4) + 4.2 + (st.mode === 'ride' ? 8 : 0), q = VC.on && VC.camaraLibre ? VC.camaraLibre(px0, py0, st.x, st.y, z0) : { x: px0, y: py0, z: z0 }; st._cine = { x: q.x, y: q.y, z: q.z, t: st.t }; }   // en la calle, a la altura de un poste
-      cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2, st.y], fov: .9 / Math.sqrt(zu) };
+      cam = { eye: [st._cine.x, st._cine.z, st._cine.y], at: [st.x, z + 1.2 + jY, st.y], fov: .9 / Math.sqrt(zu) };
     } else {
       const D = (st.vista3 === 'dron' ? 95 : largo) / zu, Hh = (st.vista3 === 'dron' ? 70 : st.mode === 'walk' ? 3.4 : 4.2 + (V ? V.len * .25 : 3)) / zu * (1 + po * 1.6) + (st.vista3 === 'dron' ? 0 : 1.2);
       const ex = st.x - c * D, ey = st.y - s * D, ez = Math.max(z + Hh, MAP.elevM(ex, ey) + 2.5); st._ec = st._ec || { x: ex, y: ey, z: ez }; const E = st._ec, f = st.vista3 === 'dron' ? .08 : .25; E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f; if (dist(E.x, E.y, ex, ey) > 300) { E.x = ex; E.y = ey; E.z = ez; }
-      cam = { eye: [E.x, E.z, E.y], at: [st.x + c * (st.vista3 === 'dron' ? 0 : 4), z + (st.vista3 === 'dron' ? 0 : 1.4), st.y + s * (st.vista3 === 'dron' ? 0 : 4)], fov: st.vista3 === 'dron' ? .85 : 1.05 };
+      cam = { eye: [E.x, E.z, E.y], at: [st.x + c * (st.vista3 === 'dron' ? 0 : 4), z + (st.vista3 === 'dron' ? 0 : 1.4 + jY * .7), st.y + s * (st.vista3 === 'dron' ? 0 : 4)], fov: st.vista3 === 'dron' ? .85 : 1.05 };
     }
-    G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: Game.dpr && Game.dpr < 1.5 ? .7 : .9, suave: true, cerca: 2.4, dyn: G => this.dyn3D(G, st, z) });
+    G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: Game.dpr && Game.dpr < 1.5 ? .75 : .92, suave: true, cerca: nearP, dyn: G => this.dyn3D(G, st, z) });
+    if (st.vista3 === '1p' && st.mode === 'veh' && EM.taller && EM.taller.primera) {
+      const mid = (MALLA3[st.veh.kind] && MALLA3[st.veh.kind][0]) || (st.veh.kind === 'metroplus' ? 'bus' : st.veh.kind);
+      EM.taller.primera(g, mid, W, H, -(st.steer || 0) * .42 + (jY > .1 ? -.04 : 0));
+    }
     this.hud3D(g, st, W, H, z);
   },
   dyn3D(G, st, zj) {
@@ -10301,6 +10536,16 @@ const Libre = EM.modes.libre = {
     for (const k of Ciudad.cars) { if (!cerca(k.x, k.y, 240)) continue; const L = k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, Wd = k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, Hh = k.kind === 'bus' ? 3 : k.kind === 'moto' ? 1.5 : 1.45, zk = E(k.x, k.y) + (VC.PG ? VC.carAlto(k) : 0); G.box(k.x, zk + .3, k.y, k.a, L, Wd, Hh * .62, C(k.col)); G.box(k.x, zk + .3 + Hh * .62, k.y, k.a, L * .55, Wd * .92, Hh * .38, [.15, .22, .3]); }
     for (const p of Ciudad.peds) { if (!cerca(p.x, p.y, 90) || p.dog) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p, 1, p.ph || 0); }
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { if (!cerca(p.x, p.y, 130)) continue; this.persona3(G, p.x, E(p.x, p.y), p.y, p.a || 0, p.look, 1.05, p.v > .1 ? p.ph : 0); }
+    // estaciones de EnCicla en 3D
+    for (const D of st.docks || []) {
+      if (!cerca(D.x, D.y, 150)) continue;
+      const zd = E(D.x, D.y);
+      G.box(D.x, zd + .08, D.y, 0, 7.2, 1.5, .18, [.055, .176, .333]);
+      for (let i = 0; i < 5; i++) G.box(D.x - 2.9 + i * 1.45, zd + .18, D.y, 0, .24, .34, .75, [.608, .827, .255]);
+      G.box(D.x + 4.1, zd + .05, D.y, 0, .7, .7, 2.5, [.055, .176, .333]);
+      G.box(D.x + 4.1, zd + 2.0, D.y, 0, .74, .74, .45, [.608, .827, .255]);
+    }
+    if (EM.mundoRPG && EM.mundoRPG.draw3D) EM.mundoRPG.draw3D(G, st, zj);
     for (const p of st.parked) { if (!cerca(p.x, p.y, 160)) continue; const V = VEH[p.kind], zp = E(p.x, p.y), m3 = this.malla3(p.kind); if (m3) { EM.taller.mundo(m3, p.x, zp, p.y, p.a); continue; } const chico = p.kind === 'bici' || V.monta; G.box(p.x, zp + (V.monta ? .05 : .3), p.y, p.a, V.len, V.wid, V.monta ? .12 : chico ? .9 : 1, C(V.col)); if (!chico && p.kind !== 'moto') G.box(p.x, zp + 1.3, p.y, p.a, V.len * .55, V.wid * .92, .55, [.15, .22, .3]); }
     // el transporte de la ciudad en su sitio: trenes por vagones sobre su vía, articulados en dos cuerpos, cabinas en su cable
     for (const v of Ciudad.transit) { const p = Ciudad.tpos(v); if (!cerca(p.x, p.y, 700)) continue; const l = v.line, kind = l.kind, col = C(l.color);
@@ -10309,15 +10554,17 @@ const Libre = EM.modes.libre = {
         if (!(TS && TS(kind === 'metro' ? 'metro' : 'tranvia', l.color, q.x, zq, q.y, q.a, op))) G3.vehicle(q.x, zq, q.y, q.a, carL, kind, col); else if (i === 0 && cerca(q.x, q.y, 260)) { const u = kind === 'metro' ? carL * .3 - .25 : carL * .1 - .2; EM.taller.chispa(q.x + Math.cos(q.a) * u, zq + (kind === 'metro' ? 5.05 : 4.6), q.y + Math.sin(q.a) * u, q.a, st.t + i * 3.1 + v.s * .01, lluvia); } } }
       else if (kind === 'cable') { const Cg = G3.cableGeo(l), zc = Cg.zAt(NET.project(Cg.P, p.x, p.y).s); if (!(TS && TS('cabina', l.color, p.x, zc - 4.05, p.y, p.a))) { G.box(p.x, zc - 4.6, p.y, p.a, 2.2, 2, 2.2, col); G.box(p.x, zc - 2.4, p.y, p.a, .25, .25, 2.4, [.3, .3, .32]); } }
       else { const zb = E(p.x, p.y); if (kind === 'brt') { const f = Ciudad.cuerda(l.P, v.s - v.dir * 1.4, v.s - v.dir * 9.9, v.dir * 2.2), r = Ciudad.cuerda(l.P, v.s - v.dir * 12.6, v.s - v.dir * 16.6, v.dir * 2.2); if (!(TS && TS('brtF', l.color, f.x, zb, f.y, f.a, { largo: 11.3 }))) G3.vehicle(f.x, zb, f.y, f.a, 11.3, 'brt', col); if (!(TS && TS('brtR', l.color, r.x, zb, r.y, r.a, { largo: 6.4 }))) G3.vehicle(r.x, zb, r.y, r.a, 6.4, 'brt', col); } else { const q = Ciudad.cuerda(l.P, v.s - v.dir * 2.4, v.s - v.dir * (KIND[kind].len - 2.6), v.dir * 2.2); if (!(TS && TS('bus', l.color, q.x, zb, q.y, q.a, { largo: KIND[kind].len }))) G3.vehicle(q.x, zb, q.y, q.a, KIND[kind].len, kind, col); } } }
-    // tú: a pie con tu ropa, o tu vehículo; y encima un rombo naranja para no perderte
-    if (st.mode !== 'ride') { const V = this.V(st);
-      if (st.mode === 'walk') this.persona3(G, st.x, zj, st.y, st.h, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
-      else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zj, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zj, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
-      else if (this.malla3(st.veh.kind, 1)) { EM.taller.mundo(this.malla3(st.veh.kind, 1), st.x, zj, st.y, st.h); const pie = MALLA3[st.veh.kind][1]; if (pie != null) this.persona3(G, st.x, zj + pie, st.y, st.h, Perfil.ped(), 1, 0); }   // mallas del taller de arte (Codex)
-      else if (V.monta) { G.box(st.x, zj + .06, st.y, st.h, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(st.h) * V.len * .42, zj + .1, st.y + Math.sin(st.h) * V.len * .42, st.h, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zj + .18, st.y, st.h, Perfil.ped(), 1, 0); }
-      else if (st.veh.kind === 'bici') { G.box(st.x, zj + .35, st.y, st.h, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zj + .55, st.y, st.h, Perfil.ped(), 1, 0); }
-      else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zj + .3, st.y, st.h, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zj + .3 + Hh * .62, st.y, st.h, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); } }
-    const tope = zj + (st.mode === 'veh' ? 3.6 : st.mode === 'ride' ? 6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78);
+    // tú: a pie con tu ropa, o tu vehículo (se omite el cuerpo propio en 1ª persona); con salto y giro de truco
+    const zjP = zj + (st.jumpY || 0), hP = st.h + (st.trickSpin > 0 ? st.trickSpin * TAU : 0);
+    if (st.mode !== 'ride' && st.vista3 !== '1p') { const V = this.V(st);
+      if (st.mode === 'walk') this.persona3(G, st.x, zjP, st.y, hP, Perfil.ped(), 1.08, st.wv > .2 ? st.t * (st.run ? 14 : 8) : 0);
+      else if (V.art) { const Lf = V.len * .63, hx = st.x + Math.cos(st.h) * (V.len / 2 - Lf), hy = st.y + Math.sin(st.h) * (V.len / 2 - Lf), a2 = st.h2 == null ? st.h : st.h2; G3.vehicle(hx + Math.cos(st.h) * Lf / 2, zjP, hy + Math.sin(st.h) * Lf / 2, st.h, Lf, 'brt', C(V.col)); G3.vehicle(hx - Math.cos(a2) * (.9 + (V.len - Lf - .9) / 2), zjP, hy - Math.sin(a2) * (.9 + (V.len - Lf - .9) / 2), a2, V.len - Lf - .9, 'brt', C(V.col)); }
+      else if (this.malla3(st.veh.kind, 1)) { EM.taller.mundo(this.malla3(st.veh.kind, 1), st.x, zjP, st.y, hP); const pie = MALLA3[st.veh.kind][1]; if (pie != null) this.persona3(G, st.x, zjP + pie, st.y, hP, Perfil.ped(), 1, 0); }   // mallas del taller de arte (Codex)
+      else if (V.monta) { G.box(st.x, zjP + .06, st.y, hP, V.len, V.wid, .12, C(V.col)); if (st.veh.kind === 'scooter') G.box(st.x + Math.cos(hP) * V.len * .42, zjP + .1, st.y + Math.sin(hP) * V.len * .42, hP, .06, .06, 1, [.14, .15, .17]); this.persona3(G, st.x, zjP + .18, st.y, hP, Perfil.ped(), 1, 0); }
+      else if (st.veh.kind === 'bici') { G.box(st.x, zjP + .35, st.y, hP, 1.7, .12, .7, C(V.col)); this.persona3(G, st.x, zjP + .55, st.y, hP, Perfil.ped(), 1, 0); }
+      else { const Hh = st.veh.kind === 'moto' ? 1.3 : st.veh.kind === 'alimentador' ? 3 : 1.45; G.box(st.x, zjP + .3, st.y, hP, V.len, V.wid, Hh * .62, C(V.col)); G.box(st.x, zjP + .3 + Hh * .62, st.y, hP, V.len * .55, V.wid * .92, Hh * .38, [.15, .22, .3]); }
+      const tope = zjP + (st.mode === 'veh' ? 3.6 : 2.5) + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .38, .38, .38, [1, .55, .1], .78, .78); }
+    else if (st.mode === 'ride' && st.vista3 !== '1p') { const tope = zj + 6 + Math.sin(st.t * 3) * .18; G.box(st.x, tope, st.y, st.t * 1.5, .42, .42, .42, [1, .55, .1], .78, .78); }
     // el destino: un poste alto que se ve de lejos
     const J = st.goal || st.job || st.guia; if (J && J.x != null && cerca(J.x, J.y, 1500)) { const zg = E(J.x, J.y); G.box(J.x, zg, J.y, 0, .7, .7, 16 + Math.sin(st.t * 4), [.98, .78, .2]); G.box(J.x, zg + 16, J.y, st.t, 2.4, 2.4, 2.4, [1, .9, .4]); }
   },
@@ -10327,11 +10574,12 @@ const Libre = EM.modes.libre = {
     g.font = '700 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; g.textAlign = 'center';
     if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) { const d = dist(p.x, p.y, st.x, st.y); if (d > 40) continue; const q = P(p.x, p.y, MAP.elevM(p.x, p.y) + 2.3); if (q) rot(p.G.n + ((Save.d.gente || {})[p.G.id] || p.tur ? '' : ' 💬'), q.x, q.y); }
     for (const h of NET.stations) { if (Math.abs(h.x - st.x) > 500 || Math.abs(h.y - st.y) > 500 || !h.lines.some(l => l.kind === 'metro' || l.kind === 'tram' || l.kind === 'cable')) continue; const l = h.lines.find(l => l.kind === 'metro' || l.kind === 'tram') , q = P(h.x, h.y, (l ? G3.zOn(l, NET.project(l.P, h.x, h.y).s) : MAP.elevM(h.x, h.y)) + 9); if (q) rot('🚉 ' + h.name, q.x, q.y, '#1C5C9C'); }
-    const yo = P(st.x, st.y, zj + (st.mode === 'veh' ? 4.5 : 3.2)); if (yo && st.mode !== 'ride') { g.font = '800 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; rot('Tú', yo.x, yo.y - 6 * dpr, '#c2410c'); }
+    if (EM.mundoRPG && EM.mundoRPG.hud3D) EM.mundoRPG.hud3D(g, st, P, rot, dpr);
+    if (st.vista3 !== '1p' && st.mode !== 'ride') { const yo = P(st.x, st.y, zj + (st.jumpY || 0) + (st.mode === 'veh' ? 4.5 : 3.2)); if (yo) { g.font = '800 ' + Math.round(12 * dpr) + 'px Cuerpo, sans-serif'; rot('Tú', yo.x, yo.y - 6 * dpr, '#c2410c'); } }
     g.textAlign = 'left';
     // el destino: anillo en pantalla o flecha al borde, según hacia dónde queda respecto a la cámara
     const J = st.goal || st.job || st.guia; if (J && J.x != null) { const q = P(J.x, J.y, MAP.elevM(J.x, J.y) + 2), inside = q && q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20;
-      if (!inside) { const yaw = (st.cy || 0) + (st.cyo || 0), dx = J.x - st.x, dy = J.y - st.y, fx = dx * Math.cos(yaw) + dy * Math.sin(yaw), rx = -dx * Math.sin(yaw) + dy * Math.cos(yaw), a = Math.atan2(-fx, rx), r = Math.min(W, H) * .4, ax = W / 2 + Math.cos(a) * r, ay = H / 2 + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16 * dpr, 0); g.lineTo(-10 * dpr, -11 * dpr); g.lineTo(-4 * dpr, 0); g.lineTo(-10 * dpr, 11 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
+      if (!inside) { const dx = J.x - st.x, dy = J.y - st.y; let a; if (st.vista3 === 'cen3d') a = Math.atan2(dy, dx); else { const yaw = (st.cy || 0) + (st.cyo || 0), fx = dx * Math.cos(yaw) + dy * Math.sin(yaw), rx = -dx * Math.sin(yaw) + dy * Math.cos(yaw); a = Math.atan2(-fx, rx); } const r = Math.min(W, H) * .4, ax = W / 2 + Math.cos(a) * r, ay = H / 2 + Math.sin(a) * r; g.save(); g.translate(ax, ay); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16 * dpr, 0); g.lineTo(-10 * dpr, -11 * dpr); g.lineTo(-4 * dpr, 0); g.lineTo(-10 * dpr, 11 * dpr); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     this.minimap(g, st, W, H);
   },
   minimap(g, st, W, H) {
@@ -10389,6 +10637,412 @@ const Libre = EM.modes.libre = {
       return r; };
   }
   if (typeof document !== 'undefined') { const t = setInterval(() => { if (!EM.ready || !Save.d) return; clearInterval(t); ICO.ponTam(); }, 250); }
+})();
+~~~~
+
+### `src/js/36c-actividades.js`
+~~~~js
+/* =====================================================================
+   ACTIVIDADES EN MUNDO ABIERTO, ZONAS SKATE/PARKOUR Y DIARIO RPG (v3.2.0)
+   - Todos los 10 módulos cerrados se juegan desde Ciudad Libre con la misma experiencia
+     y regresan al mismo lugar del valle al salir (opts.onExit).
+   - 6 zonas físicas de Skate & Parkour en Medellín (3D con mallas del taller + 2D) donde
+     puedes saltar y encadenar trucos en vivo o lanzar la Carrera en Ciclovía.
+   - Sistema RPG ligero: 4 ramas de carrera (Tren, Bus, Cable, Ciclovía/Parkour), rangos
+     y 6 subtramas con decisiones que dejan huella en tu reputación Cultura Metro.
+   ===================================================================== */
+(() => {
+  const ZONAS_DEF = [
+    { id: 'parques-rio', n: 'Parques del Río · Skate & Parkour', hub: 'Exposiciones', dx: -68, dy: 24, r: 30, cr: 'cr:A', desc: 'Plazoleta junto al río con rampas, barandas y corredor ciclovía.' },
+    { id: 'ciudad-rio', n: 'Skatepark Ciudad del Río', hub: 'Industriales', dx: 52, dy: -22, r: 30, cr: 'cr:MP1', desc: 'Bowls urbanos, barandas de grind y conexión directa con Metroplús.' },
+    { id: 'atanasio', n: 'Unidad Deportiva Atanasio', hub: 'Estadio', dx: -44, dy: -28, r: 32, cr: 'cr:B', desc: 'Circuito de ciclovía amplia, arcos de parkour y pista de patines.' },
+    { id: 'pies-descalzos', n: 'Pies Descalzos · Parkour', hub: 'Cisneros', dx: -36, dy: 38, r: 28, cr: 'cr:MP2', desc: 'Terrazas y arcos bajos para saltos de precisión y skate urbano.' },
+    { id: 'explora', n: 'Parque Explora y Carabobo', hub: 'Universidad', dx: 46, dy: -16, r: 30, cr: 'cr:A', desc: 'Paseo peatonal científico con rampas suaves y ciclorruta norte.' },
+    { id: 'ayacucho', n: 'Corredor Cultural Ayacucho', hub: 'Bicentenario', dx: 34, dy: -20, r: 28, cr: 'cr:T', desc: 'Barandas y plazoletas del tranvía para trucos junto a los murales.' }
+  ];
+
+  const RUTAS = [
+    { id: 'tren', ico: '🚆', n: 'Maquinista & Control', desc: 'Metro, Tranvía y Puesto de Control', modos: ['conduce', 'tranvia', 'despacho'] },
+    { id: 'bus', ico: '🚌', n: 'Volante del Valle', desc: 'Metroplús, Alimentadores y Semáforos', modos: ['bus', 'volante', 'metroplus', 'alim'] },
+    { id: 'cable', ico: '🚡', n: 'Guardián de la Loma', desc: 'Metrocables e ingeniería de pilonas', modos: ['cableviaje', 'cable'] },
+    { id: 'ciclovia', ico: '🛹', n: 'Rider de Ciclovía & Parkour', desc: 'Ciclovías, skateparks y trucos urbanos', modos: ['carrera'] }
+  ];
+
+  const RANGOS = [
+    [0, 'Aprendiz del Valle'],
+    [120, 'Operador Cívico'],
+    [320, 'Guía del Valle'],
+    [650, 'Maestro Metro'],
+    [1100, 'Leyenda Cultura Metro']
+  ];
+
+  const MODULOS = [
+    { id: 'conduce', ico: '🚆', n: 'Conduce el Metro', desc: 'Cabina 1ª persona y panorámica de las Líneas A y B', hub: 'San Antonio' },
+    { id: 'tranvia', ico: '🚋', n: 'Tranvía de Ayacucho', desc: 'Línea T con campana, peatones y pendientes reales', hub: 'San Antonio' },
+    { id: 'cableviaje', ico: '🚡', n: 'Metrocable · Viaje', desc: 'Opera la cabina sobre la loma, viento y miradores', hub: 'Acevedo' },
+    { id: 'bus', ico: '🚌', n: 'Buses (Cenital)', desc: 'Conduce Metroplús y Alimentadores por las calles', hub: 'Industriales' },
+    { id: 'volante', ico: '🧭', n: 'Al Volante 3D', desc: 'Volante interactivo y cabina 3D en ruta real', hub: 'Hospital' },
+    { id: 'carrera', ico: '🚴', n: 'Carrera en Ciclovías', desc: 'Ancho variable, giros, skateparks y parkour', hub: 'Exposiciones' },
+    { id: 'despacho', ico: '🎛', n: 'Despacho · Control', desc: 'Agujas, señales y desvíos en tiempo real', hub: 'San Antonio' },
+    { id: 'metroplus', ico: '🚦', n: 'Semáforos Traffix', desc: 'Cruces de Metroplús con turbo de flota', hub: 'Industriales' },
+    { id: 'alim', ico: '🚐', n: 'Reparto Alimentador', desc: 'Lleva cada ruta alimentadora a su destino', hub: 'Niquía' },
+    { id: 'cable', ico: '📐', n: 'Arma el Cable', desc: 'Puzle de ingeniería: traza torres sobre la ladera', hub: 'Santo Domingo Savio' }
+  ];
+
+  const SUBTRAMAS = [
+    {
+      id: 'pico-sa', ico: '🚉', lugar: 'San Antonio', titulo: 'Hora pico en San Antonio',
+      txt: 'Son las 5:45 p. m. El andén de integración entre la Línea A y la Línea B se llena rápido y dos colegios acaban de salir hacia el sur.',
+      opciones: [
+        { k: 'expreso', t: 'Despachar tren de refuerzo corto hasta Poblado', res: 'Aliviaste el andén en 4 minutos. Los usuarios aplauden la puntualidad.', xp: ['tren', 45], rep: 20, pay: 45 },
+        { k: 'anfitriones', t: 'Organizar filas con anfitriones de Cultura Metro', res: 'El abordaje fue ordenado y nadie bloqueó las puertas. Ejemplo cívico.', xp: ['tren', 35], rep: 30, pay: 35 },
+        { k: 'integrado', t: 'Anunciar conexión directa con Tranvía y Metroplús', res: 'Repartiste la demanda por todo el corredor central sin saturar la vía.', xp: ['bus', 40], rep: 25, pay: 40 }
+      ]
+    },
+    {
+      id: 'ciclo-rio', ico: '🛹', lugar: 'Parques del Río', titulo: 'Convivencia en la Ciclovía del Río',
+      txt: 'Ciclistas rápidos de EnCicla y jóvenes practicando skate en Parques del Río discuten porque se cruzan justo en el tramo estrecho.',
+      opciones: [
+        { k: 'zona', t: 'Demarcar la bahía lateral para skate y dejar 2 carriles libres', res: 'Ahora los ciclistas pasan fluidos y los skaters tienen rampa segura.', xp: ['ciclovia', 50], rep: 30, pay: 45 },
+        { k: 'senales', t: 'Pintar flechas direccionales y campana de cortesía', res: 'Los giros ahora se avisan a tiempo y bajaron los sustos a cero.', xp: ['ciclovia', 40], rep: 25, pay: 35 }
+      ]
+    },
+    {
+      id: 'niebla-arvi', ico: '🌫', lugar: 'Santo Domingo · Arví', titulo: 'Niebla espesa sobre la loma',
+      txt: 'Una nube baja cubre las pilonas de la Línea L rumbo a Arví con ráfagas de 38 km/h. Una familia pregunta si pueden subir ya.',
+      opciones: [
+        { k: 'lento', t: 'Bajar la línea a 3 m/s y monitorear el péndulo en cabina', res: 'Viaje sereno entre la niebla: la familia logró su foto del bosque.', xp: ['cable', 50], rep: 25, pay: 45 },
+        { k: 'mirador', t: 'Pausar 10 minutos e invitarlos al mirador de Santo Domingo', res: 'Seguridad primero: conocieron la historia del barrio mientras escampaba.', xp: ['cable', 40], rep: 35, pay: 40 }
+      ]
+    },
+    {
+      id: 'guitarra-t', ico: '🎸', lugar: 'Corredor Ayacucho', titulo: 'Música en el paseo del Tranvía',
+      txt: 'Una banda juvenil quiere tocar junto a la parada Bicentenario, pero el público empieza a invadir la losa por donde pasa la Línea T.',
+      opciones: [
+        { k: 'plazoleta', t: 'Mover el círculo 12 metros a la plazoleta lateral', res: 'El tranvía circula sin frenazos y la música alegra todo el corredor.', xp: ['tren', 40], rep: 30, pay: 40 },
+        { k: 'campana', t: 'Acordar pausa musical cada vez que suene la campana del tranvía', res: 'Se volvió un ritual divertido del barrio y todos respetan la franja.', xp: ['ciclovia', 35], rep: 25, pay: 35 }
+      ]
+    },
+    {
+      id: 'cruce-ind', ico: '🚦', lugar: 'Industriales', titulo: 'Nudo vial en Industriales',
+      txt: 'Llueve fuerte y un cruce de Metroplús Línea 1 acumula buses articulados mientras los carros particulares bloquean la intersección.',
+      opciones: [
+        { k: 'ola', t: 'Sincronizar ola verde Traffix para los articulados', res: 'Tres articulados cruzan en cadena y 400 personas llegan a tiempo.', xp: ['bus', 50], rep: 25, pay: 50 },
+        { k: 'bici', t: 'Dar fase protegida a peatones y ciclistas bajo la lluvia', res: 'Nadie queda atrapado en el cruce y el tráfico retoma ritmo con calma.', xp: ['bus', 40], rep: 35, pay: 40 }
+      ]
+    },
+    {
+      id: 'bici-estadio', ico: '🚲', lugar: 'Unidad Deportiva Atanasio', titulo: 'Una EnCicla fuera del anclaje',
+      txt: 'Al salir del skatepark encuentras una bici azul y verde de EnCicla apoyada contra una baranda, a 180 metros de la estación Estadio.',
+      opciones: [
+        { k: 'anclar', t: 'Llevarla hasta el anclaje y reportar estado al anfitrión', res: 'Santi te agradece: «Cuidar una bici es cuidar el viaje de cinco vecinos».', xp: ['ciclovia', 45], rep: 35, pay: 40 },
+        { k: 'rodada', t: 'Avisar a Wilson y sumarte a una mini-rodada pedagógica', res: 'Diez nuevos usuarios aprenden a usar la Cívica en EnCicla hoy.', xp: ['ciclovia', 55], rep: 30, pay: 45 }
+      ]
+    }
+  ];
+
+  function rpgSave() {
+    if (!Save.d.rpg) Save.d.rpg = { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} };
+    if (!Save.d.rpg.xp) Save.d.rpg.xp = { tren: 0, bus: 0, cable: 0, ciclovia: 0 };
+    if (!Save.d.rpg.subtramas) Save.d.rpg.subtramas = {};
+    if (!Save.d.rpg.zonas) Save.d.rpg.zonas = {};
+    return Save.d.rpg;
+  }
+
+  function rangoDe(xp) {
+    let cur = RANGOS[0], next = RANGOS[1];
+    for (let i = 0; i < RANGOS.length; i++) {
+      if (xp >= RANGOS[i][0]) { cur = RANGOS[i]; next = RANGOS[i + 1] || null; }
+    }
+    const pct = next ? clamp((xp - cur[0]) / Math.max(1, next[0] - cur[0]), 0, 1) : 1;
+    return { nombre: cur[1], xp, next: next ? next[0] : null, pct };
+  }
+
+  function resuelveZonas() {
+    if (ACT._zonas && ACT._zonas.length) return ACT._zonas;
+    ACT._zonas = ZONAS_DEF.map(z => {
+      const h = (typeof NET !== 'undefined' && NET.stations) ? (NET.stations.find(s => s.name === z.hub) || NET.stations[0]) : { x: 0, y: 0 };
+      const bx = h.x + z.dx, by = h.y + z.dy;
+      const p = (typeof Libre !== 'undefined' && Libre.libre) ? Libre.libre(bx, by, v => v === TT.WALK || v === TT.PLAZA || v === TT.GRASS || v === TT.ROAD, 6) : { x: bx, y: by };
+      return Object.assign({}, z, { x: p.x, y: p.y });
+    });
+    return ACT._zonas;
+  }
+
+  function lvPara(modeId, hub) {
+    const M = EM.modes[modeId]; if (!M || !M.levels) return null;
+    const L = M.levels(); if (!L || !L.length) return null;
+    if (hub) {
+      const n = hub.name.toLowerCase();
+      if (modeId === 'conduce') {
+        const isB = hub.lines && hub.lines.some(l => l.id === 'B');
+        const hit = L.find(l => (isB ? l.line === 'B' : l.line === 'A') && (!l.name || l.name.toLowerCase().includes(n))) || L.find(l => l.line === (isB ? 'B' : 'A'));
+        if (hit) return hit.id;
+      }
+      if (modeId === 'cableviaje') {
+        const cl = hub.lines && hub.lines.find(l => l.kind === 'cable');
+        if (cl) { const hit = L.find(l => l.line === cl.id); if (hit) return hit.id; }
+      }
+      if (modeId === 'bus' || modeId === 'volante') {
+        const bl = hub.lines && hub.lines.find(l => l.kind === 'brt' || l.kind === 'feeder');
+        if (bl) { const hit = L.find(l => l.line === bl.id); if (hit) return hit.id; }
+      }
+    }
+    return L[0].id;
+  }
+
+  const ACT = EM.mundoRPG = {
+    ZONAS: ZONAS_DEF,
+    RUTAS,
+    MODULOS,
+    SUBTRAMAS,
+    rangoDe,
+
+    zonas() { return resuelveZonas(); },
+
+    initLibre(st) {
+      const Z = resuelveZonas();
+      // parquea skate y scooter/bici en cada zona Skate/Parkour para probar al instante
+      for (const z of Z) {
+        st.parked.push({ kind: 'skate', x: z.x - 4, y: z.y + 3, a: 0, id: st.parked.length, ok: 1 });
+        st.parked.push({ kind: 'scooter', x: z.x + 4, y: z.y + 3, a: Math.PI, id: st.parked.length, ok: 1 });
+      }
+    },
+
+    enZona(st) {
+      if (!st) return null;
+      for (const z of resuelveZonas()) if (dist(st.x, st.y, z.x, z.y) <= z.r) return z;
+      return null;
+    },
+
+    tick(st, dt) {
+      if (!st || st.auto) return;
+      const z = this.enZona(st);
+      if (z && st._lastZona !== z.id) {
+        st._lastZona = z.id;
+        const R = rpgSave();
+        if (!R.zonas[z.id]) {
+          R.zonas[z.id] = 1; R.xp.ciclovia = (R.xp.ciclovia || 0) + 25; R.rep = (R.rep || 0) + 10; Save.d.wallet += 20; Save.write();
+          Libre.msg(st, '🛹 Descubriste ' + z.n + ' (+25 XP · +20 🎫) · Toca ★ para trucos', 'g');
+          Libre.sfx(st, 'star');
+        } else {
+          Libre.msg(st, '🛹 ' + z.n + ' · Toca ★ para trucos o lanza la Ciclovía', 'b');
+        }
+      } else if (!z) {
+        st._lastZona = null;
+      }
+    },
+
+    /* detecta actividades jugables a pocos metros del jugador */
+    cerca(st) {
+      const out = [];
+      const z = this.enZona(st);
+      if (z) {
+        out.push({ ico: '🚴', lbl: 'Ciclovía', mode: 'carrera', lv: z.cr, hint: z.n });
+        out.push({ ico: '★', lbl: 'Truco', fn: () => Libre.saltaTruco(st) });
+      }
+      const hub = Libre.nearHub(st, 55);
+      if (hub && hub.lines) {
+        if (hub.lines.some(l => l.kind === 'metro')) {
+          out.push({ ico: '🚆', lbl: 'Conducir Metro', mode: 'conduce', lv: lvPara('conduce', hub) });
+          if (['San Antonio', 'Bello', 'Acevedo', 'Niquía'].includes(hub.name)) {
+            out.push({ ico: '🎛', lbl: 'Despacho', mode: 'despacho', lv: lvPara('despacho', hub) });
+          }
+        }
+        if (hub.lines.some(l => l.kind === 'tram')) {
+          out.push({ ico: '🚋', lbl: 'Tranvía T', mode: 'tranvia', lv: lvPara('tranvia', hub) });
+        }
+        if (hub.lines.some(l => l.kind === 'cable')) {
+          out.push({ ico: '🚡', lbl: 'Operar Cable', mode: 'cableviaje', lv: lvPara('cableviaje', hub) });
+          out.push({ ico: '📐', lbl: 'Puzle Cable', mode: 'cable', lv: lvPara('cable', hub) });
+        }
+        if (hub.lines.some(l => l.kind === 'brt' || l.kind === 'feeder')) {
+          out.push({ ico: '🚌', lbl: 'Ruta Bus', mode: 'bus', lv: lvPara('bus', hub) });
+          out.push({ ico: '🧭', lbl: 'Al Volante', mode: 'volante', lv: lvPara('volante', hub) });
+          if (hub.lines.some(l => l.kind === 'brt')) out.push({ ico: '🚦', lbl: 'Semáforos', mode: 'metroplus', lv: lvPara('metroplus', hub) });
+          else out.push({ ico: '🚐', lbl: 'Reparto', mode: 'alim', lv: lvPara('alim', hub) });
+        }
+      }
+      return out.slice(0, 3);
+    },
+
+    /* barra contextual no intrusiva sobre los controles de Ciudad Libre */
+    updBar(st) {
+      if (EM.headless || Game.st !== st) return;
+      const bar = $('#lbActBar'); if (!bar) return;
+      if (st.mode === 'ride' || st.charla || (st.trama && st.trama.talk)) { bar.classList.add('hide'); return; }
+      const acts = this.cerca(st);
+      const sig = acts.map(a => a.lbl + (a.lv || '')).join('|');
+      if (sig === st._actSig) return;
+      st._actSig = sig;
+      if (!acts.length) { bar.classList.add('hide'); bar.innerHTML = ''; return; }
+      bar.classList.remove('hide');
+      bar.innerHTML = acts.map((a, i) => `<button data-ai="${i}"><b>${a.ico}</b><span>${esc(a.lbl)}</span></button>`).join('');
+      $$('button', bar).forEach(b => {
+        b.onclick = () => {
+          const a = acts[+b.dataset.ai]; if (!a) return;
+          Snd.init(); Snd.play('tap');
+          if (a.fn) a.fn(); else this.lanzar(st, a.mode, a.lv);
+        };
+      });
+    },
+
+    /* lanza CUALQUIER módulo cerrado desde Ciudad Libre y vuelve al mismo sitio al terminar o salir */
+    lanzar(st, modeId, lvId) {
+      if (!EM.modes[modeId]) return;
+      if (st && Libre && Libre.persist) Libre.persist(st);
+      UI.close();
+      const lv = lvId || lvPara(modeId, st ? Libre.nearHub(st, 90) : null);
+      Game.start(modeId, lv, {
+        onExit: () => Game.start('libre', 'lb:ultimo', { back: 'cover' })
+      });
+    },
+
+    /* otorga XP RPG y reputación al completar cualquier módulo */
+    onGameEnd(modeId, st, res) {
+      if (!res || EM.headless) return;
+      const R = rpgSave();
+      const track = RUTAS.find(r => r.modos.includes(modeId));
+      const gain = Math.max(15, Math.min(120, Math.round((res.stars || 1) * 28 + (res.win ? 25 : 10))));
+      if (track) {
+        const before = rangoDe(R.xp[track.id] || 0).nombre;
+        R.xp[track.id] = (R.xp[track.id] || 0) + gain;
+        const after = rangoDe(R.xp[track.id]).nombre;
+        if (after !== before && typeof UI !== 'undefined' && UI.toast) {
+          UI.toast('⭐ ¡Subiste a ' + after + ' en ' + track.n + '!');
+        }
+      }
+      R.rep = (R.rep || 0) + (res.win ? 12 : 4);
+      Save.write();
+    },
+
+    /* dibujo 2D/Pixel de las 6 zonas físicas de Skate & Parkour en Ciudad Libre */
+    draw2D(g, st, S, k, x0, y0, x1, y1) {
+      for (const z of resuelveZonas()) {
+        if (z.x < x0 - 40 || z.x > x1 + 40 || z.y < y0 - 40 || z.y > y1 + 40) continue;
+        const q = S(z.x, z.y), r = Math.max(10, 14 * k);
+        g.save();
+        g.fillStyle = 'rgba(20, 44, 68, .72)'; g.beginPath(); g.arc(q.x, q.y, r + 2, 0, TAU); g.fill();
+        g.fillStyle = '#d8d4c8'; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill();
+        g.strokeStyle = '#0E6F76'; g.lineWidth = Math.max(2, 1.2 * k); g.stroke();
+        // rampa, baranda amarilla y arco naranja en vista cenital 2D
+        g.fillStyle = '#7e8c99'; g.fillRect(q.x - 6 * k, q.y - 4 * k, 4.5 * k, 3 * k);
+        g.fillStyle = '#F6C538'; g.fillRect(q.x - 1.5 * k, q.y - 4 * k, .8 * k, 3 * k);
+        g.fillStyle = '#F6C538'; g.fillRect(q.x + 1.5 * k, q.y - 1 * k, 5.5 * k, .8 * k);
+        g.fillStyle = '#E38835'; g.fillRect(q.x - 4 * k, q.y + 3 * k, 5 * k, 1.1 * k);
+        if (k > 1.2 && !st.far) {
+          g.font = '700 ' + Math.round(clamp(k * 4, 10, 13)) + 'px Cuerpo, sans-serif';
+          g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.92)';
+          g.strokeText('🛹 ' + z.n, q.x, q.y - r - 4);
+          g.fillStyle = '#0E6F76'; g.fillText('🛹 ' + z.n, q.x, q.y - r - 4);
+          g.textAlign = 'left';
+        }
+        g.restore();
+      }
+    },
+
+    /* dibujo 3D real de las 6 zonas físicas de Skate & Parkour sobre el MISMO mundo 3D */
+    draw3D(G, st) {
+      const E = (x, y) => MAP.elevM(x, y);
+      const mesh = (k) => (EM.taller && EM.taller.malla && EM.taller.pista) ? EM.taller.malla('act:' + k, () => EM.taller.pista(k)) : null;
+      const mRampa = mesh('rampa'), mBar = mesh('baranda'), mArco = mesh('arco');
+      for (const z of resuelveZonas()) {
+        if (Math.abs(z.x - st.x) > 220 || Math.abs(z.y - st.y) > 220) continue;
+        const zz = E(z.x, z.y);
+        // losa de concreto + bordes de color
+        G.box(z.x, zz + .04, z.y, 0, 22, 18, .12, [.78, .76, .72]);
+        G.box(z.x, zz + .10, z.y - 8.7, 0, 22, .45, .28, [.055, .435, .463]);
+        G.box(z.x, zz + .10, z.y + 8.7, 0, 22, .45, .28, [.965, .773, .22]);
+        // rampa de skate, baranda de grind y arco de parkour en 3D
+        if (mRampa) EM.taller.mundo(mRampa, z.x - 5, zz + .14, z.y - 3, 0);
+        else G.box(z.x - 5, zz + .14, z.y - 3, 0, 3.2, 1.8, .72, [.55, .6, .66]);
+        if (mBar) EM.taller.mundo(mBar, z.x + 4.5, zz + .14, z.y - 1.5, Math.PI / 2);
+        else G.box(z.x + 4.5, zz + .4, z.y - 1.5, 0, 3.8, .18, .55, [.965, .773, .22]);
+        if (mArco) EM.taller.mundo(mArco, z.x - 1, zz + .14, z.y + 4.5, 0);
+        else G.box(z.x - 1, zz + 1.1, z.y + 4.5, 0, .35, 2.2, .45, [.89, .53, .21]);
+        // tótem luminoso de zona
+        G.box(z.x + 9.5, zz + .1, z.y - 7.5, 0, .5, .5, 3.4, [.055, .435, .463]);
+        G.box(z.x + 9.5, zz + 3.4, z.y - 7.5, st.t * 1.4, 1.0, 1.0, .6, [.965, .773, .22]);
+      }
+    },
+
+    hud3D(g, st, P, rot, dpr) {
+      for (const z of resuelveZonas()) {
+        if (Math.abs(z.x - st.x) > 190 || Math.abs(z.y - st.y) > 190) continue;
+        const q = P(z.x + 9.5, z.y - 7.5, MAP.elevM(z.x, z.y) + 4.8);
+        if (q) rot('🛹 ' + z.n, q.x, q.y, '#0E6F76');
+      }
+    },
+
+    /* modal unificado: Módulos & Skateparks · Diario RPG · Subtramas */
+    abrir(st, tab = 'modos') {
+      if (EM.headless) return;
+      const R = rpgSave();
+      const Z = resuelveZonas();
+      const totalXp = Object.values(R.xp).reduce((a, b) => a + b, 0);
+      const km = d => d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1).replace('.', ',') + ' km';
+
+      let body = '';
+      if (tab === 'modos') {
+        body = `<p class="m">Todos los módulos del juego están abiertos aquí mismo y regresan a tu ubicación en Ciudad Libre al salir.</p>
+          <div class="pag">Los 10 módulos jugables</div>
+          <div class="rpg-grid">${MODULOS.map(m => `<div class="rpg-card"><b>${m.ico} ${esc(m.n)}</b><small>${esc(m.desc)}</small><div class="row" style="margin-top:6px"><button class="btn pri sm" data-lm="${m.id}">▶ Jugar</button><button class="btn sm gh" data-irh="${esc(m.hub)}">📍 ${esc(m.hub)}</button></div></div>`).join('')}</div>
+          <div class="pag" style="margin-top:10px">Zonas Skate & Parkour en Medellín (6)</div>
+          <div class="col">${Z.map(z => `<div class="rpg-card"><b>🛹 ${esc(z.n)} ${R.zonas[z.id] ? '<span class="zona-pill">✓ Visitada</span>' : ''}</b><small>${esc(z.desc)} · a ${km(dist(st.x, st.y, z.x, z.y))}</small><div class="row" style="margin-top:6px"><button class="btn sm" data-irz="${z.id}">🚶 Ir allí</button><button class="btn pri sm" data-crz="${z.cr}">🚴 Ciclovía</button></div></div>`).join('')}</div>`;
+      } else if (tab === 'rpg') {
+        const hechas = Object.keys(R.subtramas || {}).length;
+        const zonasVis = Object.keys(R.zonas || {}).length;
+        body = `<div class="rpg-grid">
+            <div class="rpg-card"><b>🌟 Cultura Metro</b><small>Reputación cívica: <b>${R.rep || 0}</b> pts · XP total: <b>${totalXp}</b></small></div>
+            <div class="rpg-card"><b>🛹 Trucos & Zonas</b><small>Trucos: <b>${R.trucos || 0}</b> · Skateparks: <b>${zonasVis}/${Z.length}</b> · Subtramas: <b>${hechas}/${SUBTRAMAS.length}</b></small></div>
+          </div>
+          <div class="pag" style="margin-top:10px">Tus 4 ramas de carrera</div>
+          <div class="col">${RUTAS.map(r => {
+            const rg = rangoDe(R.xp[r.id] || 0);
+            return `<div class="rpg-card"><b>${r.ico} ${esc(r.n)} · <span style="color:var(--lA)">${esc(rg.nombre)}</span></b><small>${esc(r.desc)} · ${rg.xp} XP${rg.next ? ' / ' + rg.next + ' XP' : ' (Rango máximo)'}</small><div class="rpg-bar"><i style="width:${Math.round(rg.pct * 100)}%"></i></div></div>`;
+          }).join('')}</div>`;
+      } else {
+        body = `<p class="m">Historias vivas del Valle de Aburrá (inspiradas en la narrativa de decisiones de UnoCero). Cada decisión moldea tu camino cívico.</p>
+          <div class="col">${SUBTRAMAS.map(s => {
+            const ch = R.subtramas[s.id];
+            return `<div class="rpg-card"><b>${s.ico} ${esc(s.titulo)} · <span class="zona-pill">${esc(s.lugar)}</span></b><small>${esc(s.txt)}</small>${ch ? `<div class="m" style="margin-top:6px;color:var(--lT);font-weight:700">✓ Decisión tomada: ${esc(ch)}</div>` : `<div class="col" style="margin-top:6px;gap:5px">${s.opciones.map((o, oi) => `<button class="btn sm" data-sub="${s.id}" data-oi="${oi}">${esc(o.t)}</button>`).join('')}</div>`}</div>`;
+          }).join('')}</div>`;
+      }
+
+      UI.modal(`<div class="pag">Mundo Abierto · El Metro 3.4</div><h2>📋 Actividades y Diario RPG</h2>
+        <div class="tg pftabs" id="actTabs">
+          <button data-t="modos" class="${tab === 'modos' ? 'on' : ''}">🎯 Módulos y Zonas</button>
+          <button data-t="rpg" class="${tab === 'rpg' ? 'on' : ''}">⭐ Diario RPG</button>
+          <button data-t="sub" class="${tab === 'sub' ? 'on' : ''}">📖 Subtramas (${Object.keys(R.subtramas).length}/${SUBTRAMAS.length})</button>
+        </div>
+        <div style="margin-top:8px">${body}</div>
+        <button class="btn pri sm" id="actOk" style="margin-top:10px">Volver al valle</button>`);
+
+      $$('#actTabs button').forEach(b => b.onclick = () => this.abrir(st, b.dataset.t));
+      $$('#mBody [data-lm]').forEach(b => b.onclick = () => this.lanzar(st, b.dataset.lm));
+      $$('#mBody [data-crz]').forEach(b => b.onclick = () => this.lanzar(st, 'carrera', b.dataset.crz));
+      $$('#mBody [data-irz]').forEach(b => b.onclick = () => {
+        const z = Z.find(q => q.id === b.dataset.irz); if (!z) return;
+        UI.close(); Libre.llevar(st, z.x, z.y, false); Libre.msg(st, '🛹 Estás en ' + z.n + ' · Toca ★ para saltar y hacer trucos', 'g');
+      });
+      $$('#mBody [data-irh]').forEach(b => b.onclick = () => {
+        const h = Libre.hub(b.dataset.irh); if (!h) return;
+        const t = Libre.salida(h); UI.close(); Libre.llevar(st, t.x, t.y, false); Libre.msg(st, '🚉 Estás en ' + h.name, 'b');
+      });
+      $$('#mBody [data-sub]').forEach(b => b.onclick = () => {
+        const s = SUBTRAMAS.find(q => q.id === b.dataset.sub), o = s && s.opciones[+b.dataset.oi]; if (!o) return;
+        R.subtramas[s.id] = o.t;
+        R.xp[o.xp[0]] = (R.xp[o.xp[0]] || 0) + o.xp[1];
+        R.rep = (R.rep || 0) + o.rep;
+        Save.d.wallet += o.pay;
+        Save.write();
+        Snd.play('star');
+        Libre.msg(st, s.ico + ' ' + o.res + ' (+' + o.pay + ' 🎫 · +' + o.xp[1] + ' XP)', 'g');
+        this.abrir(st, 'sub');
+      });
+      $('#actOk').onclick = () => UI.close();
+    }
+  };
 })();
 ~~~~
 
@@ -10747,8 +11401,8 @@ const Trama = EM.trama = {
    (tú manejas la velocidad); apágalo para girar con el joystick.
    ===================================================================== */
 const Bus = EM.modes.bus = {
-  id: 'bus', name: 'Bus', sub: 'Metroplús y alimentadores', music: 'ciudad', fullCanvas: true, endless: false, camara: {},
-  tip: '▲ acelera, ▼ frena. Para en cada parada (dentro de la zona), abre las puertas con ● para que suba la gente, ciérralas y sigue. Respeta los semáforos y no te pases de velocidad.',
+  id: 'bus', name: 'Bus', sub: 'Metroplús y alimentadores', music: 'ciudad', fullCanvas: true, substeps: true, endless: false, camara: {},
+  tip: '▲ acelera (o toca ⏫ Crucero), ▼ frena. Para en cada parada, abre las puertas con ⇆ para que suba la gente, ciérralas y sigue. Respeta los semáforos y las curvas.',
   levels() {
     if (this._lv) return this._lv; const L = [];
     for (const line of NET.lines.filter(l => l.kind === 'brt')) { const n = line.st.length; for (let a = 0; a < n - 1; a += 4) { const b = Math.min(n - 1, a + 4); L.push({ id: 'bus:' + line.id + ':' + a + '-' + b, line: line.id, a, b, name: line.st[a].name + ' → ' + line.st[b].name, sub: line.name }); } L.push({ id: 'bus:' + line.id + ':0-' + (n - 1), line: line.id, a: 0, b: n - 1, name: 'Ruta completa', sub: line.name + ' · ' + n + ' estaciones', full: true }); L.push({ id: 'bus:' + line.id + ':' + (n - 1) + '-0', line: line.id, a: n - 1, b: 0, name: 'Ruta completa · regreso', sub: line.name, full: true }); }
@@ -10759,10 +11413,10 @@ const Bus = EM.modes.bus = {
     Ciudad.init((opts.seed | 0) || 1); const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], kind = line.kind === 'brt' ? 'metroplus' : 'alimentador', V = VEH[kind], rng = new RNG((opts.seed | 0) + 11);
     const dir = L.b >= L.a ? 1 : -1, stops = []; for (let i = L.a; dir > 0 ? i <= L.b : i >= L.b; i += dir) stops.push(i);
     const p0 = NET.at(line.P, line.st[L.a].s + dir * 2), h = p0.a + (dir < 0 ? Math.PI : 0);
-    const st = { lvId: L.id, line: line.id, kind, veh: { kind, col: V.col }, mode: 'veh', dir, stops, ni: 1, x: p0.x, y: p0.y, h, vf: 0, vs: 0, steer: 0, hb: false, assist: opts.assist != null ? opts.assist : true, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, sR: line.st[L.a].s, off: 0,
+    const st = { lvId: L.id, line: line.id, kind, veh: { kind, col: V.col }, mode: 'veh', dir, stops, ni: 1, x: p0.x, y: p0.y, h, h2: h, vf: 0, vs: 0, steer: 0, hb: false, assist: opts.assist != null ? opts.assist : true, acelFijo: false, joy: { x: 0, y: 0, m: 0 }, keys: {}, t: 0, sR: line.st[L.a].s, off: 0,
       ph: 'ready', doors: 0, dwell: 0, pax: 4 + rng.i(0, 8), cap: kind === 'metroplus' ? 160 : 60, score: 0, comfort: 100, crashes: 0, reds: 0, peds: 0, arr: [], sched: [0], seed: opts.seed | 0, cam: { x: p0.x, y: p0.y, k: 1.6 }, far: false, shake: 0, done: false, win: false, auto: !!opts.auto, lastA: 0, redSeen: {}, waiting: {}, boarding: [], alight: 0, visited: {}, job: null, lastHub: null, flash: 0, over: 0 };
     st.stopS = stops.map(i => line.st[i].s);
-    let acc = 0; for (let k = 1; k < stops.length; k++) { acc += Math.abs(st.stopS[k] - st.stopS[k - 1]) / (kind === 'metroplus' ? 6.5 : 5.2) + 18; st.sched.push(acc); }
+    let acc = 0; for (let k = 1; k < stops.length; k++) { acc += Math.abs(st.stopS[k] - st.stopS[k - 1]) / (kind === 'metroplus' ? 8.5 : 7.0) + 12; st.sched.push(acc); }
     this.spawnStops(st, line, rng); return st;
   },
   V(st) { return VEH[st.veh.kind]; },
@@ -10771,37 +11425,76 @@ const Bus = EM.modes.bus = {
   /* piloto: sigue la ruta y regula la velocidad (asistente y bot) */
   pilot(st, dt) {
     const line = NET.byId[st.line], V = this.V(st), R = Volante.route(line), i = clamp(Math.round(st.sR / 8), 0, R.n - 1), j = clamp(Math.round((st.sR + st.dir * (18 + Math.abs(st.vf) * 2)) / 8), 0, R.n - 1);
-    const Ld = 7 + Math.abs(st.vf) * .9, q = NET.at(line.P, clamp(st.sR + st.dir * Ld, 0, line.P.len)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al));
+    const Ld = 7 + Math.abs(st.vf) * .85, q = NET.at(line.P, clamp(st.sR + st.dir * Ld, 0, line.P.len)), dx = q.x - st.x, dy = q.y - st.y, al = Math.atan2(dy, dx) - st.h, a = Math.atan2(Math.sin(al), Math.cos(al));
     st.steerWant = clamp(Math.atan(2 * V.wb * Math.sin(a) / Math.max(4, Math.hypot(dx, dy))) / V.smax, -1, 1);
+    st._safeV = Math.min(V.vmax * .9, R.lim[i] * 1.15, R.lim[j] * 1.15);
     if (!st.auto) return;
-    let tgt = Math.min(V.vmax * .9, R.lim[i] * 1.1, R.lim[j] * 1.1); const dS = (st.stopS[st.ni] - st.sR) * st.dir, bm = V.brk * .5; tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, dS - 2)));
+    let tgt = st._safeV; const dS = (st.stopS[st.ni] - st.sR) * st.dir, bm = 4.2; tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, dS - 1.5)));
     const red = this.redAhead(st); if (red != null) tgt = Math.min(tgt, Math.sqrt(2 * bm * Math.max(0, red - 5)));
     const car = this.carAhead(st); if (car != null) tgt = Math.min(tgt, Math.max(0, (car - 9) * .9));
     st.keys.up = st.vf < tgt - .4; st.keys.down = st.vf > tgt + .4 || (dS < 3 && st.vf > .2);
+  },
+  /* física ágil de bus (3.2): respuesta inmediata, sube todas las lomas y sin trabarse en esquinas */
+  driveBus(st, dt, line) {
+    const V = this.V(st), thr = st.keys.up || (!st.assist && st.joy.y < -.25) || (st.acelFijo && !st.keys.down);
+    const brk = st.keys.down || (!st.assist && st.joy.y > .3);
+    if (brk && st.acelFijo) st.acelFijo = false;
+    const vmax = V.vmax * 1.05, acc = st.kind === 'metroplus' ? 5.2 : 5.8, dec = 9.5;
+    let targetV = st.vf;
+    if (brk) {
+      if (st.vf > .4) targetV = Math.max(0, st.vf - dec * dt);
+      else targetV = Math.max(-4.5, st.vf - 3.6 * dt);
+    } else if (thr) {
+      const cap = st.acelFijo ? Math.min(vmax * .86, st._safeV || vmax * .86) : vmax;
+      const dS = (st.stopS[st.ni] - st.sR) * st.dir;
+      if (st.acelFijo && dS < 65 && dS > 0) { st.acelFijo = false; this.msg(st, 'Parada cerca (' + Math.round(dS) + ' m) · frena suave', 'y'); }
+      targetV = st.vf < cap ? Math.min(cap, st.vf + acc * dt) : Math.max(cap, st.vf - 4.0 * dt);
+    } else {
+      targetV = st.vf > 0 ? Math.max(0, st.vf - 2.6 * dt) : Math.min(0, st.vf + 3.2 * dt);
+    }
+    st.vf = targetV; st.vs = 0;
+    const steerIn = st.assist ? (st.steerWant || 0) : clamp(st.joy.x || ((st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0)), -1, 1);
+    const want = steerIn * V.smax; st.steer += clamp(want - st.steer, -3.2 * dt, 3.2 * dt);
+    const ox = st.x, oy = st.y, oh = st.h;
+    st.h += (st.vf / Math.max(3.6, V.wb * .82)) * Math.tan(st.steer) * dt;
+    const dx = Math.cos(st.h) * st.vf * dt, dy = Math.sin(st.h) * st.vf * dt;
+    const nx = st.x + dx, ny = st.y + dy;
+    const onCorridor = Volante.projLocal(line.P, nx, ny, st.sR).d < 9.5;
+    const blocked = !onCorridor && typeof VC !== 'undefined' && VC.on && VC.solid(nx, ny, 1.3);
+    if (!blocked) { st.x = nx; st.y = ny; }
+    else {
+      // desliza por el borde sin quedarse pegado
+      if (!VC.solid(st.x + dx, st.y, 1.2)) st.x += dx * .7;
+      else if (!VC.solid(st.x, st.y + dy, 1.2)) st.y += dy * .7;
+      else { st.x = ox; st.y = oy; st.h = oh; st.vf *= .25; }
+    }
+    if (st.kind === 'metroplus') {
+      if (st.h2 == null) st.h2 = st.h;
+      let d = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2));
+      st.h2 += (st.vf / 5.2) * Math.sin(d) * dt;
+      d = Math.atan2(Math.sin(st.h - st.h2), Math.cos(st.h - st.h2));
+      if (Math.abs(d) > .9) st.h2 = st.h - Math.sign(d) * .9;
+    } else st.h2 = st.h;
   },
   redAhead(st) { let best = null; const c = Math.cos(st.h), s = Math.sin(st.h); for (const g of TRAF.lights) { const dx = g.x - st.x, dy = g.y - st.y; if (Math.abs(dx) > 70 || Math.abs(dy) > 70) continue; const along = dx * c + dy * s, lat = Math.abs(-dx * s + dy * c); if (along < 4 || along > 60 || lat > 12) continue; const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; if (ls !== 'g' && (best == null || along < best)) best = along; } return best; },
   carAhead(st) { let best = null; const c = Math.cos(st.h), s = Math.sin(st.h); for (const k of Ciudad.cars) { const dx = k.x - st.x, dy = k.y - st.y, along = dx * c + dy * s, lat = Math.abs(-dx * s + dy * c); if (along > 0 && along < 40 && lat < 3) best = best == null ? along : Math.min(best, along); } return best; },
   step(st, dt) {
     if (st.done) return; st.t += dt; const line = NET.byId[st.line], V = this.V(st);
     this.pilot(st, dt);
-    if (st.ph === 'ready' && (st.keys.up || st.joy.y < -.3)) { st.ph = 'run'; this.say(st, 'Próxima parada: ' + line.st[st.stops[1]].name); }
+    if (st.ph === 'ready' && (st.keys.up || st.joy.y < -.25 || st.acelFijo)) { st.ph = 'run'; this.say(st, 'Próxima parada: ' + line.st[st.stops[1]].name); }
     if (st.ph === 'stop') { this.stopTick(st, dt, line); }
     else if (st.ph !== 'ready') {
-      // asistente de carril: convierte el rumbo deseado en entrada de joystick
-      if (st.assist) st.joy = { x: st.steerWant, y: st.joy.y, m: 1 };
-      // el corredor de la ruta es transitable aunque la casilla de 20 m marque esquina de manzana (los buses largos no se traban al girar)
-      if (!st.lane) st.lane = (x, y) => Volante.projLocal(line.P, x, y, st.sR).d < 7;
-      const kd = st.keys.down; Libre.drive(st, dt); st.keys.down = kd;
+      this.driveBus(st, dt, line);
       const pr = Volante.projLocal(line.P, st.x, st.y, st.sR); st.sR = pr.s; st.off = pr.d;
       if (st.off > 25 && !st._lost) { st._lost = 1; this.msg(st, 'Te saliste de la ruta: sigue la línea ' + (st.kind === 'metroplus' ? 'del carril exclusivo' : 'de la ruta'), 'y'); } else if (st.off < 12) st._lost = 0;
-      // exceso de velocidad (60 km/h Metroplús, 50 alimentador) y semáforos
-      if (Math.abs(st.vf) > V.vmax * .93) { st.over += dt; st.score -= 8 * dt; if (!st._ov) { st._ov = 1; this.msg(st, 'Exceso de velocidad', 'y'); this.sfx(st, 'warn'); } } else st._ov = 0;
+      // exceso de velocidad y semáforos
+      if (Math.abs(st.vf) > V.vmax * .96) { st.over += dt; st.score -= 6 * dt; if (!st._ov) { st._ov = 1; this.msg(st, 'Exceso de velocidad', 'y'); this.sfx(st, 'warn'); } } else st._ov = 0;
       const c = Math.cos(st.h), s = Math.sin(st.h); for (const g of TRAF.lights) { if (st.redSeen[g.i] || Math.abs(g.x - st.x) > 60 || Math.abs(g.y - st.y) > 60) continue; const d = dist(g.x, g.y, st.x + c * V.wb, st.y + s * V.wb); if (d < 7 && st.vf > 2) { const ax = Math.abs(c) > Math.abs(s) ? 0 : 1, ls = TRAF.state(g, st.t)[ax]; st.redSeen[g.i] = 1; if (ls === 'r') { st.reds++; st.score -= 120; this.msg(st, '¡Semáforo en rojo! −120', 'r'); this.sfx(st, 'bad'); } } }
       // confort: aceleraciones bruscas y curvas rápidas
-      const lat = st.vf * st.vf * Math.abs(Math.tan(st.steer)) / V.wb, a = (st.vf - (st._pv || st.vf)) / dt; st._pv = st.vf; if ((lat > 2.2 || Math.abs(a) > 2.8) && Math.abs(st.vf) > 1) st.comfort = Math.max(0, st.comfort - dt * 9);
+      const lat = st.vf * st.vf * Math.abs(Math.tan(st.steer)) / V.wb, a = (st.vf - (st._pv || st.vf)) / dt; st._pv = st.vf; if ((lat > 3.2 || Math.abs(a) > 6.5) && Math.abs(st.vf) > 2) st.comfort = Math.max(0, st.comfort - dt * 6);
       // llegada a la parada / parada perdida
       const dS = (st.stopS[st.ni] - st.sR) * st.dir;
-      if (Math.abs(st.vf) < .3 && Math.abs(dS) <= 15 && st.off < 12) { st.ph = 'stop'; st.dwell = 0; st.doors = 0; st.vf = 0; st.keys.up = false; const err = Math.abs(dS), late = st.t - st.sched[st.ni], pP = err < 1.5 ? 300 : err < 4 ? 220 : err < 8 ? 140 : 60, pT = Math.abs(late) <= 12 ? 200 : Math.abs(late) <= 30 ? 120 : Math.abs(late) <= 60 ? 50 : 0; st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, line.st[st.stops[st.ni]].name + ' · ' + err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s' + (pP >= 220 ? ' ¡Bien!' : ''), pP >= 220 ? 'g' : 'y'); const f = NET.fact(line.st[st.stops[st.ni]].name); if (f) { this.msg(st, f, 'b'); Save.d.facts[line.st[st.stops[st.ni]].name] = 1; } }
+      if (Math.abs(st.vf) < .35 && Math.abs(dS) <= 16 && st.off < 14) { st.ph = 'stop'; st.dwell = 0; st.doors = 0; st.vf = 0; st.acelFijo = false; st.keys.up = false; const err = Math.abs(dS), late = st.t - st.sched[st.ni], pP = err < 2 ? 300 : err < 5 ? 220 : err < 9 ? 140 : 70, pT = Math.abs(late) <= 12 ? 200 : Math.abs(late) <= 30 ? 120 : Math.abs(late) <= 60 ? 50 : 0; st.score += pP + pT; st.arr.push({ err, late }); this.sfx(st, pP >= 220 ? 'star' : 'ok'); this.msg(st, line.st[st.stops[st.ni]].name + ' · ' + err.toFixed(1) + ' m · ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s' + (pP >= 220 ? ' ¡Bien!' : ''), pP >= 220 ? 'g' : 'y'); const f = NET.fact(line.st[st.stops[st.ni]].name); if (f) { this.msg(st, f, 'b'); Save.d.facts[line.st[st.stops[st.ni]].name] = 1; } }
       else if (dS < -45) { st.score -= 200; st.arr.push({ err: 99, late: 0 }); this.msg(st, 'Te pasaste la parada ' + line.st[st.stops[st.ni]].name + ' −200', 'r'); this.sfx(st, 'bad'); for (const p of st.waiting[st.ni] || []) { p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Oiga! ¡Se pasó!'); } if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); } else this.finish(st); }
     }
     Ciudad.tick(dt, { x: st.x, y: st.y, h: st.h, vf: st.vf, veh: V, onPed: p => { st.peds++; st.score -= 150; st.comfort = Math.max(0, st.comfort - 20); st.vf *= .4; this.msg(st, '¡Casi atropellas a alguien! −150', 'r'); this.sfx(st, 'bad'); vib(120); Ciudad.say(p, '¡Uy, cuidado!'); }, onCar: c => { if (Math.abs(st.vf) < 1) return; st.crashes++; st.score -= 120; st.comfort = Math.max(0, st.comfort - 12); st.vf *= .3; st.shake = .35; this.sfx(st, 'crash'); this.msg(st, 'Choque con un ' + (c.kind === 'moto' ? 'motociclista' : c.kind === 'taxi' ? 'taxi' : 'carro') + ' −120', 'r'); vib(100); } });
@@ -10814,19 +11507,20 @@ const Bus = EM.modes.bus = {
     st.dwell += dt; st.vf = 0; const W = st.waiting[st.ni] || [];
     if (st.doors === 1) {
       st.doorT += dt; const d = this.doorPos(st);
-      if (st.alight > 0 && st.doorT > .6) { st.alight--; st.doorT = .15; st.pax--; const p = Ciudad.spawnWaiting(null, d.x, d.y, 1)[0]; p.waitStop = null; p.x = d.x; p.y = d.y; p.wait = 0; p.tgt = null; }
-      else if (st.alight <= 0) { for (const p of W) if (!p.board && !p.gone) { if (st.doorT > .5) { if (!p.recarga && h2(st.ni, W.indexOf(p), st.seed + 7) < .07) { p.recarga = 1; st.doorT = -1.4; this.msg(st, 'Cívica sin saldo: el pasajero recarga…', 'y'); Ciudad.say(p, '¡Ay, sin saldo!'); this.sfx(st, 'bad'); } else { p.board = { x: d.x, y: d.y }; st.doorT = 0; } } break; } }
-      const left = W.filter(p => !p.gone).length; st.pax = Math.min(st.cap, st.pax0 + (W.length - left));
+      if (st.alight > 0 && st.doorT > .25) { st.alight--; st.alighted = (st.alighted || 0) + 1; st.doorT = 0; const p = Ciudad.spawnWaiting(null, d.x, d.y, 1)[0]; p.waitStop = null; p.x = d.x; p.y = d.y; p.wait = 0; p.tgt = null; }
+      else if (st.alight <= 0) { for (const p of W) if (!p.board && !p.gone) { if (st.doorT > .22) { if (!p.recarga && h2(st.ni, W.indexOf(p), st.seed + 7) < .05) { p.recarga = 1; st.doorT = -.6; this.msg(st, 'Cívica sin saldo: el pasajero recarga…', 'y'); Ciudad.say(p, '¡Ay, sin saldo!'); this.sfx(st, 'bad'); } else { p.board = { x: d.x, y: d.y }; st.doorT = 0; } } break; } }
+      const left = W.filter(p => !p.gone).length; st.pax = clamp(st.pax0 - (st.alighted || 0) + (W.length - left), 0, st.cap);
       const nb = W.length - left; if (nb > (st.nb || 0)) { st.fares = (st.fares || 0) + nb - (st.nb || 0); st.nb = nb; this.sfx(st, 'beep'); }
-      if (!left && st.alight <= 0 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra las puertas', 'y'); }
+      if (!left && st.alight <= 0 && !st.bell) { st.bell = 1; this.sfx(st, 'bell'); this.msg(st, 'Todos arriba · cierra puertas o acelera ▲', 'y'); }
+      if (st.bell && (st.keys.up || st.acelFijo)) this.doors(st);
       if (st.auto && !left && st.alight <= 0) this.doors(st);
-    } else if (st.doors === 0 && st.auto && st.dwell > .5) this.doors(st);
-    if (st.doors === 2 && (st.keys.up || st.joy.y < -.3 || st.auto)) { st.ph = 'run'; st.doors = 0; st.bell = 0; st.nb = 0; if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); } }
+    } else if (st.doors === 0 && st.auto && st.dwell > .4) this.doors(st);
+    if (st.doors === 2 && (st.keys.up || st.joy.y < -.25 || st.acelFijo || st.auto)) { st.ph = 'run'; st.doors = 0; st.bell = 0; st.nb = 0; if (st.ni < st.stops.length - 1) { st.ni++; this.spawnStops(st, line, Ciudad.rng); this.say(st, 'Próxima parada: ' + line.st[st.stops[st.ni]].name); } }
   },
   doors(st) {
     if (st.ph !== 'stop') { this.msg(st, 'Las puertas solo abren en la parada', 'y'); return; } const line = NET.byId[st.line], last = st.ni === st.stops.length - 1;
-    if (st.doors === 0) { st.doors = 1; st.doorT = 0; st.pax0 = st.pax; st.alight = last ? st.pax : Math.min(st.pax, 1 + ((hashStr(line.st[st.stops[st.ni]].name) + st.ni) % 4)); this.sfx(st, 'door'); vib(20); }
-    else if (st.doors === 1) { const W = (st.waiting[st.ni] || []).filter(p => !p.gone && !p.board); if (W.length || st.alight > 0) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); for (const p of W) { p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Espere!'); } } st.doors = 2; this.sfx(st, 'door'); if (last) this.finish(st); }
+    if (st.doors === 0) { st.doors = 1; st.doorT = 0; st.pax0 = st.pax; st.alighted = 0; st.alight = last ? st.pax : Math.min(st.pax, 1 + ((hashStr(line.st[st.stops[st.ni]].name) + st.ni) % 3)); this.sfx(st, 'door'); vib(20); }
+    else if (st.doors === 1) { const pend = (st.waiting[st.ni] || []).filter(p => !p.gone); if (pend.length || st.alight > 0) { st.score -= 40; this.msg(st, 'Cerraste con gente subiendo −40', 'r'); for (const p of pend) { p.board = null; p.waitStop = null; p.wait = 1; Ciudad.say(p, '¡Espere!'); } } st.doors = 2; this.sfx(st, 'door'); if (last) this.finish(st); }
   },
   finish(st) { if (st.done) return; st.done = true; st.win = st.arr.filter(a => a.err >= 99).length === 0; st.score += Math.round(st.comfort * 2); st.score = Math.max(0, Math.round(st.score)); Save.d.stats.km += st.sR / 1000; const B = Save.d.bus || (Save.d.bus = { done: {} }); if (st.win) B.done[st.line] = (B.done[st.line] || 0) + 1; },
   result(st) { const n = st.stops.length - 1, miss = st.arr.filter(a => a.err >= 99).length, ok = st.arr.filter(a => a.err < 99), avg = ok.length ? ok.reduce((a, b) => a + b.err, 0) / ok.length : 0, max = n * 500 + 200, line = NET.byId[st.line]; return { done: st.done, win: st.win, score: st.score, stars: st.done && st.win ? starsOf(st.score / max) : 0, fact: (line.facts || [])[st.seed % Math.max(1, (line.facts || []).length)] || '', lines: [['Paradas', (n - miss) + ' / ' + n], ['Pasajeros', st.pax + ' a bordo al final'], ['Pasajes Cívica', (st.fares || 0) + ' validados'], ['Precisión media', avg.toFixed(1) + ' m'], ['Confort', Math.round(st.comfort) + ' %'], ['Choques / rojos', st.crashes + ' / ' + st.reds], ['Asistente', st.assist ? 'encendido' : 'apagado (×1,25)']] }; },
@@ -10837,23 +11531,25 @@ const Bus = EM.modes.bus = {
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="bsJz"><div class="joy" id="bsJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="bsDoor">⇆<small>puertas</small></button><button class="abtn acc" id="bsUp">▲</button><button class="abtn brk" id="bsDown">▼</button><button class="abtn hb" id="bsHorn">📯</button></div>
-      <div class="vsel" id="bsView"><button id="bsAs">🛞</button><button id="bsZoom">🔎</button></div><div id="bsJob" class="jobbar"></div>`;
+      <div class="vsel" id="bsView"><button id="bsCr" aria-label="Acelerador fijo">⏫</button><button id="bsAs" aria-label="Asistente de carril">🛞</button><button id="bsZoom" aria-label="Alejar o acercar">🔎</button></div><div id="bsJob" class="jobbar"></div>`;
     const jz = $('#bsJz'), joy = $('#bsJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); if (st.assist) { st.assist = false; this.msg(st, 'Asistente apagado: giras con el joystick (×1,25)', 'b'); } });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
     const jend = e => { if (e.pointerId !== jid) return; jid = null; st.joy = { x: 0, y: 0, m: 0 }; joy.classList.remove('on'); joy.firstChild.style.transform = ''; }; jz.addEventListener('pointerup', jend); jz.addEventListener('pointercancel', jend);
-    const hold = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; b.classList.add('on'); Snd.init(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
+    const hold = (id, key) => { const b = $(id), on = e => { e.preventDefault(); b.setPointerCapture && b.setPointerCapture(e.pointerId); st.keys[key] = true; if (key === 'down') st.acelFijo = false; b.classList.add('on'); Snd.init(); }, off = () => { st.keys[key] = false; b.classList.remove('on'); }; b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); };
     hold('#bsUp', 'up'); hold('#bsDown', 'down');
     $('#bsDoor').onclick = () => this.doors(st); $('#bsHorn').onclick = () => { Snd.play('horn'); vib(30); for (const c of Ciudad.cars) if (dist(c.x, c.y, st.x, st.y) < 40) c.stop = Math.max(c.stop, .8); };
+    $('#bsCr').onclick = () => { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Crucero activo: el bus mantiene velocidad segura' : 'Crucero apagado', 'b'); this.updCtl(st); };
     $('#bsAs').onclick = () => { st.assist = !st.assist; this.msg(st, st.assist ? 'Asistente de carril encendido' : 'Asistente apagado: giras con el joystick (×1,25)', 'b'); }; $('#bsZoom').onclick = () => { st.far = !st.far; };
+    if (EM.camui && EM.camui.visible) EM.camui.visible(true);
     this.updCtl(st);
   },
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; const jb = $('#bsJob'); if (!jb) return; const line = NET.byId[st.line], nx = line.st[st.stops[Math.min(st.ni, st.stops.length - 1)]], d = (st.stopS[st.ni] - st.sR) * st.dir, late = st.t - st.sched[Math.min(st.ni, st.sched.length - 1)], W = (st.waiting[st.ni] || []).filter(p => !p.gone).length;
-    jb.innerHTML = `<b>${st.ph === 'stop' ? (st.doors === 1 ? 'Puertas abiertas · suben ' + W : st.doors === 2 ? 'Puertas cerradas · ▲ para seguir' : 'En la parada · ● abre las puertas') : (st.ph === 'ready' ? '▲ para arrancar' : 'Próxima: ' + esc(nx.name))}</b><span>${st.ph === 'ready' ? esc(line.name) : (Math.round(Math.max(0, d)) + ' m · horario ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s · ' + (st.ni) + '/' + (st.stops.length - 1))}</span><em>👥 ${st.pax}/${st.cap} · ☕ ${Math.round(st.comfort)} % · ${Mundo.chip()}</em>`;
-    jb.className = 'jobbar' + (st.ph === 'stop' ? ' stop' : ''); $('#bsAs').classList.toggle('on', st.assist); const db = $('#bsDoor'); db.classList.toggle('hot', st.ph === 'stop' && st.doors !== 2); db.querySelector('small').textContent = st.doors === 1 ? 'cerrar' : 'puertas';
+    jb.innerHTML = `<b>${st.ph === 'stop' ? (st.doors === 1 ? 'Puertas abiertas · suben ' + W : st.doors === 2 ? 'Puertas cerradas · ▲ para seguir' : 'En la parada · ⇆ abre las puertas') : (st.ph === 'ready' ? '▲ o ⏫ para arrancar' : 'Próxima: ' + esc(nx.name))}</b><span>${st.ph === 'ready' ? esc(line.name) : (Math.round(Math.max(0, d)) + ' m · horario ' + (late >= 0 ? '+' : '') + Math.round(late) + ' s · ' + (st.ni) + '/' + (st.stops.length - 1))}</span><em>👥 ${st.pax}/${st.cap} · ☕ ${Math.round(st.comfort)} % · ${Mundo.chip()}</em>`;
+    jb.className = 'jobbar' + (st.ph === 'stop' ? ' stop' : ''); $('#bsAs').classList.toggle('on', st.assist); const cr = $('#bsCr'); if (cr) cr.classList.toggle('on', !!st.acelFijo); const db = $('#bsDoor'); db.classList.toggle('hot', st.ph === 'stop' && st.doors !== 2); db.querySelector('small').textContent = st.doors === 1 ? 'cerrar' : 'puertas';
   },
-  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if ((m === 'left' || m === 'right') && down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado', 'b'); } if (!st.assist) st.joy = { x: (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), y: 0, m: 1 }; return; } if (!down) return; if (k === ' ' || k === 'e') this.doors(st); if (k === 'g') st.assist = !st.assist; if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') Snd.play('horn'); },
+  key(st, k, down) { const m = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' }[k]; if (m) { st.keys[m] = down; if (m === 'down' && down) st.acelFijo = false; if ((m === 'left' || m === 'right') && down && st.assist) { st.assist = false; this.msg(st, 'Asistente apagado', 'b'); } if (!st.assist) st.joy = { x: (st.keys.right ? 1 : 0) - (st.keys.left ? 1 : 0), y: 0, m: 1 }; return; } if (!down) return; if (k === ' ' || k === 'e') this.doors(st); if (k === 'v' || k === 'c') { st.acelFijo = !st.acelFijo; this.msg(st, st.acelFijo ? '⏫ Crucero activo' : 'Crucero apagado', 'b'); } if (k === 'g') st.assist = !st.assist; if (k === 'z') st.far = !st.far; if (k === 'h' || k === 'q') Snd.play('horn'); },
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, cw = ($('#gcv') || { clientWidth: W }).clientWidth || W, W_ = W, k = st.cam.k * CamUI.zoom(st) * (W / Math.max(1, cw)), L = Mundo.light(), night = L.night, sh = Ciudad.shadowDir(), line = NET.byId[st.line], V = this.V(st), co = CamUI.off(st); st._k = k * cw / W_;
     const shx = st.shake > 0 ? (Math.random() - .5) * 6 : 0, shy = st.shake > 0 ? (Math.random() - .5) * 6 : 0, mx = Math.round((st.cam.x + co.x) * k) / k, my = Math.round((st.cam.y + co.y) * k) / k, S = (x, y) => ({ x: W / 2 + (x - mx) * k + shx, y: H / 2 + (y - my) * k + shy }), x0 = mx - W / 2 / k, y0 = my - H / 2 / k, x1 = mx + W / 2 / k, y1 = my + H / 2 / k;
@@ -10883,7 +11579,7 @@ const Bus = EM.modes.bus = {
     const J = st.job; if (J && st.ph !== 'stop') { const q = S(J.x, J.y), inside = q.x > 20 && q.x < W - 20 && q.y > 60 && q.y < H - 20; if (inside) { g.fillStyle = PAL.mostaza; g.beginPath(); g.moveTo(q.x, q.y - 22 * Math.max(.6, k * .5)); g.lineTo(q.x - 7, q.y - 34 * Math.max(.6, k * .5)); g.lineTo(q.x + 7, q.y - 34 * Math.max(.6, k * .5)); g.fill(); } else { const a = Math.atan2(J.y - st.y, J.x - st.x), cx = W / 2, cy = H / 2, r = Math.min(W, H) * .4; g.save(); g.translate(cx + Math.cos(a) * r, cy + Math.sin(a) * r); g.rotate(a); g.fillStyle = PAL.mostaza; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.moveTo(16, 0); g.lineTo(-10, -11); g.lineTo(-4, 0); g.lineTo(-10, 11); g.closePath(); g.fill(); g.stroke(); g.restore(); } }
     Libre.minimap(g, st, W, H);
     // velocímetro
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), R = 44 * dpr, cx = W * .5 - 16 * dpr, cy = H - 10 * dpr; g.fillStyle = 'rgba(16,46,80,.9)'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * dpr; g.stroke(); const an = Math.PI + Math.PI * clamp(Math.abs(st.vf) / V.vmax, 0, 1); g.strokeStyle = Math.abs(st.vf) > V.vmax * .93 ? PAL.rojo : '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * R * .8, cy + Math.sin(an) * R * .8); g.stroke(); g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .4) + 'px Titulos, sans-serif'; g.fillText(Math.round(Math.abs(st.vf) * 3.6), cx, cy - R * .18); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .16) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · MÁX ' + Math.round(V.vmax * 3.6 * .93), cx, cy - R * .02); g.textAlign = 'left';
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), R = 44 * dpr, cx = W * .5 - 16 * dpr, cy = H - 18 * dpr; g.fillStyle = 'rgba(16,46,80,.9)'; g.beginPath(); g.arc(cx, cy, R, Math.PI, TAU); g.fill(); g.strokeStyle = PAL.mante; g.lineWidth = 2 * dpr; g.stroke(); const an = Math.PI + Math.PI * clamp(Math.abs(st.vf) / V.vmax, 0, 1); g.strokeStyle = Math.abs(st.vf) > V.vmax * .96 ? PAL.rojo : '#fff'; g.lineWidth = 2.5 * dpr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(an) * R * .8, cy + Math.sin(an) * R * .8); g.stroke(); g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = '700 ' + (R * .4) + 'px Titulos, sans-serif'; g.fillText(Math.round(Math.abs(st.vf) * 3.6), cx, cy - R * .18); g.fillStyle = PAL.mante; g.font = '700 ' + (R * .16) + 'px Cuerpo, sans-serif'; g.fillText('KM/H · MÁX ' + Math.round(V.vmax * 3.6 * .96), cx, cy - R * .02); g.textAlign = 'left';
   },
   ai(st) { return null; }
 };
@@ -11402,10 +12098,13 @@ const MPlus = EM.modes.metroplus = {
         }
         // parada de Metroplús
         if (v.ty === 'mp') for (const sp of st.stops) { const ss = L.d > 0 ? sp : L.len - sp, d = ss - v.s; if (!v.done || !v.done.includes(sp)) { if (d > 0 && d < 3) vmax = Math.min(vmax, Math.sqrt(2 * T.a * d)); if (Math.abs(d) < .15) { v.dw += dt; vmax = 0; if (v.dw > 1.4) { (v.done || (v.done = [])).push(sp); v.dw = 0; st.score += 20; } } } }
-        v.v = v.v < vmax ? Math.min(vmax, v.v + T.a * dt) : Math.max(vmax, v.v - T.a * 2.4 * dt);
+        const boostMul = v.boost > 0 ? 1.55 : 1;
+        if (v.boost > 0) v.boost -= dt;
+        const vTop = vmax * boostMul;
+        v.v = v.v < vTop ? Math.min(vTop, v.v + T.a * (v.boost > 0 ? 2.2 : 1) * dt) : Math.max(vTop, v.v - T.a * 2.4 * dt);
         v.s += v.v * dt; v.w = v.v < .1 ? v.w + dt : Math.max(0, v.w - dt * 2);
         if (v.w > 12 && !v.honk) { v.honk = 1; st.fx.push(Object.assign({ k: 'honk', t: 1.2, s: '¡Piii!' }, this.vpos(st, v))); this.sfx(st, 'horn'); }
-        if (v.s - T.len / 2 > L.len) { v.out = true; st.score += T.p; if (v.ty === 'mp') { st.buses++; st.fx.push(Object.assign({ k: 'pts', t: 1.2, s: '+100' }, this.vpos(st, v))); this.sfx(st, 'coin'); } }
+        if (v.s - T.len / 2 > L.len) { v.out = true; st.score += T.p; if (v.ty === 'mp') { st.buses++; st.combo = (st.combo || 0) + 1; const bon = st.combo > 1 ? Math.min(80, (st.combo - 1) * 20) : 0; st.score += bon; st.fx.push(Object.assign({ k: 'pts', t: 1.2, s: '+' + (100 + bon) + (st.combo > 1 ? ' ×' + st.combo : '') }, this.vpos(st, v))); this.sfx(st, 'coin'); } }
       }
     }
     // choques dentro de los cruces (ejes distintos)
@@ -11413,7 +12112,7 @@ const MPlus = EM.modes.metroplus = {
       const inX = st.veh.filter(v => { if (v.out || v.dead) return false; const p = this.vpos(st, v), T = VTYPE[v.ty], hx = (st.lanes[v.l].ax === 'h' ? T.len : T.wid) / 2, hy = (st.lanes[v.l].ax === 'h' ? T.wid : T.len) / 2; v._b = [p.x - hx, p.y - hy, p.x + hx, p.y + hy]; return v._b[2] > X.x - X.hw && v._b[0] < X.x + X.hw && v._b[3] > X.y - X.hh && v._b[1] < X.y + X.hh; });
       for (let a = 0; a < inX.length; a++) for (let b = a + 1; b < inX.length; b++) {
         const A = inX[a], B = inX[b]; if (st.lanes[A.l].ax === st.lanes[B.l].ax) continue;
-        if (A._b[0] < B._b[2] && A._b[2] > B._b[0] && A._b[1] < B._b[3] && A._b[3] > B._b[1]) { A.dead = B.dead = true; st.crashes++; st.lives--; const p = this.vpos(st, A); st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1.2 }); this.sfx(st, 'crash'); if (Game.st === st) vib(160); }
+        if (A._b[0] < B._b[2] && A._b[2] > B._b[0] && A._b[1] < B._b[3] && A._b[3] > B._b[1]) { A.dead = B.dead = true; st.crashes++; st.lives--; st.combo = 0; const p = this.vpos(st, A); st.fx.push({ k: 'boom', x: p.x, y: p.y, t: 1.2 }); this.sfx(st, 'crash'); if (Game.st === st) vib(160); }
       }
     }
     st.veh = st.veh.filter(v => !v.out && !v.dead);
@@ -11423,14 +12122,27 @@ const MPlus = EM.modes.metroplus = {
   },
   edge(st, L) { return L.ax === 'h' ? { x: L.d > 0 ? 1 : st.W - 1, y: L.c } : { x: L.c, y: L.d > 0 ? 1 : st.H - 1 }; },
   sfx(st, k) { if (!EM.headless && (Game.st === st || Game.st2 === st)) Snd.play(k); },
-  act(st, a) { if (!a || a.k !== 'x') return; const X = st.X[a.i]; if (!X || X.y0 > 0) return; X.pend = X.g === 'h' ? 'v' : 'h'; X.g = 'y'; X.y0 = .7; this.sfx(st, 'switch'); },
+  act(st, a) {
+    if (!a) return;
+    if (a.k === 'boost') { const v = st.veh.find(q => q.id === a.id); if (v && !(v.boost > .5)) { v.boost = 1.8; st.score += 5; st.fx.push(Object.assign({ k: 'pts', t: .8, s: '⚡' }, this.vpos(st, v))); this.sfx(st, 'tap'); } return; }
+    if (a.k !== 'x') return; const X = st.X[a.i]; if (!X || X.y0 > 0) return; X.pend = X.g === 'h' ? 'v' : 'h'; X.g = 'y'; X.y0 = .7; this.sfx(st, 'switch');
+  },
   result(st) { return { done: st.done, win: st.win, score: st.score, stars: st.win ? starsOf(st.lives / 3 * .9 + .1) : 0, lines: [['Buses Metroplús', st.buses + ' / ' + st.goal], ['Choques', st.crashes], ['Trancones', st.jams]], fact: this.LV[st.idx].f || '' }; },
   hud(st) { return [['🚌', st.buses + '/' + st.goal], ['♥', Math.max(0, st.lives)], ['★', fmt(st.score)]]; },
   geo(st, vp) { const cs = Math.min(vp.w / st.W, vp.h / st.H); return { cs, ox: (vp.w - cs * st.W) / 2, oy: (vp.h - cs * st.H) / 2 }; },
-  pointer(st, type, x, y, vp) { if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs; let best = -1, bd = 4; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } }); return best < 0 ? null : { k: 'x', i: best }; },
+  pointer(st, type, x, y, vp) {
+    if (type !== 'down' || st.done) return null; const G = this.geo(st, vp), gx = (x - G.ox) / G.cs, gy = (y - G.oy) / G.cs;
+    let best = -1, bd = 2.6; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } });
+    if (best >= 0) return { k: 'x', i: best };
+    // toque estilo Traffix sobre un vehículo para darle impulso breve
+    let bv = null, vd = 1.6; for (const v of st.veh) { const p = this.vpos(st, v), d = Math.hypot(p.x - gx, p.y - gy); if (d < vd) { vd = d; bv = v; } }
+    if (bv) return { k: 'boost', id: bv.id };
+    bd = 4.2; st.X.forEach((X, i) => { const d = Math.hypot(X.x - gx, X.y - gy); if (d < bd) { bd = d; best = i; } });
+    return best < 0 ? null : { k: 'x', i: best };
+  },
   draw(g, st, vp) {
     const G = this.geo(st, vp), cs = G.cs, X = x => G.ox + x * cs, Y = y => G.oy + y * cs, mpc = (NET.byId.MP1 || NET.byId.MP2 || {}).color || '#7ab648';
-    g.fillStyle = '#EB318E'; g.fillRect(0, 0, vp.w, vp.h);
+    g.fillStyle = '#1b2d3e'; g.fillRect(0, 0, vp.w, vp.h);
     g.fillStyle = '#d9cdae'; g.fillRect(X(0), Y(0), cs * st.W, cs * st.H);
     // manzanas con techos
     for (let by = 0; by < st.H; by += 1) for (let bx = 0; bx < st.W; bx += 1) { const onRoad = st.roads.some(r => r.ax === 'h' ? Math.abs(by + .5 - r.c) < r.hw + .6 : Math.abs(bx + .5 - r.c) < r.hw + .6); if (onRoad) continue; const h = h2(bx, by, st.idx); if (h < .7) { g.fillStyle = PAL.negro; g.fillRect(X(bx) + 1, Y(by) + 1, cs - 2, cs - 2); g.fillStyle = h < .4 ? PAL.ladrillo : h < .55 ? '#8d97a4' : '#b8b0a0'; g.fillRect(X(bx) + 2, Y(by) + 2, cs - 4, cs - 4); g.fillStyle = 'rgba(0,0,0,.18)'; g.fillRect(X(bx) + 2, Y(by) + cs * .55, cs - 4, cs * .45 - 2); } else { Art.tree(g, X(bx + .5), Y(by + .9), cs * .8, false); } }
@@ -11455,15 +12167,17 @@ const MPlus = EM.modes.metroplus = {
       const lc = ax => Xx.g === ax ? '#38e07b' : Xx.g === 'y' ? '#ffc23a' : '#ff3b2f';
       for (const [dx, dy, ax] of [[-1, -1, 'v'], [1, 1, 'v'], [1, -1, 'h'], [-1, 1, 'h']]) { const lx = X(Xx.x + dx * (Xx.hw + .35)), ly = Y(Xx.y + dy * (Xx.hh + .35)); g.fillStyle = PAL.negro; g.fillRect(lx - cs * .14, ly - cs * .14, cs * .28, cs * .28); g.fillStyle = lc(ax); g.fillRect(lx - cs * .09, ly - cs * .09, cs * .18, cs * .18); }
     }
-    // vehículos
+    // vehículos + aro de paciencia + brillo de impulso Traffix
     for (const v of st.veh) {
       const p = this.vpos(st, v), T = VTYPE[v.ty]; g.save(); g.translate(X(p.x), Y(p.y)); g.rotate(p.a); const L = T.len * cs, Wd = T.wid * cs;
+      if (v.boost > 0) { g.strokeStyle = 'rgba(56,224,123,.8)'; g.lineWidth = 2.5; g.strokeRect(-L / 2 - 3, -Wd / 2 - 3, L + 6, Wd + 6); }
       g.fillStyle = PAL.negro; g.fillRect(-L / 2 - 1.5, -Wd / 2 - 1.5, L + 3, Wd + 3);
       if (v.ty === 'mp') { g.fillStyle = mpc; g.fillRect(-L / 2, -Wd / 2, L * .48, Wd); g.fillRect(-L / 2 + L * .52, -Wd / 2, L * .48, Wd); g.fillStyle = '#f4f1ea'; g.fillRect(-L / 2 + 2, -Wd * .25, L * .44, Wd * .5); g.fillRect(-L / 2 + L * .54, -Wd * .25, L * .44, Wd * .5); g.fillStyle = PAL.negro; g.fillRect(-1, -Wd / 2, 2, Wd); }
       else if (v.ty === 'moto') { g.fillStyle = '#222'; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.col; g.beginPath(); g.arc(0, 0, Wd * .55, 0, TAU); g.fill(); }
       else { g.fillStyle = v.ty === 'feeder' ? '#f4f1ea' : v.col; g.fillRect(-L / 2, -Wd / 2, L, Wd); g.fillStyle = v.ty === 'feeder' ? PAL.naranja : 'rgba(20,30,40,.55)'; g.fillRect(L * .12, -Wd / 2 + 2, L * .2, Wd - 4); if (v.ty === 'feeder') g.fillRect(-L / 2, -Wd * .12, L, Wd * .24); }
       g.fillStyle = '#fff6c0'; g.fillRect(L / 2 - 2, -Wd / 2 + 1, 2, 2); g.fillRect(L / 2 - 2, Wd / 2 - 3, 2, 2);
       g.restore();
+      if (v.w > 3.2) { const frac = clamp((v.w - 3.2) / 9, 0, 1); g.beginPath(); g.strokeStyle = frac > .65 ? '#ff3b2f' : '#ffc23a'; g.lineWidth = Math.max(2, cs * .09); g.arc(X(p.x), Y(p.y) - cs * .55, cs * .26, -Math.PI / 2, -Math.PI / 2 + TAU * frac); g.stroke(); }
     }
     if (!EM.headless) Mundo.overlay(g, vp.w, vp.h, st.t, { soft: true });
     // efectos
@@ -11497,108 +12211,320 @@ const MPlus = EM.modes.metroplus = {
    ===================================================================== */
 /* los vehículos de la carrera son los mismos de Ciudad Libre (VEH); spd: tope (m/s), sal: impulso del salto (m/s), mesh: pieza del taller */
 const CR_VEH = [
-  { id: 'skate', ico: '🛹', spd: 20, sal: 8, mesh: 'skate', pie: .16 }, { id: 'patines', ico: '🛼', spd: 20.5, sal: 7.8, mesh: 'patines', pie: .2 },
-  { id: 'monopatin', ico: '🛴', spd: 21, sal: 7.5, mesh: 'scooter', pie: .16 }, { id: 'scooter', ico: '⚡', spd: 23, sal: 7.2, mesh: 'electrico', pie: .24 },
-  { id: 'bici', ico: '🚲', spd: 22, sal: 7, mesh: 'bici', pie: .55 }
+  { id: 'skate', ico: '🛹', spd: 21, sal: 8.6, mesh: 'skate', pie: .16, truco: ['Ollie', 'Kickflip', '360 Flip', 'Heelflip'] },
+  { id: 'patines', ico: '🛼', spd: 21.5, sal: 8.4, mesh: 'patines', pie: .2, truco: ['Giro 360', 'Salto águila', 'Grab lateral', 'Doble giro'] },
+  { id: 'monopatin', ico: '🛴', spd: 22, sal: 8.1, mesh: 'scooter', pie: .16, truco: ['Tailwhip', 'Barspin', 'No-hander', 'Hop alto'] },
+  { id: 'scooter', ico: '⚡', spd: 24, sal: 7.8, mesh: 'electrico', pie: .24, truco: ['Manual ⚡', 'Salto limpio', 'Giro ágil', 'Impulso'] },
+  { id: 'bici', ico: '🚲', spd: 23, sal: 7.6, mesh: 'bici', pie: .55, truco: ['Bunny Hop', 'Caballito', 'Tabletop', 'Barspin BMX'] }
 ];
-const CR_POD = { iman: ['🧲', 'Imán: los pasajes de los otros carriles llegan solos', 8, [.86, .2, .2]], turbo: ['⚡', 'Turbo: más rápido y atraviesas lo que venga', 5, [.98, .8, .15]], escudo: ['🛡', 'Escudo: el próximo golpe no cuenta', 0, [.25, .55, .95]] };
-/* relevo Z1: los obstáculos están ordenados por s; solo se recorre la ventana [s0, s1] con un cursor (antes, todos en cada cuadro) */
+const CR_POD = { iman: ['🧲', 'Imán: los pasajes de los otros carriles llegan solos', 8, [.86, .2, .2]], turbo: ['⚡', 'Turbo: más rápido y atraviesas obstáculos', 5, [.98, .8, .15]], escudo: ['🛡', 'Escudo: el próximo golpe no cuenta', 0, [.25, .55, .95]] };
+/* relevo Z1: los obstáculos están ordenados por s; solo se recorre la ventana [s0, s1] con un cursor */
 const crVentana = (st, s0, s1) => { const O = st.obs; let i = st._ci || 0; while (i > 0 && O[i - 1].s >= s0) i--; while (i < O.length && O[i].s < s0) i++; st._ci = i; const R = []; for (let j = i; j < O.length && O[j].s <= s1; j++) R.push(O[j]); return R; };
-const CR_OBS = {   // [largo (m), alto (m), color, 0 = se salta (está en el piso) · 1 = se esquiva o se salta si es bajo]
-  hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1], moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1]
+/* [largo (m), alto (m), color, clase: 0=piso(saltar), 1=esquivar, 2=rampa(salto+truco), 3=baranda(grind+truco), 4=arco(agacharse/parkour)] */
+const CR_OBS = {
+  hueco: [1.6, .05, '#2f2f33', 0], charco: [2.2, .04, '#5aa0c8', 0], cono: [.5, .8, '#f08a2b', 1], perro: [.9, .7, '#8a5a2b', 1],
+  moto: [2, 1.3, '#c0392b', 1], chaza: [1.6, 1.4, '#2ec4b6', 1],
+  rampa: [3.2, .72, '#F6C538', 2], baranda: [3.8, .58, '#F6C538', 3], arco: [.6, 1.9, '#1C5C9C', 4]
 };
 const Carrera = EM.modes.carrera = {
-  id: 'carrera', name: 'Carrera sin fin', sub: 'Junto al metro, al tranvía y al Metroplús', music: 'conduce', fullCanvas: true,
-  tip: 'Desliza a los lados (o ◀ ▶) para cambiar de carril y hacia arriba (o ▲) para saltar. Los huecos y los charcos se saltan; los conos, los perros, las motos y las chazas se esquivan. Recoge pasajes 🎫, poderes (🧲 imán, ⚡ turbo, 🛡 escudo) y el dato de cada estación. 🛹 cambia de vehículo y 👁 entre primera y tercera persona.',
-  LINEAS: [['A', 'Línea A del metro'], ['B', 'Línea B del metro'], ['T', 'Tranvía de Ayacucho'], ['MP1', 'Metroplús Línea 1'], ['MP2', 'Metroplús Línea 2'], ['MPO', 'Línea O por la 80']],
-  levels() { return this.LINEAS.filter(([id]) => NET.byId[id]).map(([id, n]) => ({ id: 'cr:' + id, name: n, sub: 'En skate, patines, monopatín o bici, por la calle junto a la vía' })); },
+  id: 'carrera', name: 'Ciclovías · Carrera sin fin', sub: 'Skate, patines, bici y parkour por las ciclovías de Medellín', music: 'conduce', fullCanvas: true, substeps: true,
+  tip: 'Solo por ciclovías reales: ◀ ▶ cambia de carril o toma giros (↰/↱), ▲ salta y hace TRUCOS en el aire o sobre rampas y barandas, ▼ desliza / hace parkour bajo los arcos. Las calles cambian de amplias (3 carriles) a estrechas (2 carriles).',
+  LINEAS: [
+    ['A', 'Ciclovía del Río · Parques del Río', 'Corredor ciclovía paralelo al río y Línea A · plazas skate'],
+    ['B', 'Ciclovía Estadio · La 70 y San Javier', 'Unidad Deportiva Atanasio Girardot · parkour y rampas'],
+    ['T', 'Ciclovía Ayacucho · Tranvía y Plazas', 'Corredor peatonal y ciclovía de Ayacucho · tramos estrechos'],
+    ['MP1', 'Ciclovía Calle 30 · Ciudad del Río', 'Skatepark Ciudad del Río y corredor verde Belén–Aranjuez'],
+    ['MP2', 'Ciclovía Av. Oriental · Pies Descalzos', 'Ciclovía céntrica con giros rápidos y barandas'],
+    ['MPO', 'Ciclovía Av. 80 · Caribe a La Palma', 'Corredor occidental de ciclovía con tramos rápidos']
+  ],
+  levels() { return this.LINEAS.filter(([id]) => NET.byId[id]).map(([id, n, sub]) => ({ id: 'cr:' + id, name: n, sub: sub || 'Ciclovía de Medellín · skate y parkour' })); },
   V(st) { return CR_VEH[st.vi | 0] || CR_VEH[0]; },
+  /* ancho del corredor en s: 3 carriles (avenida / zona skate) o 2 carriles (calle estrecha) */
+  tramoEn(st, s) {
+    if (!st.tramos || !st.tramos.length) return { ancho: 3, zona: 'avenida' };
+    for (let i = st.tramos.length - 1; i >= 0; i--) if (s >= st.tramos[i].s) return st.tramos[i];
+    return st.tramos[0];
+  },
   create(lv, opts = {}) {
     const id = String(lv || 'cr:A').slice(3), l = NET.byId[id] || NET.byId.A, rng = new RNG((opts.seed | 0) + 17), obs = [];
-    const tipos = Object.keys(CR_OBS), pods = Object.keys(CR_POD);
-    for (let s = 70; s < l.P.len - 30; s += 9 + rng.f() * 16) { const r = rng.f(), c = rng.i(0, 2); obs.push(r < .58 ? { s, c, k: rng.pick(tipos) } : r < .955 ? { s, c, k: 'pasaje' } : { s, c, k: rng.pick(pods) }); }
-    return { lvId: lv, line: l.id, off: l.kind === 'metro' ? 13 : 0, s: 30, v: 8, c: 1, cx: 1, y: 0, vy: 0, t: 0, obs, pts: 0, pasajes: 0, vidas: 3, inv: 0, done: false, primera: false, est: -1, dato: '', datoT: 0, auto: !!opts.auto,
-      vi: clamp(Save.d.settings.vehCr | 0, 0, CR_VEH.length - 1), iman: 0, turbo: 0, escudo: 0, poderes: 0 };
+    // tramos variables: siempre empieza en avenida amplia (3 carriles) y alterna con calles estrechas (2 carriles) y zonas skate/parkour
+    const tramos = [{ s: 0, ancho: 3, zona: 'avenida' }];
+    const zonas = ['avenida', 'estrecha', 'skatepark', 'estrecha', 'parkour'];
+    for (let s = 180, zi = 1; s < l.P.len - 60; s += 160 + rng.i(0, 110), zi++) {
+      const z = zonas[zi % zonas.length];
+      tramos.push({ s, ancho: z === 'estrecha' ? 2 : 3, zona: z });
+    }
+    // giros direccionales en las curvas reales o cruces de ciclovía
+    const giros = [];
+    for (let s = 210; s < l.P.len - 90; s += 230 + rng.i(0, 110)) {
+      const a0 = NET.at(l.P, s - 25).a, a1 = NET.at(l.P, Math.min(l.P.len, s + 25)).a;
+      let da = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0));
+      const dir = Math.abs(da) > .1 ? (da > 0 ? 1 : -1) : (rng.f() < .5 ? -1 : 1);
+      giros.push({ s, dir, visto: false, hecho: false });
+    }
+    const baseTipos = ['hueco', 'charco', 'cono', 'perro', 'moto', 'chaza', 'arco'], skateTipos = ['rampa', 'baranda', 'arco', 'cono'], pods = Object.keys(CR_POD);
+    const anchoDe = s => { for (let i = tramos.length - 1; i >= 0; i--) if (s >= tramos[i].s) return tramos[i]; return tramos[0]; };
+    for (let s = 70; s < l.P.len - 30; s += 10 + rng.f() * 14) {
+      const tr = anchoDe(s), maxC = tr.ancho - 1, c = rng.i(0, maxC), r = rng.f();
+      if (tr.zona === 'skatepark' || tr.zona === 'parkour') {
+        if (r < .48) obs.push({ s, c, k: rng.pick(skateTipos) });
+        else if (r < .92) obs.push({ s, c, k: 'pasaje' });
+        else obs.push({ s, c, k: rng.pick(pods) });
+      } else {
+        if (r < .54) obs.push({ s, c, k: r < .12 ? rng.pick(['rampa', 'baranda', 'arco']) : rng.pick(baseTipos) });
+        else if (r < .94) obs.push({ s, c, k: 'pasaje' });
+        else obs.push({ s, c, k: rng.pick(pods) });
+      }
+    }
+    return {
+      lvId: lv, line: l.id, off: l.kind === 'metro' ? 14 : 3.5, s: 30, v: 11.8, c: 1, cx: 1, y: 0, vy: 0, t: 0, obs, tramos, giros,
+      ancho: 3, zona: 'avenida', duck: 0, grind: 0, jumpBuf: 0, airTrick: 0, trickSpin: 0, combo: 0, comboT: 0, trucos: 0, girosOk: 0,
+      pts: 0, pasajes: 0, vidas: 3, inv: 0, done: false, primera: false, est: -1, dato: '', datoT: 0, auto: !!opts.auto,
+      vi: clamp(Save.d.settings.vehCr | 0, 0, CR_VEH.length - 1), iman: 0, turbo: 0, escudo: 0, poderes: 0, _oc: {}
+    };
   },
-  /* punto del carril c (0, 1 o 2; 2,6 m uno del otro) a s metros del comienzo de la línea */
-  pos(st, s, c) { const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), st.off + (c - 1) * 2.6); },
+  /* desplazamiento lateral libre de edificios para que la ciclovía nunca atraviese casas (hallazgo compartido con Claude) */
+  offAt(st, s) {
+    const k = Math.round(s / 18), C = st._oc || (st._oc = {});
+    if (C[k] != null) return C[k];
+    const l = NET.byId[st.line], base = st.off;
+    if (typeof VC === 'undefined' || !VC.on) return (C[k] = base);
+    const libre = o => { for (const d of [-2.4, 0, 2.4]) { const q = NET.at(l.P, clamp(k * 18, 0, l.P.len), o + d); if (VC.solid(q.x, q.y, .5)) return false; } return true; };
+    if (libre(base)) return (C[k] = base);
+    for (const o of [-base, base + 6, -base - 6, 0, base - 5, -base + 5]) if (libre(o)) return (C[k] = o);
+    return (C[k] = base);
+  },
+  /* punto del carril c (centrado según ancho 2 o 3 carriles) a s metros del comienzo */
+  pos(st, s, c) {
+    const l = NET.byId[st.line], tr = this.tramoEn(st, s), sep = tr.ancho === 2 ? 2.3 : 2.6, cen = (tr.ancho - 1) / 2;
+    const o0 = this.offAt(st, Math.floor(s / 18) * 18), o1 = this.offAt(st, Math.ceil(s / 18) * 18), t = (s / 18) - Math.floor(s / 18);
+    return NET.at(l.P, clamp(s, 0, l.P.len), lerp(o0, o1, t) + (c - cen) * sep);
+  },
   step(st, dt) {
-    if (st.done) return; const l = NET.byId[st.line], V = this.V(st), top = V.spd * (st.turbo > 0 ? 1.3 : 1); st.t += dt;
-    st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));   // el ritmo acelera hasta el tope del vehículo (unos 75 a 85 km/h)
-    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10); if (st.inv > 0) st.inv -= dt; if (st.iman > 0) st.iman -= dt; if (st.turbo > 0) st.turbo -= dt;
-    if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.y === 0) st.vy = 0; }
-    for (const o of crVentana(st, st.s - 1.2, st.s + 7)) { if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
-      if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;   // con el imán, los pasajes de los otros carriles llegan solos
-      if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
+    if (st.done) return;
+    const l = NET.byId[st.line], V = this.V(st), top = V.spd * (st.turbo > 0 ? 1.32 : st.grind > 0 ? 1.12 : 1);
+    st.t += dt;
+    // tramo actual (ancho variable y zonas skate/parkour)
+    const tr = this.tramoEn(st, st.s);
+    if (tr.zona !== st.zona || tr.ancho !== st.ancho) {
+      st.zona = tr.zona; st.ancho = tr.ancho;
+      if (st.c >= tr.ancho) st.c = tr.ancho - 1;
+      const lbl = tr.zona === 'estrecha' ? '↔ Ciclovía estrecha (2 carriles)' : tr.zona === 'skatepark' ? '🛹 Zona Skatepark · rampas y barandas' : tr.zona === 'parkour' ? '🏃 Zona Parkour · arcos y saltos' : '🚴 Ciclovía amplia (3 carriles)';
+      st.dato = lbl; st.datoT = 3.2;
+    }
+    st.v = st.v > top ? Math.max(top, st.v - dt * 3.5) : Math.min(top, st.v + dt * (st.turbo > 0 ? 5.5 : .85));
+    const sPrev = st.s;
+    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 13);
+    if (st.inv > 0) st.inv = Math.max(0, st.inv - dt);
+    if (st.iman > 0) st.iman = Math.max(0, st.iman - dt);
+    if (st.turbo > 0) st.turbo = Math.max(0, st.turbo - dt);
+    if (st.duck > 0) st.duck = Math.max(0, st.duck - dt);
+    if (st.jumpBuf > 0) st.jumpBuf = Math.max(0, st.jumpBuf - dt);
+    if (st.trickSpin > 0) st.trickSpin = Math.max(0, st.trickSpin - dt * 2.4);
+    if (st.comboT > 0) { st.comboT -= dt; if (st.comboT <= 0) st.combo = 0; }
+    // física de salto, grind sobre baranda y buffer de salto
+    if (st.grind > 0) {
+      st.grind = Math.max(0, st.grind - dt); st.y = .62; st.vy = 0; st.pts += 35 * Math.max(1, st.combo) * dt;
+      if (st.grind === 0) { st.vy = 3.2; }
+    } else if (st.y > 0 || st.vy > 0) {
+      st.vy -= 23 * dt; st.y = Math.max(0, st.y + st.vy * dt);
+      if (st.y === 0) { st.vy = 0; st.airTrick = 0; }
+    }
+    if (st.y === 0 && st.jumpBuf > 0 && st.grind <= 0) { st.vy = V.sal; st.jumpBuf = 0; st.duck = 0; }
+    // giros direccionales en la ciclovía
+    for (const g of st.giros || []) {
+      if (g.hecho) continue;
+      const d = g.s - st.s;
+      if (!g.visto && d < 75 && d > 0) { g.visto = true; st.dato = (g.dir < 0 ? '↰ Giro a la IZQUIERDA en ' : '↱ Giro a la DERECHA en ') + Math.round(d) + ' m'; st.datoT = 2.6; }
+      if (d < -14) { g.hecho = true; }
+    }
+    // obstáculos, rampas, barandas, arcos, pasajes y poderes (colisión continua a lo largo del desplazamiento [sPrev, st.s])
+    for (const o of crVentana(st, sPrev - 1.5, st.s + 7)) {
+      if (o.hecho || o.s < sPrev - 1.5 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.5)) continue;
+      const dc = Math.abs(o.c - st.cx);
+      // bono near-miss al pasar rozando un obstáculo sólido
+      if (!o.casi && CR_OBS[o.k] && CR_OBS[o.k][3] === 1 && o.s >= sPrev - .9 && o.s <= st.s + .9 && dc > .55 && dc < 1.15 && st.y < .4) {
+        o.casi = 1; st.pts += 20; st.comboT = Math.max(st.comboT, 3);
+      }
+      if (dc > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .52)) continue;
+      if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10 * Math.max(1, st.combo || 1); continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; continue; }
-      const T = CR_OBS[o.k]; if (st.y > Math.max(.3, T[1]) || st.inv > 0) continue;   // saltando por encima, o recién golpeado
-      o.hecho = 1; if (st.turbo > 0) { st.pts += 5; continue; }   // con el turbo se atraviesa
+      const T = CR_OBS[o.k]; if (!T) continue;
+      if (T[3] === 2) { // rampa de skate: lanza alto + permite truco
+        o.hecho = 1; st.vy = Math.max(st.vy, V.sal * 1.42); st.y = Math.max(st.y, .3); st.duck = 0; st.airTrick = 0;
+        st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5; st.pts += 40 * st.combo;
+        st.dato = '🛹 ¡Rampa! Toca ▲ para TRUCOS en el aire (×' + st.combo + ')'; st.datoT = 2.4;
+        if (!EM.headless && Game.st === st) Snd.play('whoosh');
+        continue;
+      }
+      if (T[3] === 3) { // baranda de skate: grind con chispas
+        o.hecho = 1; st.grind = .85; st.y = .62; st.vy = 0; st.duck = 0;
+        st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5; st.trucos++; st.pts += 55 * st.combo;
+        st.dato = '✨ ¡Grind en baranda! ×' + st.combo + ' · +' + (55 * st.combo); st.datoT = 2.4;
+        if (!EM.headless && Game.st === st) Snd.play('star');
+        if (Save.d && Save.d.rpg) Save.d.rpg.trucos = (Save.d.rpg.trucos || 0) + 1;
+        continue;
+      }
+      if (T[3] === 4) { // arco de parkour: se pasa agachado (▼) o muy alto sobre él
+        if (st.duck > 0 || st.y > 1.75) {
+          o.hecho = 1; st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5; st.trucos++; st.pts += 45 * st.combo;
+          st.dato = '🏃 ¡Parkour bajo el arco! ×' + st.combo + ' · +' + (45 * st.combo); st.datoT = 2.2;
+          if (!EM.headless && Game.st === st) Snd.play('ok');
+          continue;
+        }
+      }
+      if (st.y > Math.max(.3, T[1]) || st.inv > 0) continue;
+      o.hecho = 1; if (st.turbo > 0) { st.pts += 10; continue; }
       if (st.escudo) { st.escudo = 0; st.inv = 1; st.dato = '🛡 El escudo aguantó el golpe'; st.datoT = 2.5; continue; }
-      st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); if (st.vidas <= 0) st.done = true; }
-    for (const e of l.st) { if (e.i <= st.est || e.s > st.s) continue; st.est = e.i; st.pts += 25; const f = NET.fact ? NET.fact(e.name) : ''; st.dato = '🚉 ' + e.name + (f ? ' · ' + f : ''); st.datoT = 6; }
-    if (st.datoT > 0) st.datoT -= dt; st.pts += st.v * dt * .5;
-    if (st.s >= l.P.len - 10) st.done = true;   // llegaste al final de la línea
+      st.vidas--; st.inv = 1.4; st.combo = 0; st.v = Math.max(8, st.v * .72); if (st.vidas <= 0) st.done = true;
+    }
+    for (const e of l.st) { if (e.i <= st.est || e.s > st.s) continue; st.est = e.i; st.pts += 25; const f = NET.fact ? NET.fact(e.name) : ''; st.dato = '🚉 ' + e.name + (f ? ' · ' + f : ''); st.datoT = 5.5; }
+    if (st.datoT > 0) st.datoT -= dt;
+    st.pts += st.v * dt * .5;
+    if (st.s >= l.P.len - 10) st.done = true;
     if (st.auto) { const a = this.ai(st); if (a) this.act(st, a); }
+    this.updBtn(st);
   },
-  /* el bot: mira 9 m adelante; salta lo bajo y esquiva lo alto */
+  updBtn(st) {
+    if (EM.headless || Game.st !== st) return;
+    const b = $('#crSa'); if (!b) return;
+    const air = (st.y > .35 || st.grind > 0) && st.airTrick < 2;
+    b.classList.toggle('cr-trick', air);
+    b.innerHTML = air ? '★<small>truco</small>' : '▲<small>saltar</small>';
+  },
+  /* bot: salta lo bajo, se agacha en arcos, hace trucos en el aire y toma giros */
   ai(st) {
-    if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }   // el bot prueba otro vehículo una vez
-    const o = st.obs.find(q => !q.hecho && CR_OBS[q.k] && q.s > st.s && q.s < st.s + 9 && q.c === st.c); if (!o || st.turbo > 0) return null; const T = CR_OBS[o.k];
-    if (T[3] === 0 || T[1] < .9) return 'salta'; const libre = [0, 1, 2].filter(c => !st.obs.some(q => !q.hecho && CR_OBS[q.k] && q.c === c && q.s > st.s && q.s < st.s + 11));
+    if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }
+    if (st.y > .55 && st.airTrick === 0) return 'truco';
+    const g = (st.giros || []).find(q => !q.hecho && q.s - st.s < 20 && q.s - st.s > -4);
+    if (g) return g.dir < 0 ? 'izq' : 'der';
+    const o = st.obs.find(q => !q.hecho && CR_OBS[q.k] && q.s > st.s && q.s < st.s + 10 && q.c === st.c);
+    if (!o || st.turbo > 0) return null;
+    const T = CR_OBS[o.k];
+    if (T[3] === 2 || T[3] === 3) return null; // aprovechar rampas y barandas
+    if (T[3] === 4) return 'agacha';
+    if (T[3] === 0 || T[1] < .9) return 'salta';
+    const carriles = st.ancho === 2 ? [0, 1] : [0, 1, 2];
+    const libre = carriles.filter(c => !st.obs.some(q => !q.hecho && CR_OBS[q.k] && CR_OBS[q.k][3] === 1 && q.c === c && q.s > st.s && q.s < st.s + 12));
     return libre.length ? (libre[0] < st.c ? 'izq' : 'der') : 'salta';
   },
+  doGiro(st, dir) {
+    const g = (st.giros || []).find(q => !q.hecho && q.s - st.s < 32 && q.s - st.s > -12 && q.dir === dir);
+    if (!g) return false;
+    g.hecho = true; st.girosOk++; st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5;
+    st.pts += 50 * st.combo; st.v = Math.min(this.V(st).spd * 1.25, st.v + 2.6);
+    st.dato = (dir < 0 ? '↰' : '↱') + ' ¡Giro perfecto! ×' + st.combo + ' · +' + (50 * st.combo); st.datoT = 2.2;
+    if (!EM.headless && Game.st === st) Snd.play('coin');
+    return true;
+  },
   act(st, a) {
-    if (a === 'izq') st.c = Math.max(0, st.c - 1); else if (a === 'der') st.c = Math.min(2, st.c + 1); else if (a === 'salta' && st.y === 0) st.vy = this.V(st).sal; else if (a === 'vista') st.primera = !st.primera;
-    else if (a === 'vehiculo') { st.vi = (st.vi + 1) % CR_VEH.length; const V = this.V(st); if (!st.auto) { Save.d.settings.vehCr = st.vi; Save.write(); } st.dato = V.ico + ' ' + ((VEH[V.id] || {}).n || V.id); st.datoT = 2.5; const b = $('#crVe'); if (b) b.textContent = V.ico; }
+    const maxC = (st.ancho || 3) - 1, V = this.V(st);
+    if (a === 'izq') { this.doGiro(st, -1); st.c = Math.max(0, st.c - 1); }
+    else if (a === 'der') { this.doGiro(st, 1); st.c = Math.min(maxC, st.c + 1); }
+    else if (a === 'salta') {
+      if (st.y > .35 || st.grind > 0) { this.act(st, 'truco'); return; }
+      if (st.y === 0) { st.vy = V.sal; st.duck = 0; }
+      else st.jumpBuf = .14;
+    } else if (a === 'truco') {
+      if ((st.y > .25 || st.grind > 0) && st.airTrick < 2) {
+        st.airTrick++; st.trucos++; st.trickSpin = 1; st.combo = Math.min(5, (st.combo || 0) + 1); st.comboT = 4.5;
+        const nom = V.truco[(st.trucos - 1) % V.truco.length], pts = 60 * st.combo; st.pts += pts;
+        st.dato = '★ ' + nom + ' ×' + st.combo + ' · +' + pts; st.datoT = 2.2;
+        if (!EM.headless && Game.st === st) { Snd.play('star'); vib(18); }
+        if (Save.d && Save.d.rpg) Save.d.rpg.trucos = (Save.d.rpg.trucos || 0) + 1;
+      }
+    } else if (a === 'agacha') {
+      if (st.y > .1) { st.vy = -16; st.grind = 0; } // aterrizaje rápido
+      st.duck = .75;
+      if (!EM.headless && Game.st === st) Snd.play('tap');
+    } else if (a === 'vista') st.primera = !st.primera;
+    else if (a === 'vehiculo') { st.vi = (st.vi + 1) % CR_VEH.length; const V2 = this.V(st); if (!st.auto) { Save.d.settings.vehCr = st.vi; Save.write(); } st.dato = V2.ico + ' ' + ((VEH[V2.id] || {}).n || V2.id); st.datoT = 2.5; const b = $('#crVe'); if (b) b.textContent = V2.ico; }
   },
-  key(st, k, down) { if (!down) return; const m = { ArrowLeft: 'izq', a: 'izq', ArrowRight: 'der', d: 'der', ArrowUp: 'salta', w: 'salta', ' ': 'salta', v: 'vista', c: 'vehiculo' }[k]; if (m) this.act(st, m); },
+  key(st, k, down) { if (!down) return; const m = { ArrowLeft: 'izq', a: 'izq', ArrowRight: 'der', d: 'der', ArrowUp: 'salta', w: 'salta', ' ': 'salta', ArrowDown: 'agacha', s: 'agacha', t: 'truco', v: 'vista', c: 'vehiculo' }[k]; if (m) this.act(st, m); },
   mount(st, el) {
-    el.innerHTML = `<div class="crbtns"><button id="crIz" aria-label="Carril a la izquierda">◀</button><button id="crSa" aria-label="Saltar">▲</button><button id="crDe" aria-label="Carril a la derecha">▶</button></div><div class="vsel"><button id="crVe" title="Cambiar de vehículo">${this.V(st).ico}</button><button id="crVi" title="Primera o tercera persona">👁</button></div>`;
-    $('#crIz').onclick = () => this.act(st, 'izq'); $('#crDe').onclick = () => this.act(st, 'der'); $('#crSa').onclick = () => this.act(st, 'salta'); $('#crVi').onclick = () => this.act(st, 'vista'); $('#crVe').onclick = () => this.act(st, 'vehiculo');
-    const cv = $('#gcv'); let p0 = null; this.unmount();   // deslizar: a los lados cambia de carril, hacia arriba salta
-    this._pd = e => { p0 = { x: e.clientX, y: e.clientY }; }; this._pu = e => { if (!p0) return; const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null; if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) this.act(st, dx < 0 ? 'izq' : 'der'); else if (dy < -30) this.act(st, 'salta'); };
-    cv.addEventListener('pointerdown', this._pd); cv.addEventListener('pointerup', this._pu);
+    el.innerHTML = `<div class="crbtns"><button id="crIz" aria-label="Carril a la izquierda">◀<small>izq</small></button><button id="crSa" class="cr-jump" aria-label="Saltar o truco">▲<small>saltar</small></button><button id="crAg" class="cr-duck" aria-label="Deslizar parkour">▼<small>parkour</small></button><button id="crDe" aria-label="Carril a la derecha">▶<small>der</small></button></div>
+      <div class="vsel"><button id="crVe" title="Cambiar de vehículo">${this.V(st).ico}</button><button id="crVi" title="Primera o tercera persona">👁</button></div>`;
+    $('#crIz').onclick = () => this.act(st, 'izq'); $('#crDe').onclick = () => this.act(st, 'der'); $('#crSa').onclick = () => this.act(st, 'salta'); $('#crAg').onclick = () => this.act(st, 'agacha'); $('#crVi').onclick = () => this.act(st, 'vista'); $('#crVe').onclick = () => this.act(st, 'vehiculo');
+    const cv = $('#gcv'); let p0 = null; this.unmount();   // deslizar: lados cambian carril, arriba salta/truco, abajo desliza parkour
+    this._pd = e => { p0 = { x: e.clientX, y: e.clientY }; };
+    this._pu = e => { if (!p0) return; const dx = e.clientX - p0.x, dy = e.clientY - p0.y; p0 = null; if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) this.act(st, dx < 0 ? 'izq' : 'der'); else if (dy < -28) this.act(st, 'salta'); else if (dy > 28) this.act(st, 'agacha'); };
+    this._pc = () => { p0 = null; };
+    cv.addEventListener('pointerdown', this._pd); cv.addEventListener('pointerup', this._pu); cv.addEventListener('pointercancel', this._pc);
   },
-  unmount() { const cv = $('#gcv'); if (cv && this._pd) { cv.removeEventListener('pointerdown', this._pd); cv.removeEventListener('pointerup', this._pu); this._pd = null; } },
+  unmount() { const cv = $('#gcv'); if (cv && this._pd) { cv.removeEventListener('pointerdown', this._pd); cv.removeEventListener('pointerup', this._pu); cv.removeEventListener('pointercancel', this._pc); this._pd = null; } },
   gl(st) { return !st.auto && !EM.headless && Save.d.settings.q !== 'low' && typeof G3 !== 'undefined' && G3.init(); },
   draw(g, st, vp) {
     const W = vp.w, H = vp.h, p = this.pos(st, st.s, st.cx), z = MAP.elevM(p.x, p.y) + st.y;
-    if (this.gl(st)) { G3.show(true); const c = Math.cos(p.a), s = Math.sin(p.a), cam = st.primera ? { eye: [p.x + c * .3, z + 1.55, p.y + s * .3], at: [p.x + c * 20, z + 1.2, p.y + s * 20], fov: 1.2 } : { eye: [p.x - c * 6.5, z + 3.2, p.y - s * 6.5], at: [p.x + c * 8, z + 1, p.y + s * 8], fov: 1.05 };
-      G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: .8, suave: true, cerca: 1.5, dyn: G => this.dyn3D(G, st, p, z) });
-      if (st.primera && EM.taller) EM.taller.primera(g, this.V(st).mesh, W, H, (st.cx - st.c) * .22 + (st.y > 0 ? -.03 : 0)); }   // el manubrio (o la tabla y los pies) con las manos, del taller de arte
-    else {   // desde arriba (sin WebGL, en «Celular modesto» o en las pruebas)
+    if (this.gl(st)) {
+      G3.show(true); const c = Math.cos(p.a), s = Math.sin(p.a), eyeH = st.duck > 0 ? .85 : 1.55;
+      const cam = st.primera ? { eye: [p.x + c * .3, z + eyeH, p.y + s * .3], at: [p.x + c * 22, z + (st.duck > 0 ? .7 : 1.2), p.y + s * 22], fov: 1.2 } : { eye: [p.x - c * 6.8, z + 3.4, p.y - s * 6.8], at: [p.x + c * 9, z + 1.0, p.y + s * 9], fov: 1.05 };
+      G3.draw(cam, { hour: Mundo.hour(), rain: Mundo.weather().rain, escala: .82, suave: true, cerca: 1.5, dyn: G => this.dyn3D(G, st, p, z) });
+      if (st.primera && EM.taller) EM.taller.primera(g, this.V(st).mesh, W, H, (st.cx - st.c) * .22 + (st.y > 0 ? -.04 : 0));
+    } else {
       if (typeof G3 !== 'undefined' && G3.cv) G3.show(false); const k = 4 * (W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W)), mx = p.x, my = p.y, S = (x, y) => ({ x: W / 2 + (x - mx) * k, y: H * .62 + (y - my) * k });
       g.fillStyle = '#3a6b45'; g.fillRect(0, 0, W, H); if (MAP.ready) MAP.drawTop(g, W, H, mx, my - (H * .12) / k, k);
-      for (const o of crVentana(st, st.s - 8, st.s + 70)) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .8) * k, 0, TAU); g.fill(); }
-      const q = S(p.x, p.y); g.fillStyle = '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
+      // franja verde de la ciclovía en 2D
+      const l = NET.byId[st.line]; g.strokeStyle = 'rgba(89,171,66,.55)'; g.lineWidth = (st.ancho === 2 ? 5.2 : 8.2) * k; g.beginPath();
+      for (let s = Math.max(0, st.s - 10); s <= Math.min(l.P.len, st.s + 80); s += 6) { const q = S(NET.at(l.P, s, st.off).x, NET.at(l.P, s, st.off).y); s <= Math.max(0, st.s - 10) ? g.moveTo(q.x, q.y) : g.lineTo(q.x, q.y); } g.stroke();
+      for (const o of crVentana(st, st.s - 8, st.s + 70)) { if (o.hecho || o.s < st.s - 8 || o.s > st.s + 70) continue; const q = S(this.pos(st, o.s, o.c).x, this.pos(st, o.s, o.c).y), P = CR_POD[o.k]; g.fillStyle = o.k === 'pasaje' ? PAL.mostaza : P ? 'rgb(' + P[3].map(v => v * 255 | 0) + ')' : CR_OBS[o.k][2]; g.beginPath(); g.arc(q.x, q.y, (o.k === 'pasaje' ? .5 : .85) * k, 0, TAU); g.fill(); }
+      const q = S(p.x, p.y); g.fillStyle = st.duck > 0 ? '#5aa0c8' : '#ffb21e'; g.strokeStyle = PAL.negro; g.lineWidth = 2; g.beginPath(); g.arc(q.x, q.y, (1 + st.y * .3) * k, 0, TAU); g.fill(); g.stroke();
     }
     this.marcador(g, st, W, H);
   },
-  /* malla del taller de arte subida una vez por contexto de WebGL (null si el taller no está: se dibuja con cajas) */
   malla(clave, hacer) { const T = EM.taller; return T && T.malla ? T.malla(clave, () => hacer(T)) : null; },
   dyn3D(G, st, p, z) {
-    const T = EM.taller;
-    for (const o of crVentana(st, st.s - 3, st.s + 90)) { if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue; const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
+    const T = EM.taller, l = NET.byId[st.line];
+    // pintura de ciclovía (verde/azul con bordes blancos y bolardos según ancho 2 o 3 carriles)
+    for (let s = Math.floor(st.s / 6) * 6; s < Math.min(l.P.len, st.s + 88); s += 6) {
+      const tr = this.tramoEn(st, s), q = NET.at(l.P, s, st.off), zq = MAP.elevM(q.x, q.y) + .04, w = tr.ancho === 2 ? 5.2 : 8.2;
+      const col = tr.zona === 'skatepark' ? [.28, .48, .58] : tr.zona === 'parkour' ? [.35, .44, .62] : [.22, .56, .34];
+      G.box(q.x, zq, q.y, q.a, 5.8, w, .04, col);
+      const sx = -Math.sin(q.a) * (w / 2 + .2), sy = Math.cos(q.a) * (w / 2 + .2);
+      G.box(q.x + sx, zq, q.y + sy, q.a, .3, .3, .55, [.95, .8, .22]);
+      G.box(q.x - sx, zq, q.y - sy, q.a, .3, .3, .55, [.95, .8, .22]);
+    }
+    // flecha 3D en pista para giros próximos
+    for (const gr of st.giros || []) {
+      if (gr.hecho || gr.s < st.s - 2 || gr.s > st.s + 75) continue;
+      const q = NET.at(l.P, gr.s, st.off + gr.dir * 2.2), zq = MAP.elevM(q.x, q.y);
+      G.box(q.x, zq + 1.4 + Math.sin(st.t * 6) * .2, q.y, q.a + gr.dir * .6, 1.4, .35, .8, [.98, .78, .2]);
+    }
+    for (const o of crVentana(st, st.s - 3, st.s + 90)) {
+      if (o.hecho || o.s < st.s - 3 || o.s > st.s + 90) continue;
+      const q = this.pos(st, o.s, o.c), zq = MAP.elevM(q.x, q.y), P = CR_POD[o.k];
       if (P) { G.box(q.x, zq + .9 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2.5, .55, .55, .55, P[3]); continue; }
       const m = this.malla('o:' + o.k, T => T.pista(o.k));
       if (m) { T.mundo(m, q.x, zq + (o.k === 'pasaje' ? .45 + Math.sin(st.t * 3 + o.s) * .15 : 0), q.y, o.k === 'pasaje' ? st.t * 2 : q.a + (o.k === 'moto' || o.k === 'perro' ? Math.PI : 0)); continue; }
       if (o.k === 'pasaje') { G.box(q.x, zq + 1 + Math.sin(st.t * 3 + o.s) * .15, q.y, st.t * 2, .5, .08, .35, [.98, .78, .2]); continue; }
-      const C = CR_OBS[o.k]; G.box(q.x, zq, q.y, q.a, C[0], o.k === 'moto' ? .7 : 1.1, Math.max(.06, C[1]), rgb(C[2])); }
-    if (st.primera || (st.inv > 0 && Math.floor(st.t * 10) % 2)) return;   // en primera persona el manubrio va encima, en el lienzo
-    const V = this.V(st), m = this.malla('v:' + V.mesh, T => T.vehiculo(V.mesh, { persona: false }));
-    if (m) T.mundo(m, p.x, z, p.y, p.a); else G.box(p.x, z + .08, p.y, p.a, 1.1, .5, .12, rgb('#2ec4b6'));
-    Libre.persona3(G, p.x, z + V.pie, p.y, p.a, Perfil.ped(), 1, V.id === 'bici' ? 0 : st.t * 9);
+      const C = CR_OBS[o.k]; G.box(q.x, zq, q.y, q.a, C[0], o.k === 'moto' ? .7 : 1.1, Math.max(.06, C[1]), rgb(C[2]));
+    }
+    if (st.primera || (st.inv > 0 && Math.floor(st.t * 10) % 2)) return;
+    const V = this.V(st), spinA = p.a + (st.trickSpin > 0 ? st.trickSpin * TAU : 0), m = this.malla('v:' + V.mesh, T => T.vehiculo(V.mesh, { persona: false }));
+    if (m) T.mundo(m, p.x, z, p.y, spinA); else G.box(p.x, z + .08, p.y, spinA, 1.1, .5, .12, rgb('#2ec4b6'));
+    Libre.persona3(G, p.x, z + V.pie - (st.duck > 0 ? .45 : 0), p.y, spinA, Perfil.ped(), st.duck > 0 ? .62 : 1, V.id === 'bici' ? 0 : st.t * 9);
+    if (st.grind > 0) G.box(p.x, z + .05, p.y, st.t * 14, .45, .45, .2, [1, .9, .3]);
     if (st.escudo || st.turbo > 0) G.box(p.x, z + 2.3 + Math.sin(st.t * 4) * .1, p.y, st.t * 2, .3, .3, .3, st.turbo > 0 ? CR_POD.turbo[3] : CR_POD.escudo[3]);
   },
-  /* la barra de arriba del juego (Game.hud) */
-  hud(st) { return [['🎫', st.pasajes], ['❤', Math.max(0, st.vidas)], [this.V(st).ico, Math.round(st.v * 3.6) + ' km/h']]; },
-  /* el marcador sobre el lienzo: puntos, pasajes, vidas, velocidad y el dato de la última estación */
+  hud(st) { return [['🎫', st.pasajes], ['❤', Math.max(0, st.vidas)], [this.V(st).ico, Math.round(st.v * 3.6) + ' km/h'], ...(st.combo > 1 ? [['★', '×' + st.combo]] : [])]; },
   marcador(g, st, W, H) {
     const d = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), f = n => Math.round(n * d) + 'px Cuerpo, sans-serif', km = Math.round(st.v * 3.6);
-    g.textAlign = 'left'; g.fillStyle = 'rgba(15,34,56,.82)'; g.fillRect(8 * d, 56 * d, 168 * d, 52 * d); g.fillStyle = '#fff'; g.font = '800 ' + f(17); g.fillText(Math.round(st.pts) + ' puntos', 16 * d, 77 * d); g.font = '700 ' + f(12.5); g.fillText('🎫 ' + st.pasajes + '   ' + '❤'.repeat(Math.max(0, st.vidas)) + '   ' + km + ' km/h' + (st.iman > 0 ? '  🧲' : '') + (st.turbo > 0 ? '  ⚡' : '') + (st.escudo ? '  🛡' : ''), 16 * d, 98 * d);
-    if (st.datoT > 0 && st.dato) { g.globalAlpha = clamp(st.datoT, 0, 1); g.fillStyle = 'rgba(255,255,255,.94)'; g.fillRect(8 * d, H - 120 * d, W - 16 * d, 44 * d); g.fillStyle = '#0f2238'; g.font = '700 ' + f(12.5); const t = st.dato.length > 70 ? st.dato.slice(0, 68) + '…' : st.dato; g.fillText(t, 16 * d, H - 94 * d); g.globalAlpha = 1; }
+    g.textAlign = 'left'; g.fillStyle = 'rgba(15,34,56,.84)'; g.fillRect(8 * d, 56 * d, 196 * d, 62 * d);
+    g.fillStyle = '#fff'; g.font = '800 ' + f(17); g.fillText(Math.round(st.pts) + ' pts' + (st.combo > 1 ? '  ×' + st.combo : ''), 16 * d, 76 * d);
+    g.font = '700 ' + f(12); g.fillText('🎫 ' + st.pasajes + '  ' + '❤'.repeat(Math.max(0, st.vidas)) + '  ' + km + ' km/h' + (st.iman > 0 ? ' 🧲' : '') + (st.turbo > 0 ? ' ⚡' : '') + (st.escudo ? ' 🛡' : ''), 16 * d, 95 * d);
+    g.fillStyle = '#ffd27a'; g.font = '700 ' + f(10.5);
+    const zLbl = st.zona === 'estrecha' ? 'CICLOVÍA ESTRECHA (2)' : st.zona === 'skatepark' ? 'ZONA SKATEPARK' : st.zona === 'parkour' ? 'ZONA PARKOUR' : 'CICLOVÍA AMPLIA (3)';
+    g.fillText(zLbl + (st.trucos ? ' · ★' + st.trucos : ''), 16 * d, 111 * d);
+    // aviso de giro inminente
+    const giro = (st.giros || []).find(q => !q.hecho && q.s - st.s < 55 && q.s - st.s > -5);
+    if (giro) {
+      g.fillStyle = 'rgba(246,197,56,.95)'; g.fillRect(W / 2 - 74 * d, 62 * d, 148 * d, 32 * d);
+      g.fillStyle = '#13253A'; g.textAlign = 'center'; g.font = '900 ' + f(14);
+      g.fillText((giro.dir < 0 ? '↰ IZQUIERDA ' : '↱ DERECHA ') + Math.max(0, Math.round(giro.s - st.s)) + 'm', W / 2, 83 * d);
+      g.textAlign = 'left';
+    }
+    if (st.datoT > 0 && st.dato) { g.globalAlpha = clamp(st.datoT, 0, 1); g.fillStyle = 'rgba(255,255,255,.94)'; g.fillRect(8 * d, H - 122 * d, W - 16 * d, 42 * d); g.fillStyle = '#0f2238'; g.font = '700 ' + f(12.5); const t = st.dato.length > 70 ? st.dato.slice(0, 68) + '…' : st.dato; g.fillText(t, 16 * d, H - 97 * d); g.globalAlpha = 1; }
   },
-  result(st) { const pts = Math.round(st.pts); return { done: st.done, win: st.done && st.vidas > 0, score: pts, stars: st.done ? (pts > 1500 ? 3 : pts > 800 ? 2 : pts > 300 ? 1 : 0) : 0, lines: [['Puntos', pts], ['Pasajes', st.pasajes], ['Estaciones', st.est + 1], ['Poderes', st.poderes], ['Vehículo', this.V(st).ico + ' ' + ((VEH[this.V(st).id] || {}).n || '')]], fact: st.dato || '' }; }
+  result(st) { const pts = Math.round(st.pts); return { done: st.done, win: st.done && st.vidas > 0, score: pts, stars: st.done ? (pts > 1800 ? 3 : pts > 950 ? 2 : pts > 350 ? 1 : 0) : 0, lines: [['Puntos', pts], ['Pasajes', st.pasajes], ['Trucos y Parkour', st.trucos], ['Giros perfectos', st.girosOk], ['Estaciones', st.est + 1], ['Vehículo', this.V(st).ico + ' ' + ((VEH[this.V(st).id] || {}).n || '')]], fact: st.dato || '' }; }
 };
 ~~~~
 
@@ -11793,15 +12719,16 @@ const Carrera = EM.modes.carrera = {
   Cr.stepCiclo = function (st, dt) {
     if (st.done) return; const K = st.cic, V = this.V(st), top = V.spd * (st.turbo > 0 ? 1.3 : 1); st.t += dt;
     st.v = st.v > top ? Math.max(top, st.v - dt * 3) : Math.min(top, st.v + dt * (st.turbo > 0 ? 4 : .12));
-    st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10);
+    const s0 = st.s; st.s += st.v * dt; st.cx += (st.c - st.cx) * Math.min(1, dt * 10);   /* 3.5: s0 para la colisión barrida (un cuadro lento no se salta una rampa) */
     for (const k of ['inv', 'iman', 'turbo', 'agacha']) if (st[k] > 0) st[k] -= dt;
     if (st.y > 0 || st.vy > 0) { st.vy -= 22 * dt; st.y = Math.max(0, st.y + st.vy * dt); if (st.truco) st.truco.t -= dt; if (st.y === 0) { st.vy = 0; this.aterriza(st); } }
     Ci.extender(st, st.s + 230); if (K.cruce && st.s > K.cruce.s - 14) Ci.decidir(st);
     for (const a of K.avisos) if (!a.ya && st.s >= a.s) { a.ya = 1; st.dato = a.t; st.datoT = 2.5; }
     const z = K.zonas.find(q => st.s >= q.s0 && st.s <= q.s1) || null; if (z && st._zona !== z.s0) { st._zona = z.s0; st.dato = '🛹 Zona de skate · ' + z.nombre + ': rampas y barandas, los trucos valen doble'; st.datoT = 3; jugo(st, '🛹 Zona de skate', 'b'); } else if (!z) st._zona = null;
     if (st.auto && st.y > 1 && !st.truco && rnd(st) < .3) this.act(st, 'truco');
-    for (const o of crVentana(st, st.s - 1.2, st.s + 7)) {
-      if (o.hecho || o.s < st.s - 1.2 || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
+    const desde = Math.min(s0, st.s - 1.2);
+    for (const o of crVentana(st, desde, st.s + 7)) {
+      if (o.hecho || o.s < desde || o.s > st.s + (st.iman > 0 && o.k === 'pasaje' ? 7 : 1.2)) continue;
       if (Math.abs(o.c - st.cx) > (st.iman > 0 && o.k === 'pasaje' ? 2.5 : .5)) continue;
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; jugo(st, P[0], 'y'); continue; }
@@ -11978,18 +12905,19 @@ const Cable = EM.modes.cable = {
    ===================================================================== */
 const MIRADORES = { 'Santo Domingo Savio': 'Biblioteca España sobre la loma', 'Parque Arví': 'El bosque de Arví entre la niebla', 'La Aurora': 'El occidente y la Comuna 13', 'El Progreso': 'El cerro El Picacho', 'Villa Sierra': 'El centro desde la Comuna 8', 'Trece de Noviembre': 'Los techos de ladrillo de la 8', 'Andalucía': 'Las casas de colores del nororiente', 'Popular': 'El río y el valle al norte', 'Juan XXIII': 'San Javier desde el aire', 'Vallejuelos': 'La ladera occidental', 'Las Torres': 'El oriente de la ciudad', 'El Pinal': 'Las quebradas del oriente', 'SENA': 'El Doce de Octubre', 'Doce de Octubre': 'El noroccidente encendido' };
 const CableViaje = EM.modes.cableviaje = {
-  id: 'cableviaje', name: 'Metrocable · Viaje', sub: 'Opera la línea y viaja sobre la loma', music: 'story', fullCanvas: true,
-  tip: 'Controla la velocidad de la línea (hasta 5 m/s). Con ráfagas fuertes baja la velocidad para que la cabina no se balancee; con tormenta, detén la línea. Toma fotos en los miradores 📷.',
+  id: 'cableviaje', name: 'Metrocable · Viaje', sub: 'Opera la línea y viaja sobre la loma', music: 'story', fullCanvas: true, substeps: true,
+  tip: 'La cabina ya viene en marcha. Ajusta la velocidad con la palanca o ▲/▼ (hasta 5 m/s), cambia el ritmo con ⏩, frena en ráfagas fuertes o tormenta y toma fotos en los miradores 📷.',
   levels() { if (this._lv) return this._lv; return (this._lv = NET.lines.filter(l => l.kind === 'cable').map(l => ({ id: 'cv:' + l.id, line: l.id, name: l.name, sub: l.st[0].name + ' → ' + l.st[l.st.length - 1].name }))); },
   create(lv, opts) {
     const L = this.levels().find(l => l.id === lv) || this.levels()[0], line = NET.byId[L.line], C = G3.cableGeo(line), rng = new RNG(opts.seed | 0), hr = new Date().getHours() + new Date().getMinutes() / 60;
     const stS = C.pts.map((p, i) => p.st ? C.P.cum[i] : null).filter(v => v != null), alto = Math.max(...C.pts.map(p => p.z));
-    const st = { lvId: L.id, line: line.id, s: stS[0] + 2, v: 0, vt: 0, th: 0, om: 0, wind: 0, gust: 0, t: 0, hour: opts.hour != null ? opts.hour : hr, stS, ni: 1, ph: 'ride', dwell: 0, pax: 0, moved: 0, comfort: 100, score: 0, photos: [], view: opts.view || 'lado', auto: !!opts.auto, done: false, seed: opts.seed | 0,
-      fixH: opts.hour, paseo: !!opts.paseo, fog: alto > 2200 || (opts.hour != null ? rng.f() < .15 : Mundo.weather().fog), rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, storm: null, stormT: rng.range(40, 140), stormed: false, stopPen: 0, safety: 0, lastV: 0, titleT: 3, title: line.st[0].name, base: 1.5 + rng.f() * 2.5 + (alto > 2100 ? 2 : 0) };
+    const h0 = opts.hour != null ? opts.hour : (typeof Mundo !== 'undefined' && Mundo.hour ? Mundo.hour() : hr);
+    const st = { lvId: L.id, line: line.id, s: stS[0] + 2, v: 2.4, vt: 4.0, ritmo: 1, th: 0, om: 0, wind: 0, gust: 0, t: 0, hour: h0, hourNow: h0, stS, ni: 1, ph: 'ride', dwell: 0, pax: 0, moved: 0, comfort: 100, score: 0, photos: [], view: opts.view || 'lado', auto: !!opts.auto, done: false, seed: opts.seed | 0,
+      fixH: opts.hour, paseo: !!opts.paseo, fog: alto > 2200 || (opts.hour != null ? rng.f() < .15 : Mundo.weather().fog), rain: opts.hour != null ? rng.f() < .3 : Mundo.weather().rain, storm: null, stormT: rng.range(45, 140), stormed: false, stopPen: 0, safety: 0, lastV: 0, titleT: 3, title: line.st[0].name, base: 1.5 + rng.f() * 2.5 + (alto > 2100 ? 2 : 0) };
     st.mir = line.st.slice(1).map(s => ({ name: s.name, txt: MIRADORES[s.name] || 'Mirador de ' + s.name, s: stS[line.st.indexOf(s)] - 140, done: false }));
     return st;
   },
-  step(st, dt) { if (st.done) return; const n = 3; for (let i = 0; i < n; i++) this.tick(st, dt); },   // el tiempo corre ×3
+  step(st, dt) { if (st.done) return; const n = 3 * (st.ritmo || 1); for (let i = 0; i < n; i++) this.tick(st, dt); },   // base ×3, ajustable con ⏩
   tick(st, dt) {
     const line = NET.byId[st.line], C = G3.cableGeo(line); st.t += dt; st.hourNow = st.fixH != null ? st.fixH + st.t * 10 / 3600 : Mundo.hour(); if (st.fixH == null && (st._wt = (st._wt || 0) + dt) > 3) { st._wt = 0; const w = Mundo.weather(); st.rain = w.rain; if (w.storm && !st.storm) { st.storm = { t: 0, len: 30 }; this.msg(st, '⚡ Tormenta eléctrica en el valle: detén la línea', 'r'); } }
     // viento: base + ráfagas suaves + ráfagas fuertes ocasionales; tormenta con relámpagos
@@ -11999,7 +12927,7 @@ const CableViaje = EM.modes.cableviaje = {
     st.wind = st.base + 3 * Math.sin(st.t * .13) + 2.2 * Math.sin(st.t * .41 + 1) + (gustOn ? 6 * Math.max(0, Math.sin(st.t * 1.3)) : 0) + (st.storm ? 9 + 3 * Math.sin(st.t * 2.1) : 0);
     // piloto (bot) o mando del jugador
     if (st.auto) st.vt = st.storm ? 0 : st.wind > 12 ? 2 : st.wind > 9 ? 3.5 : 5;
-    const lineA = clamp(st.vt - st.v, -.35 * dt, .3 * dt) / dt; st.v = clamp(st.v + lineA * dt, 0, 5);
+    const lineA = clamp(st.vt - st.v, -.6 * dt, .55 * dt) / dt; st.v = clamp(st.v + lineA * dt, 0, 5);
     if (st.safety > 0) { st.safety -= dt; st.v = Math.max(0, st.v - 1.2 * dt); }
     // péndulo (hanger de 3 m)
     const Lh = 3, Fw = .022 * st.wind * Math.abs(st.wind) * (st.ph === 'station' ? .2 : 1), acc = st.ph === 'station' ? 0 : lineA;
@@ -12009,7 +12937,7 @@ const CableViaje = EM.modes.cableviaje = {
     if (ang > .36 && st.safety <= 0) { st.safety = 6; st.score -= 150; this.msg(st, 'Parada de seguridad: balanceo de ' + Math.round(ang * 57) + '° −150', 'r'); this.sfx(st, 'crash'); }
     if (st.storm && st.v > 1) { st.stopPen += dt; if (st.stopPen > 8) { st.stopPen = -1e9; st.score -= 200; this.msg(st, 'No se puede operar con tormenta eléctrica −200', 'r'); this.sfx(st, 'bad'); } }
     // avance y estaciones (la cabina se desacopla, abre puertas y vuelve a salir)
-    if (st.ph === 'station') { st.dwell += dt; if (st.dwell > 7) { st.ph = 'ride'; this.sfx(st, 'whoosh'); } }
+    if (st.ph === 'station') { st.dwell += dt; if (st.dwell > 4.5) { st.ph = 'ride'; this.sfx(st, 'whoosh'); } }
     else {
       st.s += st.v * dt; const tgt = st.stS[st.ni];
       for (const m of st.mir) if (!m.done && !m.seen && st.s > m.s && st.s < m.s + 160) { m.seen = true; this.msg(st, '📷 Mirador: ' + m.txt, 'b'); if (st.auto) this.photo(st); }
@@ -12033,16 +12961,20 @@ const CableViaje = EM.modes.cableviaje = {
   sfx(st, k) { if (!EM.headless && Game.st === st) Snd.play(k); },
   hud(st) { this.updCtl(st); const line = NET.byId[st.line]; return [['', st.v.toFixed(1) + ' m/s'], ['💨', Math.round(st.wind * 3.6) + ' km/h'], ['→', line.st[Math.min(st.ni, line.st.length - 1)].name], ['★', fmt(st.score)]]; },
   mount(st, el) {
-    el.innerHTML = `<div class="lever" id="cvLev" style="background:linear-gradient(#2f9b57,#f9e4a4 70%,#c8201f)"><div class="lb" style="top:6px">5 m/s</div><div class="lb" style="bottom:6px">PARAR</div><div class="kn" id="cvKn">0</div></div>
+    el.innerHTML = `<div class="lever" id="cvLev" style="background:linear-gradient(#2f9b57,#f9e4a4 70%,#c8201f)"><div class="lb" style="top:6px">5 m/s</div><div class="lb" style="bottom:6px">PARAR</div><div class="kn" id="cvKn">4.0</div></div>
+      <div class="lever-nudge"><button id="cvMas" aria-label="Subir velocidad">▲</button><button id="cvRit" aria-label="Ritmo del viaje">×1</button><button id="cvMen" aria-label="Bajar velocidad">▼</button></div>
       <div class="gbtns"><button class="btn sm mos" id="cvFoto">📷 Foto</button><button class="btn sm" id="cvStop">■ Detener</button></div>
       <div class="vsel" id="cvView"><button data-v="lado">↔</button><button data-v="tps">3ª</button><button data-v="cab">1ª</button><button data-v="cine">🎥</button><button data-v="top">▦</button><button data-v="paseo">🎬</button></div>`;
     const lev = $('#cvLev'), set = e => { const r = lev.getBoundingClientRect(); st.vt = Math.round(clamp(1 - (e.clientY - r.top) / r.height, 0, 1) * 10) / 2; Snd.init(); };
     lev.addEventListener('pointerdown', e => { lev.setPointerCapture(e.pointerId); set(e); }); lev.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') set(e); });
-    $('#cvFoto').onclick = () => this.photo(st); $('#cvStop').onclick = () => { st.vt = 0; };
-    $$('#cvView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: la línea se opera sola' : 'Vuelves a operar tú', 'b'); } else st.view = b.dataset.v; });
+    $('#cvMas').onclick = () => { st.vt = Math.min(5, Math.round((st.vt + .5) * 2) / 2); Snd.init(); this.updCtl(st); };
+    $('#cvMen').onclick = () => { st.vt = Math.max(0, Math.round((st.vt - .5) * 2) / 2); Snd.init(); this.updCtl(st); };
+    $('#cvRit').onclick = () => { st.ritmo = st.ritmo === 1 ? 2 : st.ritmo === 2 ? 3 : 1; this.msg(st, '⏩ Ritmo del cable: ×' + st.ritmo, 'b'); this.updCtl(st); };
+    $('#cvFoto').onclick = () => this.photo(st); $('#cvStop').onclick = () => { st.vt = 0; this.updCtl(st); };
+    $$('#cvView button').forEach(b => b.onclick = () => { if (b.dataset.v === 'paseo') { st.paseo = !st.paseo; st.auto = st.paseo; this.msg(st, st.paseo ? 'Modo paseo: la línea se opera sola' : 'Vuelves a operar tú', 'b'); } else st.view = b.dataset.v; this.updCtl(st); });
   },
-  updCtl(st) { if (EM.headless || Game.st !== st) return; const kn = $('#cvKn'); if (!kn) return; kn.style.top = 'calc(' + ((1 - st.vt / 5) * 100) + '% - 15px)'; kn.textContent = st.vt.toFixed(1); $$('#cvView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo))); if (st.paseo && (st._pv = (st._pv || 0) + .2) > 9) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['lado', 'cine', 'tps', 'cab'] : ['lado', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } const f = $('#cvFoto'); const can = st.mir.some(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); f.style.background = can ? 'var(--naranja)' : ''; },
-  key(st, k, down) { if (!down) return; if (k === 'ArrowUp' || k === 'w') st.vt = Math.min(5, st.vt + .5); if (k === 'ArrowDown' || k === 's') st.vt = Math.max(0, st.vt - .5); if (k === ' ' || k === 'f') this.photo(st); if (k === 'x') st.vt = 0; if (k === 'v') { const V = ['lado', 'tps', 'cab', 'cine', 'top']; st.view = V[(V.indexOf(st.view) + 1) % 4]; } },
+  updCtl(st) { if (EM.headless || Game.st !== st) return; const kn = $('#cvKn'); if (!kn) return; kn.style.top = 'calc(' + ((1 - st.vt / 5) * 100) + '% - 15px)'; kn.textContent = st.vt.toFixed(1); const rb = $('#cvRit'); if (rb) { rb.textContent = '×' + (st.ritmo || 1); rb.classList.toggle('on', (st.ritmo || 1) > 1); } $$('#cvView button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view || (b.dataset.v === 'paseo' && st.paseo))); if (st.paseo && (st._pv = (st._pv || 0) + .2) > 9) { st._pv = 0; const V = this.gl(Object.assign({}, st, { view: 'tps' })) ? ['lado', 'cine', 'tps', 'cab'] : ['lado', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } const f = $('#cvFoto'); const can = st.mir.some(m => m.seen && !m.done && st.s > m.s - 20 && st.s < m.s + 200); f.classList.toggle('on', can); },
+  key(st, k, down) { if (!down) return; if (k === 'ArrowUp' || k === 'w') st.vt = Math.min(5, st.vt + .5); if (k === 'ArrowDown' || k === 's') st.vt = Math.max(0, st.vt - .5); if (k === ' ' || k === 'f') this.photo(st); if (k === 'x') st.vt = 0; if (k === 'r') st.ritmo = st.ritmo === 1 ? 2 : st.ritmo === 2 ? 3 : 1; if (k === 'v') { const V = ['lado', 'tps', 'cab', 'cine', 'top']; st.view = V[(V.indexOf(st.view) + 1) % V.length]; } },
   gl(st) { return (st.view === 'tps' || st.view === 'cab' || st.view === 'cine') && G3.init() && Save.d.settings.q !== 'low'; },
   cabin(st) { const line = NET.byId[st.line], C = G3.cableGeo(line), p = NET.at(C.P, st.s); return { x: p.x, y: p.y, a: p.a, z: C.zAt(st.s) + 2 }; },
   draw(g, st, vp) {
@@ -12051,7 +12983,7 @@ const CableViaje = EM.modes.cableviaje = {
       G3.show(true); const c = this.cabin(st), ca = Math.cos(c.a), sa = Math.sin(c.a), sx = -sa, sy = ca;
       if (st.view === 'cine' && (!st._cine || st._cine.s - st.s < -30)) { const sa = Math.min(C.P.len, st.s + 90 + h2(st.t | 0, 1, 3) * 60), q = NET.at(C.P, sa, (h2(st.t | 0, 2, 3) < .5 ? -1 : 1) * 24); st._cine = { s: sa, x: q.x, y: q.y, z: MAP.elevM(q.x, q.y) + 2 }; }
       const cam = st.view === 'cine' ? { eye: [st._cine.x, st._cine.z, st._cine.y], at: [c.x, c.z - 4, c.y], fov: .95 } : st.view === 'cab' ? { eye: [c.x + ca * 1, c.z - 3.4, c.y + sa * 1], at: [c.x + ca * 60, c.z - 18, c.y + sa * 60], fov: 1.2 } : { eye: [c.x - ca * 24 + sx * 14, c.z + 7, c.y - sa * 24 + sy * 14], at: [c.x + ca * 6, c.z - 6, c.y + sa * 6], fov: 1.05 };
-      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
+      G3.draw(cam, { hour: st.hourNow, rain: st.rain || !!st.storm, escala: .82, suave: true, fogd: st.fog ? 1 / 1800 : 1 / 9000, dyn: G => { G3.traffic(cam, st.t * 3 + 2000, line); G3.people(cam, st.t); if (st.view !== 'cab') { G.box(c.x, c.z - 2.6, c.y, c.a, .18, .18, 2.6, [.15, .15, .15], 0, st.th); G.box(c.x - sx * Math.sin(st.th) * 2.6, c.z - 5, c.y - sy * Math.sin(st.th) * 2.6, c.a, 2.3, 2.1, 2.3, rgb(col), 0, st.th); } } });
       if (st.storm && (st.t % 7) < .15) { g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(0, 0, W, H); }
       if (st.view === 'cab') { g.strokeStyle = '#141414'; g.lineWidth = Math.min(W, H) * .05; g.strokeRect(0, 0, W, H); g.fillStyle = 'rgba(20,20,20,.9)'; g.fillRect(0, H * .82, W, H * .18); }
     } else if (st.view === 'top') {
@@ -12087,7 +13019,7 @@ const CableViaje = EM.modes.cableviaje = {
     g.restore();
   },
   gauges(g, st, W, H) {
-    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), x = 12 * dpr, y = 58 * dpr, w = 120 * dpr;
+    const dpr = W / Math.max(1, ($('#gcv') || { clientWidth: W }).clientWidth || W), x = 12 * dpr, y = 108 * dpr, w = 126 * dpr;
     g.fillStyle = 'rgba(13,20,24,.82)'; g.fillRect(x, y, w, 58 * dpr); g.fillStyle = PAL.mante; g.font = '700 ' + (9 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('VIENTO ' + Math.round(st.wind * 3.6) + ' km/h', x + 8 * dpr, y + 14 * dpr);
     const wf = clamp(st.wind / 20, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 19 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = wf > .7 ? '#ff3b2f' : wf > .45 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 19 * dpr, (w - 16 * dpr) * wf, 7 * dpr);
     g.fillStyle = PAL.mante; g.fillText('BALANCEO ' + Math.round(Math.abs(st.th) * 57.3) + '°', x + 8 * dpr, y + 40 * dpr); const bf = clamp(Math.abs(st.th) / .36, 0, 1); g.fillStyle = '#333'; g.fillRect(x + 8 * dpr, y + 45 * dpr, w - 16 * dpr, 7 * dpr); g.fillStyle = bf > .7 ? '#ff3b2f' : bf > .3 ? '#ffc23a' : '#38e07b'; g.fillRect(x + 8 * dpr, y + 45 * dpr, (w - 16 * dpr) * bf, 7 * dpr);
@@ -12142,10 +13074,17 @@ const RedView = EM.red = {
       l.P.pts.forEach((p, i) => { const q = S(p.x, p.y, MAP.elevM(p.x, p.y) + lift); i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y); });
       g.strokeStyle = 'rgba(15,34,56,.85)'; g.lineWidth = lw + 2 * dpr; g.lineJoin = 'round'; g.stroke(); g.strokeStyle = l.color; g.lineWidth = lw; g.stroke();
     }
-    for (const s of NET.stations) {
+    const isoOrd = NET.stations.slice().sort((a, b) => (b === this.sel ? 100 : b.lines.length) - (a === this.sel ? 100 : a.lines.length)), isoBox = [];
+    for (const s of isoOrd) {
       if (!s.lines.some(l => this.on[l.kind])) continue; const q = S(s.x, s.y, MAP.elevM(s.x, s.y) + 10); if (q.x < -40 || q.y < -40 || q.x > w + 40 || q.y > h + 40) continue; s._iso = q;
       const r = (s.lines.length > 1 ? 5 : 3.6) * dpr * clamp(c.a * 2.5, .7, 1.4); g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = '#0F2238'; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(q.x, q.y, r, 0, TAU); g.fill(); g.stroke();
-      if (c.a > .22 || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, q.x + r + 3, q.y + 4 * dpr); g.fillStyle = '#13253A'; g.fillText(s.name, q.x + r + 3, q.y + 4 * dpr); }
+      if (c.a > .22 || s.lines.length > 2 || s === this.sel) {
+        g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; const tw = g.measureText(s.name).width, lx = q.x + r + 3, ly = q.y + 4 * dpr, lh = 13 * dpr;
+        if (s === this.sel || !isoBox.some(b => lx < b[2] && lx + tw > b[0] && ly - lh < b[3] && ly > b[1])) {
+          isoBox.push([lx - 2, ly - lh, lx + tw + 4, ly + 2]);
+          g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(250,246,236,.92)'; g.strokeText(s.name, lx, ly); g.fillStyle = '#13253A'; g.fillText(s.name, lx, ly);
+        }
+      }
     }
     if (c.a >= .07 && c.a < .5 && typeof CIUDAD !== 'undefined') { g.textAlign = 'center'; for (const B of MAP.barriosL || CIUDAD.barrios) { if (!B[6] || B[5] < (c.a < .15 ? 70 : 16)) continue; const x = B[3] / 4 * TM, y = B[4] / 4 * TM, q = S(x, y, MAP.elevM(x, y) + 20); if (q.x < 0 || q.y < 0 || q.x > w || q.y > h) continue; g.font = '800 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(15,34,56,.55)'; g.strokeText(B[0].toUpperCase(), q.x, q.y); g.fillStyle = '#fff'; g.fillText(B[0].toUpperCase(), q.x, q.y); } g.textAlign = 'left'; }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
@@ -12167,13 +13106,19 @@ const RedView = EM.red = {
       if (!this.on[l.kind] || l.kind === 'future') continue; const n = 1 + this.flota(l.id), v = l.kind === 'cable' ? 60 : 160;
       for (let i = 0; i < n; i++) { const L2 = 2 * l.P.len, q = ((this.t * v + i * L2 / n) % L2), s = q < l.P.len ? q : L2 - q, p = NET.at(l.P, s), sp = this.S(p.x, p.y); if (l.kind === 'cable') Art.cabin(g, sp.x, sp.y + 2, Math.max(1, dpr * .9), l.color); else Art.topVehicle(g, sp.x, sp.y, p.a, Math.max(8, KIND[l.kind].len * k) * dpr * .6 + 6, 6 * dpr, l.color, l.kind); }
     }
-    // estaciones
-    const showLbl = k > .12;
-    for (const s of NET.stations) {
+    // estaciones con prioridad y control de solapamiento de nombres
+    const showLbl = k > .12, ord = NET.stations.slice().sort((a, b) => (b === this.sel ? 100 : b.lines.length) - (a === this.sel ? 100 : a.lines.length)), lblBox = [];
+    for (const s of ord) {
       if (!s.lines.some(l => this.on[l.kind])) continue; const p = this.S(s.x, s.y), r = (s.lines.length > 1 ? 5.5 : 4) * dpr * clamp(k * 8, .7, 1.4);
       if (p.x < -40 || p.y < -40 || p.x > w + 40 || p.y > h + 40) continue;
       g.fillStyle = s === this.sel ? PAL.naranja : '#fff'; g.strokeStyle = PAL.negro; g.lineWidth = 2 * dpr; g.beginPath(); g.arc(p.x, p.y, r, 0, TAU); g.fill(); g.stroke();
-      if (showLbl || s.lines.length > 2) { g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, p.x + r + 3, p.y + 4 * dpr); g.fillStyle = PAL.negro; g.fillText(s.name, p.x + r + 3, p.y + 4 * dpr); }
+      if (showLbl || s.lines.length > 2 || s === this.sel) {
+        g.font = '700 ' + (11 * dpr) + 'px Cuerpo, sans-serif'; const tw = g.measureText(s.name).width, lx = p.x + r + 3, ly = p.y + 4 * dpr, lh = 13 * dpr;
+        if (s === this.sel || !lblBox.some(b => lx < b[2] && lx + tw > b[0] && ly - lh < b[3] && ly > b[1])) {
+          lblBox.push([lx - 2, ly - lh, lx + tw + 4, ly + 2]);
+          g.lineWidth = 3 * dpr; g.strokeStyle = 'rgba(248,241,220,.9)'; g.strokeText(s.name, lx, ly); g.fillStyle = PAL.negro; g.fillText(s.name, lx, ly);
+        }
+      }
     }
     g.fillStyle = 'rgba(20,20,20,.55)'; g.font = '600 ' + (10 * dpr) + 'px Cuerpo, sans-serif'; g.fillText('© OpenStreetMap (ODbL) · relieve SRTM/NASA · Fuente: Portal de Datos Abiertos Subsecretaría de Catastro del Municipio de Medellín', 8 * dpr, h - 64 * dpr);
   },
@@ -12234,7 +13179,7 @@ const MODECARDS = [
   { id: 'tranvia', cls: 'c-conduce', t: 'Tranvía de Ayacucho', d: 'Conduce el tranvía por la calle: sube la loma de Ayacucho, toca la campana en los cruces con gente y para en cada estación.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
   { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'Por las ciclorrutas reales del valle, en skate, patines, monopatín, bici o a pie: en los cruces eliges ↰ o ↱, donde se angosta vas al centro, en las zonas de skate hay rampas y barandas, tocas en el aire para un truco y ▼ te agacha. Con imán, turbo y escudo, pasajes y el dato de cada estación.' },
-  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
+  { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo. Todos los capítulos abiertos desde el principio.' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },
   { id: 'multi', cls: 'c-multi', t: 'Juntos', d: 'Duelo en el mismo celular, Wi‑Fi sin internet o servidor local.' },
@@ -12270,7 +13215,7 @@ const Menu = EM.menu = {
     const h = new Date().getHours(); $('#mGreet').textContent = (h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches') + ', ' + Save.d.name;
     $('#mVida').innerHTML = Vida.panel(); Vida.bindPanel();
     $('#mList').innerHTML = MODECARDS.map(c => {
-      const st = EM.modes[c.id] ? '★ ' + Save.totalStars(c.id) : c.id === 'historia' ? `Cap. ${Math.min(CAPS.length, Save.d.story.ch + 1)}/${CAPS.length}` : '';
+      const st = c.id === 'libre' ? 'Abierto' : EM.modes[c.id] ? '★ ' + Save.totalStars(c.id) : c.id === 'historia' ? `${CAPS.length} cap. abiertos` : '';
       const ico = Atlas.has('ico_modo_' + c.id) ? Atlas.tag('ico_modo_' + c.id, '', '') : `<canvas width="70" height="55" data-a="${c.id}"></canvas>`;
       return `<button class="modo ${c.cls}" data-m="${c.id}"><span class="nodo">${ico}</span><span class="tx"><b>${esc(c.t)}</b><small>${esc(c.d)}</small></span>${st ? `<span class="st">${st}</span>` : ''}</button>`;
     }).join('');
@@ -12286,7 +13231,7 @@ const Menu = EM.menu = {
     this.levels(id);
   },
   arcade() {
-    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa.</p><div class="col">${[['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
+    UI.modal(`<div class="pag">Extras</div><h2>Arcade</h2><p class="m">Retos cortos para jugar en familia o en duelo de mesa. Todos abiertos desde el inicio.</p><div class="col">${[['despacho', 'Despacho · agujas del Puesto de Control'], ['metroplus', 'Semáforos · cruces de Metroplús (Traffix)'], ['alim', 'Reparto · buses por colores'], ['cable', 'Arma el cable · puzle'], ['volante', 'Al volante 3D · buses en primera persona']].map(([m, n]) => `<button class="btn sm" data-a="${m}">${n}</button>`).join('')}</div><button class="btn sm gh" id="arX" style="margin-top:10px">Cerrar</button>`);
     $$('#mBody [data-a]').forEach(b => b.onclick = () => { UI.close(); this.levels(b.dataset.a); }); $('#arX').onclick = () => UI.close();
   },
   miniArt(g, id) {
@@ -12296,7 +13241,7 @@ const Menu = EM.menu = {
     else if (id === 'volante' || id === 'bus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 18); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 28, 5, 1.5); g.save(); g.translate(36, 29); Spr.veh(g, 'brt', 46, 9, '#0E6F76', { doors: 'left', lights: true }); g.restore(); }
     else if (id === 'guia') { g.fillStyle = PAL.negro; g.fillRect(14, 10, 42, 28); g.fillStyle = '#59AB42'; g.fillRect(16, 12, 38, 24); g.fillStyle = '#fff'; g.fillRect(20, 16, 14, 6); g.fillStyle = PAL.mante; g.fillRect(20, 26, 30, 3); g.fillRect(20, 31, 20, 2); }
     else if (id === 'arcade') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); }
-    else if (id === 'libre') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 16); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 29, 5, 1.5); Art.topVehicle(g, 24, 30, 0, 14, 7, '#f2c400', 'car'); Art.topVehicle(g, 52, 30, Math.PI, 12, 6, '#1C5C9C', 'car'); Art.person(g, 12, 50, 2, 3, true); Art.person(g, 60, 12, 2, 5, true); }
+    else if (id === 'libre' || id === 'carrera') { g.fillStyle = '#3f444d'; g.fillRect(0, 22, 70, 16); g.fillStyle = PAL.mante; for (let x = 2; x < 70; x += 10) g.fillRect(x, 29, 5, 1.5); Art.topVehicle(g, 24, 30, 0, 14, 7, '#f2c400', 'car'); Art.topVehicle(g, 52, 30, Math.PI, 12, 6, '#1C5C9C', 'car'); Art.person(g, 12, 50, 2, 3, true); Art.person(g, 60, 12, 2, 5, true); }
     else if (id === 'cableviaje') { g.strokeStyle = PAL.negro; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 10); g.lineTo(70, 30); g.stroke(); Art.cabin(g, 38, 21, 3, '#B8CF40'); }
     else if (id === 'despacho') { g.strokeStyle = PAL.negro; g.lineWidth = 4; g.beginPath(); g.moveTo(35, 0); g.lineTo(35, 55); g.moveTo(35, 22); g.quadraticCurveTo(35, 34, 58, 36); g.lineTo(58, 55); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(35, 26, 7, 0, TAU); g.fill(); g.stroke(); g.fillStyle = '#f08a1c'; g.fillRect(31, 4, 8, 14); }
     else if (id === 'metroplus') { g.fillStyle = '#3f444d'; g.fillRect(0, 20, 70, 20); g.fillStyle = '#7ab648'; g.fillRect(6, 24, 28, 12); g.fillRect(36, 24, 28, 12); g.fillStyle = '#f4f1ea'; g.fillRect(9, 27, 22, 5); g.fillRect(39, 27, 22, 5); }
@@ -12307,32 +13252,36 @@ const Menu = EM.menu = {
     else if (id === 'multi') { Art.person(g, 22, 52, 5, 2, false); Art.person(g, 48, 52, 5, 5, false); }
   },
   storyList() {
-    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'La última vuelta'; $('#lStars').textContent = 'Cap. ' + Math.min(CAPS.length, Save.d.story.ch + 1) + '/' + CAPS.length;
+    this.mode = '__story'; UI.show('levels'); $('#lTitle').textContent = 'La última vuelta'; $('#lStars').textContent = CAPS.length + ' capítulos abiertos';
     const T = Save.d.trama || { c: 0, s: 0 }, tc = Math.min(TRAMA.length, (T.c || 0) + 1);
-    $('#lBody').innerHTML = `${Atlas.tag('carga', 'sthero', 'Rosalba de espaldas en el andén, al atardecer')}<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · escenas y misiones</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Una historia para jugar en familia.</p></div><div class="tramos">` +
-      CAPS.map((c, i) => `<button class="tramo ${i > Save.d.story.ch ? 'lock' : ''}" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : i === Save.d.story.ch ? '▶' : '🔒'}</span></button>`).join('') + '</div>';
-    $$('#lBody [data-c]').forEach(b => b.onclick = () => { const i = +b.dataset.c; if (i > Save.d.story.ch) { UI.toast('Termina el capítulo anterior'); return; } Story.open(i); });
+    $('#lBody').innerHTML = `${Atlas.tag('carga', 'sthero', 'Rosalba de espaldas en el andén, al atardecer')}<div class="boxed" style="margin-bottom:14px;border-left:8px solid var(--lH)"><div class="spaced" style="font-size:12px">Nuevo · la historia en la ciudad</div><p class="m"><b>La última vuelta, jugada en el mapa real:</b> camina, toma el metro, los cables y los buses, habla con Rosalba y su gente, orienta pasajeros y pasa a manejar cada vehículo.</p><div class="row"><button class="btn pri" id="stCity">${T.fin ? '🏙️ Volver a la ciudad' : T.started ? '▶ Seguir · Cap. ' + tc + '/' + TRAMA.length : '▶ Empezar en Niquía'}</button>${T.started ? '<button class="btn sm gh" id="stCityR">↺ Empezar de nuevo</button>' : ''}</div></div><div class="spaced" style="font-size:12px;margin:4px 0 8px">Capítulos clásicos · todos abiertos desde el principio</div>` + `<div class="boxed" style="margin-bottom:14px"><div class="spaced" style="font-size:12px">Sesión 1 : la ciudad y su gente</div><p class="m">Rosalba manejó el primer tren de Medellín. En su última semana te enseña todos los oficios de la red. Puedes abrir cualquier capítulo sin esperar.</p></div><div class="tramos">` +
+      CAPS.map((c, i) => `<button class="tramo" data-c="${i}"><span class="badge" style="background:var(--rojo)">${i + 1}</span><span class="tx"><b>${esc(c.t)}</b><small>${c.go ? esc(EM.modes[c.go[0]].name) : 'Final'}</small></span><span>${i < Save.d.story.ch ? '✓' : '▶'}</span></button>`).join('') + '</div>';
+    $$('#lBody [data-c]').forEach(b => b.onclick = () => { Story.open(+b.dataset.c); });
     $('#stCity').onclick = () => { Snd.init(); Game.start('libre', 'lb:trama', {}); };
     const rb = $('#stCityR'); if (rb) rb.onclick = () => { if (!rb.dataset.k) { rb.dataset.k = 1; rb.textContent = '¿Seguro? Toca otra vez'; return; } Save.d.trama = { c: 0, s: 0, fin: 0 }; Save.write(); Game.start('libre', 'lb:trama', {}); };
   },
   levels(id) {
-    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name; $('#lStars').textContent = '★ ' + Save.totalStars(id);
+    this.mode = id; const M = EM.modes[id], L = M.levels(); UI.show('levels'); $('#lTitle').textContent = M.name; $('#lStars').textContent = id === 'libre' ? 'Mundo abierto' : '★ ' + Save.totalStars(id);
     const duel = ['despacho', 'alim', 'metroplus', 'cable'].includes(id), B = Save.d.bus && Save.d.bus.done || {};
     let h = `<div class="row cabeza" style="justify-content:space-between;align-items:flex-end"><div><h1>${esc(M.name)}</h1>${M.sub ? `<p class="m">${esc(M.sub)}</p>` : ''}</div>${duel ? '<div class="tg"><button id="lDuel">👥 Duelo de mesa</button></div>' : ''}</div><p class="m" style="margin-top:0">${esc(M.tip || '')}</p>`;
-    if (id === 'conduce' || id === 'volante' || id === 'bus') {
+    if (id === 'libre') {
+      h += '<div class="tramos">' + L.map(l => `<button class="tramo" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub || '')}</small></span><span class="badge" style="background:var(--lA)">▶</span></button>`).join('') + '</div>';
+    } else if (id === 'conduce' || id === 'volante' || id === 'bus') {
       const byLine = {}; for (const l of L) (byLine[l.line] || (byLine[l.line] = [])).push(l);
-      for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach((l, i) => { const open = i === 0 || Save.stars(id, byLine[lid][i - 1].id) > 0 || Save.stars(id, l.id) > 0; const s = Save.stars(id, l.id); h += `<button class="tramo ${open ? '' : 'lock'}" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
+      for (const lid in byLine) { const line = NET.byId[lid]; h += `<h3><span class="badge" style="background:${line.color}">${esc(lid.replace(/^AL-/, ''))}</span> ${esc(line.name)} <small class="pag">${esc(KIND[line.kind].label)} · ${line.km} km${B[lid] ? ' · ✓ ruta abierta' : ''}</small></h3><div class="tramos">`; byLine[lid].forEach(l => { const s = Save.stars(id, l.id); h += `<button class="tramo" data-l="${esc(l.id)}"><span class="tx"><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }); h += '</div>'; }
     } else {
-      h += '<div class="lv">' + L.map((l, i) => { const open = i === 0 || Save.stars(id, L[i - 1].id) > 0 || Save.stars(id, l.id) > 0, s = Save.stars(id, l.id); return `<button class="${open ? '' : 'lock'} ${s ? 'done' : ''}" data-l="${esc(l.id)}"><b>${i + 1}</b><small>${esc(l.name)}</small><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }).join('') + '</div>';
+      h += '<div class="lv">' + L.map((l, i) => { const s = Save.stars(id, l.id); return `<button class="${s ? 'done' : ''}" data-l="${esc(l.id)}"><b>${i + 1}</b><small>${esc(l.name)}</small><span class="stars">${'★'.repeat(s)}${'☆'.repeat(3 - s)}</span></button>`; }).join('') + '</div>';
     }
     $('#lBody').innerHTML = h; let duelOn = false;
     const db = $('#lDuel'); if (db) db.onclick = () => { duelOn = !duelOn; db.classList.toggle('on', duelOn); UI.toast(duelOn ? 'Duelo: pongan el celular en la mesa, uno frente al otro' : 'Un jugador'); };
-    $$('#lBody [data-l]').forEach(b => b.onclick = () => { if (b.classList.contains('lock')) { UI.toast('Consigue al menos una ★ en el nivel anterior'); return; } Snd.init(); Game.start(id, b.dataset.l, { duel: duelOn, back: 'levels' }); });
+    $$('#lBody [data-l]').forEach(b => b.onclick = () => { Snd.init(); Game.start(id, b.dataset.l, { duel: duelOn, back: 'levels' }); });
   },
   settings() {
     const s = Save.d.settings, tg = (k, a, b) => `<div class="tg" data-k="${k}"><button data-v="1" class="${s[k] ? 'on' : ''}">${a}</button><button data-v="0" class="${s[k] ? '' : 'on'}">${b}</button></div>`;
     UI.modal(`<div class="pag">Ajustes</div><h2>Tu cabina</h2><div class="col"><label class="pag">Nombre</label><input id="sName" class="campo" maxlength="16" value="${esc(Save.d.name)}">
       <div class="pag">Sonido</div>${tg('snd', 'Sí', 'No')}<div class="pag">Música</div>${tg('mus', 'Sí', 'No')}<div class="pag">Vibración</div>${tg('vib', 'Sí', 'No')}<div class="pag">Voz de anuncios (“Próxima estación…”)</div>${tg('voz', 'Sí', 'No')}
+      <div class="pag">Cabina del Metro y Tranvía</div>${tg('cabReal', 'Realista (llave y sentido)', 'Rápida (arranca de una)')}
+      <div class="pag">Vista principal en Ciudad Libre</div><div class="tg" data-vl>${[['cen3d', '🛰 3D Cenital'], ['3p', '🎮 3ª persona'], ['1p', '👁 1ª persona'], ['dron', '🏔 Panorámica'], ['2d', '🗺 2D / Pixel']].map(([k, n]) => `<button data-v="${k}" class="${(s.vistaL || 'cen3d') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Reloj del juego (día y noche)</div><div class="tg" data-c>${[['rapido', '×30 (1 min = media hora)'], ['real', 'Hora real'], ['dia', 'Siempre de día'], ['noche', 'Siempre de noche']].map(([k, n]) => `<button data-v="${k}" class="${(s.ciclo || 'rapido') === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">Ángulo de la cámara (Ciudad Libre y mapas)</div><div class="tg" data-ang>${VC.ANGULOS.map((A, i) => `<button data-v="${i}" class="${(s.angulo | 0) === i ? 'on' : ''}">${A.n}</button>`).join('')}</div>
       <div class="pag">Calidad gráfica</div><div class="tg" data-q><button data-v="auto" class="${s.q !== 'low' ? 'on' : ''}">Normal</button><button data-v="low" class="${s.q === 'low' ? 'on' : ''}">Celular modesto</button></div>
@@ -12343,9 +13292,11 @@ const Menu = EM.menu = {
       <div class="pag">🎯 Giro</div><div class="tg" data-fx="giro">${[[.75, 'Suave'], [1, 'Normal'], [1.3, 'Rápido']].map(([v, n]) => `<button data-v="${v}" class="${(s.giro || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">🚗 Velocidad de los vehículos (Ciudad Libre)</div><div class="tg" data-fx="velo">${[[.8, '×0,8'], [1, '×1'], [1.25, '×1,25'], [1.5, '×1,5']].map(([v, n]) => `<button data-v="${v}" class="${(s.velo || 1) === v ? 'on' : ''}">${n}</button>`).join('')}</div>
       <div class="pag">⏫ Acelerador fijo al subir</div><div class="tg" data-fx="crucero"><button data-v="0" class="${s.crucero ? '' : 'on'}">No</button><button data-v="1" class="${s.crucero ? 'on' : ''}">Sí</button></div>
+      <div class="pag">✨ Gráficos 3D (Motor City 4.9 Realismo)</div><div class="tg" data-fx="realismo"><button data-v="1" class="${s.realismo !== 0 ? 'on' : ''}">Realista (ladrillo, asfalto y tono)</button><button data-v="0" class="${s.realismo === 0 ? 'on' : ''}">Clásico liviano</button></div>
       <div class="pag">🔠 Tamaño de botones</div><div class="tg" data-fx="uiTam">${EM.iconos ? EM.iconos.TAM.map(([n], i) => `<button data-v="${i}" class="${EM.iconos.tam() === i ? 'on' : ''}">${n}</button>`).join('') : ''}</div>
       <div class="row" style="margin-top:8px"><button class="btn pri" id="sOk">Listo</button><button class="btn sm gh" id="sReset">Borrar progreso</button></div></div>`);
     $$('#mBody .tg[data-k] button').forEach(b => b.onclick = () => { const k = b.parentNode.dataset.k; s[k] = +b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Snd.apply(); if (k === 'mus') { if (s.mus) Music.play('menu'); } Save.write(); });
+    $$('#mBody .tg[data-vl] button').forEach(b => b.onclick = () => { s.vistaL = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-c] button').forEach(b => b.onclick = () => { s.ciclo = b.dataset.v; Mundo.h0 = null; Mundo.t0 = now(); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-ang] button').forEach(b => b.onclick = () => { s.angulo = +b.dataset.v; VC.angulo(s.angulo); $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
     $$('#mBody .tg[data-q] button').forEach(b => b.onclick = () => { s.q = b.dataset.v; $$('button', b.parentNode).forEach(x => x.classList.toggle('on', x === b)); Save.write(); });
@@ -13058,12 +14009,35 @@ const BotT = EM.test = {
         }
       }
     } catch (e) { E('ciudad vectorial: ' + e.message); }
+    // 3.4.0 · mundo 3D único, mundoRPG (6 zonas Skate/Parkour + 10 módulos + 6 subtramas), ciclovías y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
+    try {
+      const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
+      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.4: faltan cen3d o 1p');
+      const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
+      if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');
+      else {
+        const Z = EM.mundoRPG.zonas(); if (Z.length < 6) E('mundoRPG 3.4: faltan zonas Skate/Parkour (' + Z.length + ')');
+        for (const z of Z) if (!fin(z.x) || !fin(z.y)) E('mundoRPG 3.4: zona con coords inválidas ' + z.id);
+        if (EM.mundoRPG.MODULOS.length < 10) E('mundoRPG 3.4: faltan módulos abiertos (' + EM.mundoRPG.MODULOS.length + ')');
+        if (EM.mundoRPG.SUBTRAMAS.length < 6) E('mundoRPG 3.4: faltan subtramas (' + EM.mundoRPG.SUBTRAMAS.length + ')');
+      }
+      const cr = Carrera.create('cr:A', { seed: 9 });
+      if (!cr.tramos || cr.tramos.length < 3 || !cr.giros || !cr.giros.length) E('carrera 3.2: faltan tramos de ancho variable o giros direccionales');
+      cr.obs.unshift({ s: 28, c: 1, k: 'rampa' }, { s: 46, c: 1, k: 'baranda' }, { s: 64, c: 1, k: 'arco' });
+      cr.v = 18; cr.s = 26.8; Carrera.step(cr, .2); // paso grande: la colisión barrida debe detectar la rampa sin saltarla
+      if (cr.y <= 0 && cr.vy <= 0) E('carrera 3.2: la rampa o la colisión barrida falló');
+      const b = Bus.create(Bus.levels()[0].id, { seed: 2 }); b.ph = 'stop'; b.pax = 5; b.waiting[b.ni] = []; Bus.doors(b); const al0 = b.alight;
+      for (let i = 0; i < 40 && b.alight > 0; i++) Bus.stopTick(b, .1, NET.byId[b.line]);
+      if (al0 > 0 && b.pax !== 5 - al0) E('bus 3.2: al bajar pasajeros st.pax quedó en ' + b.pax + ' (esperado ' + (5 - al0) + ')');
+    } catch (e) { E('3.2.0: ' + e.message); }
     const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
   monkey(n = 20, seed = 7) {
+    const h0 = EM.headless; EM.headless = true;
     const rng = new RNG(seed), errors = [], modes = ['conduce', 'bus', 'libre', 'cableviaje', 'conduce', 'bus', 'despacho', 'alim', 'metroplus', 'cable', 'volante', 'carrera', 'tranvia'], cv = typeof document !== 'undefined' ? mkCanvas(360, 640) : null, g = cv ? cv.getContext('2d') : null;
     let games = 0, steps = 0, wins = 0;
+    try {
     for (let k = 0; k < n; k++) {
       const id = modes[k % modes.length], M = EM.modes[id], lvs = M.levels().filter(l => !l.full); const lv = rng.pick(lvs);
       let st; try { st = M.create(lv.id, { seed: rng.i(1, 1e6), auto: true }); } catch (e) { errors.push(id + ' crear ' + lv.id + ': ' + e.message); continue; }
@@ -13085,6 +14059,7 @@ const BotT = EM.test = {
         }
       } catch (e) { errors.push(id + ' ' + lv.id + ': ' + e.message); }
     }
+    } finally { EM.headless = h0; }
     return { games, steps, wins, errors };
   },
   randomAct(id, st, rng) {
@@ -13202,8 +14177,8 @@ const BotT = EM.test = {
       while (T.length <= i + 1) T.push(this.libreOff(st, T.length * PASO, T.length ? T[T.length - 1] : st.off));
       const f = s / PASO - i; return T[i] + (T[i + 1] - T[i]) * clamp(f, 0, 1);
     };
-    const posPrev = Cr.pos;   // 3.4: la carrera por ciclorruta (47b-ciclovia.js) lleva su propia pista
-    Cr.pos = function (st, s, c) { if (st.cic) return posPrev.call(this, st, s, c); const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - 1) * 2.6); };
+    const posPrev = Cr.pos;   // 3.4: la carrera por ciclorruta (47b-ciclovia.js) lleva su propia pista; 3.5: en las demás, los carriles según el tramo (Antigravity)
+    Cr.pos = function (st, s, c) { if (st.cic) return posPrev.call(this, st, s, c); const l = NET.byId[st.line], tr = this.tramoEn ? this.tramoEn(st, s) : { ancho: 3 }, sep = tr.ancho === 2 ? 2.3 : 2.6, cen = (tr.ancho - 1) / 2; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - cen) * sep); };
   }
 
   /* ---------- 5 · ⏫ acelerador fijo en Ciudad Libre ---------- */
@@ -13232,7 +14207,7 @@ const BotT = EM.test = {
       if (b) { const veh = st.mode === 'veh' && !((this.V(st) || {}).walk); b.style.display = veh ? '' : 'none'; if (!veh) st.crucero = false; b.classList.toggle('on', !!st.crucero); }
       return r;
     };
-    L.key = function (st, k, down) { if (down && (k === 'x' || k === 'X') && st.mode === 'veh') { this.crucero(st); return; } return key0.call(this, st, k, down); };
+    L.key = function (st, k, down) { if (down && (k === 'x' || k === 'X' || k === 'v' || k === 'V') && st.mode === 'veh') { this.crucero(st); return; } return key0.call(this, st, k, down); };
     /* las charlas ya no amarran: si caminas o manejas, la charla se cierra y sigues (antes el joystick quedaba muerto hasta
        tocar la ✕); y la primera crónica espera 25 s, para que al empezar en una estación no salte encima del juego */
     const step0 = L.step;
@@ -13475,7 +14450,7 @@ const BotT = EM.test = {
     }
     return r;
   };
-  Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { A.abrir(st); return; } return key0.call(this, st, k, down); };
+  Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { if (A.aqui(st)) A.abrir(st); else if (EM.mundoRPG && EM.mundoRPG.abrir) EM.mundoRPG.abrir(st); else A.abrir(st); return; } return key0.call(this, st, k, down); };
 })();
 ~~~~
 
@@ -13686,16 +14661,22 @@ const BotT = EM.test = {
     carrera.ai = function (st) {
       if (!st || !Array.isArray(st.obs) || !Number.isFinite(st.s) || !Number.isFinite(st.v)) return anteriorAI.apply(this, arguments);
       if (st.t > 4 && !st._bv) { st._bv = 1; return 'vehiculo'; }
+      if (st.y > .55 && st.airTrick === 0) return 'truco';
+      const giro = (st.giros || []).find(q => !q.hecho && q.s - st.s < 22 && q.s - st.s > -4);
+      if (giro) return giro.dir < 0 ? 'izq' : 'der';
       const ventana = crVentana(st, st.s + .01, st.s + Math.max(25, Math.min(42, st.v * 2)));
       const obst = ventana.find(o => !o.hecho && CR_OBS[o.k] && o.c === st.c);
       if (!obst || st.turbo > 0) return null;
       const d = obst.s - st.s;
       // Reaccionar cuando quedan ~1-1,3 s, y no malgastar cambios de carril demasiado pronto.
       if (d > Math.max(12, st.v * 1.25)) return null;
-      const tipo = CR_OBS[obst.k], saltable = tipo[3] === 0 || tipo[1] < .9;
+      const tipo = CR_OBS[obst.k];
+      if (tipo[3] === 2 || tipo[3] === 3) return null; // aprovechar rampas y barandas de grind
+      if (tipo[3] === 4) return d <= Math.max(12, st.v * .85) ? 'agacha' : null;
+      const saltable = tipo[3] === 0 || tipo[1] < .9;
       if (saltable) return d <= Math.max(11, st.v * .8) && st.y === 0 && st.vy <= 0 ? 'salta' : null;
-      const espacio = Math.max(13, st.v * 1.3);
-      const libres = [0, 1, 2].filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && o.c === c && o.s <= st.s + espacio));
+      const espacio = Math.max(13, st.v * 1.3), carriles = st.ancho === 2 ? [0, 1] : [0, 1, 2];
+      const libres = carriles.filter(c => c !== st.c && !ventana.some(o => !o.hecho && CR_OBS[o.k] && CR_OBS[o.k][3] === 1 && o.c === c && o.s <= st.s + espacio));
       if (libres.length) {
         libres.sort((a, b) => Math.abs(a - st.c) - Math.abs(b - st.c));
         return libres[0] < st.c ? 'izq' : 'der';
@@ -16672,13 +17653,27 @@ await shot('01-portada');
 /* mundo abierto primero: ▶ Jugar entra directo a Ciudad Libre; los modos están en «Todos los modos» */
 await page.click('#bPlay'); await page.waitForTimeout(1500); { const ok = await page.evaluate(() => EM.game.mode === EM.modes.libre); if (!ok) cons.push('mundo abierto primero: ▶ Jugar no entró directo a Ciudad Libre'); } await shot('02-ciudad-libre');
 await page.evaluate(() => EM.game.exit()); await page.waitForTimeout(400); await page.click('#bModos'); await page.waitForTimeout(300); await shot('02b-modos');
-for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['conduce', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
-  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) }); }, [m, lv, extra]);
-  await page.waitForTimeout(['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m) ? 3500 : 4000);
-  if (!['conduce', 'volante', 'cableviaje', 'libre', 'bus'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
+for (const [m, lv, extra] of [['bus', 'bus:MP1:0-4'], ['bus', 'bus:AL-C6-001:0-3'], ['libre', 'lb:San Antonio'], ['libre', 'lb:Acevedo'], ['conduce', 'A:0-2'], ['conduce', 'A:0-2', 'tps'], ['conduce', 'B:0-2', 'lado'], ['tranvia', 'T:0-2', 'top'], ['volante', 'vo:MP1:0-4', 'tps'], ['volante', 'vo:AL-C6-001:0-3', 'top'], ['cableviaje', 'cv:K', 'lado'], ['cableviaje', 'cv:L', 'tps'], ['carrera', 'cr:A'], ['despacho', 'despacho3'], ['alim', 'alim3'], ['metroplus', 'mp3'], ['cable', null]]) {
+  await page.evaluate(([m, lv, v]) => { const M = EM.modes[m]; const L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m) }); }, [m, lv, extra]);
+  await page.waitForTimeout(['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m) ? 2800 : 3200);
+  if (!['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m)) for (let k = 0; k < 6; k++) await page.evaluate(() => { const a = EM.game.mode.ai(EM.game.st); if (a) EM.game.mode.act(EM.game.st, a); });
   await shot('03-' + m + (extra || '') + (lv ? lv.replace(/[^a-z0-9]/gi, '') : ''));
   await page.evaluate(() => { EM.game.stop(); document.querySelector('#modal').hidden = true; });
 }
+/* 3.4.0 · cámaras unificadas (3D Cenital, 1ª persona, Skatepark + Diario RPG) y formato horizontal 860×412 */
+await page.evaluate(() => { EM.game.start('libre', 'lb:Exposiciones', { seed: 5 }); const z = EM.mundoRPG.zonas()[0]; EM.modes.libre.llevar(EM.game.st, z.x, z.y, false); EM.modes.libre.vista(EM.game.st, 'cen3d'); });
+await page.waitForTimeout(1400); await shot('08-libre-cen3d-skatepark');
+await page.evaluate(() => { EM.modes.libre.vista(EM.game.st, '1p'); });
+await page.waitForTimeout(900); await shot('08b-libre-1p');
+await page.evaluate(() => { EM.mundoRPG.abrir(EM.game.st, 'modos'); });
+await page.waitForTimeout(400); await shot('08c-actividades-rpg');
+await page.evaluate(() => { document.querySelector('#modal').hidden = true; EM.modes.libre.vista(EM.game.st, '3p'); });
+await page.setViewportSize({ width: 860, height: 412 });
+await page.waitForTimeout(900); await shot('09-horizontal-libre-3p');
+await page.evaluate(() => { EM.game.stop(); EM.game.start('carrera', 'cr:A', { seed: 5, auto: true }); });
+await page.waitForTimeout(1400); await shot('09b-horizontal-carrera');
+await page.evaluate(() => EM.game.stop());
+await page.setViewportSize({ width: 412, height: 860 });
 await page.evaluate(() => EM.game.start('despacho', 'despacho2', { seed: 3, duel: true })); await page.waitForTimeout(1500); await shot('04-duelo'); await page.evaluate(() => EM.game.stop());
 await page.evaluate(() => EM.red.open()); await page.waitForTimeout(1200); await shot('05-red');
 await page.evaluate(() => EM.story.open(0)); await page.waitForTimeout(600); await page.click('#stNext'); await page.waitForTimeout(300); await shot('06-historia');
@@ -18408,8 +19403,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.4.0
-elmetro.versionCode=32
+elmetro.versionName=3.5.0
+elmetro.versionCode=33
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
