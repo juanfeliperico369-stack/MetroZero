@@ -659,6 +659,47 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+#### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- «vuelve a trabajar en El Metro, mejora y desarrolla todo lo que puedas, evalúa qué falta y las peticiones para Gemini y ChatGPT, entrégame los prompts, planea tu siguiente paso, usa todo lo nuevo del motor y deja sugerencias en el repositorio».
+- Se trajo `main`: la 3.5.0, unión con «Mundo 3D y Realismo» de Antigravity, y Motor City 5.2.
+
+**Auditoría de la 3.5.0** (`tools/auditoria-jugabilidad.mjs`, 3D sin tarjeta gráfica = celular modesto):
+- el 3D se cayó: volante 5, carrera 4,5 y Ciudad Libre 6,5 cuadros por segundo;
+- iba en cámara lenta: ritmo 0,53–0,76;
+- `tools/medir-3d.mjs` encontró **1,5 millones de vértices por cuadro**, de ellos **830 mil de la red de transporte del valle entero**, dibujada completa en cada cuadro.
+
+**Lo nuevo:**
+1. **Rendimiento:**
+   - **Red de transporte por celdas** (`MBC` en `22-gl.js`): solo las celdas a menos de 2,4 km, 1,3 en liviano, y más si la cámara va alta. Los vértices por cuadro bajaron de 1,53 millones a 0,55–0,79 millones.
+   - **Regulador automático** (`src/js/96d-rendimiento.js`, `EM.rendimiento`, Ajustes → «📏 Calidad 3D»). Escalones: sin realismo → resolución ×0,75 → ×0,58 con la ciudad cercana liviana → ×0,45. En el último, Ciudad Libre pasa sola a 2D y lo dice.
+   - **«📏 Medir mi celular»** (en Ajustes y con `?medir`): mide 2D y 3D y deja la calidad que sirve.
+   - **Tiempo real hasta unos 5 cuadros por segundo** (`25-game.js`: pasos hasta 0,2 s).
+   - **Resultado emulado:** volante 5,1 → 16,4, carrera 4,5 → 19 y Ciudad Libre 6,5 → 18,1 cuadros por segundo, todos con ritmo 1,0.
+2. **Ciudad viva en familia** (Motor City 5.2, `src/js/96e-ciudad-viva.js`):
+   - la gente cercana se voltea y dice algo ante el pito, un choque o un derrape;
+   - la charla al azar usa las frases de ambiente del motor según la hora y la lluvia;
+   - las frases se generan con `node tools/frases_ciudad.mjs`, que escribe `src/js/96e1-frases-ciudad.js`: 40 frases, sin atropellos ni explosiones.
+3. **⭐ Reto del día** (`src/js/96f-reto.js`, `EM.reto`, en la portada):
+   - uno distinto cada día y el mismo para todos;
+   - opciones: metro con 3 ★, tranvía sin frenadas, Metroplús con 3 ★, ciclorruta sin perder vidas o metrocable con 2 ★;
+   - 40 🎫 y hasta 100 con la racha;
+   - `Save.d.reto` con su valor por defecto.
+4. **🌅 Domingo zen** en el corredor: sin vidas ni afán, por la ciclorruta Las Vegas. Los golpes solo frenan.
+5. **El bus del volante** no pasa de 1,25 veces su velocidad real; antes llegaba a 102 km/h.
+6. **Herramientas en el repositorio:** `tools/auditoria-jugabilidad.mjs`, `tools/medir-3d.mjs` y `tools/frases_ciudad.mjs`.
+7. **Documentos:**
+   - **pedidos y prompts listos para pegar** en `docs/PEDIDOS-GEMINI-CHATGPT-3.6.md`:
+     - Gemini: G‑110 a G‑112;
+     - Antigravity: GA‑36‑1 a GA‑36‑4;
+     - ChatGPT: C‑70 a C‑72;
+     - Codex: CX‑36‑1 a CX‑36‑3;
+   - **sugerencias y el plan 3.7 «Épocas» de Claude** en `docs/SUGERENCIAS-CLAUDE.md`.
+
+**Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
+
 #### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
   - «Jugo y ciclovías», de la otra sesión de Claude (`ccr-2a67f935-oat714`), ya publicada en la web y en la APK 32 pero sin llegar a `main`;
