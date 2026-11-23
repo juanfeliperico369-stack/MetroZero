@@ -235,6 +235,37 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### Estado al 23‑nov‑2026 · v3.7.0 «Épocas» (Claude, IA de El Metro)
+**Qué pidió el autor:** «ya empezaron [las otras IAs], haz tú eso que falta».
+- Es el plan 3.7 de `docs/SUGERENCIAS-CLAUDE.md`.
+- No hubo entregas nuevas de las otras IAs para unir: se revisó con `git fetch` al empezar y antes de publicar.
+
+**Lo nuevo:**
+1. **📅 Épocas** (`src/js/96g-epocas.js`, `EM.epocas`). En Ciudad Libre: 🆘 → «Época»: Hoy, 2016, 2011, 2008, 2004, 1996 o 1995.
+   - **Qué cambia:** la lista de líneas y las de cada estación se filtran en su sitio con la fecha de apertura de los datos de la red. Así circulan, se dibujan (2D, mapa y 3D) y se abordan solo las líneas que existían, y 🎮 ofrece solo sus modos.
+   - **Ejemplos:**
+     - en 1995 está solo la Línea A;
+     - en 2011 están A, B, los cables K, J y L, el Metroplús 1 y las escaleras de la Comuna 13.
+   - **Ficha de la época:** las líneas en servicio con su fecha, lo nuevo y lo que pocos saben, sacado de la ficha técnica de cada línea. Por ejemplo, en 1995: «trenes eléctricos de 3 coches, catenaria de 1500 V CC, hasta 80 km/h».
+   - **Tono de recuerdo:** un sepia suave en las épocas viejas.
+   - **Simplificaciones que dice la ficha:** los alimentadores aparecen desde 2011 y el resto de la ciudad es la de hoy.
+   - **La historia «La última vuelta»** va siempre en «Hoy».
+   - **Al salir de Ciudad Libre** vuelve toda la red.
+2. **🎨 Los pasajes se gastan** (`src/js/96h-tienda.js`, `EM.pintura`). En 🆘 → «Pintura»:
+   - pintura para tus vehículos propios (moto, carro particular, patinetas, skate y patines), en 8 colores de la paleta;
+   - 30 🎫 cada color y, ya comprado, se cambia gratis;
+   - en 2D, con el tipo y tu color; en 3D, tiñendo solo el tuyo;
+   - taxi, camioneta del Metro, bici EnCicla y buses conservan su color de servicio.
+3. **Autotest:**
+   - en 1995 solo existe la A;
+   - en 2011 hay Metroplús y no tranvía;
+   - al volver a hoy está toda la red;
+   - la moto toma tu color y conserva su física; el taxi no se pinta.
+
+**Guardado:** `settings.epoca` y `Save.d.pinturas`, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘.
+
 #### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «vuelve a trabajar en El Metro, mejora y desarrolla todo lo que puedas, evalúa qué falta y las peticiones para Gemini y ChatGPT, entrégame los prompts, planea tu siguiente paso, usa todo lo nuevo del motor y deja sugerencias en el repositorio».
@@ -274,7 +305,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas (291 048 pasos, 61 victorias, 0 errores); las pruebas de GPT‑6; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.6.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.6.0-32e63870`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 34), igual byte a byte a la construida.
 
 #### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
