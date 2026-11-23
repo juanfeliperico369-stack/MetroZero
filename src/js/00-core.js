@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.6.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -49,7 +49,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0, pantalla: 'mitades' }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {}, diario: [], barrios: {} } };
 }
 const Save = EM.save = {
   d: null,
@@ -66,6 +66,7 @@ const Save = EM.save = {
     if (!d.settings || typeof d.settings !== 'object') d.settings = b.settings; if (!d.stats || typeof d.stats !== 'object') d.stats = b.stats;
     for (const k in b) if (d[k] == null || typeof d[k] !== typeof b[k]) d[k] = b[k];
     for (const k in b.settings) if (typeof d.settings[k] !== typeof b.settings[k]) d.settings[k] = b.settings[k];
+    if (d.settings.pantalla !== 'mitades' && d.settings.pantalla !== 'clasica') d.settings.pantalla = 'mitades';
     for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;
     if (!isFinite(d.wallet) || d.wallet < 0) d.wallet = 0;
     if (!Array.isArray(d.log)) d.log = []; if (!d.libre || typeof d.libre !== 'object') d.libre = b.libre; if (!d.libre.visited || typeof d.libre.visited !== 'object') d.libre.visited = {};
@@ -76,6 +77,9 @@ const Save = EM.save = {
     if (typeof d.rpg.trucos !== 'number' || !isFinite(d.rpg.trucos)) d.rpg.trucos = 0;
     if (!d.rpg.subtramas || typeof d.rpg.subtramas !== 'object') d.rpg.subtramas = {};
     if (!d.rpg.zonas || typeof d.rpg.zonas !== 'object') d.rpg.zonas = {};
+    if (!Array.isArray(d.rpg.diario)) d.rpg.diario = [];
+    if (!d.rpg.barrios || typeof d.rpg.barrios !== 'object' || Array.isArray(d.rpg.barrios)) d.rpg.barrios = {};
+    for (const k in d.rpg.barrios) if (typeof d.rpg.barrios[k] !== 'number' || !isFinite(d.rpg.barrios[k])) d.rpg.barrios[k] = 0;
     return d;
   },
   write() { if (EM.headless) return; try { localStorage.setItem(KEY, JSON.stringify(this.d)); } catch (e) { } },

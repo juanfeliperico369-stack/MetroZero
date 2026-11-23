@@ -235,6 +235,30 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### Estado al 23‑nov‑2026 · v3.7.0 «GA‑36» (Antigravity / Gemini · rama `ia/antigravity/ciudad-viva-3.7`)
+- **Base:** `origin/ccr-2a67f935-oat714` (`9ddcb6a`, El Metro 3.6.0 «Ciudad viva»). Todo implementado en **módulos aditivos**, conservando `elmetro.v1` intacto (campos nuevos en `newSave()` y `Save.sanitize()`: `settings.pantalla = 'mitades'`, `rpg.diario = []`, `rpg.barrios = {}`).
+- **GA‑36‑1 · Inclinación en las curvas (`src/js/96g-ladeo-mitades.js`, `EM.ladeo`):**
+  - Portado de Motor City 5.2 (`Cuerpo._ladear`): bici, moto, patineta (`scooter`), monopatín, skate y patines se inclinan hacia adentro de la curva con `φ = clamp(atan(v·ω / 9,81), ±0,45 rad)` suavizado (`τ = 0,14 s`), girando juntos vehículo (`EM.taller.mundo`) y piloto (`Libre.persona3`) alrededor del punto de apoyo en el 3D de Ciudad Libre y del corredor (`47-carrera.js` / `47b-ciclovia.js`), más inclinación sutil en primera persona (`EM.taller.primera`). Cero llamadas extra de dibujo y cero vértices nuevos.
+- **GA‑36‑2 · Pantalla en mitades en el 3D (`src/js/96g-ladeo-mitades.js`, `EM.mitades`):**
+  - Portado de Motor City 4.8 (`MC.Controles`): mitad superior solo para cámara (arrastre, pellizco y doble toque para centrar), mitad inferior para manejo sin soltar el joystick al mover la cámara. Conmutable en **Ajustes → ⚙️ Flexibilidad** (`✂️ Pantalla en 3D`: *En mitades* / *Clásica*).
+- **GA‑36‑3 · Huellas de subtramas + frases de paradero y banca (`src/js/96h-subtramas-vivas.js`, `EM.subtramasVivas`):**
+  - Cada decisión en las 6 subtramas de `36c-actividades.js` deja: (1) línea en el **Diario de huellas** (`Save.d.rpg.diario`, legible en la pestaña `⭐ Diario RPG` y desde el menú de pausa de Ciudad Libre), (2) **noticia comentada** por los peatones vía `EM.ciudadViva` y `Ciudad.say`, y (3) **reputación por barrio** (`Save.d.rpg.barrios`) visible en el letrero del lugar (`#lbLugar`).
+  - Los peatones que esperan en estaciones/paraderos o descansan en plazas/bancas usan las frases con `lugar: 'paradero'` y `'banca'` de `src/js/96e1-frases-ciudad.js` (sincronizado con `node tools/frases_ciudad.mjs`).
+- **GA‑36‑4 · Integración de arte G‑110 a G‑112 con respaldo procedural (`src/js/96i-arte-36.js`, `EM.arte36`, y `tools/arte_juego.py`):**
+  - Recetas opcionales listas en `tools/arte_juego.py` para las 4 capas de `G‑110` (`arte/entregas/panoramicas/g110_zen_*.png`), las 6 escenas de `G‑111` (`arte/entregas/clave/esc_sub_*.png`) y las 6 plantas cenitales de `G‑112` (`arte/entregas/texturas/tex_skate_*.png`).
+  - Mientras llegan los PNG de Gemini (Artista 1), corren los respaldos procedurales: paralaje de 4 capas al amanecer en **🌅 Domingo zen** (`cr:zen`), ilustraciones planas cálidas por subtrama y pisos de skateparks con cero sobrecosto 3D.
+- **Medición antes vs. después (VM Linux · Chromium SwiftShader · 412 × 860):**
+  - `node tools/medir-3d.mjs` (carga GPU determinista en San Antonio):
+    - `cen3d` esc 0: **110 → 102 llamadas**, **786k → 787k vértices** (fps 6,1 → 6,6 en corrida limpia / 5,3 bajo carga compartida de VM); esc 3: **125 → 95 llamadas**, **427k → 428k vértices** (fps 13,2 → 13,5).
+    - `3p` esc 0: **155 → 137 llamadas**, **775k → 776k vértices**; esc 3: **142 → 108 llamadas**, **428k → 428k vértices** (0 llamadas ni vértices agregados al 3D).
+  - `node tools/auditoria-jugabilidad.mjs`: `conduce` 60 fps (ritmo 1,00 · 81 km/h · 144 m), `bus` 59,7 fps (ritmo 1,00 · 68 km/h · 182 m), `volante` ritmo 0,97 · 90 km/h · 211 m, `carrera` ritmo 0,99 · 47 km/h · 143 m, `libre` ritmo 0,99 · 13 m · 0 errores.
+- **Pruebas (0 errores en todas):**
+  - `node tools/build.mjs`: `dist/index.html` 8.724 KB · `v3.7.0` (un solo HTML offline);
+  - `node tools/test.mjs 100 --shots /tmp/elmetro-37`: **OK, 0 errores** (servidor local 16/16, carga 2.245 ms, `selfTest` 0 errores / 0 avisos, `monkey` **100 partidas · 293.300 pasos · 54 victorias · 0 errores**, 0 errores de consola);
+  - `node tools/test-ga36.mjs`: **PASS** (curva sintética `φ = 0,4045 rad` vs `atan(v·ω/g) = 0,4045`, diff `0,0000`; dos dedos reales por CDP con joystick sostenido `m = 1` y giro `cyo = -0,756 rad` + mitad inferior bloqueada; diario, noticia, reputación en `#lbLugar`, frases `paradero`/`banca` y 6/6 escenas de subtramas; capturas en `412×860` y `860×412`);
+  - `node tools/test-gpt6-fluidez.mjs` y `node tools/test-gpt6-eon-manejo.mjs`: **PASS**.
+- **Pendiente (fuera del rol de código):** imágenes PNG de **G‑110 a G‑112** (corresponden a Gemini Nano Banana, Artista 1); una vez copiadas en `arte/entregas/`, basta correr `python3 tools/arte_juego.py && node tools/build.mjs`.
+
 #### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
 **Qué pidió el autor:**
 - «vuelve a trabajar en El Metro, mejora y desarrolla todo lo que puedas, evalúa qué falta y las peticiones para Gemini y ChatGPT, entrégame los prompts, planea tu siguiente paso, usa todo lo nuevo del motor y deja sugerencias en el repositorio».
@@ -274,7 +298,9 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 **Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
+**Probado:** autotest con 0 errores; 100 partidas (291 048 pasos, 61 victorias, 0 errores); las pruebas de GPT‑6; capturas a 412 × 860.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.6.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.6.0-32e63870`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 34), igual byte a byte a la construida.
 
 #### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
