@@ -71,6 +71,8 @@
   }
   const Vo = EM.modes.volante;
   if (Vo) {
+    /* 3.6 · el bus no pasa de 1,25 veces su velocidad real (antes, con el acelerador sostenido llegaba a 102 km/h en un Metroplús de 60) */
+    const stepV0 = Vo.step; Vo.step = function (st, dt) { const r = stepV0.apply(this, arguments); const B = typeof BUSES !== 'undefined' && BUSES[st.kind]; if (B && st.v > B.vmax * 1.25) st.v = Math.max(B.vmax * 1.25, st.v - 3 * dt); return r; };
     const dw0 = Vo.dwellTick;
     Vo.dwellTick = function (st, dt, line) {
       dw0.call(this, st, dt, line); if (st.auto || !arcade() || st.ph !== 'dwell' || st.done) return;

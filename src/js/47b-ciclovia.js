@@ -81,6 +81,7 @@
     inicio(lv) {
       const R = this.armar(); if (!R) return null; const id = String(lv || '').slice(3);
       if (id[0] === 'c' && /^c\d+$/.test(id)) { const q = (this.niveles() || []).find(l => l.id === lv); return q ? { n: q.n, h: null, nm: q.nm } : null; }
+      if (id === 'zen') { const L = this.niveles() || [], q = L.find(l => /Vegas/.test(l.name)) || L[0]; return q ? { n: q.n, h: null, nm: q.nm } : null; }   // 3.6 · modo zen
       if (id[0] === '@') { const [x, y, h] = id.slice(1).split(',').map(Number); const n = this.cercano(x, y, 400); return n < 0 ? null : { n, h: isFinite(h) ? h : null }; }
       const l = NET.byId[id]; if (!l) return null; const e = l.st[Math.floor(l.st.length / 2)], n = this.cercano(e.x, e.y, 1500); return n < 0 ? null : { n, h: null };
     },
@@ -166,6 +167,7 @@
   Cr.levels = function () {
     if (Ci._lv) return Ci._lv; const L = Ci.niveles(); if (!L || !L.length) return levels0.call(this);
     const out = L.map(q => ({ id: q.id, name: q.name, sub: q.km.toFixed(1).replace('.', ',') + ' km de ciclorruta' + (q.barrio ? ' · desde ' + q.barrio : '') }));
+    if (L.some(q => /Vegas/.test(q.name))) out.unshift({ id: 'cr:zen', name: '🌅 Domingo zen', sub: 'Sin vidas ni afán, por la ciclorruta Las Vegas: solo rodar, mirar y hacer trucos' });   // 3.6 · modo zen (Alto’s)
     for (const [id, n] of LINEAS) { if (!NET.byId[id]) continue; const I = Ci.inicio('cr:' + id); if (!I) continue; const q = Ci.red.N[I.n]; out.push({ id: 'cr:' + id, name: n, sub: 'Por la ciclorruta ' + Ci.nombre((q.a[0] || {}).nm).replace(/^Ciclorruta\s+/, '') + (Ci.barrio(q.x, q.y) ? ' · ' + Ci.barrio(q.x, q.y) : '') }); }
     return (Ci._lv = out);
   };
@@ -175,7 +177,7 @@
     const R = Ci.red, q = R.N[I.n];
     st.cic = { px: [q.x], py: [q.y], cum: [0], nm: [I.nm || 0], cur: I.n, prev: -1, cruce: null, quiere: 0, fin: false, zonas: [], avisos: [], ult: 55, zona: 300, cruces: 0, giros: 0, nmAct: I.nm || 0, ini: I.nm || (q.a[0] && q.a[0].nm) || 0 };
     st.obs = []; st._ci = 0; st.s = 0; st.v = 8; st.c = 1; st.cx = 1; st.off = 0; st.est = -1; st.rs = ((opts.seed | 0) * 2654435761 + I.n) >>> 0;
-    Object.assign(st, { combo: 1, comboMax: 1, trucos: 0, grinds: 0, parkour: 0, agacha: 0, truco: null, vistos: {}, golpes: 0 });
+    Object.assign(st, { combo: 1, comboMax: 1, trucos: 0, grinds: 0, parkour: 0, agacha: 0, truco: null, vistos: {}, golpes: 0, zen: lv === 'cr:zen' ? 1 : 0 });
     /* la primera salida: si hay dos, la que va hacia donde mirabas (desde el mundo abierto) o la más larga */
     const ops = q.a; if (ops.length) { let o = ops[0]; if (I.h != null) { let best = -2; for (const e of ops) { const p = R.N[e.to], d = Math.cos(Math.atan2(p.y - q.y, p.x - q.x) - I.h); if (d > best) { best = d; o = e; } } } else if (ops.length > 1 && I.nm) o = ops.find(e => e.nm === I.nm) || o; Ci.paso(st, o.to, o.nm); }
     Ci.extender(st, 230);
@@ -209,6 +211,7 @@
       if (st.inv > 0) continue;
       o.hecho = 1; if (st.turbo > 0) { st.pts += 5; continue; }
       if (st.escudo) { st.escudo = 0; st.inv = 1; st.dato = '🛡 El escudo aguantó el golpe'; st.datoT = 2.5; continue; }
+      if (st.zen) { st.inv = .8; st.v = Math.max(6, st.v * .82); st.combo = 1; st.golpes++; st.truco = null; if (EM.jugo && !st.auto) EM.jugo.golpe(st, true); continue; }   // zen: un golpe solo frena
       st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); st.combo = 1; st.golpes++; st.truco = null; if (EM.jugo && !st.auto) EM.jugo.golpe(st);
       if (st.vidas <= 0) st.done = true;
     }
@@ -271,7 +274,7 @@
   };
   Cr.result = function (st) {
     const r = result0.call(this, st); if (!st.cic) return r; const K = st.cic, km = (st.s / 1000).toFixed(2).replace('.', ',');
-    r.win = st.done && st.vidas > 0; r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []);
+    r.win = st.done && st.vidas > 0; r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []).concat(st.zen ? [['Modo', '🌅 Zen: sin vidas ni afán']] : []);
     if (!r.fact || /^🚲/.test(r.fact)) r.fact = 'En el juego están las ciclorrutas reales del valle: 234 tramos y 120 km. La más larga es la de la doble calzada Niquía – Hatillo, en Bello.';
     return r;
   };

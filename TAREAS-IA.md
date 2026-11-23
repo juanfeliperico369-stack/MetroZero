@@ -9,6 +9,20 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.6.0 «Ciudad viva» (23‑nov):**
+> - el 3D recortado y regulado (📏 Medir mi celular);
+> - la gente reacciona;
+> - ⭐ reto del día;
+> - 🌅 domingo zen.
+>
+> **Pedidos nuevos y prompts:** `docs/PEDIDOS-GEMINI-CHATGPT-3.6.md`.
+> - Gemini: G‑110 a G‑112.
+> - Antigravity: GA‑36‑1 a GA‑36‑4.
+> - ChatGPT: C‑70 a C‑72.
+> - Codex: CX‑36‑1 a CX‑36‑3.
+>
+> **Sugerencias:** `docs/SUGERENCIAS-CLAUDE.md`.
+>
 > **3.4.0 «Jugo y ciclovías» (23‑nov):**
 > - el corredor va solo por las ciclorrutas reales: cruces ↰ ↱, tramos que se angostan, zonas de skate, trucos y parkour a pie;
 > - jugo en todos los modos;

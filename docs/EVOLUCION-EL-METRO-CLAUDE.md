@@ -692,7 +692,9 @@ Comparten datos (vías, edificios, red), pero son **dibujos distintos**.
 | **3.2.0 ✔** | Modos arreglados, arcade, todo abierto, actividades 🎮, acelerador fijo | Auditoría: todos los modos avanzan con ▲ en menos de 2 s y a ritmo 1,0. Autotest y 100 partidas con 0 errores. |
 | **3.3.0 ✔** (otra sesión) | ⚙️ Flexibilidad: arcade o realista, mano zurda, joystick, giro, velocidad; unión de las ramas de las IAs | Autotest y 100 partidas con 0 errores |
 | **3.4.0 ✔** | Corredor solo por ciclovías: cruces ↰/↱, tramos estrechos, zonas de skate, trucos, parkour a pie y 🎮 desde cualquier ciclorruta. Jugo en todos los modos | La pista no se sale de la ciclorruta; con el piloto, 4 de 6 ciclorrutas terminan con 2–3 vidas; autotest y 100 partidas con 0 errores |
-| **Sigue** | Modo zen de domingo (ciclovía sin perder) | Partida sin fin sin vidas, al amanecer |
+| **3.5.0 ✔** (otra sesión) | Unión con «Mundo 3D y Realismo» de Antigravity (cen3d, mundoRPG, shaders) | 100 partidas con 0 errores |
+| **3.6.0 ✔** | 3D recortado y regulado (📏), ciudad viva en familia, ⭐ reto del día, 🌅 domingo zen; pedidos y prompts para Gemini y ChatGPT | En el 3D emulado, el volante pasa de 5 a 16 y Ciudad Libre de 6,5 a 18 cuadros por segundo, con ritmo 1,0; 0 errores |
+| **3.7 (Claude)** | «Épocas»: la red como era en 1995, 2004, 2008, 2011 y 2016; unir las entregas de las otras IAs | Ver `docs/SUGERENCIAS-CLAUDE.md` |
 | **3.5** | Cenital 3D sobre G3; rig único de cámaras; horizontal y vertical | 30 cuadros por segundo en cenital 3D en «celular modesto» (sin tarjeta gráfica: 25 o más) |
 | **3.6** | Contrarreloj con fantasma, reto del día y fantasmas por QR | Fantasma reproduce el tramo con error < 1 m |
 | **3.7** | «Un día de operación» (roguelite) y Cruces con el control de Traffix | Partida de 5–10 min; dos partidas seguidas nunca iguales |

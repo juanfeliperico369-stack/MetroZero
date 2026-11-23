@@ -95,6 +95,14 @@ class MB {
   flush() { if (this.a.length) this.parts.push(new Float32Array(this.a)); this.a = []; }
   done() { this.flush(); return this.parts; }
 }
+/* 3.6 (Claude) · mallas por celdas de 800 m: la red de transporte de todo el valle (viaductos, rieles, estaciones con interior,
+   torres de cable: 830 mil vértices medidos) se dibujaba entera en cada cuadro; ahora cada triángulo va a la celda donde cae y
+   al dibujar solo entran las celdas cercanas a la cámara (G3.draw). Lo que se arme con v() directo queda en una parte global */
+class MBC extends MB {
+  constructor(L = 800) { super(); this.L = L; this.c = new Map(); }
+  tri(p, q, r, c, k = 0) { const i = Math.floor((p[0] + q[0] + r[0]) / 3 / this.L), j = Math.floor((p[2] + q[2] + r[2]) / 3 / this.L), key = i * 100003 + j; let m = this.c.get(key); if (!m) { m = new MB(); m.cx = (i + .5) * this.L; m.cz = (j + .5) * this.L; this.c.set(key, m); } m.tri(p, q, r, c, k); }
+  celdas() { const out = []; for (const m of this.c.values()) for (const a of m.done()) out.push({ a, cx: m.cx, cz: m.cz }); for (const a of MB.prototype.done.call(this)) out.push({ a, cx: null, cz: null }); return out; }
+}
 const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
 const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246', '#e6b822', '#d96ca8'].map(rgb);
 const G3 = EM.g3 = {
@@ -141,7 +149,7 @@ const G3 = EM.g3 = {
   /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
     const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
-    const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' || this.liviano ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
     if (!real) for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
       const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y); let base = TRGB[v] || TRGB[0]; const ht = h2(X, Y, v), nN = road(MAP.tile(X, Y - 1)), nS = road(MAP.tile(X, Y + 1)), nW = road(MAP.tile(X - 1, Y)), nE = road(MAP.tile(X + 1, Y)), vert = nN || nS, horz = nW || nE;
       if (v === TT.BRICK || v === TT.BLDG) base = [92, 104, 72];
@@ -164,7 +172,7 @@ const G3 = EM.g3 = {
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
     // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
-    const low = Save.d.settings.q === 'low', R = low ? 600 : 1100, bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
+    const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
     if (RR) this.edifReales(bm, cx, cz, RR, R2);
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (R2 && (X - cx) ** 2 + (Z - cz) ** 2 < R2 * R2)) continue;
@@ -261,7 +269,7 @@ const G3 = EM.g3 = {
     const P = NET.poly(pts.map(p => ({ x: p.x, y: p.y }))); return (line._cg = { pts, P, zAt: s => { let i = 0; while (i < P.cum.length - 2 && P.cum[i + 1] < s) i++; const L = (P.cum[i + 1] - P.cum[i]) || 1, f = clamp((s - P.cum[i]) / L, 0, 1), sag = 4 * .025 * L * f * (1 - f); return lerp(pts[i].z, pts[Math.min(i + 1, pts.length - 1)].z, f) - sag; } });
   },
   buildNet() {
-    const mb = new MB(), lines = [];
+    const mb = new MBC(800), lines = [];   // 3.6: por celdas
     for (const l of NET.lines) {
       const col = rgb(l.color), K = l.kind;
       if (K === 'metro' || K === 'tram' || (K === 'future' && !/cable/i.test(l.name))) {
@@ -306,7 +314,7 @@ const G3 = EM.g3 = {
       }
     }
     this.decor(mb);
-    this.stat = mb.done().map(a => this.buf(a));
+    if (this.stat) for (const q of this.stat) this.gl.deleteBuffer(q); const C = mb.celdas(); this.stat = C.map(o => this.buf(o.a)); this.statXY = C.map(o => o.cx == null ? null : [o.cx, o.cz]);
     const la = []; for (const L of lines) for (let i = 0; i < L.pts.length - 1; i++) { la.push(...L.pts[i], 0, 1, 0, ...L.c, 0, ...L.pts[i + 1], 0, 1, 0, ...L.c, 0); }
     this.wires = la.length ? this.buf(new Float32Array(la)) : null;
   },
@@ -337,7 +345,7 @@ const G3 = EM.g3 = {
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
     gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
     const P = this.P; gl.useProgram(P.p); const u = P.u;
-    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (Save.d && Save.d.settings && Save.d.settings.realismo === 0) ? 0 : 1);
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (G3.simple || (Save.d && Save.d.settings && Save.d.settings.realismo === 0)) ? 0 : 1);   // 3.6: el regulador de 96d-rendimiento.js también lo apaga
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
@@ -348,7 +356,8 @@ const G3 = EM.g3 = {
     for (const b of this.near) run(b);
     gl.disable(gl.POLYGON_OFFSET_FILL);
     for (const b of this.bld) run(b);
-    for (const b of this.stat) run(b);
+    { const ex = cam.eye[0], ez = cam.eye[2], alto = Math.max(0, cam.eye[1] - (MAP.ready ? MAP.elevM(ex, ez) : 1500)), Rd = (this.liviano ? 1300 : 2400) + 2 * alto, R2 = Rd * Rd;   // 3.6: solo las celdas cercanas (más lejos si la cámara va alta)
+      for (let i = 0; i < this.stat.length; i++) { const c = this.statXY && this.statXY[i]; if (!c || (c[0] - ex) ** 2 + (c[1] - ez) ** 2 < R2) run(this.stat[i]); } }
     if (this.wires) run(this.wires, gl.LINES);
     this._run = run; this._I = I;
     if (opts.dyn) opts.dyn(this);

@@ -1,8 +1,8 @@
 {
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
-  "base": "main 3.3.0 (dd368a1) → v3.4.0 «Jugo y ciclovías»",
-  "actualizado": "2026-11-23T12:00:00Z",
+  "base": "main 3.5.0 + Motor City 5.2 (d07ba6d) → v3.6.0 «Ciudad viva»",
+  "actualizado": "2026-11-23T18:00:00Z",
   "rol": "IA de El Metro (Claude, Anthropic): arreglos de jugabilidad, todo abierto, modos en el mundo abierto y documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
@@ -24,11 +24,17 @@
     "3.4.0: src/js/47b-ciclovia.js (corredor solo por ciclorruta: cruces, estrechos, zonas de skate, trucos, parkour)",
     "3.4.0: src/js/96c-jugo.js (jugo en todos los modos)",
     "3.4.0: 🎮 corredor desde cualquier ciclorruta (97b-actividades.js)",
-    "3.4.0: arreglo del doble arranque de la carrera (96-arcade y 98a)"
+    "3.4.0: arreglo del doble arranque de la carrera (96-arcade y 98a)",
+    "3.6.0: 3D recortado por celdas (MBC) y regulador EM.rendimiento con 📏 Medir mi celular",
+    "3.6.0: ciudad viva en familia con frases del motor (tools/frases_ciudad.mjs)",
+    "3.6.0: ⭐ reto del día (EM.reto) y 🌅 domingo zen",
+    "3.6.0: pedidos y prompts para Gemini y ChatGPT (docs/PEDIDOS-GEMINI-CHATGPT-3.6.md) y sugerencias (docs/SUGERENCIAS-CLAUDE.md)"
   ],
   "archivos_compartidos_tocados": [
     "src/js/00-core.js (versión 3.2.0 y settings.arcade)",
     "src/js/00-core.js (versión y valores por defecto)",
+    "src/js/22-gl.js (MBC, recorte de la red, G3.simple y G3.liviano)",
+    "src/js/25-game.js (pasos hasta 0,2 s)",
     "src/js/32-volante.js (método suelo y una línea de choque)",
     "src/js/37-trama.js (texto de Doña Luz)",
     "src/js/65-menu.js (texto de la tarjeta de la carrera)",
@@ -41,11 +47,10 @@
   ],
   "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores (ver docs/BITACORA.md)",
   "libre_para_otra_ia": [
-    "Cenital 3D sobre G3 y rig único de cámaras",
-    "Modo zen de domingo en la ciclovía",
-    "Contrarreloj con fantasma y reto del día",
-    "Control estilo Traffix en 45-metroplus.js",
-    "Z4 15-mc-puente.js · Z5 48-planificador.js"
+    "GA-36-1..4 (Antigravity)",
+    "CX-36-1..3 (Codex)",
+    "G-110..112 (Gemini, arte)",
+    "C-70..72 (ChatGPT, arte)"
   ],
   "no_tocar_sin_avisar": [
     "src/js/37-cronicas.js",

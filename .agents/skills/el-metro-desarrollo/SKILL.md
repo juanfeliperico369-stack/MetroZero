@@ -126,6 +126,13 @@ Datos en `src/data/`:
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
 
+## Reglas aprendidas (ciudad viva, 3.6.0)
+- **Antes de subir la calidad 3D, mide** con `node tools/medir-3d.mjs`: vértices y llamadas por cuadro, y cuadros por segundo por escalón.
+- **Geometría de todo el valle = recorte por celdas** (`MBC` en `22-gl.js`).
+- **El regulador `EM.rendimiento` manda en el 3D:** `G3.simple` apaga el realismo y `G3.liviano` arma la ciudad cercana como en «Celular modesto».
+- **Auditoría de jugabilidad en el repositorio** (`node tools/auditoria-jugabilidad.mjs [modos] [carpeta]`): todo modo debe avanzar con ▲ y con ritmo 1,0.
+- **Datos del motor:** se generan con una herramienta (`tools/frases_ciudad.mjs`) y no se copian a mano.
+
 ## Reglas aprendidas (jugo y ciclovías, 3.4.0)
 - **Corredor solo por ciclorruta** (`EM.ciclo`, `src/js/47b-ciclovia.js`): la pista sale de la red de ciclorrutas. Un nivel nuevo de la carrera debe ser una ciclorruta: `cr:c<nombre>`, `cr:@x,y,h` o `cr:<línea>`, que es la más cercana.
 - **Obstáculo nuevo = pieza del taller** (`EM.taller.pista`) y entrada en `T.obstaculos`. El autotest exige pieza para cada clave de `CR_OBS`; sin ella, el 3D registra «Objeto desconocido».

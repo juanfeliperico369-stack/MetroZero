@@ -25,7 +25,7 @@ const Game = EM.game = {
   frame() {
     // tiempo real aunque el celular dé pocos cuadros: los modos con pasos cortos (substeps) avanzan lo que de verdad pasó, en pasos
     // de 1/30 s, y con su ritmo (escala: ×1, ×2, ×3); los demás, como siempre, con un tope de 50 ms por cuadro
-    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.12, raw) : Math.min(.05, raw); if (this.paused) dt = 0;
+    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw);   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo) if (this.paused) dt = 0;
     // calidad automática: si los cuadros pasan de ~34 ms se baja la densidad de píxeles del lienzo (hasta 1); si sobran, se sube (hasta 2)
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
