@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.7.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.8.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.7.0** · compilado el 2026-11-23.
+> Versión del juego **v3.8.0** · compilado el 2026-11-23.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -801,6 +801,19 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
 
+##### 2026-11-23 · OpenAI GPT-6 / Eón · C-70–72 + tareas CX-36 (rama de revisión)
+
+- Rama `ia/codex/eon-optimizacion-3.7`, partiendo de `main` que declaraba **v3.5.0**. No se tocó `main` ni otros repositorios. El archivo de pedidos 3.6 y las dos herramientas de medición CX-36 no estaban en el árbol.
+- **Arte original:** 14 PNG en `arte/entregas/vectorial/png/`: 12 íconos/medallas C-70/71 a **256 × 256**, portadas C-72 **1080 × 1920** y **1920 × 1080**; nombres exactos, transparencia en iconos, paleta oficial, sin textos ni logos. Falta integración Atlas y aprobación visual.
+- **CX-36-1 parcial:** `22a-gpt6-eon-3d-batch.js` agrupa las cajas dinámicas `G3.box` en un búfer reutilizable por cuadro; reducción **3→1 llamadas de dibujo** en prueba WebGL mock. Recorte `G3.bld/G3.far` por celdas no implementado.
+- **CX-36-2 parcial:** `48a-gpt6-eon-fantasma.js`: muestreo interpolado cada **0,1 s** para tren, bus y carrera, mejor tiempo diario en `Save.d.best._retoFantasma`, marcador translúcido en 3D y QR **solo de marca**. Prueba de trayectoria lineal simulada: **error máximo <0,11 m**; falta prueba en conducción/cámaras reales.
+- **CX-36-3 inicial:** `48-operacion.js` y `97c-gpt6-eon-operacion-estaciones.js`: gestión de red real, 4:30–23:00, picos, refuerzos, saturación, mejoras entre jornadas, bot y lanzamiento en 🎮. Prueba aislada: PASS.
+- **Pruebas locales aisladas realizadas:** `node tools/test-gpt6-eon-3d-batch.mjs` PASS; `node tools/test-gpt6-eon-fantasma.mjs` PASS; `node tools/test-gpt6-eon-operacion.mjs` PASS. `node --check` de módulos nuevos PASS.
+- **Benchmarks antes/después:** FPS 3p = **no medido / no medido**; vértices por cuadro = **no medido / no medido**; draw calls reales = **no medido / no medido**. **No hay afirmación** de 12 FPS, <400 000 vértices ni <120 llamadas.
+- **Build/test100:** `node tools/build.mjs && node tools/test.mjs 100` **no se ejecutó** contra el árbol del repositorio completo en este entorno; queda como requisito antes de unir y publicar. No se certificó juego en Android.
+- Informe y reglas aprendidas: `docs/OPENAI-GPT6-EON-ENTREGA-C70-C72-CX36-20261123.md`. Firma: **OpenAI GPT-6 · Eón**.
+
+
 > Guía viva del proyecto. Quien retome el trabajo (persona o IA) debe leer esto, `docs/PLAN.md` y `arte/README.md`, y actualizar esta bitácora al cerrar cada sesión.
 
 
@@ -835,7 +848,32 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 **Guardado:** `settings.epoca` y `Save.d.pinturas`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘.
+**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘. Las 100 partidas: 295 150 pasos, 54 victorias y 0 errores.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.7.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.7.0-ed33307a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 35), igual byte a byte a la construida.
+##### Estado al 23‑nov‑2026 · v3.7.0 «GA‑36» (Antigravity / Gemini · rama `ia/antigravity/ciudad-viva-3.7`)
+- **Base:** `origin/ccr-2a67f935-oat714` (`9ddcb6a`, El Metro 3.6.0 «Ciudad viva»). Todo implementado en **módulos aditivos**, conservando `elmetro.v1` intacto (campos nuevos en `newSave()` y `Save.sanitize()`: `settings.pantalla = 'mitades'`, `rpg.diario = []`, `rpg.barrios = {}`).
+- **GA‑36‑1 · Inclinación en las curvas (`src/js/96g-ladeo-mitades.js`, `EM.ladeo`):**
+  - Portado de Motor City 5.2 (`Cuerpo._ladear`): bici, moto, patineta (`scooter`), monopatín, skate y patines se inclinan hacia adentro de la curva con `φ = clamp(atan(v·ω / 9,81), ±0,45 rad)` suavizado (`τ = 0,14 s`), girando juntos vehículo (`EM.taller.mundo`) y piloto (`Libre.persona3`) alrededor del punto de apoyo en el 3D de Ciudad Libre y del corredor (`47-carrera.js` / `47b-ciclovia.js`), más inclinación sutil en primera persona (`EM.taller.primera`). Cero llamadas extra de dibujo y cero vértices nuevos.
+- **GA‑36‑2 · Pantalla en mitades en el 3D (`src/js/96g-ladeo-mitades.js`, `EM.mitades`):**
+  - Portado de Motor City 4.8 (`MC.Controles`): mitad superior solo para cámara (arrastre, pellizco y doble toque para centrar), mitad inferior para manejo sin soltar el joystick al mover la cámara. Conmutable en **Ajustes → ⚙️ Flexibilidad** (`✂️ Pantalla en 3D`: *En mitades* / *Clásica*).
+- **GA‑36‑3 · Huellas de subtramas + frases de paradero y banca (`src/js/96h-subtramas-vivas.js`, `EM.subtramasVivas`):**
+  - Cada decisión en las 6 subtramas de `36c-actividades.js` deja: (1) línea en el **Diario de huellas** (`Save.d.rpg.diario`, legible en la pestaña `⭐ Diario RPG` y desde el menú de pausa de Ciudad Libre), (2) **noticia comentada** por los peatones vía `EM.ciudadViva` y `Ciudad.say`, y (3) **reputación por barrio** (`Save.d.rpg.barrios`) visible en el letrero del lugar (`#lbLugar`).
+  - Los peatones que esperan en estaciones/paraderos o descansan en plazas/bancas usan las frases con `lugar: 'paradero'` y `'banca'` de `src/js/96e1-frases-ciudad.js` (sincronizado con `node tools/frases_ciudad.mjs`).
+- **GA‑36‑4 · Integración de arte G‑110 a G‑112 con respaldo procedural (`src/js/96i-arte-36.js`, `EM.arte36`, y `tools/arte_juego.py`):**
+  - Recetas opcionales listas en `tools/arte_juego.py` para las 4 capas de `G‑110` (`arte/entregas/panoramicas/g110_zen_*.png`), las 6 escenas de `G‑111` (`arte/entregas/clave/esc_sub_*.png`) y las 6 plantas cenitales de `G‑112` (`arte/entregas/texturas/tex_skate_*.png`).
+  - Mientras llegan los PNG de Gemini (Artista 1), corren los respaldos procedurales: paralaje de 4 capas al amanecer en **🌅 Domingo zen** (`cr:zen`), ilustraciones planas cálidas por subtrama y pisos de skateparks con cero sobrecosto 3D.
+- **Medición antes vs. después (VM Linux · Chromium SwiftShader · 412 × 860):**
+  - `node tools/medir-3d.mjs` (carga GPU determinista en San Antonio):
+    - `cen3d` esc 0: **110 → 102 llamadas**, **786k → 787k vértices** (fps 6,1 → 6,6 en corrida limpia / 5,3 bajo carga compartida de VM); esc 3: **125 → 95 llamadas**, **427k → 428k vértices** (fps 13,2 → 13,5).
+    - `3p` esc 0: **155 → 137 llamadas**, **775k → 776k vértices**; esc 3: **142 → 108 llamadas**, **428k → 428k vértices** (0 llamadas ni vértices agregados al 3D).
+  - `node tools/auditoria-jugabilidad.mjs`: `conduce` 60 fps (ritmo 1,00 · 81 km/h · 144 m), `bus` 59,7 fps (ritmo 1,00 · 68 km/h · 182 m), `volante` ritmo 0,97 · 90 km/h · 211 m, `carrera` ritmo 0,99 · 47 km/h · 143 m, `libre` ritmo 0,99 · 13 m · 0 errores.
+- **Pruebas (0 errores en todas):**
+  - `node tools/build.mjs`: `dist/index.html` 8.724 KB · `v3.7.0` (un solo HTML offline);
+  - `node tools/test.mjs 100 --shots /tmp/elmetro-37`: **OK, 0 errores** (servidor local 16/16, carga 2.245 ms, `selfTest` 0 errores / 0 avisos, `monkey` **100 partidas · 293.300 pasos · 54 victorias · 0 errores**, 0 errores de consola);
+  - `node tools/test-ga36.mjs`: **PASS** (curva sintética `φ = 0,4045 rad` vs `atan(v·ω/g) = 0,4045`, diff `0,0000`; dos dedos reales por CDP con joystick sostenido `m = 1` y giro `cyo = -0,756 rad` + mitad inferior bloqueada; diario, noticia, reputación en `#lbLugar`, frases `paradero`/`banca` y 6/6 escenas de subtramas; capturas en `412×860` y `860×412`);
+  - `node tools/test-gpt6-fluidez.mjs` y `node tools/test-gpt6-eon-manejo.mjs`: **PASS**.
+- **Pendiente (fuera del rol de código):** imágenes PNG de **G‑110 a G‑112** (corresponden a Gemini Nano Banana, Artista 1); una vez copiadas en `arte/entregas/`, basta correr `python3 tools/arte_juego.py && node tools/build.mjs`.
 
 ##### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
 **Qué pidió el autor:**
@@ -3711,7 +3749,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (122 archivos, 1604 KB)
+## Código fuente (133 archivos, 1686 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4256,6 +4294,17 @@ body.zurdo .actbar{left:152px;right:10px}
   .actbar{left:110px;right:134px;bottom:calc(8px + var(--sab))}
   #game:has(.lbbtns) .trtalk{bottom:calc(132px + var(--sab))}
 }
+/* ---------- 3.7.0 · pantalla en mitades (GA-36-2), huellas de subtramas (GA-36-3) y arte G-110..G-112 (GA-36-4) ---------- */
+.joyzone{top:50%}
+body.pant-clasica .joyzone{top:24%}
+.lugar em.rep-barrio{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 8px;border-radius:999px;background:rgba(246,197,56,.18);color:var(--led);font-style:normal;font-size:11.5px;font-weight:800;border:1px solid rgba(246,197,56,.45)}
+.sub-escena{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin:4px 0 6px;background:var(--noche);box-shadow:0 1px 0 var(--linea)}
+.diario-item{background:var(--concreto);border-radius:12px;padding:9px 11px;box-shadow:inset 4px 0 0 var(--lT);display:flex;flex-direction:column;gap:3px}
+.diario-item b{font-family:var(--fd);font-size:16px;line-height:1.15;color:var(--tinta)}
+.diario-item small{font-size:12px;color:var(--suave);line-height:1.35}
+.diario-item .diario-noti{font-size:12.5px;font-weight:700;color:var(--lA)}
+.barrio-rep-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.barrio-rep-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(28,92,156,.12);color:var(--tinta);font-size:12px;font-weight:800}
 ~~~~
 
 ### `src/js/00-core.js`
@@ -4264,7 +4313,7 @@ body.zurdo .actbar{left:152px;right:10px}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.7.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.8.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4311,7 +4360,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, epoca: 0, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, pinturas: { compradas: [], actual: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, epoca: 0, cabReal: 0, realismo: 1, acelFijo: 0, pantalla: 'mitades' }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, pinturas: { compradas: [], actual: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {}, diario: [], barrios: {} } };
 }
 const Save = EM.save = {
   d: null,
@@ -4328,6 +4377,7 @@ const Save = EM.save = {
     if (!d.settings || typeof d.settings !== 'object') d.settings = b.settings; if (!d.stats || typeof d.stats !== 'object') d.stats = b.stats;
     for (const k in b) if (d[k] == null || typeof d[k] !== typeof b[k]) d[k] = b[k];
     for (const k in b.settings) if (typeof d.settings[k] !== typeof b.settings[k]) d.settings[k] = b.settings[k];
+    if (d.settings.pantalla !== 'mitades' && d.settings.pantalla !== 'clasica') d.settings.pantalla = 'mitades';
     for (const k in b.stats) if (typeof d.stats[k] !== 'number' || !isFinite(d.stats[k])) d.stats[k] = 0;
     if (!isFinite(d.wallet) || d.wallet < 0) d.wallet = 0;
     if (!Array.isArray(d.log)) d.log = []; if (!d.libre || typeof d.libre !== 'object') d.libre = b.libre; if (!d.libre.visited || typeof d.libre.visited !== 'object') d.libre.visited = {};
@@ -4338,6 +4388,9 @@ const Save = EM.save = {
     if (typeof d.rpg.trucos !== 'number' || !isFinite(d.rpg.trucos)) d.rpg.trucos = 0;
     if (!d.rpg.subtramas || typeof d.rpg.subtramas !== 'object') d.rpg.subtramas = {};
     if (!d.rpg.zonas || typeof d.rpg.zonas !== 'object') d.rpg.zonas = {};
+    if (!Array.isArray(d.rpg.diario)) d.rpg.diario = [];
+    if (!d.rpg.barrios || typeof d.rpg.barrios !== 'object' || Array.isArray(d.rpg.barrios)) d.rpg.barrios = {};
+    for (const k in d.rpg.barrios) if (typeof d.rpg.barrios[k] !== 'number' || !isFinite(d.rpg.barrios[k])) d.rpg.barrios[k] = 0;
     return d;
   },
   write() { if (EM.headless) return; try { localStorage.setItem(KEY, JSON.stringify(this.d)); } catch (e) { } },
@@ -7514,6 +7567,75 @@ const G3 = EM.g3 = {
   toScreen(x, y, z, W, H) { const q = M4.xf(this.VP, x, y, z); if (q[3] <= 0 || q[2] > 1) return null; return { x: (q[0] * .5 + .5) * W, y: (1 - (q[1] * .5 + .5)) * H, d: q[3] }; },
   show(on) { if (this.cv) this.cv.style.display = on ? 'block' : 'none'; }
 };
+~~~~
+
+### `src/js/22a-gpt6-eon-3d-batch.js`
+~~~~js
+/* OpenAI GPT-6 / Eón · CX-36-1: geometría dinámica en un búfer por cuadro.
+   Aditivo, después de 22-gl.js. Respeta la matriz M4 y el guardado elmetro.v1. */
+(() => {
+  if (typeof G3 === 'undefined' || typeof MB === 'undefined' || typeof M4 === 'undefined') return;
+  const mesh = new MB();
+  mesh.box(0, 0, 0, 0, 1, 1, 1, [1, 1, 1], [1, 1, 1]);
+  const cube = mesh.done()[0], N = cube.length, oldBox = G3.box, oldDraw = G3.draw;
+  G3._eonBatchStats = { cajas: 0, llamadas: 0, vertices: 0, tiempoCPU: 0 };
+  const reserve = (g, size) => {
+    if (!g._eonDynamicCPU || g._eonDynamicCPU.length < size)
+      g._eonDynamicCPU = new Float32Array(Math.max(size, (g._eonDynamicCPU?.length || N * 64) * 2));
+  };
+  function flush(g) {
+    const n = g._eonBatchPos || 0;
+    if (!n || !g.gl || !g._run) return;
+    const gl = g.gl;
+    if (!g._eonDynamicGPU) g._eonDynamicGPU = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, g._eonDynamicGPU);
+    if (!g._eonDynamicCapacity || g._eonDynamicCapacity < n) {
+      g._eonDynamicCapacity = Math.max(n, (g._eonDynamicCapacity || 0) * 2);
+      gl.bufferData(gl.ARRAY_BUFFER, g._eonDynamicCapacity * 4, gl.DYNAMIC_DRAW);
+    }
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, g._eonDynamicCPU.subarray(0, n));
+    g._eonDynamicGPU.n = n / 10;
+    g._run(g._eonDynamicGPU);
+    g._eonBatchStats.llamadas++;
+    g._eonBatchStats.vertices += n / 10;
+    g._eonBatchPos = 0;
+  }
+  G3.box = function (x, y, z, yaw, L, W, H, col, pitch = 0, roll = 0) {
+    if (!this._eonCollect || !this.gl || !this._run || !col) return oldBox.apply(this, arguments);
+    const m = M4.trs(x, y, z, -yaw, L, H, W, pitch, roll);
+    reserve(this, (this._eonBatchPos || 0) + N);
+    const a = this._eonDynamicCPU;
+    let at = this._eonBatchPos || 0;
+    for (let i = 0; i < N; i += 10) {
+      const px = cube[i], py = cube[i + 1], pz = cube[i + 2];
+      const nx = cube[i + 3], ny = cube[i + 4], nz = cube[i + 5];
+      a[at++] = m[0]*px + m[4]*py + m[8]*pz + m[12];
+      a[at++] = m[1]*px + m[5]*py + m[9]*pz + m[13];
+      a[at++] = m[2]*px + m[6]*py + m[10]*pz + m[14];
+      a[at++] = m[0]*nx + m[4]*ny + m[8]*nz;
+      a[at++] = m[1]*nx + m[5]*ny + m[9]*nz;
+      a[at++] = m[2]*nx + m[6]*ny + m[10]*nz;
+      a[at++] = col[0]; a[at++] = col[1]; a[at++] = col[2];
+      a[at++] = cube[i + 9];
+    }
+    this._eonBatchPos = at;
+    this._eonBatchStats.cajas++;
+    if (at >= 300000) flush(this);
+  };
+  G3.draw = function (cam, opts = {}) {
+    if (!opts || typeof opts.dyn !== 'function' || !this.gl || this._eonCollect)
+      return oldDraw.apply(this, arguments);
+    const dyn = opts.dyn, t = typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
+    this._eonBatchStats.cajas = 0; this._eonBatchStats.llamadas = 0; this._eonBatchStats.vertices = 0;
+    const next = Object.assign({}, opts, { dyn: g => {
+      g._eonCollect = true; g._eonBatchPos = 0;
+      try { dyn(g); } finally { g._eonCollect = false; flush(g); }
+    } });
+    const r = oldDraw.call(this, cam, next);
+    if (t) this._eonBatchStats.tiempoCPU = Math.max(0, performance.now() - t);
+    return r;
+  };
+})();
 ~~~~
 
 ### `src/js/23-lado.js`
@@ -12909,6 +13031,205 @@ const Carrera = EM.modes.carrera = {
 })();
 ~~~~
 
+### `src/js/48-operacion.js`
+~~~~js
+/* CX-36-3 · «Un día de operación» — OpenAI GPT-6 / Eón.
+   Juego roguelite autónomo sin internet sobre las estaciones reales.
+   No cambia la estructura de elmetro.v1. */
+(() => {
+  EM.modes.operacion = {
+    id: 'operacion', name: 'Un día de operación', sub: 'La red de 4:30 a. m. a 11:00 p. m.', music: 'puzzle', fullCanvas: true, substeps: true,
+    tip: 'Toca una estación para enviar un refuerzo (3 fichas). Tras cada jornada elige una mejora. Pierdes si una estación se satura.',
+    levels() { return [{id:'op:red',name:'Turno del Valle',sub:'Gestiona la demanda del metro, tranvía, bus y cable'}]; },
+    create(_lv, opts = {}) {
+      const wish=['Niquía','Acevedo','Universidad','Hospital','San Antonio','Exposiciones','Industriales','Poblado','Itagüí','La Estrella','Estadio','San Javier','Santo Domingo Savio'];
+      const hubs=(NET.stations||[]).filter(h=>h&&Number.isFinite(h.x)&&Number.isFinite(h.y));
+      const chosen=wish.map(n=>hubs.find(h=>h.name===n)).filter((h,i,a)=>h&&a.indexOf(h)===i);
+      for(const h of hubs) if(chosen.length<11&&!chosen.includes(h)) chosen.push(h);
+      if(!chosen.length) throw new Error('Operación: la red de estaciones no está cargada');
+      const minx=Math.min(...chosen.map(h=>h.x)), maxx=Math.max(...chosen.map(h=>h.x));
+      const miny=Math.min(...chosen.map(h=>h.y)), maxy=Math.max(...chosen.map(h=>h.y));
+      const stations=chosen.map((h,i)=>({id:h.name,x:.07+.86*(h.x-minx)/Math.max(1,maxx-minx),y:.07+.78*(h.y-miny)/Math.max(1,maxy-miny),q:8+(i%5)*2,fleet:0,boost:0,cap:120}));
+      const lookup=new Map(stations.map((s,i)=>[s.id,i])),links=[],seen=new Set();
+      for(const l of NET.lines) {
+        if(!['metro','tram','cable','brt','feeder'].includes(l.kind))continue;
+        let last=-1;
+        for(const t of l.st||[]){
+          const idx=lookup.get(t.name)??lookup.get(t.hub&&t.hub.name)??-1;
+          if(idx<0)continue;
+          if(last>=0&&idx!==last){const a=Math.min(idx,last),b=Math.max(idx,last),k=a+':'+b;if(!seen.has(k)){seen.add(k);links.push([a,b]);}}
+          last=idx;
+        }
+      }
+      return {lv:'op:red',seed:opts.seed|0,stations,links,t:270,acc:0,day:1,credits:6,score:0,served:0,saturated:-1,done:false,win:false,upgrade:null,demand:1,auto:!!opts.auto,ticks:0};
+    },
+    peak(h){return 1+1.9*Math.exp(-Math.pow((h-7.6)/1.05,2))+1.8*Math.exp(-Math.pow((h-17.6)/1.2,2));},
+    tick(st){
+      const peak=this.peak(st.t/60);
+      for(let i=0;i<st.stations.length;i++){
+        const s=st.stations[i],rand=h2(i,st.t|0,st.seed),hub=i===4?1.35:1;
+        const arrivals=(4+5.2*peak*st.demand*hub)*(.85+rand*.3),throughput=9+s.fleet*3.5+(s.boost>0?12:0);
+        s.q=Math.max(0,s.q+arrivals-throughput);
+        if(s.boost>0)s.boost--;
+        st.served+=Math.max(0,Math.min(throughput,arrivals+s.q));
+        if(s.q>=s.cap){st.saturated=i;st.done=true;st.win=false;return;}
+      }
+      st.credits=Math.min(12,st.credits+1);st.score+=Math.round(peak*10);st.ticks++;
+    },
+    step(st,dt){
+      if(st.done||st.upgrade)return;
+      st.acc+=Math.max(0,dt)*18;
+      let n=0;
+      while(st.acc>=10&&n++<10&&!st.done){
+        st.acc-=10;st.t+=10;
+        if(st.t>=1380){if(st.day>=7){st.done=true;st.win=true;st.score+=5000;break;}st.upgrade=true;st.t=1380;break;}
+        this.tick(st);
+      }
+    },
+    act(st,a){
+      if(!a||st.done)return;
+      if(a.k==='refuerzo'&&!st.upgrade&&st.credits>=3&&st.stations[a.i]){
+        st.credits-=3;st.stations[a.i].boost+=4;st.score+=5;
+      }else if(a.k==='mejora'&&st.upgrade&&a.i>=0&&a.i<3){
+        if(a.i===0)for(const s of st.stations)s.fleet++;
+        if(a.i===1)for(const s of st.stations)s.cap+=30;
+        if(a.i===2)st.demand*=.91;
+        st.day++;st.t=270;st.acc=0;st.credits=Math.max(st.credits,6);st.upgrade=null;st.score+=450;
+      }
+    },
+    ai(st){
+      if(st.upgrade)return {k:'mejora',i:st.day%3};
+      if(st.credits>=3){let i=0;for(let j=1;j<st.stations.length;j++)if(st.stations[j].q>st.stations[i].q)i=j;return {k:'refuerzo',i};}
+      return null;
+    },
+    key(st,k,down){
+      if(!down)return;
+      if(st.upgrade&&/^[123]$/.test(k))this.act(st,{k:'mejora',i:+k-1});
+      else if(/^[1-9]$/.test(k))this.act(st,{k:'refuerzo',i:+k-1});
+    },
+    pointer(st,type,x,y,vp){
+      if(type!=='down')return null;
+      const w=vp.w,h=vp.h;
+      if(st.upgrade)return y>h*.78?{k:'mejora',i:clamp(Math.floor(x/(w/3)),0,2)}:null;
+      let best=-1,dd=Infinity;
+      for(let i=0;i<st.stations.length;i++){const s=st.stations[i],dx=x-(24+s.x*(w-48)),dy=y-(96+s.y*(h-200)),d=dx*dx+dy*dy;if(d<dd){dd=d;best=i;}}
+      return dd<2704?{k:'refuerzo',i:best}:null;
+    },
+    draw(g,st,vp){
+      const w=vp.w,h=vp.h;
+      g.fillStyle='#0f2a45';g.fillRect(0,0,w,h);
+      g.fillStyle='#f1ece0';g.font='bold 21px system-ui';g.fillText('Un día de operación · jornada '+st.day,18,36);
+      g.font='15px system-ui';g.fillText('Hora '+pad2(Math.floor(st.t/60))+':'+pad2(st.t%60)+' · Fichas '+st.credits+' · '+Math.round(st.score)+' pts',18,62);
+      g.strokeStyle='#4d7eaa';g.lineWidth=5;
+      const p=s=>[24+s.x*(w-48),96+s.y*(h-200)];
+      for(const [a,b] of st.links){const A=p(st.stations[a]),B=p(st.stations[b]);g.beginPath();g.moveTo(A[0],A[1]);g.lineTo(B[0],B[1]);g.stroke();}
+      for(const s of st.stations){
+        const [x,y]=p(s),q=s.q/s.cap;g.beginPath();g.fillStyle=q>.7?'#EC343A':q>.4?'#E38835':'#59AB42';
+        g.arc(x,y,16+q*8,0,TAU);g.fill();g.strokeStyle='#f1ece0';g.lineWidth=2;g.stroke();
+        g.fillStyle='#f1ece0';g.textAlign='center';g.font='11px system-ui';g.fillText(s.id,x,y-26);g.fillText(Math.round(q*100)+'%',x,y+4);
+      }
+      g.textAlign='start';g.fillStyle='#f1ece0';g.font='13px system-ui';g.fillText('Toca una estación: refuerzo por 3 fichas',18,h-35);
+      if(st.upgrade){
+        g.fillStyle='rgba(15,42,69,.96)';g.fillRect(0,h*.68,w,h*.32);g.fillStyle='#F6C538';g.font='bold 19px system-ui';g.fillText('Turno completo: elige una mejora',12,h*.73);
+        ['Más trenes','Más capacidad','Información'].forEach((txt,i)=>{g.fillStyle=['#1C5C9C','#59AB42','#E38835'][i];g.fillRect(i*w/3+4,h*.79,w/3-8,h*.12);g.fillStyle='#f1ece0';g.font='bold 13px system-ui';g.fillText(txt,i*w/3+9,h*.85);});
+      }
+    },
+    hud(st){return [['Día',st.day],['Viajes',Math.round(st.served)],['Fichas',st.credits]];},
+    result(st){return {done:!!st.done,win:!!st.win,stars:st.win?3:st.day>=4?2:st.day>=2?1:0,score:st.score|0,lines:[['Jornadas',st.day],['Viajes atendidos',Math.round(st.served)],['Estado',st.win?'Red a salvo':st.saturated>=0?'Saturación: '+st.stations[st.saturated].id:'En servicio']]};}
+  };
+})();
+~~~~
+
+### `src/js/48a-gpt6-eon-fantasma.js`
+~~~~js
+/* OpenAI GPT-6 · Eón · CX-36-2
+   Fantasma diario con muestreo interpolado cada 0,1 s, por modo y recorrido.
+   Usa Save.d.best (ya existente) para preservar elmetro.v1; no añade nuevas claves raíz.
+   QR comparte el tiempo y el nivel, no el trazado del fantasma. */
+(() => {
+  const DAY = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+  const modes = ['conduce', 'bus', 'carrera'];
+  const point = (id, st, M) => {
+    if (!st) return null;
+    if (id === 'carrera') { const p = M.pos(st, st.s, st.cx); return p && { x: p.x, y: p.y }; }
+    if (id === 'conduce') { const l = NET.byId[st.line]; if (!l) return null; const p = NET.at(l.P, st.s); return p && { x: p.x, y: p.y }; }
+    return Number.isFinite(st.x) && Number.isFinite(st.y) ? { x: st.x, y: st.y } : null;
+  };
+  const key = (id, lv) => DAY() + '|' + id + '|' + lv;
+  const store = () => {
+    if (!Save.d || !Save.d.best) return null;
+    if (!Save.d.best._retoFantasma || typeof Save.d.best._retoFantasma !== 'object') Save.d.best._retoFantasma = {};
+    return Save.d.best._retoFantasma;
+  };
+  const get = (id, lv) => { const o = store(); return o ? o[key(id, lv)] || null : null; };
+  const at = (rec, t) => {
+    if (!rec || !Array.isArray(rec.frames) || !rec.frames.length) return null;
+    const f = Math.min(rec.frames.length - 1, Math.max(0, t / .1)), i = Math.floor(f), j = Math.min(rec.frames.length - 1, i + 1), a = rec.frames[i], b = rec.frames[j], p = f - i;
+    return { x: (a[0] * (1-p) + b[0] * p) / 10, y: (a[1] * (1-p) + b[1] * p) / 10 };
+  };
+  const share = (id, st) => {
+    if (typeof QR === 'undefined' || typeof UI === 'undefined' || !st || !st._ghostTrial) return;
+    const r = get(id, st._ghostTrial.lv); if (!r) { UI.toast('Todavía no hay mejor marca de hoy para este trayecto'); return; }
+    const data = ['EM-RETO-1', DAY(), id, st._ghostTrial.lv, r.t.toFixed(1)].join('|');
+    UI.modal('<div class="pag">👻 Reto del día</div><h2>Comparte tu tiempo</h2><div id="ghostQr" style="text-align:center"></div><p class="m">El QR comparte tu marca y recorrido; no la posición completa del fantasma.</p>');
+    const n = document.getElementById('ghostQr'); if (n) { const cv = QR.canvas(data, 4, 4, '#154a80', '#f1ece0'); cv.style.maxWidth = 'min(75vw,260px)'; cv.style.height = 'auto'; n.appendChild(cv); }
+  };
+  const record = (id, st, result) => {
+    const g = st && st._ghostTrial; if (!g || g.saved || !result.done) return;
+    g.saved = true;
+    if (!result.win || g.overflow || g.frames.length < 2) return;
+    const all = store(); if (!all) return;
+    const k = key(id, g.lv), prev = all[k];
+    if (prev && prev.t <= g.t) return;
+    all[k] = { v: 1, t: Math.round(g.t * 10) / 10, frames: g.frames, score: result.score | 0 };
+    const old = Object.keys(all).sort(); while (old.length > 6) delete all[old.shift()];
+    Save.write();
+  };
+  EM.reto = Object.assign(EM.reto || {}, { fantasma: { get, at, point, key, share, dia: DAY } });
+  for (const id of modes) {
+    const M = EM.modes[id]; if (!M || !M.create || !M.step || !M.result || !M.draw) continue;
+    const create0 = M.create, step0 = M.step, result0 = M.result, draw0 = M.draw, mount0 = M.mount;
+    M.create = function (lv, opts = {}) {
+      const st = create0.apply(this, arguments);
+      if (!st || opts.auto || EM.headless) return st;
+      const p = point(id, st, this);
+      if (p) st._ghostTrial = { lv, t: 0, next: .1, frames: [[Math.round(p.x*10), Math.round(p.y*10)]], overflow: false, saved: false };
+      return st;
+    };
+    M.step = function (st, dt) {
+      const g = st && st._ghostTrial, before = g && !g.overflow ? point(id, st, this) : null;
+      const r = step0.apply(this, arguments);
+      if (!g || g.saved || g.overflow || !before || !(dt > 0)) return r;
+      const after = point(id, st, this); if (!after) return r;
+      const t0 = g.t; g.t += dt;
+      while (g.next <= g.t + 1e-8) {
+        const f = clamp((g.next-t0)/dt,0,1), x=before.x+(after.x-before.x)*f, y=before.y+(after.y-before.y)*f;
+        g.frames.push([Math.round(x*10),Math.round(y*10)]);g.next=Math.round((g.next+.1)*1000)/1000;
+        if (g.frames.length >= 36000) { g.overflow=true; break; }
+      }
+      return r;
+    };
+    M.result = function(st) {const r=result0.apply(this,arguments);record(id,st,r);return r;};
+    M.draw = function(g, st, vp) {
+      const r = draw0.apply(this, arguments), trial = st && st._ghostTrial, best = trial && get(id, trial.lv), ghost = best && at(best, trial.t);
+      if (!ghost || !g || !vp) return r;
+      const pos = point(id, st, this); if (!pos) return r;
+      const gap = Math.hypot(pos.x-ghost.x,pos.y-ghost.y);
+      g.save(); g.globalAlpha=.68; g.fillStyle='#154a80';g.fillRect(Math.max(0,vp.w-148),Math.max(4,vp.h-57),145,29);
+      g.fillStyle='#f1ece0';g.font='bold 12px system-ui';g.fillText('👻 '+Math.round(gap)+' m',Math.max(4,vp.w-139),Math.max(15,vp.h-38));
+      if(typeof G3!=='undefined'&&G3.cv&&G3.cv.style.display!=='none'&&G3.toScreen&&G3.vw&&G3.vh){
+        const z=MAP.elevM(ghost.x,ghost.y)+2, p=G3.toScreen(ghost.x,z,ghost.y,G3.vw,G3.vh);
+        if(p&&p.x>=0&&p.y>=0&&p.x<G3.vw&&p.y<G3.vh){
+          g.globalAlpha=.38;g.fillStyle='#59AB42';g.beginPath();g.arc(p.x*vp.w/G3.vw,p.y*vp.h/G3.vh,13,0,TAU);g.fill();
+        }
+      }
+      g.restore();return r;
+    };
+    if(mount0) M.mount = function(st,el){const r=mount0.apply(this,arguments);if(!EM.headless&&el&&el.appendChild){const b=document.createElement('button');b.className='btn sm gh';b.textContent='👻 QR récord';b.onclick=()=>share(id,st);el.appendChild(b);}return r;};
+  }
+})();
+~~~~
+
 ### `src/js/50-cable.js`
 ~~~~js
 /* =====================================================================
@@ -14134,6 +14455,41 @@ const BotT = EM.test = {
       for (let i = 0; i < 40 && b.alight > 0; i++) Bus.stopTick(b, .1, NET.byId[b.line]);
       if (al0 > 0 && b.pax !== 5 - al0) E('bus 3.2: al bajar pasajeros st.pax quedó en ' + b.pax + ' (esperado ' + (5 - al0) + ')');
     } catch (e) { E('3.2.0: ' + e.message); }
+    // 3.7.0 · GA-36-1 (ladeo en curvas), GA-36-2 (mitades 3D), GA-36-3 (huellas de subtramas + paradero/banca), GA-36-4 (arte G-110..G-112 con respaldo)
+    try {
+      if (!EM.ladeo) E('GA-36-1: falta EM.ladeo');
+      else {
+        const vS = 12, wS = .35, esp = Math.atan(vS * wS / 9.81);
+        let phi = 0; for (let i = 0; i < 60; i++) phi = EM.ladeo.paso(phi, vS, wS, 1 / 30, false);
+        if (Math.abs(phi - esp) > .02) E('GA-36-1: φ=' + phi.toFixed(3) + ' difiere de atan(v·ω/g)=' + esp.toFixed(3));
+        let tope = 0; for (let i = 0; i < 60; i++) tope = EM.ladeo.paso(tope, 25, 1.5, 1 / 30, false);
+        if (Math.abs(tope - .45) > .015) E('GA-36-1: el tope de ladeo no limita en ±0,45 rad (' + tope.toFixed(3) + ')');
+        let aire = phi; for (let i = 0; i < 60; i++) aire = EM.ladeo.paso(aire, vS, wS, 1 / 30, true);
+        if (Math.abs(aire) > .02) E('GA-36-1: en el aire no se endereza (' + aire.toFixed(3) + ')');
+        const lb = Libre.create('lb:San Antonio', { seed: 3 });
+        Object.assign(lb, { mode: 'veh', veh: { kind: 'bici', col: VEH.bici.col, id: -1 }, vf: 10, h: 0, ladeo: 0, joy: { x: 0, y: 1, m: 1 }, keys: { up: true, right: true } });
+        for (let i = 0; i < 18; i++) Libre.step(lb, 1 / 30);
+        if (!(Math.abs(lb.ladeo) > .03)) E('GA-36-1: la bici en curva en Ciudad Libre no se inclina (' + (lb.ladeo || 0).toFixed(3) + ')');
+      }
+      const ns = newSave();
+      if (ns.settings.pantalla !== 'mitades' || !Array.isArray(ns.rpg.diario) || typeof ns.rpg.barrios !== 'object') E('GA-36: faltan valores por defecto en newSave()');
+      if (!EM.mitades) E('GA-36-2: falta EM.mitades');
+      if (!EM.subtramasVivas) E('GA-36-3: falta EM.subtramasVivas');
+      else {
+        const bak = JSON.parse(JSON.stringify(Save.d));
+        try {
+          Save.d = Save.sanitize(newSave());
+          const ent = EM.subtramasVivas.registrar(null, 'pico-sa', 0, true);
+          if (!ent || !Save.d.rpg.diario.length || Save.d.rpg.diario[0].id !== 'pico-sa') E('GA-36-3: la subtrama no dejó línea en el diario');
+          if (!EM.ciudadViva || !EM.ciudadViva.noticias || !EM.ciudadViva.noticias().length) E('GA-36-3: la subtrama no dejó noticia en EM.ciudadViva');
+          const sa = NET.stations.find(s => s.name === 'San Antonio');
+          if (!(EM.subtramasVivas.repBarrio(sa.x, sa.y, 'La Candelaria') > 0)) E('GA-36-3: no subió la reputación del barrio');
+          if (!EM.ciudadViva.fraseLugar('paradero') || !EM.ciudadViva.fraseLugar('banca')) E('GA-36-3: faltan frases de paradero o banca desde FRASES_CIUDAD');
+        } finally { Save.d = bak; }
+      }
+      if (!EM.arte36 || EM.arte36.MAPA.zen.length !== 4 || Object.keys(EM.arte36.MAPA.subtramas).length !== 6 || Object.keys(EM.arte36.MAPA.skate).length !== 6) E('GA-36-4: mapa incompleto de G-110..G-112');
+      else for (const k of Object.keys(EM.arte36.MAPA.subtramas)) if (!EM.arte36.escenaSubtrama(k)) E('GA-36-4: sin respaldo para subtrama ' + k);
+    } catch (e) { E('3.7.0: ' + e.message); }
     const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },
@@ -14658,6 +15014,599 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
 })();
 ~~~~
 
+### `src/js/96g-ladeo-mitades.js`
+~~~~js
+/* =====================================================================
+   GA-36-1 Y GA-36-2 · INCLINACIÓN EN CURVAS + PANTALLA EN MITADES EN 3D (Antigravity, 3.7)
+   - GA-36-1 (de Motor City 5.2, Cuerpo._ladear): bici, moto, patineta, monopatín, skate y
+     patines se inclinan hacia adentro de la curva con φ = clamp(atan(v·ω / 9.81), ±0.45 rad),
+     suavizado, girando juntos el vehículo y el piloto en el 3D de Ciudad Libre y el corredor.
+     Cero llamadas extra de dibujo y cero vértices nuevos.
+   - GA-36-2 (de Motor City 4.8, MC.Controles): pantalla en mitades en el 3D de Ciudad Libre
+     (mitad superior = cámara con arrastre, pellizco y doble toque para centrar; mitad inferior
+     = manejo/joystick sin soltarse al mover la cámara). Conmutable en Ajustes → ⚙️ Flexibilidad.
+   ===================================================================== */
+(function () {
+  const L = EM.modes.libre, Cr = EM.modes.carrera, T = EM.taller;
+  const G_ACC = 9.81, TOPE_RAD = .45, TAU_LADEO = .14;
+  const VEH_LADEO = { bici: 1, moto: 1, scooter: 1, skate: 1, monopatin: 1, patines: 1 };
+  const angDif = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
+
+  /* ---------- GA-36-1: inclinación física φ = clamp(atan(v·ω/g), ±0.45 rad) ---------- */
+  const LD = EM.ladeo = {
+    G: G_ACC,
+    TOPE: TOPE_RAD,
+    VEH: VEH_LADEO,
+    _activo: 0,
+    _px: 0,
+    _py: 0,
+    _pz: 0,
+    _roll: 0,
+    esLadeable(kind) { return !!VEH_LADEO[kind]; },
+    objetivo(v, w, enAire) {
+      if (enAire || !isFinite(v) || !isFinite(w)) return 0;
+      return clamp(Math.atan((v * w) / G_ACC), -TOPE_RAD, TOPE_RAD);
+    },
+    paso(cur, v, w, dt, enAire) {
+      if (!(dt > 0)) return cur || 0;
+      const obj = this.objetivo(v, w, enAire);
+      const k = 1 - Math.exp(-dt / TAU_LADEO);
+      return (cur || 0) + (obj - (cur || 0)) * k;
+    }
+  };
+
+  /* soporte opcional de alabeo (roll) en EM.taller.mundo sin romper llamadas existentes */
+  if (T && T.mundo && !T._conRoll) {
+    T._conRoll = 1;
+    T.mundo = (buffer, x, altura, z, rumbo, g3, roll) => {
+      if (typeof g3 === 'number') { roll = g3; g3 = EM.g3; }
+      const G = g3 || EM.g3;
+      let r = roll != null ? roll : 0;
+      if (!r && LD._activo && Math.abs(x - LD._px) < .05 && Math.abs(z - LD._py) < .05) r = LD._roll;
+      const gl = G.gl, u = G.P.u;
+      gl.uniformMatrix4fv(u.M, false, M4.trs(x, altura, z, -rumbo, 1, 1, 1, 0, r));
+      try { G._run(buffer); } finally { gl.uniformMatrix4fv(u.M, false, G._I); }
+    };
+  }
+
+  /* manubrio en primera persona con inclinación sutil en curva */
+  if (T && T.primera && !T._conLadeo1p) {
+    T._conLadeo1p = 1;
+    const pr0 = T.primera;
+    T.primera = function (g, id, W, H, tilt) {
+      const st = typeof Game !== 'undefined' ? Game.st : null;
+      const extra = st && isFinite(st.ladeo) ? st.ladeo * .42 : 0;
+      return pr0.call(this, g, id, W, H, (tilt || 0) + extra);
+    };
+  }
+
+  /* piloto en 3D inclinado en bloque rígido junto al vehículo alrededor del punto de apoyo */
+  if (L && L.persona3 && !L._personaConRoll) {
+    L._personaConRoll = 1;
+    const p30 = L.persona3;
+    L.persona3 = function (G, x, z, y, a, p, s = 1, paso = 0, rollArg = null, zPivotArg = null) {
+      const auto = rollArg == null && LD._activo && Math.abs(x - LD._px) < .05 && Math.abs(y - LD._py) < .05;
+      const roll = rollArg != null ? rollArg : (auto ? LD._roll : 0);
+      if (Math.abs(roll) <= .003) return p30.call(this, G, x, z, y, a, p, s, paso);
+      const zPiv = zPivotArg != null ? zPivotArg : (auto ? LD._pz : z);
+      const C = h => this.rgb3(h), b = Math.abs(Math.sin(paso)) * .06 * s, dy0 = z - zPiv;
+      const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, sr = Math.sin(roll), cr = Math.cos(roll);
+      const parte = (dy, atras, len, wid, hi, col) => {
+        const lat = dy * sr, up = dy * cr;
+        G.box(x + nx * lat - ca * atras, zPiv + up, y + ny * lat - sa * atras, a, len, wid, hi, col, 0, roll);
+      };
+      parte(dy0, 0, .32 * s, .42 * s, .8 * s, C(p.pants || '#2a3b5c'));
+      parte(dy0 + .8 * s + b, 0, .36 * s, .5 * s, .62 * s, C(p.col || '#1C5C9C'));
+      parte(dy0 + 1.42 * s + b, 0, .3 * s, .3 * s, .3 * s, C(p.skin || '#e8b98f'));
+      if (p.gorro === 2) parte(dy0 + 1.66 * s + b, 0, .62 * s, .62 * s, .07 * s, [.94, .91, .83]);
+      else if (p.gorro) parte(dy0 + 1.68 * s + b, 0, .34 * s, .34 * s, .1 * s, C(p.hatCol || '#EC343A'));
+      else parte(dy0 + 1.68 * s + b, 0, .31 * s, .31 * s, .06 * s, C(p.hair || '#2a1a10'));
+      if (p.acc === 1) parte(dy0 + .95 * s + b, .25 * s, .16 * s, .36 * s, .42 * s, [.17, .18, .22]);
+      if (p.acc === 3) parte(dy0 + .78 * s + b, 0, .44 * s, .62 * s, .5 * s, [.54, .51, .45]);
+    };
+  }
+
+  /* Ciudad Libre: calcula st.ladeo por paso y lo aplica al vehículo + piloto en dyn3D */
+  if (L && !L._conLadeo) {
+    L._conLadeo = 1;
+    const stepL0 = L.step, dynL0 = L.dyn3D;
+    L.step = function (st, dt) {
+      const h0 = st.h;
+      const r = stepL0.apply(this, arguments);
+      if (st.mode === 'veh' && st.veh && VEH_LADEO[st.veh.kind] && dt > 0) {
+        const w = angDif(h0, st.h) / dt;
+        st.ladeo = LD.paso(st.ladeo || 0, st.vf || 0, w, dt, (st.jumpY || 0) > .08);
+      } else {
+        st.ladeo = LD.paso(st.ladeo || 0, 0, 0, dt, true);
+      }
+      return r;
+    };
+    L.dyn3D = function (G, st, zj) {
+      const on = st.mode === 'veh' && st.veh && VEH_LADEO[st.veh.kind] && st.vista3 !== '1p' && Math.abs(st.ladeo || 0) > .003;
+      if (!on) return dynL0.call(this, G, st, zj);
+      const zPiv = zj + (st.jumpY || 0), r = st.ladeo;
+      LD._activo = 1; LD._px = st.x; LD._py = st.y; LD._pz = zPiv; LD._roll = r;
+      if (this.malla3 && this.malla3(st.veh.kind, 1)) {
+        try { return dynL0.call(this, G, st, zj); } finally { LD._activo = 0; }
+      }
+      const sr = Math.sin(r), cr = Math.cos(r), nx = -Math.sin(st.h), ny = Math.cos(st.h), box0 = G.box;
+      /* respaldo de cajas solo cuando el vehículo no tiene malla del taller */
+      G.box = function (x, y, z, yaw, len, wid, hi, col, pitch = 0, roll = 0) {
+        if (!pitch && !roll && Math.abs(x - st.x) < .75 && Math.abs(z - st.y) < .75 && y >= zPiv - .05 && y <= zPiv + 1.9) {
+          const dy = y - zPiv;
+          return box0.call(this, x + nx * dy * sr, zPiv + dy * cr, z + ny * dy * sr, yaw, len, wid, hi, col, 0, r);
+        }
+        return box0.call(this, x, y, z, yaw, len, wid, hi, col, pitch, roll);
+      };
+      try { return dynL0.call(this, G, st, zj); } finally { G.box = box0; LD._activo = 0; }
+    };
+  }
+
+  /* Corredor (47-carrera.js + 47b-ciclovia.js): ladeo por curvatura de la ciclorruta y cambio de carril */
+  if (Cr && !Cr._conLadeo) {
+    Cr._conLadeo = 1;
+    const stepC0 = Cr.step, dynC0 = Cr.dyn3D;
+    Cr.step = function (st, dt) {
+      const r = stepC0.apply(this, arguments);
+      if (st && dt > 0 && !st.done) {
+        const V = this.V(st);
+        if (!V || V.id === 'pie') { st.ladeo = 0; return r; }
+        const a1 = this.pos(st, st.s, st.cx).a;
+        const a0 = st._aLadeo != null ? st._aLadeo : a1;
+        st._aLadeo = a1;
+        const wRuta = angDif(a0, a1) / dt;
+        const wCarril = clamp((st.c - st.cx) * 2.4, -2.5, 2.5);
+        st.ladeo = LD.paso(st.ladeo || 0, st.v || 0, wRuta + wCarril, dt, (st.y || 0) > .08);
+      }
+      return r;
+    };
+    Cr.dyn3D = function (G, st, p, z) {
+      const V = this.V(st);
+      const on = V && V.id !== 'pie' && !st.primera && Math.abs(st.ladeo || 0) > .003;
+      if (!on) return dynC0.call(this, G, st, p, z);
+      LD._activo = 1; LD._px = p.x; LD._py = p.y; LD._pz = z; LD._roll = st.ladeo;
+      try { return dynC0.call(this, G, st, p, z); } finally { LD._activo = 0; }
+    };
+  }
+
+  /* ---------- GA-36-2: pantalla en mitades en el 3D (de Motor City 4.8) ---------- */
+  const MT = EM.mitades = {
+    activa(st) {
+      const s = Save.d && Save.d.settings;
+      if (s && s.pantalla === 'clasica') return false;
+      return !st || (!!st.vista3 && !st.camLibre);
+    },
+    aplicarClase() {
+      if (typeof document === 'undefined' || !document.body) return;
+      const s = Save.d && Save.d.settings;
+      document.body.classList.toggle('pant-clasica', !!(s && s.pantalla === 'clasica'));
+    }
+  };
+  if (typeof document !== 'undefined') setTimeout(() => MT.aplicarClase(), 0);
+
+  if (L && !L._conMitades) {
+    L._conMitades = 1;
+    const mount0 = L.mount;
+    L.mount = function (st, el) {
+      MT.aplicarClase();
+      const r = mount0.apply(this, arguments);
+      const jz = $('#lbJz');
+      if (jz) {
+        /* registra el pointerId activo del joystick para no soltarlo nunca al mover la cámara */
+        jz.addEventListener('pointerdown', e => { st._joyPid = e.pointerId; e.stopPropagation(); });
+        const finJ = e => { if (e.pointerId === st._joyPid) st._joyPid = null; };
+        jz.addEventListener('pointerup', finJ);
+        jz.addEventListener('pointercancel', finJ);
+      }
+      return r;
+    };
+    L.camGestos = function (st) {
+      const cv = $('#gcv'); if (!cv) return;
+      if (this._cg) this._cg();
+      const T = new Map();
+      let pinch = null, ultToque = null;
+      const down = e => {
+        if (st._joyPid != null && e.pointerId === st._joyPid) return;
+        const r = cv.getBoundingClientRect(), yRel = (e.clientY - r.top) / Math.max(1, r.height);
+        /* en mitades: la mitad inferior es para manejar; solo la mitad superior inicia gestos de cámara */
+        if (MT.activa(st) && yRel >= .5) return;
+        T.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY });
+        try { cv.setPointerCapture(e.pointerId); } catch (err) { /* sin captura */ }
+        if (T.size === 2) {
+          const [a, b] = [...T.values()];
+          pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: st.cam.k, z: st.zoomU || 1 };
+        }
+      };
+      const move = e => {
+        if (st._joyPid != null && e.pointerId === st._joyPid) return;
+        const q = T.get(e.pointerId); if (!q) return;
+        const nx = e.clientX, ny = e.clientY;
+        if (T.size >= 2 && pinch) {
+          q.x = nx; q.y = ny;
+          const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d);
+          if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7);
+          else st.zoomU = clamp(pinch.z * f, .35, 3.2);
+          return;
+        }
+        if (st.vista3 === 'cen3d' && T.size === 1) {
+          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
+          else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); }
+          q.x = nx; q.y = ny; return;
+        }
+        if (st.vista3 && T.size === 1) {
+          st.cyo = (st.cyo || 0) - (nx - q.x) * .006;
+          st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .004, -.45, .9);
+          q.x = nx; q.y = ny; return;
+        }
+        if (st.camLibre && T.size === 1) { st.cam.x -= (nx - q.x) / st.cam.k; st.cam.y -= (ny - q.y) / st.cam.k; }
+        q.x = nx; q.y = ny;
+      };
+      const up = e => {
+        const q = T.get(e.pointerId);
+        if (q && T.size === 1 && MT.activa(st)) {
+          const quieto = Math.hypot(q.x - q.x0, q.y - q.y0) < 10;
+          if (quieto) {
+            const tNow = typeof performance !== 'undefined' ? performance.now() : Date.now();
+            if (ultToque && tNow - ultToque.t < 320 && Math.hypot(q.x - ultToque.x, q.y - ultToque.y) < 40) {
+              st.cyo = 0; st.cpo = 0; ultToque = null;
+              if (L.msg) L.msg(st, '🎯 Cámara centrada', 'b');
+            } else {
+              ultToque = { x: q.x, y: q.y, t: tNow };
+            }
+          }
+        }
+        T.delete(e.pointerId);
+        if (T.size < 2) pinch = null;
+      };
+      const wheel = e => { e.preventDefault(); if (this._zoom) this._zoom(Math.exp(-clamp(e.deltaY, -120, 120) * .0016)); };
+      cv.addEventListener('pointerdown', down); cv.addEventListener('pointermove', move); cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('wheel', wheel, { passive: false });
+      this._cg = () => { cv.removeEventListener('pointerdown', down); cv.removeEventListener('pointermove', move); cv.removeEventListener('pointerup', up); cv.removeEventListener('pointercancel', up); cv.removeEventListener('wheel', wheel); this._cg = null; };
+    };
+  }
+
+  /* Ajustes → ⚙️ Flexibilidad: opción «✂️ Pantalla en 3D» */
+  if (typeof Menu !== 'undefined' && Menu.settings && !Menu._conPantalla3d) {
+    Menu._conPantalla3d = 1;
+    const set0 = Menu.settings;
+    Menu.settings = function () {
+      const r = set0.apply(this, arguments);
+      const mBody = document.getElementById('mBody');
+      if (!mBody || document.getElementById('sPant3d')) return r;
+      const zurdoTg = mBody.querySelector('.tg[data-fx="zurdo"]');
+      const ancla = zurdoTg || mBody.querySelector('.tg[data-fx="uiTam"]');
+      if (!ancla) return r;
+      const s = Save.d.settings, cur = s.pantalla === 'clasica' ? 'clasica' : 'mitades';
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `<div class="pag">✂️ Pantalla en 3D (Ciudad Libre)</div><div class="tg" id="sPant3d"><button data-v="mitades" class="${cur === 'mitades' ? 'on' : ''}">En mitades: arriba cámara, abajo manejo</button><button data-v="clasica" class="${cur === 'clasica' ? 'on' : ''}">Clásica: joystick amplio</button></div>`;
+      ancla.after(wrap);
+      for (const b of wrap.querySelectorAll('#sPant3d button')) {
+        b.onclick = () => {
+          s.pantalla = b.dataset.v === 'clasica' ? 'clasica' : 'mitades';
+          MT.aplicarClase(); Save.write();
+          for (const x of wrap.querySelectorAll('#sPant3d button')) x.classList.toggle('on', x === b);
+        };
+      }
+      return r;
+    };
+  }
+})();
+~~~~
+
+### `src/js/96h-subtramas-vivas.js`
+~~~~js
+/* =====================================================================
+   GA-36-3 · LAS SUBTRAMAS DEJAN HUELLA + FRASES DE PARADERO Y BANCA (Antigravity, 3.7)
+   Cada decisión de las 6 subtramas de 36c-actividades.js deja tres marcas persistentes:
+   1) Diario de huellas en Save.d.rpg.diario (legible desde el menú de Ciudad Libre).
+   2) Noticia comentada por la gente mediante EM.ciudadViva y Ciudad.say.
+   3) Reputación del barrio en Save.d.rpg.barrios, visible en el letrero del lugar (#lbLugar).
+   Además, la gente que espera en paraderos/estaciones y descansa en plazas/bancas usa las
+   frases con lugar: 'paradero' y 'banca' de src/js/96e1-frases-ciudad.js (FRASES_CIUDAD).
+   ===================================================================== */
+(function () {
+  const Rpg = EM.mundoRPG, L = EM.modes.libre;
+  if (!Rpg) return;
+
+  const HUELLAS = {
+    'pico-sa': {
+      barrio: 'La Candelaria · San Antonio', hub: 'San Antonio',
+      aliases: ['candelaria', 'san antonio', 'guayaquil', 'san benito', 'centro', 'bolivar', 'bolívar'],
+      op: {
+        expreso: { noticia: 'Tren de refuerzo alivió la hora pico en San Antonio', frases: ['¿Supiste? El tren de refuerzo despejó San Antonio rapidito.', 'Qué alivio hoy en el andén de San Antonio, no hubo apretón.'] },
+        anfitriones: { noticia: 'Filas ejemplares de Cultura Metro en San Antonio', frases: ['Hoy en San Antonio la fila estuvo impecable, pura Cultura Metro.', 'Qué gusto ver a todos dejando salir antes de entrar en San Antonio.'] },
+        integrado: { noticia: 'Conexión fluida entre Metro, Tranvía y Metroplús', frases: ['El aviso del trasbordo en San Antonio nos ahorró media hora.', 'Qué bien organizada estuvo la integración hoy en el centro.'] }
+      }
+    },
+    'ciclo-rio': {
+      barrio: 'Parques del Río · Perpetuo Socorro', hub: 'Exposiciones',
+      aliases: ['parques del rio', 'parques del río', 'perpetuo socorro', 'conquistadores', 'alpujarra', 'exposiciones'],
+      op: {
+        zona: { noticia: 'Bahía de skate segura y dos carriles libres en Parques del Río', frases: ['Quedó muy bacana la bahía de skate allá en Parques del Río.', 'Ahora sí se pedalea sabroso por el río sin sustos con las tablas.'] },
+        senales: { noticia: 'Flechas y campana de cortesía en la Ciclovía del Río', frases: ['Ya todos avisan con la campana en la ciclovía de Parques del Río.', 'Esas flechas en el corredor del río nos salvaron de más de un choque.'] }
+      }
+    },
+    'niebla-arvi': {
+      barrio: 'Santo Domingo Savio · Arví', hub: 'Santo Domingo Savio',
+      aliases: ['santo domingo', 'popular', 'arvi', 'arví', 'santa elena', 'granizal', 'andalucia', 'andalucía'],
+      op: {
+        lento: { noticia: 'Viaje sereno a 3 m/s entre la niebla rumbo a Arví', frases: ['Qué belleza subir a Arví despacio entre la neblina, sin afán.', 'En la Línea L bajaron la velocidad por el viento y fue una maravilla.'] },
+        mirador: { noticia: 'Pausa segura y visita guiada al mirador de Santo Domingo', frases: ['Primero la seguridad en Santo Domingo: mientras escampaba vimos el mirador.', 'Qué buen detalle invitar a las familias al mirador antes de subir a Arví.'] }
+      }
+    },
+    'guitarra-t': {
+      barrio: 'Buenos Aires · Ayacucho', hub: 'Bicentenario',
+      aliases: ['buenos aires', 'ayacucho', 'boston', 'bicentenario', 'la milagrosa', 'bombona', 'bomboná', 'miraflores'],
+      op: {
+        plazoleta: { noticia: 'Música en vivo en la plazoleta lateral de Bicentenario', frases: ['Qué parche tan bueno armaron con guitarra junto al tranvía en Ayacucho.', 'Movieron la música a la plazoleta y el tranvía pasa limpiecito.'] },
+        campana: { noticia: 'Pausa musical al sonar la campana del Tranvía de Ayacucho', frases: ['Es un parche ver cómo paran la guitarra apenas suena la campana del tranvía.', 'En Ayacucho ya hasta saludan al tranvía con palmas.'] }
+      }
+    },
+    'cruce-ind': {
+      barrio: 'Industriales · Ciudad del Río', hub: 'Industriales',
+      aliases: ['industriales', 'ciudad del rio', 'ciudad del río', 'colombia', 'manila', 'poblado', 'barrio colombia'],
+      op: {
+        ola: { noticia: 'Ola verde despejó tres articulados de Metroplús en Industriales', frases: ['Pasaron tres Metroplús derechito por Industriales con esa ola verde.', 'Hoy sí rindió el Metroplús en Industriales a pesar del aguacero.'] },
+        bici: { noticia: 'Fase protegida para peatones y ciclistas en Industriales', frases: ['Qué descanso cruzar Industriales bajo la lluvia con fase protegida.', 'Por fin dieron paso tranquilo a los de a pie y en bici en Industriales.'] }
+      }
+    },
+    'bici-estadio': {
+      barrio: 'Estadio · Unidad Deportiva Atanasio', hub: 'Estadio',
+      aliases: ['estadio', 'atanasio', 'suramericana', 'los colores', 'carlos e', 'velodromo', 'velódromo', 'laureles'],
+      op: {
+        anclar: { noticia: 'Vecino devolvió una bici EnCicla al anclaje de Estadio', frases: ['Vea pues: un vecino devolvió una EnCicla perdida allá en el Estadio.', 'Así se cuida lo público: la bici volvió al anclaje del Atanasio.'] },
+        rodada: { noticia: 'Rodada pedagógica de EnCicla en el Atanasio Girardot', frases: ['Qué buena esa rodada pedagógica de EnCicla en la unidad deportiva.', 'Diez personas estrenaron hoy su Cívica en EnCicla por el Estadio.'] }
+      }
+    }
+  };
+
+  function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  function rpgSave() {
+    if (!Save.d) return { diario: [], barrios: {}, subtramas: {} };
+    const R = Save.d.rpg || (Save.d.rpg = { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {}, diario: [], barrios: {} });
+    if (!Array.isArray(R.diario)) R.diario = [];
+    if (!R.barrios || typeof R.barrios !== 'object') R.barrios = {};
+    if (!R.subtramas || typeof R.subtramas !== 'object') R.subtramas = {};
+    return R;
+  }
+
+  /* si un guardado viejo ya tenía decisiones en rpg.subtramas, reconstruye su diario y reputación */
+  function hidratar() {
+    const R = rpgSave();
+    for (const s of Rpg.SUBTRAMAS || []) {
+      const dec = R.subtramas[s.id];
+      if (!dec || R.diario.some(e => e.id === s.id)) continue;
+      const oi = Math.max(0, s.opciones.findIndex(o => o.t === dec));
+      SV.registrar(null, s.id, oi, true);
+    }
+  }
+
+  const SV = EM.subtramasVivas = {
+    HUELLAS,
+    _ver: 0,
+    registrar(st, subId, optIdx, silencioso) {
+      const s = (Rpg.SUBTRAMAS || []).find(q => q.id === subId);
+      const o = s && s.opciones[optIdx];
+      if (!s || !o) return null;
+      const R = rpgSave(), h = HUELLAS[s.id] || { barrio: s.lugar, hub: s.lugar, aliases: [norm(s.lugar)], op: {} };
+      const info = (h.op && h.op[o.k]) || { noticia: o.res, frases: [o.res] };
+      const entrada = { id: s.id, k: o.k, titulo: s.titulo, lugar: s.lugar, barrio: h.barrio, decision: o.t, noticia: info.noticia, rep: o.rep, t: Date.now() };
+      R.subtramas[s.id] = o.t;
+      const idx = R.diario.findIndex(e => e.id === s.id);
+      if (idx >= 0) R.diario[idx] = entrada; else R.diario.unshift(entrada);
+      if (R.diario.length > 40) R.diario.length = 40;
+      R.barrios[h.barrio] = (R.barrios[h.barrio] || 0) + o.rep;
+      this._ver++;
+      if (!silencioso) {
+        Save.write();
+        if (st && !EM.headless) {
+          st._bar = '';
+          if (L && L.letrero) L.letrero(st);
+          if (EM.ciudadViva && EM.ciudadViva.reaccionaNoticia) EM.ciudadViva.reaccionaNoticia(st, s.id);
+        }
+      }
+      return entrada;
+    },
+    diario() { hidratar(); return rpgSave().diario; },
+    barrios() { hidratar(); return rpgSave().barrios; },
+    /* reputación del barrio actual por nombre del barrio o cercanía a la estación de la subtrama */
+    repBarrio(x, y, barTxt) {
+      const R = rpgSave(), B = R.barrios;
+      let tiene = false;
+      for (const k in B) if (B[k] > 0) { tiene = true; break; }
+      if (!tiene) {
+        let haySub = false;
+        for (const k in R.subtramas) { haySub = true; break; }
+        if (!haySub) return 0;
+        hidratar();
+      }
+      const nb = norm(barTxt);
+      let best = 0;
+      for (const id in HUELLAS) {
+        const h = HUELLAS[id], v = B[h.barrio] || 0;
+        if (!(v > 0)) continue;
+        let hit = nb && h.aliases.some(a => nb.includes(norm(a)));
+        if (!hit && isFinite(x) && isFinite(y) && typeof NET !== 'undefined' && NET.stations) {
+          const stn = NET.stations.find(q => q.name === h.hub);
+          if (stn && dist(x, y, stn.x, stn.y) < 460) hit = true;
+        }
+        if (hit && v > best) best = v;
+      }
+      return best;
+    },
+    noticiasActivas() {
+      hidratar();
+      const out = [];
+      for (const e of rpgSave().diario) {
+        const h = HUELLAS[e.id], info = h && h.op && h.op[e.k];
+        if (info && info.frases) for (const f of info.frases) out.push(f);
+        else if (e.noticia) out.push(e.noticia);
+      }
+      return out;
+    },
+    abrirDiario(st) {
+      if (Rpg && Rpg.abrir) Rpg.abrir(st, 'rpg');
+    }
+  };
+
+  /* ---------- Integración con EM.ciudadViva y FRASES_CIUDAD (paradero, banca y noticias) ---------- */
+  const Vv = EM.ciudadViva || (EM.ciudadViva = {});
+  const fraseLugar = lugar => {
+    if (typeof FRASES_CIUDAD === 'undefined') return null;
+    const h = (typeof Mundo !== 'undefined' ? Mundo.hour() : 12) * 60;
+    const ll = typeof Mundo !== 'undefined' && !!(Mundo.weather() || {}).rain;
+    const exactas = FRASES_CIUDAD.filter(f => f.lugar === lugar && (!f.hora || (h >= f.hora[0] && h < f.hora[1])) && (f.lluvia === undefined || f.lluvia === ll));
+    const pool = exactas.length ? exactas : FRASES_CIUDAD.filter(f => f.lugar === lugar);
+    return pool.length ? pool[(Math.random() * pool.length) | 0].t : null;
+  };
+  Vv.fraseLugar = fraseLugar;
+  Vv.noticias = () => SV.noticiasActivas();
+  Vv.reaccionaNoticia = function (st, subId) {
+    if (EM.headless || !st || st.auto || typeof Ciudad === 'undefined' || !Ciudad.peds) return 0;
+    const h = HUELLAS[subId], R = rpgSave(), ent = R.diario.find(e => e.id === subId);
+    const frases = (h && ent && h.op[ent.k] && h.op[ent.k].frases) || (ent ? [ent.noticia] : []);
+    if (!frases.length) return 0;
+    const cerca = Ciudad.peds.filter(p => !p.dog && !p.gone && Math.abs(p.x - st.x) < 42 && Math.abs(p.y - st.y) < 42).slice(0, 2);
+    cerca.forEach((p, i) => {
+      p.a = Math.atan2(st.y - p.y, st.x - p.x);
+      p.wait = Math.max(p.wait || 0, 2.2);
+      Ciudad.say(p, frases[i % frases.length]);
+    });
+    return cerca.length;
+  };
+
+  function lugarDePeaton(p) {
+    if (!p || p.dog) return '';
+    if (p.waitStop != null) return 'paradero';
+    if (typeof NET !== 'undefined' && NET.stations) {
+      for (const h of NET.stations) if (Math.abs(h.x - p.x) < 38 && Math.abs(h.y - p.y) < 38) return 'paradero';
+    }
+    if (typeof MAP !== 'undefined' && MAP.ready) {
+      const t = MAP.tileM(p.x, p.y);
+      if (t === TT.PLAZA || t === TT.GRASS) return 'banca';
+    }
+    for (const z of (Rpg.zonas ? Rpg.zonas() : [])) if (Math.abs(z.x - p.x) < 35 && Math.abs(z.y - p.y) < 35) return 'banca';
+    return '';
+  }
+
+  if (typeof Ciudad !== 'undefined' && Ciudad.say && !Ciudad._conHuellas) {
+    Ciudad._conHuellas = 1;
+    const say0 = Ciudad.say;
+    Ciudad.say = function (p, txt) {
+      if (!txt && p && !p.dog) {
+        const lug = lugarDePeaton(p);
+        if (lug && Math.random() < .65) {
+          txt = fraseLugar(lug) || txt;
+        } else {
+          const notis = SV.noticiasActivas();
+          if (notis.length && Math.random() < .32) txt = notis[(Math.random() * notis.length) | 0];
+        }
+      }
+      return say0.call(this, p, txt);
+    };
+    /* charla suave y esporádica de gente esperando en paraderos o descansando en bancas */
+    const pedTick0 = Ciudad.pedTick;
+    let tCharla = 0;
+    Ciudad.pedTick = function (dt, player) {
+      const r = pedTick0.apply(this, arguments);
+      if (EM.headless || !player || !this.peds || !this.peds.length) return r;
+      tCharla += dt;
+      if (tCharla < 4.5) return r;
+      tCharla = 0;
+      for (const p of this.peds) {
+        if (p.dog || p.gone || p.scared > 0) continue;
+        if (Math.abs(p.x - player.x) > 36 || Math.abs(p.y - player.y) > 36) continue;
+        if (!(p.wait > 0 || p.waitStop != null)) continue;
+        const lug = lugarDePeaton(p);
+        if (!lug) continue;
+        const f = fraseLugar(lug);
+        if (f) { say0.call(this, p, f); break; }
+      }
+      return r;
+    };
+  }
+
+  /* ---------- Letrero del lugar (#lbLugar): muestra reputación del barrio ---------- */
+  if (L && L.letrero && !L._letreroConRep) {
+    L._letreroConRep = 1;
+    const letrero0 = L.letrero;
+    L.letrero = function (st) {
+      const prevBar = st._bar, prevCalle = st._calle;
+      letrero0.call(this, st);
+      if (EM.headless || Game.st !== st || !MAP.ready || st.mode === 'ride') return;
+      if (prevBar === st._bar && prevCalle === st._calle && st._repVer === SV._ver) return;
+      st._repVer = SV._ver;
+      const el = $('#lbLugar'); if (!el || !el.innerHTML) return;
+      const rep = SV.repBarrio(st.x, st.y, st._bar);
+      st._repBarrio = rep;
+      const old = el.querySelector('.rep-barrio');
+      if (old) old.remove();
+      if (rep > 0) {
+        const em = document.createElement('em');
+        em.className = 'rep-barrio';
+        em.textContent = '⭐ Reputación del barrio: +' + rep + ' · Cultura Metro';
+        el.appendChild(em);
+        el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+      }
+    };
+  }
+
+  /* ---------- Modal Actividades y Diario RPG: registra huella y muestra el diario ---------- */
+  const abrir0 = Rpg.abrir;
+  Rpg.abrir = function (st, tab = 'modos') {
+    hidratar();
+    abrir0.call(this, st, tab);
+    if (EM.headless) return;
+    const mBody = $('#mBody'); if (!mBody) return;
+
+    /* engancha los botones de decisión de subtramas para dejar las 3 huellas */
+    $$('[data-sub]', mBody).forEach(b => {
+      const fn0 = b.onclick;
+      b.onclick = () => {
+        const subId = b.dataset.sub, oi = +b.dataset.oi;
+        const ent = SV.registrar(st, subId, oi, false);
+        if (fn0) fn0();
+        if (ent && st && L && L.msg) L.msg(st, '📰 ' + ent.noticia + ' · +' + ent.rep + ' rep. en ' + ent.barrio, 'b');
+      };
+    });
+
+    /* en la pestaña Diario RPG: muestra reputación por barrio y el diario de huellas arriba de las ramas */
+    if (tab === 'rpg') {
+      const grid = mBody.querySelector('.rpg-grid'), ok = $('#actOk');
+      const d = SV.diario(), B = SV.barrios(), barriosPos = Object.entries(B).filter(([, v]) => v > 0);
+      const sec = document.createElement('div');
+      sec.style.marginTop = '8px';
+      sec.innerHTML = `<div class="pag">🏘 Reputación por barrio</div>
+        ${barriosPos.length ? `<div class="barrio-rep-list">${barriosPos.map(([n, v]) => `<span class="barrio-rep-chip">⭐ ${esc(n)} · +${v}</span>`).join('')}</div>` : '<p class="m" style="margin:4px 0">Toma decisiones en las subtramas para ganar reconocimiento en cada barrio.</p>'}
+        <div class="pag" style="margin-top:8px">📰 Diario de huellas (${d.length}/${(Rpg.SUBTRAMAS || []).length})</div>
+        ${d.length ? `<div class="col">${d.map(e => `<div class="diario-item"><b>${esc(e.titulo)} · <span style="color:var(--lA)">${esc(e.barrio)}</span></b><small>Decisión: ${esc(e.decision)}</small><div class="diario-noti">📰 ${esc(e.noticia)} · ⭐ +${e.rep}</div></div>`).join('')}</div>` : '<p class="m" style="margin:4px 0">Todavía no has dejado huella en la ciudad. Abre la pestaña «📖 Subtramas» para empezar.</p>'}`;
+      if (grid) grid.after(sec); else if (ok) ok.before(sec); else mBody.appendChild(sec);
+    }
+  };
+
+  /* acceso directo al diario desde el menú de pausa de Ciudad Libre */
+  if (typeof Game !== 'undefined' && Game.pause && !Game._pausaDiario) {
+    Game._pausaDiario = 1;
+    const pause0 = Game.pause;
+    Game.pause = function () {
+      const r = pause0.apply(this, arguments);
+      if (Game.mode === L && Game.st && !EM.headless) {
+        const mBody = $('#mBody');
+        const col = mBody && mBody.querySelector('.col');
+        if (col && !document.getElementById('pDiarioBtn')) {
+          const btn = document.createElement('button');
+          btn.id = 'pDiarioBtn'; btn.className = 'btn';
+          const n = SV.diario().length;
+          btn.textContent = '📰 Diario de huellas y subtramas (' + n + '/6)';
+          btn.onclick = () => { Game.resume(); SV.abrirDiario(Game.st); };
+          col.appendChild(btn);
+        }
+      }
+      return r;
+    };
+  }
+})();
+~~~~
+
 ### `src/js/96h-tienda.js`
 ~~~~js
 /* =====================================================================
@@ -14713,6 +15662,259 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
       for (const b of d.querySelectorAll('[data-c]')) b.onclick = () => { const r2 = P.elegir(st, b.dataset.c); if (r2 === 'falta') { UI.toast('Te faltan ' + (PRECIO - (Save.d.wallet | 0)) + ' 🎫: haz oficios, el reto del día o un modo desde 🎮'); return; } pinta(); }; };
     pinta(); return r;
   };
+})();
+~~~~
+
+### `src/js/96i-arte-36.js`
+~~~~js
+/* =====================================================================
+   GA-36-4 · INTEGRACIÓN DE ARTE G-110 A G-112 CON RESPALDO PROCEDURAL (Antigravity, 3.7)
+   - G-110 «Domingo zen»: 4 capas de paralaje al amanecer (g110_zen_cielo, g110_zen_montana,
+     g110_zen_ciudad, g110_zen_frente) en el modo zen del corredor (cr:zen), con respaldo
+     procedural en la paleta oficial del amanecer (#F6C538, #E38835, #8fb8d8, #59AB42).
+   - G-111: 6 escenas de subtramas (esc_sub_pico_sa, esc_sub_ciclo_rio, esc_sub_niebla_arvi,
+     esc_sub_guitarra_t, esc_sub_cruce_ind, esc_sub_bici_estadio), con ilustración plana
+     procedural de Medellín en SVG cuando aún no llega el PNG.
+   - G-112: 6 plantas cenitales de zonas de skate (tex_skate_parques_rio, tex_skate_ciudad_rio,
+     tex_skate_atanasio, tex_skate_pies_descalzos, tex_skate_explora, tex_skate_ayacucho)
+     en 2D y 3D con respaldo procedural (0 llamadas extra al 3D si aún no llegó el PNG).
+   ===================================================================== */
+(function () {
+  const MAPA = {
+    zen: ['g110_zen_cielo', 'g110_zen_montana', 'g110_zen_ciudad', 'g110_zen_frente'],
+    subtramas: {
+      'pico-sa': 'esc_sub_pico_sa',
+      'ciclo-rio': 'esc_sub_ciclo_rio',
+      'niebla-arvi': 'esc_sub_niebla_arvi',
+      'guitarra-t': 'esc_sub_guitarra_t',
+      'cruce-ind': 'esc_sub_cruce_ind',
+      'bici-estadio': 'esc_sub_bici_estadio'
+    },
+    skate: {
+      'parques-rio': 'tex_skate_parques_rio',
+      'ciudad-rio': 'tex_skate_ciudad_rio',
+      'atanasio': 'tex_skate_atanasio',
+      'pies-descalzos': 'tex_skate_pies_descalzos',
+      'explora': 'tex_skate_explora',
+      'ayacucho': 'tex_skate_ayacucho'
+    }
+  };
+
+  /* ---------- G-111: respaldo procedural plano y cálido (SVG ligero en caché) ---------- */
+  const _svgCache = {};
+  function svgEscena(subId) {
+    if (_svgCache[subId]) return _svgCache[subId];
+    let inner = '';
+    if (subId === 'pico-sa') {
+      inner = '<rect width="320" height="240" fill="#f4d9a8"/><path d="M0 110 Q90 70 180 96 T320 88 L320 240 L0 240Z" fill="#7f9fbf"/><rect x="0" y="136" width="320" height="104" fill="#a9a59b"/><rect x="0" y="136" width="320" height="10" fill="#1C5C9C"/><rect x="0" y="180" width="320" height="8" fill="#E38835"/><rect x="18" y="96" width="124" height="38" rx="6" fill="#faf6ec" stroke="#154a80" stroke-width="3"/><rect x="26" y="106" width="108" height="12" fill="#9fd3e6"/><rect x="18" y="124" width="124" height="6" fill="#1C5C9C"/><rect x="178" y="144" width="124" height="34" rx="6" fill="#faf6ec" stroke="#154a80" stroke-width="3"/><rect x="186" y="152" width="108" height="11" fill="#9fd3e6"/><rect x="178" y="169" width="124" height="6" fill="#E38835"/><rect x="0" y="206" width="320" height="6" fill="#F6C538"/><circle cx="72" cy="196" r="7" fill="#154a80"/><circle cx="96" cy="196" r="7" fill="#EC343A"/><circle cx="122" cy="196" r="7" fill="#59AB42"/><circle cx="150" cy="196" r="7" fill="#0E6F76"/>';
+    } else if (subId === 'ciclo-rio') {
+      inner = '<rect width="320" height="240" fill="#cfe6ef"/><path d="M0 112 Q110 74 220 96 T320 84 L320 240 L0 240Z" fill="#5f8f86"/><rect x="0" y="144" width="320" height="26" fill="#5f7f73"/><rect x="0" y="170" width="320" height="70" fill="#4f8a3c"/><rect x="0" y="182" width="320" height="30" fill="#59AB42"/><line x1="0" y1="197" x2="320" y2="197" stroke="#f1ece0" stroke-width="3" stroke-dasharray="14,10"/><circle cx="48" cy="154" r="22" fill="#2f6b35"/><circle cx="268" cy="150" r="24" fill="#2f6b35"/><circle cx="92" cy="196" r="10" fill="none" stroke="#154a80" stroke-width="3"/><circle cx="122" cy="196" r="10" fill="none" stroke="#154a80" stroke-width="3"/><path d="M92 196 L108 182 L122 196 M108 182 L104 172" stroke="#1C5C9C" stroke-width="3" fill="none"/><path d="M196 212 L248 212 L248 188 Z" fill="#a9a59b" stroke="#154a80" stroke-width="2"/><rect x="206" y="176" width="28" height="5" rx="2" fill="#E38835"/><circle cx="220" cy="166" r="6" fill="#F6C538"/>';
+    } else if (subId === 'niebla-arvi') {
+      inner = '<rect width="320" height="240" fill="#8fb8d8"/><path d="M0 148 Q84 94 172 124 T320 92 L320 240 L0 240Z" fill="#2f6b35"/><path d="M0 176 Q104 134 210 158 T320 132 L320 240 L0 240Z" fill="#3f7f4a"/><line x1="0" y1="138" x2="320" y2="62" stroke="#141414" stroke-width="3"/><rect x="234" y="76" width="12" height="122" fill="#9e9a92"/><rect x="218" y="74" width="44" height="7" fill="#5a6470"/><line x1="128" y1="108" x2="128" y2="124" stroke="#141414" stroke-width="3"/><rect x="110" y="124" width="36" height="28" rx="6" fill="#8E612A" stroke="#141414" stroke-width="2.5"/><rect x="116" y="130" width="24" height="11" rx="2" fill="#9fd3e6"/><ellipse cx="86" cy="168" rx="92" ry="18" fill="#f1ece0" opacity=".68"/><ellipse cx="236" cy="184" rx="105" ry="20" fill="#f1ece0" opacity=".62"/>';
+    } else if (subId === 'guitarra-t') {
+      inner = '<rect width="320" height="240" fill="#f4d9a8"/><rect x="0" y="148" width="320" height="92" fill="#c9c1ad"/><rect x="16" y="88" width="54" height="60" fill="#b4583a"/><rect x="74" y="78" width="58" height="70" fill="#E38835"/><rect x="136" y="92" width="52" height="56" fill="#9a4630"/><rect x="192" y="82" width="60" height="66" fill="#F6C538"/><rect x="256" y="90" width="54" height="58" fill="#b4583a"/><rect x="150" y="128" width="148" height="44" rx="8" fill="#59AB42" stroke="#141414" stroke-width="3"/><rect x="164" y="138" width="120" height="14" rx="2" fill="#9fd3e6"/><circle cx="78" cy="166" r="10" fill="#154a80"/><rect x="68" y="176" width="20" height="32" rx="4" fill="#1C5C9C"/><ellipse cx="94" cy="192" rx="11" ry="8" fill="#8E612A" stroke="#141414" stroke-width="2"/><line x1="94" y1="192" x2="118" y2="178" stroke="#141414" stroke-width="3"/>';
+    } else if (subId === 'cruce-ind') {
+      inner = '<rect width="320" height="240" fill="#5f7f96"/><rect x="0" y="138" width="320" height="102" fill="#3b3f45"/><line x1="0" y1="188" x2="320" y2="188" stroke="#F6C538" stroke-width="4" stroke-dasharray="16,12"/><rect x="18" y="148" width="112" height="34" rx="5" fill="#0E6F76" stroke="#141414" stroke-width="2.5"/><rect x="132" y="152" width="10" height="28" fill="#141414"/><rect x="142" y="148" width="70" height="34" rx="5" fill="#0E6F76" stroke="#141414" stroke-width="2.5"/><rect x="26" y="156" width="96" height="11" fill="#9fd3e6"/><rect x="148" y="156" width="56" height="11" fill="#9fd3e6"/><rect x="258" y="76" width="18" height="52" rx="4" fill="#141414"/><circle cx="267" cy="88" r="5" fill="#EC343A"/><circle cx="267" cy="102" r="5" fill="#F6C538"/><circle cx="267" cy="116" r="5" fill="#59AB42"/><rect x="265" y="128" width="4" height="62" fill="#5a6470"/>';
+    } else {
+      inner = '<rect width="320" height="240" fill="#cfe6ef"/><path d="M18 142 Q160 64 302 142 Z" fill="#a9a59b" stroke="#154a80" stroke-width="3"/><rect x="0" y="142" width="320" height="98" fill="#4f8a3c"/><rect x="0" y="172" width="320" height="46" fill="#c9c1ad"/><rect x="34" y="178" width="110" height="14" rx="3" fill="#154a80"/><rect x="44" y="170" width="8" height="16" fill="#9bd341"/><rect x="68" y="170" width="8" height="16" fill="#9bd341"/><rect x="92" y="170" width="8" height="16" fill="#9bd341"/><rect x="116" y="170" width="8" height="16" fill="#9bd341"/><circle cx="212" cy="198" r="13" fill="none" stroke="#154a80" stroke-width="3.5"/><circle cx="256" cy="198" r="13" fill="none" stroke="#154a80" stroke-width="3.5"/><path d="M212 198 L234 176 L256 198 M234 176 L228 164 M256 198 L248 168 L258 168" stroke="#59AB42" stroke-width="4" fill="none" stroke-linecap="round"/>';
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">${inner}</svg>`;
+    return (_svgCache[subId] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  }
+
+  /* ---------- G-110: panorámica de 4 capas en paralaje para «Domingo zen» ---------- */
+  function dibujaCapaRep(g, img, offX, y, w, h) {
+    const sw = Math.max(1, img.width * (h / Math.max(1, img.height)));
+    let x = -((offX % sw) + sw) % sw;
+    while (x < w) { g.drawImage(img, x, y, sw + 1, h); x += sw; }
+  }
+  function dibujaZenParalaje(g, st, W, H, en3D) {
+    const dpr = Game.dpr || 1;
+    const y0 = Math.round((H < 540 * dpr ? 40 : 48) * dpr);
+    const banH = Math.round(Math.max(66 * dpr, (H - y0) * (en3D ? .15 : .27)));
+    const s = st.s || 0;
+    const imgs = MAPA.zen.map(id => Atlas.img(id));
+    g.save();
+    g.beginPath(); g.rect(0, y0, W, banH); g.clip();
+    if (en3D) g.globalAlpha = .86;
+    if (imgs[0]) {
+      dibujaCapaRep(g, imgs[0], s * .4, y0, W, banH);
+    } else {
+      const gr = g.createLinearGradient(0, y0, 0, y0 + banH);
+      gr.addColorStop(0, '#E38835'); gr.addColorStop(.55, '#F6C538'); gr.addColorStop(1, '#f1ece0');
+      g.fillStyle = gr; g.fillRect(0, y0, W, banH);
+      /* sol naciente sobre las montañas del oriente */
+      g.fillStyle = 'rgba(255,247,214,.9)'; g.beginPath(); g.arc(W * .76, y0 + banH * .48, banH * .22, 0, TAU); g.fill();
+    }
+    if (imgs[1]) {
+      dibujaCapaRep(g, imgs[1], s * 1.4, y0, W, banH);
+    } else {
+      /* montañas del oriente con niebla baja (#8fb8d8) */
+      g.fillStyle = '#5f7f96'; g.beginPath(); g.moveTo(0, y0 + banH);
+      for (let x = 0; x <= W + 40; x += 28) {
+        const u = x + s * 1.1;
+        const my = y0 + banH * (.48 + .14 * Math.sin(u * .014) + .08 * Math.cos(u * .031));
+        g.lineTo(x, my);
+      }
+      g.lineTo(W, y0 + banH); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(143,184,216,.55)'; g.fillRect(0, y0 + banH * .64, W, banH * .22);
+    }
+    if (imgs[2]) {
+      dibujaCapaRep(g, imgs[2], s * 3.1, y0, W, banH);
+    } else {
+      /* silueta de ciudad y río Medellín */
+      g.fillStyle = '#3d586e';
+      for (let i = -1; i < Math.ceil(W / 38) + 2; i++) {
+        const bx = i * 38 - ((s * 2.8) % 38), bh = banH * (.14 + ((Math.abs(i * 17) % 5) * .045));
+        g.fillRect(bx, y0 + banH * .76 - bh, 26, bh);
+      }
+      g.fillStyle = '#5f7f73'; g.fillRect(0, y0 + banH * .76, W, banH * .12);
+    }
+    if (imgs[3]) {
+      dibujaCapaRep(g, imgs[3], s * 5.6, y0, W, banH);
+    } else {
+      /* árboles de la orilla (#59AB42) junto a la ciclorruta Las Vegas */
+      const paso = 46;
+      for (let i = -1; i < Math.ceil(W / paso) + 2; i++) {
+        const tx = i * paso - ((s * 5.2) % paso), r = banH * (.11 + (Math.abs(i * 7) % 3) * .025);
+        g.fillStyle = '#2f6b35'; g.beginPath(); g.arc(tx, y0 + banH * .88, r, 0, TAU); g.fill();
+        g.fillStyle = '#59AB42'; g.beginPath(); g.arc(tx - r * .18, y0 + banH * .85, r * .76, 0, TAU); g.fill();
+      }
+    }
+    if (en3D) {
+      /* desvanecimiento suave hacia la pista 3D */
+      const f = g.createLinearGradient(0, y0 + banH * .55, 0, y0 + banH);
+      f.addColorStop(0, 'rgba(246,197,56,0)'); f.addColorStop(1, 'rgba(241,236,224,.28)');
+      g.fillStyle = f; g.fillRect(0, y0 + banH * .55, W, banH * .45);
+    }
+    g.restore();
+  }
+
+  /* ---------- G-112: pisos de skate en 2D y 3D (con respaldo procedural) ---------- */
+  const _glTex = new Map();
+  let _glCtx = null;
+  function texSkate3D(G, id, img) {
+    if (!G || !G.gl || !img) return null;
+    if (_glCtx !== G.gl) { _glCtx = G.gl; _glTex.clear(); }
+    if (_glTex.has(id)) return _glTex.get(id);
+    const gl = G.gl, t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    _glTex.set(id, t);
+    return t;
+  }
+
+  /* ---------- API pública EM.arte36 ---------- */
+  const A36 = EM.arte36 = {
+    MAPA,
+    escenaSubtrama(subId, titulo) {
+      const id = MAPA.subtramas[subId];
+      if (id && Atlas.has(id)) return Atlas.tag(id, 'sub-escena', titulo || subId);
+      return `<img class="sub-escena" src="${svgEscena(subId)}" alt="${esc(titulo || subId)}" draggable="false">`;
+    },
+    dibujaZen: dibujaZenParalaje
+  };
+
+  /* enganche G-110 en Carrera: amanecer dorado en 3D y paralaje detrás del marcador en Domingo zen */
+  const Cr = EM.modes.carrera;
+  if (Cr && Cr.draw && !Cr._conZenArte) {
+    Cr._conZenArte = 1;
+    const drawCr0 = Cr.draw, marcCr0 = Cr.marcador;
+    Cr.draw = function (g, st, vp) {
+      if (!st || !st.zen) return drawCr0.apply(this, arguments);
+      const hr0 = typeof Mundo !== 'undefined' ? Mundo.hour : null;
+      if (hr0) Mundo.hour = () => 6.15;
+      try { return drawCr0.apply(this, arguments); } finally { if (hr0) Mundo.hour = hr0; }
+    };
+    Cr.marcador = function (g, st, W, H) {
+      if (st && st.zen) dibujaZenParalaje(g, st, W, H, this.gl(st));
+      return marcCr0.call(this, g, st, W, H);
+    };
+  }
+
+  /* enganche G-111 y G-112 en EM.mundoRPG */
+  const Rpg = EM.mundoRPG;
+  if (Rpg && !Rpg._conArte36) {
+    Rpg._conArte36 = 1;
+    const abrir0 = Rpg.abrir;
+    Rpg.abrir = function (st, tab = 'modos') {
+      abrir0.call(this, st, tab);
+      if (EM.headless || tab !== 'sub') return;
+      const cards = $$('#mBody .rpg-card');
+      (Rpg.SUBTRAMAS || []).forEach((s, i) => {
+        const card = cards[i]; if (!card || card.querySelector('.sub-escena')) return;
+        const wrap = document.createElement('div');
+        wrap.innerHTML = A36.escenaSubtrama(s.id, s.titulo);
+        if (wrap.firstChild) card.insertBefore(wrap.firstChild, card.firstChild);
+      });
+    };
+
+    const hayTexSkate = Object.values(MAPA.skate).some(id => Atlas.has(id));
+    if (hayTexSkate) {
+      const draw2D0 = Rpg.draw2D;
+      Rpg.draw2D = function (g, st, S, k, x0, y0, x1, y1) {
+        const Z = this.zonas ? this.zonas() : [];
+        let usoTex = false;
+        for (const z of Z) {
+          if (z.x < x0 - 40 || z.x > x1 + 40 || z.y < y0 - 40 || z.y > y1 + 40) continue;
+          const tid = MAPA.skate[z.id], im = tid ? Atlas.img(tid) : null;
+          if (!im) continue;
+          usoTex = true;
+          const q = S(z.x, z.y), tam = Math.max(24, 24 * k);
+          g.drawImage(im, q.x - tam / 2, q.y - tam / 2, tam, tam);
+        }
+        if (!usoTex) return draw2D0.call(this, g, st, S, k, x0, y0, x1, y1);
+        for (const z of Z) {
+          if (z.x < x0 - 40 || z.x > x1 + 40 || z.y < y0 - 40 || z.y > y1 + 40) continue;
+          const q = S(z.x, z.y), r = Math.max(12, 13 * k);
+          if (k > 1.2 && !st.far) {
+            g.save(); g.font = '700 ' + Math.round(clamp(k * 4, 10, 13)) + 'px Cuerpo, sans-serif';
+            g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,.92)';
+            g.strokeText('🛹 ' + z.n, q.x, q.y - r - 4);
+            g.fillStyle = '#0E6F76'; g.fillText('🛹 ' + z.n, q.x, q.y - r - 4);
+            g.restore();
+          }
+        }
+      };
+
+      const draw3D0 = Rpg.draw3D;
+      Rpg.draw3D = function (G, st) {
+        draw3D0.call(this, G, st);
+        if (!G || !G.gl) return;
+        const Z = this.zonas ? this.zonas() : [];
+        let dibujo = false;
+        for (const z of Z) {
+          if (Math.abs(z.x - st.x) > 220 || Math.abs(z.y - st.y) > 220) continue;
+          const tid = MAPA.skate[z.id], im = tid ? Atlas.img(tid) : null;
+          if (!im) continue;
+          const tex = texSkate3D(G, tid, im);
+          if (!tex) continue;
+          dibujo = true;
+          const gl = G.gl, u = G.P.u, zz = MAP.elevM(z.x, z.y) + .18;
+          if (!A36._qBuf || A36._qGl !== gl) {
+            A36._qGl = gl;
+            const mb = new MB();
+            mb.quad([-11, 0, -9], [11, 0, -9], [11, 0, 9], [-11, 0, 9], [1, 1, 1], 2.01);
+            A36._qBuf = G.buf(mb.done()[0]);
+          }
+          gl.bindTexture(gl.TEXTURE_2D, tex);
+          gl.uniform4fv(u.Rv, [z.x - 11, z.y - 9, 22, 18]);
+          gl.uniform4fv(u.Hv, [0, 0, 0, 0]);
+          gl.uniformMatrix4fv(u.M, false, M4.trs(z.x, zz, z.y, 0, 1, 1, 1));
+          G._run(A36._qBuf);
+          gl.uniformMatrix4fv(u.M, false, G._I);
+        }
+        if (dibujo && G.win) {
+          G.gl.bindTexture(G.gl.TEXTURE_2D, G.texNear);
+          G.gl.uniform4fv(G.P.u.Rv, [G.win.x0, G.win.z0, G.win.s, G.win.s]);
+        }
+      };
+    }
+  }
 })();
 ~~~~
 
@@ -14856,6 +16058,29 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     return r;
   };
   Libre.key = function (st, k, down) { if (down && (k === 'j' || k === 'J')) { if (A.aqui(st)) A.abrir(st); else if (EM.mundoRPG && EM.mundoRPG.abrir) EM.mundoRPG.abrir(st); else A.abrir(st); return; } return key0.call(this, st, k, down); };
+})();
+~~~~
+
+### `src/js/97c-gpt6-eon-operacion-estaciones.js`
+~~~~js
+/* OpenAI GPT-6 / Eón · estación → 🎮 Un día de operación.
+   Se añade a la lista existente sin sustituir sus actividades. */
+(() => {
+  const A = EM.actividades, O = EM.modes.operacion;
+  if (!A || !O || typeof A.aqui !== 'function') return;
+  const prev = A.aqui;
+  A.aqui = function (st) {
+    const q = prev.call(this, st);
+    if (!q || !q.h || !q.G) return q;
+    if (!q.G.some(g => g.l && g.l.id === 'OP')) {
+      q.G.push({
+        l: { id: 'OP', name: 'Operación de la red', color: '#154a80' },
+        it: [{ m: 'operacion', lv: 'op:red', ico: '🎮', n: 'Un día de operación',
+          sub: 'Gestiona estaciones reales, horas pico y mejoras entre jornadas' }]
+      });
+    }
+    return q;
+  };
 })();
 ~~~~
 
@@ -15677,6 +16902,43 @@ def main():
         data = webp(im, q, alpha)
         arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
         filas.append((id_, enc, f, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
+    # GA-36-4 · arte 3.6 opcional (G-110 panorámica zen, G-111 escenas de subtramas, G-112 pisos de skate): se integra solo si el PNG ya llegó
+    OPCIONAL_36 = [
+        ('g110_zen_cielo', 'panoramicas/g110_zen_cielo.png', 'escena', 1024, 68, 'G-110', 'Domingo zen: cielo al amanecer'),
+        ('g110_zen_montana', 'panoramicas/g110_zen_montana.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: montañas del oriente'),
+        ('g110_zen_ciudad', 'panoramicas/g110_zen_ciudad.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: ciudad y río'),
+        ('g110_zen_frente', 'panoramicas/g110_zen_frente.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: árboles del frente'),
+        ('esc_sub_pico_sa', 'clave/esc_sub_pico_sa.png', 'escena', 512, 68, 'G-111', 'Subtrama: hora pico en San Antonio'),
+        ('esc_sub_ciclo_rio', 'clave/esc_sub_ciclo_rio.png', 'escena', 512, 68, 'G-111', 'Subtrama: convivencia en Parques del Río'),
+        ('esc_sub_niebla_arvi', 'clave/esc_sub_niebla_arvi.png', 'escena', 512, 68, 'G-111', 'Subtrama: niebla en Línea L a Arví'),
+        ('esc_sub_guitarra_t', 'clave/esc_sub_guitarra_t.png', 'escena', 512, 68, 'G-111', 'Subtrama: música en paseo Ayacucho'),
+        ('esc_sub_cruce_ind', 'clave/esc_sub_cruce_ind.png', 'escena', 512, 68, 'G-111', 'Subtrama: cruce de Industriales'),
+        ('esc_sub_bici_estadio', 'clave/esc_sub_bici_estadio.png', 'escena', 512, 68, 'G-111', 'Subtrama: EnCicla en el Atanasio'),
+        ('tex_skate_parques_rio', 'texturas/tex_skate_parques_rio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Parques del Río'),
+        ('tex_skate_ciudad_rio', 'texturas/tex_skate_ciudad_rio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Ciudad del Río'),
+        ('tex_skate_atanasio', 'texturas/tex_skate_atanasio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Unidad Deportiva Atanasio'),
+        ('tex_skate_pies_descalzos', 'texturas/tex_skate_pies_descalzos.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Pies Descalzos'),
+        ('tex_skate_explora', 'texturas/tex_skate_explora.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Parque Explora y Carabobo'),
+        ('tex_skate_ayacucho', 'texturas/tex_skate_ayacucho.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Corredor Ayacucho'),
+    ]
+    for (id_, rel, tipo, w, q, enc, uso) in OPCIONAL_36:
+        ruta = os.path.join(R, 'arte/entregas', rel)
+        if not os.path.isfile(ruta):
+            continue
+        im = Image.open(ruta)
+        alpha = tipo == 'magenta'
+        if alpha:
+            if im.mode == 'RGBA' and im.getchannel('A').getextrema()[0] < 250:
+                pass
+            else:
+                im = sin_fondo(im.convert('RGB'))
+        else:
+            im = im.convert('RGB')
+        h = round(im.size[1] * w / im.size[0])
+        if im.size[0] != w: im = im.resize((w, h), Image.LANCZOS)
+        data = webp(im, q, alpha)
+        arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
+        filas.append((id_, enc, rel, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
     for (id_, f, enc, uso) in SVG:
         s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
         arte[id_] = s; filas.append((id_, enc, 'vectorial/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
@@ -17911,6 +19173,178 @@ fs.writeFileSync(path.join(root, 'arte', 'SKILLS-IA.md'), out);
 console.log(`.claude/skills ← ${n} skills · arte/SKILLS-IA.md ${Math.round(out.length / 1024)} KB`);
 ~~~~
 
+### `tools/test-ga36.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Pruebas Playwright específicas de GA-36-1 a GA-36-4 (Antigravity, 3.7.0):
+   1) GA-36-1: verifica φ ≈ atan(v·ω/g) en curva sintética + captura de bici inclinada en 3D (412×860).
+   2) GA-36-2: prueba REAL de DOS DEDOS simultáneos (dedo 1 en joystick abajo-izquierda, dedo 2
+      arrastrando cámara en mitad superior): el vehículo avanza con joystick activo mientras gira st.cyo.
+   3) GA-36-3: decide una subtrama, verifica diario, noticia comentada, reputación visible en #lbLugar
+      y frases de paradero/banca desde FRASES_CIUDAD; captura de subtramas (G-111) y diario RPG.
+   4) GA-36-4: captura de Domingo zen (G-110) y Skatepark en 412×860 y 860×412. */
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const { chromium } = createRequire(import.meta.url)('playwright');
+const raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const OUT = process.argv[2] || '/tmp/elmetro-ga36';
+fs.mkdirSync(OUT, { recursive: true });
+
+const b = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+const ctx = await b.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
+const p = await ctx.newPage();
+const errs = [];
+p.on('pageerror', e => errs.push(e.message));
+p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+
+await p.goto('file://' + path.join(raiz, 'dist/index.html'));
+await p.waitForFunction(() => window.EM && EM.ready && typeof VC !== 'undefined' && VC.on, null, { timeout: 120000 });
+await p.evaluate(() => { const s = EM.save.d.settings; s.voz = 0; s.snd = 0; s.mus = 0; s.ciclo = 'dia'; s.cal3d = 0; s.pantalla = 'mitades'; });
+
+/* 1. GA-36-1: curva sintética φ ≈ atan(v·ω/g) + captura 3D de inclinación en curva */
+const rLadeo = await p.evaluate(() => {
+  const v = 12, w = .35, esperado = Math.atan(v * w / 9.81);
+  let phi = 0;
+  for (let i = 0; i < 60; i++) phi = EM.ladeo.paso(phi, v, w, 1 / 30, false);
+  EM.game.start('libre', 'lb:San Antonio', {});
+  const st = EM.game.st;
+  EM.modes.libre.vista(st, '3p');
+  st.mode = 'veh'; st.veh = { kind: 'bici', col: '#9bd341', id: -1 };
+  st.vf = 11; st.ladeo = .38; st.cy = st.h;
+  EM.game.freeze(true); EM.game.frame();
+  return { phi: +phi.toFixed(4), esperado: +esperado.toFixed(4), diff: +Math.abs(phi - esperado).toFixed(4), stLadeo: +st.ladeo.toFixed(3) };
+});
+if (rLadeo.diff > .02) throw new Error('GA-36-1 falló: ' + JSON.stringify(rLadeo));
+fs.writeFileSync(path.join(OUT, 'ga36-1-ladeo-bici-3p.png'), await p.screenshot());
+await p.evaluate(() => EM.game.freeze(false));
+
+/* 2. GA-36-2: prueba REAL de DOS DEDOS simultáneos vía CDP Input.dispatchTouchEvent (joystick abajo + cámara arriba) */
+const cdp = await ctx.newCDPSession(p);
+const geom = await p.evaluate(() => {
+  const st = EM.game.st;
+  EM.modes.libre.vista(st, '3p');
+  st.mode = 'veh'; st.veh = { kind: 'moto', col: '#EC343A', id: -1 };
+  st.vf = 0; st.cyo = 0; st.cpo = 0;
+  const jr = document.getElementById('lbJz').getBoundingClientRect();
+  const cr = document.getElementById('gcv').getBoundingClientRect();
+  return { x0: st.x, y0: st.y, jx0: Math.round(jr.left + jr.width * .45), jy0: Math.round(jr.top + jr.height * .32), cx0: Math.round(cr.left + cr.width * .48), cy0: Math.round(cr.top + cr.height * .26), bx0: Math.round(cr.left + cr.width * .62), by0: Math.round(cr.top + cr.height * .72) };
+});
+const j1 = { id: 1, x: geom.jx0, y: geom.jy0 };
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [j1] });
+j1.x = geom.jx0 + 18; j1.y = geom.jy0 - 44;
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [j1] });
+const joyAntes = await p.evaluate(() => EM.game.st.joy.m);
+/* dedo 2 inicia en la mitad superior mientras dedo 1 sigue sosteniendo el joystick */
+const c2 = { id: 2, x: geom.cx0, y: geom.cy0 };
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [j1, c2] });
+for (let i = 1; i <= 10; i++) {
+  c2.x = geom.cx0 + i * 14; c2.y = geom.cy0 + i * 4;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [j1, c2] });
+  await p.evaluate(() => EM.modes.libre.step(EM.game.st, 1 / 30));
+}
+const mid = await p.evaluate(() => ({ joyDurante: +EM.game.st.joy.m.toFixed(2), cyoTras: +EM.game.st.cyo.toFixed(3), avance: +Math.hypot(EM.game.st.x - 0, EM.game.st.y - 0).toFixed(2), x: EM.game.st.x, y: EM.game.st.y, vf: +EM.game.st.vf.toFixed(2) }));
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [j1] });
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+/* toque en mitad inferior fuera del joystick NO debe girar la cámara en modo mitades */
+const cyoAntesBajo = await p.evaluate(() => EM.game.st.cyo);
+const b3 = { id: 3, x: geom.bx0, y: geom.by0 };
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [b3] });
+b3.x = geom.bx0 + 70;
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [b3] });
+await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+const cyoBajoDiff = await p.evaluate(a => +Math.abs(EM.game.st.cyo - a).toFixed(4), cyoAntesBajo);
+const rDosDedos = { joyAntes: +joyAntes.toFixed(2), joyDurante: mid.joyDurante, cyoTras: mid.cyoTras, cyoBajoDiff, avance: +Math.hypot(mid.x - geom.x0, mid.y - geom.y0).toFixed(2), vf: mid.vf };
+if (rDosDedos.joyAntes < .5 || rDosDedos.joyDurante < .5 || Math.abs(rDosDedos.cyoTras) < .3 || rDosDedos.cyoBajoDiff > 1e-4 || rDosDedos.avance < .8) {
+  throw new Error('GA-36-2 falló: ' + JSON.stringify(rDosDedos));
+}
+
+/* 3. GA-36-3 + GA-36-4 (G-111): subtrama deja huella (diario, noticia, reputación en #lbLugar, frases paradero/banca) */
+const rSub = await p.evaluate(() => {
+  const st = EM.game.st;
+  const sa = EM.modes.libre.hub('San Antonio');
+  EM.modes.libre.llevar(st, sa.x, sa.y, false);
+  const ent = EM.subtramasVivas.registrar(st, 'pico-sa', 0, false);
+  st._bar = ''; st._calle = ''; st._lt = 1;
+  EM.modes.libre.letrero(st);
+  const lugarHtml = (document.getElementById('lbLugar') || {}).innerHTML || '';
+  const fPar = EM.ciudadViva.fraseLugar('paradero'), fBan = EM.ciudadViva.fraseLugar('banca');
+  EM.mundoRPG.abrir(st, 'sub');
+  const subImgs = document.querySelectorAll('#mBody .sub-escena').length;
+  return { entOk: !!(ent && EM.save.d.rpg.diario.length >= 1), repEnLetrero: lugarHtml.includes('Reputación del barrio'), notis: EM.ciudadViva.noticias().length, fPar, fBan, subImgs };
+});
+if (!rSub.entOk || !rSub.repEnLetrero || !rSub.notis || !rSub.fPar || !rSub.fBan || rSub.subImgs !== 6) {
+  throw new Error('GA-36-3 / G-111 falló: ' + JSON.stringify(rSub));
+}
+await p.waitForTimeout(260);
+fs.writeFileSync(path.join(OUT, 'ga36-3-subtramas-g111.png'), await p.screenshot());
+await p.evaluate(() => EM.mundoRPG.abrir(EM.game.st, 'rpg'));
+await p.waitForTimeout(260);
+fs.writeFileSync(path.join(OUT, 'ga36-3-diario-rpg.png'), await p.screenshot());
+await p.evaluate(() => { EM.ui.close(); const st = EM.game.st; st._bar = ''; st._calle = ''; st._lt = 1; EM.modes.libre.letrero(st); EM.game.freeze(true); EM.game.frame(); });
+await p.waitForTimeout(350);
+fs.writeFileSync(path.join(OUT, 'ga36-3-letrero-barrio-rep.png'), await p.screenshot());
+await p.evaluate(() => EM.game.freeze(false));
+
+/* 4. GA-36-4 (G-110): Domingo zen vertical 412×860 y horizontal 860×412 */
+await p.evaluate(() => { EM.game.start('carrera', 'cr:zen', {}); EM.modes.carrera.step(EM.game.st, .5); EM.game.freeze(true); EM.game.frame(); });
+fs.writeFileSync(path.join(OUT, 'ga36-4-zen-vertical.png'), await p.screenshot());
+await p.setViewportSize({ width: 860, height: 412 });
+await p.waitForTimeout(250);
+await p.evaluate(() => EM.game.frame());
+fs.writeFileSync(path.join(OUT, 'ga36-4-zen-horizontal.png'), await p.screenshot());
+await p.evaluate(() => { EM.game.freeze(false); EM.game.start('libre', 'lb:San Antonio', {}); const st = EM.game.st; EM.modes.libre.vista(st, '3p'); st.mode = 'veh'; st.veh = { kind: 'bici', col: '#9bd341', id: -1 }; st.ladeo = -.35; EM.game.freeze(true); EM.game.frame(); });
+fs.writeFileSync(path.join(OUT, 'ga36-1-ladeo-horizontal.png'), await p.screenshot());
+
+if (errs.length) throw new Error('Errores en consola/página: ' + errs.join('; '));
+console.log('PASS GA-36-1 (ladeo):', JSON.stringify(rLadeo));
+console.log('PASS GA-36-2 (dos dedos mitades):', JSON.stringify(rDosDedos));
+console.log('PASS GA-36-3/4 (subtramas + G-110..G-112):', JSON.stringify(rSub));
+await b.close();
+~~~~
+
+### `tools/test-gpt6-eon-3d-batch.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Regresión aislada de lotes 3D · OpenAI GPT-6 / Eón */
+import fs from 'node:fs'; import vm from 'node:vm'; import assert from 'node:assert/strict';
+const gl = { ARRAY_BUFFER: 1, DYNAMIC_DRAW: 2, createBuffer: () => ({}), bindBuffer() {}, bufferData() { this.allocs = (this.allocs || 0) + 1; }, bufferSubData(_t, _p, a) { this.last = new Float32Array(a); this.uploads = (this.uploads || 0) + 1; } };
+const M4 = { trs(x,y,z,_a,L,H,W) { return [L,0,0,0, 0,H,0,0, 0,0,W,0, x,y,z,1]; } };
+class MB { box() {} done() { const a = new Float32Array(300); for (let i = 0; i < a.length; i += 10) { a[i]=1; a[i+3]=1; a[i+6]=1; } return [a]; } }
+const G3 = { gl, nDraws: 0, nFallback: 0, box() { this.nFallback++; }, draw(cam, opts) { this._run = b => { this.nDraws++; this.lastVerts=b.n; }; opts.dyn?.(this); return 17; } };
+vm.runInNewContext(fs.readFileSync(new URL('../src/js/22a-gpt6-eon-3d-batch.js', import.meta.url),'utf8'), { G3, M4, MB, Float32Array, performance: {now:()=>50} });
+assert.equal(G3.draw({}, {dyn:g=>{g.box(2,3,4,0,2,4,6,[.2,.5,.8]);g.box(5,6,7,0,3,4,5,[1,0,0]);g.box(8,9,10,0,2,2,2,[1,1,1]);}}),17);
+assert.equal(G3.nDraws,1,'tres cajas deben dibujarse en una sola llamada');
+assert.equal(G3._eonBatchStats.cajas,3); assert.equal(G3._eonBatchStats.vertices,90);
+assert.equal(gl.uploads,1); assert.equal(G3.lastVerts,90);
+assert.equal(gl.last[0],4); assert.equal(gl.last[1],3); assert.equal(gl.last[2],4);
+assert.ok(Math.abs(gl.last[6]-.2)<1e-6); assert.ok(Math.abs(gl.last[7]-.5)<1e-6);
+G3.box(1,1,1,0,1,1,1,[1,1,1]); assert.equal(G3.nFallback,1,'llamadas fuera del cuadro no cambian');
+G3.draw({}, {dyn:g=>g.box(0,0,0,0,1,1,1,[1,1,1])}); assert.equal(G3._eonBatchStats.cajas,1);
+assert.equal(gl.allocs,1,'el búfer GPU se reutiliza');
+console.log('PASS GPT-6/Eón: lotes dinámicos 3D, geometría, colores, reutilización y fallback');
+~~~~
+
+### `tools/test-gpt6-eon-fantasma.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Regresión aislada de los tres fantasmas · OpenAI GPT-6 / Eón */
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+let writes=0;const Save={d:{best:{}},write(){writes++}},NET={byId:{A:{P:{}}},at(_p,s){return {x:s,y:s*.5}}};
+const create=(lv)=>({lv,line:'A',s:0,x:0,y:0,done:false}),step=(s,dt)=>{s.s+=dt*10;s.x=s.s;s.y=s.s*.5;if(s.s>=12)s.done=true;},result=s=>({done:s.done,win:s.done,score:200}),draw=()=>{};
+const modes={conduce:{create,step,result,draw},bus:{create,step,result,draw},carrera:{create,step,result,draw,pos(s){return {x:s.s,y:s.s*.5}}}};
+const EM={modes,headless:false},ctx={EM,Save,NET,clamp:(a,l,h)=>Math.max(l,Math.min(h,a)),pad2:n=>String(n).padStart(2,'0'),Date,Math,document:{},QR:{},UI:{},MAP:{elevM:()=>0},TAU:Math.PI*2};
+vm.runInNewContext(fs.readFileSync(new URL('../src/js/48a-gpt6-eon-fantasma.js',import.meta.url),'utf8'),ctx);
+for(const [id,M] of Object.entries(modes)){
+ const st=M.create('a',{auto:false});for(let i=0;i<35;i++){M.step(st,.037);if(st.done)break;}assert.ok(M.result(st).win);const r=EM.reto.fantasma.get(id,'a');assert.ok(r&&r.frames.length>=9);let maxError=0;for(let k=0;k<r.frames.length;k++){const a=EM.reto.fantasma.at(r,k*.1),exact={x:k,y:k*.5};maxError=Math.max(maxError,Math.hypot(a.x-exact.x,a.y-exact.y));}assert.ok(maxError<.11,`${id} error ${maxError}`);
+ const slow=M.create('a',{auto:false});for(let i=0;i<36;i++){M.step(slow,.037);if(slow.done)break;}M.result(slow);assert.ok(EM.reto.fantasma.get(id,'a').t<=slow._ghostTrial.t);
+}
+assert.ok(writes>=3);assert.equal(Object.keys(Save.d.best._retoFantasma).length,3);
+console.log('PASS GPT-6/Eón: 3 fantasmas 0,1 s, mejor marca diaria, error métrico < 0,11 m y guardado v1');
+~~~~
+
 ### `tools/test-gpt6-eon-manejo.mjs`
 ~~~~js
 /** Pruebas aisladas del módulo aditivo GPT-6/Eón. No sustituye Chromium/Android. */
@@ -17967,6 +19401,25 @@ assert.equal(carrera.ai(watch), 'salta', 'salta obstáculo bajo');
 volante.key(st, 'h', true);
 assert.equal(st.ultimaTecla[0], 'h', 'preserva los controles anteriores');
 console.log('PASS GPT-6/Eón: rescate, semáforos, paradas, colisiones, aceleración, anticipación, salto y teclado');
+~~~~
+
+### `tools/test-gpt6-eon-operacion.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Regresión aislada de «Un día de operación» · OpenAI GPT-6 / Eón */
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const EM={modes:{}},NET={stations:['San Antonio','Niquía','Acevedo','Estadio','Poblado','Itagüí'].map((name,i)=>({name,x:i*150,y:i*60})),lines:[{kind:'metro',st:[]}]}; NET.lines[0].st=NET.stations.map(h=>({name:h.name,hub:h}));
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),h2=(i,t,s)=>(((i*103+t*11+s*37)%101)+101)%101/101;
+vm.runInNewContext(fs.readFileSync(new URL('../src/js/48-operacion.js',import.meta.url),'utf8'),{EM,NET,clamp,h2,pad2:n=>String(n).padStart(2,'0'),TAU:Math.PI*2});
+const M=EM.modes.operacion;assert.equal(M.levels()[0].id,'op:red');
+const st=M.create('op:red',{seed:7,auto:true});assert.ok(st.links.length>=4);assert.equal(st.t,270);
+M.act(st,{k:'refuerzo',i:0});assert.equal(st.credits,3);assert.equal(st.stations[0].boost,4);
+assert.ok(M.peak(7.5)>M.peak(12));
+let steps=0;while(!st.done&&steps<25000){const a=M.ai(st);if(a)M.act(st,a);M.step(st,1/30);steps++;}
+assert.ok(st.done,'el bot debe acabar la partida');assert.ok(steps<25000);assert.ok(Number.isFinite(M.result(st).score));
+const up=M.create('op:red',{seed:1});up.upgrade=true;up.t=1380;M.act(up,{k:'mejora',i:1});assert.equal(up.day,2);assert.equal(up.stations[0].cap,150);assert.equal(up.t,270);
+const old=M.create('op:red',{seed:1});old.credits=0;M.act(old,{k:'refuerzo',i:0});assert.equal(old.stations[0].boost,0);
+console.log('PASS GPT-6/Eón: modo operación, demanda pico, refuerzos, mejoras, bot y resultado tras '+steps+' cuadros');
 ~~~~
 
 ### `tools/test-gpt6-fluidez.mjs`
@@ -19881,8 +21334,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.7.0
-elmetro.versionCode=35
+elmetro.versionName=3.8.0
+elmetro.versionCode=36
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
