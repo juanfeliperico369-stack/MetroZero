@@ -235,6 +235,42 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 
 
+#### Estado al 23‑nov‑2026 · v3.4.0 «Jugo y ciclovías» (Claude, IA de El Metro)
+**Qué pidió el autor:** «continúa desarrollándolo con todo lo nuevo».
+- Lo nuevo era la 3.3.0 «Flexibilidad» y Motor City 4.7–4.9, que se trajeron de `main`.
+- Se hizo lo primero del plan (`docs/EVOLUCION-EL-METRO-CLAUDE.md`, sección 12): el jugo y el corredor por ciclovías que él pidió.
+
+**Lo nuevo:**
+1. **El corredor solo por ciclovías** (`src/js/47b-ciclovia.js`). Es la idea de Motor City 4.7 (`motor-city/js/50-run.js`) portada a los datos del juego: 234 tramos, 120 km y 58 cruces de ciclorruta real.
+   - **La pista:** los vértices unidos a 3 m forman una red. La pista se arma por delante hasta el próximo cruce.
+   - **Los cruces:** eliges ↰ o ↱ deslizando, con el nombre de cada salida. Solo se ofrecen salidas que son ciclorruta. Si la ciclorruta se acaba, llegas a la meta (+200).
+   - **Ancha o estrecha según el lugar real:**
+     - ciclobandas y puentes, un solo carril entre barandas;
+     - obras al azar, un carril;
+     - lo demás, tres carriles;
+     - aviso «⚠ Se angosta» 40 m antes.
+   - **Zonas de skate** cada 0,6–1,1 km, con el nombre del barrio: rampas que lanzan, barandas para grind y bancas. Los trucos valen doble.
+   - **Trucos de un toque:** tocar o ▲ en el aire. Combo hasta ×8. Si aterrizas en pleno truco, pierdes el combo.
+   - **Parkour:** 🏃 a pie (vehículo nuevo), vault sobre bancas y ▼ para agacharse bajo los avisos.
+   - **Niveles:** las 12 ciclorrutas con nombre más largas, desde una punta (Niquía – Hatillo con 18,9 km, La Picacha, Las Vegas, La Playa…). Además, «Cerca de la Línea A/B, del tranvía, del Metroplús 1/2, de la Línea O»: la ciclorruta más cercana a la estación del medio de cada línea. Así `cr:A` y `cr:B` siguen sirviendo a la historia.
+   - **Piezas nuevas del taller de arte:** banca, baranda, muro de borde y aviso bajo, y unos tenis para ir a pie.
+   - **Piloto propio para el bot:** salta para pasar en lo alto del salto, se agacha y elige en los cruces.
+2. **Jugo en todos los modos** (`src/js/96c-jugo.js`):
+   - si el puntaje sube de golpe, el número salta con un destello y una vibración corta (en el metro: «¡Perfecto!» y «+300»);
+   - si baja, destello rojo y una sacudida breve en las vistas 2D;
+   - los botones responden al dedo (`scale` en `:active`).
+3. **En el mundo abierto:** 🎮 «jugar» ofrece el corredor:
+   - **sobre una ciclorruta:** «Corredor desde aquí», que sale de ese punto hacia donde miras;
+   - **en estaciones** con una ciclorruta a menos de 400 m.
+4. **Arreglo:** la carrera sumaba dos arranques. `98-relevo-z1.js` vuelve a envolver `step` y la marca `_arranqueVivo` se perdía, así que 98a sumaba el suyo y el corredor llegaba al tope en 2 s. Ahora la marca está también en el modo: sale a 43 km/h y sube despacio.
+
+**Probado:**
+- autotest con 0 errores: la carrera tiene niveles de ciclorruta, la pista no se sale de la ciclorruta, el atajo de la Línea O funciona y no hay piezas que le falten al taller;
+- 100 partidas;
+- las pruebas de GPT‑6 (`tools/test-gpt6-*.mjs`): PASS;
+- con el piloto: Las Vegas, La Playa, La 65 y la ciclobanda Centro Automotriz llegan a la meta con 2–3 vidas;
+- capturas a 412 × 860 del cruce, del tramo estrecho, de la zona de skate y de 🎮 sobre la ciclorruta Las Vegas.
+
 #### Estado al 22‑nov‑2026 · v3.3.0 «Flexibilidad» (Claude)
 - **Unión:**
   - la 3.2.0 de la sesión de El Metro (`ccr-2a67f935-oat714`; conflicto solo en esta bitácora, se conservaron las dos entradas);

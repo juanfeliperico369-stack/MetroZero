@@ -379,3 +379,6 @@ body.zurdo .joyzone{left:auto;right:0}body.zurdo #game .lbbtns{right:auto;left:8
 #game.foco .vsel{opacity:.38;transition:opacity .3s}
 #game.foco .lugar{opacity:0;transition:opacity .3s}
 #game .vsel{transition:opacity .3s}
+
+/* 3.4 · jugo: los botones responden al dedo (scale compone con el transform de cada uno) */
+.abtn:active,.crbtns button:active,.pedal:active,.cb:active,.vsel button:active,.gbtns .btn:active,.tramo:active{filter:brightness(1.18);scale:.94}

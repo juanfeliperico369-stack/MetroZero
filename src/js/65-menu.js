@@ -7,7 +7,7 @@ const MODECARDS = [
   { id: 'conduce', cls: 'c-conduce', t: 'Metro', d: 'Conduce el metro y el tranvía: vista panorámica 2D del valle y cabina en primera persona con su consola.' },
   { id: 'tranvia', cls: 'c-conduce', t: 'Tranvía de Ayacucho', d: 'Conduce el tranvía por la calle: sube la loma de Ayacucho, toca la campana en los cruces con gente y para en cada estación.' },
   { id: 'cableviaje', cls: 'c-cableviaje', t: 'Metrocable', d: 'Opera la línea y viaja sobre la loma: viento, tormentas y miradores.' },
-  { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'En skate, patines, monopatín o bici EnCicla (🛹 para cambiar), con imán, turbo y escudo; por la calle junto al metro, el tranvía o el Metroplús, en 3D: esquiva huecos, conos y motos, salta los charcos y recoge pasajes y el dato de cada estación.' },
+  { id: 'carrera', cls: 'c-libre', t: 'Carrera sin fin', d: 'Por las ciclorrutas reales del valle, en skate, patines, monopatín, bici o a pie: en los cruces eliges ↰ o ↱, donde se angosta vas al centro, en las zonas de skate hay rampas y barandas, tocas en el aire para un truco y ▼ te agacha. Con imán, turbo y escudo, pasajes y el dato de cada estación.' },
   { id: 'historia', cls: 'c-hist', t: 'La última vuelta', d: 'Rosalba y su nieta: ahora se juega en el mapa, tomando el metro, los cables y los buses, y manejando cada vehículo.' },
   { id: 'guia', cls: 'c-guia', t: 'Aprende a usar el Metro', d: 'Cívica, cómo viajar, transbordos, horarios, líneas y Cultura Metro.' },
   { id: 'red', cls: 'c-red', t: 'La Red', d: 'Panorámica del valle: líneas, datos curiosos y tu flota.' },

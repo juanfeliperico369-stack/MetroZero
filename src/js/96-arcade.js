@@ -86,9 +86,10 @@
     Cr.step = function (st, dt) {
       step0.call(this, st, dt); if (st.done) return;
       const top = this.V(st).spd * (st.turbo > 0 ? 1.3 : 1);
-      if (st.v < 12 && st.inv <= 0) st.v = Math.min(12, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
+      const vivo = Math.min(12, top);   // 3.4: a pie (🏃) el tope es menor que 12 m/s
+      if (st.v < vivo && st.inv <= 0) st.v = Math.min(vivo, st.v + 2.6 * dt); else if (st.v < top) st.v = Math.min(top, st.v + .14 * dt);
     };
-    Cr.step._arranqueVivo = true;   // 98a (GPT-6) lo lee para no sumar un segundo arranque
+    Cr.step._arranqueVivo = true; Cr._arranqueVivo = true;   // 98a (GPT-6) lo lee para no sumar un segundo arranque (3.4: también en el modo, porque 98-relevo-z1 vuelve a envolver step y la marca de la función se perdía)
     /* el corrimiento lateral libre de edificios cada 12 m: primero el de la muestra anterior (para no saltar de lado), luego los demás */
     Cr.libreOff = function (st, s, prev) {
       const l = NET.byId[st.line], b = st.off, C0 = [prev, b, b - 4, b + 4, b + 8, -b, -b + 4, -b - 4, b - 8, b + 12, -b - 8];
@@ -101,7 +102,8 @@
       while (T.length <= i + 1) T.push(this.libreOff(st, T.length * PASO, T.length ? T[T.length - 1] : st.off));
       const f = s / PASO - i; return T[i] + (T[i + 1] - T[i]) * clamp(f, 0, 1);
     };
-    Cr.pos = function (st, s, c) { const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - 1) * 2.6); };
+    const posPrev = Cr.pos;   // 3.4: la carrera por ciclorruta (47b-ciclovia.js) lleva su propia pista
+    Cr.pos = function (st, s, c) { if (st.cic) return posPrev.call(this, st, s, c); const l = NET.byId[st.line]; return NET.at(l.P, clamp(s, 0, l.P.len), this.offAt(st, s) + (c - 1) * 2.6); };
   }
 
   /* ---------- 5 · ⏫ acelerador fijo en Ciudad Libre ---------- */
