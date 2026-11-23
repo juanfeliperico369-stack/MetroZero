@@ -34,7 +34,9 @@
 
 **Guardado:** `settings.epoca` y `Save.d.pinturas`, con su valor por defecto.
 
-**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘.
+**Probado:** autotest con 0 errores; 100 partidas; capturas a 412 × 860 de la ficha de 1995 y 2011, de la ciudad en sepia, de la moto antes y después de pintarla, y de 🆘. Las 100 partidas: 295 150 pasos, 54 victorias y 0 errores.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.7.0 verificada el 23‑nov‑2026**: carga, service worker con caché `el-metro-v3.7.0-ed33307a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 35), igual byte a byte a la construida.
 
 ## Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
 **Qué pidió el autor:**
