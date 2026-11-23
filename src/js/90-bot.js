@@ -204,6 +204,41 @@ const BotT = EM.test = {
       for (let i = 0; i < 40 && b.alight > 0; i++) Bus.stopTick(b, .1, NET.byId[b.line]);
       if (al0 > 0 && b.pax !== 5 - al0) E('bus 3.2: al bajar pasajeros st.pax quedó en ' + b.pax + ' (esperado ' + (5 - al0) + ')');
     } catch (e) { E('3.2.0: ' + e.message); }
+    // 3.7.0 · GA-36-1 (ladeo en curvas), GA-36-2 (mitades 3D), GA-36-3 (huellas de subtramas + paradero/banca), GA-36-4 (arte G-110..G-112 con respaldo)
+    try {
+      if (!EM.ladeo) E('GA-36-1: falta EM.ladeo');
+      else {
+        const vS = 12, wS = .35, esp = Math.atan(vS * wS / 9.81);
+        let phi = 0; for (let i = 0; i < 60; i++) phi = EM.ladeo.paso(phi, vS, wS, 1 / 30, false);
+        if (Math.abs(phi - esp) > .02) E('GA-36-1: φ=' + phi.toFixed(3) + ' difiere de atan(v·ω/g)=' + esp.toFixed(3));
+        let tope = 0; for (let i = 0; i < 60; i++) tope = EM.ladeo.paso(tope, 25, 1.5, 1 / 30, false);
+        if (Math.abs(tope - .45) > .015) E('GA-36-1: el tope de ladeo no limita en ±0,45 rad (' + tope.toFixed(3) + ')');
+        let aire = phi; for (let i = 0; i < 60; i++) aire = EM.ladeo.paso(aire, vS, wS, 1 / 30, true);
+        if (Math.abs(aire) > .02) E('GA-36-1: en el aire no se endereza (' + aire.toFixed(3) + ')');
+        const lb = Libre.create('lb:San Antonio', { seed: 3 });
+        Object.assign(lb, { mode: 'veh', veh: { kind: 'bici', col: VEH.bici.col, id: -1 }, vf: 10, h: 0, ladeo: 0, joy: { x: 0, y: 1, m: 1 }, keys: { up: true, right: true } });
+        for (let i = 0; i < 18; i++) Libre.step(lb, 1 / 30);
+        if (!(Math.abs(lb.ladeo) > .03)) E('GA-36-1: la bici en curva en Ciudad Libre no se inclina (' + (lb.ladeo || 0).toFixed(3) + ')');
+      }
+      const ns = newSave();
+      if (ns.settings.pantalla !== 'mitades' || !Array.isArray(ns.rpg.diario) || typeof ns.rpg.barrios !== 'object') E('GA-36: faltan valores por defecto en newSave()');
+      if (!EM.mitades) E('GA-36-2: falta EM.mitades');
+      if (!EM.subtramasVivas) E('GA-36-3: falta EM.subtramasVivas');
+      else {
+        const bak = JSON.parse(JSON.stringify(Save.d));
+        try {
+          Save.d = Save.sanitize(newSave());
+          const ent = EM.subtramasVivas.registrar(null, 'pico-sa', 0, true);
+          if (!ent || !Save.d.rpg.diario.length || Save.d.rpg.diario[0].id !== 'pico-sa') E('GA-36-3: la subtrama no dejó línea en el diario');
+          if (!EM.ciudadViva || !EM.ciudadViva.noticias || !EM.ciudadViva.noticias().length) E('GA-36-3: la subtrama no dejó noticia en EM.ciudadViva');
+          const sa = NET.stations.find(s => s.name === 'San Antonio');
+          if (!(EM.subtramasVivas.repBarrio(sa.x, sa.y, 'La Candelaria') > 0)) E('GA-36-3: no subió la reputación del barrio');
+          if (!EM.ciudadViva.fraseLugar('paradero') || !EM.ciudadViva.fraseLugar('banca')) E('GA-36-3: faltan frases de paradero o banca desde FRASES_CIUDAD');
+        } finally { Save.d = bak; }
+      }
+      if (!EM.arte36 || EM.arte36.MAPA.zen.length !== 4 || Object.keys(EM.arte36.MAPA.subtramas).length !== 6 || Object.keys(EM.arte36.MAPA.skate).length !== 6) E('GA-36-4: mapa incompleto de G-110..G-112');
+      else for (const k of Object.keys(EM.arte36.MAPA.subtramas)) if (!EM.arte36.escenaSubtrama(k)) E('GA-36-4: sin respaldo para subtrama ' + k);
+    } catch (e) { E('3.7.0: ' + e.message); }
     const stats = `${NET.lines.length} líneas · ${NET.stations.length} estaciones · ${nC} tramos de metro · ${nB} rutas de bus · ${nV} recorridos 3D · ${nR} tableros de agujas · ${nK} puzles de cable · ${nT} capítulos en la ciudad · ${nA} piezas de arte · ${nPo} postales · ${nBa} barrios · ${nCa} calles con nombre · ${nVias} vías con curva · ${VC.PU ? VC.PU.length : 0} puentes · ${nEd} casas y edificios reales · ${VC.HT.length} piezas de arquitectura · ${LINE_META.trivia.length} preguntas · ${Object.keys(LINE_META.stationFacts).length} datos · ${Math.round(performance.now() - t0)} ms`;
     return { errors, warnings, stats };
   },

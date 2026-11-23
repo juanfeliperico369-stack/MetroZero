@@ -450,4 +450,16 @@ body.zurdo .actbar{left:152px;right:10px}
   .actbar{left:110px;right:134px;bottom:calc(8px + var(--sab))}
   #game:has(.lbbtns) .trtalk{bottom:calc(132px + var(--sab))}
 }
+/* ---------- 3.7.0 · pantalla en mitades (GA-36-2), huellas de subtramas (GA-36-3) y arte G-110..G-112 (GA-36-4) ---------- */
+.joyzone{top:50%}
+body.pant-clasica .joyzone{top:24%}
+.lugar em.rep-barrio{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 8px;border-radius:999px;background:rgba(246,197,56,.18);color:var(--led);font-style:normal;font-size:11.5px;font-weight:800;border:1px solid rgba(246,197,56,.45)}
+.sub-escena{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin:4px 0 6px;background:var(--noche);box-shadow:0 1px 0 var(--linea)}
+.diario-item{background:var(--concreto);border-radius:12px;padding:9px 11px;box-shadow:inset 4px 0 0 var(--lT);display:flex;flex-direction:column;gap:3px}
+.diario-item b{font-family:var(--fd);font-size:16px;line-height:1.15;color:var(--tinta)}
+.diario-item small{font-size:12px;color:var(--suave);line-height:1.35}
+.diario-item .diario-noti{font-size:12.5px;font-weight:700;color:var(--lA)}
+.barrio-rep-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.barrio-rep-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(28,92,156,.12);color:var(--tinta);font-size:12px;font-weight:800}
+
 

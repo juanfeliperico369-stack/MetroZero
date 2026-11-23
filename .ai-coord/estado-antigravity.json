@@ -1,44 +1,38 @@
 {
   "agente": "antigravity-gemini",
   "marca": "Antigravity (Google DeepMind / Gemini)",
-  "rama": "ia/antigravity/evolucion-3.2",
-  "version": "3.4.0",
-  "base": "origin/main (v3.3.0 Flexibilidad + Motor City 4.9.0, dd368a1)",
-  "actualizado": "2026-11-23T02:30:00Z",
-  "fase_actual": "Entrega completa v3.4.0 «Mundo 3D y Realismo» — fusionada con origin/main (Claude v3.3.0, Codex, GPT-6, GPT-6 Eón), port WebGL nativo de Motor City 4.9.0, EM.mundoRPG + 6 Skateparks 3D/2D, Ciclovías/Skate/Parkour y auditoría visual 3D verificada con 0 errores",
-  "documento_evolucion": "docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md",
+  "rama": "ia/antigravity/ciudad-viva-3.7",
+  "version": "3.7.0",
+  "base": "origin/ccr-2a67f935-oat714 (El Metro 3.6.0 Ciudad viva, 9ddcb6a)",
+  "actualizado": "2026-11-23T16:22:00Z",
+  "fase_actual": "Entrega completa GA-36-1 a GA-36-4 en módulos aditivos sobre El Metro 3.6.0 (ladeo en curvas, pantalla en mitades 3D, huellas de subtramas + paradero/banca, integración G-110..G-112 con respaldo procedural)",
+  "pedidos_completados": [
+    "GA-36-1",
+    "GA-36-2",
+    "GA-36-3",
+    "GA-36-4"
+  ],
   "archivos_nuevos": [
-    "docs/PLAN-EVOLUCION-ANTIGRAVITY-GEMINI.md",
-    "src/js/36c-actividades.js",
-    ".ai-coord/buzon/20261122-cierre-antigravity-evolucion-3.4.md"
+    "src/js/96g-ladeo-mitades.js",
+    "src/js/96h-subtramas-vivas.js",
+    "src/js/96i-arte-36.js",
+    "tools/test-ga36.mjs",
+    ".ai-coord/buzon/20261123-cierre-antigravity-ga36-3.7.md"
   ],
   "archivos_actualizados": [
     "src/js/00-core.js",
-    "src/js/22-gl.js",
-    "src/js/25-game.js",
-    "src/js/28-taller-corredor.js",
-    "src/js/32-volante.js",
-    "src/js/36-libre.js",
-    "src/js/38-bus.js",
-    "src/js/45-metroplus.js",
-    "src/js/47-carrera.js",
-    "src/js/52-cableviaje.js",
-    "src/js/60-mapa.js",
-    "src/js/65-menu.js",
     "src/js/90-bot.js",
-    "src/js/96-arcade.js",
-    "src/js/97b-actividades.js",
-    "src/js/98b-openai-gpt6-eon-manejo.js",
     "src/style.css",
-    "tools/test.mjs",
+    "tools/arte_juego.py",
     "docs/BITACORA.md"
   ],
   "pruebas": {
-    "build": "dist/index.html 8633 KB · v3.4.0",
-    "test_100": "OK, 0 errores (100 partidas, 284224 pasos, 53 victorias, carga 2085 ms)",
+    "build": "dist/index.html 8724 KB · v3.7.0",
+    "test_100": "OK, 0 errores (100 partidas, 293300 pasos, 54 victorias, carga 2245 ms)",
+    "test_ga36": "PASS (φ=0.4045 diff 0, dos dedos CDP m=1 & cyo=-0.756, diario/noticia/barrio/paradero/banca, 6/6 escenas G-111, zen G-110 vertical+horizontal)",
     "test_gpt6_fluidez": "PASS",
     "test_gpt6_eon_manejo": "PASS",
-    "qa_visual_3d": "29 capturas PNG (412x860 y 860x412) con WebGL 3D vivo verificado"
+    "medir_3d": "0 llamadas y 0 vértices adicionales en cen3d/3p frente a v3.6.0"
   },
   "estado": "entregado"
 }

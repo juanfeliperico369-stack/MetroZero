@@ -153,6 +153,43 @@ def main():
         data = webp(im, q, alpha)
         arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
         filas.append((id_, enc, f, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
+    # GA-36-4 · arte 3.6 opcional (G-110 panorámica zen, G-111 escenas de subtramas, G-112 pisos de skate): se integra solo si el PNG ya llegó
+    OPCIONAL_36 = [
+        ('g110_zen_cielo', 'panoramicas/g110_zen_cielo.png', 'escena', 1024, 68, 'G-110', 'Domingo zen: cielo al amanecer'),
+        ('g110_zen_montana', 'panoramicas/g110_zen_montana.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: montañas del oriente'),
+        ('g110_zen_ciudad', 'panoramicas/g110_zen_ciudad.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: ciudad y río'),
+        ('g110_zen_frente', 'panoramicas/g110_zen_frente.png', 'magenta', 1024, 68, 'G-110', 'Domingo zen: árboles del frente'),
+        ('esc_sub_pico_sa', 'clave/esc_sub_pico_sa.png', 'escena', 512, 68, 'G-111', 'Subtrama: hora pico en San Antonio'),
+        ('esc_sub_ciclo_rio', 'clave/esc_sub_ciclo_rio.png', 'escena', 512, 68, 'G-111', 'Subtrama: convivencia en Parques del Río'),
+        ('esc_sub_niebla_arvi', 'clave/esc_sub_niebla_arvi.png', 'escena', 512, 68, 'G-111', 'Subtrama: niebla en Línea L a Arví'),
+        ('esc_sub_guitarra_t', 'clave/esc_sub_guitarra_t.png', 'escena', 512, 68, 'G-111', 'Subtrama: música en paseo Ayacucho'),
+        ('esc_sub_cruce_ind', 'clave/esc_sub_cruce_ind.png', 'escena', 512, 68, 'G-111', 'Subtrama: cruce de Industriales'),
+        ('esc_sub_bici_estadio', 'clave/esc_sub_bici_estadio.png', 'escena', 512, 68, 'G-111', 'Subtrama: EnCicla en el Atanasio'),
+        ('tex_skate_parques_rio', 'texturas/tex_skate_parques_rio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Parques del Río'),
+        ('tex_skate_ciudad_rio', 'texturas/tex_skate_ciudad_rio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Ciudad del Río'),
+        ('tex_skate_atanasio', 'texturas/tex_skate_atanasio.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Unidad Deportiva Atanasio'),
+        ('tex_skate_pies_descalzos', 'texturas/tex_skate_pies_descalzos.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Pies Descalzos'),
+        ('tex_skate_explora', 'texturas/tex_skate_explora.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Parque Explora y Carabobo'),
+        ('tex_skate_ayacucho', 'texturas/tex_skate_ayacucho.png', 'magenta', 512, 72, 'G-112', 'Piso skate: Corredor Ayacucho'),
+    ]
+    for (id_, rel, tipo, w, q, enc, uso) in OPCIONAL_36:
+        ruta = os.path.join(R, 'arte/entregas', rel)
+        if not os.path.isfile(ruta):
+            continue
+        im = Image.open(ruta)
+        alpha = tipo == 'magenta'
+        if alpha:
+            if im.mode == 'RGBA' and im.getchannel('A').getextrema()[0] < 250:
+                pass
+            else:
+                im = sin_fondo(im.convert('RGB'))
+        else:
+            im = im.convert('RGB')
+        h = round(im.size[1] * w / im.size[0])
+        if im.size[0] != w: im = im.resize((w, h), Image.LANCZOS)
+        data = webp(im, q, alpha)
+        arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
+        filas.append((id_, enc, rel, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
     for (id_, f, enc, uso) in SVG:
         s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
         arte[id_] = s; filas.append((id_, enc, 'vectorial/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())
