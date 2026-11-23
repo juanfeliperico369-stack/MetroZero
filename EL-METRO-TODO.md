@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.5.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.6.0 · compilado el 2026-11-23.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.5.0** · compilado el 2026-11-23.
+> Versión del juego **v3.6.0** · compilado el 2026-11-23.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -805,6 +805,47 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 
 
+
+##### Estado al 23‑nov‑2026 · v3.6.0 «Ciudad viva» (Claude, IA de El Metro)
+**Qué pidió el autor:**
+- «vuelve a trabajar en El Metro, mejora y desarrolla todo lo que puedas, evalúa qué falta y las peticiones para Gemini y ChatGPT, entrégame los prompts, planea tu siguiente paso, usa todo lo nuevo del motor y deja sugerencias en el repositorio».
+- Se trajo `main`: la 3.5.0, unión con «Mundo 3D y Realismo» de Antigravity, y Motor City 5.2.
+
+**Auditoría de la 3.5.0** (`tools/auditoria-jugabilidad.mjs`, 3D sin tarjeta gráfica = celular modesto):
+- el 3D se cayó: volante 5, carrera 4,5 y Ciudad Libre 6,5 cuadros por segundo;
+- iba en cámara lenta: ritmo 0,53–0,76;
+- `tools/medir-3d.mjs` encontró **1,5 millones de vértices por cuadro**, de ellos **830 mil de la red de transporte del valle entero**, dibujada completa en cada cuadro.
+
+**Lo nuevo:**
+1. **Rendimiento:**
+   - **Red de transporte por celdas** (`MBC` en `22-gl.js`): solo las celdas a menos de 2,4 km, 1,3 en liviano, y más si la cámara va alta. Los vértices por cuadro bajaron de 1,53 millones a 0,55–0,79 millones.
+   - **Regulador automático** (`src/js/96d-rendimiento.js`, `EM.rendimiento`, Ajustes → «📏 Calidad 3D»). Escalones: sin realismo → resolución ×0,75 → ×0,58 con la ciudad cercana liviana → ×0,45. En el último, Ciudad Libre pasa sola a 2D y lo dice.
+   - **«📏 Medir mi celular»** (en Ajustes y con `?medir`): mide 2D y 3D y deja la calidad que sirve.
+   - **Tiempo real hasta unos 5 cuadros por segundo** (`25-game.js`: pasos hasta 0,2 s).
+   - **Resultado emulado:** volante 5,1 → 16,4, carrera 4,5 → 19 y Ciudad Libre 6,5 → 18,1 cuadros por segundo, todos con ritmo 1,0.
+2. **Ciudad viva en familia** (Motor City 5.2, `src/js/96e-ciudad-viva.js`):
+   - la gente cercana se voltea y dice algo ante el pito, un choque o un derrape;
+   - la charla al azar usa las frases de ambiente del motor según la hora y la lluvia;
+   - las frases se generan con `node tools/frases_ciudad.mjs`, que escribe `src/js/96e1-frases-ciudad.js`: 40 frases, sin atropellos ni explosiones.
+3. **⭐ Reto del día** (`src/js/96f-reto.js`, `EM.reto`, en la portada):
+   - uno distinto cada día y el mismo para todos;
+   - opciones: metro con 3 ★, tranvía sin frenadas, Metroplús con 3 ★, ciclorruta sin perder vidas o metrocable con 2 ★;
+   - 40 🎫 y hasta 100 con la racha;
+   - `Save.d.reto` con su valor por defecto.
+4. **🌅 Domingo zen** en el corredor: sin vidas ni afán, por la ciclorruta Las Vegas. Los golpes solo frenan.
+5. **El bus del volante** no pasa de 1,25 veces su velocidad real; antes llegaba a 102 km/h.
+6. **Herramientas en el repositorio:** `tools/auditoria-jugabilidad.mjs`, `tools/medir-3d.mjs` y `tools/frases_ciudad.mjs`.
+7. **Documentos:**
+   - **pedidos y prompts listos para pegar** en `docs/PEDIDOS-GEMINI-CHATGPT-3.6.md`:
+     - Gemini: G‑110 a G‑112;
+     - Antigravity: GA‑36‑1 a GA‑36‑4;
+     - ChatGPT: C‑70 a C‑72;
+     - Codex: CX‑36‑1 a CX‑36‑3;
+   - **sugerencias y el plan 3.7 «Épocas» de Claude** en `docs/SUGERENCIAS-CLAUDE.md`.
+
+**Guardado:** `Save.d.reto` y `settings.cal3d`, con su valor por defecto.
+
+**Probado:** autotest con 0 errores; 100 partidas; las pruebas de GPT‑6; capturas a 412 × 860.
 
 ##### Estado al 23‑nov‑2026 · v3.5.0 · unión de las dos 3.4.0 (Claude)
 - **Había dos 3.4.0 a la vez:**
@@ -1997,6 +2038,13 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+#### Reglas aprendidas (ciudad viva, 3.6.0)
+- **Antes de subir la calidad 3D, mide** con `node tools/medir-3d.mjs`: vértices y llamadas por cuadro, y cuadros por segundo por escalón.
+- **Geometría de todo el valle = recorte por celdas** (`MBC` en `22-gl.js`).
+- **El regulador `EM.rendimiento` manda en el 3D:** `G3.simple` apaga el realismo y `G3.liviano` arma la ciudad cercana como en «Celular modesto».
+- **Auditoría de jugabilidad en el repositorio** (`node tools/auditoria-jugabilidad.mjs [modos] [carpeta]`): todo modo debe avanzar con ▲ y con ritmo 1,0.
+- **Datos del motor:** se generan con una herramienta (`tools/frases_ciudad.mjs`) y no se copian a mano.
 
 #### Reglas aprendidas (jugo y ciclovías, 3.4.0)
 - **Corredor solo por ciclorruta** (`EM.ciclo`, `src/js/47b-ciclovia.js`): la pista sale de la red de ciclorrutas. Un nivel nuevo de la carrera debe ser una ciclorruta: `cr:c<nombre>`, `cr:@x,y,h` o `cr:<línea>`, que es la más cercana.
@@ -3624,7 +3672,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (113 archivos, 1563 KB)
+## Código fuente (120 archivos, 1591 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4177,7 +4225,7 @@ body.zurdo .actbar{left:152px;right:10px}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.5.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.6.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4224,7 +4272,7 @@ function enciclaHorario(d = new Date()) { const m = d.getHours() * 60 + d.getMin
 /* ---------- guardado (localStorage + exportar a archivo) ---------- */
 const KEY = 'elmetro.v1';
 function newSave() {
-  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
+  return { v: 1, created: Date.now(), name: 'Aprendiz', wallet: 0, stars: {}, best: {}, story: { ch: 0, seen: {} }, red: { lines: {}, last: Date.now(), pax: 0 }, libre: { x: 0, y: 0, h: 0, veh: null, visited: {}, jobs: 0, km: 0 }, stats: { games: 0, km: 0, pax: 0, wins: 0, crashes: 0 }, facts: {}, log: [], settings: { snd: 1, mus: 1, vib: 1, voz: 1, q: 'auto', tema: 'metro', dalt: 0, ciclo: 'rapido', angulo: 0, ritmo: 0, manejo: 'facil', asist: 1, vistaL: 'cen3d', vehCr: 0, claro: 1, uiTam: 1, arcade: 1, cabReal: 0, realismo: 1, acelFijo: 0 }, perfil: { piel: 1, peinado: 0, colPelo: 0, camisa: 0, pantalon: 0, zapatos: 0, gorro: 0, colGorro: 0, accesorio: 0 }, gente: {}, fragsEncicla: {}, reto: { dia: '', racha: 0, ultimo: '' }, cronicas: {}, rpg: { xp: { tren: 0, bus: 0, cable: 0, ciclovia: 0 }, rep: 0, subtramas: {}, trucos: 0, zonas: {} } };
 }
 const Save = EM.save = {
   d: null,
@@ -7097,6 +7145,14 @@ class MB {
   flush() { if (this.a.length) this.parts.push(new Float32Array(this.a)); this.a = []; }
   done() { this.flush(); return this.parts; }
 }
+/* 3.6 (Claude) · mallas por celdas de 800 m: la red de transporte de todo el valle (viaductos, rieles, estaciones con interior,
+   torres de cable: 830 mil vértices medidos) se dibujaba entera en cada cuadro; ahora cada triángulo va a la celda donde cae y
+   al dibujar solo entran las celdas cercanas a la cámara (G3.draw). Lo que se arme con v() directo queda en una parte global */
+class MBC extends MB {
+  constructor(L = 800) { super(); this.L = L; this.c = new Map(); }
+  tri(p, q, r, c, k = 0) { const i = Math.floor((p[0] + q[0] + r[0]) / 3 / this.L), j = Math.floor((p[2] + q[2] + r[2]) / 3 / this.L), key = i * 100003 + j; let m = this.c.get(key); if (!m) { m = new MB(); m.cx = (i + .5) * this.L; m.cz = (j + .5) * this.L; this.c.set(key, m); } m.tri(p, q, r, c, k); }
+  celdas() { const out = []; for (const m of this.c.values()) for (const a of m.done()) out.push({ a, cx: m.cx, cz: m.cz }); for (const a of MB.prototype.done.call(this)) out.push({ a, cx: null, cz: null }); return out; }
+}
 const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
 const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246', '#e6b822', '#d96ca8'].map(rgb);
 const G3 = EM.g3 = {
@@ -7143,7 +7199,7 @@ const G3 = EM.g3 = {
   /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
     const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
-    const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
+    const cv = real ? VC.piso3D(x0, z0, 2 * half, (Save.d.settings.q === 'low' || this.liviano ? 1024 : 2048) / (2 * half)) : mkCanvas(nt * P, nt * P), g = real ? null : cv.getContext('2d'), img = real ? null : g.createImageData(nt * P, nt * P), d = real ? null : img.data, road = v => v === TT.ROAD || v === TT.AVE || v === TT.AUTO || v === TT.BRIDGE;
     if (!real) for (let ty = 0; ty < nt; ty++) for (let tx = 0; tx < nt; tx++) {
       const X = x0 / TM + tx, Y = z0 / TM + ty, v = MAP.tile(X, Y); let base = TRGB[v] || TRGB[0]; const ht = h2(X, Y, v), nN = road(MAP.tile(X, Y - 1)), nS = road(MAP.tile(X, Y + 1)), nW = road(MAP.tile(X - 1, Y)), nE = road(MAP.tile(X + 1, Y)), vert = nN || nS, horz = nW || nE;
       if (v === TT.BRICK || v === TT.BLDG) base = [92, 104, 72];
@@ -7166,7 +7222,7 @@ const G3 = EM.g3 = {
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
     // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
-    const low = Save.d.settings.q === 'low', R = low ? 600 : 1100, bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
+    const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
     if (RR) this.edifReales(bm, cx, cz, RR, R2);
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (R2 && (X - cx) ** 2 + (Z - cz) ** 2 < R2 * R2)) continue;
@@ -7263,7 +7319,7 @@ const G3 = EM.g3 = {
     const P = NET.poly(pts.map(p => ({ x: p.x, y: p.y }))); return (line._cg = { pts, P, zAt: s => { let i = 0; while (i < P.cum.length - 2 && P.cum[i + 1] < s) i++; const L = (P.cum[i + 1] - P.cum[i]) || 1, f = clamp((s - P.cum[i]) / L, 0, 1), sag = 4 * .025 * L * f * (1 - f); return lerp(pts[i].z, pts[Math.min(i + 1, pts.length - 1)].z, f) - sag; } });
   },
   buildNet() {
-    const mb = new MB(), lines = [];
+    const mb = new MBC(800), lines = [];   // 3.6: por celdas
     for (const l of NET.lines) {
       const col = rgb(l.color), K = l.kind;
       if (K === 'metro' || K === 'tram' || (K === 'future' && !/cable/i.test(l.name))) {
@@ -7308,7 +7364,7 @@ const G3 = EM.g3 = {
       }
     }
     this.decor(mb);
-    this.stat = mb.done().map(a => this.buf(a));
+    if (this.stat) for (const q of this.stat) this.gl.deleteBuffer(q); const C = mb.celdas(); this.stat = C.map(o => this.buf(o.a)); this.statXY = C.map(o => o.cx == null ? null : [o.cx, o.cz]);
     const la = []; for (const L of lines) for (let i = 0; i < L.pts.length - 1; i++) { la.push(...L.pts[i], 0, 1, 0, ...L.c, 0, ...L.pts[i + 1], 0, 1, 0, ...L.c, 0); }
     this.wires = la.length ? this.buf(new Float32Array(la)) : null;
   },
@@ -7339,7 +7395,7 @@ const G3 = EM.g3 = {
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(sl);
     gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
     const P = this.P; gl.useProgram(P.p); const u = P.u;
-    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (Save.d && Save.d.settings && Save.d.settings.realismo === 0) ? 0 : 1);
+    gl.uniformMatrix4fv(u.VP, false, VP); gl.uniform3fv(u.sun, sky.sun.el > 0 ? sd : [-sd[0], .3, -sd[2]]); gl.uniform3fv(u.amb, sky.amb); gl.uniform3fv(u.sunc, sky.sunc); gl.uniform3fv(u.fogc, opts.fog || sky.fog); if (u.camPos) gl.uniform3fv(u.camPos, cam.eye); if (u.uReal) gl.uniform1f(u.uReal, (G3.simple || (Save.d && Save.d.settings && Save.d.settings.realismo === 0)) ? 0 : 1);   // 3.6: el regulador de 96d-rendimiento.js también lo apaga
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
@@ -7350,7 +7406,8 @@ const G3 = EM.g3 = {
     for (const b of this.near) run(b);
     gl.disable(gl.POLYGON_OFFSET_FILL);
     for (const b of this.bld) run(b);
-    for (const b of this.stat) run(b);
+    { const ex = cam.eye[0], ez = cam.eye[2], alto = Math.max(0, cam.eye[1] - (MAP.ready ? MAP.elevM(ex, ez) : 1500)), Rd = (this.liviano ? 1300 : 2400) + 2 * alto, R2 = Rd * Rd;   // 3.6: solo las celdas cercanas (más lejos si la cámara va alta)
+      for (let i = 0; i < this.stat.length; i++) { const c = this.statXY && this.statXY[i]; if (!c || (c[0] - ex) ** 2 + (c[1] - ez) ** 2 < R2) run(this.stat[i]); } }
     if (this.wires) run(this.wires, gl.LINES);
     this._run = run; this._I = I;
     if (opts.dyn) opts.dyn(this);
@@ -7690,7 +7747,7 @@ const Game = EM.game = {
   frame() {
     // tiempo real aunque el celular dé pocos cuadros: los modos con pasos cortos (substeps) avanzan lo que de verdad pasó, en pasos
     // de 1/30 s, y con su ritmo (escala: ×1, ×2, ×3); los demás, como siempre, con un tope de 50 ms por cuadro
-    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.12, raw) : Math.min(.05, raw); if (this.paused) dt = 0;
+    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw);   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo) if (this.paused) dt = 0;
     // calidad automática: si los cuadros pasan de ~34 ms se baja la densidad de píxeles del lienzo (hasta 1); si sobran, se sube (hasta 2)
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
@@ -12613,6 +12670,7 @@ const Carrera = EM.modes.carrera = {
     inicio(lv) {
       const R = this.armar(); if (!R) return null; const id = String(lv || '').slice(3);
       if (id[0] === 'c' && /^c\d+$/.test(id)) { const q = (this.niveles() || []).find(l => l.id === lv); return q ? { n: q.n, h: null, nm: q.nm } : null; }
+      if (id === 'zen') { const L = this.niveles() || [], q = L.find(l => /Vegas/.test(l.name)) || L[0]; return q ? { n: q.n, h: null, nm: q.nm } : null; }   // 3.6 · modo zen
       if (id[0] === '@') { const [x, y, h] = id.slice(1).split(',').map(Number); const n = this.cercano(x, y, 400); return n < 0 ? null : { n, h: isFinite(h) ? h : null }; }
       const l = NET.byId[id]; if (!l) return null; const e = l.st[Math.floor(l.st.length / 2)], n = this.cercano(e.x, e.y, 1500); return n < 0 ? null : { n, h: null };
     },
@@ -12698,6 +12756,7 @@ const Carrera = EM.modes.carrera = {
   Cr.levels = function () {
     if (Ci._lv) return Ci._lv; const L = Ci.niveles(); if (!L || !L.length) return levels0.call(this);
     const out = L.map(q => ({ id: q.id, name: q.name, sub: q.km.toFixed(1).replace('.', ',') + ' km de ciclorruta' + (q.barrio ? ' · desde ' + q.barrio : '') }));
+    if (L.some(q => /Vegas/.test(q.name))) out.unshift({ id: 'cr:zen', name: '🌅 Domingo zen', sub: 'Sin vidas ni afán, por la ciclorruta Las Vegas: solo rodar, mirar y hacer trucos' });   // 3.6 · modo zen (Alto’s)
     for (const [id, n] of LINEAS) { if (!NET.byId[id]) continue; const I = Ci.inicio('cr:' + id); if (!I) continue; const q = Ci.red.N[I.n]; out.push({ id: 'cr:' + id, name: n, sub: 'Por la ciclorruta ' + Ci.nombre((q.a[0] || {}).nm).replace(/^Ciclorruta\s+/, '') + (Ci.barrio(q.x, q.y) ? ' · ' + Ci.barrio(q.x, q.y) : '') }); }
     return (Ci._lv = out);
   };
@@ -12707,7 +12766,7 @@ const Carrera = EM.modes.carrera = {
     const R = Ci.red, q = R.N[I.n];
     st.cic = { px: [q.x], py: [q.y], cum: [0], nm: [I.nm || 0], cur: I.n, prev: -1, cruce: null, quiere: 0, fin: false, zonas: [], avisos: [], ult: 55, zona: 300, cruces: 0, giros: 0, nmAct: I.nm || 0, ini: I.nm || (q.a[0] && q.a[0].nm) || 0 };
     st.obs = []; st._ci = 0; st.s = 0; st.v = 8; st.c = 1; st.cx = 1; st.off = 0; st.est = -1; st.rs = ((opts.seed | 0) * 2654435761 + I.n) >>> 0;
-    Object.assign(st, { combo: 1, comboMax: 1, trucos: 0, grinds: 0, parkour: 0, agacha: 0, truco: null, vistos: {}, golpes: 0 });
+    Object.assign(st, { combo: 1, comboMax: 1, trucos: 0, grinds: 0, parkour: 0, agacha: 0, truco: null, vistos: {}, golpes: 0, zen: lv === 'cr:zen' ? 1 : 0 });
     /* la primera salida: si hay dos, la que va hacia donde mirabas (desde el mundo abierto) o la más larga */
     const ops = q.a; if (ops.length) { let o = ops[0]; if (I.h != null) { let best = -2; for (const e of ops) { const p = R.N[e.to], d = Math.cos(Math.atan2(p.y - q.y, p.x - q.x) - I.h); if (d > best) { best = d; o = e; } } } else if (ops.length > 1 && I.nm) o = ops.find(e => e.nm === I.nm) || o; Ci.paso(st, o.to, o.nm); }
     Ci.extender(st, 230);
@@ -12741,6 +12800,7 @@ const Carrera = EM.modes.carrera = {
       if (st.inv > 0) continue;
       o.hecho = 1; if (st.turbo > 0) { st.pts += 5; continue; }
       if (st.escudo) { st.escudo = 0; st.inv = 1; st.dato = '🛡 El escudo aguantó el golpe'; st.datoT = 2.5; continue; }
+      if (st.zen) { st.inv = .8; st.v = Math.max(6, st.v * .82); st.combo = 1; st.golpes++; st.truco = null; if (EM.jugo && !st.auto) EM.jugo.golpe(st, true); continue; }   // zen: un golpe solo frena
       st.vidas--; st.inv = 1.4; st.v = Math.max(7, st.v * .7); st.combo = 1; st.golpes++; st.truco = null; if (EM.jugo && !st.auto) EM.jugo.golpe(st);
       if (st.vidas <= 0) st.done = true;
     }
@@ -12803,7 +12863,7 @@ const Carrera = EM.modes.carrera = {
   };
   Cr.result = function (st) {
     const r = result0.call(this, st); if (!st.cic) return r; const K = st.cic, km = (st.s / 1000).toFixed(2).replace('.', ',');
-    r.win = st.done && st.vidas > 0; r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []);
+    r.win = st.done && st.vidas > 0; r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []).concat(st.zen ? [['Modo', '🌅 Zen: sin vidas ni afán']] : []);
     if (!r.fact || /^🚲/.test(r.fact)) r.fact = 'En el juego están las ciclorrutas reales del valle: 234 tramos y 120 km. La más larga es la de la doble calzada Niquía – Hatillo, en Bello.';
     return r;
   };
@@ -14146,6 +14206,8 @@ const BotT = EM.test = {
   }
   const Vo = EM.modes.volante;
   if (Vo) {
+    /* 3.6 · el bus no pasa de 1,25 veces su velocidad real (antes, con el acelerador sostenido llegaba a 102 km/h en un Metroplús de 60) */
+    const stepV0 = Vo.step; Vo.step = function (st, dt) { const r = stepV0.apply(this, arguments); const B = typeof BUSES !== 'undefined' && BUSES[st.kind]; if (B && st.v > B.vmax * 1.25) st.v = Math.max(B.vmax * 1.25, st.v - 3 * dt); return r; };
     const dw0 = Vo.dwellTick;
     Vo.dwellTick = function (st, dt, line) {
       dw0.call(this, st, dt, line); if (st.auto || !arcade() || st.ph !== 'dwell' || st.done) return;
@@ -14308,6 +14370,173 @@ const BotT = EM.test = {
   /* la sacudida se apaga con el tiempo real (una vez por cuadro) */
   const frame0 = Game.frame; let tUlt = now();
   Game.frame = function () { const t = now(); if (J.shakeT > 0) J.shakeT = Math.max(0, J.shakeT - (t - tUlt)); tUlt = t; return frame0.apply(this, arguments); };
+})();
+~~~~
+
+### `src/js/96d-rendimiento.js`
+~~~~js
+/* =====================================================================
+   RENDIMIENTO DEL 3D (3.6 «Ciudad viva», Claude, 23‑nov‑2026) · que el mundo 3D no ahogue a los celulares modestos
+   Medido en la auditoría de la 3.5.0 (Chromium sin tarjeta gráfica, el peor caso del proyecto): con el sombreado realista y la
+   resolución 3D nueva (0,82), el volante bajó de 13 a 5 cuadros por segundo, la carrera de 14 a 4,5 y Ciudad Libre, que ahora abre
+   en 3D cenital, a 6,5 (y el juego iba en cámara lenta: ritmo 0,53–0,76).
+   - Regulador automático (Ajustes → «Calidad 3D: automática»): mientras se dibuja 3D mira el tiempo de cada cuadro; si pasa de
+     45 ms (≈ 22 cuadros por segundo) durante 1,2 s baja un escalón y si baja de 26 ms durante 5 s sube uno.
+     Escalones: 0 · todo · 1 · sin el sombreado realista · 2 · resolución ×0,75 · 3 · ×0,58 y ciudad cercana liviana (menos edificios
+     a lo lejos) · 4 · ×0,45. En el último, Ciudad Libre pasa sola a la vista 2D una vez y lo dice.
+   - 📏 «Medir mi celular» (idea de Motor City 5.2, `?medir`): mide 3 s el 2D y 3 s el 3D en San Antonio y deja la calidad que sirve.
+   - Tiempo real hasta 5 cuadros por segundo: en 25-game.js los pasos de 1/30 s llegan ahora hasta 0,2 s por cuadro (antes 0,12).
+   ===================================================================== */
+(function () {
+  if (typeof G3 === 'undefined' || !G3.draw || typeof Game === 'undefined') return;
+  const ESC = [[1, 1], [0, 1], [0, .75], [0, .58], [0, .45]], NOMBRE = ['alta', 'sin realismo', 'media', 'baja', 'mínima'];
+  const S = () => (Save.d && Save.d.settings) || {};
+  const R = EM.rendimiento = {
+    nivel: 0, malo: 0, bueno: 0, ultimo: 0,
+    auto() { const c = S().cal3d; return c == null || c === 'auto'; },
+    /* una vez por cuadro con 3D: sube o baja el escalón según el tiempo real de los cuadros (Game.ft) */
+    paso(t, ft) {
+      if (!this.auto()) { this.nivel = clamp(+S().cal3d | 0, 0, ESC.length - 1); return; }
+      const dt = t - (this.ultimo || t); this.ultimo = t; if (dt <= 0 || dt > .5 || !ft) return;
+      if (ft > .045) { this.malo += dt; this.bueno = 0; if (this.malo > 1.2 && this.nivel < ESC.length - 1) { this.nivel++; this.malo = 0; this.cambio(); } }
+      else if (ft < .026) { this.bueno += dt; this.malo = 0; if (this.bueno > 5 && this.nivel > 0) { this.nivel--; this.bueno = 0; } }
+      else { this.malo = Math.max(0, this.malo - dt); this.bueno = 0; }
+    },
+    cambio() {
+      if (this.nivel < ESC.length - 1 || this._2d) return; const L = EM.modes.libre, st = Game.st;
+      if (Game.mode === L && st && st.vista3 && L.vista) { this._2d = 1; L.vista(st, '2d'); L.msg(st, '📏 Tu celular va justo con el 3D: te dejé la vista desde arriba (cámbiala con 👁)', 'y'); }
+    },
+    simple() { return !ESC[this.nivel][0]; },
+    /* desde el escalón 3, la ventana 3D cercana se arma como en «Celular modesto» (edificios reales hasta 380 m en vez de 700 y
+       siluetas hasta 600 m en vez de 1100): medido, cada cuadro dibujaba 1,5 millones de vértices. Al cruzar el umbral se rearma una vez */
+    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; G3.win = null; } },
+    factor() { return ESC[this.nivel][1]; },
+    /* 📏 medir: 3 s en 2D y 3 s en 3D cenital, en San Antonio; deja el escalón que sirve y lo cuenta */
+    async medir() {
+      const L = EM.modes.libre; if (!L) return; Snd.init(); UI.modal('<div class="pag">📏 Medir mi celular</div><h2>Midiendo…</h2><p class="m">Unos segundos en 2D y en 3D. No toques la pantalla.</p>');
+      const cuenta = ms => new Promise(res => { let n = 0; const t0 = performance.now(), f = () => { n++; if (performance.now() - t0 < ms) requestAnimationFrame(f); else res(n * 1000 / (performance.now() - t0)); }; requestAnimationFrame(f); });
+      const s = S(), antes = { v: s.vistaL, c: s.cal3d }; UI.close(); Game.start('libre', 'lb:San Antonio', { back: 'cover' });
+      L.vista(Game.st, '2d'); await cuenta(800); const f2 = await cuenta(3000);
+      let f3 = 0; if (!(s.q === 'low') && G3.init()) { s.cal3d = 0; this.nivel = 0; L.vista(Game.st, 'cen3d'); await cuenta(1000); f3 = await cuenta(3000); }
+      const nv = f3 >= 30 ? 0 : f3 >= 22 ? 1 : f3 >= 16 ? 2 : f3 >= 11 ? 3 : 4; s.cal3d = 'auto'; this.nivel = nv; this._2d = 0;
+      const ir2d = !f3 || f3 < 9; s.vistaL = ir2d ? '2d' : (antes.v || 'cen3d'); if (f2 < 24 && s.q !== 'low') s.q = 'low'; Save.write();
+      Game.stop(); Game.start('libre', 'lb:San Antonio', { back: 'cover' }); if (ir2d) L.vista(Game.st, '2d'); else L.vista(Game.st, s.vistaL);
+      UI.modal(`<div class="pag">📏 Tu celular</div><h2>${f3 >= 22 ? 'Va muy bien' : f3 >= 11 ? 'Va bien con ajustes' : 'Mejor en 2D'}</h2><div class="kv"><b>Vista 2D</b><span>${Math.round(f2)} cuadros por segundo</span><b>Vista 3D</b><span>${f3 ? Math.round(f3) + ' cuadros por segundo' : 'sin 3D'}</span><b>Calidad 3D</b><span>automática, empieza en «${NOMBRE[nv]}»</span><b>Vista de Ciudad Libre</b><span>${ir2d ? 'desde arriba (2D)' : s.vistaL === 'cen3d' ? '3D cenital' : s.vistaL}</span>${f2 < 24 ? '<b>Calidad gráfica</b><span>celular modesto</span>' : ''}</div><p class="m">Se ajusta solo mientras juegas. Puedes cambiarlo en Ajustes.</p><button class="btn pri" id="mdOk">Listo</button>`);
+      const ok = $('#mdOk'); if (ok) ok.onclick = () => UI.close();
+    }
+  };
+  /* el 3D se dibuja con el escalón del regulador */
+  const draw0 = G3.draw;
+  G3.draw = function (cam, opts = {}) {
+    R.paso(now(), Game.ft || 0); const f = R.factor(); G3.simple = R.simple(); R.liviano();
+    return draw0.call(this, cam, f < 1 ? Object.assign({}, opts, { escala: (opts.escala || .82) * f }) : opts);
+  };
+  /* Ajustes: calidad 3D y 📏 medir */
+  if (typeof Menu !== 'undefined' && Menu.settings) {
+    const set0 = Menu.settings;
+    Menu.settings = function () {
+      const r = set0.apply(this, arguments), ok = document.getElementById('sOk'); if (!ok || document.getElementById('sCal3d')) return r;
+      const s = S(), v = s.cal3d == null ? 'auto' : String(s.cal3d), d = document.createElement('div');
+      d.innerHTML = `<div class="pag">📏 Calidad 3D</div><div class="tg" id="sCal3d">${[['auto', 'Automática'], ['0', 'Alta'], ['2', 'Media'], ['4', 'Baja']].map(([k, n]) => `<button data-v="${k}" class="${v === k ? 'on' : ''}">${n}</button>`).join('')}</div><button class="btn sm" id="sMedir" style="margin-top:6px">📏 Medir mi celular</button>`;
+      ok.closest('.row').before(d);
+      for (const b of d.querySelectorAll('#sCal3d button')) b.onclick = () => { s.cal3d = b.dataset.v === 'auto' ? 'auto' : +b.dataset.v; R.nivel = s.cal3d === 'auto' ? 0 : s.cal3d; Save.write(); for (const x of d.querySelectorAll('#sCal3d button')) x.classList.toggle('on', x === b); };
+      d.querySelector('#sMedir').onclick = () => { UI.close(); R.medir(); };
+      return r;
+    };
+  }
+  /* ?medir en la dirección: mide al abrir (para probar en el celular sin buscar el botón) */
+  if (typeof location !== 'undefined' && /[?&]medir\b/.test(location.search)) { const t = setInterval(() => { if (!EM.ready) return; clearInterval(t); setTimeout(() => R.medir(), 400); }, 250); }
+})();
+~~~~
+
+### `src/js/96e-ciudad-viva.js`
+~~~~js
+/* =====================================================================
+   CIUDAD VIVA EN FAMILIA (3.6, Claude, 23‑nov‑2026) · de Motor City 5.2 «Ciudad viva» (`MC.CiudadViva`, js/26-vida-ciudad.js),
+   con el tono que el motor recomienda para este juego: familia, sin violencia (solo choque, derrape y pito).
+   La gente de Ciudad Libre ya no ignora lo que pasa: quien está cerca se voltea a mirar, se detiene un momento y dice algo
+   de aquí. Una reacción cada 1,2 s como mucho y hasta dos personas, para que no sea ruido.
+   - Pito (H o Q en un vehículo): «¡Qué susto!», «Tranquilo, mijo».
+   - Choque: «¡Uy! ¿Está bien?», «¿Le ayudo?».
+   - Derrape con el freno de mano: «¡Despacio!», «¡Qué frenada!».
+   ===================================================================== */
+(function () {
+  const L = EM.modes.libre; if (!L || typeof Ciudad === 'undefined') return;
+  const FR = {
+    pito: ['¡Qué susto!', '¡Ya, ya, ya voy!', 'Tranquilo, mijo', '¡Uy, ese pito!', 'Con calma, que hay tiempo'],
+    crash: ['¡Uy! ¿Está bien?', '¡Cuidado, pues!', 'Ay, Dios mío…', '¿Le ayudo?', '¡Despacito, que no es carrera!'],
+    brake: ['¡Despacio!', '¡Qué frenada!', '¡Ojo, que aquí hay gente!', 'Así no, mijo', '¡Cuidado con la ciclorruta!']
+  };
+  /* las frases de familia del motor (src/js/96e1-frases-ciudad.js, generado): se suman a las de cada evento y, para la charla al
+     azar, las de ambiente que van con la hora y la lluvia */
+  const EV = { pito: ['bocina'], crash: ['choque'], brake: ['derrape'] }, deMotor = k => (typeof FRASES_CIUDAD !== 'undefined' ? FRASES_CIUDAD : []).filter(f => f.ev.some(e => EV[k].includes(e))).map(f => f.t);
+  const ambiente = () => { if (typeof FRASES_CIUDAD === 'undefined') return null; const h = (typeof Mundo !== 'undefined' ? Mundo.hour() : 12) * 60, ll = typeof Mundo !== 'undefined' && !!(Mundo.weather() || {}).rain;
+    const L0 = FRASES_CIUDAD.filter(f => f.ev.includes('ambiente') && !f.lugar && (!f.hora || (h >= f.hora[0] && h < f.hora[1])) && (f.lluvia === undefined || f.lluvia === ll)); return L0.length ? L0[(Math.random() * L0.length) | 0].t : null; };
+  const say0 = Ciudad.say; Ciudad.say = function (p, txt) { if (!txt && Math.random() < .45) txt = ambiente() || txt; return say0.call(this, p, txt); };
+  const Vv = EM.ciudadViva = {
+    reacciona(st, k, r) {
+      if (EM.headless || !st || st.auto || Game.st !== st || !Ciudad.peds) return 0; const t = now(); if (t - (this._t || 0) < 1.2) return 0; this._t = t;
+      const L0 = FR[k].concat(deMotor(k)), cerca = Ciudad.peds.filter(p => !p.dog && !p.gone && Math.abs(p.x - st.x) < r && Math.abs(p.y - st.y) < r && Math.hypot(p.x - st.x, p.y - st.y) < r).sort((a, b) => Math.hypot(a.x - st.x, a.y - st.y) - Math.hypot(b.x - st.x, b.y - st.y)).slice(0, 2);
+      cerca.forEach((p, i) => { p.a = Math.atan2(st.y - p.y, st.x - p.x); p.wait = Math.max(p.wait || 0, 1.6 + i * .4); if (i === 0 || Math.random() < .5) Ciudad.say(p, L0[(Math.random() * L0.length) | 0]); });
+      return cerca.length;
+    }
+  };
+  const sfx0 = L.sfx, key0 = L.key;
+  L.sfx = function (st, k) { if (k === 'crash' || k === 'brake') Vv.reacciona(st, k, k === 'crash' ? 30 : 22); return sfx0.apply(this, arguments); };
+  L.key = function (st, k, down) { if (down && (k === 'h' || k === 'q') && st.mode === 'veh') Vv.reacciona(st, 'pito', 35); return key0.apply(this, arguments); };
+})();
+~~~~
+
+### `src/js/96e1-frases-ciudad.js`
+~~~~js
+/* Generado por tools/frases_ciudad.mjs desde Motor City 5.2 (motor-city/datos/frases/ciudad.json, «familia»: 40 frases).
+   No se edita a mano: se cambian en el motor y se vuelve a generar. Sin atropellos, explosiones, sirenas ni llamadas (juego familiar). */
+const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Ave María, ese carro venía volando!","ev":["choque"]},{"t":"¿Todo bien? ¿Alguien se aporreó?","ev":["choque"]},{"t":"¡Uy no, pobre carro!","ev":["choque"]},{"t":"¡Pilas, que ese viene sin frenos!","ev":["choque","derrape"]},{"t":"¡Ojo con ese carro!","ev":["derrape"]},{"t":"¡Qué tal ese cafre!","ev":["derrape","bocina"]},{"t":"¡Uy, casi! Ese pasó rozando.","ev":["derrape"]},{"t":"Bájele, mijo, que aquí hay niños.","ev":["derrape","bocina"]},{"t":"¡Ey, despacio!","ev":["derrape","bocina"]},{"t":"Ya llegaron los bomberos, gracias a Dios.","ev":["servicio"]},{"t":"Esos paramédicos sí llegan rápido.","ev":["servicio"]},{"t":"Buenas, vecino.","ev":["ambiente"]},{"t":"¿Quiubo pues? ¿Todo bien?","ev":["ambiente"]},{"t":"¡Qué calor tan berraco!","ev":["ambiente"],"hora":[660,960],"lluvia":false},{"t":"Ya se vino el aguacero.","ev":["ambiente"],"lluvia":true},{"t":"Uy, me mojé todo, ¡qué pereza!","ev":["ambiente"],"lluvia":true},{"t":"Ese bus no pasa nunca.","ev":["ambiente"],"lugar":"paradero"},{"t":"¿Ya pasó el que va pal centro?","ev":["ambiente"],"lugar":"paradero"},{"t":"Uno se cansa de esperar acá.","ev":["ambiente"],"lugar":"paradero"},{"t":"Mejor me voy en metro.","ev":["ambiente"],"lugar":"paradero"},{"t":"Qué rico este solecito.","ev":["ambiente"],"lugar":"banca","hora":[420,960],"lluvia":false},{"t":"Acá descansando un ratico.","ev":["ambiente"],"lugar":"banca"},{"t":"Mire esas palomas tan gordas.","ev":["ambiente"],"lugar":"banca","hora":[360,1080]},{"t":"Buenos días, ¿cómo amaneció?","ev":["ambiente"],"hora":[300,720]},{"t":"Buenas tardes.","ev":["ambiente"],"hora":[720,1110]},{"t":"Buenas noches, vaya con cuidado.","ev":["ambiente"],"hora":[1110,1440]},{"t":"A esta hora ya no hay ni un alma.","ev":["ambiente"],"hora":[0,300]},{"t":"¿Un tintico? Yo invito.","ev":["ambiente"],"hora":[360,660]},{"t":"¡Qué trancón tan horrible hoy!","ev":["ambiente"],"hora":[1020,1170]},{"t":"El metro iba llenísimo.","ev":["ambiente"],"hora":[360,540]},{"t":"Vamos pues, que se hace tarde.","ev":["ambiente"]},{"t":"¡Qué belleza esta ciudad!","ev":["ambiente"]},{"t":"Hay que ir a Guatapé un día de estos.","ev":["ambiente"]},{"t":"Uy, se me olvidó la sombrilla.","ev":["ambiente"],"lluvia":true},{"t":"Parce, ¿vio el partido de anoche?","ev":["ambiente"]},{"t":"Me voy a comer unas empanaditas.","ev":["ambiente"],"hora":[600,1200]},{"t":"¡Qué carro tan bonito!","ev":["mirar"]},{"t":"¿Y ese quién es?","ev":["mirar"]},{"t":"Uy, ese parece de película.","ev":["mirar"]}];
+~~~~
+
+### `src/js/96f-reto.js`
+~~~~js
+/* =====================================================================
+   RETO DEL DÍA (3.6, Claude, 23‑nov‑2026) · partidas cortas con una meta clara y una razón para volver mañana
+   (lo que más hace volver en Super Arcade Racing, Mini Metro o Alto's: el plan del documento de evolución, sección 6).
+   - Cada día, un reto distinto y el mismo para todos ese día (la semilla es la fecha): un tramo del metro con 3 ★, el tranvía
+     sin frenadas de emergencia, el Metroplús con 3 ★, una ciclorruta sin perder vidas o un metrocable con 2 ★ o más.
+   - Cumplirlo da 40 🎫 y, con la racha de días seguidos, hasta 100. Se guarda en Save.d.reto (con su valor por defecto).
+   - En la portada, debajo de «Todos los modos»: «⭐ Reto del día».
+   ===================================================================== */
+(function () {
+  if (typeof Game === 'undefined' || typeof Menu === 'undefined') return;
+  const fecha = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const R = EM.reto = {
+    datos() { return Save.d.reto || (Save.d.reto = { dia: '', racha: 0, ultimo: '' }); },
+    hoy() {
+      const dia = fecha(new Date()), listo = typeof VC !== 'undefined' && VC.on; if (this._c && this._c.dia === dia && this._c.listo === listo) return this._c;
+      const rng = new RNG(hashStr('reto ' + dia)), P = [], de = (id, f) => { const M = EM.modes[id]; return M ? M.levels().filter(f) : []; };
+      let L = de('conduce', l => !l.full && !l.escuela && /^[AB]:\d+-\d+$/.test(l.id)); if (L.length) { const l = rng.pick(L); P.push({ m: 'conduce', lv: l.id, t: 'Metro · ' + l.name, meta: 'Llega con 3 ★: frena justo en la marca', ok: r => (r.stars | 0) >= 3 }); }
+      L = de('tranvia', () => true); if (L.length) { const l = rng.pick(L); P.push({ m: 'tranvia', lv: l.id, t: 'Tranvía · ' + l.name, meta: '3 ★ y ninguna frenada de emergencia', ok: r => (r.stars | 0) >= 3 }); }
+      L = de('bus', l => /^bus:MP/.test(l.id) && !l.full); if (L.length) { const l = rng.pick(L); P.push({ m: 'bus', lv: l.id, t: 'Metroplús · ' + l.name, meta: 'Llega con 3 ★', ok: r => (r.stars | 0) >= 3 }); }
+      L = de('carrera', l => /^cr:c\d+$/.test(l.id)); if (L.length) { const l = rng.pick(L); P.push({ m: 'carrera', lv: l.id, t: 'Ciclorruta ' + l.name, meta: 'Llega al final sin perder una vida', ok: (r, st) => !!r.win && !!st && st.vidas >= 3 }); }
+      L = de('cableviaje', () => true); if (L.length) { const l = rng.pick(L); P.push({ m: 'cableviaje', lv: l.id, t: 'Metrocable · ' + l.name, meta: 'Llega con 2 ★ o más', ok: r => (r.stars | 0) >= 2 }); }
+      return (this._c = Object.assign({ dia, listo }, P.length ? P[(hashStr(dia) >>> 0) % P.length] : {}));
+    },
+    hecho() { return this.datos().dia === fecha(new Date()); },
+    jugar() { const H = this.hoy(); if (!H.m) return; Snd.init(); Game.start(H.m, H.lv, { back: 'cover', onEnd: r => this.fin(H, r) }); },
+    fin(H, r) {
+      const st = Game.st, D = this.datos(), ok = !!H.ok(r, st), earn = Save.record(H.m, H.lv, r); let premio = 0;
+      if (ok && D.dia !== H.dia) { const a = new Date(); a.setDate(a.getDate() - 1); D.racha = D.ultimo === fecha(a) ? D.racha + 1 : 1; D.ultimo = H.dia; D.dia = H.dia; premio = 40 + 10 * Math.min(6, D.racha - 1); Save.d.wallet += premio; Save.write(); if (EM.jugo) EM.jugo.pop(st, '⭐ +' + premio + ' 🎫', 'y'); }
+      UI.modal(`<div class="pag">⭐ Reto del día</div><h2>${ok ? '¡Reto cumplido!' : 'Casi…'}</h2><p class="m">${esc(H.t)}<br><b>${esc(H.meta)}</b></p><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="kv" style="margin:10px 0">${(r.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Pasajes</b><span>+${earn + premio} 🎫</span>${D.racha ? `<b>Racha</b><span>${D.racha} ${D.racha === 1 ? 'día' : 'días seguidos'}</span>` : ''}</div><div class="row">${ok ? '' : '<button class="btn pri" id="rtOtra">↻ Otra vez</button>'}<button class="btn ${ok ? 'pri' : 'sm gh'}" id="rtSal">Salir</button></div>`);
+      const o = $('#rtOtra'); if (o) o.onclick = () => { UI.close(); Game.stop(); this.jugar(); };
+      $('#rtSal').onclick = () => { UI.close(); Game.exit(); this.etiqueta(); };
+    },
+    etiqueta() { const b = document.getElementById('bReto'); if (!b) return; const H = this.hoy(), D = this.datos(); b.querySelector('small').textContent = H.m ? (this.hecho() ? '✓ Cumplido hoy' + (D.racha > 1 ? ' · racha ' + D.racha : '') : H.t + ' · ' + H.meta) : 'Mañana hay otro'; }
+  };
+  const bind0 = Menu.bind;
+  Menu.bind = function () {
+    const r = bind0.apply(this, arguments), play = document.getElementById('bPlay');
+    if (play && !document.getElementById('bReto')) { const b = document.createElement('button'); b.className = 'parada'; b.id = 'bReto'; b.style.setProperty('--c', 'var(--mostaza, #F6C538)'); b.innerHTML = '<i></i><span><b>⭐ Reto del día</b><small>Cargando…</small></span>'; play.insertAdjacentElement('afterend', b); b.onclick = () => { Snd.init(); Snd.play('tap'); R.jugar(); }; }
+    return r;
+  };
+  const t = setInterval(() => { if (!EM.ready || typeof VC === 'undefined' || !VC.on) return; clearInterval(t); R.etiqueta(); }, 300);
 })();
 ~~~~
 
@@ -15330,6 +15559,44 @@ fs.writeFileSync(path.join(dist, 'favicon.svg'), `<svg xmlns="http://www.w3.org/
 await b.close(); console.log('íconos y compartir.png listos en dist/');
 ~~~~
 
+### `tools/auditoria-jugabilidad.mjs`
+~~~~js
+// Auditoría de jugabilidad con entradas de jugador (Claude, 3.2–3.6). Cada modo 12 s de tiempo real en Chromium a 412 × 860.
+// Mide cuadros por segundo, ritmo (tiempo del juego ÷ tiempo real: 1 = normal, menos = cámara lenta), velocidad por segundo y avance.
+// Uso: node tools/auditoria-jugabilidad.mjs [modos separados por coma] [carpeta de capturas]
+//   node tools/auditoria-jugabilidad.mjs                      → todos los modos
+//   node tools/auditoria-jugabilidad.mjs volante,carrera /tmp  → solo esos, capturas en /tmp
+// Sin tarjeta gráfica (como aquí) el 3D se parece a un celular modesto: es el peor caso del proyecto.
+import { createRequire } from 'node:module'; import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), '..'), SOLO = process.argv[2] || '', OUT = process.argv[3] || '';
+const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true })).newPage();
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.goto('file://' + path.join(raiz, 'dist/index.html')); await p.waitForFunction(() => window.EM && EM.ready && (typeof VC === 'undefined' || VC.on), null, { timeout: 120000 });
+await p.evaluate(() => { const s = EM.save.d.settings; s.voz = 0; s.snd = 0; s.mus = 0; s.ciclo = 'dia'; window.__f = 0; const r = () => { window.__f++; requestAnimationFrame(r); }; requestAnimationFrame(r); });
+const carreraLv = await p.evaluate(() => (EM.modes.carrera.levels().find(l => /^cr:c\d/.test(l.id)) || EM.modes.carrera.levels()[0]).id);
+const CASOS = [['conduce', 'A:0-2', 'up'], ['tranvia', 'T:0-2', 'up'], ['volante', 'vo:MP1:0-4', 'up'], ['bus', 'bus:MP1:0-4', 'up'], ['carrera', carreraLv, 'nada'],
+  ['cableviaje', 'cv:K', 'vt'], ['despacho', 'despacho0', 'ai'], ['alim', 'alim0', 'ai'], ['metroplus', 'mp0', 'ai'], ['cable', 'cb:K:0', 'ai'], ['libre', 'lb:San Antonio', 'up']].filter(c => !SOLO || SOLO.split(',').includes(c[0]));
+const out = {};
+for (const [m, lv, inp] of CASOS) {
+  await p.evaluate(([m, lv]) => { if (typeof UI !== 'undefined' && UI.close) UI.close(); EM.game.start(m, lv, {}); }, [m, lv]); await p.waitForTimeout(1500);
+  const ini = await p.evaluate(() => { const st = EM.game.st; return { t: st.t, s: st.s, x: st.x, y: st.y, f: window.__f, now: performance.now() }; });
+  if (inp === 'up') await p.keyboard.down('ArrowUp'); const M = [];
+  for (let k = 0; k < 12; k++) {
+    if (inp === 'vt' && k < 6) await p.keyboard.press('ArrowUp');
+    if (inp === 'ai') { for (let j = 0; j < 2; j++) { await p.evaluate(() => { const Mo = EM.game.mode, st = EM.game.st, a = Mo.ai && Mo.ai(st); if (a) Mo.act(st, a); }); await p.waitForTimeout(450); } } else await p.waitForTimeout(1000);
+    M.push(await p.evaluate(() => { const st = EM.game.st; return { t: st.t, v: st.v != null ? st.v : st.vf != null ? st.vf : 0, s: st.s, x: st.x, y: st.y }; }));
+  }
+  if (inp === 'up') await p.keyboard.up('ArrowUp');
+  const fin = await p.evaluate(() => ({ f: window.__f, now: performance.now() })), real = (fin.now - ini.now) / 1000, u = M[M.length - 1];
+  if (OUT) fs.writeFileSync(path.join(OUT, 'auditoria-' + m + '.png'), await p.screenshot());
+  const avance = u.s != null && ini.s != null ? Math.abs(u.s - ini.s) : u.x != null ? Math.hypot(u.x - ini.x, u.y - ini.y) : null;
+  out[m] = { fps: +((fin.f - ini.f) / real).toFixed(1), ritmo: +((u.t - ini.t) / real).toFixed(2), vmax_kmh: Math.round(Math.max(...M.map(q => q.v)) * 3.6), avance_m: avance == null ? '-' : Math.round(avance), v_por_s: M.map(q => Math.round(q.v * 3.6)).join(' ') };
+  await p.evaluate(() => { EM.game.stop(); if (typeof UI !== 'undefined' && UI.close) UI.close(); });
+}
+console.table(out); console.log('errores', errs.slice(0, 6), await p.evaluate(() => EM.errors.slice(-4))); await b.close();
+~~~~
+
 ### `tools/auditoria-mapa.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -16303,6 +16570,22 @@ fs.writeFileSync(path.join(root, 'src/data/encicla.js'), txt);
 console.log(est.length, 'estaciones · src/data/encicla.js', Math.round(txt.length / 1024), 'KB · tipos', [...new Set(est.map(e => e[4]))].join(','));
 ~~~~
 
+### `tools/frases_ciudad.mjs`
+~~~~js
+// Frases de la ciudad viva para El Metro, desde Motor City 5.2 (motor-city/datos/frases/ciudad.json, «familia»).
+// Uso: node tools/frases_ciudad.mjs  →  src/js/96e1-frases-ciudad.js (sin atropellos ni explosiones: juego familiar)
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const d = JSON.parse(fs.readFileSync(path.join(raiz, 'motor-city/datos/frases/ciudad.json'), 'utf8'));
+const fuera = new Set(['atropello', 'explosion', 'sirena', 'llamada']);
+const F = d.familia.filter(x => x.t && Array.isArray(x.ev) && !x.ev.some(e => fuera.has(e))).map(x => { const o = { t: x.t, ev: x.ev }; for (const k of ['lugar', 'hora', 'lluvia']) if (x[k] !== undefined) o[k] = x[k]; return o; });
+const js = `/* Generado por tools/frases_ciudad.mjs desde Motor City 5.2 (motor-city/datos/frases/ciudad.json, «familia»: ${F.length} frases).
+   No se edita a mano: se cambian en el motor y se vuelve a generar. Sin atropellos, explosiones, sirenas ni llamadas (juego familiar). */
+const FRASES_CIUDAD = ${JSON.stringify(F)};
+`;
+fs.writeFileSync(path.join(raiz, 'src/js/96e1-frases-ciudad.js'), js); console.log('src/js/96e1-frases-ciudad.js ·', F.length, 'frases');
+~~~~
+
 ### `tools/hitos_datos.py`
 ~~~~
 #!/usr/bin/env python3
@@ -16608,6 +16891,25 @@ const AJUSTES = ${JSON.stringify(AJ)};
 fs.writeFileSync(path.join(root, 'src/data/ajustes.js'), txt);
 console.log(JSON.stringify(R.inf), '· src/data/ajustes.js', Math.round(txt.length / 1024), 'KB');
 await browser.close();
+~~~~
+
+### `tools/medir-3d.mjs`
+~~~~js
+// Costo del 3D (Claude, 3.6): vértices y llamadas de dibujo por cuadro, y cuadros por segundo en cada escalón del regulador.
+// Medido así se encontró que la red de transporte (830 mil vértices) se dibujaba entera en cada cuadro.
+// Uso: node tools/medir-3d.mjs   (Ciudad Libre en San Antonio, vistas cen3d y 3p; escalones 0, 2, 3 y 4 de EM.rendimiento)
+import { createRequire } from 'node:module'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const { chromium } = createRequire(import.meta.url)('playwright'), raiz = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const b = await chromium.launch(); const p = await (await b.newContext({ viewport: { width: 412, height: 860 } })).newPage();
+await p.goto('file://' + path.join(raiz, 'dist/index.html')); await p.waitForFunction(() => window.EM && EM.ready && VC.on, null, { timeout: 120000 });
+await p.evaluate(() => { const s = EM.save.d.settings; s.voz = 0; s.snd = 0; s.mus = 0; s.ciclo = 'dia'; });
+const fps = () => p.evaluate(() => new Promise(r => { let n = 0; const t0 = performance.now(), f = () => { n++; if (performance.now() - t0 < 2500) requestAnimationFrame(f); else r(+(n / ((performance.now() - t0) / 1000)).toFixed(1)); }; requestAnimationFrame(f); }));
+const cuadro = () => p.evaluate(() => new Promise(res => { const gl = G3.gl; let n = 0, v = 0, k = 0; const d0 = gl.drawArrays.bind(gl); gl.drawArrays = (m, f, c) => { n++; v += c; return d0(m, f, c); }; const f = () => { if (++k < 6) requestAnimationFrame(f); else { gl.drawArrays = d0; res({ llamadas: Math.round(n / 5), miles_de_vertices: Math.round(v / 5000) }); } }; requestAnimationFrame(() => { n = 0; v = 0; requestAnimationFrame(f); }); }));
+for (const vista of ['cen3d', '3p']) for (const nv of [0, 2, 3, 4]) {
+  await p.evaluate(([v, nv]) => { EM.save.d.settings.cal3d = nv; if (!EM.game.st || EM.game.mode !== EM.modes.libre) EM.game.start('libre', 'lb:San Antonio', {}); EM.modes.libre.vista(EM.game.st, v); }, [vista, nv]); await p.waitForTimeout(2000);
+  console.log(vista, 'escalón', nv, JSON.stringify(await cuadro()), 'fps', await fps());
+}
+await b.close();
 ~~~~
 
 ### `tools/metroplus_andenes.py`
@@ -19403,8 +19705,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.5.0
-elmetro.versionCode=33
+elmetro.versionName=3.6.0
+elmetro.versionCode=34
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
