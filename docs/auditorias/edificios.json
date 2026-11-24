@@ -1,38 +1,71 @@
 {
- "edificios": 639457,
- "poligonos": 30088,
- "oficiales": 7779,
- "osm": 5028,
+ "v": 2,
+ "edificios": 622086,
+ "poligonos": 45428,
+ "recortados_bit128": 115555,
+ "oficiales": 7518,
+ "osm": 4905,
+ "motor_del_valle": {
+  "recortadas": 62158,
+  "confiables_marcadas": 44474,
+  "rectangulos_de_recortadas": 33240
+ },
+ "guarda": {
+  "no_pasaban": 103426,
+  "arregladas": 95851,
+  "confiables_recortadas_para_el_juego": 38761,
+  "quitadas": 7658,
+  "quitadas_detalle": {
+   "confiables_marcadas": 4038,
+   "ya_recortadas": 3283,
+   "area_p10_p50_p90_m2": [
+    15.3,
+    22.1,
+    43.7
+   ]
+  }
+ },
+ "area_m2": {
+  "huellas_originales": 90665911,
+  "saneadas": 89272904,
+  "exportadas_como_las_lee_el_juego": 94898135
+ },
  "por_uso": {
-  "casa": 537436,
-  "edificio": 80454,
-  "torre": 6155,
-  "nave": 5183,
-  "educativo": 4339,
-  "salud": 392,
+  "casa": 522870,
+  "edificio": 77958,
+  "torre": 6018,
+  "nave": 5135,
+  "educativo": 4306,
+  "salud": 390,
   "iglesia": 248,
-  "civico": 471,
-  "comercio": 664,
+  "civico": 472,
+  "comercio": 650,
   "deporte": 84,
-  "techo": 1154,
-  "invernadero": 1855,
+  "techo": 1100,
+  "invernadero": 1853,
   "tanque": 37,
-  "transporte": 35,
+  "transporte": 41,
   "parqueadero": 88,
-  "rural": 862
+  "rural": 836
  },
  "por_fuente": {
-  "Google Open Buildings": 336503,
-  "Microsoft ML Buildings": 131744,
-  "OpenStreetMap": 171210
+  "Google Open Buildings": 325210,
+  "Microsoft ML Buildings": 130584,
+  "OpenStreetMap": 166292
  },
  "pisos_medios_por_zona": {
   "ladera": 2.38,
-  "mixto": 2.9,
-  "poblado": 3.61,
+  "mixto": 2.91,
+  "poblado": 3.62,
   "laureles": 3.19,
-  "centro": 3.9,
+  "centro": 3.89,
   "pueblo": 1.74
+ },
+ "zocalo": {
+  "en_el_flujo_zb": 4766,
+  "desnivel_bajo_la_casa_p50_m": 1.4,
+  "desnivel_p99_m": 7.46,
+  "nota": "zBase = suelo del centro - max(6 m, lo que baja el suelo bajo la casa); zb lleva solo los edificios donde el suelo baja más de 4 m desde el centro"
  },
  "suelos": {
   "cancha": 1368,
@@ -41,7 +74,9 @@
   "campus": 56
  },
  "bytes": {
-  "crudo": 5284899,
-  "deflate": 3338669
+  "crudo": 5382893,
+  "deflate": 3355411,
+  "zb_crudo": 15306,
+  "compresor": "zopfli (deflate estándar)"
  }
 }

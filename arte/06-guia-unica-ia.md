@@ -654,6 +654,35 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 <!-- BITACORA:INICIO -->
 ### Bitácora · El Metro
 
+#### 2026-11-24 · v3.8.0 (sin cambio de versión) · Datos saneados del Motor del Valle 1.3: ninguna casa sobre la calle (Fase 1 del renacimiento cenital, Claude)
+- **Qué cambió (solo datos y herramientas; ningún `src/js/`):**
+  - **`src/data/edificios.js` v2:** las huellas saneadas del Motor del Valle 1.3 (`motor-valle/geo/sanear.py`, regla A del autor), con una **guarda**: ya redondeado como lo lee el juego, ningún edificio queda donde el recorte en tiempo real (`11-edificios.js` · `recorta`) lo cortaría, ni sobre ciclorrutas ni agua. El bit 128 del byte de uso marca «recortado»; al final va el flujo `zb` (zócalo, solo los 4.766 edificios donde no basta el de 6 m). 622.086 edificios y 45.428 polígonos; **4.572.134 bytes** (tope 4.600.000).
+  - **`src/data/vias.js` v2:** las mismas 26.919 vías y, al final, el flujo `COTA` (la rasante: cota y pendiente), que el lector de hoy no lee.
+  - **Herramientas nuevas:**
+    - `tools/edificios_datos.py --saneadas` (sin la opción sale lo mismo de antes);
+    - `tools/vias_datos.mjs --cota` y `--motor`;
+    - `tools/corredores.mjs`: los corredores del Metroplús, del tranvía y de los hitos, tal como los arma el juego;
+    - `tools/prueba-recorte.mjs`: la prueba con Playwright que cuenta lo que recorta el juego.
+  - **`motor-valle/`:** el Motor del Valle 1.3.0, copiado de EnCicla. El `.gitignore` deja fuera su caché, sus salidas y `tools/cache/`.
+- **Antes y después:**
+
+  | Qué | Antes | Después |
+  |---|---|---|
+  | Edificios que pisan la vía (regla A, herramienta de la Fase 0) | 120.187 | 5, de menos de 0,3 m² |
+  | Recorte en tiempo real en las 4.731 regiones con casas | 107.546 recortados y 17.190 quitados | **0 y 0** |
+- **Probado:**
+  - `node tools/build.mjs`: 9.353.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (281.143 pasos);
+  - `node tools/prueba-recorte.mjs --todas` y en 50 regiones: 0 y 0;
+  - `motor-valle/pruebas/geometria.mjs --elmetro .`: BIEN;
+  - la fidelidad contra OSM (`osm-ventanas.mjs` + `osm_comparar.py`): las ventanas son idénticas antes y después;
+  - capturas de Ciudad Libre en 6 zonas piloto.
+- **Ojo:** el recorte en tiempo real pide 1,3 m de andén. Por eso la exportación recorta 38.761 casas confiables de OSM y quita 4.038, que la verdad compartida conserva marcadas. Las calles siguen con sus ejes de 2,5 m. Las dos cosas son decisiones del autor para la Fase 2 (ver el informe).
+- **El informe:** `motorcity/reportes/2026-11-24-claude-fase1-cenital.md`.
+- **Falta:**
+  - el OK del autor para la Fase 2 (render cenital con bandera en Ciudad Libre y Bus);
+  - medir en un celular real.
+
 #### 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
 - **Qué cambió:**
   - la copia del motor pasó a la 5.3.1;

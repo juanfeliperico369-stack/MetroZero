@@ -28,3 +28,10 @@ vc
 skills-lock.json
 .skill-lock.json
 .hallmark/
+
+# caché local de tools/corredores.mjs y de las descargas de tools/edificios_datos.py (no va a git)
+tools/cache/
+# caché y salidas del Motor del Valle (la copia de BicicletasUno; node motor-valle/motor.mjs fuentes / sanear)
+motor-valle/geo/cache/
+motor-valle/salida/
+motor-valle/geo/__pycache__/
