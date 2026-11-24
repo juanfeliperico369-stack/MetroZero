@@ -463,3 +463,5 @@ body.pant-clasica .joyzone{top:24%}
 .barrio-rep-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(28,92,156,.12);color:var(--tinta);font-size:12px;font-weight:800}
 
 
+/* 3.9 · íconos de ChatGPT (C-70) junto a un texto: reto del día, domingo zen, medir mi celular, corredor y zonas de skate */
+.aico-l{display:inline-block;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:.2em;pointer-events:none;object-fit:contain}
