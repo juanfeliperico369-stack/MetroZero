@@ -72,6 +72,8 @@
 
 **Para cada IA:** `docs/SUGERENCIAS-CLAUDE.md` § 5.
 
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.9.0 verificada el 24‑nov‑2026**: carga, service worker con caché `el-metro-v3.9.0-ff021b2a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 37, 6,8 MB), igual byte a byte a la construida.
+
 ## 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
 - **Qué cambió:**
   - la copia del motor pasó a la 5.3.1;
