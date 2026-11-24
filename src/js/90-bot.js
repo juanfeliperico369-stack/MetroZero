@@ -161,6 +161,8 @@ const BotT = EM.test = {
         if (EM.modes.operacion && EM.modes.operacion.simular) { const O = EM.modes.operacion, a = O.simular('bot', 3), b = O.simular('nada', 3); if (!a.gana) E('operación: el piloto no gana (' + JSON.stringify(a) + ')'); if (b.gana || b.dia > 1) E('operación: sin jugar también se gana'); }
         // 3.9 · fantasmas: fuera de la partida, y el reto del día no borra su API
         if (EM.reto && !EM.reto.fantasma) E('reto: se perdió EM.reto.fantasma'); if (Save.d.best && Save.d.best._retoFantasma) E('fantasmas: siguen dentro de la partida');
+        // 3.9 · taller de la bici: con la llanta pinchada rueda a media velocidad y al arreglarla vuelve a la de siempre
+        if (EM.tallerBici) { const sb = { mode: 'veh', veh: { kind: 'bici' }, auto: true }, v0 = Libre.V(sb).vmax; EM.tallerBici.fallar(sb, 'llanta'); const v1 = Libre.V(sb).vmax; EM.tallerBici.reparar(sb); const v2 = Libre.V(sb).vmax; if (!(v1 < v0 * .6) || v2 !== v0) E('taller de la bici: la falla no cambia la velocidad o no se arregla (' + [v0, v1, v2].join(' ') + ')'); }
         // 3.9 · recorte 3D: una caja delante de la cámara se dibuja y una detrás se descarta
         if (typeof G3 !== 'undefined' && G3.vis) { const VP = M4.mul(M4.persp(1.05, .5, 1.2, 26000), M4.look([0, 10, 0], [0, 10, 100])); if (!G3.vis(VP, [-5, 0, 40, 5, 20, 60])) E('recorte 3D: descarta lo que está delante'); if (G3.vis(VP, [-5, 0, -60, 5, 20, -40])) E('recorte 3D: dibuja lo que está detrás'); }
         { const c = VC.camaraLibre(14000, 23000, 14030, 23040, 1500); if (!c || !isFinite(c.z) || VC.solid(c.x, c.y, 2)) E('cámara de cine: queda dentro de un edificio'); }

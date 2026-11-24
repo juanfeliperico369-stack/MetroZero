@@ -1,8 +1,8 @@
 {
   "agente": "claude-elmetro",
   "rama": "ccr-2a67f935-oat714",
-  "base": "v3.6.0 → v3.7.0 «Épocas»",
-  "actualizado": "2026-11-23T21:00:00Z",
+  "base": "v3.8.0 (main 7b7733a) → v3.9.0 «Unido y medido»",
+  "actualizado": "2026-11-24T06:00:00Z",
   "rol": "IA de El Metro (Claude, Anthropic): arreglos de jugabilidad, todo abierto, modos en el mundo abierto y documento docs/EVOLUCION-EL-METRO-CLAUDE.md",
   "hecho": [
     "Manejo que no se traba en Ciudad Libre (src/js/36-libre.js: deslizar, despues, asistencia)",
@@ -30,7 +30,12 @@
     "3.6.0: ⭐ reto del día (EM.reto) y 🌅 domingo zen",
     "3.6.0: pedidos y prompts para Gemini y ChatGPT (docs/PEDIDOS-GEMINI-CHATGPT-3.6.md) y sugerencias (docs/SUGERENCIAS-CLAUDE.md)",
     "3.7.0: 📅 épocas en Ciudad Libre (EM.epocas)",
-    "3.7.0: 🎨 pintura de los vehículos propios con pasajes (EM.pintura)"
+    "3.7.0: 🎨 pintura de los vehículos propios con pasajes (EM.pintura)",
+    "3.9.0: recorte 3D por lo que ve la cámara (G3.vis, celdas con caja) y orden de adelante hacia atrás",
+    "3.9.0: «Un día de operación» que se puede ganar (equilibrio simulado, plano legible) · archivo de Codex, avisado",
+    "3.9.0: fantasmas fuera de la partida (elmetro.v1.fantasmas), diferencia en segundos y QR en la pantalla final · archivo de Codex, avisado",
+    "3.9.0: arte C-70/C-71 de ChatGPT en el juego (src/js/96j-arte-37.js) y tres logros nuevos",
+    "3.9.0: taller de la bici en la calle (src/js/96k-taller-bici.js), del motor 5.3"
   ],
   "archivos_compartidos_tocados": [
     "src/js/00-core.js (versión 3.2.0 y settings.arcade)",
@@ -45,7 +50,10 @@
     "src/js/98-relevo-z1.js (una línea: CABINA incluye 'tranvia')",
     "src/js/98a-openai-gpt6-fluidez.js (una condición: también Carrera._arranqueVivo)",
     "src/style.css (una regla al final)",
-    "src/style.css (una regla al final: botones al tocarlos)"
+    "src/style.css (una regla al final: botones al tocarlos)",
+    "src/js/22-gl.js (3.9: MBC con caja, G3.vis y orden de dibujo)",
+    "src/js/48-operacion.js y src/js/48a-gpt6-eon-fantasma.js (Codex, 3.9)",
+    "src/js/19-atlas.js y src/js/66-vida.js (3.9: arte y logros)"
   ],
   "pruebas": "node tools/build.mjs + node tools/test.mjs 100: 0 errores (ver docs/BITACORA.md)",
   "libre_para_otra_ia": [
