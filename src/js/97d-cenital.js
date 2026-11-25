@@ -4,7 +4,7 @@
    (Conducir, Volante, Carrera, Metrocable, el mapa y el álbum) siguen con el render de siempre: este archivo solo envuelve
    funciones y mira la bandera, que vive mientras dibujan Ciudad Libre o Bus.
    La bandera: Ajustes → «🛰 Cenital nuevo», `?cenital` (o `?cenital=0`) en la dirección, o EM.cenital.forzar en las pruebas.
-   En la Fase 2 viene apagada (PREDETERMINADA = 0); la Fase 3 la enciende. Guardado: Save.d.settings.cenital (1 o 0; sin el
+   Desde la 3.9.0 (Fase 3) viene encendida (PREDETERMINADA = 1); en la Fase 2 venía apagada. Guardado: Save.d.settings.cenital (1 o 0; sin el
    campo, la predeterminada), así que el guardado elmetro.v1 no cambia.
    Con la bandera:
    1. Occluder fade (3D): lo que tapa al jugador (edificios, árboles, marquesinas) baja a 0,30 con un tramado 4 × 4, en un cono
@@ -23,7 +23,7 @@
    ===================================================================== */
 (function () {
   if (typeof G3 === 'undefined' || typeof Libre === 'undefined' || typeof Bus === 'undefined' || typeof MB === 'undefined') return;
-  const PREDETERMINADA = 0;   // Fase 3: 1
+  const PREDETERMINADA = 1;   // Fase 3 (3.9.0): encendida en Ciudad Libre y Bus; Ajustes → «🛰 Cenital nuevo» la apaga
   const S = () => (Save.d && Save.d.settings) || {};
   const URL_ON = typeof location !== 'undefined' ? (/[?&]cenital=0\b/.test(location.search) ? 0 : /[?&]cenital\b/.test(location.search) ? 1 : null) : null;
   const CEN = EM.cenital = {

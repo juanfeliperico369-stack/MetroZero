@@ -1,5 +1,20 @@
 # Bitácora · El Metro
 
+## 2026-11-25 · v3.9.0 (versionCode 37) · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude)
+- **Qué cambió:**
+  - **La bandera del cenital viene encendida** (`PREDETERMINADA = 1` en `src/js/97d-cenital.js`), solo en Ciudad Libre y Bus. Se apaga en Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital = 0`) o con `?cenital=0`. El guardado `elmetro.v1` no cambia: sin el campo vale la predeterminada.
+  - **Versión:** `src/js/00-core.js` 3.9.0 y `android/gradle.properties` (`elmetro.versionName` 3.9.0 y `elmetro.versionCode` 37).
+  - **Herramienta nueva, `tools/capturas-protegidos.mjs`:** captura los modos que no deben cambiar en dos compilaciones y los compara píxel a píxel. Son la cabina, la vista lateral y la 3.ª persona de Conducir, el tranvía, el Volante, el viaje en Metrocable, la Carrera, Despacho, Alimentadores, Metroplús, el Metrocable, la guía y la historia de Rosalba.
+- **Probado (con la bandera encendida por defecto):**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (299.800 pasos, 0 errores de consola);
+  - **los modos protegidos no cambian:** contra la compilación de antes de la Fase 2, difieren entre 0 % y 0,56 % de los píxeles. Las únicas diferencias son lo que se mueve solo:
+    - el Volante difiere un 7,1 %, y entre dos corridas de la misma compilación difiere un 6,2 %;
+    - en la Carrera el corredor avanzó un metro más («Cruce en 91 m» contra «90 m»), y la escena entera se corre;
+  - `node tools/prueba-rutas.mjs`: 0 de 61.332 puntos de las rutas A\* tocan una casa;
+  - `node tools/prueba-cenital.mjs`: la del cierre de la Fase 2 (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada).
+- **Publicar** (APK y página): solo con el OK del autor.
+
 ## 2026-11-24 · v3.8.0 (sin cambio de versión) · El cenital nuevo, con bandera, en Ciudad Libre y Bus (Fase 2 del renacimiento cenital, Claude)
 - **Qué cambió:**
   - **`src/js/97d-cenital.js` (nuevo, aditivo):** el render cenital nuevo, **detrás de una bandera que vive solo mientras dibujan Ciudad Libre o Bus** (decisión 4 del autor). En la Fase 2 viene **apagada** (`PREDETERMINADA = 0`; la Fase 3 la enciende). Se prueba con `?cenital`, con Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital`, 1 o 0; sin el campo, la predeterminada: el guardado `elmetro.v1` no cambia) o con `EM.cenital.forzar`.
