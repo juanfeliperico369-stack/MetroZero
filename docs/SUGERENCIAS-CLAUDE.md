@@ -22,6 +22,9 @@
 8. **Todo modo se lanza desde su lugar en el mundo abierto** (`EM.actividades`, 🎮) y vuelve al mismo punto. Un modo nuevo que no esté en el mundo abierto queda a medias.
 9. **Los datos del motor se generan, no se copian.** Por ejemplo, `node tools/frases_ciudad.mjs` saca las frases de familia de Motor City hacia `src/js/96e1-frases-ciudad.js`.
 10. **Unir antes de empezar.** El 22‑nov hubo dos 3.4.0 distintas el mismo día. Cada IA debería hacer `git fetch` y unir `main` al empezar, y anunciar en `.ai-coord/` el número de versión antes de publicarla.
+11. **Medir lo que de verdad cuesta** (3.9). El lote de cajas de Codex bajó las llamadas de dibujo a la mitad y los cuadros por segundo no cambiaron. Lo caro eran 776 mil vértices y los píxeles pintados dos veces. El recorte por lo que ve la cámara los bajó a 155–282 mil con la misma imagen.
+12. **Una prueba debe pedir lo que el jugador necesita** (3.9). La de «Un día de operación» pedía que la partida acabara, y acababa porque se perdía siempre a los 13 s. Ahora el autotest pide que el piloto gane y que no jugar pierda.
+13. **Nada grande dentro de la partida** (3.9). Ciudad Libre la guarda cada 5 s. Los fantasmas (hasta 6 de 36 000 puntos) van en su propia clave y comprimidos.
 
 ## 2. Sugerencias técnicas para el repositorio
 - **`tools/build.mjs`:** incluir `src/data/*.js` automáticamente. Hoy es una lista fija y un dato nuevo se puede quedar por fuera.
@@ -59,3 +62,32 @@
 3. **La calidad por defecto con datos del celular del autor** (`?medir`). Si su 3D va bien, el 3D cenital sigue al abrir; si no, el 2D.
 4. **Pasajes que se gastan:** una tienda en el perfil, si Codex no la toma.
 5. **Siempre:** autotest y 100 partidas con 0 errores; todos los modos en tiempo real; bitácora y buzón al cerrar.
+
+## 5. Después de la 3.9.0 «Unido y medido» (24‑nov‑2026): lo que sigue para cada IA
+**Hecho en la 3.9.0:**
+- se unió y se midió todo lo de la 3.8.0;
+- se arreglaron los choques: operación imposible de ganar, fantasmas pesados y API del reto borrada;
+- quedó cumplido CX‑36‑1 con el recorte por cámara;
+- el arte C‑70 y C‑71 está en el juego, con tres logros nuevos;
+- del motor 5.3 entró el taller de la bici (llanta y cadena).
+
+1. **Gemini (fácil):**
+   - **Siguen pendientes G‑110 a G‑112:** el domingo zen, las seis escenas de las subtramas y los pisos de skate.
+   - La tubería ya está: se copian a `arte/entregas/` y se corre `python3 tools/arte_juego.py && node tools/build.mjs`.
+2. **ChatGPT (arte difícil):**
+   - **C‑73:** `ico_modo_operacion` (el plano de la red con un reloj) e `ico_taller` (llave y llanta), 256 × 256, con las reglas de C‑70.
+   - Las portadas C‑72 quedaron como arte de promoción: el autor decide si van a la tienda o a las redes.
+3. **Codex (fuerte):**
+   - **CX‑39‑1 · «Un día de operación», segunda parte:**
+     - trenes que se ven ir de estación en estación;
+     - eventos con demanda propia en su estación: partido en el Atanasio, Feria de las Flores, aguacero;
+     - el criterio de aceptación es el mismo: el piloto gana y no jugar pierde (`simular`).
+   - **CX‑39‑2 · QR con el fantasma:** un recorrido de muestra cada segundo con `EM.reto.fantasma.cod`, para retar a otra persona; que quepa en un QR.
+4. **Antigravity (fácil):**
+   - **GA‑39‑1 · Charcos que salpican con la lluvia** (química del motor 5.3), en 2D y 3D, sin llamadas de dibujo extra: entran en el lote.
+   - **GA‑39‑2:** la cadena también puede saltarse en el corredor tras un mal aterrizaje (`EM.tallerBici`).
+5. **Claude (siguiente paso, 4.0):**
+   - el calendario real en el mundo abierto: ciclovía del domingo, Feria de las Flores y Alumbrados;
+   - menos fichas en la barra de arriba;
+   - la calidad por defecto con las cifras del celular del autor (`?medir`).
+

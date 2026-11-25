@@ -9,6 +9,13 @@
 > - las crónicas (Z3);
 > - la charla sin tapar los botones.
 >
+> **3.9.0 «Unido y medido» (24‑nov, Claude):**
+> - se unieron y se midieron las entregas de la 3.8.0 (las dos 3.7, Codex / GPT‑6 Eón y el arte de ChatGPT);
+> - el 3D se recorta por lo que ve la cámara: de 788 mil a 155 mil vértices por cuadro en la vista cenital, con la misma imagen;
+> - «Un día de operación» ya se puede ganar; los fantasmas van fuera de la partida y dicen la diferencia en segundos;
+> - el arte C‑70 y C‑71 está en el juego, con tres logros nuevos, y 🔧 el taller de la bici (llanta y cadena, del motor 5.3);
+> - **lo que sigue para cada IA:** `docs/SUGERENCIAS-CLAUDE.md` § 5.
+>
 > **3.7.0 «Épocas» (23‑nov):**
 > - 📅 la red como era en 1995, 1996, 2004, 2008, 2011 y 2016 (🆘 en Ciudad Libre);
 > - 🎨 los pasajes compran pintura para tus vehículos.

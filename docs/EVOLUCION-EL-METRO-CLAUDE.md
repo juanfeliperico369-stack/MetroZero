@@ -695,7 +695,9 @@ Comparten datos (vías, edificios, red), pero son **dibujos distintos**.
 | **3.5.0 ✔** (otra sesión) | Unión con «Mundo 3D y Realismo» de Antigravity (cen3d, mundoRPG, shaders) | 100 partidas con 0 errores |
 | **3.6.0 ✔** | 3D recortado y regulado (📏), ciudad viva en familia, ⭐ reto del día, 🌅 domingo zen; pedidos y prompts para Gemini y ChatGPT | En el 3D emulado, el volante pasa de 5 a 16 y Ciudad Libre de 6,5 a 18 cuadros por segundo, con ritmo 1,0; 0 errores |
 | **3.7.0 ✔** | 📅 Épocas (la red como era, con ficha y tono de recuerdo) y 🎨 pasajes que se gastan (pintura de tus vehículos) | En 1995 solo la A; en 2011, Metroplús y no tranvía; al salir, toda la red; autotest y 100 partidas con 0 errores |
-| **3.8 (Claude)** | Unir y medir las entregas de Gemini, ChatGPT, Antigravity y Codex (G‑110…, C‑70…, GA‑36‑…, CX‑36‑…) | `docs/PEDIDOS-GEMINI-CHATGPT-3.6.md` |
+| **3.8.0 ✔** (otra sesión) | Unión de las 3.7 (Épocas y GA‑36 de Antigravity), Codex / GPT‑6 Eón (CX‑36) y el arte C‑70 a C‑72 | Autotest y 100 partidas con 0 errores |
+| **3.9.0 ✔** | Unido y medido: 3D recortado por lo que ve la cámara, «Un día de operación» que se puede ganar, fantasmas fuera de la partida y en segundos, arte de ChatGPT en el juego, 🔧 taller de la bici (motor 5.3) | Vértices por cuadro en San Antonio: 788 mil → 155 mil (cenital 3D) con la misma imagen; el piloto gana las 7 jornadas y no jugar pierde la primera; autotest y 100 partidas con 0 errores |
+| **4.0 (Claude)** | Calendario real en el mundo abierto (ciclovía del domingo, Feria de las Flores, Alumbrados), menos fichas en la barra de arriba y la calidad por defecto con las cifras del celular del autor (`?medir`) | `docs/SUGERENCIAS-CLAUDE.md` § 5 |
 | **3.5** | Cenital 3D sobre G3; rig único de cámaras; horizontal y vertical | 30 cuadros por segundo en cenital 3D en «celular modesto» (sin tarjeta gráfica: 25 o más) |
 | **3.6** | Contrarreloj con fantasma, reto del día y fantasmas por QR | Fantasma reproduce el tramo con error < 1 m |
 | **3.7** | «Un día de operación» (roguelite) y Cruces con el control de Traffix | Partida de 5–10 min; dos partidas seguidas nunca iguales |

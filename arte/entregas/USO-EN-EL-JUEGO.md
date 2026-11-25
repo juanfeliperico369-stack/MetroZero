@@ -2,7 +2,7 @@
 
 Generado por `python3 tools/arte_juego.py` (no editar a mano). Cada recurso tiene respaldo procedural en el juego.
 
-**78 recursos · 507 KB dentro del HTML** (WebP en base64 y SVG minificado).
+**90 recursos · 558 KB dentro del HTML** (WebP en base64 y SVG minificado).
 
 | id | encargo | fuente | uso en el juego | tamaño | bytes |
 |---|---|---|---|---|---:|
@@ -30,6 +30,18 @@ Generado por `python3 tools/arte_juego.py` (no editar a mano). Cada recurso tien
 | `esc_silleteros` | G-80 | `G-80-81_silleteros-y-alumbrados.jpg` | Fiesta: Feria de las Flores | 400×448 | 23.082 |
 | `esc_alumbrados` | G-81 | `G-80-81_silleteros-y-alumbrados.jpg` | Fiesta: Alumbrados | 400×448 | 20.886 |
 | `iso_centro` | G-90 | `G-90_isometrico-centro.jpg` | Cap. 5 · Ayacucho y la Maqueta 2:1 | 560×462 | 42.142 |
+| `ico_reto` | C-70 | `vectorial/png/ico_reto.png` | Botón «Reto del día» en la portada | 128×128 | 2.608 |
+| `ico_zen` | C-70 | `vectorial/png/ico_zen.png` | Domingo zen en la ciclorruta | 128×128 | 2.634 |
+| `ico_medir` | C-70 | `vectorial/png/ico_medir.png` | Ajustes: «Medir mi celular» | 128×128 | 2.754 |
+| `ico_skate` | C-70 | `vectorial/png/ico_skate.png` | Zonas de skate en 🎮 | 128×128 | 2.484 |
+| `ico_ciclovia` | C-70 | `vectorial/png/ico_ciclovia.png` | Corredor por ciclorruta en 🎮 | 128×128 | 1.864 |
+| `logro_racha7` | C-71 | `vectorial/png/logro_racha7.png` | Medalla: siete días seguidos de reto | 128×128 | 4.542 |
+| `logro_combo8` | C-71 | `vectorial/png/logro_combo8.png` | Medalla: combo ×8 de trucos | 128×128 | 4.400 |
+| `logro_zen` | C-71 | `vectorial/png/logro_zen.png` | Medalla: amanecer en la ciclorruta | 128×128 | 4.268 |
+| `logro_intermodal` | C-71 | `vectorial/png/logro_intermodal.png` | Medalla: Metro + bici | 128×128 | 4.616 |
+| `logro_ciclista` | C-71 | `vectorial/png/logro_ciclista.png` | Medalla: ciclista secreto | 128×128 | 4.338 |
+| `ico_modo_carrera` | C-71 | `vectorial/png/ico_modo_carrera.png` | Tarjeta del modo carrera | 128×128 | 2.638 |
+| `ico_modo_tranvia` | C-71 | `vectorial/png/ico_modo_tranvia.png` | Tarjeta del modo tranvía | 128×128 | 1.906 |
 | `portada` | C-40 | `vectorial/svg/portadas/clave_portada.svg` | Portada del menú y epílogo | SVG | 71.742 |
 | `carga` | C-41 | `vectorial/svg/portadas/clave_carga.svg` | Pantalla de carga y cap. 7 · La última vuelta | SVG | 66.622 |
 | `ico_modo_libre` | C-10 | `vectorial/svg/iconos/c10_modos/01_ciudad_libre.svg` | Tarjeta del modo en el menú | SVG | 548 |

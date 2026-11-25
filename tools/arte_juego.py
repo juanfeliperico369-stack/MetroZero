@@ -190,6 +190,31 @@ def main():
         data = webp(im, q, alpha)
         arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
         filas.append((id_, enc, rel, uso, f'{w}×{h}', len(data))); total += len(arte[id_])
+    # 3.9 (Claude) · C-70 y C-71 (ChatGPT · GPT-6 Eón, 3.7): íconos y medallas PNG 256×256 con transparencia, revisados (paleta,
+    # sin texto ni logos, se leen a 48 px) → WebP de 128 px, nítidos a 64 px en pantallas ×2. Las portadas C-72 quedan como arte
+    # de promoción (la portada del menú C-40 y compartir.png ya cumplen ese papel en el juego y en los enlaces).
+    PNG_C7X = [
+        ('ico_reto', 'ico_reto.png', 'C-70', 'Botón «Reto del día» en la portada'),
+        ('ico_zen', 'ico_zen.png', 'C-70', 'Domingo zen en la ciclorruta'),
+        ('ico_medir', 'ico_medir.png', 'C-70', 'Ajustes: «Medir mi celular»'),
+        ('ico_skate', 'ico_skate.png', 'C-70', 'Zonas de skate en 🎮'),
+        ('ico_ciclovia', 'ico_ciclovia.png', 'C-70', 'Corredor por ciclorruta en 🎮'),
+        ('logro_racha7', 'logro_racha7.png', 'C-71', 'Medalla: siete días seguidos de reto'),
+        ('logro_combo8', 'logro_combo8.png', 'C-71', 'Medalla: combo ×8 de trucos'),
+        ('logro_zen', 'logro_zen.png', 'C-71', 'Medalla: amanecer en la ciclorruta'),
+        ('logro_intermodal', 'logro_intermodal.png', 'C-71', 'Medalla: Metro + bici'),
+        ('logro_ciclista', 'logro_ciclista.png', 'C-71', 'Medalla: ciclista secreto'),
+        ('ico_modo_carrera', 'ico_modo_carrera.png', 'C-71', 'Tarjeta del modo carrera'),
+        ('ico_modo_tranvia', 'ico_modo_tranvia.png', 'C-71', 'Tarjeta del modo tranvía'),
+    ]
+    for (id_, f, enc, uso) in PNG_C7X:
+        ruta = os.path.join(R, 'arte/entregas/vectorial/png', f)
+        if not os.path.isfile(ruta):
+            continue
+        im = Image.open(ruta).convert('RGBA').resize((128, 128), Image.LANCZOS)
+        data = webp(im, 82, True)
+        arte[id_] = 'data:image/webp;base64,' + base64.b64encode(data).decode()
+        filas.append((id_, enc, 'vectorial/png/' + f, uso, '128×128', len(data))); total += len(arte[id_])
     for (id_, f, enc, uso) in SVG:
         s = svg_min(open(os.path.join(C, f), encoding='utf-8').read())
         arte[id_] = s; filas.append((id_, enc, 'vectorial/svg/' + f, uso, 'SVG', len(s.encode()))); total += len(s.encode())

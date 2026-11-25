@@ -113,6 +113,13 @@ Datos en `src/data/`:
 - **Los personajes se ubican una vez y cerca de su lugar real**; lo que dicen se marca «lo que todos saben» o «lo que pocos saben» y no lleva cifras dudosas. Revisa cada dato antes de ponerlo.
 - **En este servidor, el navegador sin pantalla con la GPU emulada (swiftshader) deja de dar cuadros por segundos**, también con la 1.2.0: para medir, congela el bucle (`Game.freeze(true)`) y llama `Game.frame()` a mano, o usa `--disable-gpu`. Las capturas de página salen con el bucle congelado.
 
+## Reglas aprendidas (cenital nuevo, renacimiento cenital Fase 2)
+- **El render nuevo va detrás de una bandera que vive mientras dibujan Ciudad Libre o Bus** (`src/js/97d-cenital.js`, `EM.cenital`). Los modos protegidos (Conducir, Volante, Carrera, Metrocable, mapa, álbum) usan el mismo `G3` de siempre: con la bandera apagada, las mallas deben salir idénticas (`node tools/prueba-cenital.mjs --solo-huella --contra OTRA/dist/index.html`).
+- **Para cambiar `22-gl.js` sin tocar los modos protegidos:** partir funciones (como `edifCerca`, `arboles3D`, `hitos3D`, `puentes3D`) y envolverlas desde un archivo aditivo; el programa del cenital es una copia del FS con reemplazos que se verifican (si el FS cambia, 97d avisa en `EM.errors`).
+- **Qué se desvanece:** `k` terminado en ,25 (edificios, zócalos, árboles, hitos: cono de la cámara al jugador) o en ,4 (techos de estaciones: se abren enteros encima de ti). Los tableros de puentes y del viaducto van con `k` entero: **nunca** se esconden; donde algo te tapa se pinta tu silueta (`depthFunc(GREATER)`).
+- **22a (GPT‑6) junta las cajas dinámicas en un lote que se pinta al final:** lo que necesite su propio estado de GL (la silueta) pone `G._eonCollect = false` mientras dibuja.
+- **Medir antes de dejar algo por cuadro:** un degradado en el lienzo 2D duplicaba la mediana del 2D en SwiftShader; la bruma va como capa CSS (z-index 1, entre los lienzos y la interfaz). `node tools/rendimiento-cenital.mjs [s] [rondas] [--cpu 4]` compara el p95 con la bandera apagada y encendida.
+
 ## Reglas aprendidas (vistas 3D y mapa, 1.4.0)
 - **En los sombreadores, nada de coordenadas grandes en el fragmento:** en muchos celulares (y en el navegador de pruebas) el fragmento trabaja en precisión media: hasta ~16.384 y con saltos de 16 m a 27 km. Las coordenadas de textura (`vuv`), el hueco del piso lejano (`vh`) y los patrones de ventanas y luces (`vw`, con `mod`) se calculan en el vértice. Los síntomas son un piso en cuadros de 16 m, rayas y puntitos.
 - **Un uniforme que usan los dos sombreadores tiene que tener la misma precisión:** por eso el vértice usa `Rv` y `Hv` propios.
@@ -125,6 +132,21 @@ Datos en `src/data/`:
 - **`hud(st)` es la barra de arriba** (`Game.hud` lo llama cada 0,2 s y espera `[[rótulo, valor]]`). No uses ese nombre para dibujar.
 - **Vehículos:** `VEH` en `36-libre.js`. Los que se montan llevan `monta: 1` y se dibujan con `Libre.tabla` y el personaje encima.
 - **Trama en datos:** `src/data/guion.js` define `GUION = { personajes: [...], capitulos: [...] }` y se compila solo si existe. `39-gente.js` suma los personajes válidos.
+
+## Reglas aprendidas (unir y medir, 3.9.0)
+- **Mide vértices y cuadros, no solo llamadas.** El lote de Codex bajó las llamadas a la mitad, pero los cuadros por segundo no cambiaron. Lo caro eran 776 mil vértices y los píxeles pintados dos veces. Se mide con `tools/medir-3d.mjs` y, por capas (`far`, `near`, `bld`, `stat`, dinámico), contando `drawArrays` por búfer.
+- **Recorte por cámara.**
+  - Toda malla estática va por celdas con su caja (`MBC`, `bb`) y se dibuja solo si `G3.vis(VP, bb)`.
+  - Para comprobarlo, compara la imagen con y sin recorte (`G3.vis = () => true`) en el mismo cuadro congelado: deben ser iguales.
+- **Lo opaco se dibuja de adelante hacia atrás:** la red y los edificios, después el piso cercano y al final el lejano. Al terminar, devuelve el estado que espera lo dinámico (textura, `R`, `hole`).
+- **La prueba de un modo de estrategia exige que se pueda ganar** (el piloto gana) y que no jugar pierda. «Que acabe» no basta: así se escapó que «Un día de operación» no se podía ganar. Para medirlo: `EM.modes.operacion.simular(quien, semilla)`.
+- **Lo grande no va dentro de la partida.**
+  - `Save.write()` serializa todo, y Ciudad Libre guarda cada 5 s.
+  - Los recorridos y registros largos van en su propia clave (`elmetro.v1.fantasmas`), comprimidos y con mudanza de lo viejo.
+- **Un objeto compartido de `EM` se extiende con `Object.assign(EM.x || {}, …)`.** Así no se borra lo que puso otro módulo que cargó antes; pasó con `EM.reto.fantasma`.
+- **Lo que se dibuja sobre el lienzo no va abajo a la derecha ni arriba a la izquierda,** donde están la palanca, los botones y el título. El borde izquierdo a media altura está libre en todos los modos.
+- **Arte nuevo junto a un texto:** `src/js/96j-arte-37.js` cambia el emoji por el ícono donde aparece la frase. Si falta el arte, queda el emoji.
+- **Un daño que se arregla con un minijuego nunca bloquea** (taller de la bici): sale un botón, la ventana se cierra con ✕ o Escape, y bajarse limpia el daño.
 
 ## Reglas aprendidas (épocas, 3.7.0)
 - **Para cambiar qué líneas existen, filtra `NET.lines` y `hub.lines` EN SU SITIO** (`EM.epocas.aplicar`). Muchos módulos guardan la referencia a esos arreglos, así que una lista nueva no la verían.
@@ -194,6 +216,8 @@ Datos en `src/data/`:
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
 node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/prueba-cenital.mjs        # cenital nuevo: jugador visible, 0 cajas de relleno y 0 errores (--capturas, --huella --contra)
+node tools/rendimiento-cenital.mjs   # p95 de Ciudad Libre con la bandera apagada y encendida
 node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
 python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)

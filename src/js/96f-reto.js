@@ -9,7 +9,7 @@
 (function () {
   if (typeof Game === 'undefined' || typeof Menu === 'undefined') return;
   const fecha = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  const R = EM.reto = {
+  const R = EM.reto = Object.assign(EM.reto || {}, {   // 3.9: sin borrar lo que otro módulo ya puso (EM.reto.fantasma, de 48a)
     datos() { return Save.d.reto || (Save.d.reto = { dia: '', racha: 0, ultimo: '' }); },
     hoy() {
       const dia = fecha(new Date()), listo = typeof VC !== 'undefined' && VC.on; if (this._c && this._c.dia === dia && this._c.listo === listo) return this._c;
@@ -25,13 +25,13 @@
     jugar() { const H = this.hoy(); if (!H.m) return; Snd.init(); Game.start(H.m, H.lv, { back: 'cover', onEnd: r => this.fin(H, r) }); },
     fin(H, r) {
       const st = Game.st, D = this.datos(), ok = !!H.ok(r, st), earn = Save.record(H.m, H.lv, r); let premio = 0;
-      if (ok && D.dia !== H.dia) { const a = new Date(); a.setDate(a.getDate() - 1); D.racha = D.ultimo === fecha(a) ? D.racha + 1 : 1; D.ultimo = H.dia; D.dia = H.dia; premio = 40 + 10 * Math.min(6, D.racha - 1); Save.d.wallet += premio; Save.write(); if (EM.jugo) EM.jugo.pop(st, '⭐ +' + premio + ' 🎫', 'y'); }
+      if (ok && D.dia !== H.dia) { const a = new Date(); a.setDate(a.getDate() - 1); D.racha = D.ultimo === fecha(a) ? D.racha + 1 : 1; D.ultimo = H.dia; D.dia = H.dia; if (D.racha >= 7 && typeof Vida !== 'undefined') Vida.logro('racha7'); premio = 40 + 10 * Math.min(6, D.racha - 1); Save.d.wallet += premio; Save.write(); if (EM.jugo) EM.jugo.pop(st, '⭐ +' + premio + ' 🎫', 'y'); }
       UI.modal(`<div class="pag">⭐ Reto del día</div><h2>${ok ? '¡Reto cumplido!' : 'Casi…'}</h2><p class="m">${esc(H.t)}<br><b>${esc(H.meta)}</b></p><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}${'☆'.repeat(3 - (r.stars | 0))}</div><div class="kv" style="margin:10px 0">${(r.lines || []).map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}<b>Pasajes</b><span>+${earn + premio} 🎫</span>${D.racha ? `<b>Racha</b><span>${D.racha} ${D.racha === 1 ? 'día' : 'días seguidos'}</span>` : ''}</div><div class="row">${ok ? '' : '<button class="btn pri" id="rtOtra">↻ Otra vez</button>'}<button class="btn ${ok ? 'pri' : 'sm gh'}" id="rtSal">Salir</button></div>`);
       const o = $('#rtOtra'); if (o) o.onclick = () => { UI.close(); Game.stop(); this.jugar(); };
       $('#rtSal').onclick = () => { UI.close(); Game.exit(); this.etiqueta(); };
     },
     etiqueta() { const b = document.getElementById('bReto'); if (!b) return; const H = this.hoy(), D = this.datos(); b.querySelector('small').textContent = H.m ? (this.hecho() ? '✓ Cumplido hoy' + (D.racha > 1 ? ' · racha ' + D.racha : '') : H.t + ' · ' + H.meta) : 'Mañana hay otro'; }
-  };
+  });
   const bind0 = Menu.bind;
   Menu.bind = function () {
     const r = bind0.apply(this, arguments), play = document.getElementById('bPlay');

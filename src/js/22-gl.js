@@ -98,10 +98,15 @@ class MB {
 /* 3.6 (Claude) · mallas por celdas de 800 m: la red de transporte de todo el valle (viaductos, rieles, estaciones con interior,
    torres de cable: 830 mil vértices medidos) se dibujaba entera en cada cuadro; ahora cada triángulo va a la celda donde cae y
    al dibujar solo entran las celdas cercanas a la cámara (G3.draw). Lo que se arme con v() directo queda en una parte global */
+/* 3.9 (Claude) · cada celda lleva su caja (bb: x0, y0, z0, x1, y1, z1, medida sobre sus vértices) para el recorte por lo que
+   ve la cámara (G3.vis). en(x, z) da la malla de la celda que contiene el punto (el piso lejano y los árboles van enteros a una celda) */
 class MBC extends MB {
   constructor(L = 800) { super(); this.L = L; this.c = new Map(); }
-  tri(p, q, r, c, k = 0) { const i = Math.floor((p[0] + q[0] + r[0]) / 3 / this.L), j = Math.floor((p[2] + q[2] + r[2]) / 3 / this.L), key = i * 100003 + j; let m = this.c.get(key); if (!m) { m = new MB(); m.cx = (i + .5) * this.L; m.cz = (j + .5) * this.L; this.c.set(key, m); } m.tri(p, q, r, c, k); }
-  celdas() { const out = []; for (const m of this.c.values()) for (const a of m.done()) out.push({ a, cx: m.cx, cz: m.cz }); for (const a of MB.prototype.done.call(this)) out.push({ a, cx: null, cz: null }); return out; }
+  en(x, z) { const i = Math.floor(x / this.L), j = Math.floor(z / this.L), key = i * 100003 + j; let m = this.c.get(key); if (!m) { m = new MB(); m.cx = (i + .5) * this.L; m.cz = (j + .5) * this.L; this.c.set(key, m); } return m; }
+  tri(p, q, r, c, k = 0) { this.en((p[0] + q[0] + r[0]) / 3, (p[2] + q[2] + r[2]) / 3).tri(p, q, r, c, k); }
+  tree(x, y, z, s, c) { MB.prototype.tree.call(this.en(x, z), x, y, z, s, c); }
+  celdas() { const out = []; for (const m of this.c.values()) for (const a of m.done()) out.push({ a, cx: m.cx, cz: m.cz, bb: MBC.caja(a) }); for (const a of MB.prototype.done.call(this)) out.push({ a, cx: null, cz: null, bb: null }); return out; }
+  static caja(a) { let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity; for (let i = 0; i < a.length; i += 10) { const x = a[i], y = a[i + 1], z = a[i + 2]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; if (z < z0) z0 = z; if (z > z1) z1 = z; } return [x0, y0, z0, x1, y1, z1]; }
 }
 const rgb = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
 const HOUSE_COL = ['#efe3c8', '#f2cfae', '#d6e6d2', '#e9c9c9', '#f4e2a0', '#cfe0ea', '#e2d4ee', '#f7efe2', '#bfe1d9'].map(rgb), ROOF_COL = ['#b4583a', '#a24b30', '#c4683f', '#8e4128', '#9aa0a6'].map(rgb), TREE_COL = ['#3f7a3a', '#4b8640', '#2f6b3c', '#5a8f3e', '#3a7246', '#e6b822', '#d96ca8'].map(rgb);
@@ -141,10 +146,10 @@ const G3 = EM.g3 = {
   railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
   /* malla lejana: todo el valle cada 320 m con normales suaves por vértice */
   buildFar(hx0, hz0, hx1, hz1) {   // con hueco (1.4.0): las celdas que caen enteras dentro de la ventana cercana no se arman (no hay piso doble que parpadee)
-    const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MB(), E = (i, j) => { const x = i * S, z = j * S, n = this.normT(x, z, 80); return [x, MAP.elevM(x, z), z, n[0], n[1], n[2]]; };
+    const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MBC(5120), E = (i, j) => { const x = i * S, z = j * S, n = this.normT(x, z, 80); return [x, MAP.elevM(x, z), z, n[0], n[1], n[2]]; };
     const U = this._U || (this._U = (() => { const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90)); return U; })());
-    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb, a, b, c, d, [1, 1, 1], u); }
-    if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); this.far = mb.done().map(a => this.buf(a));
+    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb.en((i + .5) * S, (j + .5) * S), a, b, c, d, [1, 1, 1], u); }
+    if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); const C = mb.celdas(); this.far = C.map(o => this.buf(o.a)); this.farBB = C.map(o => o.bb);   // 3.9: por celdas, con su caja
   },
   /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
@@ -171,8 +176,14 @@ const G3 = EM.g3 = {
     const V = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(E(i, j)); V.push(row); }
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
+    { const C = this.edifCerca(cx, cz, real).celdas(); this.bld = C.map(o => this.buf(o.a)); this.bldBB = C.map(o => o.bb); }   /* 3.9 (las dos ramas unidas): por celdas de 400 m con su caja, para el recorte por lo que ve la cámara (G3.vis) */
+    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
+  },
+  /* 4.0 · los edificios y los árboles de la ventana cercana, aparte de buildNear para que 97d-cenital.js (Fase 2 del renacimiento
+     cenital) los cambie solo en Ciudad Libre y Bus. Los demás modos dibujan exactamente lo mismo de antes */
+  edifCerca(cx, cz, real) {
     // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
-    const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
+    const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MBC(400), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
     if (RR) this.edifReales(bm, cx, cz, RR, R2);
     for (let bz = cz - R; bz < cz + R; bz += TM) for (let bx = cx - R; bx < cx + R; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > R * R || (R2 && (X - cx) ** 2 + (Z - cz) ** 2 < R2 * R2)) continue;
@@ -188,7 +199,11 @@ const G3 = EM.g3 = {
         if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
       }
     }
-    // árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos)
+    this.arboles3D(bm, cx, cz, low);
+    return bm;
+  },
+  /* árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos) */
+  arboles3D(bm, cx, cz, low) {
     const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
@@ -198,8 +213,6 @@ const G3 = EM.g3 = {
       const tci = v === TT.GRASS && h2(X, Z, 71) < .16 ? (h2(X, Z, 73) < .55 ? 5 : 6) : ((r * 53 | 0) % 5);
       bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[tci]);
     }
-    this.bld = bm.done().map(a => this.buf(a));
-    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
   /* las casas y los edificios reales en 3D (1.5.0–3.2.0):
      · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
@@ -236,12 +249,17 @@ const G3 = EM.g3 = {
         }
       }
     }
-    // arquitectura icónica: muros por cada lado de su planta y tapa en abanico
+    this.hitos3D(bm, cx, cz, Rmax); this.puentes3D(bm, cx, cz, R);
+  },
+  /* arquitectura icónica: muros por cada lado de su planta y tapa en abanico */
+  hitos3D(bm, cx, cz, Rmax) {
     const HC = { aguja: '#d9dde2', basilica: '#a65a3c', iglesia: '#ece2cf', palacio: '#eeeeea', estadio: '#d7d3cb', rocas: '#2c2e33', vidrio: '#9fb7c9', ladrillo: '#a85b3d', republicano: '#e9dfc6', moderno: '#d0d4d8', cupula: '#e3ddd0', cubos: '#c9c3b6', luces: '#cfd2d6', botero: '#d8cfbd', pies: '#d8cfbd', alpujarra: '#e4e4e0' };
     for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos
+  },
+  /* puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos */
+  puentes3D(bm, cx, cz, R) {
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
         const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .2), ny = Math.cos(an) * (B.w / 2 + .2), zm = MAP.elevM(mx, my);
@@ -295,7 +313,7 @@ const G3 = EM.g3 = {
             // andén con su franja amarilla táctil de seguridad, columnas de cubierta y marquesina
             mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]);
             const yo = sd * (dk ? 5.35 : 4.25); mb.box(p.x + nx * yo, zp, p.y + ny * yo, p.a, K2.plat * .96, .32, .06, [.96, .77, .22], [.96, .77, .22], 4, 4);
-            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col);
+            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col, .4, .4);   // marquesina (k + 0,4: techo de estación; 97d-cenital.js lo abre si vas debajo)
             for (let u = -K2.plat * .38; u <= K2.plat * .38; u += K2.plat * .38) mb.box(x + ca * u, zp, y + sa * u, p.a, .35, .35, 3.6, [.38, .42, .46], [.38, .42, .46]);
           }
           if (dk) {
@@ -305,16 +323,16 @@ const G3 = EM.g3 = {
         }
       } else if (K === 'cable' || (K === 'future' && /cable/i.test(l.name))) {
         const C = this.cableGeo(l);
-        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1, 0); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
+        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1.4, .4); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col, .4, .4); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
         const seg = []; for (let s = 0; s <= C.P.len; s += 14) { const q = NET.at(C.P, s); seg.push([q.x, C.zAt(s) + 2, q.y]); } lines.push({ pts: seg, c: [.12, .12, .14] });
       } else if (K === 'brt' || K === 'feeder') {
         const w = K === 'brt' ? 3.2 : 1.6, dark = col.map(v => v * .85);
         for (let s = 0; s < l.P.len - 10; s += 10) { const a = NET.at(l.P, s), b = NET.at(l.P, s + 10), za = MAP.elevM(a.x, a.y) + .45, zb = MAP.elevM(b.x, b.y) + .45, sa = [-Math.sin(a.a), Math.cos(a.a)]; mb.quad([a.x + sa[0] * -w, za, a.y + sa[1] * -w], [a.x + sa[0] * w, za, a.y + sa[1] * w], [b.x + sa[0] * w, zb, b.y + sa[1] * w], [b.x + sa[0] * -w, zb, b.y + sa[1] * -w], dark, 4); }
-        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
+        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col, .4, .4); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
       }
     }
     this.decor(mb);
-    if (this.stat) for (const q of this.stat) this.gl.deleteBuffer(q); const C = mb.celdas(); this.stat = C.map(o => this.buf(o.a)); this.statXY = C.map(o => o.cx == null ? null : [o.cx, o.cz]);
+    if (this.stat) for (const q of this.stat) this.gl.deleteBuffer(q); const C = mb.celdas(); this.stat = C.map(o => this.buf(o.a)); this.statXY = C.map(o => o.cx == null ? null : [o.cx, o.cz]); this.statBB = C.map(o => o.bb);
     const la = []; for (const L of lines) for (let i = 0; i < L.pts.length - 1; i++) { la.push(...L.pts[i], 0, 1, 0, ...L.c, 0, ...L.pts[i + 1], 0, 1, 0, ...L.c, 0); }
     this.wires = la.length ? this.buf(new Float32Array(la)) : null;
   },
@@ -349,18 +367,34 @@ const G3 = EM.g3 = {
     gl.uniform1f(u.fogd, (opts.fogd || 1 / 9000) * (opts.rain ? 2.2 : 1)); gl.uniform1f(u.night, sky.night); gl.uniform1f(u.time, now()); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniform1i(u.T, 0); gl.activeTexture(gl.TEXTURE0);
     const I = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); gl.uniformMatrix4fv(u.M, false, I);
     const run = (b, mode = gl.TRIANGLES) => { gl.bindBuffer(gl.ARRAY_BUFFER, b); const st = 40; gl.enableVertexAttribArray(P.a.p); gl.vertexAttribPointer(P.a.p, 3, gl.FLOAT, false, st, 0); gl.enableVertexAttribArray(P.a.n); gl.vertexAttribPointer(P.a.n, 3, gl.FLOAT, false, st, 12); gl.enableVertexAttribArray(P.a.c); gl.vertexAttribPointer(P.a.c, 3, gl.FLOAT, false, st, 24); gl.enableVertexAttribArray(P.a.k); gl.vertexAttribPointer(P.a.k, 1, gl.FLOAT, false, st, 36); gl.drawArrays(mode, 0, b.n); };
-    const W = this.win; gl.bindTexture(gl.TEXTURE_2D, this.texFar); gl.uniform4fv(u.R, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.Rv, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.hole, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]); gl.uniform4fv(u.Hv, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]);
-    gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1.5, 6);   // el piso un poco atrás: lo que va pegado encima (andenes, plazas, carriles) no parpadea
-    for (const b of this.far) run(b);
+    /* 3.9 (Claude) · recorte por lo que ve la cámara (G3.vis) y orden de adelante hacia atrás: primero lo que se levanta (la red y los
+       edificios), después el piso cercano y al final el lejano. Así la tarjeta descarta sin pintarlos los píxeles que ya quedaron tapados
+       (antes el piso lejano se pintaba entero y encima todo lo demás). El piso sigue un poco atrás (polygonOffset): nada parpadea */
+    const W = this.win, vis = (B, i) => !B || !B[i] || this.vis(VP, B[i]), K = this._cull = { far: 0, bld: 0, stat: 0 };
     gl.bindTexture(gl.TEXTURE_2D, this.texNear); gl.uniform4fv(u.R, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.Rv, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.hole, [0, 0, 0, 0]); gl.uniform4fv(u.Hv, [0, 0, 0, 0]);
-    for (const b of this.near) run(b);
-    gl.disable(gl.POLYGON_OFFSET_FILL);
-    for (const b of this.bld) run(b);
     { const ex = cam.eye[0], ez = cam.eye[2], alto = Math.max(0, cam.eye[1] - (MAP.ready ? MAP.elevM(ex, ez) : 1500)), Rd = (this.liviano ? 1300 : 2400) + 2 * alto, R2 = Rd * Rd;   // 3.6: solo las celdas cercanas (más lejos si la cámara va alta)
-      for (let i = 0; i < this.stat.length; i++) { const c = this.statXY && this.statXY[i]; if (!c || (c[0] - ex) ** 2 + (c[1] - ez) ** 2 < R2) run(this.stat[i]); } }
+      for (let i = 0; i < this.stat.length; i++) { const c = this.statXY && this.statXY[i]; if ((!c || (c[0] - ex) ** 2 + (c[1] - ez) ** 2 < R2) && vis(this.statBB, i)) { run(this.stat[i]); K.stat++; } } }
+    for (let i = 0; i < this.bld.length; i++) if (vis(this.bldBB, i)) { run(this.bld[i]); K.bld++; }
+    gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1.5, 6);   // el piso un poco atrás: lo que va pegado encima (andenes, plazas, carriles) no parpadea
+    for (const b of this.near) run(b);
+    gl.bindTexture(gl.TEXTURE_2D, this.texFar); gl.uniform4fv(u.R, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.Rv, [0, 0, MW * TM, MH * TM]); gl.uniform4fv(u.hole, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]); gl.uniform4fv(u.Hv, [W.x0 + 40, W.z0 + 40, W.x0 + W.s - 40, W.z0 + W.s - 40]);
+    for (let i = 0; i < this.far.length; i++) if (vis(this.farBB, i)) { run(this.far[i]); K.far++; }
+    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.bindTexture(gl.TEXTURE_2D, this.texNear); gl.uniform4fv(u.R, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.Rv, [W.x0, W.z0, W.s, W.s]); gl.uniform4fv(u.hole, [0, 0, 0, 0]); gl.uniform4fv(u.Hv, [0, 0, 0, 0]);   // lo dinámico, con el estado de siempre
     if (this.wires) run(this.wires, gl.LINES);
     this._run = run; this._I = I;
     if (opts.dyn) opts.dyn(this);
+  },
+  /* 3.9 (Claude) · ¿la caja bb = [x0, y0, z0, x1, y1, z1] cae dentro de lo que ve la cámara? Se descarta solo si sus 8 esquinas quedan
+     del lado de afuera del mismo plano (izquierda, derecha, abajo, arriba, cerca o lejos), en coordenadas de recorte: así nunca se
+     pierde algo visible, ni siquiera con esquinas detrás de la cámara */
+  vis(m, bb) {
+    let o = 0, a = 63;
+    for (let i = 0; i < 8; i++) {
+      const x = i & 1 ? bb[3] : bb[0], y = i & 2 ? bb[4] : bb[1], z = i & 4 ? bb[5] : bb[2], w = m[3] * x + m[7] * y + m[11] * z + m[15], cx = m[0] * x + m[4] * y + m[8] * z + m[12], cy = m[1] * x + m[5] * y + m[9] * z + m[13], cz = m[2] * x + m[6] * y + m[10] * z + m[14];
+      o = (cx < -w ? 1 : 0) | (cx > w ? 2 : 0) | (cy < -w ? 4 : 0) | (cy > w ? 8 : 0) | (cz < -w ? 16 : 0) | (cz > w ? 32 : 0); a &= o; if (!a) return true;
+    }
+    return false;
   },
   /* caja dinámica (vehículos): color, posición, rumbo y tamaño */
   box(x, y, z, yaw, L, W, H, col, pitch = 0, roll = 0) { const gl = this.gl, u = this.P.u; gl.uniformMatrix4fv(u.M, false, M4.trs(x, y, z, -yaw, L, H, W, pitch, roll)); gl.uniform4fv(u.tint, [col[0], col[1], col[2], 1]); this._run(this.cube.b); gl.uniform4fv(u.tint, [0, 0, 0, 0]); gl.uniformMatrix4fv(u.M, false, this._I); },

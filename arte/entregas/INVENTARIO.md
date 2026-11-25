@@ -60,6 +60,16 @@ Los PDF no se guardan en el repositorio: pesan mucho y su contenido ya está ext
 
 Las copias están en `docs/entregas/2026-11-19/`.
 
+## 3c. Arte 3.7 de ChatGPT (GPT‑6 Eón): C‑70 a C‑72 · revisado en la 3.9.0 (24‑nov‑2026, Claude)
+14 PNG en `arte/entregas/vectorial/png/`. Se revisaron con la lista de control: paleta oficial, sin texto ni logos, fondo transparente y lectura a 48 px.
+
+| Encargo | Archivos | Estado | Dónde va en el juego |
+|---|---|---|---|
+| C‑70 | `ico_reto`, `ico_zen`, `ico_medir`, `ico_skate`, `ico_ciclovia` (256 × 256) | **En el juego** (WebP de 128 px, `tools/arte_juego.py`) | Botón del reto del día, nivel 🌅 Domingo zen, «Medir mi celular», el corredor en 🎮 y las zonas de skate (`src/js/96j-arte-37.js`) |
+| C‑71 | `logro_racha7`, `logro_combo8`, `logro_zen`, `logro_intermodal`, `logro_ciclista` | **En el juego** | Libreta de logros: «Metro + bici» y «Ciclista secreto» ya tienen su medalla, más tres logros nuevos: Siete días seguidos, Combo ×8 y Amanecer en la ciclorruta |
+| C‑71 | `ico_modo_carrera`, `ico_modo_tranvia` | **En el juego** | Tarjetas de los modos (antes, respaldo procedural) |
+| C‑72 | `portada_36_vertical` (1080 × 1920), `portada_36_horizontal` (1920 × 1080) | **Aprobadas como arte de promoción** | No entran al HTML: la portada del menú (C‑40) y `compartir.png` ya cumplen ese papel y son más fuertes. Quedan para la tienda o las redes, si el autor quiere. |
+
 ## 4. Afirmaciones verificadas y corregidas
 
 - **“v0.5.1 Medellín Minimalista y Fiel” (Gemini):** no existe en el repositorio ni se publicó; era el nombre de su documento. El juego pasó de v0.5.0 a **v0.6.0**.
