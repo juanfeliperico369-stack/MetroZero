@@ -32,7 +32,7 @@
     simple() { return !ESC[this.nivel][0]; },
     /* desde el escalón 3, la ventana 3D cercana se arma como en «Celular modesto» (edificios reales hasta 380 m en vez de 700 y
        siluetas hasta 600 m en vez de 1100): medido, cada cuadro dibujaba 1,5 millones de vértices. Al cruzar el umbral se rearma una vez */
-    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; G3.win = null; } },
+    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; if (G3.ventanaPorPartes) G3.ventanaPorPartes.rehacer = true; else G3.win = null; } },   /* 3.11.1: la ventana se rehace por partes (97e), sin el tirón de rearmarla entera */
     factor() { return ESC[this.nivel][1]; },
     /* 📏 medir: 3 s en 2D y 3 s en 3D cenital, en San Antonio; deja el escalón que sirve y lo cuenta */
     async medir() {
