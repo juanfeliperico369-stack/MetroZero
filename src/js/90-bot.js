@@ -125,7 +125,7 @@ const BotT = EM.test = {
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
         // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
-        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos');
+        if (Libre.VISTAS.length !== 1 || Libre.VISTAS[0][0] !== 'cen3d' || !Libre.ZOOMS || Libre.ZOOMS.length !== 4) E('cámara única 3.11.0: la Ciudad Libre debe tener solo la 3D Cenital y sus cuatro acercamientos');
         // terreno para el Plan único (1.5.0): vehículos que se montan, carro y bus de ruta; la carrera sin fin con sus líneas
         for (const kd of ['scooter', 'monopatin', 'skate', 'patines', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd);
         if (typeof Carrera === 'undefined' || Carrera.levels().length < 4) E('carrera sin fin: faltan líneas'); else { const c = Carrera.create('cr:A', { seed: 3 }); for (let i = 0; i < 600; i++) Carrera.step(c, 1 / 20); if (!isFinite(c.s) || c.s < 100) E('carrera sin fin: no avanza'); } { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
@@ -194,7 +194,8 @@ const BotT = EM.test = {
     // 3.4.0 · mundo 3D único, mundoRPG (6 zonas Skate/Parkour + 10 módulos + 6 subtramas), ciclovías y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
     try {
       const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
-      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.4: faltan cen3d o 1p');
+      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || Libre.VISTAS.some(v => v[0] !== 'cen3d')) E('cámara única 3.11.0: sobran cámaras o falta la 3D Cenital');
+      { const jt = Libre.joyMundo({ vista3: 'cen3d', fangC: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jt.x - 1) > 1e-6 || Math.abs(jt.y) > 1e-6) E('cámara única 3.11.0: de cerca, la palanca no gira con la cámara'); }
       const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
       if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');
       else {

@@ -28,17 +28,27 @@ const Libre = EM.modes.libre = {
   substeps: true,
   RITMOS: [['×1', 1, 1], ['×1,5', 1.5, 3], ['×2', 2, 6]],   // [rótulo, a pie y manejando, en metro, cable, tranvía o bus]
   escala(st) { const R = this.RITMOS[clamp(Save.d.settings.ritmo | 0, 0, 2)]; return st.mode === 'ride' ? R[2] : R[1]; },
-  /* 3.2 · un solo mundo 3D con cámaras coherentes (3D Cenital, 3ª persona, 1ª persona, Panorámica, Cine) + modo 2D/Pixel */
-  VISTAS: [['cen3d', '🛰', '3D Cenital'], ['3p', '🎮', 'Tercera persona'], ['1p', '👁', 'Primera persona'], ['dron', '🏔', 'Panorámica'], ['cine', '🎬', 'Cine'], ['2d', '🗺', '2D / Pixel']],
+  /* 3.11.0 · LA CÁMARA ÚNICA (el autor, 25‑nov‑2026: «Hay que eliminar las cámaras, la de maqueta, la de panorámica 2D, etc. Ya
+     dije que debe prevalecer» el mundo 3D en «vista cenital de cámara más bien centrada y que se puede mover al gusto, acercarse y
+     alejarse, y así añadiría un poco la forma de tercera persona»). En la Ciudad Libre queda la 3D Cenital; sin WebGL o en calidad
+     baja, el 2D de respaldo (no se elige). Se fueron la tercera y la primera persona, la panorámica y el cine como cámaras.
+     El 👁 pasa por cuatro acercamientos (ZOOMS): de lejos, cenital, de cerca y casi tercera persona; desde el zoom 2 la cámara baja
+     (hasta 36°) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
+     ángulo de base y 🎥 suelta la cámara para mirar la ciudad. */
+  VISTAS: [['cen3d', '🛰', '3D Cenital']],
+  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [5, '🎮', 'casi tercera persona']], ZU_MAX: 5.5,
+  zoomPreset(st) { const z = st.zoomU || 1; let i = 0, d = 1e9; this.ZOOMS.forEach((q, k) => { const e = Math.abs(Math.log(z / q[0])); if (e < d) { d = e; i = k; } }); return i; },
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
   vista(st, v) {
-    if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
+    v = 'cen3d';   /* 3.11.0: la cámara única */
+    if (EM.headless || Save.d.settings.q === 'low' || !G3.init()) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
     st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; st._ec = null;
     Save.d.settings.vistaL = v; Save.write();
     const A = this.VISTAS.find(q => q[0] === v) || this.VISTAS[0]; this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st);
   },
   /* joystick coherente con la cámara: en 3D Cenital y 2D el norte es arriba; en 3p/1p/dron/cine sigue el rumbo de la cámara */
-  joyMundo(st) { const j = st.joy; if (!st.vista3 || st.vista3 === 'cen3d' || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
+  joyMundo(st) { const j = st.joy; if (!st.vista3 || !j.m) return j;
+    if (st.vista3 === 'cen3d') { const F = st.fangC; if (F == null || Math.abs(Math.atan2(Math.sin(F + Math.PI / 2), Math.cos(F + Math.PI / 2))) < 1e-3) return j; const a = F + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; }   /* 3.11.0: de cerca, arriba es hacia donde mira la cámara */ const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
   STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
   levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }, { id: 'lb:mapa', name: '🗺 Elegir en el mapa', sub: 'Mira todo el valle y escoge dónde empezar' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
@@ -71,7 +81,7 @@ const Libre = EM.modes.libre = {
     if (trama) Trama.init(st);
     if (lv === 'lb:mapa') st.abrirMapa = 1;
     const prefV = Save.d.settings.vistaL || 'cen3d';
-    st.vista3 = ['cen3d', '3p', '1p', 'dron', 'cine'].includes(prefV) && !EM.headless && Save.d.settings.q !== 'low' ? prefV : null; st.cy = st.h;
+    st.vista3 = prefV !== '2d' && !EM.headless && Save.d.settings.q !== 'low' ? 'cen3d' : null; st.cy = st.h;   /* 3.11.0: la cámara única (un guardado de 3ª, 1ª, panorámica o cine vuelve a la 3D Cenital) */
     st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; st._crEspera = 25; if (typeof Gente !== 'undefined') Gente.crear(st);
     if (EM.mundoRPG && EM.mundoRPG.initLibre) EM.mundoRPG.initLibre(st);
     return st;
@@ -441,7 +451,7 @@ const Libre = EM.modes.libre = {
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano o truco">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: 3D Cenital, 3ª, 1ª, Panorámica, Cine o 2D">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
+      <div class="vsel" id="lbView"><button id="lbVista" title="Cámara: toca para acercar o alejar (de lejos, cenital, de cerca y casi tercera persona)">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -454,13 +464,13 @@ const Libre = EM.modes.libre = {
     $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { const s = Save.d.settings; s.ritmo = ((s.ritmo | 0) + 1) % 3; Save.write(); const R = this.RITMOS[s.ritmo]; this.msg(st, '⏩ Ritmo ' + R[0] + (R[2] > 1 ? ' · en metro y cable ×' + R[2] : '') , 'b'); this.updCtl(st); };
     $('#lbGuia').onclick = () => { if (typeof Gente !== 'undefined') Gente.guia(st); };
     $('#lbMini').onclick = () => this.mapa(st); if (st.abrirMapa) { st.abrirMapa = 0; setTimeout(() => this.mapa(st, 1), 350); }
-    $('#lbVista').onclick = () => { const V = this.VISTAS, i = V.findIndex(q => q[0] === (st.vista3 || '2d')); this.vista(st, V[(i + 1) % V.length][0]); }; $('#lbAyuda').onclick = () => this.ayuda(st);
+    $('#lbVista').onclick = () => { const Q = this.ZOOMS[(this.zoomPreset(st) + 1) % this.ZOOMS.length]; st.zoomObj = Q[0]; this.msg(st, Q[1] + ' Cámara ' + Q[2] + ' · pellizca para acercar o alejar', 'b'); this.updCtl(st); };   /* 3.11.0: acercamientos de la cámara única */ $('#lbAyuda').onclick = () => this.ayuda(st);
     this.updCtl(st);
   },
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; this.letrero(st); const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
-    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')) || this.VISTAS[0]; vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
+    const vb = $('#lbVistaN'); if (vb) { const Q = this.ZOOMS[this.zoomPreset(st)]; vb.textContent = Q[1]; $('#lbVista').classList.toggle('on', !!st.vista3); $('#lbVista').title = 'Cámara ' + Q[2] + ': toca para acercar o alejar'; }
     const ff = $('#lbFF'); if (ff) { const r = clamp(Save.d.settings.ritmo | 0, 0, 2), R = this.RITMOS[r]; ff.classList.toggle('on', r > 0); const n = $('#lbFFn'); if (n) n.textContent = st.mode === 'ride' ? '×' + R[2] : R[0]; }
     if (!st.goal && !J && st.guia) { const G = st.guia, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar guia'; jb.innerHTML = `<b>📍 ${esc(G.title)}</b><span>${esc(G.hint || '')}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal && !st.guia) jb.classList.add('hide');
@@ -483,7 +493,7 @@ const Libre = EM.modes.libre = {
     const libre = on => { st.camLibre = on; P.classList.toggle('hide', !on); const jz = $('#lbJz'); if (jz) jz.style.display = on ? 'none' : ''; const b = $('#lbCam'); if (b) b.classList.toggle('on', on); if (on) { st.joy = { x: 0, y: 0, m: 0 }; this.msg(st, '🎥 Cámara libre: arrastra para mirar, pellizca para acercar', 'b'); } };
     this._camLibre = libre;
     $('#lbCam').onclick = () => libre(!st.camLibre); $('#lbCamV').onclick = () => libre(false);
-    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, 3.2); };
+    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, this.ZU_MAX); };
     $('#lbCamM').onclick = () => zoom(1 / 1.35); $('#lbCamMas').onclick = () => zoom(1.35);
     $('#lbCamA').onclick = () => { const s = Save.d.settings; s.angulo = ((s.angulo | 0) + 1) % VC.ANGULOS.length; const A = VC.angulo(s.angulo); $('#lbCamAn').textContent = A.n; Save.write(); this.msg(st, '📐 Ángulo: ' + A.n, 'b'); };
     this._zoom = zoom; this.camGestos(st);
@@ -492,8 +502,8 @@ const Libre = EM.modes.libre = {
     const cv = $('#gcv'); if (!cv) return; if (this._cg) this._cg(); const T = new Map(); let pinch = null;
     const down = e => { T.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (T.size === 2) { const [a, b] = [...T.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: st.cam.k, z: st.zoomU || 1 }; } };
     const move = e => { const q = T.get(e.pointerId); if (!q) return; const nx = e.clientX, ny = e.clientY;
-      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, 3.2); return; }
-      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
+      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, this.ZU_MAX); return; }
+      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, this.ZU_MAX); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
       if (st.vista3 && T.size === 1) { st.cyo = (st.cyo || 0) - (nx - q.x) * .006; st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .004, -.45, .9); q.x = nx; q.y = ny; return; }
       if (st.camLibre && T.size === 1) { st.cam.x -= (nx - q.x) / st.cam.k; st.cam.y -= (ny - q.y) / st.cam.k; } q.x = nx; q.y = ny; };
     const up = e => { T.delete(e.pointerId); if (T.size < 2) pinch = null; };
@@ -648,19 +658,23 @@ const Libre = EM.modes.libre = {
     if (p.acc === 1) G.box(x - Math.cos(a) * .25 * s, z + .95 * s + b, y - Math.sin(a) * .25 * s, a, .16 * s, .36 * s, .42 * s, [.17, .18, .22]); if (p.acc === 3) G.box(x, z + .78 * s + b, y, a, .44 * s, .62 * s, .5 * s, [.54, .51, .45]);
   },
   draw3D(g, st, vp) {
-    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
+    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, this.ZU_MAX), po = st.cpo || 0;
     const largo = st.mode === 'ride' ? (st.ride.line.kind === 'metro' ? 34 : st.ride.line.kind === 'cable' ? 12 : 26) : st.mode === 'veh' ? 8 + V.len * 1.1 : 9;
     let cam, nearP = 2.4;
     if (st.vista3 === 'cen3d') {
       // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
       const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
-      const pitch = clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44);
+      if (st.zoomObj) { st.zoomU = st.zoomObj + ((st.zoomU || 1) - st.zoomObj) * .82; if (Math.abs(st.zoomU - st.zoomObj) < .004) { st.zoomU = st.zoomObj; st.zoomObj = 0; } }   /* 3.11.0: el paso suave del 👁 */
+      const zw = clamp(((st.zoomU || 1) - 2) / 3, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 5: casi tercera persona */
+      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .62, w);
+      if (st.camLibre || w <= 0) st.cyC = st.h; else st.cyC = (st.cyC == null ? st.h : st.cyC) + Math.atan2(Math.sin(st.h - st.cyC), Math.cos(st.h - st.cyC)) * .06;
+      const F = st.camLibre ? -Math.PI / 2 : -Math.PI / 2 + Math.atan2(Math.sin(st.cyC + Math.PI / 2), Math.cos(st.cyC + Math.PI / 2)) * w; st.fangC = F;   /* hacia dónde mira: el norte de lejos, el rumbo de cerca */
       const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
       const tx = st.camLibre ? st.cam.x : st.x + Math.cos(st.h) * lead;
       const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
       const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
       const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
-      const ex = tx, ey = ty + Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + 14);
+      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 4, w));
       st._ec = st._ec || { x: ex, y: ey, z: ez };
       const E = st._ec, f = st.camLibre ? .35 : .18;
       E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
