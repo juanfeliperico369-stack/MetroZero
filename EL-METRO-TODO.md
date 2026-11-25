@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.10.0 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.11.0 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.10.0** · compilado el 2026-11-25.
+> Versión del juego **v3.11.0** · compilado el 2026-11-25.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -801,7 +801,32 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
 
+##### 2026-11-25 · v3.11.0 (versionCode 40) · La cámara única y el guardián del sonido (Claude)
+- **Lo que pidió el autor** (palabra por palabra en `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`, cuando se sincronice el motor; la fuente es motorcity):
+  - la música de El Metro seguía sonando al salir de la app;
+  - «Hay que eliminar las cámaras, la de maqueta, la de panorámica 2D, etc.»: el mundo 3D en vista cenital, con la cámara centrada que se mueve, se acerca y se aleja («un poco la forma de tercera persona»).
+- **Qué cambió:**
+  - **3.10.1, el guardián del sonido** (`src/js/00b-sonido-guardian.js`, la misma pieza del motor):
+    - al salir de la app todo calla, también en el menú (antes solo se pausaba una partida);
+    - la voz de los anuncios se corta, y al volver sigue lo que sonaba;
+    - `MainActivity` avisa con `app:pausa` y `app:sigue` además de pausar el WebView.
+  - **3.11.0, la cámara única** (`src/js/36-libre.js`):
+    - en la Ciudad Libre queda la 3D Cenital, con el 2D de respaldo sin WebGL o en calidad baja (no se elige);
+    - se fueron la tercera y la primera persona, la panorámica y el cine como cámaras;
+    - el 👁 pasa por cuatro acercamientos: de lejos, cenital, de cerca y casi tercera persona (zoom hasta 5,5);
+    - desde el zoom 2 la cámara baja hasta 36° y se va detrás del rumbo, y la palanca gira con ella;
+    - un guardado viejo vuelve a la cenital.
+  - Conduce el Metro (cabina y panorámica de la línea) y La Red siguen como sus propios modos.
+- **Qué se probó:**
+  - `node tools/test.mjs 100`: OK, 0 errores. Incluye el guardián (bien) y el bot nuevo: la cámara única, la palanca que gira de cerca y el norte arriba de lejos;
+  - en Chromium (412 × 860): los cuatro acercamientos, y de cerca con rumbo al oriente la cámara mira al oriente y «arriba» en la palanca va al oriente.
+- **Qué falta:** las fases A–E del pedido (carga, fluidez, controles, nada pintado en el suelo y el mundo en 3D de verdad), con el OK del autor.
+
 ##### 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
+- **Publicada el 25‑nov** (el autor pidió los enlaces y las APK al día):
+  - entró a `main` con el PR #6;
+  - la APK (versionCode 38) está en la release v3.10.0;
+  - la página se publicó en `gh-pages` con `el-metro.apk`, y `node tools/verify-pages.mjs` dio bien: http 200, el service worker con la caché `el-metro-v3.10.0-c4b13a2a`, instalable, sin conexión (31 recursos) y 0 errores de consola.
 - **Por qué:**
   - Dos sesiones de Claude hicieron una 3.9.0 a la vez, en ramas distintas.
   - La de la rama `ccr-2a67f935-oat714` es «Unido y medido» (24‑nov): el 3D recortado por lo que ve la cámara y de adelante hacia atrás, la operación ganable, el taller de la bici en la calle y el arte C‑70 y C‑71. Esa es la que está publicada, con versionCode 37.
@@ -3960,7 +3985,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4465 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (142 archivos, 1815 KB)
+## Código fuente (143 archivos, 1823 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4528,7 +4553,7 @@ body.pant-clasica .joyzone{top:24%}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.10.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.11.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4755,6 +4780,59 @@ function fitCanvas(cv, maxDpr = 2) {
   return { w, h, dpr };
 }
 function mkCanvas(w, h) { if (typeof OffscreenCanvas !== 'undefined' && EM.headless) return new OffscreenCanvas(w, h); const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+~~~~
+
+### `src/js/00b-sonido-guardian.js`
+~~~~js
+/* =====================================================================
+   GUARDIÁN DEL SONIDO (El Metro 3.10.1 · Claude, 25‑nov‑2026)
+   El autor: «cuando se sale de la app aún sigue sonando la música» (El Metro, EnCicla y Turno Cero).
+   Al salir de la app (o cambiar de pestaña, bloquear la pantalla o cerrar), todo el sonido se calla de una, en cualquier
+   pantalla del juego:
+   - cada AudioContext que se cree queda registrado (una subclase) y se suspende: la música, los efectos, el paisaje sonoro y
+     los motores paran al instante, también las notas que ya estaban programadas;
+   - los <audio> y <video> que suenan se pausan y la voz de los anuncios se corta;
+   - mientras la app está afuera, nada vuelve a sonar aunque el juego lo pida (resume() y play() esperan);
+   - al volver, sigue solo lo que sonaba.
+   Avisos que escucha: visibilitychange, pagehide y pageshow, freeze y resume (el ciclo de vida de la página), pause y resume en
+   document (Capacitor los da en la APK cuando la actividad se pausa, aunque el WebView siga «visible») y app:pausa y app:sigue
+   (los manda la actividad nativa).
+   La misma pieza está en Motor City (js/01-sonido-guardian.js, para Turno Cero) y en EnCicla (src/js/00b-sonido-guardian.js).
+   Estado para las pruebas: window.guardianSonido (fuera, veces, contextos).
+   ===================================================================== */
+(function () {
+  if (typeof window === 'undefined' || typeof document === 'undefined' || window.guardianSonido) return;
+  const W = window, AC = W.AudioContext || W.webkitAudioContext, ctxs = new Set(), medios = new Set(), dormidos = new Set(), pausados = new Set();
+  let fuera = false, veces = 0;
+  const G = W.guardianSonido = { get fuera() { return fuera; }, get veces() { return veces; }, get contextos() { return ctxs.size; }, callar, volver };
+  if (AC) {
+    const Guardado = class extends AC {
+      constructor(...a) { super(...a); ctxs.add(this); if (fuera) { dormidos.add(this); super.suspend().catch(() => { }); } }
+      resume() { if (fuera) { dormidos.add(this); return Promise.resolve(); } return super.resume(); }
+    };
+    try { W.AudioContext = Guardado; if (W.webkitAudioContext) W.webkitAudioContext = Guardado; } catch (e) { /* sin reemplazo: quedan los medios */ }
+  }
+  const MP = W.HTMLMediaElement && W.HTMLMediaElement.prototype, play0 = MP && MP.play;
+  if (play0) MP.play = function () { medios.add(this); if (fuera) { pausados.add(this); return Promise.resolve(); } return play0.apply(this, arguments); };
+  function callar() {
+    if (fuera) return; fuera = true; veces++;
+    for (const c of ctxs) if (c.state === 'running') { dormidos.add(c); c.suspend().catch(() => { }); }
+    for (const m of medios) if (!m.paused) { pausados.add(m); try { m.pause(); } catch (e) { /* nada */ } }
+    try { if (W.speechSynthesis) W.speechSynthesis.cancel(); } catch (e) { /* sin voz */ }
+  }
+  function volver() {
+    if (!fuera || document.hidden) return; fuera = false;
+    for (const c of dormidos) if (c.state !== 'closed') c.resume().catch(() => { });
+    dormidos.clear();
+    for (const m of pausados) { try { const p = play0.call(m); if (p && p.catch) p.catch(() => { }); } catch (e) { /* nada */ } }
+    pausados.clear();
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) callar(); else volver(); });
+  W.addEventListener('pagehide', callar); W.addEventListener('pageshow', volver);
+  document.addEventListener('freeze', callar); document.addEventListener('resume', volver);
+  document.addEventListener('pause', callar);
+  W.addEventListener('app:pausa', callar); W.addEventListener('app:sigue', volver);
+})();
 ~~~~
 
 ### `src/js/01-inflate.js`
@@ -8376,7 +8454,7 @@ const CamUI = EM.camui = {
     g.restore(); return false;
   };
   T.controles = (vista) => {
-    for (const [id,titulo,nombre] of [['lbVista','Vista','Cambiar vista. Actual: '+vista],
+    for (const [id,titulo,nombre] of [['lbVista','Cámara','Acercar o alejar la cámara. Ahora: '+vista],
       ['lbFoto','Foto','Tomar una foto'],['lbCam','Mirar','Mover la cámara libre']]) {
       const b=document.getElementById(id); if (!b) continue;
       let etiqueta=b.querySelector('.taller-etiqueta');
@@ -10335,17 +10413,27 @@ const Libre = EM.modes.libre = {
   substeps: true,
   RITMOS: [['×1', 1, 1], ['×1,5', 1.5, 3], ['×2', 2, 6]],   // [rótulo, a pie y manejando, en metro, cable, tranvía o bus]
   escala(st) { const R = this.RITMOS[clamp(Save.d.settings.ritmo | 0, 0, 2)]; return st.mode === 'ride' ? R[2] : R[1]; },
-  /* 3.2 · un solo mundo 3D con cámaras coherentes (3D Cenital, 3ª persona, 1ª persona, Panorámica, Cine) + modo 2D/Pixel */
-  VISTAS: [['cen3d', '🛰', '3D Cenital'], ['3p', '🎮', 'Tercera persona'], ['1p', '👁', 'Primera persona'], ['dron', '🏔', 'Panorámica'], ['cine', '🎬', 'Cine'], ['2d', '🗺', '2D / Pixel']],
+  /* 3.11.0 · LA CÁMARA ÚNICA (el autor, 25‑nov‑2026: «Hay que eliminar las cámaras, la de maqueta, la de panorámica 2D, etc. Ya
+     dije que debe prevalecer» el mundo 3D en «vista cenital de cámara más bien centrada y que se puede mover al gusto, acercarse y
+     alejarse, y así añadiría un poco la forma de tercera persona»). En la Ciudad Libre queda la 3D Cenital; sin WebGL o en calidad
+     baja, el 2D de respaldo (no se elige). Se fueron la tercera y la primera persona, la panorámica y el cine como cámaras.
+     El 👁 pasa por cuatro acercamientos (ZOOMS): de lejos, cenital, de cerca y casi tercera persona; desde el zoom 2 la cámara baja
+     (hasta 36°) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
+     ángulo de base y 🎥 suelta la cámara para mirar la ciudad. */
+  VISTAS: [['cen3d', '🛰', '3D Cenital']],
+  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [5, '🎮', 'casi tercera persona']], ZU_MAX: 5.5,
+  zoomPreset(st) { const z = st.zoomU || 1; let i = 0, d = 1e9; this.ZOOMS.forEach((q, k) => { const e = Math.abs(Math.log(z / q[0])); if (e < d) { d = e; i = k; } }); return i; },
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
   vista(st, v) {
-    if (v !== '2d' && (EM.headless || Save.d.settings.q === 'low' || !G3.init())) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
+    v = 'cen3d';   /* 3.11.0: la cámara única */
+    if (EM.headless || Save.d.settings.q === 'low' || !G3.init()) { this.msg(st, 'La vista 3D necesita «Calidad gráfica: Normal» y WebGL', 'y'); v = '2d'; }
     st.vista3 = v === '2d' ? null : v; st.cy = st.h; st.cyo = 0; st.cpo = 0; st._cine = null; st._ec = null;
     Save.d.settings.vistaL = v; Save.write();
     const A = this.VISTAS.find(q => q[0] === v) || this.VISTAS[0]; this.msg(st, A[1] + ' ' + A[2], 'b'); this.updCtl(st);
   },
   /* joystick coherente con la cámara: en 3D Cenital y 2D el norte es arriba; en 3p/1p/dron/cine sigue el rumbo de la cámara */
-  joyMundo(st) { const j = st.joy; if (!st.vista3 || st.vista3 === 'cen3d' || !j.m) return j; const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
+  joyMundo(st) { const j = st.joy; if (!st.vista3 || !j.m) return j;
+    if (st.vista3 === 'cen3d') { const F = st.fangC; if (F == null || Math.abs(Math.atan2(Math.sin(F + Math.PI / 2), Math.cos(F + Math.PI / 2))) < 1e-3) return j; const a = F + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; }   /* 3.11.0: de cerca, arriba es hacia donde mira la cámara */ const a = (st.cy || 0) + (st.cyo || 0) + Math.atan2(j.x, -j.y); return { x: Math.cos(a) * j.m, y: Math.sin(a) * j.m, m: j.m }; },
   STARTS: ['San Antonio', 'Niquía', 'Acevedo', 'San Javier', 'Poblado', 'Envigado', 'Itagüí', 'Bello', 'Industriales', 'Parque Berrío', 'La Estrella', 'Santo Domingo Savio', 'Estadio', 'Caribe'],
   levels() { const L = [{ id: 'lb:trama', name: '📖 Historia en la ciudad', sub: 'La última vuelta, jugada en el mapa' }, { id: 'lb:ultimo', name: 'Donde quedé', sub: 'Sigue tu recorrido' }, { id: 'lb:mapa', name: '🗺 Elegir en el mapa', sub: 'Mira todo el valle y escoge dónde empezar' }]; for (const n of this.STARTS) if (NET.stations.find(h => h.name === n)) L.push({ id: 'lb:' + n, name: n, sub: 'Empieza en la estación ' + n }); return L; },
   hub(name) { return NET.stations.find(h => h.name === name) || NET.stations[0]; },
@@ -10378,7 +10466,7 @@ const Libre = EM.modes.libre = {
     if (trama) Trama.init(st);
     if (lv === 'lb:mapa') st.abrirMapa = 1;
     const prefV = Save.d.settings.vistaL || 'cen3d';
-    st.vista3 = ['cen3d', '3p', '1p', 'dron', 'cine'].includes(prefV) && !EM.headless && Save.d.settings.q !== 'low' ? prefV : null; st.cy = st.h;
+    st.vista3 = prefV !== '2d' && !EM.headless && Save.d.settings.q !== 'low' ? 'cen3d' : null; st.cy = st.h;   /* 3.11.0: la cámara única (un guardado de 3ª, 1ª, panorámica o cine vuelve a la 3D Cenital) */
     st.inicio = { x: st.x, y: st.y }; st.h2 = st.h; st.thr = 0; st.wv = 0; st._crEspera = 25; if (typeof Gente !== 'undefined') Gente.crear(st);
     if (EM.mundoRPG && EM.mundoRPG.initLibre) EM.mundoRPG.initLibre(st);
     return st;
@@ -10748,7 +10836,7 @@ const Libre = EM.modes.libre = {
   mount(st, el) {
     el.innerHTML = `<div class="joyzone" id="lbJz"><div class="joy" id="lbJoy"><i></i></div></div>
       <div class="lbbtns"><button class="abtn big" id="lbAct">●<small>acción</small></button><button class="abtn acc" id="lbUp" aria-label="Correr o acelerar">▲</button><button class="abtn brk" id="lbDown" aria-label="Frenar">▼</button><button class="abtn hb" id="lbHb" aria-label="Freno de mano o truco">✋</button></div>
-      <div class="vsel" id="lbView"><button id="lbVista" title="Estilo de vista: 3D Cenital, 3ª, 1ª, Panorámica, Cine o 2D">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
+      <div class="vsel" id="lbView"><button id="lbVista" title="Cámara: toca para acercar o alejar (de lejos, cenital, de cerca y casi tercera persona)">👁<small id="lbVistaN"></small></button><button id="lbActHub" title="Actividades, modos, Skate/Parkour y diario RPG">📋</button><button id="lbFoto" title="Foto">${Atlas.ico('ico_foto', '📷')}</button><button id="lbCam" title="Cámara libre: arrastra para mirar, pellizca para acercar">🎥</button><button id="lbZoom" title="Acercar o alejar">${Atlas.ico('ico_lupa', '🔎')}</button><button id="lbRun" title="Correr">${Atlas.ico('ico_correr', '🏃')}</button><button id="lbFF" title="Ritmo del juego">⏩<small id="lbFFn"></small></button><button id="lbGuia" title="Qué ver cerca">📍</button><button id="lbAyuda" title="Ayuda y rescate">🆘</button></div><div id="lbJob" class="jobbar hide"></div><div id="lbLugar" class="lugar"></div><div id="trTalk" class="trtalk hide"></div><div id="lbActBar" class="actbar hide"></div><button id="lbMini" class="lbmini" aria-label="Abrir el mapa del valle"></button>`;
     const jz = $('#lbJz'), joy = $('#lbJoy'); let jid = null, jx = 0, jy = 0;
     jz.addEventListener('pointerdown', e => { jid = e.pointerId; jz.setPointerCapture(jid); const r = jz.getBoundingClientRect(); jx = e.clientX - r.left; jy = e.clientY - r.top; joy.style.left = jx + 'px'; joy.style.top = jy + 'px'; joy.classList.add('on'); Snd.init(); });
     jz.addEventListener('pointermove', e => { if (e.pointerId !== jid) return; const r = jz.getBoundingClientRect(), dx = e.clientX - r.left - jx, dy = e.clientY - r.top - jy, d = Math.hypot(dx, dy), R = 46, m = Math.min(1, d / R); st.joy = { x: d ? dx / d * m : 0, y: d ? dy / d * m : 0, m }; joy.firstChild.style.transform = 'translate(' + (dx / Math.max(1, d) * Math.min(d, R)) + 'px,' + (dy / Math.max(1, d) * Math.min(d, R)) + 'px)'; });
@@ -10761,13 +10849,13 @@ const Libre = EM.modes.libre = {
     $('#lbFoto').onclick = () => this.photo(st); $('#lbZoom').onclick = () => { st.far = !st.far; }; $('#lbRun').onclick = () => { st.run = !st.run; $('#lbRun').classList.toggle('on', st.run); }; $('#lbFF').onclick = () => { const s = Save.d.settings; s.ritmo = ((s.ritmo | 0) + 1) % 3; Save.write(); const R = this.RITMOS[s.ritmo]; this.msg(st, '⏩ Ritmo ' + R[0] + (R[2] > 1 ? ' · en metro y cable ×' + R[2] : '') , 'b'); this.updCtl(st); };
     $('#lbGuia').onclick = () => { if (typeof Gente !== 'undefined') Gente.guia(st); };
     $('#lbMini').onclick = () => this.mapa(st); if (st.abrirMapa) { st.abrirMapa = 0; setTimeout(() => this.mapa(st, 1), 350); }
-    $('#lbVista').onclick = () => { const V = this.VISTAS, i = V.findIndex(q => q[0] === (st.vista3 || '2d')); this.vista(st, V[(i + 1) % V.length][0]); }; $('#lbAyuda').onclick = () => this.ayuda(st);
+    $('#lbVista').onclick = () => { const Q = this.ZOOMS[(this.zoomPreset(st) + 1) % this.ZOOMS.length]; st.zoomObj = Q[0]; this.msg(st, Q[1] + ' Cámara ' + Q[2] + ' · pellizca para acercar o alejar', 'b'); this.updCtl(st); };   /* 3.11.0: acercamientos de la cámara única */ $('#lbAyuda').onclick = () => this.ayuda(st);
     this.updCtl(st);
   },
   updCtl(st) {
     if (EM.headless || Game.st !== st) return; this.letrero(st); const jb = $('#lbJob'); if (!jb) return; const J = st.goal ? null : st.job;
     if (st.goal) { const G = st.goal, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar trama'; jb.innerHTML = `<b>📖 ${esc(G.title)}</b><span>${esc(G.hint)}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
-    const vb = $('#lbVistaN'); if (vb) { const A = this.VISTAS.find(q => q[0] === (st.vista3 || '2d')) || this.VISTAS[0]; vb.textContent = A[1]; $('#lbVista').classList.toggle('on', !!st.vista3); }
+    const vb = $('#lbVistaN'); if (vb) { const Q = this.ZOOMS[this.zoomPreset(st)]; vb.textContent = Q[1]; $('#lbVista').classList.toggle('on', !!st.vista3); $('#lbVista').title = 'Cámara ' + Q[2] + ': toca para acercar o alejar'; }
     const ff = $('#lbFF'); if (ff) { const r = clamp(Save.d.settings.ritmo | 0, 0, 2), R = this.RITMOS[r]; ff.classList.toggle('on', r > 0); const n = $('#lbFFn'); if (n) n.textContent = st.mode === 'ride' ? '×' + R[2] : R[0]; }
     if (!st.goal && !J && st.guia) { const G = st.guia, d = dist(st.x, st.y, G.x, G.y); jb.className = 'jobbar guia'; jb.innerHTML = `<b>📍 ${esc(G.title)}</b><span>${esc(G.hint || '')}</span><em>${d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km'}</em>`; }
     if (J) { const left = J.limit ? Math.max(0, J.limit - J.t) : 0, d = J.x != null ? dist(st.x, st.y, J.x, J.y) : 0; jb.classList.remove('hide'); jb.innerHTML = `<b>${esc(J.title)}</b><span>${esc(J.hint || '')}</span><em>${d ? (d < 1000 ? Math.round(d) + ' m' : (d / 1000).toFixed(1) + ' km') : ''}${J.limit ? ' · ⏱ ' + pad2(Math.floor(left / 60)) + ':' + pad2(Math.floor(left % 60)) : ''}${J.k === 'reparacion' && J.hold ? ' · reparando ' + Math.round(J.hold / 3 * 100) + '%' : ''}</em>`; jb.className = 'jobbar' + (J.limit && left < 20 ? ' low' : ''); } else if (!st.goal && !st.guia) jb.classList.add('hide');
@@ -10790,7 +10878,7 @@ const Libre = EM.modes.libre = {
     const libre = on => { st.camLibre = on; P.classList.toggle('hide', !on); const jz = $('#lbJz'); if (jz) jz.style.display = on ? 'none' : ''; const b = $('#lbCam'); if (b) b.classList.toggle('on', on); if (on) { st.joy = { x: 0, y: 0, m: 0 }; this.msg(st, '🎥 Cámara libre: arrastra para mirar, pellizca para acercar', 'b'); } };
     this._camLibre = libre;
     $('#lbCam').onclick = () => libre(!st.camLibre); $('#lbCamV').onclick = () => libre(false);
-    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, 3.2); };
+    const zoom = f => { if (st.camLibre && !st.vista3) st.cam.k = clamp(st.cam.k * f, .12, 7); else st.zoomU = clamp((st.zoomU || 1) * f, .35, this.ZU_MAX); };
     $('#lbCamM').onclick = () => zoom(1 / 1.35); $('#lbCamMas').onclick = () => zoom(1.35);
     $('#lbCamA').onclick = () => { const s = Save.d.settings; s.angulo = ((s.angulo | 0) + 1) % VC.ANGULOS.length; const A = VC.angulo(s.angulo); $('#lbCamAn').textContent = A.n; Save.write(); this.msg(st, '📐 Ángulo: ' + A.n, 'b'); };
     this._zoom = zoom; this.camGestos(st);
@@ -10799,8 +10887,8 @@ const Libre = EM.modes.libre = {
     const cv = $('#gcv'); if (!cv) return; if (this._cg) this._cg(); const T = new Map(); let pinch = null;
     const down = e => { T.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (T.size === 2) { const [a, b] = [...T.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), k: st.cam.k, z: st.zoomU || 1 }; } };
     const move = e => { const q = T.get(e.pointerId); if (!q) return; const nx = e.clientX, ny = e.clientY;
-      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, 3.2); return; }
-      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
+      if (T.size >= 2 && pinch) { q.x = nx; q.y = ny; const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d); if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7); else st.zoomU = clamp(pinch.z * f, .35, this.ZU_MAX); return; }
+      if (st.vista3 === 'cen3d' && T.size === 1) { if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, this.ZU_MAX); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; } else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); } q.x = nx; q.y = ny; return; }
       if (st.vista3 && T.size === 1) { st.cyo = (st.cyo || 0) - (nx - q.x) * .006; st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .004, -.45, .9); q.x = nx; q.y = ny; return; }
       if (st.camLibre && T.size === 1) { st.cam.x -= (nx - q.x) / st.cam.k; st.cam.y -= (ny - q.y) / st.cam.k; } q.x = nx; q.y = ny; };
     const up = e => { T.delete(e.pointerId); if (T.size < 2) pinch = null; };
@@ -10955,19 +11043,23 @@ const Libre = EM.modes.libre = {
     if (p.acc === 1) G.box(x - Math.cos(a) * .25 * s, z + .95 * s + b, y - Math.sin(a) * .25 * s, a, .16 * s, .36 * s, .42 * s, [.17, .18, .22]); if (p.acc === 3) G.box(x, z + .78 * s + b, y, a, .44 * s, .62 * s, .5 * s, [.54, .51, .45]);
   },
   draw3D(g, st, vp) {
-    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, 3.2), po = st.cpo || 0;
+    const W = vp.w, H = vp.h, V = this.V(st), z = this.alto3(st), jY = st.jumpY || 0, yaw = (st.cy == null ? st.h : st.cy) + (st.cyo || 0), c = Math.cos(yaw), s = Math.sin(yaw), zu = clamp(st.zoomU || 1, .35, this.ZU_MAX), po = st.cpo || 0;
     const largo = st.mode === 'ride' ? (st.ride.line.kind === 'metro' ? 34 : st.ride.line.kind === 'cable' ? 12 : 26) : st.mode === 'veh' ? 8 + V.len * 1.1 : 9;
     let cam, nearP = 2.4;
     if (st.vista3 === 'cen3d') {
       // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
       const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
-      const pitch = clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44);
+      if (st.zoomObj) { st.zoomU = st.zoomObj + ((st.zoomU || 1) - st.zoomObj) * .82; if (Math.abs(st.zoomU - st.zoomObj) < .004) { st.zoomU = st.zoomObj; st.zoomObj = 0; } }   /* 3.11.0: el paso suave del 👁 */
+      const zw = clamp(((st.zoomU || 1) - 2) / 3, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 5: casi tercera persona */
+      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .62, w);
+      if (st.camLibre || w <= 0) st.cyC = st.h; else st.cyC = (st.cyC == null ? st.h : st.cyC) + Math.atan2(Math.sin(st.h - st.cyC), Math.cos(st.h - st.cyC)) * .06;
+      const F = st.camLibre ? -Math.PI / 2 : -Math.PI / 2 + Math.atan2(Math.sin(st.cyC + Math.PI / 2), Math.cos(st.cyC + Math.PI / 2)) * w; st.fangC = F;   /* hacia dónde mira: el norte de lejos, el rumbo de cerca */
       const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
       const tx = st.camLibre ? st.cam.x : st.x + Math.cos(st.h) * lead;
       const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
       const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
       const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
-      const ex = tx, ey = ty + Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + 14);
+      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 4, w));
       st._ec = st._ec || { x: ex, y: ey, z: ez };
       const E = st._ec, f = st.camLibre ? .35 : .18;
       E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
@@ -14726,7 +14818,7 @@ const BotT = EM.test = {
         if (typeof Perfil !== 'undefined') { const q = Perfil.ped(); if (!/^#[0-9a-f]{6}$/i.test(q.skin) || !/^#[0-9a-f]{6}$/i.test(q.col)) E('tu personaje: colores inválidos'); }
         if (typeof CamUI === 'undefined') E('cámara: falta la de las otras vistas');
         // vistas y mapa (1.4.0): cuatro estilos de vista, joystick con la cámara en 3D, piso 3D con calles, edificios reales en 3D y el mapa con todo para elegir
-        if (Libre.VISTAS.length < 4) E('vistas: faltan estilos');
+        if (Libre.VISTAS.length !== 1 || Libre.VISTAS[0][0] !== 'cen3d' || !Libre.ZOOMS || Libre.ZOOMS.length !== 4) E('cámara única 3.11.0: la Ciudad Libre debe tener solo la 3D Cenital y sus cuatro acercamientos');
         // terreno para el Plan único (1.5.0): vehículos que se montan, carro y bus de ruta; la carrera sin fin con sus líneas
         for (const kd of ['scooter', 'monopatin', 'skate', 'patines', 'carro', 'bus']) if (!VEH[kd]) E('vehículos: falta ' + kd);
         if (typeof Carrera === 'undefined' || Carrera.levels().length < 4) E('carrera sin fin: faltan líneas'); else { const c = Carrera.create('cr:A', { seed: 3 }); for (let i = 0; i < 600; i++) Carrera.step(c, 1 / 20); if (!isFinite(c.s) || c.s < 100) E('carrera sin fin: no avanza'); } { const j = Libre.joyMundo({ vista3: '3p', cy: 0, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(j.x - 1) > 1e-6 || Math.abs(j.y) > 1e-6) E('vistas: en 3D el joystick no va con la cámara'); }
@@ -14795,7 +14887,8 @@ const BotT = EM.test = {
     // 3.4.0 · mundo 3D único, mundoRPG (6 zonas Skate/Parkour + 10 módulos + 6 subtramas), ciclovías y regresiones (CableViaje hora 1, Bus al bajar, colisión barrida)
     try {
       const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
-      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || !Libre.VISTAS.some(v => v[0] === '1p')) E('vistas 3.4: faltan cen3d o 1p');
+      if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || Libre.VISTAS.some(v => v[0] !== 'cen3d')) E('cámara única 3.11.0: sobran cámaras o falta la 3D Cenital');
+      { const jt = Libre.joyMundo({ vista3: 'cen3d', fangC: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jt.x - 1) > 1e-6 || Math.abs(jt.y) > 1e-6) E('cámara única 3.11.0: de cerca, la palanca no gira con la cámara'); }
       const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
       if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');
       else {
@@ -21071,6 +21164,19 @@ const t0 = Date.now(); await page.goto(url); await page.waitForFunction(() => wi
 console.log('carga:', Date.now() - t0, 'ms');
 const self = await page.evaluate(() => EM.test.selfTest());
 console.log('selfTest:', self.stats); console.log('  errores:', self.errors.length, self.errors.slice(0, 15)); console.log('  avisos:', self.warnings.length, self.warnings.slice(0, 8));
+/* 3.10.1 · el guardián del sonido: también en el menú (antes solo se pausaba una partida) */
+await page.mouse.click(5, 5); const son = await page.evaluate(async () => {   /* el guardián del sonido (00b-sonido-guardian.js): al salir de la app todo calla, nada vuelve a sonar aunque el juego lo pida y al volver sigue */
+  const e = ms => new Promise(r => setTimeout(r, ms)), G = window.guardianSonido; if (!G) return { falta: true };
+  const delJuego = G.contextos, A = new AudioContext(); for (let i = 0; i < 20 && A.state !== 'running'; i++) { A.resume(); await e(50); }
+  const o = { delJuego, antes: A.state };
+  document.dispatchEvent(new Event('pause')); await e(150); o.pausa = A.state; o.fuera = G.fuera;   /* lo que manda Capacitor al pausar la actividad */
+  A.resume(); await e(150); o.pideSonar = A.state;
+  document.dispatchEvent(new Event('resume')); await e(250); o.vuelve = A.state;
+  window.dispatchEvent(new Event('app:pausa')); await e(150); o.appPausa = A.state;   /* lo que manda la actividad nativa */
+  window.dispatchEvent(new Event('app:sigue')); await e(250); o.appSigue = A.state;
+  A.close(); return o;
+});
+const sonMal = (s => s.antes === 'running' && s.pausa === 'suspended' && s.fuera && s.pideSonar === 'suspended' && s.vuelve === 'running' && s.appPausa === 'suspended' && s.appSigue === 'running')(son) ? 0 : 1; console.log('guardián del sonido:', sonMal ? 'FALLA' : 'bien', JSON.stringify(son));
 const t1 = Date.now(); const mk = await page.evaluate(n => EM.test.monkey(n, 1234), N);
 console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victorias, ${mk.errors.length} errores (${Date.now() - t1} ms)`, mk.errors.slice(0, 15));
 // recorrido de interfaz
@@ -21109,7 +21215,7 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length;
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);
 ~~~~
 
@@ -22471,14 +22577,22 @@ public class MainActivity extends ComponentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (webView != null) webView.onResume();
+        if (webView != null) {
+            webView.onResume();
+            /* 3.10.1 · el guardián del sonido (src/js/00b-sonido-guardian.js) deja seguir lo que sonaba */
+            webView.evaluateJavascript("window.dispatchEvent(new Event('app:sigue'))", null);
+        }
         acquireMulticastLock();
         hideSystemBars();
     }
 
     @Override
     protected void onPause() {
-        if (webView != null) webView.onPause();
+        if (webView != null) {
+            /* 3.10.1 · al salir de la app, la música y los efectos se callan al instante, en cualquier pantalla (antes solo en una partida) */
+            webView.evaluateJavascript("window.dispatchEvent(new Event('app:pausa'))", null);
+            webView.onPause();
+        }
         releaseMulticastLock();
         super.onPause();
     }
@@ -22910,8 +23024,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.10.0
-elmetro.versionCode=38
+elmetro.versionName=3.11.0
+elmetro.versionCode=40
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
