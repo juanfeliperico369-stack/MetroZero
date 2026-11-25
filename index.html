@@ -875,7 +875,7 @@ const SUELOS = {"cancha":[[512.5,13897.9,17.9,10.2,0.337,0.9],[14085.8,13622.9,1
 </script>
 <script>
 'use strict';
-const EM = window.EM = { version: '3.11.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.11.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -5904,7 +5904,7 @@ const Libre = EM.modes.libre = {
   RITMOS: [['×1', 1, 1], ['×1,5', 1.5, 3], ['×2', 2, 6]],   // [rótulo, a pie y manejando, en metro, cable, tranvía o bus]
   escala(st) { const R = this.RITMOS[clamp(Save.d.settings.ritmo | 0, 0, 2)]; return st.mode === 'ride' ? R[2] : R[1]; },
   VISTAS: [['cen3d', '🛰', '3D Cenital']],
-  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [5, '🎮', 'casi tercera persona']], ZU_MAX: 5.5,
+  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [3.6, '🎮', 'casi tercera persona']], ZU_MAX: 4,   /* 3.11.1: de cerca, una cámara de persecución alta (unos 40° y el ojo a 8 m o más), no pegada a las paredes */
   zoomPreset(st) { const z = st.zoomU || 1; let i = 0, d = 1e9; this.ZOOMS.forEach((q, k) => { const e = Math.abs(Math.log(z / q[0])); if (e < d) { d = e; i = k; } }); return i; },
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
   vista(st, v) {
@@ -6460,8 +6460,8 @@ const Libre = EM.modes.libre = {
     if (st.vista3 === 'cen3d') {
       const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
       if (st.zoomObj) { st.zoomU = st.zoomObj + ((st.zoomU || 1) - st.zoomObj) * .82; if (Math.abs(st.zoomU - st.zoomObj) < .004) { st.zoomU = st.zoomObj; st.zoomObj = 0; } }   /* 3.11.0: el paso suave del 👁 */
-      const zw = clamp(((st.zoomU || 1) - 2) / 3, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 5: casi tercera persona */
-      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .62, w);
+      const zw = clamp(((st.zoomU || 1) - 2) / 1.6, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 3,6: casi tercera persona */
+      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .7, w);
       if (st.camLibre || w <= 0) st.cyC = st.h; else st.cyC = (st.cyC == null ? st.h : st.cyC) + Math.atan2(Math.sin(st.h - st.cyC), Math.cos(st.h - st.cyC)) * .06;
       const F = st.camLibre ? -Math.PI / 2 : -Math.PI / 2 + Math.atan2(Math.sin(st.cyC + Math.PI / 2), Math.cos(st.cyC + Math.PI / 2)) * w; st.fangC = F;   /* hacia dónde mira: el norte de lejos, el rumbo de cerca */
       const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
@@ -6469,7 +6469,7 @@ const Libre = EM.modes.libre = {
       const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
       const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
       const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
-      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 4, w));
+      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 8, w));
       st._ec = st._ec || { x: ex, y: ey, z: ez };
       const E = st._ec, f = st.camLibre ? .35 : .18;
       E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
@@ -10153,7 +10153,7 @@ const BotT = EM.test = {
       if (Game.mode === L && st && st.vista3 && L.vista) { this._2d = 1; L.vista(st, '2d'); L.msg(st, '📏 Tu celular va justo con el 3D: te dejé la vista desde arriba (cámbiala con 👁)', 'y'); }
     },
     simple() { return !ESC[this.nivel][0]; },
-    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; G3.win = null; } },
+    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; if (G3.ventanaPorPartes) G3.ventanaPorPartes.rehacer = true; else G3.win = null; } },   /* 3.11.1: la ventana se rehace por partes (97e), sin el tirón de rearmarla entera */
     factor() { return ESC[this.nivel][1]; },
     async medir() {
       const L = EM.modes.libre; if (!L) return; Snd.init(); UI.modal('<div class="pag">📏 Medir mi celular</div><h2>Midiendo…</h2><p class="m">Unos segundos en 2D y en 3D. No toques la pantalla.</p>');
@@ -11482,10 +11482,11 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     const b = [P(-l, -w, y0), P(l, -w, y0), P(l, w, y0), P(-l, w, y0)], t = [P(-l, -w, y1), P(l, -w, y1), P(l, w, y1), P(-l, w, y1)];
     for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; bm.quad(b[j], b[i], t[i], t[j], c, 0); }
   }
-  function edifCen(bm, cx, cz, R, R2) {
+  function edifCen(bm, cx, cz, R, R2) { for (const _ of edifCenPasos(bm, cx, cz, R, R2)) { } }
+  function* edifCenPasos(bm, cx, cz, R, R2) {
     const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; }, E = MAP.elevM.bind(MAP);
     for (let ry = Math.floor((cz - Rmax) / RG); ry <= Math.floor((cz + Rmax) / RG); ry++) for (let rx = Math.floor((cx - Rmax) / RG); rx <= Math.floor((cx + Rmax) / RG); rx++) {
-      const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
+      yield; const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
       for (const b of L) {
         const d2 = (b.x - cx) ** 2 + (b.y - cz) ** 2;
         if (b.rec === false || d2 > R2sq || (d2 > Rsq && b.h < 5.5)) continue;
@@ -11512,6 +11513,14 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     bm.f = 1; edifCen(bm, cx, cz, RR, R); this.hitos3D(bm, cx, cz, R);
     bm.f = 0; this.puentes3D(bm, cx, cz, RR);   // los tableros no se desvanecen
     bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
+    return bm;
+  };
+  G3.edifCercaPasos = function* (cx, cz, real) {
+    if (!CEN.activo || !real || !VC.ED) return this.edifCerca(cx, cz, real);
+    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(400); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
+    bm.f = 1; yield* edifCenPasos(bm, cx, cz, RR, R); yield; this.hitos3D(bm, cx, cz, R);
+    yield; bm.f = 0; this.puentes3D(bm, cx, cz, RR);
+    yield; bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
     return bm;
   };
   const bn0 = G3.buildNear;
@@ -11612,6 +11621,60 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
       return r;
     };
   }
+})();
+
+(function () {
+  if (typeof G3 === 'undefined' || typeof VC === 'undefined' || typeof VC.piso3D !== 'function') return;
+  const N = 4, VP = G3.ventanaPorPartes = { trabajos: 0, cambios: 0, deUnaVez: 0, pasoMaxMs: 0, ultimo: null, eventos: [] };
+  const ev = (tipo, o) => { if (VP.eventos.length >= 24) VP.eventos.shift(); VP.eventos.push(Object.assign({ t: Math.round(performance.now()), tipo }, o)); };
+  let job = null;
+  const ahora = () => performance.now();
+  const plan = (G, cx, cz) => {
+    const real = VC.on && !!VC.piso3D; if (!real) return null;
+    const half = 1300, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, S = 2 * half;
+    const sc = (Save.d.settings.q === 'low' || G.liviano ? 1024 : 2048) / S, n = Math.round(S * sc), sub = S / N, nsub = Math.round(sub * sc);
+    if (nsub * N !== n) return null;   /* las baldosas deben casar exacto con el lienzo */
+    return { cx, cz, real, x0, z0, S, sc, n, sub, nsub, k: 0, cv: null, g: null, bm: null, listo: false, t0: ahora() };
+  };
+  const paso = (G, J, apuro) => {
+    const t0 = ahora();
+    if (J.k < N * N) {
+      if (!J.cv) { J.cv = mkCanvas(J.n, J.n); J.g = J.cv.getContext('2d'); }
+      const i = J.k % N, j = Math.floor(J.k / N), b = VC.piso3D(J.x0 + i * J.sub, J.z0 + j * J.sub, J.sub, J.sc);
+      J.g.drawImage(b, i * J.nsub, j * J.nsub); J.k++;
+    } else if (!J.bm) {   /* los edificios por partes (G3.edifCercaPasos, 97d), con ~8 ms por cuadro; si no existe, de una vez */
+      if (!J.it) J.it = typeof G.edifCercaPasos === 'function' ? G.edifCercaPasos(J.cx, J.cz, J.real) : null;
+      if (!J.it) { J.bm = G.edifCerca(J.cx, J.cz, J.real); J.listo = true; }
+      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; J.listo = true; } }
+    }
+    VP.pasoMaxMs = Math.max(VP.pasoMaxMs, Math.round(ahora() - t0));
+  };
+  const cambiar = (G, J) => {
+    const p0 = VC.piso3D, e0 = G.edifCerca;
+    VC.piso3D = function (X0, Y0, S, sc) { return X0 === J.x0 && Y0 === J.z0 && S === J.S && Math.abs(sc - J.sc) < 1e-9 ? J.cv : p0.apply(this, arguments); };
+    G.edifCerca = function (cx, cz, real) { return cx === J.cx && cz === J.cz && real === J.real ? J.bm : e0.apply(this, arguments); };
+    const t0 = ahora();
+    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; }
+    VP.cambios++; VP.ultimo = { cambioMs: Math.round(ahora() - t0), armadoMs: Math.round(ahora() - J.t0) };
+  };
+  const draw0 = G3.draw;
+  G3.draw = function (cam, opts) {
+    try {
+      const W = this.win;
+      if (this.ok && W && cam && cam.eye) {
+        const ex = cam.eye[0], ez = cam.eye[2], lim = Math.min(1000, W.s * .2), dx = ex - W.cx, dz = ez - W.cz, d = Math.hypot(dx, dz);
+        if (job && Math.hypot(job.cx - ex, job.cz - ez) > lim * 1.6) job = null;   /* se fue para otro lado (o saltó): se descarta */
+        if (!job && VP.rehacer) { VP.rehacer = false; job = plan(this, Math.round(ex), Math.round(ez)); if (job) { VP.trabajos++; ev('rehacer', { d: Math.round(d) }); } else this.win = null; }   /* el regulador cambió la calidad (96d): se rehace por partes */
+        if (!job && d > lim * .4) { const a = lim * .55 / Math.max(1, d); job = plan(this, Math.round(ex + dx * a), Math.round(ez + dz * a)); if (job) { VP.trabajos++; ev('empieza', { d: Math.round(d), lim: Math.round(lim) }); } }
+        if (job && !job.listo && d > lim * .97) { VP.apurados = (VP.apurados || 0) + 1; for (let i = 0; i < 200 && !job.listo; i++) paso(this, job, true); }   /* ya en el borde: se termina solo lo que falta */
+        if (job && !job.listo) paso(this, job);
+        else if (job && job.listo) { const J = job; job = null; cambiar(this, J); }
+      }
+    } catch (e) { job = null; if (EM.errors) EM.errors.push('ventana por partes: ' + e.message); }
+    const w0 = this.win, r = draw0.apply(this, arguments);
+    if (this.win !== w0) { VP.deUnaVez++; ev('deUnaVez', { antes: !!w0, job: !!job, k: job ? job.k : -1 }); job = null; }   /* llegó al borde antes: se armó de una vez, como antes */
+    return r;
+  };
 })();
 
 (function () {

@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.11.0 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.11.1 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.11.0** · compilado el 2026-11-25.
+> Versión del juego **v3.11.1** · compilado el 2026-11-25.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -800,6 +800,27 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
+
+##### 2026-11-25 · v3.11.1 (versionCode 41) · Fase A: la ventana por partes (sin el congelón de 1,7 s) y la cámara de persecución alta (Claude)
+- **Lo que pidió el autor** (fase A del pedido aprobado, `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`):
+  - la carga del mundo y la fluidez («el moviendo de ningún juego aún está a la altura de la fluidez que tiene EnCicla»).
+- **Lo que se midió primero:**
+  - la ventana cercana de 2,6 km se rehacía de un solo tirón cada ~520 m: **1,7 s con el CPU 4×** (piso 524 ms, subir su textura 645 ms con WebGL por software, edificios 400 ms, lo lejano 121 ms). El juego se congelaba;
+  - además, el regulador de calidad (`96d-rendimiento.js`), al cambiar a «liviano» o volver, borraba la ventana y la rehacía entera.
+- **Qué cambió:**
+  - `src/js/97e-ventana-por-partes.js` (nuevo, aditivo, envuelve `G3.draw`):
+    - la ventana siguiente se arma por partes ANTES de llegar al borde (desde el 40 % del recorrido, centrada adelante);
+    - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre;
+    - los edificios se arman por partes, unos 8 ms por cuadro;
+    - el cambio usa lo ya armado; si llegas al borde antes de tiempo, solo se termina lo que falta;
+    - `G3.ventanaPorPartes` guarda los trabajos, los cambios, el paso más largo y los últimos eventos.
+  - `src/js/97d-cenital.js`: `edifCen` cede entre regiones (`edifCenPasos`), y `G3.edifCercaPasos` arma los mismos edificios por partes.
+  - `src/js/96d-rendimiento.js`: cuando el regulador cambia el detalle, la ventana se rehace por partes en vez de borrarse.
+  - `src/js/36-libre.js`: de cerca, la cámara queda alta (acercamiento máximo 3,6; unos 40° y el ojo a 8 m o más). A 5 se pegaba a las paredes de las estaciones.
+- **Qué se probó:**
+  - recorrido de 2,7 km con el CPU 4×: **el peor cuadro pasa de 1808 a ~440 ms**, sin ventanas rehechas de una vez en el viaje (antes 5 cuadros de más de 250 ms, con uno de 1,8 s);
+  - `node tools/test.mjs 100`: OK, 0 errores.
+- **Qué falta:** el cambio de ventana aún cuesta ~0,2–0,4 s con el CPU 4× (subir la textura de 2048² y lo lejano). Lo sigue la fase B (fluidez).
 
 ##### 2026-11-25 · v3.11.0 (versionCode 40) · La cámara única y el guardián del sonido (Claude)
 - **Lo que pidió el autor** (palabra por palabra en `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`, cuando se sincronice el motor; la fuente es motorcity):
@@ -3985,7 +4006,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4465 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (143 archivos, 1823 KB)
+## Código fuente (144 archivos, 1830 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4553,7 +4574,7 @@ body.pant-clasica .joyzone{top:24%}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.11.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.11.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -10418,10 +10439,10 @@ const Libre = EM.modes.libre = {
      alejarse, y así añadiría un poco la forma de tercera persona»). En la Ciudad Libre queda la 3D Cenital; sin WebGL o en calidad
      baja, el 2D de respaldo (no se elige). Se fueron la tercera y la primera persona, la panorámica y el cine como cámaras.
      El 👁 pasa por cuatro acercamientos (ZOOMS): de lejos, cenital, de cerca y casi tercera persona; desde el zoom 2 la cámara baja
-     (hasta 36°) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
+     (hasta unos 40°, con el ojo a 8 m o más) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
      ángulo de base y 🎥 suelta la cámara para mirar la ciudad. */
   VISTAS: [['cen3d', '🛰', '3D Cenital']],
-  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [5, '🎮', 'casi tercera persona']], ZU_MAX: 5.5,
+  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [3.6, '🎮', 'casi tercera persona']], ZU_MAX: 4,   /* 3.11.1: de cerca, una cámara de persecución alta (unos 40° y el ojo a 8 m o más), no pegada a las paredes */
   zoomPreset(st) { const z = st.zoomU || 1; let i = 0, d = 1e9; this.ZOOMS.forEach((q, k) => { const e = Math.abs(Math.log(z / q[0])); if (e < d) { d = e; i = k; } }); return i; },
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
   vista(st, v) {
@@ -11050,8 +11071,8 @@ const Libre = EM.modes.libre = {
       // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
       const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
       if (st.zoomObj) { st.zoomU = st.zoomObj + ((st.zoomU || 1) - st.zoomObj) * .82; if (Math.abs(st.zoomU - st.zoomObj) < .004) { st.zoomU = st.zoomObj; st.zoomObj = 0; } }   /* 3.11.0: el paso suave del 👁 */
-      const zw = clamp(((st.zoomU || 1) - 2) / 3, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 5: casi tercera persona */
-      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .62, w);
+      const zw = clamp(((st.zoomU || 1) - 2) / 1.6, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 3,6: casi tercera persona */
+      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .7, w);
       if (st.camLibre || w <= 0) st.cyC = st.h; else st.cyC = (st.cyC == null ? st.h : st.cyC) + Math.atan2(Math.sin(st.h - st.cyC), Math.cos(st.h - st.cyC)) * .06;
       const F = st.camLibre ? -Math.PI / 2 : -Math.PI / 2 + Math.atan2(Math.sin(st.cyC + Math.PI / 2), Math.cos(st.cyC + Math.PI / 2)) * w; st.fangC = F;   /* hacia dónde mira: el norte de lejos, el rumbo de cerca */
       const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
@@ -11059,7 +11080,7 @@ const Libre = EM.modes.libre = {
       const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
       const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
       const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
-      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 4, w));
+      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 8, w));
       st._ec = st._ec || { x: ex, y: ey, z: ez };
       const E = st._ec, f = st.camLibre ? .35 : .18;
       E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;
@@ -15260,7 +15281,7 @@ const BotT = EM.test = {
     simple() { return !ESC[this.nivel][0]; },
     /* desde el escalón 3, la ventana 3D cercana se arma como en «Celular modesto» (edificios reales hasta 380 m en vez de 700 y
        siluetas hasta 600 m en vez de 1100): medido, cada cuadro dibujaba 1,5 millones de vértices. Al cruzar el umbral se rearma una vez */
-    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; G3.win = null; } },
+    liviano() { const l = this.nivel >= 3; if (!!G3.liviano !== l) { G3.liviano = l; if (G3.ventanaPorPartes) G3.ventanaPorPartes.rehacer = true; else G3.win = null; } },   /* 3.11.1: la ventana se rehace por partes (97e), sin el tirón de rearmarla entera */
     factor() { return ESC[this.nivel][1]; },
     /* 📏 medir: 3 s en 2D y 3 s en 3D cenital, en San Antonio; deja el escalón que sirve y lo cuenta */
     async medir() {
@@ -16843,10 +16864,13 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; bm.quad(b[j], b[i], t[i], t[j], c, 0); }
   }
   /* como G3.edifReales (22-gl.js), con zócalos y con el anillo exterior hasta R2 */
-  function edifCen(bm, cx, cz, R, R2) {
+  /* 3.11.1: edifCen se arma por partes (cede antes de cada región de 400 m) para la ventana por partes (97e-ventana-por-partes.js);
+     edifCen de una vez sigue igual para lo demás */
+  function edifCen(bm, cx, cz, R, R2) { for (const _ of edifCenPasos(bm, cx, cz, R, R2)) { } }
+  function* edifCenPasos(bm, cx, cz, R, R2) {
     const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; }, E = MAP.elevM.bind(MAP);
     for (let ry = Math.floor((cz - Rmax) / RG); ry <= Math.floor((cz + Rmax) / RG); ry++) for (let rx = Math.floor((cx - Rmax) / RG); rx <= Math.floor((cx + Rmax) / RG); rx++) {
-      const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
+      yield; const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
       for (const b of L) {
         const d2 = (b.x - cx) ** 2 + (b.y - cz) ** 2;
         if (b.rec === false || d2 > R2sq || (d2 > Rsq && b.h < 5.5)) continue;
@@ -16874,6 +16898,15 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     bm.f = 1; edifCen(bm, cx, cz, RR, R); this.hitos3D(bm, cx, cz, R);
     bm.f = 0; this.puentes3D(bm, cx, cz, RR);   // los tableros no se desvanecen
     bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
+    return bm;
+  };
+  /* 3.11.1 · los mismos edificios de G3.edifCerca, por partes: cede entre regiones y entre hitos, puentes y árboles. Devuelve el bm */
+  G3.edifCercaPasos = function* (cx, cz, real) {
+    if (!CEN.activo || !real || !VC.ED) return this.edifCerca(cx, cz, real);
+    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(400); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
+    bm.f = 1; yield* edifCenPasos(bm, cx, cz, RR, R); yield; this.hitos3D(bm, cx, cz, R);
+    yield; bm.f = 0; this.puentes3D(bm, cx, cz, RR);
+    yield; bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
     return bm;
   };
   const bn0 = G3.buildNear;
@@ -16982,6 +17015,81 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
       return r;
     };
   }
+})();
+~~~~
+
+### `src/js/97e-ventana-por-partes.js`
+~~~~js
+/* =====================================================================
+   LA VENTANA POR PARTES (3.11.1 · Claude, 25‑nov‑2026) · fase A del pedido del autor (motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md)
+   El autor: «El mundo en tercera persona no carga en totalidad ni aunque avances más… hay que pensar en formas ingeniosas
+   para hacer la carga del mundo y mejorar su fluidez».
+   Medido con el CPU 4× (como un celular): la ventana cercana de 2,6 km (G3.buildNear) se rehacía de un solo tirón cada ~520 m,
+   y el juego se congelaba ~1,7 s. El piso tardaba 524 ms, subir su textura 645 ms (con WebGL por software), los edificios 400 ms
+   y lo lejano 121 ms.
+   Ahora la ventana siguiente se arma por partes ANTES de llegar al borde (desde el 40 % del recorrido, centrada adelante):
+   - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre (VC.piso3D ya sabe pintar
+     cualquier rectángulo; las baldosas casan porque cada una pinta lo suyo con la misma escala);
+   - los edificios de la ventana nueva se arman por partes (G3.edifCercaPasos, unos 8 ms por cuadro);
+   - el cambio llama al G3.buildNear de siempre, que recibe lo ya armado: solo sube la textura y arma el terreno.
+   Si llegas al borde antes de que esté lista, se termina de una vez solo lo que falta. Cuando el regulador de calidad (96d) cambia
+   el detalle, la ventana también se rehace por partes en vez de borrarse. Aditivo: envuelve G3.draw.
+   ===================================================================== */
+(function () {
+  if (typeof G3 === 'undefined' || typeof VC === 'undefined' || typeof VC.piso3D !== 'function') return;
+  const N = 4, VP = G3.ventanaPorPartes = { trabajos: 0, cambios: 0, deUnaVez: 0, pasoMaxMs: 0, ultimo: null, eventos: [] };
+  const ev = (tipo, o) => { if (VP.eventos.length >= 24) VP.eventos.shift(); VP.eventos.push(Object.assign({ t: Math.round(performance.now()), tipo }, o)); };
+  let job = null;
+  const ahora = () => performance.now();
+  /* los mismos números que G3.buildNear (22-gl.js) para la ventana centrada en (cx, cz) */
+  const plan = (G, cx, cz) => {
+    const real = VC.on && !!VC.piso3D; if (!real) return null;
+    const half = 1300, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, S = 2 * half;
+    const sc = (Save.d.settings.q === 'low' || G.liviano ? 1024 : 2048) / S, n = Math.round(S * sc), sub = S / N, nsub = Math.round(sub * sc);
+    if (nsub * N !== n) return null;   /* las baldosas deben casar exacto con el lienzo */
+    return { cx, cz, real, x0, z0, S, sc, n, sub, nsub, k: 0, cv: null, g: null, bm: null, listo: false, t0: ahora() };
+  };
+  /* un paso por cuadro: una baldosa del piso, o los edificios */
+  const paso = (G, J, apuro) => {
+    const t0 = ahora();
+    if (J.k < N * N) {
+      if (!J.cv) { J.cv = mkCanvas(J.n, J.n); J.g = J.cv.getContext('2d'); }
+      const i = J.k % N, j = Math.floor(J.k / N), b = VC.piso3D(J.x0 + i * J.sub, J.z0 + j * J.sub, J.sub, J.sc);
+      J.g.drawImage(b, i * J.nsub, j * J.nsub); J.k++;
+    } else if (!J.bm) {   /* los edificios por partes (G3.edifCercaPasos, 97d), con ~8 ms por cuadro; si no existe, de una vez */
+      if (!J.it) J.it = typeof G.edifCercaPasos === 'function' ? G.edifCercaPasos(J.cx, J.cz, J.real) : null;
+      if (!J.it) { J.bm = G.edifCerca(J.cx, J.cz, J.real); J.listo = true; }
+      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; J.listo = true; } }
+    }
+    VP.pasoMaxMs = Math.max(VP.pasoMaxMs, Math.round(ahora() - t0));
+  };
+  /* el cambio: buildNear de siempre, con el piso y los edificios ya armados */
+  const cambiar = (G, J) => {
+    const p0 = VC.piso3D, e0 = G.edifCerca;
+    VC.piso3D = function (X0, Y0, S, sc) { return X0 === J.x0 && Y0 === J.z0 && S === J.S && Math.abs(sc - J.sc) < 1e-9 ? J.cv : p0.apply(this, arguments); };
+    G.edifCerca = function (cx, cz, real) { return cx === J.cx && cz === J.cz && real === J.real ? J.bm : e0.apply(this, arguments); };
+    const t0 = ahora();
+    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; }
+    VP.cambios++; VP.ultimo = { cambioMs: Math.round(ahora() - t0), armadoMs: Math.round(ahora() - J.t0) };
+  };
+  const draw0 = G3.draw;
+  G3.draw = function (cam, opts) {
+    try {
+      const W = this.win;
+      if (this.ok && W && cam && cam.eye) {
+        const ex = cam.eye[0], ez = cam.eye[2], lim = Math.min(1000, W.s * .2), dx = ex - W.cx, dz = ez - W.cz, d = Math.hypot(dx, dz);
+        if (job && Math.hypot(job.cx - ex, job.cz - ez) > lim * 1.6) job = null;   /* se fue para otro lado (o saltó): se descarta */
+        if (!job && VP.rehacer) { VP.rehacer = false; job = plan(this, Math.round(ex), Math.round(ez)); if (job) { VP.trabajos++; ev('rehacer', { d: Math.round(d) }); } else this.win = null; }   /* el regulador cambió la calidad (96d): se rehace por partes */
+        if (!job && d > lim * .4) { const a = lim * .55 / Math.max(1, d); job = plan(this, Math.round(ex + dx * a), Math.round(ez + dz * a)); if (job) { VP.trabajos++; ev('empieza', { d: Math.round(d), lim: Math.round(lim) }); } }
+        if (job && !job.listo && d > lim * .97) { VP.apurados = (VP.apurados || 0) + 1; for (let i = 0; i < 200 && !job.listo; i++) paso(this, job, true); }   /* ya en el borde: se termina solo lo que falta */
+        if (job && !job.listo) paso(this, job);
+        else if (job && job.listo) { const J = job; job = null; cambiar(this, J); }
+      }
+    } catch (e) { job = null; if (EM.errors) EM.errors.push('ventana por partes: ' + e.message); }
+    const w0 = this.win, r = draw0.apply(this, arguments);
+    if (this.win !== w0) { VP.deUnaVez++; ev('deUnaVez', { antes: !!w0, job: !!job, k: job ? job.k : -1 }); job = null; }   /* llegó al borde antes: se armó de una vez, como antes */
+    return r;
+  };
 })();
 ~~~~
 
@@ -23024,8 +23132,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.11.0
-elmetro.versionCode=40
+elmetro.versionName=3.11.1
+elmetro.versionCode=41
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36

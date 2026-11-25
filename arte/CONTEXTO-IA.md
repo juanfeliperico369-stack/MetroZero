@@ -230,6 +230,27 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
+#### 2026-11-25 · v3.11.1 (versionCode 41) · Fase A: la ventana por partes (sin el congelón de 1,7 s) y la cámara de persecución alta (Claude)
+- **Lo que pidió el autor** (fase A del pedido aprobado, `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`):
+  - la carga del mundo y la fluidez («el moviendo de ningún juego aún está a la altura de la fluidez que tiene EnCicla»).
+- **Lo que se midió primero:**
+  - la ventana cercana de 2,6 km se rehacía de un solo tirón cada ~520 m: **1,7 s con el CPU 4×** (piso 524 ms, subir su textura 645 ms con WebGL por software, edificios 400 ms, lo lejano 121 ms). El juego se congelaba;
+  - además, el regulador de calidad (`96d-rendimiento.js`), al cambiar a «liviano» o volver, borraba la ventana y la rehacía entera.
+- **Qué cambió:**
+  - `src/js/97e-ventana-por-partes.js` (nuevo, aditivo, envuelve `G3.draw`):
+    - la ventana siguiente se arma por partes ANTES de llegar al borde (desde el 40 % del recorrido, centrada adelante);
+    - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre;
+    - los edificios se arman por partes, unos 8 ms por cuadro;
+    - el cambio usa lo ya armado; si llegas al borde antes de tiempo, solo se termina lo que falta;
+    - `G3.ventanaPorPartes` guarda los trabajos, los cambios, el paso más largo y los últimos eventos.
+  - `src/js/97d-cenital.js`: `edifCen` cede entre regiones (`edifCenPasos`), y `G3.edifCercaPasos` arma los mismos edificios por partes.
+  - `src/js/96d-rendimiento.js`: cuando el regulador cambia el detalle, la ventana se rehace por partes en vez de borrarse.
+  - `src/js/36-libre.js`: de cerca, la cámara queda alta (acercamiento máximo 3,6; unos 40° y el ojo a 8 m o más). A 5 se pegaba a las paredes de las estaciones.
+- **Qué se probó:**
+  - recorrido de 2,7 km con el CPU 4×: **el peor cuadro pasa de 1808 a ~440 ms**, sin ventanas rehechas de una vez en el viaje (antes 5 cuadros de más de 250 ms, con uno de 1,8 s);
+  - `node tools/test.mjs 100`: OK, 0 errores.
+- **Qué falta:** el cambio de ventana aún cuesta ~0,2–0,4 s con el CPU 4× (subir la textura de 2048² y lo lejano). Lo sigue la fase B (fluidez).
+
 #### 2026-11-25 · v3.11.0 (versionCode 40) · La cámara única y el guardián del sonido (Claude)
 - **Lo que pidió el autor** (palabra por palabra en `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`, cuando se sincronice el motor; la fuente es motorcity):
   - la música de El Metro seguía sonando al salir de la app;
