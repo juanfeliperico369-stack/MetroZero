@@ -1,5 +1,26 @@
 # Bitácora · El Metro
 
+## 2026-11-25 · v3.11.0 (versionCode 40) · La cámara única y el guardián del sonido (Claude)
+- **Lo que pidió el autor** (palabra por palabra en `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`, cuando se sincronice el motor; la fuente es motorcity):
+  - la música de El Metro seguía sonando al salir de la app;
+  - «Hay que eliminar las cámaras, la de maqueta, la de panorámica 2D, etc.»: el mundo 3D en vista cenital, con la cámara centrada que se mueve, se acerca y se aleja («un poco la forma de tercera persona»).
+- **Qué cambió:**
+  - **3.10.1, el guardián del sonido** (`src/js/00b-sonido-guardian.js`, la misma pieza del motor):
+    - al salir de la app todo calla, también en el menú (antes solo se pausaba una partida);
+    - la voz de los anuncios se corta, y al volver sigue lo que sonaba;
+    - `MainActivity` avisa con `app:pausa` y `app:sigue` además de pausar el WebView.
+  - **3.11.0, la cámara única** (`src/js/36-libre.js`):
+    - en la Ciudad Libre queda la 3D Cenital, con el 2D de respaldo sin WebGL o en calidad baja (no se elige);
+    - se fueron la tercera y la primera persona, la panorámica y el cine como cámaras;
+    - el 👁 pasa por cuatro acercamientos: de lejos, cenital, de cerca y casi tercera persona (zoom hasta 5,5);
+    - desde el zoom 2 la cámara baja hasta 36° y se va detrás del rumbo, y la palanca gira con ella;
+    - un guardado viejo vuelve a la cenital.
+  - Conduce el Metro (cabina y panorámica de la línea) y La Red siguen como sus propios modos.
+- **Qué se probó:**
+  - `node tools/test.mjs 100`: OK, 0 errores. Incluye el guardián (bien) y el bot nuevo: la cámara única, la palanca que gira de cerca y el norte arriba de lejos;
+  - en Chromium (412 × 860): los cuatro acercamientos, y de cerca con rumbo al oriente la cámara mira al oriente y «arriba» en la palanca va al oriente.
+- **Qué falta:** las fases A–E del pedido (carga, fluidez, controles, nada pintado en el suelo y el mundo en 3D de verdad), con el OK del autor.
+
 ## 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
 - **Publicada el 25‑nov** (el autor pidió los enlaces y las APK al día):
   - entró a `main` con el PR #6;
