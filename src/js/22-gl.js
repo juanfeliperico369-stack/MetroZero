@@ -171,6 +171,12 @@ const G3 = EM.g3 = {
     const V = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(E(i, j)); V.push(row); }
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
+    this.bld = this.edifCerca(cx, cz, real).done().map(a => this.buf(a));
+    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
+  },
+  /* 4.0 · los edificios y los árboles de la ventana cercana, aparte de buildNear para que 97d-cenital.js (Fase 2 del renacimiento
+     cenital) los cambie solo en Ciudad Libre y Bus. Los demás modos dibujan exactamente lo mismo de antes */
+  edifCerca(cx, cz, real) {
     // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
     const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MB(), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
     if (RR) this.edifReales(bm, cx, cz, RR, R2);
@@ -188,7 +194,11 @@ const G3 = EM.g3 = {
         if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
       }
     }
-    // árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos)
+    this.arboles3D(bm, cx, cz, low);
+    return bm;
+  },
+  /* árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos) */
+  arboles3D(bm, cx, cz, low) {
     const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
@@ -198,8 +208,6 @@ const G3 = EM.g3 = {
       const tci = v === TT.GRASS && h2(X, Z, 71) < .16 ? (h2(X, Z, 73) < .55 ? 5 : 6) : ((r * 53 | 0) % 5);
       bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[tci]);
     }
-    this.bld = bm.done().map(a => this.buf(a));
-    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
   /* las casas y los edificios reales en 3D (1.5.0–3.2.0):
      · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
@@ -236,12 +244,17 @@ const G3 = EM.g3 = {
         }
       }
     }
-    // arquitectura icónica: muros por cada lado de su planta y tapa en abanico
+    this.hitos3D(bm, cx, cz, Rmax); this.puentes3D(bm, cx, cz, R);
+  },
+  /* arquitectura icónica: muros por cada lado de su planta y tapa en abanico */
+  hitos3D(bm, cx, cz, Rmax) {
     const HC = { aguja: '#d9dde2', basilica: '#a65a3c', iglesia: '#ece2cf', palacio: '#eeeeea', estadio: '#d7d3cb', rocas: '#2c2e33', vidrio: '#9fb7c9', ladrillo: '#a85b3d', republicano: '#e9dfc6', moderno: '#d0d4d8', cupula: '#e3ddd0', cubos: '#c9c3b6', luces: '#cfd2d6', botero: '#d8cfbd', pies: '#d8cfbd', alpujarra: '#e4e4e0' };
     for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos
+  },
+  /* puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos */
+  puentes3D(bm, cx, cz, R) {
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
         const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .2), ny = Math.cos(an) * (B.w / 2 + .2), zm = MAP.elevM(mx, my);
@@ -295,7 +308,7 @@ const G3 = EM.g3 = {
             // andén con su franja amarilla táctil de seguridad, columnas de cubierta y marquesina
             mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]);
             const yo = sd * (dk ? 5.35 : 4.25); mb.box(p.x + nx * yo, zp, p.y + ny * yo, p.a, K2.plat * .96, .32, .06, [.96, .77, .22], [.96, .77, .22], 4, 4);
-            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col);
+            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col, .4, .4);   // marquesina (k + 0,4: techo de estación; 97d-cenital.js lo abre si vas debajo)
             for (let u = -K2.plat * .38; u <= K2.plat * .38; u += K2.plat * .38) mb.box(x + ca * u, zp, y + sa * u, p.a, .35, .35, 3.6, [.38, .42, .46], [.38, .42, .46]);
           }
           if (dk) {
@@ -305,12 +318,12 @@ const G3 = EM.g3 = {
         }
       } else if (K === 'cable' || (K === 'future' && /cable/i.test(l.name))) {
         const C = this.cableGeo(l);
-        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1, 0); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
+        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1.4, .4); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col, .4, .4); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
         const seg = []; for (let s = 0; s <= C.P.len; s += 14) { const q = NET.at(C.P, s); seg.push([q.x, C.zAt(s) + 2, q.y]); } lines.push({ pts: seg, c: [.12, .12, .14] });
       } else if (K === 'brt' || K === 'feeder') {
         const w = K === 'brt' ? 3.2 : 1.6, dark = col.map(v => v * .85);
         for (let s = 0; s < l.P.len - 10; s += 10) { const a = NET.at(l.P, s), b = NET.at(l.P, s + 10), za = MAP.elevM(a.x, a.y) + .45, zb = MAP.elevM(b.x, b.y) + .45, sa = [-Math.sin(a.a), Math.cos(a.a)]; mb.quad([a.x + sa[0] * -w, za, a.y + sa[1] * -w], [a.x + sa[0] * w, za, a.y + sa[1] * w], [b.x + sa[0] * w, zb, b.y + sa[1] * w], [b.x + sa[0] * -w, zb, b.y + sa[1] * -w], dark, 4); }
-        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
+        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col, .4, .4); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
       }
     }
     this.decor(mb);

@@ -113,6 +113,13 @@ Datos en `src/data/`:
 - **Los personajes se ubican una vez y cerca de su lugar real**; lo que dicen se marca «lo que todos saben» o «lo que pocos saben» y no lleva cifras dudosas. Revisa cada dato antes de ponerlo.
 - **En este servidor, el navegador sin pantalla con la GPU emulada (swiftshader) deja de dar cuadros por segundos**, también con la 1.2.0: para medir, congela el bucle (`Game.freeze(true)`) y llama `Game.frame()` a mano, o usa `--disable-gpu`. Las capturas de página salen con el bucle congelado.
 
+## Reglas aprendidas (cenital nuevo, renacimiento cenital Fase 2)
+- **El render nuevo va detrás de una bandera que vive mientras dibujan Ciudad Libre o Bus** (`src/js/97d-cenital.js`, `EM.cenital`). Los modos protegidos (Conducir, Volante, Carrera, Metrocable, mapa, álbum) usan el mismo `G3` de siempre: con la bandera apagada, las mallas deben salir idénticas (`node tools/prueba-cenital.mjs --solo-huella --contra OTRA/dist/index.html`).
+- **Para cambiar `22-gl.js` sin tocar los modos protegidos:** partir funciones (como `edifCerca`, `arboles3D`, `hitos3D`, `puentes3D`) y envolverlas desde un archivo aditivo; el programa del cenital es una copia del FS con reemplazos que se verifican (si el FS cambia, 97d avisa en `EM.errors`).
+- **Qué se desvanece:** `k` terminado en ,25 (edificios, zócalos, árboles, hitos: cono de la cámara al jugador) o en ,4 (techos de estaciones: se abren enteros encima de ti). Los tableros de puentes y del viaducto van con `k` entero: **nunca** se esconden; donde algo te tapa se pinta tu silueta (`depthFunc(GREATER)`).
+- **22a (GPT‑6) junta las cajas dinámicas en un lote que se pinta al final:** lo que necesite su propio estado de GL (la silueta) pone `G._eonCollect = false` mientras dibuja.
+- **Medir antes de dejar algo por cuadro:** un degradado en el lienzo 2D duplicaba la mediana del 2D en SwiftShader; la bruma va como capa CSS (z-index 1, entre los lienzos y la interfaz). `node tools/rendimiento-cenital.mjs [s] [rondas] [--cpu 4]` compara el p95 con la bandera apagada y encendida.
+
 ## Reglas aprendidas (vistas 3D y mapa, 1.4.0)
 - **En los sombreadores, nada de coordenadas grandes en el fragmento:** en muchos celulares (y en el navegador de pruebas) el fragmento trabaja en precisión media: hasta ~16.384 y con saltos de 16 m a 27 km. Las coordenadas de textura (`vuv`), el hueco del piso lejano (`vh`) y los patrones de ventanas y luces (`vw`, con `mod`) se calculan en el vértice. Los síntomas son un piso en cuadros de 16 m, rayas y puntitos.
 - **Un uniforme que usan los dos sombreadores tiene que tener la misma precisión:** por eso el vértice usa `Rv` y `Hv` propios.
@@ -194,6 +201,8 @@ Datos en `src/data/`:
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
 node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/prueba-cenital.mjs        # cenital nuevo: jugador visible, 0 cajas de relleno y 0 errores (--capturas, --huella --contra)
+node tools/rendimiento-cenital.mjs   # p95 de Ciudad Libre con la bandera apagada y encendida
 node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
 python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)

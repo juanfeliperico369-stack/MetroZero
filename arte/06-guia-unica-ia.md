@@ -654,6 +654,34 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 <!-- BITACORA:INICIO -->
 ### Bitácora · El Metro
 
+#### 2026-11-24 · v3.8.0 (sin cambio de versión) · El cenital nuevo, con bandera, en Ciudad Libre y Bus (Fase 2 del renacimiento cenital, Claude)
+- **Qué cambió:**
+  - **`src/js/97d-cenital.js` (nuevo, aditivo):** el render cenital nuevo, **detrás de una bandera que vive solo mientras dibujan Ciudad Libre o Bus** (decisión 4 del autor). En la Fase 2 viene **apagada** (`PREDETERMINADA = 0`; la Fase 3 la enciende). Se prueba con `?cenital`, con Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital`, 1 o 0; sin el campo, la predeterminada: el guardado `elmetro.v1` no cambia) o con `EM.cenital.forzar`.
+    1. ***Occluder fade*:** en 3D, lo que tapa al jugador baja a 0,30 con un tramado 4 × 4 en un cono de la cámara al jugador (edificios, zócalos, árboles e hitos); los techos de las estaciones (metro, tranvía, cable y Metroplús) se abren enteros si vas debajo (a menos de 30 m y más de 1,6 m sobre tu cabeza). **Los tableros de los puentes y del viaducto nunca se esconden:** donde algo te tapa se pinta tu silueta encima. En 2D, el edificio que te tapa baja a 0,30 (la silueta del 2D ya existía).
+    2. **Anillo lejano:** de 700 a 1.100 m, los edificios reales simplificados en vez de las cajas de relleno por casilla (el 14,9 % tocaba una calle). **0 cajas de relleno** con la bandera.
+    3. **Zócalos:** si el suelo baja desde el centro hacia una esquina más de 0,6 m, los muros siguen hasta `zBase = suelo del centro − max(6 m, lo que baja + 0,8)`, con un color de base. Ninguna casa flota en la ladera.
+    4. **Terreno facetado:** normales planas (derivadas de la pantalla) y bandas de cota de 12 m en lo rural y en las laderas altas.
+    5. **Sombra de contacto:** elipse bajo cada vehículo, bici y persona, en 2D y en 3D (en 3D, todas en un solo dibujo).
+    6. **Bruma** en el 12 % de arriba: una capa CSS (no cuesta por cuadro).
+    7. **Cámara:** `1 − e^(−k·dt)` en el 2D (Ciudad Libre y Bus) y en el ojo de las vistas 3D (que se movía una fracción fija por cuadro).
+  - **`src/js/22-gl.js` (sin cambiar lo que dibuja):** `buildNear` y `edifReales` se partieron en `edifCerca`, `arboles3D`, `hitos3D` y `puentes3D` para poder envolverlas; los techos de las estaciones llevan `k + 0,4` (en el sombreado de siempre se ven igual).
+  - **Herramientas nuevas:** `tools/prueba-cenital.mjs` (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada) y `tools/rendimiento-cenital.mjs` (p95 con la bandera apagada y encendida).
+- **Probado:**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000; +22 KB);
+  - `node tools/test.mjs 100`: 0 errores con la bandera apagada (295.360 pasos) **y encendida** (`?cenital`, 295.334 pasos);
+  - `node tools/prueba-cenital.mjs --huella --contra` (la compilación de antes): BIEN. Jugador visible con la bandera en San Antonio (4 → 39 píxeles), Acevedo (0 → 28) y el Centro (0 → 21); 0 cajas de relleno; con la bandera apagada, **las mallas 3D son idénticas** a las de antes (4 ventanas y la red, salvo el `k + 0,4` de los techos);
+  - `node tools/rendimiento-cenital.mjs` (San Antonio → Centro a 40 m/s, SwiftShader): **el p95 no empeora**:
+
+    | Caso | p95 apagada | p95 encendida |
+    |---|---|---|
+    | 3D cenital | 83,4 ms | 83,4 ms |
+    | 2D | 33,4 ms | 33,4 ms |
+    | 3D cenital, CPU ×4 | 133,3 ms | 133,3 ms |
+    | 2D, CPU ×4 | 216,6 ms | 200 ms |
+  - capturas antes y después en San Antonio, Acevedo y las 6 zonas piloto (`motorcity/reportes/img/claude-fase2/`).
+- **Decisión 7 (casas confiables):** se queda como en la Fase 1 (la exportación las recorta): así ningún modo recorta en tiempo real y la ciudad es la misma en todos. Se puede revisar en la Fase 3.
+- **Falta (Fase 3):** encender la bandera en Ciudad Libre y Bus, la regresión de los modos protegidos con `--shots`, la prueba de las rutas A\* contra los edificios saneados y la versión (`00-core.js` y `versionCode` 36 → 37).
+
 #### 2026-11-24 · v3.8.0 (sin cambio de versión) · Datos saneados del Motor del Valle 1.3: ninguna casa sobre la calle (Fase 1 del renacimiento cenital, Claude)
 - **Qué cambió (solo datos y herramientas; ningún `src/js/`):**
   - **`src/data/edificios.js` v2:** las huellas saneadas del Motor del Valle 1.3 (`motor-valle/geo/sanear.py`, regla A del autor), con una **guarda**: ya redondeado como lo lee el juego, ningún edificio queda donde el recorte en tiempo real (`11-edificios.js` · `recorta`) lo cortaría, ni sobre ciclorrutas ni agua. El bit 128 del byte de uso marca «recortado»; al final va el flujo `zb` (zócalo, solo los 4.766 edificios donde no basta el de 6 m). 622.086 edificios y 45.428 polígonos; **4.572.134 bytes** (tope 4.600.000).
