@@ -33,10 +33,10 @@ const Libre = EM.modes.libre = {
      alejarse, y así añadiría un poco la forma de tercera persona»). En la Ciudad Libre queda la 3D Cenital; sin WebGL o en calidad
      baja, el 2D de respaldo (no se elige). Se fueron la tercera y la primera persona, la panorámica y el cine como cámaras.
      El 👁 pasa por cuatro acercamientos (ZOOMS): de lejos, cenital, de cerca y casi tercera persona; desde el zoom 2 la cámara baja
-     (hasta 36°) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
+     (hasta unos 40°, con el ojo a 8 m o más) y se va detrás del rumbo, y la palanca gira con ella. Pellizcar acerca y aleja, arrastrar inclina, 📐 cambia el
      ángulo de base y 🎥 suelta la cámara para mirar la ciudad. */
   VISTAS: [['cen3d', '🛰', '3D Cenital']],
-  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [5, '🎮', 'casi tercera persona']], ZU_MAX: 5.5,
+  ZOOMS: [[.55, '🛰', 'de lejos'], [1, '🗺', 'cenital'], [2, '🔎', 'de cerca'], [3.6, '🎮', 'casi tercera persona']], ZU_MAX: 4,   /* 3.11.1: de cerca, una cámara de persecución alta (unos 40° y el ojo a 8 m o más), no pegada a las paredes */
   zoomPreset(st) { const z = st.zoomU || 1; let i = 0, d = 1e9; this.ZOOMS.forEach((q, k) => { const e = Math.abs(Math.log(z / q[0])); if (e < d) { d = e; i = k; } }); return i; },
   gl(st) { return !!st.vista3 && !EM.headless && Save.d.settings.q !== 'low' && G3.init(); },
   vista(st, v) {
@@ -665,8 +665,8 @@ const Libre = EM.modes.libre = {
       // 3D Cenital sobre el MISMO mundo 3D: Norte arriba (-Y), Este derecha (+X), ángulo configurable (76°/62°/48°)
       const angI = clamp((Save.d.settings.angulo | 0), 0, 2);
       if (st.zoomObj) { st.zoomU = st.zoomObj + ((st.zoomU || 1) - st.zoomObj) * .82; if (Math.abs(st.zoomU - st.zoomObj) < .004) { st.zoomU = st.zoomObj; st.zoomObj = 0; } }   /* 3.11.0: el paso suave del 👁 */
-      const zw = clamp(((st.zoomU || 1) - 2) / 3, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 5: casi tercera persona */
-      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .62, w);
+      const zw = clamp(((st.zoomU || 1) - 2) / 1.6, 0, 1), w = zw * zw * (3 - 2 * zw);   /* 0 hasta el zoom 2; 1 en el 3,6: casi tercera persona */
+      const pitch = lerp(clamp(([1.32, 1.08, .84][angI] || 1.08) + po * .75, .52, 1.44), .7, w);
       if (st.camLibre || w <= 0) st.cyC = st.h; else st.cyC = (st.cyC == null ? st.h : st.cyC) + Math.atan2(Math.sin(st.h - st.cyC), Math.cos(st.h - st.cyC)) * .06;
       const F = st.camLibre ? -Math.PI / 2 : -Math.PI / 2 + Math.atan2(Math.sin(st.cyC + Math.PI / 2), Math.cos(st.cyC + Math.PI / 2)) * w; st.fangC = F;   /* hacia dónde mira: el norte de lejos, el rumbo de cerca */
       const lead = st.mode === 'walk' ? 4 : Math.min(18, Math.abs(st.vf) * .9);
@@ -674,7 +674,7 @@ const Libre = EM.modes.libre = {
       const ty = st.camLibre ? st.cam.y : st.y + Math.sin(st.h) * lead;
       const tz = st.camLibre ? MAP.elevM(tx, ty) : z;
       const distR = (st.far ? 185 : st.mode === 'ride' ? 96 : st.mode === 'veh' ? lerp(72, 104, clamp(Math.abs(st.vf) / V.vmax, 0, 1)) : 68) / zu;
-      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 4, w));
+      const ex = tx - Math.cos(F) * Math.cos(pitch) * distR, ey = ty - Math.sin(F) * Math.cos(pitch) * distR, ez = Math.max(tz + Math.sin(pitch) * distR, MAP.elevM(ex, ey) + lerp(14, 8, w));
       st._ec = st._ec || { x: ex, y: ey, z: ez };
       const E = st._ec, f = st.camLibre ? .35 : .18;
       E.x += (ex - E.x) * f; E.y += (ey - E.y) * f; E.z += (ez - E.z) * f;

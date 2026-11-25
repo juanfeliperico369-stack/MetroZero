@@ -133,10 +133,13 @@
     for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; bm.quad(b[j], b[i], t[i], t[j], c, 0); }
   }
   /* como G3.edifReales (22-gl.js), con zócalos y con el anillo exterior hasta R2 */
-  function edifCen(bm, cx, cz, R, R2) {
+  /* 3.11.1: edifCen se arma por partes (cede antes de cada región de 400 m) para la ventana por partes (97e-ventana-por-partes.js);
+     edifCen de una vez sigue igual para lo demás */
+  function edifCen(bm, cx, cz, R, R2) { for (const _ of edifCenPasos(bm, cx, cz, R, R2)) { } }
+  function* edifCenPasos(bm, cx, cz, R, R2) {
     const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; }, E = MAP.elevM.bind(MAP);
     for (let ry = Math.floor((cz - Rmax) / RG); ry <= Math.floor((cz + Rmax) / RG); ry++) for (let rx = Math.floor((cx - Rmax) / RG); rx <= Math.floor((cx + Rmax) / RG); rx++) {
-      const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
+      yield; const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
       for (const b of L) {
         const d2 = (b.x - cx) ** 2 + (b.y - cz) ** 2;
         if (b.rec === false || d2 > R2sq || (d2 > Rsq && b.h < 5.5)) continue;
@@ -164,6 +167,15 @@
     bm.f = 1; edifCen(bm, cx, cz, RR, R); this.hitos3D(bm, cx, cz, R);
     bm.f = 0; this.puentes3D(bm, cx, cz, RR);   // los tableros no se desvanecen
     bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
+    return bm;
+  };
+  /* 3.11.1 · los mismos edificios de G3.edifCerca, por partes: cede entre regiones y entre hitos, puentes y árboles. Devuelve el bm */
+  G3.edifCercaPasos = function* (cx, cz, real) {
+    if (!CEN.activo || !real || !VC.ED) return this.edifCerca(cx, cz, real);
+    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(400); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
+    bm.f = 1; yield* edifCenPasos(bm, cx, cz, RR, R); yield; this.hitos3D(bm, cx, cz, R);
+    yield; bm.f = 0; this.puentes3D(bm, cx, cz, RR);
+    yield; bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
     return bm;
   };
   const bn0 = G3.buildNear;
