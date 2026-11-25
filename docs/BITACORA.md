@@ -1,5 +1,10 @@
 # Bitácora · El Metro
 
+## 2026-11-25 · v3.9.0 (sin cambio de versión) · Motor del Valle 1.3.1 sincronizado (Claude)
+- **Qué cambió:** la copia de `motor-valle/` pasa a la 1.3.1 con `node motor-valle/sincronizar.mjs ../MetroZero`, desde la fuente de verdad, que es BicicletasUno. Lo nuevo es para Juega EnCicla: `edificios-ligero.bin`, el que su HTML lee en el modo libre (`geo/huellas.py`), y `pruebas/geometria.mjs --ligero`. Los corredores quedan en una función, y `edificios.bin` sale idéntico byte a byte.
+- **El Metro no cambia:** sus herramientas de datos solo leen las salidas del saneamiento, y `node tools/build.mjs` da el mismo `dist/index.html` (md5 `be2155937f6b9bac0aa626f914000083`).
+- **Probado:** `sincronizar.mjs ../MetroZero --verificar` da «los archivos son iguales».
+
 ## 2026-11-25 · v3.9.0 (versionCode 37) · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude)
 - **Qué cambió:**
   - **La bandera del cenital viene encendida** (`PREDETERMINADA = 1` en `src/js/97d-cenital.js`), solo en Ciudad Libre y Bus. Se apaga en Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital = 0`) o con `?cenital=0`. El guardado `elmetro.v1` no cambia: sin el campo vale la predeterminada.
