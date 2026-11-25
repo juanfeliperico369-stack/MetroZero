@@ -1,5 +1,7 @@
 # Tareas de cada IA · El Metro
 
+- **Pedido vigente del autor (25‑nov‑2026), manda sobre lo demás:** `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md` (la fuente es motorcity). Pide el mundo 3D cenital con **una sola cámara** que se acerca hasta casi tercera persona, y las demás cámaras se eliminaron. Pide también que **nada quede pintado en el suelo** y que el 2D y el pixel queden solo en los modos ya establecidos. Léelo antes de tocar cámaras, vistas o el arte del mundo.
+
 > **El Metro 3.0.0 (21‑nov‑2026, Claude, IA de El Metro):** se adaptó Motor City 4.5 sin migrar. Ya están:
 > - el manejo que no se traba;
 > - los rostros;

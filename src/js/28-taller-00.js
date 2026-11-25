@@ -16,7 +16,7 @@
     g.restore(); return false;
   };
   T.controles = (vista) => {
-    for (const [id,titulo,nombre] of [['lbVista','Vista','Cambiar vista. Actual: '+vista],
+    for (const [id,titulo,nombre] of [['lbVista','Cámara','Acercar o alejar la cámara. Ahora: '+vista],
       ['lbFoto','Foto','Tomar una foto'],['lbCam','Mirar','Mover la cámara libre']]) {
       const b=document.getElementById(id); if (!b) continue;
       let etiqueta=b.querySelector('.taller-etiqueta');

@@ -19,6 +19,19 @@ const t0 = Date.now(); await page.goto(url); await page.waitForFunction(() => wi
 console.log('carga:', Date.now() - t0, 'ms');
 const self = await page.evaluate(() => EM.test.selfTest());
 console.log('selfTest:', self.stats); console.log('  errores:', self.errors.length, self.errors.slice(0, 15)); console.log('  avisos:', self.warnings.length, self.warnings.slice(0, 8));
+/* 3.10.1 · el guardián del sonido: también en el menú (antes solo se pausaba una partida) */
+await page.mouse.click(5, 5); const son = await page.evaluate(async () => {   /* el guardián del sonido (00b-sonido-guardian.js): al salir de la app todo calla, nada vuelve a sonar aunque el juego lo pida y al volver sigue */
+  const e = ms => new Promise(r => setTimeout(r, ms)), G = window.guardianSonido; if (!G) return { falta: true };
+  const delJuego = G.contextos, A = new AudioContext(); for (let i = 0; i < 20 && A.state !== 'running'; i++) { A.resume(); await e(50); }
+  const o = { delJuego, antes: A.state };
+  document.dispatchEvent(new Event('pause')); await e(150); o.pausa = A.state; o.fuera = G.fuera;   /* lo que manda Capacitor al pausar la actividad */
+  A.resume(); await e(150); o.pideSonar = A.state;
+  document.dispatchEvent(new Event('resume')); await e(250); o.vuelve = A.state;
+  window.dispatchEvent(new Event('app:pausa')); await e(150); o.appPausa = A.state;   /* lo que manda la actividad nativa */
+  window.dispatchEvent(new Event('app:sigue')); await e(250); o.appSigue = A.state;
+  A.close(); return o;
+});
+const sonMal = (s => s.antes === 'running' && s.pausa === 'suspended' && s.fuera && s.pideSonar === 'suspended' && s.vuelve === 'running' && s.appPausa === 'suspended' && s.appSigue === 'running')(son) ? 0 : 1; console.log('guardián del sonido:', sonMal ? 'FALLA' : 'bien', JSON.stringify(son));
 const t1 = Date.now(); const mk = await page.evaluate(n => EM.test.monkey(n, 1234), N);
 console.log(`monkey: ${mk.games} partidas, ${mk.steps} pasos, ${mk.wins} victorias, ${mk.errors.length} errores (${Date.now() - t1} ms)`, mk.errors.slice(0, 15));
 // recorrido de interfaz
@@ -57,5 +70,5 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length;
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);
