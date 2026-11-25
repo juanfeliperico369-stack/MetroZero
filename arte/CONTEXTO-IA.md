@@ -230,6 +230,100 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
+#### 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
+- **Por qué:**
+  - Dos sesiones de Claude hicieron una 3.9.0 a la vez, en ramas distintas.
+  - La de la rama `ccr-2a67f935-oat714` es «Unido y medido» (24‑nov): el 3D recortado por lo que ve la cámara y de adelante hacia atrás, la operación ganable, el taller de la bici en la calle y el arte C‑70 y C‑71. Esa es la que está publicada, con versionCode 37.
+  - La de la rama `ccr-4f6eeea5-yulqk1` trae las fases 1 a 3 del renacimiento cenital: los datos saneados, el cenital nuevo encendido en Ciudad Libre y Bus, y el Motor del Valle 1.3.1.
+  - Esta versión une las dos. Sube a la 3.10.0 y al versionCode 38 para que la APK se instale encima de la 37.
+- **El único choque, `src/js/22-gl.js`:**
+  - el recorte por la cámara (3.9) pide la malla de los edificios por celdas con su caja (`MBC.celdas()` → `bldBB`);
+  - el cenital (Fase 2) había pasado la construcción de los edificios a `G3.edifCerca`;
+  - ahora `buildNear` arma las celdas con su caja a partir de `edifCerca`, y en `97d-cenital.js` la malla del cenital (`MBF`) también va por celdas de 400 m: cada celda hereda la marca de lo que se desvanece.
+- **Lo demás:** las dos bitácoras van completas (abajo) y la guía y el contexto de `arte/` se regeneraron con `node tools/todo.mjs`.
+
+#### 25-nov-2026 · v3.9.0 (sin cambio de versión) · Motor City 5.4.0 y 5.4.1 en `motor-city/` (Claude)
+- **Qué cambió:** la copia de referencia del motor pasa de la 5.3.1 a la 5.4.0 con `node motor.mjs sincronizar` desde motorcity, la fuente de verdad. Trae los mundos saneados (5.3.2) y `MC.Pista`, las carreras retro pseudo‑3D de Turno Cero (5.4.0, Fase 4 del renacimiento cenital). Después pasa a la 5.4.1 (Fase 5: el garaje de Turno Cero, 📏 de las carreras retro y el arreglo de 📏).
+- **El juego no cambia:** su compilación no lee `motor-city/`, y el HTML sale igual (el mismo md5).
+- **Probado:** `sincronizar --verificar` da «los archivos son iguales».
+
+#### 2026-11-25 · v3.9.0 (sin cambio de versión) · Motor del Valle 1.3.1 sincronizado (Claude)
+- **Qué cambió:** la copia de `motor-valle/` pasa a la 1.3.1 con `node motor-valle/sincronizar.mjs ../MetroZero`, desde la fuente de verdad, que es BicicletasUno. Lo nuevo es para Juega EnCicla: `edificios-ligero.bin`, el que su HTML lee en el modo libre (`geo/huellas.py`), y `pruebas/geometria.mjs --ligero`. Los corredores quedan en una función, y `edificios.bin` sale idéntico byte a byte.
+- **El Metro no cambia:** sus herramientas de datos solo leen las salidas del saneamiento, y `node tools/build.mjs` da el mismo `dist/index.html` (md5 `be2155937f6b9bac0aa626f914000083`).
+- **Probado:** `sincronizar.mjs ../MetroZero --verificar` da «los archivos son iguales».
+
+#### 2026-11-25 · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude) · sale en la 3.10.0 (se hizo como 3.9.0 sin saber que ya había otra 3.9.0 publicada)
+- **Qué cambió:**
+  - **La bandera del cenital viene encendida** (`PREDETERMINADA = 1` en `src/js/97d-cenital.js`), solo en Ciudad Libre y Bus. Se apaga en Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital = 0`) o con `?cenital=0`. El guardado `elmetro.v1` no cambia: sin el campo vale la predeterminada.
+  - **Versión:** `src/js/00-core.js` 3.9.0 y `android/gradle.properties` (`elmetro.versionName` 3.9.0 y `elmetro.versionCode` 37).
+  - **Herramienta nueva, `tools/capturas-protegidos.mjs`:** captura los modos que no deben cambiar en dos compilaciones y los compara píxel a píxel. Son la cabina, la vista lateral y la 3.ª persona de Conducir, el tranvía, el Volante, el viaje en Metrocable, la Carrera, Despacho, Alimentadores, Metroplús, el Metrocable, la guía y la historia de Rosalba.
+- **Probado (con la bandera encendida por defecto):**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (299.800 pasos, 0 errores de consola);
+  - **los modos protegidos no cambian:** contra la compilación de antes de la Fase 2, difieren entre 0 % y 0,56 % de los píxeles. Las únicas diferencias son lo que se mueve solo:
+    - el Volante difiere un 7,1 %, y entre dos corridas de la misma compilación difiere un 6,2 %;
+    - en la Carrera el corredor avanzó un metro más («Cruce en 91 m» contra «90 m»), y la escena entera se corre;
+  - `node tools/prueba-rutas.mjs`: 0 de 61.332 puntos de las rutas A\* tocan una casa;
+  - `node tools/prueba-cenital.mjs`: la del cierre de la Fase 2 (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada).
+- **Publicar** (APK y página): solo con el OK del autor.
+
+#### 2026-11-24 · v3.8.0 (sin cambio de versión) · El cenital nuevo, con bandera, en Ciudad Libre y Bus (Fase 2 del renacimiento cenital, Claude)
+- **Qué cambió:**
+  - **`src/js/97d-cenital.js` (nuevo, aditivo):** el render cenital nuevo, **detrás de una bandera que vive solo mientras dibujan Ciudad Libre o Bus** (decisión 4 del autor). En la Fase 2 viene **apagada** (`PREDETERMINADA = 0`; la Fase 3 la enciende). Se prueba con `?cenital`, con Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital`, 1 o 0; sin el campo, la predeterminada: el guardado `elmetro.v1` no cambia) o con `EM.cenital.forzar`.
+    1. ***Occluder fade*:** en 3D, lo que tapa al jugador baja a 0,30 con un tramado 4 × 4 en un cono de la cámara al jugador (edificios, zócalos, árboles e hitos); los techos de las estaciones (metro, tranvía, cable y Metroplús) se abren enteros si vas debajo (a menos de 30 m y más de 1,6 m sobre tu cabeza). **Los tableros de los puentes y del viaducto nunca se esconden:** donde algo te tapa se pinta tu silueta encima. En 2D, el edificio que te tapa baja a 0,30 (la silueta del 2D ya existía).
+    2. **Anillo lejano:** de 700 a 1.100 m, los edificios reales simplificados en vez de las cajas de relleno por casilla (el 14,9 % tocaba una calle). **0 cajas de relleno** con la bandera.
+    3. **Zócalos:** si el suelo baja desde el centro hacia una esquina más de 0,6 m, los muros siguen hasta `zBase = suelo del centro − max(6 m, lo que baja + 0,8)`, con un color de base. Ninguna casa flota en la ladera.
+    4. **Terreno facetado:** normales planas (derivadas de la pantalla) y bandas de cota de 12 m en lo rural y en las laderas altas.
+    5. **Sombra de contacto:** elipse bajo cada vehículo, bici y persona, en 2D y en 3D (en 3D, todas en un solo dibujo).
+    6. **Bruma** en el 12 % de arriba: una capa CSS (no cuesta por cuadro).
+    7. **Cámara:** `1 − e^(−k·dt)` en el 2D (Ciudad Libre y Bus) y en el ojo de las vistas 3D (que se movía una fracción fija por cuadro).
+  - **`src/js/22-gl.js` (sin cambiar lo que dibuja):** `buildNear` y `edifReales` se partieron en `edifCerca`, `arboles3D`, `hitos3D` y `puentes3D` para poder envolverlas; los techos de las estaciones llevan `k + 0,4` (en el sombreado de siempre se ven igual).
+  - **Herramientas nuevas:** `tools/prueba-cenital.mjs` (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada), `tools/rendimiento-cenital.mjs` (p95 con la bandera apagada y encendida) y `tools/prueba-rutas.mjs` (adelantada de la Fase 3: las rutas A\* de `rutas_calles.js` no cruzan ningún edificio saneado; 0 de 61.332 puntos, y con los datos de antes de la Fase 1, 2.116).
+- **Probado:**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000; +22 KB);
+  - `node tools/test.mjs 100`: 0 errores con la bandera apagada (295.360 pasos) **y encendida** (`?cenital`, 295.334 pasos);
+  - `node tools/prueba-cenital.mjs --huella --contra` (la compilación de antes): BIEN. Jugador visible con la bandera en San Antonio (4 → 39 píxeles), Acevedo (0 → 28) y el Centro (0 → 21); 0 cajas de relleno; con la bandera apagada, **las mallas 3D son idénticas** a las de antes (4 ventanas y la red, salvo el `k + 0,4` de los techos);
+  - `node tools/rendimiento-cenital.mjs` (San Antonio → Centro a 40 m/s, SwiftShader): **el p95 no empeora**:
+
+    | Caso | p95 apagada | p95 encendida |
+    |---|---|---|
+    | 3D cenital | 83,4 ms | 83,4 ms |
+    | 2D | 33,4 ms | 33,4 ms |
+    | 3D cenital, CPU ×4 | 133,3 ms | 133,3 ms |
+    | 2D, CPU ×4 | 216,6 ms | 200 ms |
+  - capturas antes y después en San Antonio, Acevedo y las 6 zonas piloto (`motorcity/reportes/img/claude-fase2/`).
+- **Decisión 7 (casas confiables):** se queda como en la Fase 1 (la exportación las recorta): así ningún modo recorta en tiempo real y la ciudad es la misma en todos. Se puede revisar en la Fase 3.
+- **Falta (Fase 3):** encender la bandera en Ciudad Libre y Bus, la regresión de los modos protegidos con `--shots` y la versión (`00-core.js` y `versionCode` 36 → 37).
+
+#### 2026-11-24 · v3.8.0 (sin cambio de versión) · Datos saneados del Motor del Valle 1.3: ninguna casa sobre la calle (Fase 1 del renacimiento cenital, Claude)
+- **Qué cambió (solo datos y herramientas; ningún `src/js/`):**
+  - **`src/data/edificios.js` v2:** las huellas saneadas del Motor del Valle 1.3 (`motor-valle/geo/sanear.py`, regla A del autor), con una **guarda**: ya redondeado como lo lee el juego, ningún edificio queda donde el recorte en tiempo real (`11-edificios.js` · `recorta`) lo cortaría, ni sobre ciclorrutas ni agua. El bit 128 del byte de uso marca «recortado»; al final va el flujo `zb` (zócalo, solo los 4.766 edificios donde no basta el de 6 m). 622.086 edificios y 45.428 polígonos; **4.572.134 bytes** (tope 4.600.000).
+  - **`src/data/vias.js` v2:** las mismas 26.919 vías y, al final, el flujo `COTA` (la rasante: cota y pendiente), que el lector de hoy no lee.
+  - **Herramientas nuevas:**
+    - `tools/edificios_datos.py --saneadas` (sin la opción sale lo mismo de antes);
+    - `tools/vias_datos.mjs --cota` y `--motor`;
+    - `tools/corredores.mjs`: los corredores del Metroplús, del tranvía y de los hitos, tal como los arma el juego;
+    - `tools/prueba-recorte.mjs`: la prueba con Playwright que cuenta lo que recorta el juego.
+  - **`motor-valle/`:** el Motor del Valle 1.3.0, copiado de EnCicla. El `.gitignore` deja fuera su caché, sus salidas y `tools/cache/`.
+- **Antes y después:**
+
+  | Qué | Antes | Después |
+  |---|---|---|
+  | Edificios que pisan la vía (regla A, herramienta de la Fase 0) | 120.187 | 5, de menos de 0,3 m² |
+  | Recorte en tiempo real en las 4.731 regiones con casas | 107.546 recortados y 17.190 quitados | **0 y 0** |
+- **Probado:**
+  - `node tools/build.mjs`: 9.353.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (281.143 pasos);
+  - `node tools/prueba-recorte.mjs --todas` y en 50 regiones: 0 y 0;
+  - `motor-valle/pruebas/geometria.mjs --elmetro .`: BIEN;
+  - la fidelidad contra OSM (`osm-ventanas.mjs` + `osm_comparar.py`): las ventanas son idénticas antes y después;
+  - capturas de Ciudad Libre en 6 zonas piloto.
+- **Ojo:** el recorte en tiempo real pide 1,3 m de andén. Por eso la exportación recorta 38.761 casas confiables de OSM y quita 4.038, que la verdad compartida conserva marcadas. Las calles siguen con sus ejes de 2,5 m. Las dos cosas son decisiones del autor para la Fase 2 (ver el informe).
+- **El informe:** `motorcity/reportes/2026-11-24-claude-fase1-cenital.md`.
+- **Falta:**
+  - el OK del autor para la Fase 2 (render cenital con bandera en Ciudad Libre y Bus);
+  - medir en un celular real.
+
 #### 2026-11-24 · v3.9.0 «Unido y medido» (Claude, IA de El Metro)
 **Qué pidió el autor:** «retoma, continúa y termina… integra todo lo nuevo, compréndelo y mejóralo».
 - Se trajo `main` (`7b7733a`). Trae la 3.8.0 que unió la otra sesión de Claude (las dos 3.7, Codex / GPT‑6 Eón y el arte C‑70 a C‑72) y Motor City 5.3.1.
@@ -301,6 +395,8 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 - capturas a 412 × 860 de operación, fantasmas, íconos, logros y taller.
 
 **Para cada IA:** `docs/SUGERENCIAS-CLAUDE.md` § 5.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.9.0 verificada el 24‑nov‑2026**: carga, service worker con caché `el-metro-v3.9.0-ff021b2a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 37, 6,8 MB), igual byte a byte a la construida.
 
 #### 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
 - **Qué cambió:**

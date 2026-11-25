@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.9.0 · compilado el 2026-11-24.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.10.0 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.9.0** · compilado el 2026-11-24.
+> Versión del juego **v3.10.0** · compilado el 2026-11-25.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -801,6 +801,100 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
 
+##### 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
+- **Por qué:**
+  - Dos sesiones de Claude hicieron una 3.9.0 a la vez, en ramas distintas.
+  - La de la rama `ccr-2a67f935-oat714` es «Unido y medido» (24‑nov): el 3D recortado por lo que ve la cámara y de adelante hacia atrás, la operación ganable, el taller de la bici en la calle y el arte C‑70 y C‑71. Esa es la que está publicada, con versionCode 37.
+  - La de la rama `ccr-4f6eeea5-yulqk1` trae las fases 1 a 3 del renacimiento cenital: los datos saneados, el cenital nuevo encendido en Ciudad Libre y Bus, y el Motor del Valle 1.3.1.
+  - Esta versión une las dos. Sube a la 3.10.0 y al versionCode 38 para que la APK se instale encima de la 37.
+- **El único choque, `src/js/22-gl.js`:**
+  - el recorte por la cámara (3.9) pide la malla de los edificios por celdas con su caja (`MBC.celdas()` → `bldBB`);
+  - el cenital (Fase 2) había pasado la construcción de los edificios a `G3.edifCerca`;
+  - ahora `buildNear` arma las celdas con su caja a partir de `edifCerca`, y en `97d-cenital.js` la malla del cenital (`MBF`) también va por celdas de 400 m: cada celda hereda la marca de lo que se desvanece.
+- **Lo demás:** las dos bitácoras van completas (abajo) y la guía y el contexto de `arte/` se regeneraron con `node tools/todo.mjs`.
+
+##### 25-nov-2026 · v3.9.0 (sin cambio de versión) · Motor City 5.4.0 y 5.4.1 en `motor-city/` (Claude)
+- **Qué cambió:** la copia de referencia del motor pasa de la 5.3.1 a la 5.4.0 con `node motor.mjs sincronizar` desde motorcity, la fuente de verdad. Trae los mundos saneados (5.3.2) y `MC.Pista`, las carreras retro pseudo‑3D de Turno Cero (5.4.0, Fase 4 del renacimiento cenital). Después pasa a la 5.4.1 (Fase 5: el garaje de Turno Cero, 📏 de las carreras retro y el arreglo de 📏).
+- **El juego no cambia:** su compilación no lee `motor-city/`, y el HTML sale igual (el mismo md5).
+- **Probado:** `sincronizar --verificar` da «los archivos son iguales».
+
+##### 2026-11-25 · v3.9.0 (sin cambio de versión) · Motor del Valle 1.3.1 sincronizado (Claude)
+- **Qué cambió:** la copia de `motor-valle/` pasa a la 1.3.1 con `node motor-valle/sincronizar.mjs ../MetroZero`, desde la fuente de verdad, que es BicicletasUno. Lo nuevo es para Juega EnCicla: `edificios-ligero.bin`, el que su HTML lee en el modo libre (`geo/huellas.py`), y `pruebas/geometria.mjs --ligero`. Los corredores quedan en una función, y `edificios.bin` sale idéntico byte a byte.
+- **El Metro no cambia:** sus herramientas de datos solo leen las salidas del saneamiento, y `node tools/build.mjs` da el mismo `dist/index.html` (md5 `be2155937f6b9bac0aa626f914000083`).
+- **Probado:** `sincronizar.mjs ../MetroZero --verificar` da «los archivos son iguales».
+
+##### 2026-11-25 · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude) · sale en la 3.10.0 (se hizo como 3.9.0 sin saber que ya había otra 3.9.0 publicada)
+- **Qué cambió:**
+  - **La bandera del cenital viene encendida** (`PREDETERMINADA = 1` en `src/js/97d-cenital.js`), solo en Ciudad Libre y Bus. Se apaga en Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital = 0`) o con `?cenital=0`. El guardado `elmetro.v1` no cambia: sin el campo vale la predeterminada.
+  - **Versión:** `src/js/00-core.js` 3.9.0 y `android/gradle.properties` (`elmetro.versionName` 3.9.0 y `elmetro.versionCode` 37).
+  - **Herramienta nueva, `tools/capturas-protegidos.mjs`:** captura los modos que no deben cambiar en dos compilaciones y los compara píxel a píxel. Son la cabina, la vista lateral y la 3.ª persona de Conducir, el tranvía, el Volante, el viaje en Metrocable, la Carrera, Despacho, Alimentadores, Metroplús, el Metrocable, la guía y la historia de Rosalba.
+- **Probado (con la bandera encendida por defecto):**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (299.800 pasos, 0 errores de consola);
+  - **los modos protegidos no cambian:** contra la compilación de antes de la Fase 2, difieren entre 0 % y 0,56 % de los píxeles. Las únicas diferencias son lo que se mueve solo:
+    - el Volante difiere un 7,1 %, y entre dos corridas de la misma compilación difiere un 6,2 %;
+    - en la Carrera el corredor avanzó un metro más («Cruce en 91 m» contra «90 m»), y la escena entera se corre;
+  - `node tools/prueba-rutas.mjs`: 0 de 61.332 puntos de las rutas A\* tocan una casa;
+  - `node tools/prueba-cenital.mjs`: la del cierre de la Fase 2 (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada).
+- **Publicar** (APK y página): solo con el OK del autor.
+
+##### 2026-11-24 · v3.8.0 (sin cambio de versión) · El cenital nuevo, con bandera, en Ciudad Libre y Bus (Fase 2 del renacimiento cenital, Claude)
+- **Qué cambió:**
+  - **`src/js/97d-cenital.js` (nuevo, aditivo):** el render cenital nuevo, **detrás de una bandera que vive solo mientras dibujan Ciudad Libre o Bus** (decisión 4 del autor). En la Fase 2 viene **apagada** (`PREDETERMINADA = 0`; la Fase 3 la enciende). Se prueba con `?cenital`, con Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital`, 1 o 0; sin el campo, la predeterminada: el guardado `elmetro.v1` no cambia) o con `EM.cenital.forzar`.
+    1. ***Occluder fade*:** en 3D, lo que tapa al jugador baja a 0,30 con un tramado 4 × 4 en un cono de la cámara al jugador (edificios, zócalos, árboles e hitos); los techos de las estaciones (metro, tranvía, cable y Metroplús) se abren enteros si vas debajo (a menos de 30 m y más de 1,6 m sobre tu cabeza). **Los tableros de los puentes y del viaducto nunca se esconden:** donde algo te tapa se pinta tu silueta encima. En 2D, el edificio que te tapa baja a 0,30 (la silueta del 2D ya existía).
+    2. **Anillo lejano:** de 700 a 1.100 m, los edificios reales simplificados en vez de las cajas de relleno por casilla (el 14,9 % tocaba una calle). **0 cajas de relleno** con la bandera.
+    3. **Zócalos:** si el suelo baja desde el centro hacia una esquina más de 0,6 m, los muros siguen hasta `zBase = suelo del centro − max(6 m, lo que baja + 0,8)`, con un color de base. Ninguna casa flota en la ladera.
+    4. **Terreno facetado:** normales planas (derivadas de la pantalla) y bandas de cota de 12 m en lo rural y en las laderas altas.
+    5. **Sombra de contacto:** elipse bajo cada vehículo, bici y persona, en 2D y en 3D (en 3D, todas en un solo dibujo).
+    6. **Bruma** en el 12 % de arriba: una capa CSS (no cuesta por cuadro).
+    7. **Cámara:** `1 − e^(−k·dt)` en el 2D (Ciudad Libre y Bus) y en el ojo de las vistas 3D (que se movía una fracción fija por cuadro).
+  - **`src/js/22-gl.js` (sin cambiar lo que dibuja):** `buildNear` y `edifReales` se partieron en `edifCerca`, `arboles3D`, `hitos3D` y `puentes3D` para poder envolverlas; los techos de las estaciones llevan `k + 0,4` (en el sombreado de siempre se ven igual).
+  - **Herramientas nuevas:** `tools/prueba-cenital.mjs` (jugador visible, 0 cajas de relleno, mallas idénticas con la bandera apagada), `tools/rendimiento-cenital.mjs` (p95 con la bandera apagada y encendida) y `tools/prueba-rutas.mjs` (adelantada de la Fase 3: las rutas A\* de `rutas_calles.js` no cruzan ningún edificio saneado; 0 de 61.332 puntos, y con los datos de antes de la Fase 1, 2.116).
+- **Probado:**
+  - `node tools/build.mjs`: 9.375.904 bytes (tope 9.500.000; +22 KB);
+  - `node tools/test.mjs 100`: 0 errores con la bandera apagada (295.360 pasos) **y encendida** (`?cenital`, 295.334 pasos);
+  - `node tools/prueba-cenital.mjs --huella --contra` (la compilación de antes): BIEN. Jugador visible con la bandera en San Antonio (4 → 39 píxeles), Acevedo (0 → 28) y el Centro (0 → 21); 0 cajas de relleno; con la bandera apagada, **las mallas 3D son idénticas** a las de antes (4 ventanas y la red, salvo el `k + 0,4` de los techos);
+  - `node tools/rendimiento-cenital.mjs` (San Antonio → Centro a 40 m/s, SwiftShader): **el p95 no empeora**:
+
+    | Caso | p95 apagada | p95 encendida |
+    |---|---|---|
+    | 3D cenital | 83,4 ms | 83,4 ms |
+    | 2D | 33,4 ms | 33,4 ms |
+    | 3D cenital, CPU ×4 | 133,3 ms | 133,3 ms |
+    | 2D, CPU ×4 | 216,6 ms | 200 ms |
+  - capturas antes y después en San Antonio, Acevedo y las 6 zonas piloto (`motorcity/reportes/img/claude-fase2/`).
+- **Decisión 7 (casas confiables):** se queda como en la Fase 1 (la exportación las recorta): así ningún modo recorta en tiempo real y la ciudad es la misma en todos. Se puede revisar en la Fase 3.
+- **Falta (Fase 3):** encender la bandera en Ciudad Libre y Bus, la regresión de los modos protegidos con `--shots` y la versión (`00-core.js` y `versionCode` 36 → 37).
+
+##### 2026-11-24 · v3.8.0 (sin cambio de versión) · Datos saneados del Motor del Valle 1.3: ninguna casa sobre la calle (Fase 1 del renacimiento cenital, Claude)
+- **Qué cambió (solo datos y herramientas; ningún `src/js/`):**
+  - **`src/data/edificios.js` v2:** las huellas saneadas del Motor del Valle 1.3 (`motor-valle/geo/sanear.py`, regla A del autor), con una **guarda**: ya redondeado como lo lee el juego, ningún edificio queda donde el recorte en tiempo real (`11-edificios.js` · `recorta`) lo cortaría, ni sobre ciclorrutas ni agua. El bit 128 del byte de uso marca «recortado»; al final va el flujo `zb` (zócalo, solo los 4.766 edificios donde no basta el de 6 m). 622.086 edificios y 45.428 polígonos; **4.572.134 bytes** (tope 4.600.000).
+  - **`src/data/vias.js` v2:** las mismas 26.919 vías y, al final, el flujo `COTA` (la rasante: cota y pendiente), que el lector de hoy no lee.
+  - **Herramientas nuevas:**
+    - `tools/edificios_datos.py --saneadas` (sin la opción sale lo mismo de antes);
+    - `tools/vias_datos.mjs --cota` y `--motor`;
+    - `tools/corredores.mjs`: los corredores del Metroplús, del tranvía y de los hitos, tal como los arma el juego;
+    - `tools/prueba-recorte.mjs`: la prueba con Playwright que cuenta lo que recorta el juego.
+  - **`motor-valle/`:** el Motor del Valle 1.3.0, copiado de EnCicla. El `.gitignore` deja fuera su caché, sus salidas y `tools/cache/`.
+- **Antes y después:**
+
+  | Qué | Antes | Después |
+  |---|---|---|
+  | Edificios que pisan la vía (regla A, herramienta de la Fase 0) | 120.187 | 5, de menos de 0,3 m² |
+  | Recorte en tiempo real en las 4.731 regiones con casas | 107.546 recortados y 17.190 quitados | **0 y 0** |
+- **Probado:**
+  - `node tools/build.mjs`: 9.353.904 bytes (tope 9.500.000);
+  - `node tools/test.mjs 100`: 0 errores (281.143 pasos);
+  - `node tools/prueba-recorte.mjs --todas` y en 50 regiones: 0 y 0;
+  - `motor-valle/pruebas/geometria.mjs --elmetro .`: BIEN;
+  - la fidelidad contra OSM (`osm-ventanas.mjs` + `osm_comparar.py`): las ventanas son idénticas antes y después;
+  - capturas de Ciudad Libre en 6 zonas piloto.
+- **Ojo:** el recorte en tiempo real pide 1,3 m de andén. Por eso la exportación recorta 38.761 casas confiables de OSM y quita 4.038, que la verdad compartida conserva marcadas. Las calles siguen con sus ejes de 2,5 m. Las dos cosas son decisiones del autor para la Fase 2 (ver el informe).
+- **El informe:** `motorcity/reportes/2026-11-24-claude-fase1-cenital.md`.
+- **Falta:**
+  - el OK del autor para la Fase 2 (render cenital con bandera en Ciudad Libre y Bus);
+  - medir en un celular real.
+
 ##### 2026-11-24 · v3.9.0 «Unido y medido» (Claude, IA de El Metro)
 **Qué pidió el autor:** «retoma, continúa y termina… integra todo lo nuevo, compréndelo y mejóralo».
 - Se trajo `main` (`7b7733a`). Trae la 3.8.0 que unió la otra sesión de Claude (las dos 3.7, Codex / GPT‑6 Eón y el arte C‑70 a C‑72) y Motor City 5.3.1.
@@ -872,6 +966,8 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 - capturas a 412 × 860 de operación, fantasmas, íconos, logros y taller.
 
 **Para cada IA:** `docs/SUGERENCIAS-CLAUDE.md` § 5.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.9.0 verificada el 24‑nov‑2026**: carga, service worker con caché `el-metro-v3.9.0-ff021b2a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 37, 6,8 MB), igual byte a byte a la construida.
 
 ##### 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
 - **Qué cambió:**
@@ -2188,6 +2284,13 @@ Datos en `src/data/`:
 - **Los personajes se ubican una vez y cerca de su lugar real**; lo que dicen se marca «lo que todos saben» o «lo que pocos saben» y no lleva cifras dudosas. Revisa cada dato antes de ponerlo.
 - **En este servidor, el navegador sin pantalla con la GPU emulada (swiftshader) deja de dar cuadros por segundos**, también con la 1.2.0: para medir, congela el bucle (`Game.freeze(true)`) y llama `Game.frame()` a mano, o usa `--disable-gpu`. Las capturas de página salen con el bucle congelado.
 
+#### Reglas aprendidas (cenital nuevo, renacimiento cenital Fase 2)
+- **El render nuevo va detrás de una bandera que vive mientras dibujan Ciudad Libre o Bus** (`src/js/97d-cenital.js`, `EM.cenital`). Los modos protegidos (Conducir, Volante, Carrera, Metrocable, mapa, álbum) usan el mismo `G3` de siempre: con la bandera apagada, las mallas deben salir idénticas (`node tools/prueba-cenital.mjs --solo-huella --contra OTRA/dist/index.html`).
+- **Para cambiar `22-gl.js` sin tocar los modos protegidos:** partir funciones (como `edifCerca`, `arboles3D`, `hitos3D`, `puentes3D`) y envolverlas desde un archivo aditivo; el programa del cenital es una copia del FS con reemplazos que se verifican (si el FS cambia, 97d avisa en `EM.errors`).
+- **Qué se desvanece:** `k` terminado en ,25 (edificios, zócalos, árboles, hitos: cono de la cámara al jugador) o en ,4 (techos de estaciones: se abren enteros encima de ti). Los tableros de puentes y del viaducto van con `k` entero: **nunca** se esconden; donde algo te tapa se pinta tu silueta (`depthFunc(GREATER)`).
+- **22a (GPT‑6) junta las cajas dinámicas en un lote que se pinta al final:** lo que necesite su propio estado de GL (la silueta) pone `G._eonCollect = false` mientras dibuja.
+- **Medir antes de dejar algo por cuadro:** un degradado en el lienzo 2D duplicaba la mediana del 2D en SwiftShader; la bruma va como capa CSS (z-index 1, entre los lienzos y la interfaz). `node tools/rendimiento-cenital.mjs [s] [rondas] [--cpu 4]` compara el p95 con la bandera apagada y encendida.
+
 #### Reglas aprendidas (vistas 3D y mapa, 1.4.0)
 - **En los sombreadores, nada de coordenadas grandes en el fragmento:** en muchos celulares (y en el navegador de pruebas) el fragmento trabaja en precisión media: hasta ~16.384 y con saltos de 16 m a 27 km. Las coordenadas de textura (`vuv`), el hueco del piso lejano (`vh`) y los patrones de ventanas y luces (`vw`, con `mod`) se calculan en el vértice. Los síntomas son un piso en cuadros de 16 m, rayas y puntitos.
 - **Un uniforme que usan los dos sombreadores tiene que tener la misma precisión:** por eso el vértice usa `Rv` y `Hv` propios.
@@ -2284,6 +2387,8 @@ Datos en `src/data/`:
 ```
 node tools/build.mjs                 # dist/index.html + manifest + sw.js (revisa la sintaxis)
 node tools/test.mjs 100              # servidor local + selfTest + 100 partidas automáticas + recorrido de pantallas (debe dar 0 errores)
+node tools/prueba-cenital.mjs        # cenital nuevo: jugador visible, 0 cajas de relleno y 0 errores (--capturas, --huella --contra)
+node tools/rendimiento-cenital.mjs   # p95 de Ciudad Libre con la bandera apagada y encendida
 node tools/test-servidor.mjs         # solo el servidor local (16 comprobaciones)
 python3 tools/arte_juego.py          # arte/entregas/ → src/data/arte.js (+ arte/entregas/USO-EN-EL-JUEGO.md)
 python3 tools/ciudad_descarga.py .cache/ciudad   # una vez: capas oficiales (barrios, manzanas, malla vial, lotes…)
@@ -3852,10 +3957,10 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/arte.js`** (585 KB): el arte de Gemini (WebP en base64) y de ChatGPT (SVG) que usa el juego. Lo genera `python3 tools/arte_juego.py` desde `arte/entregas/`; la lista con su uso está en `arte/entregas/USO-EN-EL-JUEGO.md`. Se usa con `Atlas.img(id)`, `Atlas.url(id)` y `Atlas.tag(id)` (`src/js/19-atlas.js`), siempre con respaldo procedural.
 - **`src/data/vias.js`, `rieles.js`, `metroplus.js`, `rutas_calles.js` y `hitos.js`**: calles con su curva y su ancho, eje de los rieles, corredores de Metroplús, recorridos de los alimentadores y arquitectura icónica (ver `docs/FUENTES.md`).
 - **`src/data/puentes.js`** (177 KB): los 2.150 puentes del valle con su nivel y los tramos de calle que van sobre ellos (de `tools/puentes_datos.py`); y **`src/data/metroplus_andenes.js`**: el andén real de cada estación de Metroplús (de `tools/metroplus_andenes.py`).
-- **`src/data/edificios.js`** (4443 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
+- **`src/data/edificios.js`** (4465 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (135 archivos, 1722 KB)
+## Código fuente (142 archivos, 1815 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4423,7 +4528,7 @@ body.pant-clasica .joyzone{top:24%}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.9.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.10.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -7428,6 +7533,12 @@ const G3 = EM.g3 = {
     const V = []; for (let j = 0; j <= n; j++) { const row = []; for (let i = 0; i <= n; i++) row.push(E(i, j)); V.push(row); }
     for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i + 1], dd = V[j + 1][i], u = 2 + this.urban(a[0] + 20, a[2] + 20, 20) * .95; this.quadT(mb, a, b, c, dd, [1, 1, 1], u); }
     this.near = mb.done().map(a => this.buf(a));
+    { const C = this.edifCerca(cx, cz, real).celdas(); this.bld = C.map(o => this.buf(o.a)); this.bldBB = C.map(o => o.bb); }   /* 3.9 (las dos ramas unidas): por celdas de 400 m con su caja, para el recorte por lo que ve la cámara (G3.vis) */
+    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
+  },
+  /* 4.0 · los edificios y los árboles de la ventana cercana, aparte de buildNear para que 97d-cenital.js (Fase 2 del renacimiento
+     cenital) los cambie solo en Ciudad Libre y Bus. Los demás modos dibujan exactamente lo mismo de antes */
+  edifCerca(cx, cz, real) {
     // edificios: reales con techos hasta RR (700 m) + anillo real simplificado hasta R2 (1050 m) + siluetas lejanas hasta R (1250 m)
     const low = Save.d.settings.q === 'low' || this.liviano, R = low ? 600 : 1100,   /* 3.6: el regulador (96d-rendimiento.js) también lo pide */ bm = new MBC(400), RR = real && VC.ED ? (low ? 380 : 700) : 0, R2 = RR;
     if (RR) this.edifReales(bm, cx, cz, RR, R2);
@@ -7445,7 +7556,11 @@ const G3 = EM.g3 = {
         if (hgt > 25 && r > .5) bm.box(X + 12, y + hgt + 2.6, Z + 8, 0, 4, 4, 2.5, [.8, .8, .82], [.3, .3, .32]); if (hgt > 40 && r > .6) bm.box(X + 10, y + hgt + 2.6, Z + 10, 0, .4, .4, 6, [.9, .2, .2], [.9, .2, .2], 4, 4);
       }
     }
-    // árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos)
+    this.arboles3D(bm, cx, cz, low);
+    return bm;
+  },
+  /* árboles en parques y montes cercanos (respetando canchas y plazas duras, con guayacanes florecidos) */
+  arboles3D(bm, cx, cz, low) {
     const RT = low ? 350 : 750;
     for (let bz = cz - RT; bz < cz + RT; bz += TM) for (let bx = cx - RT; bx < cx + RT; bx += TM) {
       const X = Math.floor(bx / TM) * TM, Z = Math.floor(bz / TM) * TM; if ((X - cx) ** 2 + (Z - cz) ** 2 > RT * RT) continue;
@@ -7455,8 +7570,6 @@ const G3 = EM.g3 = {
       const tci = v === TT.GRASS && h2(X, Z, 71) < .16 ? (h2(X, Z, 73) < .55 ? 5 : 6) : ((r * 53 | 0) % 5);
       bm.tree(tx, MAP.elevM(tx, tz) - .5, tz, 4 + r * 5, TREE_COL[tci]);
     }
-    { const C = bm.celdas(); this.bld = C.map(o => this.buf(o.a)); this.bldBB = C.map(o => o.bb); }   // 3.9: por celdas, con su caja
-    this.win = { cx, cz, x0, z0, s: 2 * half }; if (real) this.buildFar(x0 + 40, z0 + 40, x0 + 2 * half - 40, z0 + 2 * half - 40);
   },
   /* las casas y los edificios reales en 3D (1.5.0–3.2.0):
      · Dentro de R (700 m): techos a dos aguas en teja de barro, terrazas en plancha con tanque de agua azul/negro en las laderas,
@@ -7493,12 +7606,17 @@ const G3 = EM.g3 = {
         }
       }
     }
-    // arquitectura icónica: muros por cada lado de su planta y tapa en abanico
+    this.hitos3D(bm, cx, cz, Rmax); this.puentes3D(bm, cx, cz, R);
+  },
+  /* arquitectura icónica: muros por cada lado de su planta y tapa en abanico */
+  hitos3D(bm, cx, cz, Rmax) {
     const HC = { aguja: '#d9dde2', basilica: '#a65a3c', iglesia: '#ece2cf', palacio: '#eeeeea', estadio: '#d7d3cb', rocas: '#2c2e33', vidrio: '#9fb7c9', ladrillo: '#a85b3d', republicano: '#e9dfc6', moderno: '#d0d4d8', cupula: '#e3ddd0', cubos: '#c9c3b6', luces: '#cfd2d6', botero: '#d8cfbd', pies: '#d8cfbd', alpujarra: '#e4e4e0' };
     for (const H of VC.HT || []) { if ((H.cx - cx) ** 2 + (H.cy - cz) ** 2 > (Rmax + 300) ** 2 || H.libre) continue; const col = rgb(HC[H.k] || '#e2dccf'), top = rgb('#8f8a80'), y0 = MAP.elevM(H.cx, H.cy) - 1.2, h = Math.max(4, H.h || 12);
       for (const Q of H.P) { const n = Q.length / 2; let sx = 0, sy = 0; for (let i = 0; i < n; i++) { sx += Q[2 * i]; sy += Q[2 * i + 1]; } const ox = sx / n, oy = sy / n;
         for (let i = 0; i < n; i++) { const j = (i + 1) % n, ax = Q[2 * i], ay = Q[2 * i + 1], bx = Q[2 * j], by = Q[2 * j + 1]; bm.quad([ax, y0, ay], [bx, y0, by], [bx, y0 + h, by], [ax, y0 + h, ay], col, 1); bm.tri([ox, y0 + h, oy], [bx, y0 + h, by], [ax, y0 + h, ay], top, 0); } } }
-    // puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos
+  },
+  /* puentes y deprimidos: tablero por tramos a la altura de su rampa con pretiles, o muros de portal en los deprimidos */
+  puentes3D(bm, cx, cz, R) {
     if (VC.puentesEn) for (const B of VC.puentesEn(cx - R, cz - R, cx + R, cz + R)) { const P = B.P, col = rgb(B.pe ? '#b9b3a7' : '#8d8a84');
       for (let i = 1; i < P.length / 2; i++) { const ax = P[2 * i - 2], ay = P[2 * i - 1], bx = P[2 * i], by = P[2 * i + 1], L = Math.hypot(bx - ax, by - ay); if (L < .5) continue; const mx = (ax + bx) / 2, my = (ay + by) / 2, s = VC.puProy(B, mx, my).s, h = VC.puAlto(B, s); if (h < .6) continue;
         const an = Math.atan2(by - ay, bx - ax), nx = -Math.sin(an) * (B.w / 2 + .2), ny = Math.cos(an) * (B.w / 2 + .2), zm = MAP.elevM(mx, my);
@@ -7552,7 +7670,7 @@ const G3 = EM.g3 = {
             // andén con su franja amarilla táctil de seguridad, columnas de cubierta y marquesina
             mb.box(x, z - (dk ? 1.2 : .2), y, p.a, K2.plat, dk ? 5 : 3, dk ? 2.2 : 1.1, [.85, .8, .7], [.88, .84, .74]);
             const yo = sd * (dk ? 5.35 : 4.25); mb.box(p.x + nx * yo, zp, p.y + ny * yo, p.a, K2.plat * .96, .32, .06, [.96, .77, .22], [.96, .77, .22], 4, 4);
-            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col);
+            mb.box(x, z + 4.6, y, p.a, K2.plat * .9, dk ? 6 : 3.6, .6, col, col, .4, .4);   // marquesina (k + 0,4: techo de estación; 97d-cenital.js lo abre si vas debajo)
             for (let u = -K2.plat * .38; u <= K2.plat * .38; u += K2.plat * .38) mb.box(x + ca * u, zp, y + sa * u, p.a, .35, .35, 3.6, [.38, .42, .46], [.38, .42, .46]);
           }
           if (dk) {
@@ -7562,12 +7680,12 @@ const G3 = EM.g3 = {
         }
       } else if (K === 'cable' || (K === 'future' && /cable/i.test(l.name))) {
         const C = this.cableGeo(l);
-        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1, 0); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
+        for (const p of C.pts) { const gz = MAP.elevM(p.x, p.y); if (p.st) { mb.box(p.x, gz - 2, p.y, 0, 34, 22, p.z - gz + 2, [.86, .84, .8], col, 1.4, .4); mb.box(p.x, p.z + 2, p.y, 0, 38, 26, 1.2, col, col, .4, .4); } else { mb.box(p.x, gz - 1, p.y, Math.PI / 4, 3.4, 3.4, p.z - gz + 3, [.72, .74, .78], [.72, .74, .78]); mb.box(p.x, p.z + 1.5, p.y, 0, 6, 9, 1, [.5, .52, .56], [.5, .52, .56]); } }
         const seg = []; for (let s = 0; s <= C.P.len; s += 14) { const q = NET.at(C.P, s); seg.push([q.x, C.zAt(s) + 2, q.y]); } lines.push({ pts: seg, c: [.12, .12, .14] });
       } else if (K === 'brt' || K === 'feeder') {
         const w = K === 'brt' ? 3.2 : 1.6, dark = col.map(v => v * .85);
         for (let s = 0; s < l.P.len - 10; s += 10) { const a = NET.at(l.P, s), b = NET.at(l.P, s + 10), za = MAP.elevM(a.x, a.y) + .45, zb = MAP.elevM(b.x, b.y) + .45, sa = [-Math.sin(a.a), Math.cos(a.a)]; mb.quad([a.x + sa[0] * -w, za, a.y + sa[1] * -w], [a.x + sa[0] * w, za, a.y + sa[1] * w], [b.x + sa[0] * w, zb, b.y + sa[1] * w], [b.x + sa[0] * -w, zb, b.y + sa[1] * -w], dark, 4); }
-        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
+        for (const s of l.st) { const z = MAP.elevM(s.x, s.y), an = NET.at(l.P, s.s).a; mb.box(s.x, z, s.y, an, K === 'brt' ? 24 : 6, K === 'brt' ? 4 : 2.4, 3.2, [.85, .85, .82], col, .4, .4); if (K === 'brt') mb.box(s.x, z + .55, s.y, an, 23, 4.15, .08, [.96, .77, .22], [.96, .77, .22], 4, 4); }
       }
     }
     this.decor(mb);
@@ -16495,6 +16613,285 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
 })();
 ~~~~
 
+### `src/js/97d-cenital.js`
+~~~~js
+/* =====================================================================
+   97d · EL CENITAL NUEVO (renacimiento cenital, Fase 2 · Claude, 24‑nov‑2026)
+   Solo en Ciudad Libre y Bus, detrás de una bandera (decisión 4 del autor). Los demás modos que dibujan la misma ciudad
+   (Conducir, Volante, Carrera, Metrocable, el mapa y el álbum) siguen con el render de siempre: este archivo solo envuelve
+   funciones y mira la bandera, que vive mientras dibujan Ciudad Libre o Bus.
+   La bandera: Ajustes → «🛰 Cenital nuevo», `?cenital` (o `?cenital=0`) en la dirección, o EM.cenital.forzar en las pruebas.
+   Desde la 3.10.0 (la Fase 3, unida con la 3.9.0 «Unido y medido») viene encendida (PREDETERMINADA = 1); en la Fase 2 venía apagada. Guardado: Save.d.settings.cenital (1 o 0; sin el
+   campo, la predeterminada), así que el guardado elmetro.v1 no cambia.
+   Con la bandera:
+   1. Occluder fade (3D): lo que tapa al jugador (edificios, árboles, marquesinas) baja a 0,30 con un tramado 4 × 4, en un cono
+      de la cámara al jugador. Los tableros de los puentes y del viaducto no se esconden nunca: el jugador se ve debajo con su
+      silueta (se pinta donde algo lo tapa). En 2D, el edificio que te tapa baja a 0,30 (la silueta ya existía).
+   2. Anillo lejano (3D): de 700 a 1.100 m, los edificios reales simplificados en vez de las cajas de relleno por casilla de 20 m
+      (el 14,9 % de esas cajas tocaba una calle). Sin datos de edificios, queda el relleno de siempre.
+   3. Zócalos (3D): si el suelo baja desde el centro hacia una esquina, los muros siguen hasta zBase = suelo del centro −
+      max(6 m, lo que baja + 0,8), con un color de base. Ninguna casa flota en la ladera.
+   4. Terreno facetado (3D): normales planas (con las derivadas de la pantalla) y bandas de cota de 12 m, en lo rural y en las
+      laderas altas (sobre 1.580 m). En lo urbano plano queda el piso suave con sus calles.
+   5. Sombra de contacto: una elipse oscura bajo cada vehículo, bici y persona, en 2D y en 3D (en 3D, en un solo dibujo).
+   6. Bruma en el 12 % de arriba de la pantalla, con el color de la neblina de la hora (una capa CSS: no cuesta por cuadro).
+   7. Cámara: 1 − e^(−k·dt) en vez de min(1, dt·k) en 2D, y en el ojo de las vistas 3D (que se movía una fracción fija por cuadro):
+      a 60 cuadros por segundo es la misma; a 20 ya no se queda atrás.
+   ===================================================================== */
+(function () {
+  if (typeof G3 === 'undefined' || typeof Libre === 'undefined' || typeof Bus === 'undefined' || typeof MB === 'undefined') return;
+  const PREDETERMINADA = 1;   // Fase 3 (3.10.0): encendida en Ciudad Libre y Bus; Ajustes → «🛰 Cenital nuevo» la apaga
+  const S = () => (Save.d && Save.d.settings) || {};
+  const URL_ON = typeof location !== 'undefined' ? (/[?&]cenital=0\b/.test(location.search) ? 0 : /[?&]cenital\b/.test(location.search) ? 1 : null) : null;
+  const CEN = EM.cenital = {
+    activo: false, forzar: null, st: null, M: null, _ojo: null,
+    n: { ventanas: 0, relleno: 0, reales: 0, anillo: 0, zocalos: 0, sombras: 0 },
+    encendida() { if (this.forzar != null) return !!this.forzar; if (URL_ON != null) return !!URL_ON; const v = S().cenital; return v == null ? !!PREDETERMINADA : v === 1; },
+    /* el piso de la malla cercana en (x, y), exacto (la misma triangulación de 40 m de buildNear), con su pendiente */
+    piso(x, y) {
+      const W = G3.win; if (!W) return [MAP.elevM(x, y), 0, 0];
+      const fx = (x - W.x0) / 40, fz = (y - W.z0) / 40, i = Math.floor(fx), j = Math.floor(fz); if (i < 0 || j < 0 || i >= W.s / 40 || j >= W.s / 40) return [MAP.elevM(x, y), 0, 0];
+      const u = fx - i, v = fz - j, X = W.x0 + i * 40, Z = W.z0 + j * 40, a = MAP.elevM(X, Z), c = MAP.elevM(X + 40, Z + 40);
+      if (u >= v) { const b = MAP.elevM(X + 40, Z); return [a + (b - a) * u + (c - b) * v, (b - a) / 40, (c - b) / 40]; }
+      const d = MAP.elevM(X, Z + 40); return [a + (d - a) * v + (c - d) * u, (c - d) / 40, (d - a) / 40];
+    },
+    /* el cono del occluder fade: el jugador (x, altura, y) y su radio; 0 = apagado (primera persona) */
+    oclusor(st) {
+      if (!st || st.vista3 === '1p') return [0, 0, 0, 0];
+      const z = Libre.alto3(st) + (st.jumpY || 0), V = st.mode === 'veh' ? Libre.V(st) : null, cen = st.vista3 === 'cen3d', dron = st.vista3 === 'dron';
+      /* el radio en el jugador: en la cenital se abre la calle alrededor (5,5 m a pie; los techos de las estaciones se abren aparte); de cerca (3.ª persona, cine), lo justo */
+      const r = st.mode === 'ride' ? (cen || dron ? 9 : 7) : V ? Math.max(cen || dron ? 6.5 : 3.6, V.len * .6 + (cen || dron ? 2.5 : 1.6)) : cen || dron ? 5.5 : 3.4;
+      return [st.x, z + (st.mode === 'ride' ? 1.2 : 1), st.y, r];
+    },
+    /* 2D: ¿el edificio b tapa al jugador? (la misma caja en pantalla de VC.ocluir) */
+    tapa(b) {
+      const st = this.st; if (!st || st.mode === 'ride' || st.z > 0 || b.ym <= st.y + .2) return false;
+      const ob = VC.ob, V = Libre.V(st), er = st.mode === 'veh' && V ? V.len / 2 : .6, top = st.y - (st.mode === 'veh' ? 1.6 : 1.8) * ob, up = b.h * ob;
+      const r = b.P ? Math.hypot(b.hw, b.hd) : Math.abs(b.ux) * b.hw + Math.abs(b.uy) * b.hd, ry = b.P ? r : Math.abs(b.uy) * b.hw + Math.abs(b.ux) * b.hd;
+      return !(st.x + er < b.x - r || st.x - er > b.x + r || st.y < b.y - ry - up || top > b.ym);
+    },
+    /* bruma en el 12 % de arriba, con el color de la neblina de la hora: una capa CSS sobre los lienzos y debajo de la interfaz
+       (z-index 1; la barra y los controles van en 3), así no cuesta nada por cuadro ni en 2D ni en 3D */
+    bruma(on) {
+      if (EM.headless || typeof document === 'undefined') return; let d = this._bd;
+      if (!d) { if (!on) return; const cv = document.getElementById('gcv'); if (!cv) return; d = this._bd = document.createElement('div'); d.id = 'cenBruma'; d.setAttribute('aria-hidden', 'true'); d.style.cssText = 'position:absolute;left:0;right:0;top:0;height:12%;pointer-events:none;z-index:1;display:none'; cv.after(d); }
+      if (!on) { if (d.style.display !== 'none') d.style.display = 'none'; return; }
+      const t = now(); if (t - (this._bt || 0) > 2 || d.style.display === 'none') { this._bt = t; const C = SKY.at(Mundo.hour()).fog.map(v => Math.round(v * 255)).join(','), bg = `linear-gradient(rgba(${C},.5),rgba(${C},.18) 50%,rgba(${C},0))`; if (this._bg !== bg) { d.style.background = bg; this._bg = bg; } d.style.display = 'block'; }
+    },
+    /* cámara 3D: el ojo se movía una fracción fija por cuadro (f); ahora 1 − (1 − f)^(60·dt), igual a 60 cuadros por segundo */
+    ojo(cam) {
+      const o = this._ojo; this._ojo = null; if (!o || !o.e0 || !o.st._ec) return; const st = o.st, v = st.vista3; if (v !== 'cen3d' && v !== '3p' && v !== 'dron') return;
+      const f = v === 'cen3d' ? (st.camLibre ? .35 : .18) : v === 'dron' ? .08 : .25, E = st._ec, dx = E.x - o.e0.x, dy = E.y - o.e0.y, dz = E.z - o.e0.z;
+      if (Math.hypot(dx, dy) > (v === 'cen3d' ? 350 : 300) * f / (1 - f) * 1.01) return;   // fue un salto (la vista se reubicó de una): se queda
+      const q = (1 - Math.pow(1 - f, clamp(o.dt, 0, .25) * 60)) / f;
+      E.x = o.e0.x + dx * q; E.y = o.e0.y + dy * q; E.z = o.e0.z + dz * q; cam.eye[0] = E.x; cam.eye[1] = E.z; cam.eye[2] = E.y;
+    }
+  };
+
+  /* ---------- la bandera vive solo mientras dibujan Ciudad Libre o Bus ---------- */
+  for (const M of [Libre, Bus]) {
+    const d0 = M.draw;
+    M.draw = function (g, st, vp) { CEN.activo = CEN.encendida(); CEN.st = st; CEN.M = M; CEN.bruma(CEN.activo); try { return d0.call(this, g, st, vp); } finally { CEN.activo = false; CEN.st = null; CEN.M = null; } };
+    /* 7 · cámara 2D: el paso de siempre hace c += (meta − c)·min(1, dt·k); aquí ese mismo paso se lleva a 1 − e^(−k·dt) */
+    const s0 = M.step;
+    M.step = function (st, dt) {
+      const c0 = dt > 0 && st && st.cam && !st.camLibre && CEN.encendida() ? [st.cam.x, st.cam.y, st.cam.k] : null, r = s0.apply(this, arguments);
+      if (c0 && !st.camLibre) for (let i = 0; i < 3; i++) { const p = 'xyk'[i], kk = i < 2 ? 4 : 2, d = st.cam[p] - c0[i], m = Math.min(1, dt * kk); if (!d || !m || (i < 2 && Math.abs(d) > 60)) continue; st.cam[p] = c0[i] + d * (1 - Math.exp(-dt * kk)) / m; }
+      return r;
+    };
+  }
+
+  /* ---------- 3D: el programa del cenital (el sombreado de siempre más el tramado, las facetas, las bandas y las sombras) ---------- */
+  const BAYER = 'float B2(vec2 a){a=floor(a);return fract(dot(a,vec2(.5,a.y*.75)));}float B4(vec2 a){return B2(.5*a)*.25+B2(a);}';
+  /* lo que se puede desvanecer: k terminado en ,25 (edificios, zócalos, árboles e hitos), en un cono de la cámara al jugador; k terminado
+     en ,4 (techos y muros de las estaciones de metro, tranvía, cable y Metroplús), además todo lo que quede más de 1,6 m sobre tu cabeza
+     a menos de 30 m: el techo de la estación se abre entero. Los tableros de los puentes y del viaducto van con k 0: nunca */
+  const DESV = 'if(uOc.w>0.&&vk<1.9){float fk=fract(vk);if(fk>.2&&fk<.45){vec3 ab=camPos-uOc.xyz;vec3 ap=wp-uOc.xyz;float fo=0.;float tt=dot(ap,ab)/dot(ab,ab);if(tt>0.&&tt<1.){float rr=uOc.w*(1.-tt);fo=1.-smoothstep(rr*.5,rr,length(ap-ab*tt));}if(fk>.32)fo=max(fo,step(1.6,ap.y)*(1.-smoothstep(26.,34.,length(ap.xz))));if(fo>0.&&B4(gl_FragCoord.xy)>=1.-.7*fo)discard;}}';
+  /* k 5: sombra de contacto (vc.r: de 1 en el centro a 0 en el borde; vc.g: lo oscura que es) */
+  const SOMB = 'if(vk>4.5){float s=clamp(vc.r,0.,1.);float fg0=clamp(1.-exp(-vd*fogd),0.,1.);gl_FragColor=vec4(.035,.045,.07,s*s*(3.-2.*s)*vc.g*(1.-fg0));return;}';
+  const FACETA = 'float wF=0.;if(uFac>0.&&vk>=2.&&vk<3.){vec3 Nf=normalize(cross(dFdx(wp),dFdy(wp)));if(Nf.y<0.)Nf=-Nf;wF=uFac*max(1.-smoothstep(.1,.42,vk-2.),smoothstep(.05,.13,1.-N.y)*smoothstep(1580.,1720.,wp.y));N=normalize(mix(N,Nf,wF));}';
+  const BANDAS = 'if(wF>0.){float bz=wp.y/12.;float fb=fract(bz);float lw=max(fwidth(bz)*1.2,.002);float lin=1.-smoothstep(0.,lw,min(fb,1.-fb));float tono=mix(1.,.955,step(.5,fract(floor(bz)*.5)));base*=mix(1.,tono*(1.-.15*lin),wF*(1.-smoothstep(600.,1600.,vd)));}';
+  function fuente(der) {
+    let f = FS; const R = (a, b) => { if (f.indexOf(a) < 0) throw new Error('el sombreado de 22-gl.js cambió (' + a.slice(0, 28) + ')'); f = f.replace(a, b); };
+    R('uniform float uReal;', 'uniform float uReal;uniform vec4 uOc;uniform float uFac;');
+    R('float h(vec2 q)', BAYER + 'float h(vec2 q)');
+    R('void main(){vec3 base=mix(vc,tint.rgb,tint.a);', 'void main(){' + DESV + SOMB + 'vec3 base=mix(vc,tint.rgb,tint.a);');
+    if (der) { R('vec3 N=normalize(vn);vec3 V=normalize(camPos-wp);', 'vec3 N=normalize(vn);vec3 V=normalize(camPos-wp);' + FACETA); R('base*=fino*mancha;}}', 'base*=fino*mancha;}}' + BANDAS); f = '#extension GL_OES_standard_derivatives : enable\n' + f; }
+    return f;
+  }
+  function compila() {
+    if (CEN._P !== undefined) return CEN._P; CEN._P = null;
+    const gl = G3.gl, P0 = G3.P; if (!gl || !P0) return null;
+    const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+    for (const der of gl.getExtension('OES_standard_derivatives') ? [true, false] : [false]) {
+      try {
+        const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fuente(der)));
+        for (const n of ['p', 'n', 'c', 'k']) if (P0.a[n] >= 0) gl.bindAttribLocation(p, P0.a[n], n);   // los mismos lugares que el programa de siempre
+        gl.linkProgram(p); if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+        const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const q = gl.getActiveUniform(p, i); u[q.name] = gl.getUniformLocation(p, q.name); }
+        return (CEN._P = { p, u, der, a: { p: gl.getAttribLocation(p, 'p'), n: gl.getAttribLocation(p, 'n'), c: gl.getAttribLocation(p, 'c'), k: gl.getAttribLocation(p, 'k') } });
+      } catch (e) { EM.errors.push('cenital 3D' + (der ? ' (facetas)' : '') + ': ' + e.message); }
+    }
+    return null;
+  }
+
+  /* ---------- 2 y 3 · la ventana cercana: edificios reales hasta 1.100 m, con zócalos, y lo que tapa marcado para desvanecerse ---------- */
+  /* lo que tapa se marca (k + .25) para desvanecerse. Va por celdas de 400 m con su caja (MBC, 22-gl.js 3.9: el recorte por lo que ve
+     la cámara): cada celda hereda la marca según el f de este momento, y lo que se arme con v() directo la lleva igual */
+  class MBF extends MBC {
+    constructor(L = 400) { super(L); this.f = 0; }
+    en(x, z) { const m = super.en(x, z); if (!m._mbf) { m._mbf = 1; const P = this, v0 = MB.prototype.v; m.v = function (x, y, z, nx, ny, nz, c, k) { v0.call(this, x, y, z, nx, ny, nz, c, P.f && k < 2 ? k + .25 : k); }; } return m; }
+    v(x, y, z, nx, ny, nz, c, k) { super.v(x, y, z, nx, ny, nz, c, this.f && k < 2 ? k + .25 : k); }
+  }
+  const zocC = new Map(), zocalo = c => { const k = c.join(); let z = zocC.get(k); if (!z) zocC.set(k, z = [c[0] * .58 + .07, c[1] * .56 + .065, c[2] * .53 + .06]); return z; };
+  function muros(bm, x, z, a, L, W, y0, y1, c) {   // los cuatro muros de una caja, sin tapas (el zócalo queda debajo de la casa)
+    const ca = Math.cos(a), sa = Math.sin(a), l = L / 2, w = W / 2, P = (u, v, h) => [x + ca * u - sa * v, h, z + sa * u + ca * v];
+    const b = [P(-l, -w, y0), P(l, -w, y0), P(l, w, y0), P(-l, w, y0)], t = [P(-l, -w, y1), P(l, -w, y1), P(l, w, y1), P(-l, w, y1)];
+    for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; bm.quad(b[j], b[i], t[i], t[j], c, 0); }
+  }
+  /* como G3.edifReales (22-gl.js), con zócalos y con el anillo exterior hasta R2 */
+  function edifCen(bm, cx, cz, R, R2) {
+    const RG = VC.R, Rmax = Math.max(R, R2), R2sq = Rmax * Rmax, Rsq = R * R, cols = new Map(), C = h => { let c = cols.get(h); if (!c) cols.set(h, c = rgb(h)); return c; }, E = MAP.elevM.bind(MAP);
+    for (let ry = Math.floor((cz - Rmax) / RG); ry <= Math.floor((cz + Rmax) / RG); ry++) for (let rx = Math.floor((cx - Rmax) / RG); rx <= Math.floor((cx + Rmax) / RG); rx++) {
+      const Rg = VC.reg.get(rx * 4096 + ry), L = Rg ? Rg.bs : VC.edifDe(rx, ry);
+      for (const b of L) {
+        const d2 = (b.x - cx) ** 2 + (b.y - cz) ** 2;
+        if (b.rec === false || d2 > R2sq || (d2 > Rsq && b.h < 5.5)) continue;
+        if (!Rg && b.rec === undefined && VC.enSegs(VC.segsCerca(b.x, b.y, 1), b.x, b.y)) continue;
+        VC.estilo(b); const y0 = E(b.x, b.y), y = y0 - 1.2, a = Math.atan2(b.uy, b.ux), Lx = b.hw * 2, Wz = b.hd * 2, H = Math.max(2.6, b.h) + 1.2;
+        const cw = C(b.cw && b.cw[0] === '#' ? b.cw : '#d9d2c3'), cr = C(b.cr && b.cr[0] === '#' ? b.cr : '#b4583a');
+        bm.box(b.x, y, b.y, a, Lx, Wz, H, cw, cr, 1, 0); CEN.n.reales++; if (d2 > Rsq) CEN.n.anillo++;
+        // zócalo: el suelo de cada esquina con el relieve del juego; si baja más de 0,6 m desde el centro, los muros siguen hasta zBase
+        const ex = b.ux * b.hw, ey = b.uy * b.hw, fx = -b.uy * b.hd, fy = b.ux * b.hd;
+        const baja = y0 - Math.min(E(b.x + ex + fx, b.y + ey + fy), E(b.x + ex - fx, b.y + ey - fy), E(b.x - ex + fx, b.y - ey + fy), E(b.x - ex - fx, b.y - ey - fy));
+        if (baja > .6) { muros(bm, b.x, b.y, a, Lx, Wz, y0 - Math.max(6, baja + .8), y + .05, zocalo(cw)); CEN.n.zocalos++; }
+        if (d2 > Rsq) continue;   // anillo exterior: caja limpia
+        const yt = y + H, tq = h2(b.x | 0, b.y | 0, 41);
+        if (b.rt === 'teja' && b.h < 11 && Lx < 22 && Wz < 22) bm.roof(b.x, yt, b.y, a, Lx * .94, Wz * .94, Math.min(2.1, Math.min(Lx, Wz) * .26), cr);
+        else if (b.h < 12 && b.z === 'ladera' && (b.rt === 'plancha' || b.rt === 'azotea') && tq < .55 && Lx >= 4.5 && Wz >= 4.5) { const tc = tq < .2 ? [.16, .34, .58] : [.18, .19, .22]; bm.box(b.x + b.ux * Lx * .22, yt, b.y + b.uy * Lx * .22, a, .95, .95, 1.15, tc, tc, 0, 0); }
+        else if (b.h >= 26) { bm.box(b.x, yt - .15, b.y, a, Lx + .45, Wz + .45, .55, cr, cr, 0, 0); bm.box(b.x, yt + .4, b.y, a, Lx * .62, Wz * .62, 2.8, cw, cr, 1, 0); if (b.h >= 42) bm.box(b.x, yt + 3.2, b.y, 0, .5, .5, 4.5, [.92, .2, .18], [.92, .2, .18], 4, 4); }
+        else if (b.h >= 12 && d2 < Rsq * .55) bm.box(b.x, yt - .1, b.y, a, Lx + .3, Wz + .3, .45, cr, cr, 0, 0);
+      }
+    }
+  }
+  const ec0 = G3.edifCerca;
+  G3.edifCerca = function (cx, cz, real) {
+    if (!CEN.activo || !real || !VC.ED) { if (CEN.activo) CEN.n.relleno++; return ec0.call(this, cx, cz, real); }
+    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(400); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
+    bm.f = 1; edifCen(bm, cx, cz, RR, R); this.hitos3D(bm, cx, cz, R);
+    bm.f = 0; this.puentes3D(bm, cx, cz, RR);   // los tableros no se desvanecen
+    bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;
+    return bm;
+  };
+  const bn0 = G3.buildNear;
+  G3.buildNear = function () { const r = bn0.apply(this, arguments); if (this.win) { this.win.cen = !!CEN.activo; if (CEN.activo) CEN.n.ventanas++; } return r; };
+
+  /* ---------- el dibujo 3D: la ventana del cenital, el programa, el cono y el ojo ---------- */
+  const draw0 = G3.draw;
+  G3.draw = function (cam, opts) {
+    if (!CEN.activo || !this.ok) { if (this.win && this.win.cen) this.win = null; return draw0.apply(this, arguments); }   // la ventana se rearma como siempre
+    if (this.win && !this.win.cen) this.win = null;
+    CEN.ojo(cam);
+    const P = compila(), P0 = this.P;
+    if (P) { const gl = this.gl; gl.useProgram(P.p); gl.uniform4fv(P.u.uOc, CEN.oclusor(CEN.st)); if (P.u.uFac) gl.uniform1f(P.u.uFac, S().q === 'low' || G3.simple ? 0 : 1); this.P = P; }
+    CEN._cam = cam;
+    try { return draw0.apply(this, arguments); } finally { this.P = P0; }
+  };
+  const d3 = Libre.draw3D;
+  Libre.draw3D = function (g, st, vp) {
+    if (CEN.activo) { const t = now(); CEN._ojo = { st, e0: st._ec ? { x: st._ec.x, y: st._ec.y, z: st._ec.z } : null, dt: st._cenT ? t - st._cenT : 0 }; st._cenT = t; }
+    try { return d3.call(this, g, st, vp); } finally { CEN._ojo = null; }
+  };
+  const box0 = G3.box;
+  G3.box = function (x, y, z, yaw, L, W, H, col, pitch, roll) { return box0.call(this, x, y, z, yaw, L, W, H, CEN.sil || col, pitch, roll); };
+
+  /* 5 · sombras de contacto en 3D: todas en un solo dibujo (elipse de 8 lados, más oscura en el centro), antes que lo dinámico */
+  const SEG = 8, MAXO = 420; let VB = null, IB = null, A = null;
+  function sombras3D(G, st, zj) {
+    const P = G.P; if (!P || !P.u.uOc || !CEN._cam) return; const gl = G.gl;
+    if (!VB) { VB = gl.createBuffer(); IB = gl.createBuffer(); A = new Float32Array(MAXO * (SEG + 1) * 10); const I = new Uint16Array(MAXO * SEG * 3); for (let o = 0; o < MAXO; o++) for (let j = 0; j < SEG; j++) { const b = o * (SEG + 1), q = (o * SEG + j) * 3; I[q] = b; I[q + 1] = b + 1 + j; I[q + 2] = b + 1 + (j + 1) % SEG; } gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, IB); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, I, gl.STATIC_DRAW); }
+    const at = CEN._cam.at, ax = at[0], az = at[2], RV = (st.vista3 === 'cen3d' ? 130 : 110) ** 2; let n = 0;
+    /* (x, y): centro; z: altura de la base o null (en el piso: sigue la malla); a: rumbo; L × W: tamaño; al: lo oscura */
+    const pon = (x, y, z, a, L, W, al) => {
+      if (n >= MAXO || (x - ax) ** 2 + (y - az) ** 2 > RV) return;
+      let zc, gx = 0, gz = 0; if (z == null) { const p = CEN.piso(x, y); zc = p[0] + .12; gx = p[1]; gz = p[2]; } else zc = z + .1;
+      const ca = Math.cos(a), sa = Math.sin(a), rx = L / 2 * 1.06 + .18, rz = W / 2 * 1.18 + .18; let o = n * (SEG + 1) * 10;
+      A[o] = x; A[o + 1] = zc; A[o + 2] = y; A[o + 3] = 0; A[o + 4] = 1; A[o + 5] = 0; A[o + 6] = 1; A[o + 7] = al; A[o + 8] = 0; A[o + 9] = 5; o += 10;
+      for (let j = 0; j < SEG; j++) { const t = j / SEG * TAU, ux = Math.cos(t) * rx, uz = Math.sin(t) * rz, dx = ca * ux - sa * uz, dy = sa * ux + ca * uz; A[o] = x + dx; A[o + 1] = zc + gx * dx + gz * dy + .04; A[o + 2] = y + dy; A[o + 3] = 0; A[o + 4] = 1; A[o + 5] = 0; A[o + 6] = 0; A[o + 7] = al; A[o + 8] = 0; A[o + 9] = 5; o += 10; }
+      n++;
+    };
+    const E = (x, y) => MAP.elevM(x, y), suelo = (x, y, z) => Math.abs(z - E(x, y)) < .4 ? null : z;
+    for (const k of Ciudad.cars) { const h = VC.PG ? VC.carAlto(k) : 0; pon(k.x, k.y, Math.abs(h) < .4 ? null : E(k.x, k.y) + h, k.a, k.kind === 'bus' ? 12 : k.kind === 'moto' ? 2 : 4.4, k.kind === 'moto' ? .8 : k.kind === 'bus' ? 2.5 : 1.8, .5); }
+    for (const p of Ciudad.peds) if (!p.dog) pon(p.x, p.y, null, p.a || 0, .6, .6, .42);
+    if (typeof Gente !== 'undefined') for (const p of Gente.todos(st)) pon(p.x, p.y, null, p.a || 0, .6, .6, .42);
+    for (const p of st.parked) { const V = VEH[p.kind]; if (V) pon(p.x, p.y, null, p.a, V.len, V.wid, .42); }
+    for (const v of Ciudad.transit) { const l = v.line, K = l.kind; if (K === 'metro' || K === 'cable' || K === 'future') continue;
+      if (K === 'tram') { for (let i = 0; i < 2; i++) { const s0 = v.s - v.dir * (i * 20.5 + 9.75), q = Ciudad.cuerda(l.P, s0 + v.dir * 6.8, s0 - v.dir * 6.8, v.dir * 2); pon(q.x, q.y, suelo(q.x, q.y, G3.zOn(l, s0)), q.a, 19.5, 2.65, .5); } }
+      else if (K === 'brt') { const f = Ciudad.cuerda(l.P, v.s - v.dir * 1.4, v.s - v.dir * 9.9, v.dir * 2.2), r = Ciudad.cuerda(l.P, v.s - v.dir * 12.6, v.s - v.dir * 16.6, v.dir * 2.2); pon(f.x, f.y, null, f.a, 11.3, 2.6, .5); pon(r.x, r.y, null, r.a, 6.4, 2.6, .5); }
+      else if (KIND[K]) { const q = Ciudad.cuerda(l.P, v.s - v.dir * 2.4, v.s - v.dir * (KIND[K].len - 2.6), v.dir * 2.2); pon(q.x, q.y, null, q.a, KIND[K].len - 2, 2.5, .5); } }
+    if (st.mode !== 'ride') { const V = Libre.V(st), al = (st.mode === 'veh' ? .55 : .5) * clamp(1 - (st.jumpY || 0) / 4, .25, 1); pon(st.x, st.y, suelo(st.x, st.y, zj), st.h, st.mode === 'veh' && V ? V.len : .7, st.mode === 'veh' && V ? V.wid : .7, al); }
+    CEN.n.sombras = n; if (!n) return;
+    const a = P.a; gl.bindBuffer(gl.ARRAY_BUFFER, VB); gl.bufferData(gl.ARRAY_BUFFER, A.subarray(0, n * (SEG + 1) * 10), gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(a.p); gl.vertexAttribPointer(a.p, 3, gl.FLOAT, false, 40, 0); gl.enableVertexAttribArray(a.n); gl.vertexAttribPointer(a.n, 3, gl.FLOAT, false, 40, 12); gl.enableVertexAttribArray(a.c); gl.vertexAttribPointer(a.c, 3, gl.FLOAT, false, 40, 24); gl.enableVertexAttribArray(a.k); gl.vertexAttribPointer(a.k, 1, gl.FLOAT, false, 40, 36);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, IB); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
+    gl.drawElements(gl.TRIANGLES, n * SEG * 3, gl.UNSIGNED_SHORT, 0);
+    gl.depthMask(true); gl.disable(gl.BLEND);
+  }
+  /* 1 · tu silueta donde algo te tapa (el tablero de un puente o del viaducto, o lo que el tramado no alcanzó a abrir) */
+  function silueta(G, st, zj) {
+    if (st.mode === 'ride' || st.vista3 === '1p') return; const gl = G.gl, V = Libre.V(st), z = zj + (st.jumpY || 0), lote = G._eonCollect;
+    G._eonCollect = false;   // 22a junta las cajas dinámicas y las pinta al final: la silueta va directo, con su prueba de profundidad
+    gl.depthFunc(gl.GREATER); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendColor(0, 0, 0, .6); gl.blendFunc(gl.CONSTANT_ALPHA, gl.ONE_MINUS_CONSTANT_ALPHA); CEN.sil = CEN.colSil || [1, .6, .16];
+    try {
+      if (st.mode === 'walk' || !V) Libre.persona3(G, st.x, z + .35, st.y, st.h, Perfil.ped(), 1.04, 0);
+      else { const kd = st.veh.kind, Hh = V.monta ? .12 : kd === 'bici' ? .8 : kd === 'moto' ? 1.2 : kd === 'alimentador' || kd === 'bus' || V.art ? 2.9 : 1.4; G.box(st.x, z + .4, st.y, st.h, V.len * .96, V.wid * .94, Hh, [1, 1, 1]); if (V.monta || kd === 'bici' || kd === 'moto') Libre.persona3(G, st.x, z + (V.monta ? .3 : .6), st.y, st.h, Perfil.ped(), 1, 0); }
+    } finally { CEN.sil = null; G._eonCollect = lote; gl.depthFunc(gl.LESS); gl.depthMask(true); gl.disable(gl.BLEND); }
+  }
+  const dyn0 = Libre.dyn3D;
+  Libre.dyn3D = function (G, st, zj) {
+    if (CEN.activo) { try { sombras3D(G, st, zj); silueta(G, st, zj); } catch (e) { CEN.sil = null; if (!CEN._err) { CEN._err = 1; EM.errors.push('cenital 3D: ' + e.message); } } }
+    return dyn0.apply(this, arguments);
+  };
+
+  /* al salir del modo (o de la partida), la bruma se va con él */
+  const stop0 = Game.stop; Game.stop = function () { CEN.bruma(false); return stop0.apply(this, arguments); };
+
+  /* ---------- 2D (Ciudad Libre y Bus): sombras de contacto, el edificio que te tapa y la silueta del bus ---------- */
+  const elipse = (g, x, y, rx, ry, a, al) => { const c = g.canvas, m = rx + 4; if (x < -m || y < -m || x > c.width + m || y > c.height + m || rx < 1.6) return; g.fillStyle = 'rgba(10,14,24,' + al + ')'; g.beginPath(); g.ellipse(x, y, rx, ry, a, 0, TAU); g.fill(); };
+  const car0 = Ciudad.car, ped0 = Ciudad.ped, art0 = Ciudad.articulado, tabla0 = Libre.tabla;
+  Ciudad.car = function (g, x, y, a, len, wid, col, kind, S2, k) { if (CEN.activo && kind !== 'cable') { const q = S2(x, y), vs = k < 2.5 ? 1.25 : 1; elipse(g, q.x, q.y, Math.max(6, len * k * vs) * .56, Math.max(3.5, wid * k * vs) * .64, a, .3); } return car0.apply(this, arguments); };
+  Ciudad.ped = function (g, p, S2, k) { if (CEN.activo && !p.dog) { const q = S2(p.x, p.y), s = Math.max(2, k * 1.6); elipse(g, q.x, q.y, s * .62, s * .44, 0, .3); } return ped0.apply(this, arguments); };
+  Ciudad.articulado = function (g, x, y, a, a2, V, S2, k) { if (CEN.activo) { const q = S2(x, y), vs = k < 2.5 ? 1.25 : 1; elipse(g, q.x, q.y, Math.max(8, (V.len || 18) * k * vs) * .53, Math.max(3.5, (V.wid || 2.6) * k * vs) * .64, a, .3); } return art0.apply(this, arguments); };
+  if (tabla0) Libre.tabla = function (g, q, a, V, k) { if (CEN.activo) elipse(g, q.x, q.y, Math.max(3, V.len * k) * .58, Math.max(2, V.wid * k) * .75, a, .28); return tabla0.apply(this, arguments); };
+  const dib0 = VC.dibEdVista;
+  VC.dibEdVista = function (g, b) { if (!CEN.activo || !CEN.tapa(b)) return dib0.apply(this, arguments); const a0 = g.globalAlpha; g.globalAlpha = a0 * .3; try { return dib0.apply(this, arguments); } finally { g.globalAlpha = a0; } };
+  /* Bus: si vas por debajo del viaducto o de un puente, tu bus se ve a través (como tu silueta en Ciudad Libre) */
+  const parts0 = Ciudad.partsDraw;
+  Ciudad.partsDraw = function (g, S2, k) {
+    const st = CEN.st;
+    if (CEN.activo && CEN.M === Bus && st && VC.on && VC.tapado && VC.tapado(st.x, st.y)) {
+      let encima = false; if (VC.PG) { const P = VC.puenteEn(st.x, st.y, null, .5); if (P && !P.B.pe) { const u = VC.puAt(P.B, P.s); encima = Math.abs(u.ux * Math.cos(st.h) + u.uy * Math.sin(st.h)) > .86; } }
+      if (!encima) { const V = Bus.V(st), sh = Ciudad.shadowDir(), night = Mundo.light().night, x = st.x + Math.cos(st.h) * 2.4, y = st.y + Math.sin(st.h) * 2.4, a0 = g.globalAlpha; g.globalAlpha = a0 * .42;
+        try { if (st.kind === 'metroplus') art0.call(Ciudad, g, x, y, st.h, st.h2 == null ? st.h : st.h2, V, S2, k, sh, night, true, { doors: 'left', sign: 1 }); else car0.call(Ciudad, g, x, y, st.h, V.len, V.wid, V.col, 'feeder', S2, k, sh, night, true, { doors: 'right', sign: 1 }); } finally { g.globalAlpha = a0; } }
+    }
+    return parts0.apply(this, arguments);
+  };
+
+  /* ---------- Ajustes: 🛰 Cenital nuevo (Ciudad Libre y Bus) ---------- */
+  if (typeof Menu !== 'undefined' && Menu.settings) {
+    const set0 = Menu.settings;
+    Menu.settings = function () {
+      const r = set0.apply(this, arguments), ok = document.getElementById('sOk'); if (!ok || document.getElementById('sCenital')) return r;
+      const s = S(), v = CEN.encendida() ? '1' : '0', d = document.createElement('div');
+      d.innerHTML = `<div class="pag">🛰 Cenital nuevo · Ciudad Libre y Bus</div><div class="tg" id="sCenital">${[['1', 'Encendido'], ['0', 'Apagado']].map(([k, n]) => `<button data-v="${k}" class="${v === k ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+      ok.closest('.row').before(d);
+      for (const b of d.querySelectorAll('#sCenital button')) b.onclick = () => { s.cenital = +b.dataset.v; Save.write(); for (const x of d.querySelectorAll('#sCenital button')) x.classList.toggle('on', x === b); };
+      return r;
+    };
+  }
+})();
+~~~~
+
 ### `src/js/98-relevo-z1.js`
 ~~~~js
 /* =====================================================================
@@ -17716,6 +18113,53 @@ fs.copyFileSync(path.join(root, 'tools', 'server.mjs'), path.join(dist, 'server.
 console.log(`dist/index.html ${(html.length / 1024).toFixed(0)} KB · v${version} · cache ${hash}`);
 ~~~~
 
+### `tools/capturas-protegidos.mjs`
+~~~~js
+#!/usr/bin/env node
+/* =====================================================================
+   REGRESIÓN VISUAL DE LOS MODOS PROTEGIDOS (renacimiento cenital, Fase 3)
+   El cenital nuevo (97d-cenital.js) solo se enciende en Ciudad Libre y Bus. Esta herramienta captura los modos que NO deben
+   cambiar (la cabina y la vista lateral de Conducir, el tranvía, el Volante, el viaje en Metrocable, la Carrera, Despacho,
+   Alimentadores, Metroplús, el Metrocable, la guía de Ciudad Libre y la historia de Rosalba) en dos compilaciones y las compara
+   píxel a píxel (de día, con la misma semilla y quietas):
+     node tools/capturas-protegidos.mjs dist/index.html CARPETA_DESPUES
+     node tools/capturas-protegidos.mjs OTRA/dist/index.html CARPETA_ANTES
+     node tools/capturas-protegidos.mjs --comparar CARPETA_ANTES CARPETA_DESPUES [--json]
+   Lo que se mueve solo (trenes, gente, nubes) cambia un poco aunque el render sea el mismo: se informa la fracción de píxeles
+   que difieren más de 24 niveles y se deja la lámina para mirarla.
+   ===================================================================== */
+import { createRequire } from 'node:module'; import path from 'node:path'; import fs from 'node:fs';
+const require = createRequire(import.meta.url), { chromium } = require('playwright'), A = process.argv.slice(2);
+const CASOS = [['conduce', 'A:0-2', 'cab', 'conducir-cabina'], ['conduce', 'B:0-2', 'lado', 'conducir-lateral'], ['conduce', 'A:0-2', 'tps', 'conducir-tercera'], ['tranvia', 'T:0-2', 'top', 'tranvia'], ['volante', 'vo:MP1:0-4', 'tps', 'volante'], ['cableviaje', 'cv:K', 'lado', 'metrocable-viaje'], ['carrera', 'cr:A', null, 'carrera'], ['despacho', 'despacho3', null, 'despacho'], ['alim', 'alim3', null, 'alimentadores'], ['metroplus', 'mp3', null, 'metroplus'], ['cable', null, null, 'metrocable'], ['guia', null, null, 'guia'], ['historia', null, null, 'historia-rosalba']];
+if (A[0] === '--comparar') {
+  const [, a, b] = A, { execFileSync } = await import('node:child_process'), out = [];
+  for (const [, , , n] of CASOS) { const fa = path.join(a, n + '.png'), fb = path.join(b, n + '.png'); if (!fs.existsSync(fa) || !fs.existsSync(fb)) { out.push({ caso: n, falta: true }); continue; }
+    const r = execFileSync('python3', ['-I', '-c', 'import sys\nfrom PIL import Image, ImageChops\na=Image.open(sys.argv[1]).convert("RGB"); b=Image.open(sys.argv[2]).convert("RGB")\nif a.size!=b.size: print("tam"); sys.exit()\nd=ImageChops.difference(a,b).convert("L"); h=d.histogram(); n=sum(h); print(sum(h[25:])/n)', fa, fb]).toString().trim();
+    out.push({ caso: n, difieren: r === 'tam' ? null : +(+r).toFixed(4) }); }
+  if (A.includes('--json')) console.log(JSON.stringify(out, null, 1)); else for (const o of out) console.log(o.caso.padEnd(20), o.falta ? 'falta una captura' : o.difieren == null ? 'tamaños distintos' : (o.difieren * 100).toFixed(2) + ' % de los píxeles difieren');
+  process.exit(0);
+}
+const [html, OUT] = A; if (!html || !OUT) { console.error('Uso: node tools/capturas-protegidos.mjs RUTA/dist/index.html CARPETA'); process.exit(1); }
+fs.mkdirSync(OUT, { recursive: true });
+const b = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] }), page = await (await b.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true })).newPage(), err = [];
+page.on('pageerror', e => err.push(e.message));
+await page.goto('file://' + path.resolve(html)); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 }); await page.waitForFunction(() => EM.vcity && EM.vcity.on, null, { timeout: 90000 });
+await page.evaluate(() => { Save.d.settings.ciclo = 'dia'; Save.d.settings.cal3d = 0; });
+for (const [m, lv, v, n] of CASOS) {
+  await page.evaluate(([m, lv, v]) => {
+    if (EM.game.mode) EM.game.stop(); if (typeof UI !== 'undefined' && UI.close) UI.close();
+    if (m === 'guia') { EM.guia.open(); return; }   // la guía (pantalla del menú)
+    if (m === 'historia') { EM.story.open(0); EM.story.next(); EM.story.next(); return; }   // la historia de Rosalba, capítulo 1
+    const M = EM.modes[m], L = lv && M.levels().find(l => l.id === lv) ? lv : M.levels()[0].id; EM.game.start(m, L, { seed: 5, view: v || undefined, auto: ['conduce', 'tranvia', 'volante', 'cableviaje', 'libre', 'bus', 'carrera'].includes(m) });
+  }, [m, lv, v]);
+  await page.waitForTimeout(2600); await page.evaluate(() => EM.game.mode && EM.game.freeze(true)); await page.waitForTimeout(200);
+  await page.screenshot({ path: path.join(OUT, n + '.png'), timeout: 60000 }); await page.evaluate(() => EM.game.mode && EM.game.freeze(false));
+}
+const e2 = await page.evaluate(() => EM.errors.slice()); await b.close();
+console.log('capturas en', OUT, '·', CASOS.length, 'modos · errores:', err.length + e2.length, err.concat(e2).slice(0, 3));
+process.exit(err.length + e2.length ? 1 : 0);
+~~~~
+
 ### `tools/ciudad_datos.py`
 ~~~~
 #!/usr/bin/env python3
@@ -18077,6 +18521,36 @@ for nombre, (url, campos, geo, off) in CAPAS.items():
     print('listo', nombre, len(feats))
 ~~~~
 
+### `tools/corredores.mjs`
+~~~~js
+#!/usr/bin/env node
+/* Corredores que El Metro despeja en tiempo real (11-edificios.js · segsCelda y libre), tal como los arma el propio juego:
+   las vías de src/data/vias.js (calles de carros con ancho/2 + 1,3 m; peatonales y escaleras con ancho/2 + 0,3 m), el carril del
+   Metroplús (5,5 m) y la vía del tranvía (5 m) de NET.lines (12-red.js, con sus esquinas redondeadas), y las huellas de los hitos.
+   Los usa tools/edificios_datos.py (--saneadas) para que ningún edificio exportado quede donde el juego lo recortaría.
+   Uso: node tools/build.mjs && node tools/corredores.mjs [SALIDA.json]   (por defecto, tools/cache/corredores.json; no va a git) */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
+import { spawn } from 'node:child_process'; import path from 'node:path'; import fs from 'node:fs';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const salida = path.resolve(process.argv[2] || path.join(root, 'tools', 'cache', 'corredores.json')); fs.mkdirSync(path.dirname(salida), { recursive: true });
+if (!fs.existsSync(path.join(root, 'dist', 'index.html'))) { console.error('Primero: node tools/build.mjs'); process.exit(1); }
+const PUERTO = 8771, srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), String(PUERTO)], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600));
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+try {
+  const page = await browser.newPage(); const err = []; page.on('pageerror', e => err.push(e.message));
+  await page.goto(`http://localhost:${PUERTO}/`); await page.waitForFunction(() => window.EM && EM.ready && EM.vcity && EM.vcity.on && typeof NET !== 'undefined' && NET.lines && NET.lines.length, null, { timeout: 60000 });
+  const d = await page.evaluate(() => {
+    const VC = EM.vcity, lineas = [];
+    for (const l of NET.lines) if (l.kind === 'brt' || l.kind === 'tram') lineas.push({ id: l.id, kind: l.kind, r: l.kind === 'brt' ? 5.5 : 5, pts: l.P.pts.map(p => [p.x, p.y]) });
+    return { vias: VC.ch.length, lineas, hitos: (VC.HT || []).map(H => ({ id: H.id, n: H.n, P: H.P.map(Q => Array.from(Q)) })) };
+  });
+  if (err.length) throw new Error('errores en la página: ' + err.slice(0, 3).join(' · '));
+  d.fecha = new Date().toISOString(); d.nota = 'Corredores de El Metro en tiempo real (tools/corredores.mjs): Metroplús y tranvía de NET.lines, y huellas de los hitos (VC.HT).';
+  fs.writeFileSync(salida, JSON.stringify(d));
+  console.log('corredores de El Metro →', salida, '·', d.vias, 'vías en el juego ·', d.lineas.length, 'líneas de Metroplús y tranvía ·', d.hitos.length, 'hitos');
+} finally { await browser.close(); srv.kill(); }
+~~~~
+
 ### `tools/edificios_datos.py`
 ~~~~
 #!/usr/bin/env python3
@@ -18094,14 +18568,18 @@ Fuentes (se citan en docs/FUENTES.md):
 
 Uso:
   python3 tools/edificios_datos.py --descargar CARPETA   # baja las capas (duckdb; S3 público de Overture y ArcGIS)
-  python3 tools/edificios_datos.py CARPETA               # genera src/data/edificios.js (shapely, pyarrow, numpy)
+  python3 tools/edificios_datos.py CARPETA --saneadas RUTA/motor-valle/salida/sanear [--corredores tools/cache/corredores.json]
+        # (desde el Motor del Valle 1.3) las huellas saneadas, con la guarda contra el recorte del juego: edificios.js v2
+  python3 tools/edificios_datos.py CARPETA               # (la forma antigua) las huellas crudas de Overture: edificios.js v1
 Para que DuckDB lea el bucket público detrás de un proxy: env -u AWS_ACCESS_KEY_ID -u AWS_SECRET_ACCESS_KEY ...
 
 Formato de src/data/edificios.js (una sola cadena base64 de deflate-raw):
   por región de 640 m (fila por fila), en el índice: número de edificios, bytes de posiciones y bytes de polígonos (varint);
   luego, por flujos: posiciones (centro en medios metros, deltas zigzag-varint en orden de Hilbert), medidas (medio frente
   y medio fondo en medios metros, uint8), ángulo (128 pasos en 180°, delta mod 128), pisos (uint8), uso (uint8: 4 bits de
-  tipo, bit 16 polígono, bit 32 pisos oficiales, bit 64 pisos de OSM) y polígonos (n vértices y deltas zigzag-varint).
+  tipo, bit 16 polígono, bit 32 pisos oficiales, bit 64 pisos de OSM, bit 128 recortada por el saneamiento) y polígonos (n vértices
+  y deltas zigzag-varint). v2 (Motor del Valle 1.3) suma al final el flujo zb (un byte por edificio: el zócalo) y «len» trae 8 largos;
+  el lector de 11-edificios.js solo usa los seis primeros para ubicar los flujos y no lee los nuevos.
 """
 import base64, json, math, os, re, sys, time, zlib
 
@@ -18230,29 +18708,10 @@ def uvarint(v, out):
         else: out.append(b); return
 
 
-def generar(C):
-    import numpy as np, pyarrow.parquet as pq, shapely
+def atributos(C, M, TM, proj, rd, G, A, ct, cls, nfl, hgt):
+    """hitos (lo que va debajo se quita), pisos (oficial > OSM > estimado), uso del suelo, zona y tipo de cada edificio"""
+    import numpy as np, shapely
     from shapely import STRtree
-    t0 = time.time(); M = meta(); TM = M['tile']; W, H = M['W'] * TM, M['H'] * TM
-    proj = lambda c: np.column_stack([(c[:, 0] - M['lon0']) * M['kx'] * TM, (M['latN'] - c[:, 1]) * M['ky'] * TM])
-    rd = lambda f, cols: pq.read_table(os.path.join(C, f), columns=cols).to_pydict()
-    T = rd('edificios.parquet', ['src', 'class', 'num_floors', 'height', 'wkb'])
-    G = shapely.make_valid(shapely.transform(shapely.from_wkb(T['wkb']), proj))
-    # un multipolígono de make_valid se queda con su parte mayor
-    def mayor(g):
-        if g.geom_type == 'Polygon': return g
-        ps = [p for p in getattr(g, 'geoms', []) if p.geom_type == 'Polygon']
-        return max(ps, key=lambda p: p.area) if ps else None
-    G = np.array([mayor(g) for g in G], dtype=object); ok = np.array([g is not None for g in G])
-    A = np.zeros(len(G)); A[ok] = shapely.area(G[ok].astype(object))
-    ct = np.zeros((len(G), 2)); ct[ok] = shapely.get_coordinates(shapely.centroid(G[ok].astype(object)))
-    ok &= (A >= 12) & (ct[:, 0] > 0) & (ct[:, 1] > 0) & (ct[:, 0] < W) & (ct[:, 1] < H)
-    idx = np.nonzero(ok)[0]; G = G[idx]; A = A[idx]; ct = ct[idx]
-    cls = np.array([T['class'][i] or '' for i in idx]); src = np.array([T['src'][i] or '' for i in idx])
-    nfl = np.array([T['num_floors'][i] if T['num_floors'][i] is not None else -1 for i in idx], float)
-    hgt = np.array([T['height'][i] if T['height'][i] is not None else -1 for i in idx], float)
-    print('huellas en el mapa (>= 12 m²):', len(G), round(time.time() - t0, 1), 's', flush=True)
-
     # hitos: sus edificios los dibuja el motor de arquitectura icónica
     s = open(os.path.join(ROOT, 'src/data/hitos.js'), encoding='utf8').read(); HT = json.loads(s[s.index('['):s.rindex(']') + 1])
     hp = [shapely.Polygon(np.array(P).reshape(-1, 2)) for h in HT for P in h['P'] if len(P) >= 6]
@@ -18330,6 +18789,34 @@ def generar(C):
         if k == 'casa' and pis[i] >= 4: k = 'edificio'
         if k == 'edificio' and pis[i] >= 10: k = 'torre'
         kind[i] = K[k]
+    return quita, pis, fuente, kind, uso, zona, U, UG
+
+
+def generar(C):
+    import numpy as np, pyarrow.parquet as pq, shapely
+    from shapely import STRtree
+    t0 = time.time(); M = meta(); TM = M['tile']; W, H = M['W'] * TM, M['H'] * TM
+    proj = lambda c: np.column_stack([(c[:, 0] - M['lon0']) * M['kx'] * TM, (M['latN'] - c[:, 1]) * M['ky'] * TM])
+    rd = lambda f, cols: pq.read_table(os.path.join(C, f), columns=cols).to_pydict()
+    T = rd('edificios.parquet', ['src', 'class', 'num_floors', 'height', 'wkb'])
+    G = shapely.make_valid(shapely.transform(shapely.from_wkb(T['wkb']), proj))
+    # un multipolígono de make_valid se queda con su parte mayor
+    def mayor(g):
+        if g.geom_type == 'Polygon': return g
+        ps = [p for p in getattr(g, 'geoms', []) if p.geom_type == 'Polygon']
+        return max(ps, key=lambda p: p.area) if ps else None
+    G = np.array([mayor(g) for g in G], dtype=object); ok = np.array([g is not None for g in G])
+    A = np.zeros(len(G)); A[ok] = shapely.area(G[ok].astype(object))
+    ct = np.zeros((len(G), 2)); ct[ok] = shapely.get_coordinates(shapely.centroid(G[ok].astype(object)))
+    ok &= (A >= 12) & (ct[:, 0] > 0) & (ct[:, 1] > 0) & (ct[:, 0] < W) & (ct[:, 1] < H)
+    idx = np.nonzero(ok)[0]; G = G[idx]; A = A[idx]; ct = ct[idx]
+    cls = np.array([T['class'][i] or '' for i in idx]); src = np.array([T['src'][i] or '' for i in idx])
+    nfl = np.array([T['num_floors'][i] if T['num_floors'][i] is not None else -1 for i in idx], float)
+    hgt = np.array([T['height'][i] if T['height'][i] is not None else -1 for i in idx], float)
+    print('huellas en el mapa (>= 12 m²):', len(G), round(time.time() - t0, 1), 's', flush=True)
+
+    quita, pis, fuente, kind, uso, zona, U, UG = atributos(C, M, TM, proj, rd, G, A, ct, cls, nfl, hgt)
+
     # geometría: rectángulo orientado si la forma es casi rectangular; si no, polígono simplificado
     O = shapely.oriented_envelope(G.astype(object)); rect = A / np.maximum(shapely.area(O), 1e-6)
     co4 = shapely.get_coordinates(O).reshape(-1, 5, 2)[:, :4]; e1 = co4[:, 1] - co4[:, 0]; e2 = co4[:, 2] - co4[:, 1]
@@ -18415,9 +18902,336 @@ def generar(C):
     print(json.dumps(stats, ensure_ascii=False)); print('src/data/edificios.js', round(len(txt) / 1e6, 2), 'MB ·', round(time.time() - t0), 's')
 
 
+try:
+    import zopfli.zopfli as _zopfli
+    COMPRESOR = 'zopfli (deflate estándar)'
+except ImportError:
+    _zopfli = None; COMPRESOR = 'zlib 9'
+def desinflar(b):
+    """deflate crudo (el que leen DecompressionStream('deflate-raw') e inflateRaw): con zopfli si está instalado (pip install zopfli),
+       que da el mismo formato unos 4 % más chico; si no, con zlib"""
+    if _zopfli is not None:
+        z = _zopfli.compress(bytes(b), gzip_mode=0, numiterations=15)[2:-4]
+        assert zlib.decompress(z, -15) == bytes(b); return z
+    c = zlib.compressobj(9, zlib.DEFLATED, -15); return c.compress(bytes(b)) + c.flush()
+
+
+# ======================================================================================================================
+# Motor del Valle 1.3 · huellas SANEADAS (ley de soberanía vial, motor-valle/geo/sanear.py) y guarda contra el recorte del juego
+# ======================================================================================================================
+F_EXT = 1 / math.cos(1.5 * math.pi / 32)   # el búfer de shapely (8 segmentos por cuarto; GEOS redondea los de cada arco, hasta 1,5 veces más abiertos) queda por fuera del círculo de verdad
+TOL_POL = .55                        # el juego mira medio metro alrededor de un polígono (11-edificios.js · enPol(..., .5)); 5 cm más
+
+
+def vias_juego():
+    """las vías de src/data/vias.js tal como las lee el juego (11-ciudad2.js · init): [(k, ancho, puntos en metros)]"""
+    import numpy as np
+    s = open(os.path.join(ROOT, 'src/data/vias.js'), encoding='utf8').read(); V = json.loads(re.search(r'const VIAS = (\{.*\});', s, re.S).group(1))
+    b = zlib.decompress(base64.b64decode(V['d']), -15); o = 0; px = py = 0; U = V['u']; out = []; DEFW = {1: 7, 2: 15, 3: 12, 4: 10, 5: 2.5, 6: 5, 7: 3}
+    def rv():
+        nonlocal o
+        v = sh = 0
+        while True:
+            c = b[o]; o += 1; v += (c & 127) << sh; sh += 7
+            if not c & 128: return v
+    for _ in range(V['n']):
+        k = rv(); nm = rv(); w2 = rv(); n = rv(); P = np.zeros((n, 2))
+        for j in range(n):
+            d = rv(); px += -(d + 1) // 2 if d % 2 else d // 2; d = rv(); py += -(d + 1) // 2 if d % 2 else d // 2; P[j] = (px * U, py * U)
+        out.append((k, w2 / 2 or DEFW.get(k, 6), P))
+    return out
+
+
+def generar_saneadas(C, SAN, COR):
+    """edificios.js v2 desde las huellas saneadas del Motor del Valle (motor-valle/salida/sanear/huellas.parquet):
+       · cada edificio con su forma limpia (rectángulo o polígono) y sus atributos de siempre (pisos, uso, zona);
+       · guarda: ya redondeado como lo lee el juego, ninguno pisa los corredores que el juego despeja (segsCelda: vías,
+         Metroplús y tranvía; con medio metro alrededor de los polígonos), ni las ciclorrutas (regla A del autor), ni el agua;
+         y ninguno tiene el centro en la calle o en un hito. Si alguno no pasa, se recorta exacto (y se marca con el bit 128);
+       · flujos nuevos AL FINAL del binario (el lector de hoy solo usa los seis primeros de «len»): zócalo (zb).
+       El lector de 11-edificios.js no cambia: usa los bits 1 a 64 del byte de uso; el 128 marca «recortado»."""
+    import numpy as np, pyarrow.parquet as pq, shapely
+    from shapely import STRtree
+    t0 = time.time(); M = meta(); TM = M['tile']; W, H = M['W'] * TM, M['H'] * TM
+    proj = lambda c: np.column_stack([(c[:, 0] - M['lon0']) * M['kx'] * TM, (M['latN'] - c[:, 1]) * M['ky'] * TM])
+    rd = lambda f, cols: pq.read_table(os.path.join(C, f), columns=cols).to_pydict()
+    T = pq.read_table(os.path.join(SAN, 'huellas.parquet')).to_pydict()
+    G = np.array(shapely.from_wkb(T['wkb']), dtype=object); A = shapely.area(G); ct = np.column_stack([T['ax'], T['ay']])
+    ok = (ct[:, 0] > 0) & (ct[:, 1] > 0) & (ct[:, 0] < W) & (ct[:, 1] < H) & (A >= 12)
+    idx = np.nonzero(ok)[0]; G = G[idx]; A = A[idx]; ct = ct[idx]; N = len(G)
+    col = lambda k, d: np.array([T[k][i] if T[k][i] is not None else d for i in idx])
+    cls = np.array([T['class'][i] or '' for i in idx]); src = np.array([T['src'][i] or '' for i in idx])
+    nfl = col('num_floors', -1).astype(float); hgt = col('height', -1).astype(float); nfl[np.isnan(nfl)] = -1; hgt[np.isnan(hgt)] = -1
+    forma = col('forma', 0).astype(int); RX = np.column_stack([col(c, np.nan).astype(float) for c in ('rx', 'ry', 'rl', 'rw', 'ra')])
+    recort = col('recortado', False).astype(bool); marc = col('marcado', False).astype(bool); area0 = col('area0', 0).astype(float)
+    print('huellas saneadas en el mapa:', N, '· recortadas en el Motor del Valle:', int(recort.sum()), '· casas confiables marcadas:', int(marc.sum()), round(time.time() - t0, 1), 's', flush=True)
+    quita, pis, fuente, kind, uso, zona, U, UG = atributos(C, M, TM, proj, rd, G, A, ct, cls, nfl, hgt)
+
+    # ---------- los corredores que El Metro despeja (y los que añade la regla A: ciclorrutas; y el agua) ----------
+    cor = json.load(open(COR, encoding='utf8'))
+    pz0, pz5, pzk = [], [], []          # búfer exacto (r) y con la tolerancia de los polígonos (r + 0,55) · tipo (1-7, 20 metroplús, 21 tranvía, 30 agua)
+    def trozos(P, paso=40.0):
+        L = shapely.LineString(P); n = max(1, int(math.ceil(L.length / paso)))
+        return [L] if n == 1 else [shapely.ops.substring(L, L.length * i / n, L.length * (i + 1) / n) for i in range(n)]
+    import shapely.ops
+    for k, w, P in vias_juego():
+        if len(P) < 2 or not 1 <= k <= 7: continue
+        r = max(1, w / 2 + (1.3 if k <= 4 else .3))
+        for t in trozos(P): pz0.append(t.buffer(r * F_EXT, quad_segs=8)); pz5.append(t.buffer((r + TOL_POL) * F_EXT, quad_segs=8) if k != 5 else None); pzk.append(k)
+    for l in cor['lineas']:
+        P = np.array(l['pts'], float)
+        if len(P) < 2: continue
+        for t in trozos(P): pz0.append(t.buffer(l['r'] * F_EXT, quad_segs=8)); pz5.append(t.buffer((l['r'] + TOL_POL) * F_EXT, quad_segs=8)); pzk.append(20 if l['kind'] == 'brt' else 21)
+    for w in pq.read_table(os.path.join(SAN, 'agua.parquet')).to_pydict()['wkb']: pz0.append(shapely.from_wkb(w)); pz5.append(None); pzk.append(30)
+    pz0 = np.array(pz0, dtype=object); pzk = np.array(pzk); pz5 = np.array([q if q is not None else p for p, q in zip(pz0, pz5)], dtype=object)
+    juego = (pzk <= 4) | (pzk == 6) | (pzk == 7) | (pzk == 20) | (pzk == 21)   # lo que mira el juego (segsCelda)
+    T0, T5 = STRtree(pz0), STRtree(pz5)
+    HT = [shapely.make_valid(shapely.Polygon(np.array(Q).reshape(-1, 2))) for h in cor['hitos'] for Q in h['P'] if len(Q) >= 6]; THT = STRtree(HT) if HT else None
+    print('corredores de la guarda:', int(juego.sum()), 'trozos del juego ·', int((pzk == 5).sum()), 'de ciclorruta ·', int((pzk == 30).sum()), 'de agua ·', len(HT), 'huellas de hitos', round(time.time() - t0, 1), 's', flush=True)
+
+    # ---------- forma de cada edificio (como hoy: rectángulo si es casi rectangular; las recortadas, lo que dijo el Motor del Valle) ----------
+    O = shapely.oriented_envelope(G); rect = A / np.maximum(shapely.area(O), 1e-6)
+    co4 = shapely.get_coordinates(O).reshape(-1, 5, 2)[:, :4]; e1 = co4[:, 1] - co4[:, 0]; e2 = co4[:, 2] - co4[:, 1]
+    L1 = np.hypot(e1[:, 0], e1[:, 1]); L2 = np.hypot(e2[:, 0], e2[:, 1]); larga = L1 >= L2
+    ang = np.where(larga, np.arctan2(e1[:, 1], e1[:, 0]), np.arctan2(e2[:, 1], e2[:, 0])) % math.pi
+    LW = np.maximum(L1, L2); LD = np.minimum(L1, L2); oc = co4.mean(1)
+    esPol = ((rect < .78) & (A >= 90)) | (LW / 2 * Q > 255) | (LD / 2 * Q > 255)
+    esR = forma == 1
+    esPol[esR] = False; oc[esR] = RX[esR, :2]; LW[esR] = 2 * RX[esR, 2]; LD[esR] = 2 * RX[esR, 3]; ang[esR] = RX[esR, 4]
+    # lo recortado que no volvió a ser rectángulo (IoU >= 0,92 en el saneamiento) va como rectángulo si la huella limpia ocupa al
+    # menos el 78 % de su rectángulo mínimo (la misma tolerancia que el juego usa desde la 1.2.0 para todas sus casas); si no, polígono
+    rp = recort & ~esR
+    esPol[rp] = ~((rect[rp] >= .78) & (LW[rp] / 2 * Q <= 255) & (LD[rp] / 2 * Q <= 255))
+    nx, ny = int(math.ceil(W / R)), int(math.ceil(H / R))
+
+    # ---------- cuantizar y decodificar exactamente como 11-edificios.js · edifDe ----------
+    def region(x, y): return np.clip((x // R).astype(int), 0, nx - 1), np.clip((y // R).astype(int), 0, ny - 1)
+    def rect_dec(rx, ry, X, Y, dA, dB, a):
+        x = rx * R + X / Q; y = ry * R + Y / Q; hw = max(.5, dA / Q); hd = max(.5, dB / Q); an = (a + .5) * math.pi / 128; ux, uy = math.cos(an), math.sin(an)
+        return shapely.Polygon([(x - ux * hw + uy * hd, y - uy * hw - ux * hd), (x + ux * hw + uy * hd, y + uy * hw - ux * hd), (x + ux * hw - uy * hd, y + uy * hw + ux * hd), (x - ux * hw - uy * hd, y - uy * hw + ux * hd)]), (x, y)
+    def cuant_rect(cx, cy, hl, hw, an, modo):
+        rx, ry = region(np.array([cx]), np.array([cy])); rx, ry = int(rx[0]), int(ry[0])
+        X = int(min(2047, max(0, round((cx - rx * R) * Q)))); Y = int(min(2047, max(0, round((cy - ry * R) * Q))))
+        f = math.ceil if modo == 'ceil' else math.floor if modo == 'floor' else round
+        dA = int(min(255, max(1, f(hl * Q - 1e-9) if modo == 'ceil' else f(hl * Q)))); dB = int(min(255, max(1, f(hw * Q - 1e-9) if modo == 'ceil' else f(hw * Q))))
+        a = int(an / math.pi * 128) % 128
+        g, c = rect_dec(rx, ry, X, Y, dA, dB, a); return {'t': 'r', 'rx': rx, 'ry': ry, 'X': X, 'Y': Y, 'dA': dA, 'dB': dB, 'a': a, 'g': g, 'c': c}
+    def cuant_pol(g, anc, hl, hw, an):
+        ex = np.asarray(g.exterior.coords)[:-1]
+        if len(ex) > 32: ex = np.asarray(g.simplify(1.0, preserve_topology=True).exterior.coords)[:-1]
+        if not 3 <= len(ex) <= 120: return None
+        rx, ry = region(np.array([anc[0]]), np.array([anc[1]])); rx, ry = int(rx[0]), int(ry[0])
+        X = int(min(2047, max(0, round((anc[0] - rx * R) * Q)))); Y = int(min(2047, max(0, round((anc[1] - ry * R) * Q))))
+        J = np.round((ex - [rx * R, ry * R]) * Q).astype(int); keep = np.ones(len(J), bool); keep[1:] = np.any(np.diff(J, axis=0) != 0, axis=1); J = J[keep]
+        if len(J) >= 2 and (J[0] == J[-1]).all(): J = J[:-1]
+        if len(J) < 3: return None
+        P = shapely.make_valid(shapely.Polygon(J / Q + [rx * R, ry * R]))
+        if P.geom_type != 'Polygon' or P.area < 1: return None
+        return {'t': 'p', 'rx': rx, 'ry': ry, 'X': X, 'Y': Y, 'dA': int(min(255, math.ceil(hl * Q))), 'dB': int(min(255, math.ceil(hw * Q))), 'a': int(an / math.pi * 128) % 128,
+                'J': J, 'g': P, 'c': (rx * R + X / Q, ry * R + Y / Q)}
+    def libre(q):
+        """¿el juego no lo tocaría? (y tampoco pisa ciclorrutas ni agua)"""
+        g = q['g']; cxy = shapely.Point(q['c'])
+        for j in T0.query(cxy):   # centro en la calle (11-edificios.js · libre): el juego lo quita
+            if juego[j] and pz0[j].contains(cxy): return False
+        if THT is not None and any(HT[j].contains(cxy) for j in THT.query(cxy)): return False
+        if q['t'] == 'r':
+            return not any(pz0[j].intersects(g) for j in T0.query(g))
+        for j in T5.query(g):
+            if (pz5[j] if juego[j] else pz0[j]).intersects(g): return False
+        return True
+    def anclar(g):
+        c = g.centroid
+        return (c.x, c.y) if g.contains(c) else tuple(g.point_on_surface().coords[0])
+
+    # ---------- la guarda ----------
+    Qs = [None] * N; malos = []
+    for i in range(N):
+        if quita[i]: continue
+        if esPol[i]:
+            q = cuant_pol(G[i], ct[i] if G[i].contains(shapely.Point(ct[i])) else anclar(G[i]), LW[i] / 2, LD[i] / 2, ang[i])
+            if q is None: q = cuant_rect(oc[i, 0], oc[i, 1], LW[i] / 2, LD[i] / 2, ang[i], 'round')
+        else: q = cuant_rect(oc[i, 0], oc[i, 1], LW[i] / 2, LD[i] / 2, ang[i], 'round' if esR[i] else 'ceil')
+        Qs[i] = q
+        if not libre(q): malos.append(i)
+        if i % 100000 == 0: print('  guarda', i, 'de', N, '· no pasan', len(malos), round(time.time() - t0, 1), 's', flush=True)
+    print('no pasan la guarda en el primer intento:', len(malos), '(confiables marcadas:', int(marc[malos].sum()) if malos else 0, ')', flush=True)
+    fix = np.zeros(N, bool); fuera = 0; quitadas = []
+    def encoger(cx, cy, hl, hw, an, Mg):
+        ux, uy = math.cos(an), math.sin(an); a0, a1, d0, d1 = -hl, hl, -hw, hw
+        for _ in range(12):
+            mx, my = cx + ux * (a0 + a1) / 2 - uy * (d0 + d1) / 2, cy + uy * (a0 + a1) / 2 + ux * (d0 + d1) / 2
+            hl2, hw2 = (a1 - a0) / 2, (d1 - d0) / 2
+            Rg = shapely.Polygon([(mx - ux * hl2 + uy * hw2, my - uy * hl2 - ux * hw2), (mx + ux * hl2 + uy * hw2, my + uy * hl2 - ux * hw2), (mx + ux * hl2 - uy * hw2, my + uy * hl2 + ux * hw2), (mx - ux * hl2 - uy * hw2, my - uy * hl2 + ux * hw2)])
+            I = Rg.intersection(Mg)
+            if I.area < 1e-6: return mx, my, hl2, hw2
+            qc = shapely.get_coordinates(I); dx = qc[:, 0] - cx; dy = qc[:, 1] - cy; a = dx * ux + dy * uy; d = -dx * uy + dy * ux
+            op = [(a.max() + .02, a1, d0, d1), (a0, a.min() - .02, d0, d1), (a0, a1, d.max() + .02, d1), (a0, a1, d0, d.min() - .02)]
+            op = [o for o in op if o[1] - o[0] >= 1.5 and o[3] - o[2] >= 1.5]
+            if not op: return None
+            a0, a1, d0, d1 = max(op, key=lambda o: (o[1] - o[0]) * (o[3] - o[2]))
+        return None
+    for i in malos:
+        q = Qs[i]; base = q['g'] if q['t'] == 'p' else (G[i] if esPol[i] else q['g']); hecho = None
+        amin = min(16, .9 * A[i]) if A[i] >= 12 else 12   # como en el saneamiento: ni restos de menos de 16 m² ni casas chicas apenas rozadas
+        for intento in range(5):
+            marg = .1 + .25 * intento
+            near0 = T0.query(base.buffer(2 + marg)); M0 = shapely.union_all([pz0[j] for j in near0]) if len(near0) else shapely.Polygon()
+            # rectángulo: el más grande con el eje de la casa que no toca nada (con un margen que crece por el redondeo);
+            # sirve si se parece a la huella (IoU >= 0,8): un rectángulo no necesita el medio metro que el juego mira alrededor de un polígono
+            r = encoger(oc[i, 0], oc[i, 1], LW[i] / 2, LD[i] / 2, ang[i], M0.buffer(marg) if marg > 0 else M0)
+            if r is not None:
+                q2 = cuant_rect(r[0], r[1], r[2], r[3], ang[i], 'floor'); gi = q2['g'].intersection(G[i]).area; iou = gi / max(q2['g'].area + A[i] - gi, 1e-9)
+                if q2['g'].area >= amin and (not esPol[i] or iou >= .8) and libre(q2): hecho = q2; break
+            # polígono: la huella menos los corredores (con la tolerancia del juego) y el redondeo de medio metro
+            near5 = T5.query(base.buffer(3 + marg))
+            Mp = shapely.union_all([pz5[j] if juego[j] else pz0[j] for j in near5]) if len(near5) else shapely.Polygon()
+            g2 = shapely.difference(G[i] if esPol[i] else base, Mp.buffer(.36 + marg))
+            ps = [p for p in (g2.geoms if hasattr(g2, 'geoms') else [g2]) if p.geom_type == 'Polygon' and p.area >= amin]
+            if not ps: break
+            p = max(ps, key=lambda p: p.area).simplify(.3, preserve_topology=True)
+            if p.is_empty or p.geom_type != 'Polygon': break
+            o = shapely.oriented_envelope(p); c4 = np.asarray(o.exterior.coords)[:4]; ea, eb = c4[1] - c4[0], c4[2] - c4[1]; la, lb = math.hypot(*ea), math.hypot(*eb)
+            if la < lb: ea, la, lb = eb, lb, la
+            q2 = cuant_pol(p, anclar(p), la / 2, lb / 2, math.atan2(ea[1], ea[0]) % math.pi)
+            if q2 is not None and libre(q2): hecho = q2; break
+        if hecho is None: quita[i] = True; fuera += 1; quitadas.append((A[i], bool(marc[i]), bool(recort[i]), src[i])); continue
+        Qs[i] = hecho; fix[i] = True
+    # una recortada que, ya redondeada como la lee el juego, queda de menos de 12 m² es un resto (el mínimo de El Metro): se prueba con
+    # las medidas redondeadas al medio metro más cercano (no hacia abajo) y, si tampoco alcanza o ya no pasa la guarda, se quita
+    chicos = 0
+    for i in range(N):
+        if quita[i] or not (recort[i] or fix[i]) or Qs[i]['g'].area >= 12: continue
+        q = Qs[i]
+        if q['t'] == 'r':
+            g0 = q['g']; o = shapely.oriented_envelope(g0); c4 = np.asarray(o.exterior.coords)[:4]; ea, eb = c4[1] - c4[0], c4[2] - c4[1]; la, lb = math.hypot(*ea), math.hypot(*eb)
+            if la < lb: ea, la, lb = eb, lb, la
+            q2 = cuant_rect(g0.centroid.x, g0.centroid.y, la / 2 + .2, lb / 2 + .2, (q['a'] + .5) * math.pi / 128, 'round')
+            if q2['g'].area >= 12 and libre(q2): Qs[i] = q2; continue
+        quita[i] = True; chicos += 1; fuera += 1; quitadas.append((A[i], bool(marc[i]), bool(recort[i]), src[i]))
+    print('arregladas por la guarda:', int(fix.sum()), '(confiables marcadas:', int((fix & marc).sum()), ') · quitadas:', fuera, '(de ellas, restos de menos de 12 m² al redondear:', chicos, ')', round(time.time() - t0, 1), 's', flush=True)
+
+    # ---------- zócalo: desnivel del suelo bajo la casa (el relieve de 80 m de El Metro, con los ajustes del río) ----------
+    s_ = open(os.path.join(ROOT, 'src/data/valle.js'), encoding='utf8').read(); b = re.search(r"VALLE_BIN\s*=\s*'([^']+)'", s_) or re.search(r'VALLE_BIN\s*=\s*"([^"]+)"', s_)
+    raw = zlib.decompress(base64.b64decode(b.group(1)), -15); nT, nE = M['W'] * M['H'], M['eW'] * M['eH']
+    E = np.frombuffer(raw[nT:nT + nE * 2], np.int16).astype(np.int64).reshape(M['eH'], M['eW']).cumsum(1).astype(float).ravel()
+    sa = open(os.path.join(ROOT, 'src/data/ajustes.js'), encoding='utf8').read(); mrel = re.search(r'"relieve"\s*:\s*\[([^\]]*)\]', sa)
+    if mrel:
+        rel = [int(v) for v in mrel.group(1).split(',') if v.strip()]
+        for k in range(0, len(rel) - 1, 2): E[rel[k]] = rel[k + 1]
+    E = E.reshape(M['eH'], M['eW']); GE = TM * M['es']
+    def elev(x, y):
+        gx = np.clip(x / GE, 0, M['eW'] - 1.001); gy = np.clip(y / GE, 0, M['eH'] - 1.001); i = gx.astype(int); j = gy.astype(int); fx = gx - i; fy = gy - j
+        return (E[j, i] * (1 - fx) + E[j, i + 1] * fx) * (1 - fy) + (E[j + 1, i] * (1 - fx) + E[j + 1, i + 1] * fx) * fy
+    vivos = [i for i in range(N) if not quita[i]]
+    geos = np.array([Qs[i]['g'] for i in vivos], dtype=object); cz, iz = shapely.get_coordinates(geos, return_index=True); ez = elev(cz[:, 0], cz[:, 1])
+    zmin = np.full(len(vivos), np.inf); zmax = np.full(len(vivos), -np.inf); np.minimum.at(zmin, iz, ez); np.maximum.at(zmax, iz, ez)
+    cc = np.array([Qs[i]['c'] for i in vivos]); ecent = elev(cc[:, 0], cc[:, 1])
+    # zócalo: el juego puede medir el suelo bajo cada esquina con su relieve (elevM); el zócalo por defecto (6 m bajo el suelo del
+    # centro) basta casi siempre. El flujo zb lleva solo los edificios donde no basta (bajan más de ZB_DEF - 2 m desde el centro)
+    ZB_DEF = 6.0; baja = np.zeros(N); sube = np.zeros(N); baja[vivos] = ecent - zmin; sube[vivos] = zmax - ecent
+
+    # ---------- codificación (la misma de siempre) con los flujos nuevos al final ----------
+    keep = ~quita; X = np.array([Qs[i]['X'] if keep[i] else 0 for i in range(N)]); Y = np.array([Qs[i]['Y'] if keep[i] else 0 for i in range(N)])
+    rxa = np.array([Qs[i]['rx'] if keep[i] else 0 for i in range(N)]); rya = np.array([Qs[i]['ry'] if keep[i] else 0 for i in range(N)])
+    hk = np.array([hilbert(int(x), int(y)) for x, y in zip(X, Y)])
+    reg = rya * nx + rxa; orden = np.lexsort((hk, reg)); orden = orden[keep[orden]]
+    pos, dim, an, pi_, ki, pol, zb = bytearray(), bytearray(), bytearray(), bytearray(), bytearray(), bytearray(), bytearray()
+    cnt = np.zeros(nx * ny, int); pb = np.zeros(nx * ny, int); qb = np.zeros(nx * ny, int)
+    last = -1; px = py = pa = 0; npol = 0; n128 = 0; zbl = []; nz = 0
+    for i in orden:
+        q = Qs[i]; r = reg[i]
+        if r != last: last = r; px = py = pa = 0
+        p0, q0 = len(pos), len(pol)
+        varint(int(q['X']) - px, pos); varint(int(q['Y']) - py, pos); px, py = int(q['X']), int(q['Y'])
+        dim.append(int(q['dA'])); dim.append(int(q['dB'])); an.append((int(q['a']) - pa) % 128); pa = int(q['a'])
+        pi_.append(int(pis[i])); fl = int(kind[i]) | int(fuente[i])
+        if recort[i] or fix[i]: fl |= 128; n128 += 1
+        if q['t'] == 'p':
+            fl |= 16; npol += 1; uvarint(len(q['J']), pol); qx, qy = px, py
+            for jx, jy in q['J']: varint(int(jx) - qx, pol); varint(int(jy) - qy, pol); qx, qy = int(jx), int(jy)
+        ki.append(fl)
+        if baja[i] > ZB_DEF - 2: zbl.append((nz, int(min(255, math.ceil(baja[i] / .5))), int(min(255, math.ceil(max(0, sube[i]) / .5)))))
+        nz += 1
+        cnt[r] += 1; pb[r] += len(pos) - p0; qb[r] += len(pol) - q0
+    idxb = bytearray()
+    for r in range(nx * ny): uvarint(int(cnt[r]), idxb); uvarint(int(pb[r]), idxb); uvarint(int(qb[r]), idxb)
+    # zb: uvarint cuántos · por cada uno: uvarint salto de índice (en el orden del binario), u8 cuánto baja el suelo desde el centro y
+    # u8 cuánto sube (medios metros). zBase = suelo del centro - max(6 m, lo que baja) - el resto de la casa se mide con elevM
+    uvarint(len(zbl), zb); pi0 = 0
+    for k_, b1, b2 in zbl: uvarint(k_ - pi0, zb); pi0 = k_; zb.append(b1); zb.append(b2)
+    flujos = [idxb, pos, dim, an, pi_, ki, pol, zb]; todo = b''.join(bytes(f) for f in flujos)
+    comp = desinflar(todo)
+    n = int(cnt.sum())
+    suelos = suelos_de(U, UG, rd, proj, W, H)
+    a_fin = float(sum(Qs[i]['g'].area for i in orden))
+    stats = {'v': 2, 'edificios': n, 'poligonos': npol, 'recortados_bit128': n128, 'oficiales': int(((fuente == 32) & keep).sum()), 'osm': int(((fuente == 64) & keep).sum()),
+             'motor_del_valle': {'recortadas': int((recort & keep).sum()), 'confiables_marcadas': int(marc.sum()), 'rectangulos_de_recortadas': int((esR & keep).sum())},
+             'guarda': {'no_pasaban': len(malos), 'arregladas': int(fix.sum()), 'confiables_recortadas_para_el_juego': int((fix & marc).sum()), 'quitadas': fuera,
+                        'quitadas_detalle': {'confiables_marcadas': sum(1 for q in quitadas if q[1]), 'ya_recortadas': sum(1 for q in quitadas if q[2]),
+                                             'area_p10_p50_p90_m2': [round(float(np.percentile([q[0] for q in quitadas], v)), 1) for v in (10, 50, 90)] if quitadas else []}},
+             'area_m2': {'huellas_originales': round(float(area0.sum())), 'saneadas': round(float(A.sum())), 'exportadas_como_las_lee_el_juego': round(a_fin)},
+             'por_uso': {KINDS[k]: int(((kind == k) & keep).sum()) for k in range(len(KINDS))},
+             'por_fuente': {s2: int(((src == s2) & keep).sum()) for s2 in sorted(set(src))},
+             'pisos_medios_por_zona': {z_: round(float(pis[(zona == z_) & keep].mean()), 2) for z_ in TIPO if ((zona == z_) & keep).any()},
+             'zocalo': {'en_el_flujo_zb': len(zbl), 'desnivel_bajo_la_casa_p50_m': round(float(np.median(baja[vivos] + sube[vivos])), 2), 'desnivel_p99_m': round(float(np.percentile(baja[vivos] + sube[vivos], 99)), 2),
+                        'nota': 'zBase = suelo del centro - max(6 m, lo que baja el suelo bajo la casa); zb lleva solo los edificios donde el suelo baja más de 4 m desde el centro'},
+             'suelos': {k: len(v) for k, v in suelos.items()}, 'bytes': {'crudo': len(todo), 'deflate': len(comp), 'zb_crudo': len(zb), 'compresor': COMPRESOR}}
+    escribir(n, nx, ny, flujos, todo, comp, suelos, stats, t0, v=2, extra='\n   Desde el Motor del Valle 1.3: huellas saneadas (ninguna pisa la calle ni el agua; motor-valle/geo/sanear.py); bit 128 del uso = recortada; flujo zb (zócalo) al final.')
+
+
+def suelos_de(U, UG, rd, proj, W, H):
+    """canchas, pistas, piscinas y campus (nombre y polígono simplificado para el rótulo y el prado)"""
+    import numpy as np, shapely
+    def mayor(g):
+        if g.geom_type == 'Polygon': return g
+        ps = [p for p in getattr(g, 'geoms', []) if p.geom_type == 'Polygon']
+        return max(ps, key=lambda p: p.area) if ps else None
+    suelos = {'cancha': [], 'pista': [], 'piscina': [], 'campus': []}
+    def obb(g):
+        o = shapely.oriented_envelope(g); c4 = np.asarray(o.exterior.coords)[:4]; a1 = c4[1] - c4[0]; a2 = c4[2] - c4[1]; l1, l2 = math.hypot(*a1), math.hypot(*a2)
+        if l1 < l2: a1, l1, l2 = a2, l2, l1
+        c = c4.mean(0); return [round(c[0], 1), round(c[1], 1), round(l1 / 2, 1), round(l2 / 2, 1), round(math.atan2(a1[1], a1[0]) % math.pi, 3)]
+    for i, c in enumerate(U['class']):
+        g = mayor(UG[i]) if UG[i].geom_type != 'Polygon' else UG[i]
+        if g is None or g.is_empty: continue
+        x, y = g.centroid.x, g.centroid.y
+        if not (0 < x < W and 0 < y < H): continue
+        if c == 'pitch' and g.area >= 80: suelos['cancha'].append(obb(g) + [round(g.area / max(1, shapely.oriented_envelope(g).area), 2)])
+        elif c == 'track' and g.area >= 400: suelos['pista'].append(obb(g))
+        elif c in ('university', 'college') and g.area >= 4000 and U['name'][i]:
+            gs = g.simplify(3); ex = np.asarray(gs.exterior.coords)[:-1].round(1).ravel().tolist()
+            suelos['campus'].append({'n': U['name'][i], 'x': round(x, 1), 'y': round(y, 1), 'P': ex})
+    Wd = rd('agua.parquet', ['class', 'wkb'])
+    for c, w in zip(Wd['class'], Wd['wkb']):
+        if c != 'swimming_pool': continue
+        g = mayor(shapely.make_valid(shapely.transform(shapely.from_wkb(w), proj)))
+        if g is None or g.area < 12: continue
+        x, y = g.centroid.x, g.centroid.y
+        if 0 < x < W and 0 < y < H: suelos['piscina'].append(obb(g))
+    return suelos
+
+
+def escribir(n, nx, ny, flujos, todo, comp, suelos, stats, t0, v=1, extra=''):
+    txt = ('/* Casas y edificios reales del Valle de Aburrá: huella (posición, forma y orientación), pisos y uso. Generado por tools/edificios_datos.py (no editar a mano).\n'
+           '   Huellas: Overture Maps Foundation (OpenStreetMap, ODbL; Microsoft ML Buildings, ODbL; Google Open Buildings, CC BY 4.0 / ODbL).\n'
+           '   Pisos: Subsecretaría de Catastro de Medellín, capa 3DConstruccciones (Popular, El Poblado y Robledo; www.medellin.gov.co/geomedellin);\n'
+           '   OpenStreetMap donde existen; en el resto, estimados por zona y tamaño. Usos del suelo, canchas y piscinas: Overture (OpenStreetMap, ODbL).' + extra + ' */\n'
+           f'const EDIFICIOS = {json.dumps({"v": v, "R": R, "nx": nx, "ny": ny, "n": n, "Q": Q, "kinds": KINDS, "len": [len(f) for f in flujos], "raw": len(todo)})};\n'
+           f'EDIFICIOS.data = "{base64.b64encode(comp).decode()}";\n'
+           f'const SUELOS = {json.dumps(suelos, ensure_ascii=False, separators=(",", ":"))};\n')
+    open(os.path.join(ROOT, 'src/data/edificios.js'), 'w', encoding='utf8').write(txt)
+    json.dump(stats, open(os.path.join(ROOT, 'docs/auditorias/edificios.json'), 'w'), ensure_ascii=False, indent=1)
+    print(json.dumps(stats, ensure_ascii=False)); print('src/data/edificios.js', round(len(txt) / 1e6, 3), 'MB ·', len(txt), 'bytes ·', round(time.time() - t0), 's')
+
+
 if __name__ == '__main__':
-    if len(sys.argv) > 2 and sys.argv[1] == '--descargar': descargar(sys.argv[2])
-    elif len(sys.argv) > 1: generar(sys.argv[1])
+    a = sys.argv[1:]
+    if len(a) > 1 and a[0] == '--descargar': descargar(a[1])
+    elif '--saneadas' in a:
+        san = a[a.index('--saneadas') + 1]; cor = a[a.index('--corredores') + 1] if '--corredores' in a else os.path.join(ROOT, 'tools', 'cache', 'corredores.json')
+        generar_saneadas(a[0], san, cor)
+    elif a: generar(a[0])
     else: print(__doc__)
 ~~~~
 
@@ -19140,6 +19954,198 @@ for zi, z in enumerate(V):
 print(json.dumps(res, ensure_ascii=False, indent=1))
 ~~~~
 
+### `tools/prueba-cenital.mjs`
+~~~~js
+#!/usr/bin/env node
+/* =====================================================================
+   PRUEBA DEL CENITAL NUEVO (97d-cenital.js · renacimiento cenital, Fase 2)
+   En Chromium (SwiftShader), a 412 × 860, con la bandera apagada y encendida, en San Antonio y Acevedo (donde el techo de la
+   estación tapaba al jugador) y en las 6 zonas piloto de la Fase 1:
+     1. el jugador se ve: se viste de magenta y se cuentan sus píxeles alrededor de su punto en la pantalla 3D (el techo de
+        San Antonio y Acevedo lo tapaba: con la bandera debe verse);
+     2. ninguna caja de relleno en el anillo lejano (el contador de 97d debe quedar en 0) y sí edificios reales entre 700 y 1.100 m;
+     3. 0 errores (consola y EM.errors).
+   Con --huella compara además, con la bandera apagada, las mallas 3D (piso, edificios y red) contra otra compilación
+   (--contra RUTA/dist/index.html): deben ser idénticas (en la red, salvo el k + 0,4 de los techos de las estaciones).
+   Con --capturas CARPETA deja las capturas «antes» (apagada) y «después» (encendida) a 412 × 860 × 2.
+   Uso: node tools/build.mjs && node tools/prueba-cenital.mjs [--capturas CARPETA] [--huella|--solo-huella --contra OTRO/dist/index.html] [--json]
+   ===================================================================== */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import path from 'node:path'; import fs from 'node:fs'; import { fileURLToPath } from 'node:url';
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..'), A = process.argv.slice(2), opt = k => A.includes(k) ? A[A.indexOf(k) + 1] : null;
+const CAP = opt('--capturas'), CONTRA = opt('--contra'), SOLO = A.includes('--solo-huella'), HUELLA = SOLO || A.includes('--huella'), JSONOUT = A.includes('--json');
+const ZONAS = { 'centro-la-candelaria': [6.2503, -75.5675], 'laureles': [6.2445, -75.5925], 'el-poblado': [6.2087, -75.5677], 'ladera-santo-domingo': [6.2925, -75.5420], 'rio-y-viaducto-industriales': [6.2302, -75.5760], 'rural-santa-elena': [6.2094, -75.4995] };
+const ARGS = { args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] };
+const browser = await chromium.launch(ARGS), errores = [], R = { visibilidad: [], ventanas: [], errores };
+async function abrir(html, dpr = 1) {
+  const page = await (await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: dpr })).newPage();
+  page.on('pageerror', e => errores.push('pageerror: ' + e.message)); page.on('console', m => { if (m.type() === 'error') errores.push(m.text()); });
+  await page.goto('file://' + html); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 }); await page.waitForFunction(() => EM.vcity && EM.vcity.on, null, { timeout: 90000 });
+  return page;
+}
+/* en la página: viste al jugador de magenta (y su silueta), y tras cada dibujo 3D cuenta sus píxeles alrededor de su punto */
+const PREPARA = () => {
+  Perfil.ped = () => ({ col: '#ff00ff', pants: '#ff00ff', skin: '#ff00ff', hair: '#ff00ff', gorro: 0 });
+  if (EM.cenital) EM.cenital.colSil = [1, 0, 1];
+  const d0 = G3.draw; window.__cuenta = null;
+  G3.draw = function () { const r = d0.apply(this, arguments); if (window.__leer) { window.__leer = 0; const gl = this.gl, w = this.vw, h = this.vh, st = EM.game.st, z = EM.modes.libre.alto3(st) + .9, q = this.toScreen(st.x, z, st.y, w, h);
+    if (!q) { window.__cuenta = { n: -1 }; return r; } const R = Math.round(h * .045), x0 = Math.max(0, Math.round(q.x) - R), y0 = Math.max(0, Math.round(h - q.y) - R), W = Math.min(w - x0, 2 * R + 1), H = Math.min(h - y0, 2 * R + 1), px = new Uint8Array(W * H * 4); gl.readPixels(x0, y0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    let n = 0; for (let i = 0; i < px.length; i += 4) { const r2 = px[i], g2 = px[i + 1], b2 = px[i + 2]; if (r2 > 70 && b2 > 70 && g2 < .62 * Math.min(r2, b2)) n++; } window.__cuenta = { n, caja: W * H, q: [Math.round(q.x), Math.round(q.y)], w, h }; } return r; };
+};
+async function ir(page, donde, flag, vista) {
+  return page.evaluate(([donde, flag, vista]) => {
+    EM.cenital.forzar = flag; const L = EM.modes.libre, VM = VALLE_META;
+    if (typeof donde === 'string') { EM.game.stop(); EM.game.start('libre', 'lb:' + donde, { seed: 5 }); }
+    else { if (!EM.game.mode || EM.game.mode !== L) EM.game.start('libre', 'lb:San Antonio', { seed: 5 }); L.llevar(EM.game.st, (donde[1] - VM.lon0) * VM.kx * 20, (VM.latN - donde[0]) * VM.ky * 20, false); }
+    Save.d.settings.cal3d = 0; Save.d.settings.ciclo = 'dia'; L.vista(EM.game.st, vista); EM.game.freeze(false); return true;
+  }, [donde, flag, vista]);
+}
+async function cuenta(page) {
+  await page.evaluate(() => EM.game.freeze(true));
+  return page.evaluate(() => { window.__leer = 1; EM.game.frame(); const c = window.__cuenta, st = EM.game.st; return Object.assign({}, c, { modo: st.mode, cen: EM.cenital.n && JSON.parse(JSON.stringify(EM.cenital.n)), win: G3.win && !!G3.win.cen, errores: EM.errors.slice() }); });
+}
+
+const html = path.join(root, 'dist', 'index.html'), page = await abrir(html, CAP ? 2 : 1);
+await page.evaluate(PREPARA);
+if (CAP) fs.mkdirSync(CAP, { recursive: true });
+const PUNTOS = SOLO ? [] : [['San Antonio', 'San Antonio'], ['Acevedo', 'Acevedo'], ...Object.entries(ZONAS)];
+for (const [nom, donde] of PUNTOS) for (const flag of [false, true]) {
+  await ir(page, donde, flag, 'cen3d'); await page.waitForTimeout(typeof donde === 'string' ? 3200 : 2600);
+  const c = await cuenta(page); R.visibilidad.push({ punto: nom, bandera: flag, pixeles: c.n, caja: c.caja, modo: c.modo, ventanaCenital: c.win, contadores: c.cen });
+  if (c.errores && c.errores.length) errores.push(...c.errores.map(e => nom + ': ' + e));
+  if (CAP) await page.screenshot({ path: path.join(CAP, `${flag ? 'despues' : 'antes'}-${nom.toLowerCase().replace(/ /g, '-')}-cen3d.png`), timeout: 60000 });
+  if (CAP && typeof donde !== 'string') for (const v of ['2d', ...(nom === 'centro-la-candelaria' || nom === 'ladera-santo-domingo' ? ['dron', '3p'] : [])]) {
+    await ir(page, donde, flag, v); await page.waitForTimeout(v === '2d' ? 1800 : 2600); await page.evaluate(() => EM.game.freeze(true)); await page.waitForTimeout(150);
+    await page.screenshot({ path: path.join(CAP, `${flag ? 'despues' : 'antes'}-${nom}-${v}.png`), timeout: 60000 });
+  }
+}
+/* Bus (2D) con la bandera: que dibuje sin errores */
+for (const flag of SOLO ? [] : [false, true]) { await page.evaluate(f => { EM.cenital.forzar = f; EM.game.stop(); const L = EM.modes.bus.levels(); EM.game.start('bus', L[0].id, { seed: 3 }); EM.game.freeze(false); }, flag); await page.waitForTimeout(2500); if (CAP) { await page.evaluate(() => EM.game.freeze(true)); await page.screenshot({ path: path.join(CAP, `${flag ? 'despues' : 'antes'}-bus.png`), timeout: 60000 }); } }
+R.erroresJuego = await page.evaluate(() => EM.errors.slice()); errores.push(...R.erroresJuego);
+
+/* las mallas con la bandera apagada, idénticas a las de otra compilación (la de antes de la Fase 2) */
+const HUELLA_JS = async (pg) => pg.evaluate(() => {
+  const h32 = (a, norm) => { const u = new Uint32Array(a.buffer, a.byteOffset, a.length); let h = 2166136261 >>> 0; const f = new Float32Array(1), fu = new Uint32Array(f.buffer); for (let i = 0; i < u.length; i++) { let v = u[i]; if (norm && i % 10 === 9) { const k = a[i], fr = k - Math.floor(k); if (Math.abs(fr - .4) < 1e-4) { f[0] = Math.round(k - .4); v = fu[0]; } } h = Math.imul(h ^ v, 16777619) >>> 0; } return h.toString(16); };
+  if (EM.cenital) EM.cenital.forzar = false; G3.init(); const b0 = G3.buf, out = {}; let lista = null, norm = false;
+  G3.buf = function (arr) { if (lista) lista.push(arr.length + ':' + h32(arr, norm)); return b0.apply(this, arguments); };
+  for (const [x, z] of [[14000, 23000], [9000, 17000], [18500, 21500], [12000, 30000]]) { lista = []; G3.buildNear(x, z); out['ventana ' + x + ',' + z] = lista.join(' '); }
+  lista = []; norm = true; G3.buildNet(); out.red = lista.join(' '); lista = null; G3.buf = b0; return out;
+});
+if (HUELLA) {
+  const a = await HUELLA_JS(page); let b = null;
+  if (CONTRA) { const p2 = await abrir(path.resolve(CONTRA)); b = await HUELLA_JS(p2); await p2.close(); }
+  R.huella = Object.keys(a).map(k => ({ malla: k, partes: a[k].split(' ').length, igual: b ? a[k] === b[k] : null }));
+}
+await browser.close();
+
+const vis = R.visibilidad, falta = [];
+for (const v of vis) if (v.bandera && v.contadores && v.contadores.relleno) falta.push(v.punto + ': ' + v.contadores.relleno + ' ventanas con relleno');
+for (const p of SOLO ? [] : ['San Antonio', 'Acevedo']) { const on = vis.find(v => v.punto === p && v.bandera); if (!on || !(on.pixeles >= 12)) falta.push(p + ': el jugador no se ve con la bandera (' + (on ? on.pixeles : '?') + ' píxeles)'); }
+const algunaVentana = vis.filter(v => v.bandera).some(v => v.contadores && v.contadores.anillo > 0); if (!algunaVentana && !SOLO) falta.push('ninguna ventana con edificios reales en el anillo lejano');
+if (R.huella) for (const h of R.huella) if (h.igual === false) falta.push('malla distinta con la bandera apagada: ' + h.malla);
+if (errores.length) falta.push(errores.length + ' errores: ' + errores.slice(0, 3).join(' · '));
+R.bien = !falta.length; R.falta = falta;
+if (JSONOUT) console.log(JSON.stringify(R, null, 1));
+else {
+  console.log('punto                          bandera  píxeles del jugador  modo   anillo real  zócalos  sombras');
+  for (const v of vis) console.log(v.punto.padEnd(30), (v.bandera ? 'sí' : 'no').padEnd(8), String(v.pixeles).padStart(8), '/', String(v.caja).padEnd(8), (v.modo || '').padEnd(6), v.contadores ? String(v.contadores.anillo).padStart(9) : '', v.contadores ? String(v.contadores.zocalos).padStart(9) : '', v.contadores ? String(v.contadores.sombras).padStart(8) : '');
+  if (R.huella) for (const h of R.huella) console.log('huella', h.malla.padEnd(22), h.partes, 'partes', h.igual == null ? '(sin --contra)' : h.igual ? 'IGUAL' : 'DISTINTA');
+  console.log(R.bien ? 'BIEN · el cenital nuevo pasa' : 'FALLA · ' + falta.join(' | '));
+}
+process.exit(R.bien ? 0 : 1);
+~~~~
+
+### `tools/prueba-recorte.mjs`
+~~~~js
+#!/usr/bin/env node
+/* PRUEBA DEL RECORTE EN TIEMPO REAL (Motor del Valle 1.3, Fase 1 del renacimiento cenital): con los datos saneados, la red de
+   seguridad del juego (11-edificios.js · recorta, dentro de VC.region) no debe cortar ni quitar ningún edificio.
+   No cambia el juego: lo carga en Chromium, llama a VC.region en las regiones de muestra y cuenta, en los edificios de cada región,
+   los que el juego recortó (b.cut === 1) y los que quitó (b.rec === false: el centro en la calle o en un hito, o no cupo).
+   Uso: node tools/build.mjs && node tools/prueba-recorte.mjs [--n 50] [--todas] [--url http://...] [--json SALIDA.json]
+        --n N      regiones de muestra (por defecto 50: las 6 zonas piloto y las demás repartidas con semilla fija entre las que tienen casas)
+        --todas    todas las regiones del mapa (unas 5.000; tarda varios minutos)
+   Sale con 1 si el juego recorta o quita alguno. */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
+import { spawn } from 'node:child_process'; import path from 'node:path'; import fs from 'node:fs';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..'), A = process.argv.slice(2), opt = k => { const i = A.indexOf(k); return i >= 0 ? A[i + 1] : null; };
+const N = +(opt('--n') || 50), TODAS = A.includes('--todas'), salida = opt('--json');
+let srv = null, url = opt('--url');
+if (!url) { srv = spawn(process.execPath, [path.join(root, 'tools/server.mjs'), '8772'], { stdio: 'ignore' }); await new Promise(r => setTimeout(r, 600)); url = 'http://localhost:8772/'; }
+// zonas piloto (las de la prueba de craqueo): Centro/La Candelaria, Laureles, El Poblado, ladera nororiental, río y viaducto, y rural
+const PILOTO = { 'Centro · La Candelaria': [6.2505, -75.5665], 'Laureles': [6.2445, -75.5925], 'El Poblado': [6.2085, -75.5675], 'Ladera nororiental (Santo Domingo)': [6.2925, -75.5420], 'Río y viaducto (Industriales)': [6.2302, -75.5755], 'Rural (Santa Elena)': [6.2090, -75.4990] };
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+let res;
+try {
+  const page = await browser.newPage(), err = []; page.on('pageerror', e => err.push(e.message));
+  await page.goto(url); await page.waitForFunction(() => window.EM && EM.ready && EM.vcity && EM.vcity.on && EM.vcity.ED, null, { timeout: 90000 });
+  res = await page.evaluate(async ({ N, TODAS, PILOTO }) => {
+    const VC = EM.vcity, E = VC.ED, R = VC.R, VM = VALLE_META, TMm = 20, m = (la, lo) => [(lo - VM.lon0) * VM.kx * TMm, (VM.latN - la) * VM.ky * TMm];
+    const conCasas = []; for (let ry = 0; ry < E.ny; ry++) for (let rx = 0; rx < E.nx; rx++) if (E.cnt[ry * E.nx + rx]) conCasas.push([rx, ry]);
+    let regiones = [];
+    if (TODAS) regiones = conCasas;
+    else {
+      const piloto = Object.entries(PILOTO).map(([n, [la, lo]]) => { const [x, y] = m(la, lo); return [Math.floor(x / R), Math.floor(y / R), n]; });
+      regiones = piloto.slice(); let s = 12345; const rnd = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+      const resto = conCasas.filter(([rx, ry]) => !piloto.some(p => p[0] === rx && p[1] === ry));
+      while (regiones.length < N && resto.length) regiones.push(resto.splice(Math.floor(rnd() * resto.length), 1)[0]);
+    }
+    const out = { regiones: regiones.length, edificios: 0, recortados: 0, quitados: 0, porRegion: [], muestras: [], ms: 0 }, t0 = performance.now();
+    for (const [rx, ry, nombre] of regiones) {
+      VC.reg.delete(rx * 4096 + ry); VC.region(rx, ry);
+      let n = 0, c = 0, q = 0;
+      for (const b of VC.edifDe(rx, ry)) { n++; if (b.cut === 1) { c++; if (out.muestras.length < 15) out.muestras.push({ x: +b.x.toFixed(1), y: +b.y.toFixed(1), que: 'recortado' }); } if (b.rec === false) { q++; if (out.muestras.length < 15) out.muestras.push({ x: +b.x.toFixed(1), y: +b.y.toFixed(1), que: 'quitado' }); } }
+      out.edificios += n; out.recortados += c; out.quitados += q;
+      if (nombre || c || q) out.porRegion.push({ rx, ry, zona: nombre || '', edificios: n, recortados: c, quitados: q });
+      if (VC.reg.size > 40) for (const k of [...VC.reg.keys()].slice(0, 20)) VC.reg.delete(k);
+    }
+    out.ms = Math.round(performance.now() - t0); return out;
+  }, { N, TODAS, PILOTO });
+  res.erroresConsola = err; res.datos = await page.evaluate(() => ({ edificios_v: EDIFICIOS.v, edificios_n: EDIFICIOS.n, vias_v: VIAS.v || 1, vias_u: VIAS.u }));
+} finally { await browser.close(); if (srv) srv.kill(); }
+res.resultado = res.recortados === 0 && res.quitados === 0 && !res.erroresConsola.length ? 'BIEN' : 'FALLA';
+if (salida) fs.writeFileSync(salida, JSON.stringify(res, null, 1));
+console.log(JSON.stringify({ ...res, porRegion: res.porRegion.filter(r => r.zona || r.recortados || r.quitados).slice(0, 30) }, null, 1));
+process.exit(res.resultado === 'BIEN' ? 0 : 1);
+~~~~
+
+### `tools/prueba-rutas.mjs`
+~~~~js
+#!/usr/bin/env node
+/* =====================================================================
+   PRUEBA DE LAS RUTAS A* CONTRA LOS EDIFICIOS SANEADOS (renacimiento cenital, Fase 3)
+   Las rutas de bus por las calles (src/data/rutas_calles.js, hechas con A* sobre vias.js) no deben cruzar ningún edificio:
+   se recorre cada ruta cada 2 m y se mira, con los mismos datos y funciones del juego (VC.edifDe, VC.enPol), si el bus
+   (medio ancho de 1,25 m) tocaría una casa. Con la Fase 1 (edificios.js v2 con su guarda) debe dar 0.
+   Uso: node tools/build.mjs && node tools/prueba-rutas.mjs [--margen 1.25] [--json]
+   ===================================================================== */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..'), A = process.argv.slice(2), MARGEN = A.includes('--margen') ? +A[A.indexOf('--margen') + 1] : 1.25, JSONOUT = A.includes('--json');
+const b = await chromium.launch(), page = await (await b.newContext({ viewport: { width: 412, height: 860 } })).newPage(), errores = [];
+page.on('pageerror', e => errores.push(e.message));
+await page.goto('file://' + path.join(root, 'dist', 'index.html')); await page.waitForFunction(() => window.EM && EM.ready && EM.vcity && EM.vcity.ED, null, { timeout: 90000 });
+const R = await page.evaluate(m => {
+  const out = []; if (typeof RUTAS_CALLES === 'undefined') return { error: 'sin RUTAS_CALLES' };
+  const toca = (b, x, y) => { if (b.P) return VC.enPol(b.P, x, y, m); const lx = (x - b.x) * b.ux + (y - b.y) * b.uy, ly = -(x - b.x) * b.uy + (y - b.y) * b.ux; return Math.abs(lx) < b.hw + m && Math.abs(ly) < b.hd + m; };
+  for (const [id, P] of Object.entries(RUTAS_CALLES)) {
+    let pts = 0, n = 0; const ej = [];
+    for (let i = 2; i < P.length; i += 2) {
+      const ax = P[i - 2], ay = P[i - 1], bx = P[i], by = P[i + 1], L = Math.hypot(bx - ax, by - ay), k = Math.max(1, Math.ceil(L / 2));
+      for (let j = 0; j < k; j++) { const x = ax + (bx - ax) * j / k, y = ay + (by - ay) * j / k; pts++; let hit = null;
+        for (let dy = -1; dy <= 1 && !hit; dy++) for (let dx = -1; dx <= 1 && !hit; dx++) for (const b of VC.edifDe(Math.floor(x / VC.R) + dx, Math.floor(y / VC.R) + dy)) { const rr = b.hw + b.hd + m + 1; if (Math.abs(b.x - x) > rr || Math.abs(b.y - y) > rr) continue; if (toca(b, x, y)) { hit = b; break; } }
+        if (hit) { n++; if (ej.length < 4) ej.push([Math.round(x), Math.round(y)]); } }
+    }
+    out.push({ ruta: id, puntos: pts, tocan: n, ejemplos: ej });
+  }
+  return { rutas: out };
+}, MARGEN);
+await b.close();
+if (R.error) { console.error(R.error); process.exit(1); }
+const tot = R.rutas.reduce((a, r) => a + r.tocan, 0), pts = R.rutas.reduce((a, r) => a + r.puntos, 0);
+if (JSONOUT) console.log(JSON.stringify({ margen: MARGEN, puntos: pts, tocan: tot, rutas: R.rutas, errores }, null, 1));
+else { for (const r of R.rutas.filter(r => r.tocan)) console.log('  ✗', r.ruta, r.tocan, 'de', r.puntos, 'puntos tocan una casa · p. ej.', JSON.stringify(r.ejemplos)); console.log(`${R.rutas.length} rutas · ${pts} puntos cada 2 m · margen ${MARGEN} m: ${tot} tocan una casa · ${errores.length} errores`); console.log(tot || errores.length ? 'FALLA' : 'BIEN · ninguna ruta A* cruza un edificio saneado'); }
+process.exit(tot || errores.length ? 1 : 0);
+~~~~
+
 ### `tools/puentes_datos.py`
 ~~~~
 #!/usr/bin/env python3
@@ -19302,6 +20308,49 @@ if __name__ == '__main__':
     if len(sys.argv) > 2 and sys.argv[1] == '--descargar': descargar(sys.argv[2])
     elif len(sys.argv) > 1: generar(sys.argv[1])
     else: print(__doc__)
+~~~~
+
+### `tools/rendimiento-cenital.mjs`
+~~~~js
+#!/usr/bin/env node
+/* =====================================================================
+   RENDIMIENTO DEL CENITAL NUEVO (Fase 2): ¿empeora el p95 con la bandera?
+   La misma escena de «📏 Medir mi celular» (96d-rendimiento.js): Ciudad Libre en San Antonio, en 3D cenital y en 2D, con el
+   regulador fijo en «alta» (cal3d = 0) para comparar lo mismo; la cámara recorre el Centro a 40 m/s (rearma la ventana cercana
+   como cuando uno maneja). Alterna apagada/encendida varias veces (A/B/A/B) y da la mediana, el p95 y el peor cuadro.
+   En Chromium sin tarjeta gráfica (SwiftShader), el peor caso del proyecto: sirve para comparar, no como cifra de un celular.
+   Uso: node tools/build.mjs && node tools/rendimiento-cenital.mjs [segundos=12] [rondas=2] [--cpu 4] [--json]
+   ===================================================================== */
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..'), A = process.argv.slice(2), num = A.filter(a => /^\d+$/.test(a)).map(Number);
+const SEG = num[0] || 12, RONDAS = num[1] || 2, CPU = A.includes('--cpu') ? +A[A.indexOf('--cpu') + 1] : 1, JSONOUT = A.includes('--json');
+const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
+const ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 2, hasTouch: true }), page = await ctx.newPage(), errores = [];
+page.on('pageerror', e => errores.push(e.message));
+await page.goto('file://' + path.join(root, 'dist', 'index.html')); await page.waitForFunction(() => window.EM && EM.ready, null, { timeout: 90000 }); await page.waitForFunction(() => EM.vcity && EM.vcity.on, null, { timeout: 90000 });
+if (CPU > 1) { const s = await ctx.newCDPSession(page); await s.send('Emulation.setCPUThrottlingRate', { rate: CPU }); }
+const pct = (a, p) => { const b = [...a].sort((x, y) => x - y); return b.length ? b[Math.min(b.length - 1, Math.floor(p * b.length))] : 0; };
+async function medir(vista, flag) {
+  await page.evaluate(([vista, flag]) => {
+    EM.cenital.forzar = flag; const s = Save.d.settings; s.cal3d = 0; s.ciclo = 'dia'; s.q = 'alta'; EM.rendimiento && (EM.rendimiento.nivel = 0);
+    EM.game.stop(); EM.game.start('libre', 'lb:San Antonio', { seed: 5 }); const L = EM.modes.libre, st = EM.game.st; L.vista(st, vista);
+    st.camLibre = true; if (L._camLibre) L._camLibre(true); window.__cam0 = { x: st.cam.x, y: st.cam.y };
+  }, [vista, flag]);
+  await page.waitForTimeout(3000);   // calienta: arma la ventana y los trozos
+  return page.evaluate(seg => new Promise(res => {
+    const st = EM.game.st, c0 = window.__cam0, T = [], t0 = performance.now(); let prev = t0;
+    const f = t => { T.push(t - prev); prev = t; const s = (t - t0) / 1000, d = s * 40; st.cam.x = c0.x + Math.cos(.6) * d; st.cam.y = c0.y + Math.sin(.6) * d - 300 * Math.sin(s * .5); if (t - t0 < seg * 1000) requestAnimationFrame(f); else res(T.slice(1)); };
+    requestAnimationFrame(f);
+  }), SEG);
+}
+const R = {};
+for (const vista of ['cen3d', '2d']) for (let r = 0; r < RONDAS; r++) for (const flag of r % 2 ? [true, false] : [false, true]) {
+  const T = await medir(vista, flag), k = vista + (flag ? ' · encendida' : ' · apagada'); (R[k] = R[k] || []).push(...T);
+}
+const filas = Object.entries(R).map(([k, T]) => ({ caso: k, cuadros: T.length, p50: +pct(T, .5).toFixed(1), p95: +pct(T, .95).toFixed(1), peor: +Math.max(...T).toFixed(1), cps: +(1000 / (T.reduce((a, b) => a + b, 0) / T.length)).toFixed(1) }));
+const e = await page.evaluate(() => EM.errors.slice()); errores.push(...e); await browser.close();
+if (JSONOUT) console.log(JSON.stringify({ segundos: SEG, rondas: RONDAS, cpu: CPU, filas, errores }, null, 1));
+else { console.log(`Ciudad Libre · San Antonio → Centro a 40 m/s · ${SEG} s × ${RONDAS} rondas · CPU ×${CPU} · SwiftShader · 412 × 860 × 2`); console.log('caso                        cuadros   p50 ms   p95 ms   peor ms   cuadros/s'); for (const f of filas) console.log(f.caso.padEnd(26), String(f.cuadros).padStart(7), String(f.p50).padStart(8), String(f.p95).padStart(8), String(f.peor).padStart(9), String(f.cps).padStart(10)); if (errores.length) console.log('errores:', errores.slice(0, 3)); }
 ~~~~
 
 ### `tools/rieles_datos.mjs`
@@ -20411,54 +21460,133 @@ console.log(JSON.stringify(R, null, 1)); await b.close();
 ~~~~js
 #!/usr/bin/env node
 /* Vías como vectores para dibujar la ciudad con curvas → src/data/vias.js
-   Fuente: src/data/vias.bin y valle.json de Juega EnCicla 1.3.1 (misma proyección del valle; casillas de 10 m), con nomenclatura
-   oficial de Medellín y ancho de la malla vial cuando existe (© colaboradores de OpenStreetMap, ODbL, vía Overture Maps; Alcaldía de Medellín).
-   Uso: node tools/vias_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3
+   Dos fuentes:
+   · desde el Motor del Valle 1.3 (lo normal desde el 24-nov-2026):
+       node tools/vias_datos.mjs --motor RUTA/motor-valle/salida/sanear
+     Lee los ejes precisos de las vías (vias_m.bin de geo/build.py, sin simplificar ni redondear) y su rasante (rasante.bin de
+     geo/rasante.py). Guarda los puntos en unidades de 0,5 m (antes 2,5 m) con Douglas-Peucker a 0,25 m, sin quitar los vértices
+     que comparten dos vías (los cruces). Al final del binario, después de las vías, va el flujo «COTA» (la cota y la pendiente de
+     cada vía), que el lector de hoy (11-ciudad2.js) no lee: VIAS.bytes sigue siendo el largo de las vías y VIAS.cota el del flujo.
+   · desde vias.bin de Juega EnCicla 1.3 (la forma antigua, puntos de 2,5 m):
+       node tools/vias_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3
+   Fuente: © colaboradores de OpenStreetMap (ODbL) vía Overture Maps, con nomenclatura oficial de Medellín y ancho de la malla vial
+   cuando existe (Alcaldía de Medellín); relieve SRTM (NASA, AWS Terrain Tiles).
    Guarda: tipo (1 calle, 2 avenida, 3 autopista, 4 carrera, 5 ciclorruta, 6 peatonal, 7 escalas; los senderos de monte no van), nombre
-   (nomenclatura oficial o nombre de OSM), ancho en medios metros y puntos en unidades de 2,5 m (delta + varint con signo + deflate). */
+   (nomenclatura oficial o nombre de OSM), ancho en medios metros y puntos (delta + varint con signo + deflate).
+   Flujo COTA (por vía, en el mismo orden): uvarint n · por nudo: uvarint ds (medios metros a lo largo de la vía), zigzag dz
+   (decímetros; el primero absoluto), u8 (capa + 1) | rampa << 2, i8 pendiente hacia el nudo siguiente (medios por ciento). */
 import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
-const ENC = process.argv[2]; if (!ENC) { console.error('Uso: node tools/vias_datos.mjs RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3'); process.exit(1); }
+const iM = process.argv.indexOf('--motor'), MOTOR = iM > 0 ? path.resolve(process.argv[iM + 1]) : null;
+const iC = process.argv.indexOf('--cota'), COTA = iC > 0 ? path.resolve(process.argv[iC + 1]) : null;
+const ENC = MOTOR || COTA ? null : process.argv[2]; if (!ENC && !MOTOR && !COTA) { console.error('Uso: node tools/vias_datos.mjs --cota RUTA/motor-valle/salida/sanear/cota-elmetro.bin  |  --motor RUTA/motor-valle/salida/sanear  |  RUTA_DEL_REPO_DE_JUEGA_ENCICLA_1.3'); process.exit(1); }
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const meta = JSON.parse(fs.readFileSync(path.join(ENC, 'src/data/valle.json'), 'utf8'));
-if (meta.v < 3) throw new Error('hace falta el formato v3 de Juega EnCicla 1.3 o posterior');
-const vb = zlib.inflateRawSync(fs.readFileSync(path.join(ENC, 'src/data/vias.bin'))), dv = new DataView(vb.buffer, vb.byteOffset, vb.byteLength);
-const U = meta.tile / meta.vq;   // metros por unidad de coordenada (10 m / 4 = 2,5 m)
+if (COTA) {
+  /* ---------- solo la cota: las vías de hoy, intactas, y al final el flujo COTA de motor-valle/geo/rasante.py --elmetro ---------- */
+  const f = path.join(root, 'src/data/vias.js'), s = fs.readFileSync(f, 'utf8'), V = JSON.parse(s.match(/const VIAS = (\{.*\});/s)[1]);
+  const b = zlib.inflateRawSync(Buffer.from(V.d, 'base64')), vias = b.subarray(0, V.bytes), z = fs.readFileSync(COTA);
+  if (z.toString('latin1', 0, 4) !== 'COTA') throw new Error('el archivo de cota no es del Motor del Valle (rasante.py --elmetro)');
+  const d = zlib.deflateRawSync(Buffer.concat([vias, z]), { level: 9 }).toString('base64');
+  const cab = s.slice(0, s.indexOf('const VIAS = ')).replace(/ \*\/\s*$/, '').replace(/\n   Después de las vías[\s\S]*$/, '').trimEnd().replace(/ \*\/$/, '');
+  const txt = cab + `\n   Después de las vías (VIAS.bytes) va el flujo COTA del Motor del Valle 1.3 (motor-valle/geo/rasante.py, relieve SRTM de NASA vía AWS Terrain Tiles), de
+   VIAS.cota bytes, que el lector de hoy (11-ciudad2.js) no lee. Por vía, en el mismo orden: uvarint nudos · por nudo: uvarint ds (metros a lo largo
+   de la vía) y zigzag dz (cuartos de metro; el primero absoluto) · uvarint eventos · por evento: uvarint nudo y u8 (capa + 1) | rampa << 2.
+   La pendiente de cada tramo entre nudos es Δz / Δs (con el tope por clase ya aplicado). */
+const VIAS = ${JSON.stringify({ ...V, v: 2, bytes: vias.length, cota: z.length, d })};
+`;
+  fs.writeFileSync(f, txt);
+  console.log('vias.js: las', V.n, 'vías de hoy (', vias.length, 'bytes) + cota', z.length, 'bytes →', Math.round(txt.length / 1024), 'KB (antes', Math.round(s.length / 1024), 'KB)');
+  process.exit(0);
+}
 const out = [], usados = new Map(), nombres = [], idNom = s => { if (!s) return 0; if (!usados.has(s)) { usados.set(s, nombres.length + 1); nombres.push(s); } return usados.get(s); };
-const zz = v => v >= 0 ? v * 2 : -v * 2 - 1, varint = v => { while (v > 127) { out.push((v & 127) | 128); v = Math.floor(v / 128); } out.push(v); };
-let n = dv.getUint32(0, true), o = 4, kept = 0, pts = 0; const cuenta = {};
+const zz = v => v >= 0 ? v * 2 : -v * 2 - 1, varint = (v, o = out) => { while (v > 127) { o.push((v & 127) | 128); v = Math.floor(v / 128); } o.push(v); };
+let kept = 0, pts = 0; const cuenta = {};
 const lote = [];
-/* Ramer-Douglas-Peucker en unidades de coordenada (tolerancia 0,5 u = 1,25 m: invisible con calles de 7 m o más) */
-const rdp = (P, eps) => {
-  const n2 = P.length / 2; if (n2 < 3) return P; const keep = new Uint8Array(n2); keep[0] = keep[n2 - 1] = 1; const st = [[0, n2 - 1]];
+/* Ramer-Douglas-Peucker (fijos: vértices que no se pueden quitar) */
+const rdp = (P, eps, fijos = null) => {
+  const n2 = P.length / 2; if (n2 < 3) return P; const keep = new Uint8Array(n2); keep[0] = keep[n2 - 1] = 1; if (fijos) for (const i of fijos) keep[i] = 1;
+  const st = []; let a0 = 0; for (let i = 1; i < n2; i++) if (keep[i]) { st.push([a0, i]); a0 = i; }
   while (st.length) { const [a, b] = st.pop(); const ax = P[2 * a], ay = P[2 * a + 1], bx = P[2 * b], by = P[2 * b + 1], L = Math.hypot(bx - ax, by - ay) || 1; let md = -1, mi = -1;
     for (let i = a + 1; i < b; i++) { const d = Math.abs((bx - ax) * (ay - P[2 * i + 1]) - (ax - P[2 * i]) * (by - ay)) / L; if (d > md) { md = d; mi = i; } }
     if (md > eps) { keep[mi] = 1; st.push([a, mi], [mi, b]); } }
   const R = []; for (let i = 0; i < n2; i++) if (keep[i]) R.push(P[2 * i], P[2 * i + 1]); return R;
 };
-for (let i = 0; i < n; i++) {
-  const k = dv.getUint8(o), nm = dv.getUint16(o + 1, true), nom = dv.getUint16(o + 3, true), w2 = dv.getUint8(o + 5), np = dv.getUint16(o + 6, true); o += 8;
-  const P = []; let x = 0, y = 0; for (let j = 0; j < np; j++, o += 4) { x += dv.getInt16(o, true); y += dv.getInt16(o + 2, true); P.push(x, y); }
-  if (k < 1 || k > 7 || P.length < 4) continue;
-  lote.push({ k, name: (nom && meta.calles[nom - 1]) || (nm && meta.calles[nm - 1]) || '', w2, P: rdp(P, .5) });
+let U, fuente, ras = null;
+if (MOTOR) {
+  /* ---------- Motor del Valle 1.3: ejes precisos (metros, float32) ---------- */
+  U = +(process.env.VIAS_U || .5); const Q = 1 / U, EPS = +(process.env.VIAS_EPS || .25);
+  const vm = zlib.inflateSync(fs.readFileSync(path.join(MOTOR, 'vias_m.bin'))), dv = new DataView(vm.buffer, vm.byteOffset, vm.byteLength), calles = JSON.parse(fs.readFileSync(path.join(MOTOR, 'vias_m.bin.json'), 'utf8')).calles;
+  if (vm.toString('latin1', 0, 4) !== 'VIAM') throw new Error('vias_m.bin no es del Motor del Valle');
+  const n = dv.getUint32(8, true); let o = 12; const V = [];
+  for (let i = 0; i < n; i++) { const k = dv.getUint8(o), nm = dv.getUint16(o + 1, true), nom = dv.getUint16(o + 3, true), w2 = dv.getUint8(o + 5), np = dv.getUint32(o + 6, true); o += 10; const P = new Float64Array(np * 2); for (let j = 0; j < np * 2; j++) P[j] = dv.getFloat32(o + 4 * j, true); o += np * 8; V.push({ i, k, nm, nom, w2, P }); }
+  // cruces: vértices que comparten dos o más vías (o una vía consigo misma), al centímetro
+  const key = (x, y) => Math.round(x * 20) + ',' + Math.round(y * 20), veces = new Map();
+  for (const v of V) for (let j = 0; j < v.P.length; j += 2) { const kk = key(v.P[j], v.P[j + 1]); veces.set(kk, (veces.get(kk) || 0) + 1); }
+  for (const v of V) {
+    if (v.k < 1 || v.k > 7 || v.P.length < 4) continue;
+    const fijos = []; for (let j = 0; j < v.P.length; j += 2) if (veces.get(key(v.P[j], v.P[j + 1])) > 1) fijos.push(j / 2);
+    const R = rdp(v.P, EPS, fijos), P = []; for (let j = 0; j < R.length; j += 2) { const x = Math.round(R[j] * Q), y = Math.round(R[j + 1] * Q); if (P.length && P[P.length - 2] === x && P[P.length - 1] === y) continue; P.push(x, y); }
+    if (P.length < 4) continue;
+    lote.push({ src: v.i, k: v.k, name: (v.nom && calles[v.nom - 1]) || (v.nm && calles[v.nm - 1]) || '', w2: v.w2, P });
+  }
+  fuente = 'del Motor del Valle 1.3 (ejes precisos de geo/build.py)';
+  // rasante: nudos (x, y, z, s, capa, rampa) por eje preciso
+  const rp = path.join(MOTOR, 'rasante.bin');
+  if (fs.existsSync(rp)) {
+    const rb = zlib.inflateSync(fs.readFileSync(rp)), rv = new DataView(rb.buffer, rb.byteOffset, rb.byteLength); if (rb.toString('latin1', 0, 4) !== 'RAS1') throw new Error('rasante.bin no es del Motor del Valle');
+    const nr = rv.getUint32(8, true); let q = 12; ras = [];
+    for (let i = 0; i < nr; i++) { const m = rv.getUint32(q, true); q += 4; const K = []; for (let j = 0; j < m; j++, q += 18) K.push({ x: rv.getFloat32(q, true), y: rv.getFloat32(q + 4, true), z: rv.getFloat32(q + 8, true), capa: rv.getInt8(q + 16), rampa: rv.getUint8(q + 17) }); ras.push(K); }
+  }
+} else {
+  /* ---------- la forma antigua: vias.bin de Juega EnCicla (puntos de 2,5 m) ---------- */
+  const meta = JSON.parse(fs.readFileSync(path.join(ENC, 'src/data/valle.json'), 'utf8'));
+  if (meta.v < 3) throw new Error('hace falta el formato v3 de Juega EnCicla 1.3 o posterior');
+  const vb = zlib.inflateRawSync(fs.readFileSync(path.join(ENC, 'src/data/vias.bin'))), dv = new DataView(vb.buffer, vb.byteOffset, vb.byteLength);
+  U = meta.tile / meta.vq;   // metros por unidad de coordenada (10 m / 4 = 2,5 m)
+  let n = dv.getUint32(0, true), o = 4;
+  for (let i = 0; i < n; i++) {
+    const k = dv.getUint8(o), nm = dv.getUint16(o + 1, true), nom = dv.getUint16(o + 3, true), w2 = dv.getUint8(o + 5), np = dv.getUint16(o + 6, true); o += 8;
+    const P = []; let x = 0, y = 0; for (let j = 0; j < np; j++, o += 4) { x += dv.getInt16(o, true); y += dv.getInt16(o + 2, true); P.push(x, y); }
+    if (k < 1 || k > 7 || P.length < 4) continue;
+    lote.push({ k, name: (nom && meta.calles[nom - 1]) || (nm && meta.calles[nm - 1]) || '', w2, P: rdp(P, .5) });   // tolerancia 0,5 u = 1,25 m
+  }
+  fuente = 'de Juega EnCicla ' + (meta.version || '1.3');
 }
 // orden por tipo y, dentro del tipo, por celda de 640 m (el primer punto de cada vía se guarda respecto al anterior)
-const celda = v => Math.floor(v.P[1] / 256) * 1000 + Math.floor(v.P[0] / 256);
+const C640 = 640 / U, celda = v => Math.floor(v.P[1] / C640) * 1000 + Math.floor(v.P[0] / C640);
 lote.sort((a, b) => a.k - b.k || celda(a) - celda(b) || a.P[0] - b.P[0]);
-const hdr = []; let px = 0, py = 0;   // el primer punto de cada vía va respecto al último de la anterior
+let px = 0, py = 0;
 for (const v of lote) {
   varint(v.k); varint(idNom(v.name)); varint(v.w2); varint(v.P.length / 2);
   for (let j = 0; j < v.P.length; j += 2) { varint(zz(v.P[j] - px)); varint(zz(v.P[j + 1] - py)); px = v.P[j]; py = v.P[j + 1]; }
   kept++; pts += v.P.length / 2; cuenta[v.k] = (cuenta[v.k] || 0) + 1;
 }
+const bytesVias = out.length; let cota = 0, nudos = 0;
+if (ras) {
+  /* flujo COTA: los nudos de la rasante proyectados sobre cada vía tal como queda guardada */
+  const Z = [0x43, 0x4f, 0x54, 0x41, 1]; varint(lote.length, Z);
+  for (const v of lote) {
+    const K = ras[v.src] || [], P = v.P, cum = [0]; for (let j = 2; j < P.length; j += 2) cum.push(cum[cum.length - 1] + Math.hypot(P[j] - P[j - 2], P[j + 1] - P[j - 1]) * U);
+    const proyecta = (x, y) => { let bd = 1e18, bs = 0; for (let j = 2; j < P.length; j += 2) { const ax = P[j - 2] * U, ay = P[j - 1] * U, dx = P[j] * U - ax, dy = P[j + 1] * U - ay, l2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / l2)), qx = ax + dx * t - x, qy = ay + dy * t - y, d = qx * qx + qy * qy; if (d < bd) { bd = d; bs = cum[j / 2 - 1] + Math.sqrt(l2) * t; } } return bs; };
+    const N = K.map(k => ({ s: proyecta(k.x, k.y), z: k.z, capa: k.capa, rampa: k.rampa })).sort((a, b) => a.s - b.s);
+    varint(N.length, Z); let ps = 0, pz = 0;
+    for (let i = 0; i < N.length; i++) {
+      const q = Math.round(N[i].s * 2); varint(Math.max(0, q - ps), Z); ps = Math.max(ps, q); const zd = Math.round(N[i].z * 10); varint(zz(zd - pz), Z); pz = zd;
+      const g = i === N.length - 1 ? 0 : (N[i + 1].z - N[i].z) / Math.max(N[i + 1].s - N[i].s, .5);
+      Z.push(((N[i].capa + 1) & 3) | (N[i].rampa ? 4 : 0)); Z.push((Math.max(-127, Math.min(127, Math.round(g * 200))) + 256) & 255);
+    }
+    nudos += N.length;
+  }
+  cota = Z.length; for (const b of Z) out.push(b);
+}
 const d = zlib.deflateRawSync(Buffer.from(out), { level: 9 }).toString('base64');
-const txt = `/* Vías como vectores (calles con su curva y su ancho) de Juega EnCicla ${meta.version || '1.3'}: © colaboradores de OpenStreetMap (ODbL) vía Overture Maps;
-   nomenclatura y ancho de la malla vial oficial de Medellín cuando existe. Generado por tools/vias_datos.mjs (no editar a mano).
+const txt = `/* Vías como vectores (calles con su curva y su ancho) ${fuente}: © colaboradores de OpenStreetMap (ODbL) vía Overture Maps;
+   nomenclatura y ancho de la malla vial oficial de Medellín cuando existe${ras ? '; rasante con el relieve SRTM (NASA, AWS Terrain Tiles)' : ''}. Generado por tools/vias_datos.mjs (no editar a mano).
    Formato: por vía, varint tipo, nombre, ancho (medios metros), puntos y, por punto, deltas con signo en unidades de ${U} m
-   (el primero respecto al último punto de la vía anterior). */
-const VIAS = ${JSON.stringify({ v: 1, u: U, n: kept, bytes: out.length, nombres, d })};
+   (el primero respecto al último punto de la vía anterior).${ras ? ' Después de las vías (VIAS.bytes), el flujo COTA de VIAS.cota bytes: por vía, sus nudos de\n   rasante (distancia a lo largo de la vía en medios metros, cota en decímetros, capa y rampa, y la pendiente en medios por ciento).' : ''} */
+const VIAS = ${JSON.stringify(ras ? { v: 2, u: U, n: kept, bytes: bytesVias, cota, nombres, d } : { v: 1, u: U, n: kept, bytes: out.length, nombres, d })};
 `;
 fs.writeFileSync(path.join(root, 'src/data/vias.js'), txt);
-console.log(kept, 'vías ·', pts, 'puntos ·', nombres.length, 'nombres · por tipo', JSON.stringify(cuenta), '· src/data/vias.js', Math.round(txt.length / 1024), 'KB');
+console.log(kept, 'vías ·', pts, 'puntos ·', nombres.length, 'nombres · por tipo', JSON.stringify(cuenta), ras ? `· cota: ${nudos} nudos, ${cota} bytes` : '', '· src/data/vias.js', Math.round(txt.length / 1024), 'KB');
 ~~~~
 
 ### `android/README.md`
@@ -21782,8 +22910,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.9.0
-elmetro.versionCode=37
+elmetro.versionName=3.10.0
+elmetro.versionCode=38
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
