@@ -1,6 +1,10 @@
 # Bitácora · El Metro
 
 ## 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
+- **Publicada el 25‑nov** (el autor pidió los enlaces y las APK al día):
+  - entró a `main` con el PR #6;
+  - la APK (versionCode 38) está en la release v3.10.0;
+  - la página se publicó en `gh-pages` con `el-metro.apk`, y `node tools/verify-pages.mjs` dio bien: http 200, el service worker con la caché `el-metro-v3.10.0-c4b13a2a`, instalable, sin conexión (31 recursos) y 0 errores de consola.
 - **Por qué:**
   - Dos sesiones de Claude hicieron una 3.9.0 a la vez, en ramas distintas.
   - La de la rama `ccr-2a67f935-oat714` es «Unido y medido» (24‑nov): el 3D recortado por lo que ve la cámara y de adelante hacia atrás, la operación ganable, el taller de la bici en la calle y el arte C‑70 y C‑71. Esa es la que está publicada, con versionCode 37.
