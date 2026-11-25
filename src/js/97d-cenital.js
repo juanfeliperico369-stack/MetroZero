@@ -4,7 +4,7 @@
    (Conducir, Volante, Carrera, Metrocable, el mapa y el álbum) siguen con el render de siempre: este archivo solo envuelve
    funciones y mira la bandera, que vive mientras dibujan Ciudad Libre o Bus.
    La bandera: Ajustes → «🛰 Cenital nuevo», `?cenital` (o `?cenital=0`) en la dirección, o EM.cenital.forzar en las pruebas.
-   Desde la 3.9.0 (Fase 3) viene encendida (PREDETERMINADA = 1); en la Fase 2 venía apagada. Guardado: Save.d.settings.cenital (1 o 0; sin el
+   Desde la 3.10.0 (la Fase 3, unida con la 3.9.0 «Unido y medido») viene encendida (PREDETERMINADA = 1); en la Fase 2 venía apagada. Guardado: Save.d.settings.cenital (1 o 0; sin el
    campo, la predeterminada), así que el guardado elmetro.v1 no cambia.
    Con la bandera:
    1. Occluder fade (3D): lo que tapa al jugador (edificios, árboles, marquesinas) baja a 0,30 con un tramado 4 × 4, en un cono
@@ -23,7 +23,7 @@
    ===================================================================== */
 (function () {
   if (typeof G3 === 'undefined' || typeof Libre === 'undefined' || typeof Bus === 'undefined' || typeof MB === 'undefined') return;
-  const PREDETERMINADA = 1;   // Fase 3 (3.9.0): encendida en Ciudad Libre y Bus; Ajustes → «🛰 Cenital nuevo» la apaga
+  const PREDETERMINADA = 1;   // Fase 3 (3.10.0): encendida en Ciudad Libre y Bus; Ajustes → «🛰 Cenital nuevo» la apaga
   const S = () => (Save.d && Save.d.settings) || {};
   const URL_ON = typeof location !== 'undefined' ? (/[?&]cenital=0\b/.test(location.search) ? 0 : /[?&]cenital\b/.test(location.search) ? 1 : null) : null;
   const CEN = EM.cenital = {
@@ -119,7 +119,13 @@
   }
 
   /* ---------- 2 y 3 · la ventana cercana: edificios reales hasta 1.100 m, con zócalos, y lo que tapa marcado para desvanecerse ---------- */
-  class MBF extends MB { v(x, y, z, nx, ny, nz, c, k) { super.v(x, y, z, nx, ny, nz, c, this.f && k < 2 ? k + .25 : k); } }
+  /* lo que tapa se marca (k + .25) para desvanecerse. Va por celdas de 400 m con su caja (MBC, 22-gl.js 3.9: el recorte por lo que ve
+     la cámara): cada celda hereda la marca según el f de este momento, y lo que se arme con v() directo la lleva igual */
+  class MBF extends MBC {
+    constructor(L = 400) { super(L); this.f = 0; }
+    en(x, z) { const m = super.en(x, z); if (!m._mbf) { m._mbf = 1; const P = this, v0 = MB.prototype.v; m.v = function (x, y, z, nx, ny, nz, c, k) { v0.call(this, x, y, z, nx, ny, nz, c, P.f && k < 2 ? k + .25 : k); }; } return m; }
+    v(x, y, z, nx, ny, nz, c, k) { super.v(x, y, z, nx, ny, nz, c, this.f && k < 2 ? k + .25 : k); }
+  }
   const zocC = new Map(), zocalo = c => { const k = c.join(); let z = zocC.get(k); if (!z) zocC.set(k, z = [c[0] * .58 + .07, c[1] * .56 + .065, c[2] * .53 + .06]); return z; };
   function muros(bm, x, z, a, L, W, y0, y1, c) {   // los cuatro muros de una caja, sin tapas (el zócalo queda debajo de la casa)
     const ca = Math.cos(a), sa = Math.sin(a), l = L / 2, w = W / 2, P = (u, v, h) => [x + ca * u - sa * v, h, z + sa * u + ca * v];
@@ -154,7 +160,7 @@
   const ec0 = G3.edifCerca;
   G3.edifCerca = function (cx, cz, real) {
     if (!CEN.activo || !real || !VC.ED) { if (CEN.activo) CEN.n.relleno++; return ec0.call(this, cx, cz, real); }
-    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
+    const low = S().q === 'low' || this.liviano, R = low ? 600 : 1100, RR = low ? 380 : 700, bm = new MBF(400); CEN.n.reales = CEN.n.anillo = CEN.n.zocalos = 0;
     bm.f = 1; edifCen(bm, cx, cz, RR, R); this.hitos3D(bm, cx, cz, R);
     bm.f = 0; this.puentes3D(bm, cx, cz, RR);   // los tableros no se desvanecen
     bm.f = 1; this.arboles3D(bm, cx, cz, low); bm.f = 0;

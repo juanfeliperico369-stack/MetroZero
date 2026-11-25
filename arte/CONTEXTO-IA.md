@@ -230,7 +230,29 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
-#### 2026-11-25 · v3.9.0 (versionCode 37) · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude)
+#### 2026-11-25 · v3.10.0 (versionCode 38) · Unión de las dos 3.9.0: «Unido y medido» y el cenital nuevo (Claude)
+- **Por qué:**
+  - Dos sesiones de Claude hicieron una 3.9.0 a la vez, en ramas distintas.
+  - La de la rama `ccr-2a67f935-oat714` es «Unido y medido» (24‑nov): el 3D recortado por lo que ve la cámara y de adelante hacia atrás, la operación ganable, el taller de la bici en la calle y el arte C‑70 y C‑71. Esa es la que está publicada, con versionCode 37.
+  - La de la rama `ccr-4f6eeea5-yulqk1` trae las fases 1 a 3 del renacimiento cenital: los datos saneados, el cenital nuevo encendido en Ciudad Libre y Bus, y el Motor del Valle 1.3.1.
+  - Esta versión une las dos. Sube a la 3.10.0 y al versionCode 38 para que la APK se instale encima de la 37.
+- **El único choque, `src/js/22-gl.js`:**
+  - el recorte por la cámara (3.9) pide la malla de los edificios por celdas con su caja (`MBC.celdas()` → `bldBB`);
+  - el cenital (Fase 2) había pasado la construcción de los edificios a `G3.edifCerca`;
+  - ahora `buildNear` arma las celdas con su caja a partir de `edifCerca`, y en `97d-cenital.js` la malla del cenital (`MBF`) también va por celdas de 400 m: cada celda hereda la marca de lo que se desvanece.
+- **Lo demás:** las dos bitácoras van completas (abajo) y la guía y el contexto de `arte/` se regeneraron con `node tools/todo.mjs`.
+
+#### 25-nov-2026 · v3.9.0 (sin cambio de versión) · Motor City 5.4.0 y 5.4.1 en `motor-city/` (Claude)
+- **Qué cambió:** la copia de referencia del motor pasa de la 5.3.1 a la 5.4.0 con `node motor.mjs sincronizar` desde motorcity, la fuente de verdad. Trae los mundos saneados (5.3.2) y `MC.Pista`, las carreras retro pseudo‑3D de Turno Cero (5.4.0, Fase 4 del renacimiento cenital). Después pasa a la 5.4.1 (Fase 5: el garaje de Turno Cero, 📏 de las carreras retro y el arreglo de 📏).
+- **El juego no cambia:** su compilación no lee `motor-city/`, y el HTML sale igual (el mismo md5).
+- **Probado:** `sincronizar --verificar` da «los archivos son iguales».
+
+#### 2026-11-25 · v3.9.0 (sin cambio de versión) · Motor del Valle 1.3.1 sincronizado (Claude)
+- **Qué cambió:** la copia de `motor-valle/` pasa a la 1.3.1 con `node motor-valle/sincronizar.mjs ../MetroZero`, desde la fuente de verdad, que es BicicletasUno. Lo nuevo es para Juega EnCicla: `edificios-ligero.bin`, el que su HTML lee en el modo libre (`geo/huellas.py`), y `pruebas/geometria.mjs --ligero`. Los corredores quedan en una función, y `edificios.bin` sale idéntico byte a byte.
+- **El Metro no cambia:** sus herramientas de datos solo leen las salidas del saneamiento, y `node tools/build.mjs` da el mismo `dist/index.html` (md5 `be2155937f6b9bac0aa626f914000083`).
+- **Probado:** `sincronizar.mjs ../MetroZero --verificar` da «los archivos son iguales».
+
+#### 2026-11-25 · El cenital nuevo, encendido en Ciudad Libre y Bus (Fase 3 del renacimiento cenital, Claude) · sale en la 3.10.0 (se hizo como 3.9.0 sin saber que ya había otra 3.9.0 publicada)
 - **Qué cambió:**
   - **La bandera del cenital viene encendida** (`PREDETERMINADA = 1` en `src/js/97d-cenital.js`), solo en Ciudad Libre y Bus. Se apaga en Ajustes → «🛰 Cenital nuevo» (`Save.d.settings.cenital = 0`) o con `?cenital=0`. El guardado `elmetro.v1` no cambia: sin el campo vale la predeterminada.
   - **Versión:** `src/js/00-core.js` 3.9.0 y `android/gradle.properties` (`elmetro.versionName` 3.9.0 y `elmetro.versionCode` 37).
@@ -301,6 +323,80 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 - **Falta:**
   - el OK del autor para la Fase 2 (render cenital con bandera en Ciudad Libre y Bus);
   - medir en un celular real.
+
+#### 2026-11-24 · v3.9.0 «Unido y medido» (Claude, IA de El Metro)
+**Qué pidió el autor:** «retoma, continúa y termina… integra todo lo nuevo, compréndelo y mejóralo».
+- Se trajo `main` (`7b7733a`). Trae la 3.8.0 que unió la otra sesión de Claude (las dos 3.7, Codex / GPT‑6 Eón y el arte C‑70 a C‑72) y Motor City 5.3.1.
+- La 3.9.0 se reservó en `.ai-coord/` antes de empezar.
+
+**Lo que se encontró al medir y jugar la 3.8.0:**
+1. **El lote 3D de Codex** baja las llamadas de dibujo (en tercera persona, de 122 a 73), pero no los vértices (776 mil por cuadro) ni los cuadros por segundo.
+   - Por capas, los vértices se reparten así: edificios cercanos 41 %, red 31 % y piso lejano 19 %.
+   - Todo se dibujaba aunque quedara detrás de la cámara.
+2. **«Un día de operación» no se podía ganar.**
+   - El piloto, que refuerza siempre la estación más llena, se saturaba en el día 1 a los 13 s.
+   - La hora pico traía unos 1200 pasajeros de más y los refuerzos alcanzaban para unos 380.
+   - La prueba aislada solo pedía que la partida acabara.
+   - Además, el título quedaba debajo de la barra de arriba y cinco estaciones del centro se encimaban.
+3. **Los fantasmas iban dentro de la partida** (hasta 6 recorridos de 36 000 puntos), y Ciudad Libre la guarda cada 5 s. El reto del día borraba `EM.reto.fantasma`.
+4. **El botón «👻 QR récord» tapaba el título** de la partida, y la distancia al fantasma quedaba detrás de la palanca del metro y de los botones del corredor.
+
+**Lo nuevo:**
+1. **3D recortado por lo que ve la cámara** (`src/js/22-gl.js`).
+   - Cada celda lleva su caja: piso lejano de 5,1 km, edificios y árboles de 400 m, y red de 800 m.
+   - `G3.vis` la descarta solo si queda entera fuera del volumen de vista.
+   - Lo opaco se dibuja de adelante hacia atrás.
+   - Con y sin recorte, la imagen es la misma (capturas comparadas en 15 vistas).
+   - Cifras en San Antonio (emulado, sin tarjeta gráfica):
+
+   | Vista · calidad | Llamadas 3.8.0 → 3.9.0 | Vértices por cuadro | Cuadros por segundo |
+   |---|---|---|---|
+   | Cenital 3D · alta | 75 → 42 | 787 mil → 154 mil | 10,3 → 18,7 |
+   | Cenital 3D · media | 75 → 42 | 787 mil → 155 mil | 12,4 → 29,8 |
+   | Cenital 3D · baja | 50 → 41 | 427 mil → 165 mil | 22 → 38,1 |
+   | Tercera persona · alta | 74 → 66 | 775 mil → 281 mil | 7,4 → 10,7 |
+   | Tercera persona · media | 73 → 66 | 775 mil → 281 mil | 8,4 → 12,9 |
+   | Tercera persona · baja | 50 → 58 | 427 mil → 207 mil | 16,1 → 23 |
+
+   Las dos versiones se midieron seguidas en la misma máquina con `node tools/medir-3d.mjs`.
+
+   - Auditoría con entradas de jugador: todos los modos a ritmo 1,0 y 0 errores. En 3D, el volante pasa de 16 a 23 cuadros por segundo, el corredor de 19 a 35 y Ciudad Libre de 18 a 26 (contra la 3.6.0).
+2. **«Un día de operación» que se puede ganar** (`src/js/48-operacion.js`, de Codex; se avisó en el buzón).
+   - Cada estación pesa según cuántas líneas la cruzan, y San Antonio es la que más.
+   - Cada jornada trae 12 % más gente.
+   - Equilibrio medido con `EM.modes.operacion.simular` en 5 semillas:
+     - no jugar pierde en la primera hora pico (a los 15 s);
+     - jugar lento llega a la jornada 2 o 3;
+     - el piloto y una persona atenta ganan las 7.
+   - Plano con el color de cada línea y sin estaciones encimadas; la hora pico se anuncia, el refuerzo se ve y cada mejora dice qué hace.
+3. **Fantasmas** (`src/js/48a-gpt6-eon-fantasma.js`, de Codex).
+   - Van en su propia clave (`elmetro.v1.fantasmas`), en deltas en base 36: unas 3 veces más chicos.
+   - Los de la 3.8.0 se mudan solos.
+   - A la izquierda dicen «te lleva 1,2 s» o «le llevas 0,8 s», según cuándo pasó el fantasma por donde vas.
+   - El QR va en la pantalla final.
+4. **Arte de ChatGPT en el juego** (C‑70 y C‑71; WebP de 128 px por `tools/arte_juego.py`).
+   - Íconos del reto, el zen, Medir, el corredor y el skate junto a su texto (`src/js/96j-arte-37.js`).
+   - Medallas de «Metro + bici» y «Ciclista secreto».
+   - Tres logros nuevos: Siete días seguidos, Combo ×8 y Amanecer en la ciclorruta.
+   - Íconos de los modos carrera y tranvía.
+   - Las portadas C‑72 quedan como arte de promoción.
+5. **🔧 Taller de la bici en la calle** (`src/js/96k-taller-bici.js`, del motor 5.3, G5‑04).
+   - Un golpe fuerte en bici puede pinchar la llanta o soltar la cadena, y aparece «arreglar» sin bloquear nada.
+   - Llanta: bombear hasta sostener 50–62 PSI. Cadena: pasar por los tres dientes del piñón.
+   - Arreglarla da 10 🎫 y un dato: lo que todos saben y lo que pocos saben.
+6. **Libreta de logros:** la medalla y el texto ya no se parten en dos filas.
+
+**Guardado:** `elmetro.v1` no tiene campos nuevos. Los fantasmas viven en `elmetro.v1.fantasmas`.
+
+**Probado:**
+- autotest con 0 errores y 0 avisos, con pruebas nuevas: operación ganable, fantasmas fuera de la partida, recorte 3D y taller de la bici;
+- 100 partidas: `node tools/test.mjs 100`, «RESULTADO: OK, 0 errores» (292 873 pasos, 60 victorias, 0 errores de consola). La captura de La Red (`05-red`) no sale dentro de esa secuencia, igual que en la 3.8.0 (se comprobó con la misma prueba); sola sale en 150 ms. Queda pendiente;
+- las tres pruebas de GPT‑6 Eón y `tools/test-ga36.mjs`: todas PASS (operación, lote 3D, fantasmas, fluidez, manejo y GA‑36);
+- capturas a 412 × 860 de operación, fantasmas, íconos, logros y taller.
+
+**Para cada IA:** `docs/SUGERENCIAS-CLAUDE.md` § 5.
+
+**Publicado:** https://juanfeliperico369-stack.github.io/MetroZero/ (**v3.9.0 verificada el 24‑nov‑2026**: carga, service worker con caché `el-metro-v3.9.0-ff021b2a`, sin conexión, instalable, 0 errores de consola). APK: `/el-metro.apk` (versionCode 37, 6,8 MB), igual byte a byte a la construida.
 
 #### 2026-11-23 · v3.8.0 (sin cambio de versión) · Motor City 5.3.1 en `motor-city/` y skills para todas las IA
 - **Qué cambió:**

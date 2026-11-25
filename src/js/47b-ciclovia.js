@@ -203,7 +203,7 @@
       if (o.k === 'pasaje') { o.hecho = 1; st.pasajes++; st.pts += 10; continue; }
       if (CR_POD[o.k]) { o.hecho = 1; st.poderes++; st.pts += 15; const P = CR_POD[o.k]; if (o.k === 'escudo') st.escudo = 1; else st[o.k] = P[2]; st.dato = P[0] + ' ' + P[1]; st.datoT = 3; jugo(st, P[0], 'y'); continue; }
       if (o.k === 'rampa') { o.hecho = 1; if (st.y < .2) { st.vy = Math.max(st.vy, V.sal * 1.35); st.y = Math.max(st.y, .05); jugo(st, '¡Rampa! Toca para un truco', 'g'); } continue; }
-      if (o.k === 'baranda') { o.hecho = 1; if (st.y > .15) { const p = Math.round(30 * st.combo * (st._zona != null ? 2 : 1)); st.pts += p; st.grinds++; st.combo = Math.min(8, st.combo + 1); st.comboMax = Math.max(st.comboMax, st.combo); jugo(st, 'Grind +' + p, 'g'); } else st.v *= .94; continue; }
+      if (o.k === 'baranda') { o.hecho = 1; if (st.y > .15) { const p = Math.round(30 * st.combo * (st._zona != null ? 2 : 1)); st.pts += p; st.grinds++; st.combo = Math.min(8, st.combo + 1); if (st.combo >= 8 && !st.auto && typeof Vida !== 'undefined') Vida.logro('combo8'); st.comboMax = Math.max(st.comboMax, st.combo); jugo(st, 'Grind +' + p, 'g'); } else st.v *= .94; continue; }
       if (o.k === 'arco' && st.agacha > 0) { o.hecho = 1; st.pts += 10; st.parkour++; jugo(st, '¡Por debajo! +10', 'g'); continue; }
       if (o.k === 'banca' && st.y > .5) { o.hecho = 1; const pie = V.id === 'pie', p = (pie ? 25 : 15) * (st._zona != null ? 2 : 1); st.pts += p; st.parkour++; jugo(st, (pie ? PARKOUR[(rnd(st) * PARKOUR.length) | 0] : 'Salto de banca') + ' +' + p, 'g'); continue; }
       const T = CR_OBS[o.k]; if (!T) continue;
@@ -241,7 +241,7 @@
   Cr.aterriza = function (st) {
     const T = st.truco; st.truco = null; if (!T) return;
     if (T.t > .1) { st.combo = 1; st.v *= .82; st.dato = 'Te caíste del truco: aterriza antes'; st.datoT = 1.6; if (EM.jugo && !st.auto) EM.jugo.golpe(st, true); return; }
-    const p = Math.round(T.p * st.combo * (st._zona != null ? 2 : 1)); st.pts += p; st.trucos++; st.combo = Math.min(8, st.combo + 1); st.comboMax = Math.max(st.comboMax, st.combo); jugo(st, T.n + ' ×' + (st.combo - 1) + ' +' + p, 'g');
+    const p = Math.round(T.p * st.combo * (st._zona != null ? 2 : 1)); st.pts += p; st.trucos++; st.combo = Math.min(8, st.combo + 1); st.comboMax = Math.max(st.comboMax, st.combo); if (st.combo >= 8 && !st.auto && typeof Vida !== 'undefined') Vida.logro('combo8'); jugo(st, T.n + ' ×' + (st.combo - 1) + ' +' + p, 'g');
   };
   Cr.act = function (st, a) {
     if (!st.cic) return act0.call(this, st, a); const K = st.cic;
@@ -274,7 +274,7 @@
   };
   Cr.result = function (st) {
     const r = result0.call(this, st); if (!st.cic) return r; const K = st.cic, km = (st.s / 1000).toFixed(2).replace('.', ',');
-    r.win = st.done && st.vidas > 0; r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []).concat(st.zen ? [['Modo', '🌅 Zen: sin vidas ni afán']] : []);
+    r.win = st.done && st.vidas > 0; if (st.zen && st.done && !st.auto && typeof Vida !== 'undefined' && !EM.headless) Vida.logro('zen'); r.lines = [['Ciclorruta', Ci.nombre(K.ini).replace(/^Ciclorruta\s+/, '')], ['Recorrido', km + ' km'], ['Puntos', Math.round(st.pts)], ['Trucos', st.trucos + ' · combo ×' + st.comboMax], ['Grind y parkour', st.grinds + ' · ' + st.parkour], ['Cruces', K.cruces + ' (' + K.giros + ' giros)'], ['Pasajes', st.pasajes]].concat(st.finCiclo ? [['Meta', '🏁 llegaste al final']] : []).concat(st.zen ? [['Modo', '🌅 Zen: sin vidas ni afán']] : []);
     if (!r.fact || /^🚲/.test(r.fact)) r.fact = 'En el juego están las ciclorrutas reales del valle: 234 tramos y 120 km. La más larga es la de la doble calzada Niquía – Hatillo, en Bello.';
     return r;
   };

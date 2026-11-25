@@ -18,7 +18,9 @@ const LOGROS = [
   ['madrugada', 'Antes del primer tren', 'Juega entre las 11 p. m. y las 4:30 a. m.'], ['duelo', 'Duelo de mesa', 'Juega un duelo en el mismo celular'], ['red', 'En red', 'Juega con otro celular'],
   ['racha3', 'Costumbre', 'Completa las misiones 3 días seguidos'], ['mil', 'Bolsillo lleno', 'Junta 1.000 pasajes'], ['tinto', 'Ni una gota', 'Termina un tramo con el tinto al 100 %'],
   ['flores', 'Feria de las Flores', 'Juega durante la Feria de las Flores (agosto)'], ['alumbrados', 'Alumbrados', 'Juega de noche en la temporada de Alumbrados'],
-  ['intermodal', 'Metro + bici', 'En Ciudad Libre, viaja en metro, tranvía o cable y luego devuelve una bici EnCicla lejos de donde la tomaste'], ['ciclista', 'Ciclista secreto', 'Hay un timbre que suena tres veces debajo del metro…']
+  ['intermodal', 'Metro + bici', 'En Ciudad Libre, viaja en metro, tranvía o cable y luego devuelve una bici EnCicla lejos de donde la tomaste'], ['ciclista', 'Ciclista secreto', 'Hay un timbre que suena tres veces debajo del metro…'],
+  /* 3.9: con las medallas C-71 de ChatGPT */
+  ['racha7', 'Siete días seguidos', 'Cumple el reto del día siete días seguidos'], ['combo8', 'Combo ×8', 'Encadena ocho trucos o barandas por la ciclorruta sin caerte'], ['zen', 'Amanecer en la ciclorruta', 'Termina el Domingo zen por la ciclorruta Las Vegas']
 ];
 /* Domingo de Pascua (algoritmo anónimo gregoriano) */
 function pascua(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
@@ -97,7 +99,7 @@ const Vida = EM.vida = {
   bindPanel() { const a = $('#vLog'); if (a) a.onclick = () => this.logros(); const al = $('#vAlb'); if (al) al.onclick = () => Album.open(); const b = $('#vTema'); if (b) b.onclick = () => this.temas(); },
   logros() {
     const L = Save.d.logros || {};
-    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
+    UI.modal(`<div class="pag">Logros · ${Object.keys(L).length}/${LOGROS.length}</div><h2>Tu libreta</h2><div class="col">${LOGROS.map(([k, t, d]) => `<div class="row" style="gap:10px;flex-wrap:nowrap;align-items:center;${L[k] ? '' : 'opacity:.45'}">${Atlas.has('logro_' + k) ? `<img class="medal" src="${Atlas.url('logro_' + k)}" alt="" style="${L[k] ? '' : 'filter:grayscale(1)'}">` : `<span style="font-size:22px">${L[k] ? '🏅' : '○'}</span>`}<span style="flex:1;min-width:0"><b>${esc(t)}</b><br><small>${esc(d)}</small></span></div>`).join('')}</div><button class="btn pri" id="lgOk" style="margin-top:12px">Cerrar</button>`);
     $('#lgOk').onclick = () => UI.close();
   },
   temas() {
