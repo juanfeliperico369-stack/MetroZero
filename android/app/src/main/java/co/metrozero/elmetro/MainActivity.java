@@ -211,14 +211,22 @@ public class MainActivity extends ComponentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (webView != null) webView.onResume();
+        if (webView != null) {
+            webView.onResume();
+            /* 3.10.1 · el guardián del sonido (src/js/00b-sonido-guardian.js) deja seguir lo que sonaba */
+            webView.evaluateJavascript("window.dispatchEvent(new Event('app:sigue'))", null);
+        }
         acquireMulticastLock();
         hideSystemBars();
     }
 
     @Override
     protected void onPause() {
-        if (webView != null) webView.onPause();
+        if (webView != null) {
+            /* 3.10.1 · al salir de la app, la música y los efectos se callan al instante, en cualquier pantalla (antes solo en una partida) */
+            webView.evaluateJavascript("window.dispatchEvent(new Event('app:pausa'))", null);
+            webView.onPause();
+        }
         releaseMulticastLock();
         super.onPause();
     }
