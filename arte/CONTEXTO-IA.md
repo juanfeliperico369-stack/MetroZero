@@ -230,6 +230,24 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
+#### 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
+- **Lo que pidió el autor:**
+  - «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los sistemas del Valle de Aburrá»;
+  - la fase B del pedido aprobado (la fluidez).
+- **Qué cambió:**
+  - **3.12.0, el modo turismo** (`src/js/97f-turismo.js`, aditivo; suma la tarjeta a `MODECARDS` y envuelve `Menu.go`):
+    - una tarjeta en el menú, «🧭 Turismo por el valle», con su ícono vectorial (`ico_modo_turismo`: una brújula sobre las lomas, sin texto);
+    - primero, el sistema integrado: las líneas de metro, cable, tranvía y Metroplús, cada una con su color, su recorrido, su apertura y sus km (de `RED`);
+    - después, 12 sitios para conocer. Cada uno trae su dato (`LUGARES`), la estación más cercana de toda la red con sus líneas y la distancia a pie, y el minimapa con los dos marcados;
+    - «🚶 Ir ahí» abre la Ciudad Libre en esa estación.
+  - **3.11.2, lo lejano por partes** (`src/js/22-gl.js` y `src/js/97e-ventana-por-partes.js`):
+    - `G3.buildFar` pasa a un generador (`buildFarPasos`) y la ventana por partes también arma lo lejano antes del cambio;
+    - el cambio de ventana baja de ~0,2–0,4 s a **~70 ms** con el CPU 4×, sin cuadros de más de 200 ms en el viaje.
+- **Qué se probó:**
+  - `node tools/test.mjs 100`: 0 errores, con la prueba nueva del autotest (los 12 sitios, cada uno con su estación a menos de 2 km, y la tarjeta en el menú);
+  - el recorrido del modo turismo en el navegador: la tarjeta, las 13 fichas, el minimapa y «Ir ahí».
+- **Qué falta:** las fases B–E del pedido. La fase F (la lámina de EnCicla) queda pendiente, solo como plan, hasta que el autor diga.
+
 #### 2026-11-25 · v3.11.1 (versionCode 41) · Fase A: la ventana por partes (sin el congelón de 1,7 s) y la cámara de persecución alta (Claude)
 - **Lo que pidió el autor** (fase A del pedido aprobado, `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`):
   - la carga del mundo y la fluidez («el moviendo de ningún juego aún está a la altura de la fluidez que tiene EnCicla»).
