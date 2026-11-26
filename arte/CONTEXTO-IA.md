@@ -230,6 +230,45 @@ Si una instrucción de una skill choca con este contexto, manda este contexto.
 
 ### Bitácora · El Metro
 
+#### 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
+- **Lo que pidió el autor:**
+  - «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los sistemas del Valle de Aburrá»;
+  - la fase B del pedido aprobado (la fluidez).
+- **Qué cambió:**
+  - **3.12.0, el modo turismo** (`src/js/97f-turismo.js`, aditivo; suma la tarjeta a `MODECARDS` y envuelve `Menu.go`):
+    - una tarjeta en el menú, «🧭 Turismo por el valle», con su ícono vectorial (`ico_modo_turismo`: una brújula sobre las lomas, sin texto);
+    - primero, el sistema integrado: las líneas de metro, cable, tranvía y Metroplús, cada una con su color, su recorrido, su apertura y sus km (de `RED`);
+    - después, 12 sitios para conocer. Cada uno trae su dato (`LUGARES`), la estación más cercana de toda la red con sus líneas y la distancia a pie, y el minimapa con los dos marcados;
+    - «🚶 Ir ahí» abre la Ciudad Libre en esa estación.
+  - **3.11.2, lo lejano por partes** (`src/js/22-gl.js` y `src/js/97e-ventana-por-partes.js`):
+    - `G3.buildFar` pasa a un generador (`buildFarPasos`) y la ventana por partes también arma lo lejano antes del cambio;
+    - el cambio de ventana baja de ~0,2–0,4 s a **~70 ms** con el CPU 4×, sin cuadros de más de 200 ms en el viaje.
+- **Qué se probó:**
+  - `node tools/test.mjs 100`: 0 errores, con la prueba nueva del autotest (los 12 sitios, cada uno con su estación a menos de 2 km, y la tarjeta en el menú);
+  - el recorrido del modo turismo en el navegador: la tarjeta, las 13 fichas, el minimapa y «Ir ahí».
+- **Qué falta:** las fases B–E del pedido. La fase F (la lámina de EnCicla) queda pendiente, solo como plan, hasta que el autor diga.
+
+#### 2026-11-25 · v3.11.1 (versionCode 41) · Fase A: la ventana por partes (sin el congelón de 1,7 s) y la cámara de persecución alta (Claude)
+- **Lo que pidió el autor** (fase A del pedido aprobado, `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`):
+  - la carga del mundo y la fluidez («el moviendo de ningún juego aún está a la altura de la fluidez que tiene EnCicla»).
+- **Lo que se midió primero:**
+  - la ventana cercana de 2,6 km se rehacía de un solo tirón cada ~520 m: **1,7 s con el CPU 4×** (piso 524 ms, subir su textura 645 ms con WebGL por software, edificios 400 ms, lo lejano 121 ms). El juego se congelaba;
+  - además, el regulador de calidad (`96d-rendimiento.js`), al cambiar a «liviano» o volver, borraba la ventana y la rehacía entera.
+- **Qué cambió:**
+  - `src/js/97e-ventana-por-partes.js` (nuevo, aditivo, envuelve `G3.draw`):
+    - la ventana siguiente se arma por partes ANTES de llegar al borde (desde el 40 % del recorrido, centrada adelante);
+    - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre;
+    - los edificios se arman por partes, unos 8 ms por cuadro;
+    - el cambio usa lo ya armado; si llegas al borde antes de tiempo, solo se termina lo que falta;
+    - `G3.ventanaPorPartes` guarda los trabajos, los cambios, el paso más largo y los últimos eventos.
+  - `src/js/97d-cenital.js`: `edifCen` cede entre regiones (`edifCenPasos`), y `G3.edifCercaPasos` arma los mismos edificios por partes.
+  - `src/js/96d-rendimiento.js`: cuando el regulador cambia el detalle, la ventana se rehace por partes en vez de borrarse.
+  - `src/js/36-libre.js`: de cerca, la cámara queda alta (acercamiento máximo 3,6; unos 40° y el ojo a 8 m o más). A 5 se pegaba a las paredes de las estaciones.
+- **Qué se probó:**
+  - recorrido de 2,7 km con el CPU 4×: **el peor cuadro pasa de 1808 a ~440 ms**, sin ventanas rehechas de una vez en el viaje (antes 5 cuadros de más de 250 ms, con uno de 1,8 s);
+  - `node tools/test.mjs 100`: OK, 0 errores.
+- **Qué falta:** el cambio de ventana aún cuesta ~0,2–0,4 s con el CPU 4× (subir la textura de 2048² y lo lejano). Lo sigue la fase B (fluidez).
+
 #### 2026-11-25 · v3.11.0 (versionCode 40) · La cámara única y el guardián del sonido (Claude)
 - **Lo que pidió el autor** (palabra por palabra en `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`, cuando se sincronice el motor; la fuente es motorcity):
   - la música de El Metro seguía sonando al salir de la app;

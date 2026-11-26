@@ -195,6 +195,7 @@ const BotT = EM.test = {
     try {
       const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
       if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || Libre.VISTAS.some(v => v[0] !== 'cen3d')) E('cámara única 3.11.0: sobran cámaras o falta la 3D Cenital');
+      if (!EM.turismo || EM.turismo.paradas().length !== 12 || EM.turismo.paradas().some(x => !x.cerca || x.cerca.d > 2000) || !MODECARDS.some(c => c.id === 'turismo')) E('turismo 3.12.0: faltan sitios, estaciones o la tarjeta del menú');
       { const jt = Libre.joyMundo({ vista3: 'cen3d', fangC: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jt.x - 1) > 1e-6 || Math.abs(jt.y) > 1e-6) E('cámara única 3.11.0: de cerca, la palanca no gira con la cámara'); }
       const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
       if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');

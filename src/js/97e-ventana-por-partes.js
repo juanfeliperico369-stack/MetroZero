@@ -9,6 +9,7 @@
    - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre (VC.piso3D ya sabe pintar
      cualquier rectángulo; las baldosas casan porque cada una pinta lo suyo con la misma escala);
    - los edificios de la ventana nueva se arman por partes (G3.edifCercaPasos, unos 8 ms por cuadro);
+   - lo lejano de la ventana nueva (con su hueco) también se arma por partes (G3.buildFarPasos);
    - el cambio llama al G3.buildNear de siempre, que recibe lo ya armado: solo sube la textura y arma el terreno.
    Si llegas al borde antes de que esté lista, se termina de una vez solo lo que falta. Cuando el regulador de calidad (96d) cambia
    el detalle, la ventana también se rehace por partes en vez de borrarse. Aditivo: envuelve G3.draw.
@@ -37,17 +38,21 @@
     } else if (!J.bm) {   /* los edificios por partes (G3.edifCercaPasos, 97d), con ~8 ms por cuadro; si no existe, de una vez */
       if (!J.it) J.it = typeof G.edifCercaPasos === 'function' ? G.edifCercaPasos(J.cx, J.cz, J.real) : null;
       if (!J.it) { J.bm = G.edifCerca(J.cx, J.cz, J.real); J.listo = true; }
-      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; J.listo = true; } }
+      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; if (typeof G.buildFarPasos !== 'function') J.listo = true; } }
+    } else if (!J.far) {   /* lo lejano de la ventana nueva (con su hueco), por partes (G3.buildFarPasos, 22-gl.js) */
+      if (!J.itF) { J.hueco = [J.x0 + 40, J.z0 + 40, J.x0 + J.S - 40, J.z0 + J.S - 40]; J.itF = G.buildFarPasos(...J.hueco); }
+      let r; do { r = J.itF.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.far = r.value; J.listo = true; }
     }
     VP.pasoMaxMs = Math.max(VP.pasoMaxMs, Math.round(ahora() - t0));
   };
   /* el cambio: buildNear de siempre, con el piso y los edificios ya armados */
   const cambiar = (G, J) => {
-    const p0 = VC.piso3D, e0 = G.edifCerca;
+    const p0 = VC.piso3D, e0 = G.edifCerca, f0 = G.buildFar;
     VC.piso3D = function (X0, Y0, S, sc) { return X0 === J.x0 && Y0 === J.z0 && S === J.S && Math.abs(sc - J.sc) < 1e-9 ? J.cv : p0.apply(this, arguments); };
     G.edifCerca = function (cx, cz, real) { return cx === J.cx && cz === J.cz && real === J.real ? J.bm : e0.apply(this, arguments); };
+    G.buildFar = function (a, b, c, d) { if (J.far && J.hueco && a === J.hueco[0] && b === J.hueco[1] && c === J.hueco[2] && d === J.hueco[3]) return this.ponerFar(J.far); return f0.apply(this, arguments); };
     const t0 = ahora();
-    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; }
+    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; G.buildFar = f0; }
     VP.cambios++; VP.ultimo = { cambioMs: Math.round(ahora() - t0), armadoMs: Math.round(ahora() - J.t0) };
   };
   const draw0 = G3.draw;

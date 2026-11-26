@@ -146,11 +146,16 @@ const G3 = EM.g3 = {
   railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
   /* malla lejana: todo el valle cada 320 m con normales suaves por vértice */
   buildFar(hx0, hz0, hx1, hz1) {   // con hueco (1.4.0): las celdas que caen enteras dentro de la ventana cercana no se arman (no hay piso doble que parpadee)
+    const it = this.buildFarPasos(hx0, hz0, hx1, hz1); let r; do { r = it.next(); } while (!r.done); this.ponerFar(r.value);
+  },
+  /* 3.11.1: lo lejano por partes (cede cada fila de 320 m) para la ventana por partes (97e); devuelve las celdas sin subirlas */
+  *buildFarPasos(hx0, hz0, hx1, hz1) {
     const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MBC(5120), E = (i, j) => { const x = i * S, z = j * S, n = this.normT(x, z, 80); return [x, MAP.elevM(x, z), z, n[0], n[1], n[2]]; };
     const U = this._U || (this._U = (() => { const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90)); return U; })());
-    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb.en((i + .5) * S, (j + .5) * S), a, b, c, d, [1, 1, 1], u); }
-    if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); const C = mb.celdas(); this.far = C.map(o => this.buf(o.a)); this.farBB = C.map(o => o.bb);   // 3.9: por celdas, con su caja
+    for (let j = 0; j < nz; j++) { for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb.en((i + .5) * S, (j + .5) * S), a, b, c, d, [1, 1, 1], u); } yield; }
+    return mb.celdas();
   },
+  ponerFar(C) { if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); this.far = C.map(o => this.buf(o.a)); this.farBB = C.map(o => o.bb); },   // 3.9: por celdas, con su caja
   /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
     const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
