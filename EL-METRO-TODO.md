@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.11.1 · compilado el 2026-11-25.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.12.0 · compilado el 2026-11-26.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.11.1** · compilado el 2026-11-25.
+> Versión del juego **v3.12.0** · compilado el 2026-11-26.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -800,6 +800,24 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
+
+##### 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
+- **Lo que pidió el autor:**
+  - «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los sistemas del Valle de Aburrá»;
+  - la fase B del pedido aprobado (la fluidez).
+- **Qué cambió:**
+  - **3.12.0, el modo turismo** (`src/js/97f-turismo.js`, aditivo; suma la tarjeta a `MODECARDS` y envuelve `Menu.go`):
+    - una tarjeta en el menú, «🧭 Turismo por el valle», con su ícono vectorial (`ico_modo_turismo`: una brújula sobre las lomas, sin texto);
+    - primero, el sistema integrado: las líneas de metro, cable, tranvía y Metroplús, cada una con su color, su recorrido, su apertura y sus km (de `RED`);
+    - después, 12 sitios para conocer. Cada uno trae su dato (`LUGARES`), la estación más cercana de toda la red con sus líneas y la distancia a pie, y el minimapa con los dos marcados;
+    - «🚶 Ir ahí» abre la Ciudad Libre en esa estación.
+  - **3.11.2, lo lejano por partes** (`src/js/22-gl.js` y `src/js/97e-ventana-por-partes.js`):
+    - `G3.buildFar` pasa a un generador (`buildFarPasos`) y la ventana por partes también arma lo lejano antes del cambio;
+    - el cambio de ventana baja de ~0,2–0,4 s a **~70 ms** con el CPU 4×, sin cuadros de más de 200 ms en el viaje.
+- **Qué se probó:**
+  - `node tools/test.mjs 100`: 0 errores, con la prueba nueva del autotest (los 12 sitios, cada uno con su estación a menos de 2 km, y la tarjeta en el menú);
+  - el recorrido del modo turismo en el navegador: la tarjeta, las 13 fichas, el minimapa y «Ir ahí».
+- **Qué falta:** las fases B–E del pedido. La fase F (la lámina de EnCicla) queda pendiente, solo como plan, hasta que el autor diga.
 
 ##### 2026-11-25 · v3.11.1 (versionCode 41) · Fase A: la ventana por partes (sin el congelón de 1,7 s) y la cámara de persecución alta (Claude)
 - **Lo que pidió el autor** (fase A del pedido aprobado, `motor-city/docs/PEDIDO-DEL-AUTOR-2026-11-25.md`):
@@ -4006,7 +4024,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4465 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (144 archivos, 1830 KB)
+## Código fuente (145 archivos, 1840 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4574,7 +4592,7 @@ body.pant-clasica .joyzone{top:24%}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.11.1', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.12.0', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -7602,11 +7620,16 @@ const G3 = EM.g3 = {
   railMask() { if (this._rm) return this._rm; const m = this._rm = new Set(); for (const l of NET.lines) { if (!(l.kind === 'metro' || l.kind === 'tram' || (l.kind === 'future' && !/cable/i.test(l.name)))) continue; for (let s = 0; s <= l.P.len; s += 8) { const p = NET.at(l.P, s), tx = Math.floor(p.x / TM), ty = Math.floor(p.y / TM); for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) m.add((ty + j) * MW + tx + i); } } return m; },
   /* malla lejana: todo el valle cada 320 m con normales suaves por vértice */
   buildFar(hx0, hz0, hx1, hz1) {   // con hueco (1.4.0): las celdas que caen enteras dentro de la ventana cercana no se arman (no hay piso doble que parpadee)
+    const it = this.buildFarPasos(hx0, hz0, hx1, hz1); let r; do { r = it.next(); } while (!r.done); this.ponerFar(r.value);
+  },
+  /* 3.11.1: lo lejano por partes (cede cada fila de 320 m) para la ventana por partes (97e); devuelve las celdas sin subirlas */
+  *buildFarPasos(hx0, hz0, hx1, hz1) {
     const S = 320, W = MW * TM, H = MH * TM, nx = Math.floor(W / S), nz = Math.floor(H / S), mb = new MBC(5120), E = (i, j) => { const x = i * S, z = j * S, n = this.normT(x, z, 80); return [x, MAP.elevM(x, z), z, n[0], n[1], n[2]]; };
     const U = this._U || (this._U = (() => { const U = []; for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) U.push(this.urban(i * S, j * S, 90)); return U; })());
-    for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb.en((i + .5) * S, (j + .5) * S), a, b, c, d, [1, 1, 1], u); }
-    if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); const C = mb.celdas(); this.far = C.map(o => this.buf(o.a)); this.farBB = C.map(o => o.bb);   // 3.9: por celdas, con su caja
+    for (let j = 0; j < nz; j++) { for (let i = 0; i < nx; i++) { if (hx0 != null && i * S >= hx0 && (i + 1) * S <= hx1 && j * S >= hz0 && (j + 1) * S <= hz1) continue; const a = E(i, j), b = E(i + 1, j), c = E(i + 1, j + 1), d = E(i, j + 1), u = 2 + U[j * (nx + 1) + i] * .9; this.quadT(mb.en((i + .5) * S, (j + .5) * S), a, b, c, d, [1, 1, 1], u); } yield; }
+    return mb.celdas();
   },
+  ponerFar(C) { if (this.far) for (const q of this.far) this.gl.deleteBuffer(q); this.far = C.map(o => this.buf(o.a)); this.farBB = C.map(o => o.bb); },   // 3.9: por celdas, con su caja
   /* ventana cercana con textura vectorial de calles y edificios reales en 3D con techos y anillo extendido */
   buildNear(cx, cz) {
     const real = typeof VC !== 'undefined' && VC.on && !!VC.piso3D, gl = this.gl, half = real ? 1300 : 2400, x0 = Math.floor((cx - half) / TM) * TM, z0 = Math.floor((cz - half) / TM) * TM, nt = 2 * half / TM, P = 8;
@@ -14909,6 +14932,7 @@ const BotT = EM.test = {
     try {
       const cv0 = CableViaje.create('cv:K', { seed: 1 }); if (!isFinite(cv0.hourNow)) E('cableviaje: hourNow inválido en el primer cuadro');
       if (!Libre.VISTAS.some(v => v[0] === 'cen3d') || Libre.VISTAS.some(v => v[0] !== 'cen3d')) E('cámara única 3.11.0: sobran cámaras o falta la 3D Cenital');
+      if (!EM.turismo || EM.turismo.paradas().length !== 12 || EM.turismo.paradas().some(x => !x.cerca || x.cerca.d > 2000) || !MODECARDS.some(c => c.id === 'turismo')) E('turismo 3.12.0: faltan sitios, estaciones o la tarjeta del menú');
       { const jt = Libre.joyMundo({ vista3: 'cen3d', fangC: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jt.x - 1) > 1e-6 || Math.abs(jt.y) > 1e-6) E('cámara única 3.11.0: de cerca, la palanca no gira con la cámara'); }
       const jc = Libre.joyMundo({ vista3: 'cen3d', cy: 1.2, cyo: 0, joy: { x: 0, y: -1, m: 1 } }); if (Math.abs(jc.x) > 1e-6 || Math.abs(jc.y + 1) > 1e-6) E('vistas 3.4: cen3d debe mantener Norte arriba');
       if (!EM.mundoRPG) E('mundoRPG 3.4: no cargó EM.mundoRPG');
@@ -17031,6 +17055,7 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
    - el piso se pinta en 16 baldosas de 650 m, una por cuadro, y se compone en el lienzo de siempre (VC.piso3D ya sabe pintar
      cualquier rectángulo; las baldosas casan porque cada una pinta lo suyo con la misma escala);
    - los edificios de la ventana nueva se arman por partes (G3.edifCercaPasos, unos 8 ms por cuadro);
+   - lo lejano de la ventana nueva (con su hueco) también se arma por partes (G3.buildFarPasos);
    - el cambio llama al G3.buildNear de siempre, que recibe lo ya armado: solo sube la textura y arma el terreno.
    Si llegas al borde antes de que esté lista, se termina de una vez solo lo que falta. Cuando el regulador de calidad (96d) cambia
    el detalle, la ventana también se rehace por partes en vez de borrarse. Aditivo: envuelve G3.draw.
@@ -17059,17 +17084,21 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     } else if (!J.bm) {   /* los edificios por partes (G3.edifCercaPasos, 97d), con ~8 ms por cuadro; si no existe, de una vez */
       if (!J.it) J.it = typeof G.edifCercaPasos === 'function' ? G.edifCercaPasos(J.cx, J.cz, J.real) : null;
       if (!J.it) { J.bm = G.edifCerca(J.cx, J.cz, J.real); J.listo = true; }
-      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; J.listo = true; } }
+      else { let r; do { r = J.it.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.bm = r.value; if (typeof G.buildFarPasos !== 'function') J.listo = true; } }
+    } else if (!J.far) {   /* lo lejano de la ventana nueva (con su hueco), por partes (G3.buildFarPasos, 22-gl.js) */
+      if (!J.itF) { J.hueco = [J.x0 + 40, J.z0 + 40, J.x0 + J.S - 40, J.z0 + J.S - 40]; J.itF = G.buildFarPasos(...J.hueco); }
+      let r; do { r = J.itF.next(); } while (!r.done && (apuro || ahora() - t0 < 8)); if (r.done) { J.far = r.value; J.listo = true; }
     }
     VP.pasoMaxMs = Math.max(VP.pasoMaxMs, Math.round(ahora() - t0));
   };
   /* el cambio: buildNear de siempre, con el piso y los edificios ya armados */
   const cambiar = (G, J) => {
-    const p0 = VC.piso3D, e0 = G.edifCerca;
+    const p0 = VC.piso3D, e0 = G.edifCerca, f0 = G.buildFar;
     VC.piso3D = function (X0, Y0, S, sc) { return X0 === J.x0 && Y0 === J.z0 && S === J.S && Math.abs(sc - J.sc) < 1e-9 ? J.cv : p0.apply(this, arguments); };
     G.edifCerca = function (cx, cz, real) { return cx === J.cx && cz === J.cz && real === J.real ? J.bm : e0.apply(this, arguments); };
+    G.buildFar = function (a, b, c, d) { if (J.far && J.hueco && a === J.hueco[0] && b === J.hueco[1] && c === J.hueco[2] && d === J.hueco[3]) return this.ponerFar(J.far); return f0.apply(this, arguments); };
     const t0 = ahora();
-    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; }
+    try { G.buildNear(J.cx, J.cz); } finally { VC.piso3D = p0; G.edifCerca = e0; G.buildFar = f0; }
     VP.cambios++; VP.ultimo = { cambioMs: Math.round(ahora() - t0), armadoMs: Math.round(ahora() - J.t0) };
   };
   const draw0 = G3.draw;
@@ -17090,6 +17119,96 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
     if (this.win !== w0) { VP.deUnaVez++; ev('deUnaVez', { antes: !!w0, job: !!job, k: job ? job.k : -1 }); job = null; }   /* llegó al borde antes: se armó de una vez, como antes */
     return r;
   };
+})();
+~~~~
+
+### `src/js/97f-turismo.js`
+~~~~js
+/* =====================================================================
+   MODO TURISMO (3.12.0 · Claude, 26‑nov‑2026)
+   El autor: «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los
+   sistemas del Valle de Aburrá».
+   - Una tarjeta en el menú: «🧭 Turismo por el valle».
+   - Primero, el sistema integrado: las líneas de RED (metro, cables, tranvía y buses) con su color, su recorrido y su apertura.
+   - Después, 12 paradas para quien llega al valle. Cada una trae el lugar, su dato (los LUGARES del juego) y cómo llegar: la
+     estación más cercana de toda la red, con sus líneas, su color y la distancia a pie. Todo sale de los datos del juego, sin
+     inventar nada. El minimapa marca dónde queda.
+   - «🚶 Ir ahí» abre la Ciudad Libre en esa estación, para recorrer el sitio a pie, en bici o en el sistema.
+   Aditivo: suma la tarjeta a MODECARDS y envuelve Menu.go.
+   ===================================================================== */
+if (typeof ARTE !== 'undefined' && !ARTE.ico_modo_turismo) {   /* el ícono de la tarjeta: una brújula sobre las lomas del valle (vectorial, sin texto) */
+  ARTE.ico_modo_turismo = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 55"><rect width="70" height="55" rx="10" fill="#14324a"/><path d="M4 47 Q16 31 30 39 T66 31 L66 51 L4 51 Z" fill="#2e6b3f"/><path d="M4 51 Q24 41 40 46 T66 43 L66 51 Z" fill="#3f8f4f"/><circle cx="35" cy="23" r="15" fill="#f4f1e8" stroke="#fdd835" stroke-width="2.5"/><path d="M35 10.5 L39.5 23 L30.5 23 Z" fill="#e63946"/><path d="M35 35.5 L39.5 23 L30.5 23 Z" fill="#1d3557"/><circle cx="35" cy="23" r="2.2" fill="#fff" stroke="#1d3557" stroke-width="1"/><path d="M35 6.5 V9 M35 37 V39.5 M18.5 23 H21 M49 23 H51.5" stroke="#fdd835" stroke-width="2" stroke-linecap="round"/></svg>';
+}
+const Turismo = EM.turismo = {
+  IDS: ['botero', 'palacio', 'cerro', 'pies', 'explora', 'botanico', 'udea', 'mamm', 'lleras', 'comuna13', 'memoria', 'estadio'],
+  i: 0,
+  TIPO: { metro: '🚇 Metro', cable: '🚡 Metrocable', tram: '🚋 Tranvía', brt: '🚌 Metroplús', escalator: '🛗 Escaleras eléctricas' },
+  lineas() { return RED.lines.filter(l => this.TIPO[l.kind]); },   /* las que funcionan y le sirven a un turista (sin alimentadores ni futuras) */
+  paradas() {
+    if (this._p) return this._p;
+    const L = {}; for (const r of LUGARES) if (!L[r[0]]) L[r[0]] = r;
+    return this._p = this.IDS.filter(id => L[id]).map(id => { const [, nombre, muni, lat, lon, , , , dato] = L[id]; return { id, nombre, muni, lat, lon, dato, cerca: this.estacion(lat, lon) }; });
+  },
+  /* la estación más cercana de toda la red (y todas las líneas que pasan por ella) */
+  estacion(lat, lon) {
+    const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540; let best = null;
+    for (const l of this.lineas()) for (const s of l.stations || []) { const d = Math.hypot((s[2] - lon) * kx, (s[1] - lat) * ky); if (!best || d < best.d) best = { d, nombre: s[0], lat: s[1], lon: s[2] }; }
+    if (!best) return null;
+    best.lineas = this.lineas().filter(l => (l.stations || []).some(s => s[0] === best.nombre)).map(l => ({ id: l.id, nombre: l.name, color: l.color, kind: l.kind }));
+    best.d = Math.round(best.d / 10) * 10; return best;
+  },
+  abrir(i = 0) { this.i = i; this.pintar(); },
+  linea(l) { return `<span style="display:inline-block;min-width:22px;padding:1px 6px;border-radius:6px;background:${esc(l.color || '#555')};color:#fff;font-weight:700;font-size:12px">${esc(l.id)}</span>`; },
+  pintar() {
+    const P = this.paradas(), n = P.length, i = this.i;
+    let html;
+    if (i === 0) {
+      const grupos = {}; for (const l of this.lineas()) { const k = this.TIPO[l.kind]; (grupos[k] = grupos[k] || []).push(l); }
+      html = `<h2>🧭 Turismo por el valle</h2><p>¿Llegas por primera vez al Valle de Aburrá? El sistema integrado une el metro, los cables, el tranvía y los buses de Metroplús: con la tarjeta Cívica pasas de uno a otro. Aquí van sus líneas y ${n} sitios para conocer, con la estación más cercana de cada uno.</p>` +
+        Object.entries(grupos).map(([k, ls]) => `<div class="boxed" style="margin:8px 0"><b>${k}</b>${ls.map(l => `<div style="margin-top:4px">${this.linea(l)} ${esc(l.from || '')} – ${esc(l.to || '')}${l.open ? ` <small>· desde ${esc(String(l.open).slice(0, 4))}</small>` : ''}${l.km ? ` <small>· ${l.km} km</small>` : ''}</div>`).join('')}</div>`).join('') +
+        `<p><small>Para aprender a pagar, hacer transbordos y la Cultura Metro: «Aprende a usar el Metro», en el menú.</small></p>`;
+    } else {
+      const p = P[i - 1], c = p.cerca;
+      html = `<h2>🧭 ${i} de ${n} · ${esc(p.nombre)}</h2><div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><canvas id="turMapa" width="150" height="190" style="border-radius:10px;flex:0 0 auto;image-rendering:auto" aria-label="Dónde queda ${esc(p.nombre)}"></canvas>` +
+        `<div style="flex:1 1 180px"><p><b>${esc(p.nombre)}</b> <small>· ${esc(p.muni)}</small></p><p>${esc(p.dato)}</p>` +
+        (c ? `<p>Cómo llegar: estación <b>${esc(c.nombre)}</b> ${c.lineas.map(l => this.linea(l)).join(' ')} <small>· a unos ${c.d} m a pie</small></p>` : '') + `</div></div>`;
+    }
+    html += `<div class="row" style="justify-content:space-between;margin-top:10px;gap:8px"><button class="btn sm" id="turAnt" ${i === 0 ? 'disabled' : ''}>◀</button>` +
+      (i > 0 ? `<button class="btn pri" id="turIr">🚶 Ir ahí</button>` : `<button class="btn pri" id="turEmp">Empezar el recorrido ▶</button>`) +
+      `<button class="btn sm" id="turSig" ${i >= n ? 'disabled' : ''}>▶</button></div>`;
+    UI.modal(html);
+    const sel = id => document.getElementById(id);
+    if (sel('turAnt')) sel('turAnt').onclick = () => { Snd.play('tap'); this.i = Math.max(0, this.i - 1); this.pintar(); };
+    if (sel('turSig')) sel('turSig').onclick = () => { Snd.play('tap'); this.i = Math.min(n, this.i + 1); this.pintar(); };
+    if (sel('turEmp')) sel('turEmp').onclick = () => { Snd.play('tap'); this.i = 1; this.pintar(); };
+    if (sel('turIr')) sel('turIr').onclick = () => this.ir(P[i - 1]);
+    if (i > 0) this.mapa(P[i - 1]);
+  },
+  /* el minimapa del valle con el sitio marcado */
+  mapa(p) {
+    try {
+      const cv = document.getElementById('turMapa'); if (!cv || typeof MAP === 'undefined' || !MAP.mini) return; const g = cv.getContext('2d'), m = MAP.mini();
+      const W = MW * TM, H = MH * TM, q = geoM(p.lat, p.lon), lado = 9000, x0 = Math.max(0, Math.min(W - lado, q.x - lado / 2)), y0 = Math.max(0, Math.min(H - lado * 1.27, q.y - lado * .63)), kx = m.width / W, ky = m.height / H;
+      g.imageSmoothingEnabled = true; g.fillStyle = '#0e1a2b'; g.fillRect(0, 0, cv.width, cv.height);
+      g.drawImage(m, x0 * kx, y0 * ky, lado * kx, lado * 1.27 * ky, 0, 0, cv.width, cv.height);
+      const sx = cv.width / lado, mx = (q.x - x0) * sx, my = (q.y - y0) * sx;
+      g.strokeStyle = '#fff'; g.lineWidth = 3; g.fillStyle = '#e63946'; g.beginPath(); g.arc(mx, my, 7, 0, Math.PI * 2); g.fill(); g.stroke();
+      if (p.cerca) { const e = geoM(p.cerca.lat, p.cerca.lon), ex = (e.x - x0) * sx, ey = (e.y - y0) * sx; g.fillStyle = (p.cerca.lineas[0] && p.cerca.lineas[0].color) || '#1C5C9C'; g.beginPath(); g.arc(ex, ey, 5, 0, Math.PI * 2); g.fill(); g.stroke(); }
+    } catch (e) { /* sin minimapa: la tarjeta sigue */ }
+  },
+  /* a la Ciudad Libre, en la estación más cercana */
+  ir(p) {
+    Snd.init(); UI.close && UI.close(); if (UI.closeModal) UI.closeModal(); const m = document.getElementById('modal'); if (m) m.hidden = true;
+    Game.start('libre', 'lb:ultimo', { back: 'cover' });
+    const c = p.cerca || p, q = geoM(c.lat, c.lon), st = Game.st;
+    if (st) { st.x = q.x; st.y = q.y; if (st._ec) st._ec = null; if (Libre && Libre.msg) Libre.msg(st, '🧭 ' + p.nombre + (p.cerca ? ' · estás en la estación ' + p.cerca.nombre : ''), 'b'); }
+    this.visitas = (this.visitas || 0) + 1;
+  }
+};
+(function () {
+  if (typeof MODECARDS === 'undefined' || typeof Menu === 'undefined') return;
+  if (!MODECARDS.some(c => c.id === 'turismo')) { const i = MODECARDS.findIndex(c => c.id === 'guia'); MODECARDS.splice(i >= 0 ? i + 1 : MODECARDS.length, 0, { id: 'turismo', cls: 'c-guia', t: '🧭 Turismo por el valle', d: 'Para quien no conoce el Valle de Aburrá: 12 sitios para visitar, cómo llegar a cada uno en metro, cable, tranvía o Metroplús, y un paseo en la Ciudad Libre.' }); }
+  const go0 = Menu.go; Menu.go = function (id) { if (id === 'turismo') { Turismo.abrir(0); return; } return go0.apply(this, arguments); };
 })();
 ~~~~
 
@@ -23132,8 +23251,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.11.1
-elmetro.versionCode=41
+elmetro.versionName=3.12.0
+elmetro.versionCode=43
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
