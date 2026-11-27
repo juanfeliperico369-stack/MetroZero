@@ -1,5 +1,10 @@
 # Bitácora · El Metro
 
+## 2026-11-27 · Plan de Reconstrucción 3D v6 («Efecto GTA · Sistema Integrado en Relieve Real»)
+- **Publicado:** `docs/PLAN-RECONSTRUCCION-3D-V6.md` alineado con el plan maestro y la base ejecutable `motorcity/motor-v6/`.
+- **Qué define:** migración sobre el nuevo motor 3D compartido `motor-v6` usando los datos reales ya extraídos de `src/data/` (**12 Zonas Hero**, 5.407 edificios, 760 vías y 406 m de relieve real hasta Santo Domingo con 47,3 % de pendiente), trenes en escala SI (23 × 3,20 × 3,85 m sobre viaducto +6,80 m), cámara cenital única con auto-seguimiento y desvanecimiento alfa por edificio (fin del tramado ajedrezado y de los 276 MB de heap), parkour + acceso a 5 Skateparks cercanos a estaciones y migrador transparente de `elmetro.v1`.
+- **Código legado tocado:** ninguno (el nuevo núcleo v6 se inició en `motorcity/motor-v6/`).
+
 ## 2026-11-27 · Auditoría crítica y forense (solo documentación)
 - **Publicado:** `docs/AUDITORIA-CRITICA-2026-11-27.md` con capturas reales `412 × 860` en `docs/auditorias/img-2026-11-27/`.
 - **Hallazgos críticos (todos pasaron `test.mjs 100` con 0 errores):** Pausa 100 % rota por comentario `//` (`src/js/25-game.js:28`); caminar medio comentado (`src/js/36-libre.js:210`); multijugador cooperativo 100 % roto (`src/js/80-multi.js:109`); respaldo 2D y `medir()` falsos (`36-libre.js:43`, `96d-rendimiento.js`); pellizco bloqueado en `3.2 < 3.6` (`96g-ladeo-mitades.js:210`); *hi-hats* suenan con música apagada (`00-core.js:135,193`); 276,5 MB de heap JS, tramado ajedrezado tapando San Antonio, 13 de 17 botones `< 44 px` en Ciudad Libre, 16 PNGs faltantes en `96i-arte-36.js` y `28-taller-ciudad`/`28-taller-estacion` sin usar en juego.
