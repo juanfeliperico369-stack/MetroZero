@@ -207,7 +207,7 @@ const Libre = EM.modes.libre = {
     // a pie con algo de peso: arranca y para en un instante corto y gira hacia donde apunta el joystick
     const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5.2 : 2.4) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
     if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * (1 - Math.exp(-dt * 16)); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16)));   // 3.1 · igual a cualquier ritmo de cuadros if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16))); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;   // 3.1 · igual a cualquier ritmo de cuadros (3.12.1: estas tres órdenes habían quedado dentro del comentario)
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };

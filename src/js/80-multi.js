@@ -97,6 +97,14 @@ const Multi = EM.multi = {
     $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
   },
   /* lo que llega de otro celular no es confiable: se valida tipo por tipo y los nombres se limpian */
+  /* 3.12.1: una acción de red válida: un número, un texto corto o un objeto plano pequeño ({k: 'sw', i: 3}) con claves simples y valores
+     simples. Se copia a un objeto nuevo (nada de __proto__ ni anidados). Si no sirve, null. */
+  accion(a) {
+    if (typeof a === 'number') return isFinite(a) ? a : null; if (typeof a === 'string') return a.length <= 32 ? a : null;
+    if (!a || typeof a !== 'object' || Array.isArray(a)) return null; const K = Object.keys(a); if (!K.length || K.length > 6) return null; const o = {};
+    for (const k of K) { const v = a[k]; if (!/^[a-zA-Z]{1,12}$/.test(k)) return null; if (typeof v === 'number' ? !isFinite(v) : typeof v === 'string' ? v.length > 32 : typeof v !== 'boolean') return null; o[k] = v; }
+    return o;
+  },
   nombre(v, def) { const t = typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16) : ''; return t || def; },
   onmsg(m) {
     if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
@@ -106,7 +114,7 @@ const Multi = EM.multi = {
       case 'roster': if (Net.role !== 'host' && m.p && typeof m.p === 'object') { const P = Object.create(null); P[0] = { name: this.nombre(m.host, 'Anfitrión') }; for (const k of Object.keys(m.p)) { if (!/^\d{1,3}$/.test(k) || +k === Net.myId || !m.p[k] || typeof m.p[k] !== 'object') continue; P[k] = { name: this.nombre(m.p[k].name, 'Jugador') }; } this.players = P; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
       case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
       case 'start': if (Net.role !== 'host' && NETMODES.includes(m.mode) && (m.kind === 'coop' || m.kind === 'duelo') && EM.modes[m.mode].levels().some(l => l.id === m.lv)) this.begin(m.mode, m.lv, m.kind, +m.seed || 1, false); break;
-      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && (typeof m.a === 'number' || (typeof m.a === 'string' && m.a.length <= 32))) Game.mode.act(Game.st, m.a); break;
+      case 'act': { const A = this.accion(m.a); if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && A !== null) Game.mode.act(Game.st, A); break; }   /* 3.12.1: también las acciones con forma de objeto ({k, i}: cambiavías, etc.), que antes se botaban */
       case 'st': if (Game.net && Game.net.guest && m.s && typeof m.s === 'object' && !Array.isArray(m.s)) { Game.st = m.s; } break;
       case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: this.nombre(m.name, 'Rival'), score: +m.score | 0, done: !!m.done }; break;
       case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const q = m.r && typeof m.r === 'object' ? m.r : {}, r = Game.mode.result(Game.st); if (isFinite(+q.score)) r.score = +q.score; if (q.stars != null) r.stars = clamp(q.stars | 0, 0, 3); if (q.win != null) r.win = !!q.win; Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;

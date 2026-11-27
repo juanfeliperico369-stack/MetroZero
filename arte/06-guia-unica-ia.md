@@ -654,6 +654,26 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 <!-- BITACORA:INICIO -->
 ### Bitácora · El Metro
 
+#### 2026-11-27 · Plan de Reconstrucción 3D v6 («Efecto GTA · Sistema Integrado en Relieve Real»)
+- **Publicado:** `docs/PLAN-RECONSTRUCCION-3D-V6.md` alineado con el plan maestro y la base ejecutable `motorcity/motor-v6/`.
+- **Qué define:** migración sobre el nuevo motor 3D compartido `motor-v6` usando los datos reales ya extraídos de `src/data/` (**12 Zonas Hero**, 5.407 edificios, 760 vías y 406 m de relieve real hasta Santo Domingo con 47,3 % de pendiente), trenes en escala SI (23 × 3,20 × 3,85 m sobre viaducto +6,80 m), cámara cenital única con auto-seguimiento y desvanecimiento alfa por edificio (fin del tramado ajedrezado y de los 276 MB de heap), parkour + acceso a 5 Skateparks cercanos a estaciones y migrador transparente de `elmetro.v1`.
+- **Código legado tocado:** ninguno (el nuevo núcleo v6 se inició en `motorcity/motor-v6/`).
+
+#### 2026-11-27 · Auditoría crítica y forense (solo documentación)
+- **Publicado:** `docs/AUDITORIA-CRITICA-2026-11-27.md` con capturas reales `412 × 860` en `docs/auditorias/img-2026-11-27/`.
+- **Hallazgos críticos (todos pasaron `test.mjs 100` con 0 errores):** Pausa 100 % rota por comentario `//` (`src/js/25-game.js:28`); caminar medio comentado (`src/js/36-libre.js:210`); multijugador cooperativo 100 % roto (`src/js/80-multi.js:109`); respaldo 2D y `medir()` falsos (`36-libre.js:43`, `96d-rendimiento.js`); pellizco bloqueado en `3.2 < 3.6` (`96g-ladeo-mitades.js:210`); *hi-hats* suenan con música apagada (`00-core.js:135,193`); 276,5 MB de heap JS, tramado ajedrezado tapando San Antonio, 13 de 17 botones `< 44 px` en Ciudad Libre, 16 PNGs faltantes en `96i-arte-36.js` y `28-taller-ciudad`/`28-taller-estacion` sin usar en juego.
+- **Código tocado:** ninguno.
+
+#### 2026-11-27 · v3.12.1 (versionCode 44) · La pausa vuelve a pausar, la caminata, el pellizco y el cooperativo (Claude)
+- **De dónde sale:** las auditorías del 27‑nov (Gemini/Antigravity en `docs/AUDITORIA-CRITICA-2026-11-27.md` y Codex) y el OK del autor para arreglar antes de la muestra.
+- **Qué cambió:**
+  - `25-game.js:28`: **la pausa no detenía el juego.** El `if (this.paused) dt = 0;` había quedado dentro de un comentario desde la 3.6.0, el 23‑nov. Ahora en pausa el reloj del juego no avanza (comprobado en el navegador).
+  - `36-libre.js:210`: el final de la caminata (`if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;`) también estaba dentro de un comentario, desde el 21‑nov.
+  - `96g-ladeo-mitades.js`: el pellizco topaba en 3,2 y no llegaba a «casi tercera persona», que está en 3,6. Ahora llega al tope de la cámara (`Libre.ZU_MAX`).
+  - `80-multi.js`: el cooperativo botaba las acciones con forma de objeto, como `{k: 'sw', i}` de los cambiavías. Ahora `Multi.accion()` las valida: un objeto plano pequeño con claves y valores simples, copiado a un objeto nuevo.
+  - `tools/comentarios-tragados.mjs` (nuevo, lo corre `tools/test.mjs`): busca código tragado por un comentario de línea en `src/js`. Si encuentra alguno, la prueba falla.
+- **Qué se probó:** `node tools/test.mjs 100`: OK, 0 errores. La pausa, revisada en el navegador: jugando, el reloj del juego (`t`) avanza; en pausa, no.
+
 #### 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
 - **Lo que pidió el autor:**
   - «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los sistemas del Valle de Aburrá»;

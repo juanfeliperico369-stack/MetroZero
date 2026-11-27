@@ -2,7 +2,7 @@
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.12.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.12.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
