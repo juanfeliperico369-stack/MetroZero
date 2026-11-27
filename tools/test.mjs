@@ -70,5 +70,7 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal;
+const { tragados } = await import('./comentarios-tragados.mjs'), trag = tragados([new URL('../src/js', import.meta.url).pathname]);   /* 3.12.1 */
+console.log(trag.length ? 'código tragado por un comentario: ' + trag.length + ' ' + JSON.stringify(trag.slice(0, 5)) : 'comentarios: ninguno se traga código');
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal + trag.length;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);

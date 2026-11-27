@@ -207,11 +207,11 @@
           q.x = nx; q.y = ny;
           const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d);
           if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7);
-          else st.zoomU = clamp(pinch.z * f, .35, 3.2);
+          else st.zoomU = clamp(pinch.z * f, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4);   /* 3.12.1: el pellizco llega a «casi tercera persona» (antes topaba en 3,2) */
           return;
         }
         if (st.vista3 === 'cen3d' && T.size === 1) {
-          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
+          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
           else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); }
           q.x = nx; q.y = ny; return;
         }
