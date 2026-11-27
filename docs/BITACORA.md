@@ -1,5 +1,10 @@
 # Bitácora · El Metro
 
+## 2026-11-27 · Auditoría crítica y forense (solo documentación)
+- **Publicado:** `docs/AUDITORIA-CRITICA-2026-11-27.md` con capturas reales `412 × 860` en `docs/auditorias/img-2026-11-27/`.
+- **Hallazgos críticos (todos pasaron `test.mjs 100` con 0 errores):** Pausa 100 % rota por comentario `//` (`src/js/25-game.js:28`); caminar medio comentado (`src/js/36-libre.js:210`); multijugador cooperativo 100 % roto (`src/js/80-multi.js:109`); respaldo 2D y `medir()` falsos (`36-libre.js:43`, `96d-rendimiento.js`); pellizco bloqueado en `3.2 < 3.6` (`96g-ladeo-mitades.js:210`); *hi-hats* suenan con música apagada (`00-core.js:135,193`); 276,5 MB de heap JS, tramado ajedrezado tapando San Antonio, 13 de 17 botones `< 44 px` en Ciudad Libre, 16 PNGs faltantes en `96i-arte-36.js` y `28-taller-ciudad`/`28-taller-estacion` sin usar en juego.
+- **Código tocado:** ninguno.
+
 ## 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
 - **Lo que pidió el autor:**
   - «Agrega a El Metro y EnCicla un modo turismo de la ciudad y las estaciones para todos aquellos que no conozcan los sistemas del Valle de Aburrá»;
