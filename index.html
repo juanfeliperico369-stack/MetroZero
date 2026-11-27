@@ -875,7 +875,7 @@ const SUELOS = {"cancha":[[512.5,13897.9,17.9,10.2,0.337,0.9],[14085.8,13622.9,1
 </script>
 <script>
 'use strict';
-const EM = window.EM = { version: '3.12.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.12.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -4022,7 +4022,7 @@ const Game = EM.game = {
   freeze(on) { if (on) { cancelAnimationFrame(this.raf); this.raf = 0; } else if (!this.raf && this._loop && this.mode) { this.last = now(); this.raf = requestAnimationFrame(this._loop); } },
   stop() { cancelAnimationFrame(this.raf); this.raf = 0; this._loop = null; if (EM.camui) EM.camui.unmount(); if (this.mode && this.mode.unmount) this.mode.unmount(this.st); if (EM.g3 && EM.g3.cv) EM.g3.show(false); },
   frame() {
-    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw);   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo) if (this.paused) dt = 0;
+    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw); if (this.paused) dt = 0;   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo). 3.12.1: la pausa había quedado dentro de este comentario
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
     const cv = $('#gcv'); if (!cv.clientWidth || !cv.clientHeight) return; const { w, h } = fitCanvas(cv, q === 'low' ? 1 : q === 'auto' ? (this.dpr || 2) : 2), g = cv.getContext('2d');
@@ -6064,7 +6064,7 @@ const Libre = EM.modes.libre = {
   walk(st, dt) {
     const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5.2 : 2.4) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
     if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * (1 - Math.exp(-dt * 16)); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16)));   // 3.1 · igual a cualquier ritmo de cuadros if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16))); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;   // 3.1 · igual a cualquier ritmo de cuadros (3.12.1: estas tres órdenes habían quedado dentro del comentario)
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
@@ -9685,6 +9685,12 @@ const Multi = EM.multi = {
     UI.modal(`<div class="pag">Duelo en red</div><h2>${all[0][0].includes('(tú)') ? '¡Ganaste!' : 'Gana ' + esc(all[0][0])}</h2><div class="kv">${all.map(([n, s]) => `<b>${esc(n)}</b><span>${fmt(s)}</span>`).join('')}</div><p class="m">+${earn} 🎫 · los puntajes de los demás se actualizan cuando terminan.</p><button class="btn pri" id="dOk">Volver a la sala</button>`);
     $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
   },
+  accion(a) {
+    if (typeof a === 'number') return isFinite(a) ? a : null; if (typeof a === 'string') return a.length <= 32 ? a : null;
+    if (!a || typeof a !== 'object' || Array.isArray(a)) return null; const K = Object.keys(a); if (!K.length || K.length > 6) return null; const o = {};
+    for (const k of K) { const v = a[k]; if (!/^[a-zA-Z]{1,12}$/.test(k)) return null; if (typeof v === 'number' ? !isFinite(v) : typeof v === 'string' ? v.length > 32 : typeof v !== 'boolean') return null; o[k] = v; }
+    return o;
+  },
   nombre(v, def) { const t = typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16) : ''; return t || def; },
   onmsg(m) {
     if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
@@ -9694,7 +9700,7 @@ const Multi = EM.multi = {
       case 'roster': if (Net.role !== 'host' && m.p && typeof m.p === 'object') { const P = Object.create(null); P[0] = { name: this.nombre(m.host, 'Anfitrión') }; for (const k of Object.keys(m.p)) { if (!/^\d{1,3}$/.test(k) || +k === Net.myId || !m.p[k] || typeof m.p[k] !== 'object') continue; P[k] = { name: this.nombre(m.p[k].name, 'Jugador') }; } this.players = P; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
       case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
       case 'start': if (Net.role !== 'host' && NETMODES.includes(m.mode) && (m.kind === 'coop' || m.kind === 'duelo') && EM.modes[m.mode].levels().some(l => l.id === m.lv)) this.begin(m.mode, m.lv, m.kind, +m.seed || 1, false); break;
-      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && (typeof m.a === 'number' || (typeof m.a === 'string' && m.a.length <= 32))) Game.mode.act(Game.st, m.a); break;
+      case 'act': { const A = this.accion(m.a); if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && A !== null) Game.mode.act(Game.st, A); break; }   /* 3.12.1: también las acciones con forma de objeto ({k, i}: cambiavías, etc.), que antes se botaban */
       case 'st': if (Game.net && Game.net.guest && m.s && typeof m.s === 'object' && !Array.isArray(m.s)) { Game.st = m.s; } break;
       case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: this.nombre(m.name, 'Rival'), score: +m.score | 0, done: !!m.done }; break;
       case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const q = m.r && typeof m.r === 'object' ? m.r : {}, r = Game.mode.result(Game.st); if (isFinite(+q.score)) r.score = +q.score; if (q.stars != null) r.stars = clamp(q.stars | 0, 0, 3); if (q.win != null) r.win = !!q.win; Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
@@ -10497,11 +10503,11 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
           q.x = nx; q.y = ny;
           const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d);
           if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7);
-          else st.zoomU = clamp(pinch.z * f, .35, 3.2);
+          else st.zoomU = clamp(pinch.z * f, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4);   /* 3.12.1: el pellizco llega a «casi tercera persona» (antes topaba en 3,2) */
           return;
         }
         if (st.vista3 === 'cen3d' && T.size === 1) {
-          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
+          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
           else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); }
           q.x = nx; q.y = ny; return;
         }

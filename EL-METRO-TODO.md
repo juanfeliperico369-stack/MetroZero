@@ -1,6 +1,6 @@
 # EL METRO · DOCUMENTO ÚNICO PARA IA (TODO EN UNO)
 
-> **Versión del juego v3.12.0 · compilado el 2026-11-26.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
+> **Versión del juego v3.12.1 · compilado el 2026-11-27.** Este documento reúne **todo** el proyecto *El Metro* (videojuego del Metro de Medellín): protocolo, guía para IA, contexto, roles, encargos, skills, plan, bitácora, investigación de arte y el **código fuente completo** del juego.
 >
 > **SI ERES UNA IA:**
 > 1. Empieza por la **parte 0 (PROTOCOLO)** y síguelo al pie de la letra.
@@ -118,7 +118,7 @@
 
 ## El Metro · Todo en uno
 
-> Versión del juego **v3.12.0** · compilado el 2026-11-26.
+> Versión del juego **v3.12.1** · compilado el 2026-11-27.
 > **Si eres una IA:** sigue el **PROTOCOLO** (pestaña “⚠ Protocolo IA” o primera parte del documento): lee todo, reflexiona, responde el cuestionario, prueba, auto‑ajústate y solo entonces haz tu parte.
 
 Aquí está **todo** el proyecto:
@@ -800,6 +800,26 @@ G‑100 empieza cuando yo te envíe los mosaicos base. Una entrega parcial ya si
 
 ### ANEXO A · BITÁCORA DEL JUEGO (copia automática de `docs/BITACORA.md`)
 #### Bitácora · El Metro
+
+##### 2026-11-27 · Plan de Reconstrucción 3D v6 («Efecto GTA · Sistema Integrado en Relieve Real»)
+- **Publicado:** `docs/PLAN-RECONSTRUCCION-3D-V6.md` alineado con el plan maestro y la base ejecutable `motorcity/motor-v6/`.
+- **Qué define:** migración sobre el nuevo motor 3D compartido `motor-v6` usando los datos reales ya extraídos de `src/data/` (**12 Zonas Hero**, 5.407 edificios, 760 vías y 406 m de relieve real hasta Santo Domingo con 47,3 % de pendiente), trenes en escala SI (23 × 3,20 × 3,85 m sobre viaducto +6,80 m), cámara cenital única con auto-seguimiento y desvanecimiento alfa por edificio (fin del tramado ajedrezado y de los 276 MB de heap), parkour + acceso a 5 Skateparks cercanos a estaciones y migrador transparente de `elmetro.v1`.
+- **Código legado tocado:** ninguno (el nuevo núcleo v6 se inició en `motorcity/motor-v6/`).
+
+##### 2026-11-27 · Auditoría crítica y forense (solo documentación)
+- **Publicado:** `docs/AUDITORIA-CRITICA-2026-11-27.md` con capturas reales `412 × 860` en `docs/auditorias/img-2026-11-27/`.
+- **Hallazgos críticos (todos pasaron `test.mjs 100` con 0 errores):** Pausa 100 % rota por comentario `//` (`src/js/25-game.js:28`); caminar medio comentado (`src/js/36-libre.js:210`); multijugador cooperativo 100 % roto (`src/js/80-multi.js:109`); respaldo 2D y `medir()` falsos (`36-libre.js:43`, `96d-rendimiento.js`); pellizco bloqueado en `3.2 < 3.6` (`96g-ladeo-mitades.js:210`); *hi-hats* suenan con música apagada (`00-core.js:135,193`); 276,5 MB de heap JS, tramado ajedrezado tapando San Antonio, 13 de 17 botones `< 44 px` en Ciudad Libre, 16 PNGs faltantes en `96i-arte-36.js` y `28-taller-ciudad`/`28-taller-estacion` sin usar en juego.
+- **Código tocado:** ninguno.
+
+##### 2026-11-27 · v3.12.1 (versionCode 44) · La pausa vuelve a pausar, la caminata, el pellizco y el cooperativo (Claude)
+- **De dónde sale:** las auditorías del 27‑nov (Gemini/Antigravity en `docs/AUDITORIA-CRITICA-2026-11-27.md` y Codex) y el OK del autor para arreglar antes de la muestra.
+- **Qué cambió:**
+  - `25-game.js:28`: **la pausa no detenía el juego.** El `if (this.paused) dt = 0;` había quedado dentro de un comentario desde la 3.6.0, el 23‑nov. Ahora en pausa el reloj del juego no avanza (comprobado en el navegador).
+  - `36-libre.js:210`: el final de la caminata (`if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;`) también estaba dentro de un comentario, desde el 21‑nov.
+  - `96g-ladeo-mitades.js`: el pellizco topaba en 3,2 y no llegaba a «casi tercera persona», que está en 3,6. Ahora llega al tope de la cámara (`Libre.ZU_MAX`).
+  - `80-multi.js`: el cooperativo botaba las acciones con forma de objeto, como `{k: 'sw', i}` de los cambiavías. Ahora `Multi.accion()` las valida: un objeto plano pequeño con claves y valores simples, copiado a un objeto nuevo.
+  - `tools/comentarios-tragados.mjs` (nuevo, lo corre `tools/test.mjs`): busca código tragado por un comentario de línea en `src/js`. Si encuentra alguno, la prueba falla.
+- **Qué se probó:** `node tools/test.mjs 100`: OK, 0 errores. La pausa, revisada en el navegador: jugando, el reloj del juego (`t`) avanza; en pausa, no.
 
 ##### 2026-11-26 · v3.12.0 (versionCode 43) · 🧭 Turismo por el valle, y lo lejano también por partes (3.11.2) (Claude)
 - **Lo que pidió el autor:**
@@ -4024,7 +4044,7 @@ Las pruebas son `node tools/test.mjs 100`. El mapa de módulos y los comandos es
 - **`src/data/edificios.js`** (4465 KB): las casas y los edificios reales del valle (huella, pisos y uso), en binario comprimido por regiones de 640 m, más canchas, pistas, piscinas y campus (`SUELOS`). Lo genera `python3 tools/edificios_datos.py`; se usa con `VC.edifDe`, `VC.edifRegion` y `VC.dibEd` (`src/js/11-edificios.js`).
 - Las fuentes tipográficas y los íconos van embebidos al compilar.
 
-## Código fuente (145 archivos, 1840 KB)
+## Código fuente (146 archivos, 1843 KB)
 
 ### `src/head.html`
 ~~~~html
@@ -4592,7 +4612,7 @@ body.pant-clasica .joyzone{top:24%}
 /* =====================================================================
    EL METRO · núcleo: utilidades, guardado, sonido, música, interfaz
    ===================================================================== */
-const EM = window.EM = { version: '3.12.0', errors: [], headless: false, modes: {}, t0: Date.now() };
+const EM = window.EM = { version: '3.12.1', errors: [], headless: false, modes: {}, t0: Date.now() };
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -8279,7 +8299,7 @@ const Game = EM.game = {
   frame() {
     // tiempo real aunque el celular dé pocos cuadros: los modos con pasos cortos (substeps) avanzan lo que de verdad pasó, en pasos
     // de 1/30 s, y con su ritmo (escala: ×1, ×2, ×3); los demás, como siempre, con un tope de 50 ms por cuadro
-    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw);   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo) if (this.paused) dt = 0;
+    const t = now(), raw = Math.max(0, t - this.last), M = this.mode; this.last = t; let dt = M.substeps ? Math.min(.2, raw) : Math.min(.05, raw); if (this.paused) dt = 0;   // 3.6: hasta 0,2 s (tiempo real hasta ~5 cuadros por segundo). 3.12.1: la pausa había quedado dentro de este comentario
     // calidad automática: si los cuadros pasan de ~34 ms se baja la densidad de píxeles del lienzo (hasta 1); si sobran, se sube (hasta 2)
     if (raw > 0 && raw < .25) this.ft = this.ft ? this.ft * .95 + raw * .05 : raw;
     const q = Save.d.settings.q; if (q === 'auto' && this.ft) { const D = this.dpr || 2; if (this.ft > .034 && D > 1 && t - (this.dprT || 0) > 1.5) { this.dpr = Math.max(1, D - .25); this.dprT = t; } else if (this.ft < .019 && D < 2 && t - (this.dprT || 0) > 4) { this.dpr = Math.min(2, D + .25); this.dprT = t; } }
@@ -10636,7 +10656,7 @@ const Libre = EM.modes.libre = {
     // a pie con algo de peso: arranca y para en un instante corto y gira hacia donde apunta el joystick
     const j = this.joyMundo(st), m = j.m > .15, tile = st.z ? TT.ROAD : MAP.tileM(st.x, st.y), spd = m ? (st.run ? 5.2 : 2.4) * (tile === TT.MOUNT ? .45 : tile === TT.GRASS ? .85 : tile === TT.STEPS ? .6 : 1) * clamp(j.m, .3, 1) : 0;
     if (m) { const a = Math.atan2(j.y, j.x); st.wa = a; st.h += Math.atan2(Math.sin(a - st.h), Math.cos(a - st.h)) * (1 - Math.exp(-dt * 16)); }
-    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16)));   // 3.1 · igual a cualquier ritmo de cuadros if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;
+    const w0 = st.wv || 0; st.wv = w0 + (spd - w0) * (1 - Math.exp(-dt * (spd > w0 ? 11 : 16))); if (st.wv < .03) st.wv = 0; st.vf = st.wv; if (!st.wv) return;   // 3.1 · igual a cualquier ritmo de cuadros (3.12.1: estas tres órdenes habían quedado dentro del comentario)
     const a = st.wa != null ? st.wa : st.h, spdN = st.wv, nx = st.x + Math.cos(a) * spdN * dt, ny = st.y + Math.sin(a) * spdN * dt;
     const bloq = (x, y) => VC.on ? VC.solid(x, y, .35) : SOLID_W.has(MAP.tileM(x, y));   // a pie se anda por todo el mapa: solo frenan los edificios y el agua
     const mov = (x, y) => { const r = this.nivel(st, x, y, bloq, true); if (r[0]) { st.x = x; st.y = y; st.z = r[1]; } return r[0]; };
@@ -14714,6 +14734,14 @@ const Multi = EM.multi = {
     $('#dOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); };
   },
   /* lo que llega de otro celular no es confiable: se valida tipo por tipo y los nombres se limpian */
+  /* 3.12.1: una acción de red válida: un número, un texto corto o un objeto plano pequeño ({k: 'sw', i: 3}) con claves simples y valores
+     simples. Se copia a un objeto nuevo (nada de __proto__ ni anidados). Si no sirve, null. */
+  accion(a) {
+    if (typeof a === 'number') return isFinite(a) ? a : null; if (typeof a === 'string') return a.length <= 32 ? a : null;
+    if (!a || typeof a !== 'object' || Array.isArray(a)) return null; const K = Object.keys(a); if (!K.length || K.length > 6) return null; const o = {};
+    for (const k of K) { const v = a[k]; if (!/^[a-zA-Z]{1,12}$/.test(k)) return null; if (typeof v === 'number' ? !isFinite(v) : typeof v === 'string' ? v.length > 32 : typeof v !== 'boolean') return null; o[k] = v; }
+    return o;
+  },
   nombre(v, def) { const t = typeof v === 'string' ? v.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 16) : ''; return t || def; },
   onmsg(m) {
     if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
@@ -14723,7 +14751,7 @@ const Multi = EM.multi = {
       case 'roster': if (Net.role !== 'host' && m.p && typeof m.p === 'object') { const P = Object.create(null); P[0] = { name: this.nombre(m.host, 'Anfitrión') }; for (const k of Object.keys(m.p)) { if (!/^\d{1,3}$/.test(k) || +k === Net.myId || !m.p[k] || typeof m.p[k] !== 'object') continue; P[k] = { name: this.nombre(m.p[k].name, 'Jugador') }; } this.players = P; this.stat(); if (UI.cur === 'multi') this.lobby(); } break;
       case 'bye': delete this.players[from]; this.stat(); if (UI.cur === 'multi') this.lobby(); break;
       case 'start': if (Net.role !== 'host' && NETMODES.includes(m.mode) && (m.kind === 'coop' || m.kind === 'duelo') && EM.modes[m.mode].levels().some(l => l.id === m.lv)) this.begin(m.mode, m.lv, m.kind, +m.seed || 1, false); break;
-      case 'act': if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && (typeof m.a === 'number' || (typeof m.a === 'string' && m.a.length <= 32))) Game.mode.act(Game.st, m.a); break;
+      case 'act': { const A = this.accion(m.a); if (Net.role === 'host' && Game.net && Game.net.kind === 'coop' && Game.mode && A !== null) Game.mode.act(Game.st, A); break; }   /* 3.12.1: también las acciones con forma de objeto ({k, i}: cambiavías, etc.), que antes se botaban */
       case 'st': if (Game.net && Game.net.guest && m.s && typeof m.s === 'object' && !Array.isArray(m.s)) { Game.st = m.s; } break;
       case 'sc': if (Game.net && Game.net.rival) Game.net.rival[from] = { name: this.nombre(m.name, 'Rival'), score: +m.score | 0, done: !!m.done }; break;
       case 'end': if (Game.net && Game.net.guest) { Game.ended = true; const q = m.r && typeof m.r === 'object' ? m.r : {}, r = Game.mode.result(Game.st); if (isFinite(+q.score)) r.score = +q.score; if (q.stars != null) r.stars = clamp(q.stars | 0, 0, 3); if (q.win != null) r.win = !!q.win; Snd.play('win'); UI.modal(`<div class="pag">Cooperativo</div><h2>${r.win ? '¡Lo lograron!' : 'Fin'}</h2><div style="font-size:30px;color:var(--mostaza)">${'★'.repeat(r.stars | 0)}</div><p>Puntaje del equipo: <b>${fmt(r.score)}</b></p><button class="btn pri" id="eOk">Volver a la sala</button>`); $('#eOk').onclick = () => { UI.close(); Game.exit(); this.lobby(); }; } break;
@@ -15721,11 +15749,11 @@ const FRASES_CIUDAD = [{"t":"¡Uy, qué estrellón!","ev":["choque"]},{"t":"¡Av
           q.x = nx; q.y = ny;
           const [a, b] = [...T.values()], f = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(12, pinch.d);
           if (st.camLibre && !st.vista3) st.cam.k = clamp(pinch.k * f, .12, 7);
-          else st.zoomU = clamp(pinch.z * f, .35, 3.2);
+          else st.zoomU = clamp(pinch.z * f, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4);   /* 3.12.1: el pellizco llega a «casi tercera persona» (antes topaba en 3,2) */
           return;
         }
         if (st.vista3 === 'cen3d' && T.size === 1) {
-          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, 3.2); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
+          if (st.camLibre) { const sc = .35 / clamp(st.zoomU || 1, .35, (typeof Libre !== 'undefined' && Libre.ZU_MAX) || 4); st.cam.x -= (nx - q.x) * sc; st.cam.y -= (ny - q.y) * sc; }
           else { st.cpo = clamp((st.cpo || 0) + (ny - q.y) * .003, -.35, .45); }
           q.x = nx; q.y = ny; return;
         }
@@ -18841,6 +18869,33 @@ for nombre, (url, campos, geo, off) in CAPAS.items():
     print('listo', nombre, len(feats))
 ~~~~
 
+### `tools/comentarios-tragados.mjs`
+~~~~js
+/* 3.12.1 · Código tragado por un comentario.
+   Tres veces (18, 21 y 23‑nov) una IA agregó un comentario // al final de una línea que seguía con código, y ese código quedó muerto
+   (la pausa de El Metro, el final de la caminata y los árboles de las montañas de EnCicla). Este revisor busca, en src/js, un
+   comentario de línea que contenga órdenes de JavaScript (if (…) x = …; · ; const · return; · st.algo = …;). Lo corren las pruebas.
+   Uso: node tools/comentarios-tragados.mjs [carpeta…] → imprime los hallazgos; sale con 1 si hay alguno. */
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const RAIZ = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const RE = /(\bif \([^)]{1,80}\)\s*[\w.$[\]]+\s*(=|\+=|-=)[^;]{0,80};)|(;\s*(if|const|let|return|for)\b[ (])|(\breturn;)|(\b(st|this|G|C)\.[\w.]+\s*=\s*[^=;]{1,60};)/;
+export function tragados(dirs) {
+  const hall = [];
+  const revisar = f => fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
+    let k = -1, q = null;
+    for (let j = 0; j < l.length - 1; j++) { const c = l[j]; if (q) { if (c === '\\') j++; else if (c === q) q = null; continue; } if (c === '"' || c === "'" || c === '`') { q = c; continue; } if (c === '/' && l[j + 1] === '/' && l[j - 1] !== ':') { k = j; break; } }
+    if (k >= 0 && l.slice(0, k).trim() && RE.test(l.slice(k + 2))) hall.push(path.relative(RAIZ, f) + ':' + (i + 1) + ' · ' + l.slice(k + 2).trim().slice(0, 120));
+  });
+  const andar = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) andar(p); else if (/\.m?js$/.test(e.name)) revisar(p); } };
+  for (const d of dirs) andar(d);
+  return hall;
+}
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  const h = tragados(process.argv.length > 2 ? process.argv.slice(2) : [path.join(RAIZ, 'src/js')]);
+  console.log(h.length ? '✗ código tragado por un comentario:\n' + h.join('\n') : '✓ ningún comentario de línea se traga código'); process.exit(h.length ? 1 : 0);
+}
+~~~~
+
 ### `tools/corredores.mjs`
 ~~~~js
 #!/usr/bin/env node
@@ -21442,7 +21497,9 @@ const errs = await page.evaluate(() => EM.errors);
 console.log('errores capturados en el juego:', errs.length, errs.slice(0, 10));
 console.log('errores de consola:', cons.length, cons.slice(0, 10));
 await browser.close(); if (srv) srv.kill();
-const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal;
+const { tragados } = await import('./comentarios-tragados.mjs'), trag = tragados([new URL('../src/js', import.meta.url).pathname]);   /* 3.12.1 */
+console.log(trag.length ? 'código tragado por un comentario: ' + trag.length + ' ' + JSON.stringify(trag.slice(0, 5)) : 'comentarios: ninguno se traga código');
+const bad = self.errors.length + mk.errors.length + errs.length + cons.length + srvT.fallos.length + sonMal + trag.length;
 console.log(bad ? 'RESULTADO: ' + bad + ' problemas' : 'RESULTADO: OK, 0 errores'); process.exit(bad ? 1 : 0);
 ~~~~
 
@@ -23251,8 +23308,8 @@ android.nonTransitiveRClass=true
 # ---- El Metro (se pueden sobrescribir con -Pelmetro.xxx=valor) ----
 # Súbelos en cada versión que vayas a instalar encima de otra:
 # versionCode debe crecer siempre (Android no permite instalar un código menor).
-elmetro.versionName=3.12.0
-elmetro.versionCode=43
+elmetro.versionName=3.12.1
+elmetro.versionCode=44
 
 # SDK: tools/apk.sh instala exactamente estas versiones.
 elmetro.compileSdk=36
